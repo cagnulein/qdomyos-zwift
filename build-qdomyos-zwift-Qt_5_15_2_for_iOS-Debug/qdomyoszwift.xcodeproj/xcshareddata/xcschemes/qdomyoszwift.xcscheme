@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "799833E5566DEFFC37E4BF1E"
-               BuildableName = "qdomyoszwift.app"
+               BuildableName = "qdomyoszwift"
                BlueprintName = "qdomyoszwift"
                ReferencedContainer = "container:qdomyoszwift.xcodeproj">
             </BuildableReference>
@@ -23,26 +23,11 @@
       </BuildActionEntries>
    </BuildAction>
    <TestAction
-      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "NO"
-      disableMainThreadChecker = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "799833E5566DEFFC37E4BF1E"
-            BuildableName = "qdomyoszwift.app"
-            BlueprintName = "qdomyoszwift"
-            ReferencedContainer = "container:qdomyoszwift.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "$(TESTARGS)"
-            isEnabled = "YES">
-         </CommandLineArgument>
-      </CommandLineArguments>
+      disableMainThreadChecker = "YES"
+      buildConfiguration = "Debug">
       <Testables>
          <TestableReference
             skipped = "NO">
@@ -55,26 +40,39 @@
             </BuildableReference>
          </TestableReference>
       </Testables>
-   </TestAction>
-   <LaunchAction
-      buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      disableMainThreadChecker = "YES"
-      launchStyle = "0"
-      useCustomWorkingDirectory = "NO"
-      ignoresPersistentStateOnLaunch = "NO"
-      debugDocumentVersioning = "NO"
-      debugServiceExtension = "internal"
-      enableGPUFrameCaptureMode = "3"
-      enableGPUValidationMode = "1"
-      allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "799833E5566DEFFC37E4BF1E"
-            BuildableName = "qdomyoszwift.app"
+            BuildableName = "qdomyoszwift"
+            BlueprintName = "qdomyoszwift"
+            ReferencedContainer = "container:qdomyoszwift.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "$(TESTARGS)"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
+   </TestAction>
+   <LaunchAction
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      buildConfiguration = "Debug"
+      ignoresPersistentStateOnLaunch = "NO"
+      disableMainThreadChecker = "YES"
+      enableGPUFrameCaptureMode = "3"
+      enableGPUValidationMode = "1"
+      debugDocumentVersioning = "NO"
+      allowLocationSimulation = "YES">
+      <BuildableProductRunnable>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "799833E5566DEFFC37E4BF1E"
+            BuildableName = "qdomyoszwift"
             BlueprintName = "qdomyoszwift"
             ReferencedContainer = "container:qdomyoszwift.xcodeproj">
          </BuildableReference>
@@ -86,19 +84,20 @@
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
+      <AdditionalOptions>
+      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
-      buildConfiguration = "Release"
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
+      buildConfiguration = "Release"
       debugDocumentVersioning = "NO">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "799833E5566DEFFC37E4BF1E"
-            BuildableName = "qdomyoszwift.app"
+            BuildableName = "qdomyoszwift"
             BlueprintName = "qdomyoszwift"
             ReferencedContainer = "container:qdomyoszwift.xcodeproj">
          </BuildableReference>

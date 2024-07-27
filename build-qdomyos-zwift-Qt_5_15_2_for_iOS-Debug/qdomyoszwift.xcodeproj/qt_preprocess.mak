@@ -32,7 +32,9 @@ check: first
 
 benchmark: first
 
-compilers: qdomyoszwift_qmltyperegistrations.cpp qdomyoszwift.qmltypes moc_webserverinfosender.cpp.json moc_QTelnet.cpp.json moc_bkoolbike.cpp.json\
+compilers: qdomyoszwift_qmltyperegistrations.cpp qdomyoszwift.qmltypes moc_webserverinfosender.cpp.json moc_crossrope.cpp.json moc_focustreadmill.cpp.json\
+	 moc_jumprope.cpp.json moc_trxappgateusbelliptical.cpp.json moc_ergtable.cpp.json\
+	 moc_treadmillErgTable.cpp.json moc_QTelnet.cpp.json moc_bkoolbike.cpp.json\
 	 moc_csaferower.cpp.json moc_eliteariafan.cpp.json moc_proformtelnetbike.cpp.json\
 	 moc_windows_zwift_workout_paddleocr_thread.cpp.json moc_fakerower.cpp.json moc_PlayerStateWrapper.cpp.json\
 	 moc_zwift_client_auth.cpp.json moc_abstractZapDevice.cpp.json moc_zwiftPlayDevice.cpp.json\
@@ -88,7 +90,9 @@ compilers: qdomyoszwift_qmltyperegistrations.cpp qdomyoszwift.qmltypes moc_webse
 	 moc_windows_zwift_incline_paddleocr_thread.cpp.json moc_inappproductqmltype.cpp.json moc_inappstoreqmltype.cpp.json\
 	 moc_inappproduct.cpp.json moc_inapppurchasebackend.cpp.json moc_inappstore.cpp.json\
 	 moc_inapptransaction.cpp.json moc_iosinapppurchasebackend.cpp.json moc_iosinapppurchaseproduct.cpp.json\
-	 moc_iosinapppurchasetransaction.cpp.json qrc_icons.cpp qrc_qml.cpp moc_webserverinfosender.cpp moc_QTelnet.cpp moc_bkoolbike.cpp\
+	 moc_iosinapppurchasetransaction.cpp.json qrc_icons.cpp qrc_qml.cpp moc_webserverinfosender.cpp moc_crossrope.cpp moc_focustreadmill.cpp\
+	 moc_jumprope.cpp moc_trxappgateusbelliptical.cpp moc_ergtable.cpp\
+	 moc_treadmillErgTable.cpp moc_QTelnet.cpp moc_bkoolbike.cpp\
 	 moc_csaferower.cpp moc_eliteariafan.cpp moc_proformtelnetbike.cpp\
 	 moc_windows_zwift_workout_paddleocr_thread.cpp moc_fakerower.cpp moc_PlayerStateWrapper.cpp\
 	 moc_zwift_client_auth.cpp moc_abstractZapDevice.cpp moc_zwiftPlayDevice.cpp\
@@ -200,6 +204,8 @@ compilers: qdomyoszwift_qmltyperegistrations.cpp qdomyoszwift.qmltypes moc_webse
 	 qdomyoszwift_metatypes.json qdomyoszwift_metatypes.json qdomyoszwift_metatypes.json\
 	 qdomyoszwift_metatypes.json qdomyoszwift_metatypes.json qdomyoszwift_metatypes.json\
 	 qdomyoszwift_metatypes.json qdomyoszwift_metatypes.json qdomyoszwift_metatypes.json\
+	 qdomyoszwift_metatypes.json qdomyoszwift_metatypes.json qdomyoszwift_metatypes.json\
+	 qdomyoszwift_metatypes.json qdomyoszwift_metatypes.json qdomyoszwift_metatypes.json\
 	 qdomyoszwift_metatypes.json
 compiler_qmltyperegistrar_compiler_make_all: qdomyoszwift_qmltyperegistrations.cpp
 compiler_qmltyperegistrar_compiler_clean:
@@ -215,11 +221,11 @@ qdomyoszwift.qmltypes: qdomyoszwift_metatypes.json \
 	
 
 
-compiler_moc_json_header_make_all: moc_webserverinfosender.cpp.json moc_QTelnet.cpp.json moc_bkoolbike.cpp.json moc_csaferower.cpp.json moc_eliteariafan.cpp.json moc_proformtelnetbike.cpp.json moc_windows_zwift_workout_paddleocr_thread.cpp.json moc_fakerower.cpp.json moc_PlayerStateWrapper.cpp.json moc_zwift_client_auth.cpp.json moc_abstractZapDevice.cpp.json moc_zwiftPlayDevice.cpp.json moc_zwiftclickremote.cpp.json moc_virtualdevice.cpp.json moc_androidadblog.cpp.json moc_apexbike.cpp.json moc_handleurl.cpp.json moc_iconceptelliptical.cpp.json moc_pelotonbike.cpp.json moc_schwinn170bike.cpp.json moc_wahookickrheadwind.cpp.json moc_ypooelliptical.cpp.json moc_ziprotreadmill.cpp.json moc_characteristicwriteprocessore005.cpp.json moc_computrainerbike.cpp.json moc_fakeelliptical.cpp.json moc_faketreadmill.cpp.json moc_lifefitnesstreadmill.cpp.json moc_mepanelbike.cpp.json moc_nautilusbike.cpp.json moc_nordictrackelliptical.cpp.json moc_nordictrackifitadbbike.cpp.json moc_nordictrackifitadbtreadmill.cpp.json moc_octaneelliptical.cpp.json moc_octanetreadmill.cpp.json moc_proformellipticaltrainer.cpp.json moc_proformrower.cpp.json moc_proformwifibike.cpp.json moc_proformwifitreadmill.cpp.json moc_abstractserver.cpp.json moc_browser.cpp.json moc_cache.cpp.json moc_hostname.cpp.json moc_prober.cpp.json moc_provider.cpp.json moc_resolver.cpp.json moc_server.cpp.json moc_browser_p.cpp.json moc_cache_p.cpp.json moc_hostname_p.cpp.json moc_prober_p.cpp.json moc_provider_p.cpp.json moc_resolver_p.cpp.json moc_server_p.cpp.json moc_activiotreadmill.cpp.json moc_bhfitnesselliptical.cpp.json moc_bike.cpp.json moc_bluetooth.cpp.json moc_bluetoothdevice.cpp.json moc_characteristicnotifier.cpp.json moc_characteristicwriteprocessor.cpp.json moc_characteristicwriteprocessor2ad9.cpp.json moc_bowflext216treadmill.cpp.json moc_bowflextreadmill.cpp.json moc_chronobike.cpp.json moc_concept2skierg.cpp.json moc_cscbike.cpp.json moc_dirconmanager.cpp.json moc_dirconprocessor.cpp.json moc_domyoselliptical.cpp.json moc_domyosrower.cpp.json moc_domyostreadmill.cpp.json moc_echelonconnectsport.cpp.json moc_echelonrower.cpp.json moc_echelonstride.cpp.json moc_eliterizer.cpp.json moc_elitesterzosmart.cpp.json moc_elliptical.cpp.json moc_eslinkertreadmill.cpp.json moc_fakebike.cpp.json moc_filedownloader.cpp.json moc_fitmetria_fanfit.cpp.json moc_fitplusbike.cpp.json moc_ftmsrower.cpp.json moc_homefitnessbuddy.cpp.json moc_horizongr7bike.cpp.json moc_iconceptbike.cpp.json moc_keepbike.cpp.json moc_kingsmithr1protreadmill.cpp.json moc_kingsmithr2treadmill.cpp.json moc_m3ibike.cpp.json moc_fitshowtreadmill.cpp.json moc_flywheelbike.cpp.json moc_ftmsbike.cpp.json moc_heartratebelt.cpp.json moc_homeform.cpp.json moc_horizontreadmill.cpp.json moc_inspirebike.cpp.json moc_material.cpp.json moc_mcfbike.cpp.json moc_nautiluselliptical.cpp.json moc_nautilustreadmill.cpp.json moc_npecablebike.cpp.json moc_pafersbike.cpp.json moc_paferstreadmill.cpp.json moc_peloton.cpp.json moc_powerzonepack.cpp.json moc_proformbike.cpp.json moc_proformelliptical.cpp.json moc_proformtreadmill.cpp.json moc_qfit.cpp.json moc_renphobike.cpp.json moc_rower.cpp.json moc_schwinnic4bike.cpp.json moc_screencapture.cpp.json moc_shuaa5treadmill.cpp.json moc_skandikawiribike.cpp.json moc_smartrowrower.cpp.json moc_smartspin2k.cpp.json moc_emailaddress.cpp.json moc_mimeattachment.cpp.json moc_mimecontentformatter.cpp.json moc_mimefile.cpp.json moc_mimehtml.cpp.json moc_mimemultipart.cpp.json moc_mimepart.cpp.json moc_quotedprintable.cpp.json moc_smtpclient.cpp.json moc_snodebike.cpp.json moc_solebike.cpp.json moc_soleelliptical.cpp.json moc_solef80treadmill.cpp.json moc_spirittreadmill.cpp.json moc_sportsplusbike.cpp.json moc_sportstechbike.cpp.json moc_strydrunpowersensor.cpp.json moc_tacxneo2.cpp.json moc_tcpclientinfosender.cpp.json moc_technogymmyruntreadmill.cpp.json moc_technogymmyruntreadmillrfcomm.cpp.json moc_templateinfosender.cpp.json moc_templateinfosenderbuilder.cpp.json moc_stagesbike.cpp.json moc_toorxtreadmill.cpp.json moc_gpx.cpp.json moc_treadmill.cpp.json moc_mainwindow.cpp.json moc_trainprogram.cpp.json moc_truetreadmill.cpp.json moc_trxappgateusbbike.cpp.json moc_trxappgateusbtreadmill.cpp.json moc_ultrasportbike.cpp.json moc_virtualbike.cpp.json moc_virtualrower.cpp.json moc_virtualtreadmill.cpp.json moc_domyosbike.cpp.json moc_wahookickrsnapbike.cpp.json moc_wobjectdefs.cpp.json moc_yesoulbike.cpp.json moc_windows_zwift_incline_paddleocr_thread.cpp.json moc_inappproductqmltype.cpp.json moc_inappstoreqmltype.cpp.json moc_inappproduct.cpp.json moc_inapppurchasebackend.cpp.json moc_inappstore.cpp.json moc_inapptransaction.cpp.json moc_iosinapppurchasebackend.cpp.json moc_iosinapppurchaseproduct.cpp.json moc_iosinapppurchasetransaction.cpp.json
+compiler_moc_json_header_make_all: moc_webserverinfosender.cpp.json moc_crossrope.cpp.json moc_focustreadmill.cpp.json moc_jumprope.cpp.json moc_trxappgateusbelliptical.cpp.json moc_ergtable.cpp.json moc_treadmillErgTable.cpp.json moc_QTelnet.cpp.json moc_bkoolbike.cpp.json moc_csaferower.cpp.json moc_eliteariafan.cpp.json moc_proformtelnetbike.cpp.json moc_windows_zwift_workout_paddleocr_thread.cpp.json moc_fakerower.cpp.json moc_PlayerStateWrapper.cpp.json moc_zwift_client_auth.cpp.json moc_abstractZapDevice.cpp.json moc_zwiftPlayDevice.cpp.json moc_zwiftclickremote.cpp.json moc_virtualdevice.cpp.json moc_androidadblog.cpp.json moc_apexbike.cpp.json moc_handleurl.cpp.json moc_iconceptelliptical.cpp.json moc_pelotonbike.cpp.json moc_schwinn170bike.cpp.json moc_wahookickrheadwind.cpp.json moc_ypooelliptical.cpp.json moc_ziprotreadmill.cpp.json moc_characteristicwriteprocessore005.cpp.json moc_computrainerbike.cpp.json moc_fakeelliptical.cpp.json moc_faketreadmill.cpp.json moc_lifefitnesstreadmill.cpp.json moc_mepanelbike.cpp.json moc_nautilusbike.cpp.json moc_nordictrackelliptical.cpp.json moc_nordictrackifitadbbike.cpp.json moc_nordictrackifitadbtreadmill.cpp.json moc_octaneelliptical.cpp.json moc_octanetreadmill.cpp.json moc_proformellipticaltrainer.cpp.json moc_proformrower.cpp.json moc_proformwifibike.cpp.json moc_proformwifitreadmill.cpp.json moc_abstractserver.cpp.json moc_browser.cpp.json moc_cache.cpp.json moc_hostname.cpp.json moc_prober.cpp.json moc_provider.cpp.json moc_resolver.cpp.json moc_server.cpp.json moc_browser_p.cpp.json moc_cache_p.cpp.json moc_hostname_p.cpp.json moc_prober_p.cpp.json moc_provider_p.cpp.json moc_resolver_p.cpp.json moc_server_p.cpp.json moc_activiotreadmill.cpp.json moc_bhfitnesselliptical.cpp.json moc_bike.cpp.json moc_bluetooth.cpp.json moc_bluetoothdevice.cpp.json moc_characteristicnotifier.cpp.json moc_characteristicwriteprocessor.cpp.json moc_characteristicwriteprocessor2ad9.cpp.json moc_bowflext216treadmill.cpp.json moc_bowflextreadmill.cpp.json moc_chronobike.cpp.json moc_concept2skierg.cpp.json moc_cscbike.cpp.json moc_dirconmanager.cpp.json moc_dirconprocessor.cpp.json moc_domyoselliptical.cpp.json moc_domyosrower.cpp.json moc_domyostreadmill.cpp.json moc_echelonconnectsport.cpp.json moc_echelonrower.cpp.json moc_echelonstride.cpp.json moc_eliterizer.cpp.json moc_elitesterzosmart.cpp.json moc_elliptical.cpp.json moc_eslinkertreadmill.cpp.json moc_fakebike.cpp.json moc_filedownloader.cpp.json moc_fitmetria_fanfit.cpp.json moc_fitplusbike.cpp.json moc_ftmsrower.cpp.json moc_homefitnessbuddy.cpp.json moc_horizongr7bike.cpp.json moc_iconceptbike.cpp.json moc_keepbike.cpp.json moc_kingsmithr1protreadmill.cpp.json moc_kingsmithr2treadmill.cpp.json moc_m3ibike.cpp.json moc_fitshowtreadmill.cpp.json moc_flywheelbike.cpp.json moc_ftmsbike.cpp.json moc_heartratebelt.cpp.json moc_homeform.cpp.json moc_horizontreadmill.cpp.json moc_inspirebike.cpp.json moc_material.cpp.json moc_mcfbike.cpp.json moc_nautiluselliptical.cpp.json moc_nautilustreadmill.cpp.json moc_npecablebike.cpp.json moc_pafersbike.cpp.json moc_paferstreadmill.cpp.json moc_peloton.cpp.json moc_powerzonepack.cpp.json moc_proformbike.cpp.json moc_proformelliptical.cpp.json moc_proformtreadmill.cpp.json moc_qfit.cpp.json moc_renphobike.cpp.json moc_rower.cpp.json moc_schwinnic4bike.cpp.json moc_screencapture.cpp.json moc_shuaa5treadmill.cpp.json moc_skandikawiribike.cpp.json moc_smartrowrower.cpp.json moc_smartspin2k.cpp.json moc_emailaddress.cpp.json moc_mimeattachment.cpp.json moc_mimecontentformatter.cpp.json moc_mimefile.cpp.json moc_mimehtml.cpp.json moc_mimemultipart.cpp.json moc_mimepart.cpp.json moc_quotedprintable.cpp.json moc_smtpclient.cpp.json moc_snodebike.cpp.json moc_solebike.cpp.json moc_soleelliptical.cpp.json moc_solef80treadmill.cpp.json moc_spirittreadmill.cpp.json moc_sportsplusbike.cpp.json moc_sportstechbike.cpp.json moc_strydrunpowersensor.cpp.json moc_tacxneo2.cpp.json moc_tcpclientinfosender.cpp.json moc_technogymmyruntreadmill.cpp.json moc_technogymmyruntreadmillrfcomm.cpp.json moc_templateinfosender.cpp.json moc_templateinfosenderbuilder.cpp.json moc_stagesbike.cpp.json moc_toorxtreadmill.cpp.json moc_gpx.cpp.json moc_treadmill.cpp.json moc_mainwindow.cpp.json moc_trainprogram.cpp.json moc_truetreadmill.cpp.json moc_trxappgateusbbike.cpp.json moc_trxappgateusbtreadmill.cpp.json moc_ultrasportbike.cpp.json moc_virtualbike.cpp.json moc_virtualrower.cpp.json moc_virtualtreadmill.cpp.json moc_domyosbike.cpp.json moc_wahookickrsnapbike.cpp.json moc_wobjectdefs.cpp.json moc_yesoulbike.cpp.json moc_windows_zwift_incline_paddleocr_thread.cpp.json moc_inappproductqmltype.cpp.json moc_inappstoreqmltype.cpp.json moc_inappproduct.cpp.json moc_inapppurchasebackend.cpp.json moc_inappstore.cpp.json moc_inapptransaction.cpp.json moc_iosinapppurchasebackend.cpp.json moc_iosinapppurchaseproduct.cpp.json moc_iosinapppurchasetransaction.cpp.json
 compiler_moc_json_header_clean:
-	-$(DEL_FILE) moc_webserverinfosender.cpp.json moc_QTelnet.cpp.json moc_bkoolbike.cpp.json moc_csaferower.cpp.json moc_eliteariafan.cpp.json moc_proformtelnetbike.cpp.json moc_windows_zwift_workout_paddleocr_thread.cpp.json moc_fakerower.cpp.json moc_PlayerStateWrapper.cpp.json moc_zwift_client_auth.cpp.json moc_abstractZapDevice.cpp.json moc_zwiftPlayDevice.cpp.json moc_zwiftclickremote.cpp.json moc_virtualdevice.cpp.json moc_androidadblog.cpp.json moc_apexbike.cpp.json moc_handleurl.cpp.json moc_iconceptelliptical.cpp.json moc_pelotonbike.cpp.json moc_schwinn170bike.cpp.json moc_wahookickrheadwind.cpp.json moc_ypooelliptical.cpp.json moc_ziprotreadmill.cpp.json moc_characteristicwriteprocessore005.cpp.json moc_computrainerbike.cpp.json moc_fakeelliptical.cpp.json moc_faketreadmill.cpp.json moc_lifefitnesstreadmill.cpp.json moc_mepanelbike.cpp.json moc_nautilusbike.cpp.json moc_nordictrackelliptical.cpp.json moc_nordictrackifitadbbike.cpp.json moc_nordictrackifitadbtreadmill.cpp.json moc_octaneelliptical.cpp.json moc_octanetreadmill.cpp.json moc_proformellipticaltrainer.cpp.json moc_proformrower.cpp.json moc_proformwifibike.cpp.json moc_proformwifitreadmill.cpp.json moc_abstractserver.cpp.json moc_browser.cpp.json moc_cache.cpp.json moc_hostname.cpp.json moc_prober.cpp.json moc_provider.cpp.json moc_resolver.cpp.json moc_server.cpp.json moc_browser_p.cpp.json moc_cache_p.cpp.json moc_hostname_p.cpp.json moc_prober_p.cpp.json moc_provider_p.cpp.json moc_resolver_p.cpp.json moc_server_p.cpp.json moc_activiotreadmill.cpp.json moc_bhfitnesselliptical.cpp.json moc_bike.cpp.json moc_bluetooth.cpp.json moc_bluetoothdevice.cpp.json moc_characteristicnotifier.cpp.json moc_characteristicwriteprocessor.cpp.json moc_characteristicwriteprocessor2ad9.cpp.json moc_bowflext216treadmill.cpp.json moc_bowflextreadmill.cpp.json moc_chronobike.cpp.json moc_concept2skierg.cpp.json moc_cscbike.cpp.json moc_dirconmanager.cpp.json moc_dirconprocessor.cpp.json moc_domyoselliptical.cpp.json moc_domyosrower.cpp.json
-	-$(DEL_FILE) moc_domyostreadmill.cpp.json moc_echelonconnectsport.cpp.json moc_echelonrower.cpp.json moc_echelonstride.cpp.json moc_eliterizer.cpp.json moc_elitesterzosmart.cpp.json moc_elliptical.cpp.json moc_eslinkertreadmill.cpp.json moc_fakebike.cpp.json moc_filedownloader.cpp.json moc_fitmetria_fanfit.cpp.json moc_fitplusbike.cpp.json moc_ftmsrower.cpp.json moc_homefitnessbuddy.cpp.json moc_horizongr7bike.cpp.json moc_iconceptbike.cpp.json moc_keepbike.cpp.json moc_kingsmithr1protreadmill.cpp.json moc_kingsmithr2treadmill.cpp.json moc_m3ibike.cpp.json moc_fitshowtreadmill.cpp.json moc_flywheelbike.cpp.json moc_ftmsbike.cpp.json moc_heartratebelt.cpp.json moc_homeform.cpp.json moc_horizontreadmill.cpp.json moc_inspirebike.cpp.json moc_material.cpp.json moc_mcfbike.cpp.json moc_nautiluselliptical.cpp.json moc_nautilustreadmill.cpp.json moc_npecablebike.cpp.json moc_pafersbike.cpp.json moc_paferstreadmill.cpp.json moc_peloton.cpp.json moc_powerzonepack.cpp.json moc_proformbike.cpp.json moc_proformelliptical.cpp.json moc_proformtreadmill.cpp.json moc_qfit.cpp.json moc_renphobike.cpp.json moc_rower.cpp.json moc_schwinnic4bike.cpp.json moc_screencapture.cpp.json moc_shuaa5treadmill.cpp.json moc_skandikawiribike.cpp.json moc_smartrowrower.cpp.json moc_smartspin2k.cpp.json moc_emailaddress.cpp.json moc_mimeattachment.cpp.json moc_mimecontentformatter.cpp.json moc_mimefile.cpp.json moc_mimehtml.cpp.json moc_mimemultipart.cpp.json moc_mimepart.cpp.json moc_quotedprintable.cpp.json moc_smtpclient.cpp.json moc_snodebike.cpp.json moc_solebike.cpp.json moc_soleelliptical.cpp.json moc_solef80treadmill.cpp.json moc_spirittreadmill.cpp.json moc_sportsplusbike.cpp.json moc_sportstechbike.cpp.json moc_strydrunpowersensor.cpp.json moc_tacxneo2.cpp.json moc_tcpclientinfosender.cpp.json moc_technogymmyruntreadmill.cpp.json moc_technogymmyruntreadmillrfcomm.cpp.json moc_templateinfosender.cpp.json moc_templateinfosenderbuilder.cpp.json moc_stagesbike.cpp.json moc_toorxtreadmill.cpp.json moc_gpx.cpp.json moc_treadmill.cpp.json
-	-$(DEL_FILE) moc_mainwindow.cpp.json moc_trainprogram.cpp.json moc_truetreadmill.cpp.json moc_trxappgateusbbike.cpp.json moc_trxappgateusbtreadmill.cpp.json moc_ultrasportbike.cpp.json moc_virtualbike.cpp.json moc_virtualrower.cpp.json moc_virtualtreadmill.cpp.json moc_domyosbike.cpp.json moc_wahookickrsnapbike.cpp.json moc_wobjectdefs.cpp.json moc_yesoulbike.cpp.json moc_windows_zwift_incline_paddleocr_thread.cpp.json moc_inappproductqmltype.cpp.json moc_inappstoreqmltype.cpp.json moc_inappproduct.cpp.json moc_inapppurchasebackend.cpp.json moc_inappstore.cpp.json moc_inapptransaction.cpp.json moc_iosinapppurchasebackend.cpp.json moc_iosinapppurchaseproduct.cpp.json moc_iosinapppurchasetransaction.cpp.json
+	-$(DEL_FILE) moc_webserverinfosender.cpp.json moc_crossrope.cpp.json moc_focustreadmill.cpp.json moc_jumprope.cpp.json moc_trxappgateusbelliptical.cpp.json moc_ergtable.cpp.json moc_treadmillErgTable.cpp.json moc_QTelnet.cpp.json moc_bkoolbike.cpp.json moc_csaferower.cpp.json moc_eliteariafan.cpp.json moc_proformtelnetbike.cpp.json moc_windows_zwift_workout_paddleocr_thread.cpp.json moc_fakerower.cpp.json moc_PlayerStateWrapper.cpp.json moc_zwift_client_auth.cpp.json moc_abstractZapDevice.cpp.json moc_zwiftPlayDevice.cpp.json moc_zwiftclickremote.cpp.json moc_virtualdevice.cpp.json moc_androidadblog.cpp.json moc_apexbike.cpp.json moc_handleurl.cpp.json moc_iconceptelliptical.cpp.json moc_pelotonbike.cpp.json moc_schwinn170bike.cpp.json moc_wahookickrheadwind.cpp.json moc_ypooelliptical.cpp.json moc_ziprotreadmill.cpp.json moc_characteristicwriteprocessore005.cpp.json moc_computrainerbike.cpp.json moc_fakeelliptical.cpp.json moc_faketreadmill.cpp.json moc_lifefitnesstreadmill.cpp.json moc_mepanelbike.cpp.json moc_nautilusbike.cpp.json moc_nordictrackelliptical.cpp.json moc_nordictrackifitadbbike.cpp.json moc_nordictrackifitadbtreadmill.cpp.json moc_octaneelliptical.cpp.json moc_octanetreadmill.cpp.json moc_proformellipticaltrainer.cpp.json moc_proformrower.cpp.json moc_proformwifibike.cpp.json moc_proformwifitreadmill.cpp.json moc_abstractserver.cpp.json moc_browser.cpp.json moc_cache.cpp.json moc_hostname.cpp.json moc_prober.cpp.json moc_provider.cpp.json moc_resolver.cpp.json moc_server.cpp.json moc_browser_p.cpp.json moc_cache_p.cpp.json moc_hostname_p.cpp.json moc_prober_p.cpp.json moc_provider_p.cpp.json moc_resolver_p.cpp.json moc_server_p.cpp.json moc_activiotreadmill.cpp.json moc_bhfitnesselliptical.cpp.json moc_bike.cpp.json moc_bluetooth.cpp.json moc_bluetoothdevice.cpp.json moc_characteristicnotifier.cpp.json moc_characteristicwriteprocessor.cpp.json moc_characteristicwriteprocessor2ad9.cpp.json moc_bowflext216treadmill.cpp.json moc_bowflextreadmill.cpp.json moc_chronobike.cpp.json
+	-$(DEL_FILE) moc_concept2skierg.cpp.json moc_cscbike.cpp.json moc_dirconmanager.cpp.json moc_dirconprocessor.cpp.json moc_domyoselliptical.cpp.json moc_domyosrower.cpp.json moc_domyostreadmill.cpp.json moc_echelonconnectsport.cpp.json moc_echelonrower.cpp.json moc_echelonstride.cpp.json moc_eliterizer.cpp.json moc_elitesterzosmart.cpp.json moc_elliptical.cpp.json moc_eslinkertreadmill.cpp.json moc_fakebike.cpp.json moc_filedownloader.cpp.json moc_fitmetria_fanfit.cpp.json moc_fitplusbike.cpp.json moc_ftmsrower.cpp.json moc_homefitnessbuddy.cpp.json moc_horizongr7bike.cpp.json moc_iconceptbike.cpp.json moc_keepbike.cpp.json moc_kingsmithr1protreadmill.cpp.json moc_kingsmithr2treadmill.cpp.json moc_m3ibike.cpp.json moc_fitshowtreadmill.cpp.json moc_flywheelbike.cpp.json moc_ftmsbike.cpp.json moc_heartratebelt.cpp.json moc_homeform.cpp.json moc_horizontreadmill.cpp.json moc_inspirebike.cpp.json moc_material.cpp.json moc_mcfbike.cpp.json moc_nautiluselliptical.cpp.json moc_nautilustreadmill.cpp.json moc_npecablebike.cpp.json moc_pafersbike.cpp.json moc_paferstreadmill.cpp.json moc_peloton.cpp.json moc_powerzonepack.cpp.json moc_proformbike.cpp.json moc_proformelliptical.cpp.json moc_proformtreadmill.cpp.json moc_qfit.cpp.json moc_renphobike.cpp.json moc_rower.cpp.json moc_schwinnic4bike.cpp.json moc_screencapture.cpp.json moc_shuaa5treadmill.cpp.json moc_skandikawiribike.cpp.json moc_smartrowrower.cpp.json moc_smartspin2k.cpp.json moc_emailaddress.cpp.json moc_mimeattachment.cpp.json moc_mimecontentformatter.cpp.json moc_mimefile.cpp.json moc_mimehtml.cpp.json moc_mimemultipart.cpp.json moc_mimepart.cpp.json moc_quotedprintable.cpp.json moc_smtpclient.cpp.json moc_snodebike.cpp.json moc_solebike.cpp.json moc_soleelliptical.cpp.json moc_solef80treadmill.cpp.json moc_spirittreadmill.cpp.json moc_sportsplusbike.cpp.json moc_sportstechbike.cpp.json moc_strydrunpowersensor.cpp.json moc_tacxneo2.cpp.json moc_tcpclientinfosender.cpp.json moc_technogymmyruntreadmill.cpp.json moc_technogymmyruntreadmillrfcomm.cpp.json
+	-$(DEL_FILE) moc_templateinfosender.cpp.json moc_templateinfosenderbuilder.cpp.json moc_stagesbike.cpp.json moc_toorxtreadmill.cpp.json moc_gpx.cpp.json moc_treadmill.cpp.json moc_mainwindow.cpp.json moc_trainprogram.cpp.json moc_truetreadmill.cpp.json moc_trxappgateusbbike.cpp.json moc_trxappgateusbtreadmill.cpp.json moc_ultrasportbike.cpp.json moc_virtualbike.cpp.json moc_virtualrower.cpp.json moc_virtualtreadmill.cpp.json moc_domyosbike.cpp.json moc_wahookickrsnapbike.cpp.json moc_wobjectdefs.cpp.json moc_yesoulbike.cpp.json moc_windows_zwift_incline_paddleocr_thread.cpp.json moc_inappproductqmltype.cpp.json moc_inappstoreqmltype.cpp.json moc_inappproduct.cpp.json moc_inapppurchasebackend.cpp.json moc_inappstore.cpp.json moc_inapptransaction.cpp.json moc_iosinapppurchasebackend.cpp.json moc_iosinapppurchaseproduct.cpp.json moc_iosinapppurchasetransaction.cpp.json
 moc_webserverinfosender.cpp.json: ../src/webserverinfosender.h \
 		../src/templateinfosender.h \
 		../../Qt/5.15.2/ios/include/QtQml/QJSEngine \
@@ -231,6 +237,180 @@ moc_webserverinfosender.cpp.json: ../src/webserverinfosender.h \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkCookie \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkCookieJar \
 		moc_webserverinfosender.cpp
+	
+
+
+moc_crossrope.cpp.json: ../src/devices/crossrope/crossrope.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristicdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycontroller.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergydescriptordata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
+		../../Qt/5.15.2/ios/include/QtCore/qbytearray.h \
+		../../Qt/5.15.2/ios/include/QtCore/qcoreapplication.h \
+		../../Qt/5.15.2/ios/include/QtGui/qguiapplication.h \
+		../../Qt/5.15.2/ios/include/QtCore/qlist.h \
+		../../Qt/5.15.2/ios/include/QtCore/qmutex.h \
+		../../Qt/5.15.2/ios/include/QtCore/qscopedpointer.h \
+		../../Qt/5.15.2/ios/include/QtCore/qtimer.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDateTime \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
+		../src/devices/jumprope.h \
+		../src/devices/bluetoothdevice.h \
+		../src/definitions.h \
+		../src/metric.h \
+		../src/qdebugfixup.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDebug \
+		../src/sessionline.h \
+		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
+		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/qzsettings.h \
+		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
+		../src/virtualdevices/virtualdevice.h \
+		moc_crossrope.cpp
+	
+
+
+moc_focustreadmill.cpp.json: ../src/devices/focustreadmill/focustreadmill.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristicdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycontroller.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergydescriptordata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
+		../../Qt/5.15.2/ios/include/QtCore/qbytearray.h \
+		../../Qt/5.15.2/ios/include/QtCore/qcoreapplication.h \
+		../../Qt/5.15.2/ios/include/QtGui/qguiapplication.h \
+		../../Qt/5.15.2/ios/include/QtCore/qlist.h \
+		../../Qt/5.15.2/ios/include/QtCore/qmutex.h \
+		../../Qt/5.15.2/ios/include/QtCore/qscopedpointer.h \
+		../../Qt/5.15.2/ios/include/QtCore/qtimer.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDateTime \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
+		../src/devices/treadmill.h \
+		../src/devices/bluetoothdevice.h \
+		../src/definitions.h \
+		../src/metric.h \
+		../src/qdebugfixup.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDebug \
+		../src/sessionline.h \
+		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
+		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/qzsettings.h \
+		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
+		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
+		moc_focustreadmill.cpp
+	
+
+
+moc_jumprope.cpp.json: ../src/devices/jumprope.h \
+		../src/devices/bluetoothdevice.h \
+		../src/definitions.h \
+		../src/metric.h \
+		../src/qdebugfixup.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDebug \
+		../src/sessionline.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDateTime \
+		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
+		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/qzsettings.h \
+		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristicdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycontroller.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergydescriptordata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
+		../src/virtualdevices/virtualdevice.h \
+		moc_jumprope.cpp
+	
+
+
+moc_trxappgateusbelliptical.cpp.json: ../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristicdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycontroller.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergydescriptordata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
+		../../Qt/5.15.2/ios/include/QtCore/qbytearray.h \
+		../../Qt/5.15.2/ios/include/QtCore/qcoreapplication.h \
+		../../Qt/5.15.2/ios/include/QtGui/qguiapplication.h \
+		../../Qt/5.15.2/ios/include/QtCore/qlist.h \
+		../../Qt/5.15.2/ios/include/QtCore/qmutex.h \
+		../../Qt/5.15.2/ios/include/QtCore/qscopedpointer.h \
+		../../Qt/5.15.2/ios/include/QtCore/qtimer.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDateTime \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
+		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/devices/elliptical.h \
+		../src/devices/bluetoothdevice.h \
+		../src/definitions.h \
+		../src/metric.h \
+		../src/qdebugfixup.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDebug \
+		../src/sessionline.h \
+		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
+		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
+		../src/virtualdevices/virtualdevice.h \
+		../src/ios/lockscreen.h \
+		moc_trxappgateusbelliptical.cpp
+	
+
+
+moc_ergtable.cpp.json: ../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
+		../../Qt/5.15.2/ios/include/QtCore/QDebug \
+		../../Qt/5.15.2/ios/include/QtCore/QDateTime \
+		../src/qzsettings.h \
+		../../Qt/5.15.2/ios/include/QtCore/QString \
+		moc_ergtable.cpp
+	
+
+
+moc_treadmillErgTable.cpp.json: ../src/treadmillErgTable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
+		../../Qt/5.15.2/ios/include/QtCore/QDebug \
+		../../Qt/5.15.2/ios/include/QtCore/QDateTime \
+		../src/qzsettings.h \
+		../../Qt/5.15.2/ios/include/QtCore/QString \
+		moc_treadmillErgTable.cpp
 	
 
 
@@ -273,6 +453,9 @@ moc_bkoolbike.cpp.json: ../src/devices/bkoolbike/bkoolbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -290,12 +473,10 @@ moc_bkoolbike.cpp.json: ../src/devices/bkoolbike/bkoolbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -349,6 +530,8 @@ moc_csaferower.cpp.json: ../src/devices/csaferower/csaferower.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -366,7 +549,6 @@ moc_csaferower.cpp.json: ../src/devices/csaferower/csaferower.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
@@ -424,6 +606,9 @@ moc_eliteariafan.cpp.json: ../src/devices/eliteariafan/eliteariafan.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		moc_eliteariafan.cpp
@@ -464,6 +649,8 @@ moc_proformtelnetbike.cpp.json: ../src/devices/proformtelnetbike/proformtelnetbi
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
@@ -494,7 +681,6 @@ moc_proformtelnetbike.cpp.json: ../src/devices/proformtelnetbike/proformtelnetbi
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -530,9 +716,12 @@ moc_windows_zwift_workout_paddleocr_thread.cpp.json: ../src/windows_zwift_workou
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -581,6 +770,9 @@ moc_fakerower.cpp.json: ../src/devices/fakerower/fakerower.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -666,6 +858,9 @@ moc_zwiftclickremote.cpp.json: ../src/zwift_play/zwiftclickremote.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/zwift_play/zwiftPlayDevice.h \
@@ -721,6 +916,9 @@ moc_apexbike.cpp.json: ../src/devices/apexbike/apexbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -738,12 +936,10 @@ moc_apexbike.cpp.json: ../src/devices/apexbike/apexbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -801,6 +997,9 @@ moc_iconceptelliptical.cpp.json: ../src/devices/iconceptelliptical/iconceptellip
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -818,12 +1017,10 @@ moc_iconceptelliptical.cpp.json: ../src/devices/iconceptelliptical/iconceptellip
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -839,6 +1036,7 @@ moc_iconceptelliptical.cpp.json: ../src/devices/iconceptelliptical/iconceptellip
 		../../Qt/5.15.2/ios/include/QtNetwork/QTcpSocket \
 		../src/virtualdevices/virtualtreadmill.h \
 		../src/devices/treadmill.h \
+		../src/treadmillErgTable.h \
 		moc_iconceptelliptical.cpp
 	
 
@@ -865,6 +1063,9 @@ moc_pelotonbike.cpp.json: ../src/devices/pelotonbike/pelotonbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
@@ -891,12 +1092,10 @@ moc_pelotonbike.cpp.json: ../src/devices/pelotonbike/pelotonbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -944,6 +1143,9 @@ moc_schwinn170bike.cpp.json: ../src/devices/schwinn170bike/schwinn170bike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -961,12 +1163,10 @@ moc_schwinn170bike.cpp.json: ../src/devices/schwinn170bike/schwinn170bike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -1014,6 +1214,9 @@ moc_wahookickrheadwind.cpp.json: ../src/devices/wahookickrheadwind/wahookickrhea
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		moc_wahookickrheadwind.cpp
@@ -1050,6 +1253,9 @@ moc_ypooelliptical.cpp.json: ../src/devices/ypooelliptical/ypooelliptical.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -1067,12 +1273,10 @@ moc_ypooelliptical.cpp.json: ../src/devices/ypooelliptical/ypooelliptical.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -1088,6 +1292,7 @@ moc_ypooelliptical.cpp.json: ../src/devices/ypooelliptical/ypooelliptical.h \
 		../../Qt/5.15.2/ios/include/QtNetwork/QTcpSocket \
 		../src/virtualdevices/virtualtreadmill.h \
 		../src/devices/treadmill.h \
+		../src/treadmillErgTable.h \
 		moc_ypooelliptical.cpp
 	
 
@@ -1122,8 +1327,12 @@ moc_ziprotreadmill.cpp.json: ../src/devices/ziprotreadmill/ziprotreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		moc_ziprotreadmill.cpp
 	
 
@@ -1140,9 +1349,12 @@ moc_characteristicwriteprocessore005.cpp.json: ../src/characteristics/characteri
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -1153,7 +1365,6 @@ moc_characteristicwriteprocessore005.cpp.json: ../src/characteristics/characteri
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
 		../src/virtualdevices/virtualdevice.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		moc_characteristicwriteprocessore005.cpp
 	
@@ -1189,6 +1400,8 @@ moc_computrainerbike.cpp.json: ../src/devices/computrainerbike/computrainerbike.
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
@@ -1219,7 +1432,6 @@ moc_computrainerbike.cpp.json: ../src/devices/computrainerbike/computrainerbike.
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -1267,6 +1479,9 @@ moc_fakeelliptical.cpp.json: ../src/devices/fakeelliptical/fakeelliptical.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -1304,8 +1519,12 @@ moc_faketreadmill.cpp.json: ../src/devices/faketreadmill/faketreadmill.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/virtualdevices/virtualbike.h \
 		../../Qt/5.15.2/ios/include/QtCore/qloggingcategory.h \
 		../src/ios/lockscreen.h \
@@ -1321,12 +1540,10 @@ moc_faketreadmill.cpp.json: ../src/devices/faketreadmill/faketreadmill.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -1375,8 +1592,12 @@ moc_lifefitnesstreadmill.cpp.json: ../src/devices/lifefitnesstreadmill/lifefitne
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/virtualdevices/virtualbike.h \
 		../../Qt/5.15.2/ios/include/QtCore/qloggingcategory.h \
 		../src/ios/lockscreen.h \
@@ -1392,12 +1613,10 @@ moc_lifefitnesstreadmill.cpp.json: ../src/devices/lifefitnesstreadmill/lifefitne
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -1446,6 +1665,9 @@ moc_mepanelbike.cpp.json: ../src/devices/mepanelbike/mepanelbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -1463,12 +1685,10 @@ moc_mepanelbike.cpp.json: ../src/devices/mepanelbike/mepanelbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -1516,6 +1736,9 @@ moc_nautilusbike.cpp.json: ../src/devices/nautilusbike/nautilusbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -1533,12 +1756,10 @@ moc_nautilusbike.cpp.json: ../src/devices/nautilusbike/nautilusbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -1586,6 +1807,9 @@ moc_nordictrackelliptical.cpp.json: ../src/devices/nordictrackelliptical/nordict
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -1616,6 +1840,9 @@ moc_nordictrackifitadbbike.cpp.json: ../src/devices/nordictrackifitadbbike/nordi
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
@@ -1642,12 +1869,10 @@ moc_nordictrackifitadbbike.cpp.json: ../src/devices/nordictrackifitadbbike/nordi
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -1688,6 +1913,9 @@ moc_nordictrackifitadbtreadmill.cpp.json: ../src/devices/nordictrackifitadbtread
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
@@ -1699,6 +1927,7 @@ moc_nordictrackifitadbtreadmill.cpp.json: ../src/devices/nordictrackifitadbtread
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		moc_nordictrackifitadbtreadmill.cpp
 	
@@ -1734,12 +1963,16 @@ moc_octaneelliptical.cpp.json: ../src/devices/octaneelliptical/octaneelliptical.
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualtreadmill.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/include/QtCore/qloggingcategory.h \
 		../src/devices/treadmill.h \
+		../src/treadmillErgTable.h \
 		../src/devices/dircon/dirconmanager.h \
 		../src/characteristics/characteristicnotifier2a37.h \
 		../src/characteristics/characteristicnotifier.h \
@@ -1752,12 +1985,10 @@ moc_octaneelliptical.cpp.json: ../src/devices/octaneelliptical/octaneelliptical.
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -1805,8 +2036,12 @@ moc_octanetreadmill.cpp.json: ../src/devices/octanetreadmill/octanetreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		moc_octanetreadmill.cpp
 	
 
@@ -1841,6 +2076,9 @@ moc_proformellipticaltrainer.cpp.json: ../src/devices/proformellipticaltrainer/p
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -1878,6 +2116,9 @@ moc_proformrower.cpp.json: ../src/devices/proformrower/proformrower.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -1919,6 +2160,8 @@ moc_proformwifibike.cpp.json: ../src/devices/proformwifibike/proformwifibike.h \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
@@ -1949,7 +2192,6 @@ moc_proformwifibike.cpp.json: ../src/devices/proformwifibike/proformwifibike.h \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -2001,6 +2243,8 @@ moc_proformwifitreadmill.cpp.json: ../src/devices/proformwifitreadmill/proformwi
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
@@ -2012,6 +2256,7 @@ moc_proformwifitreadmill.cpp.json: ../src/devices/proformwifitreadmill/proformwi
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		moc_proformwifitreadmill.cpp
 	
@@ -2199,8 +2444,12 @@ moc_activiotreadmill.cpp.json: ../src/devices/activiotreadmill/activiotreadmill.
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		moc_activiotreadmill.cpp
 	
@@ -2236,6 +2485,9 @@ moc_bhfitnesselliptical.cpp.json: ../src/devices/bhfitnesselliptical/bhfitnessel
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -2255,9 +2507,12 @@ moc_bike.cpp.json: ../src/devices/bike.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -2288,12 +2543,10 @@ moc_bike.cpp.json: ../src/devices/bike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -2345,8 +2598,12 @@ moc_bluetooth.cpp.json: ../src/devices/bluetooth.h \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../src/devices/apexbike/apexbike.h \
 		../src/devices/bike.h \
@@ -2363,12 +2620,10 @@ moc_bluetooth.cpp.json: ../src/devices/bluetooth.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -2403,6 +2658,8 @@ moc_bluetooth.cpp.json: ../src/devices/bluetooth.h \
 		../src/devices/rower.h \
 		../src/virtualdevices/virtualrower.h \
 		../src/devices/concept2skierg/concept2skierg.h \
+		../src/devices/crossrope/crossrope.h \
+		../src/devices/jumprope.h \
 		../src/devices/cscbike/cscbike.h \
 		../src/devices/domyosbike/domyosbike.h \
 		../src/devices/domyoselliptical/domyoselliptical.h \
@@ -2427,6 +2684,7 @@ moc_bluetooth.cpp.json: ../src/devices/bluetooth.h \
 		../../Qt/5.15.2/ios/include/QtCore/qstring.h \
 		../src/devices/flywheelbike/flywheelbike.h \
 		../src/devices/ftmsrower/ftmsrower.h \
+		../src/devices/focustreadmill/focustreadmill.h \
 		../src/devices/heartratebelt/heartratebelt.h \
 		../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/devices/horizontreadmill/horizontreadmill.h \
@@ -2505,6 +2763,7 @@ moc_bluetooth.cpp.json: ../src/devices/bluetooth.h \
 		../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../src/devices/truetreadmill/truetreadmill.h \
 		../src/devices/trxappgateusbbike/trxappgateusbbike.h \
+		../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 		../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 		../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/devices/wahookickrheadwind/wahookickrheadwind.h \
@@ -2532,9 +2791,12 @@ moc_bluetoothdevice.cpp.json: ../src/devices/bluetoothdevice.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -2566,9 +2828,12 @@ moc_characteristicwriteprocessor.cpp.json: ../src/characteristics/characteristic
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -2578,7 +2843,6 @@ moc_characteristicwriteprocessor.cpp.json: ../src/characteristics/characteristic
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
 		../src/virtualdevices/virtualdevice.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		moc_characteristicwriteprocessor.cpp
 	
@@ -2597,9 +2861,12 @@ moc_characteristicwriteprocessor2ad9.cpp.json: ../src/characteristics/characteri
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -2611,7 +2878,6 @@ moc_characteristicwriteprocessor2ad9.cpp.json: ../src/characteristics/characteri
 		../src/virtualdevices/virtualdevice.h \
 		../src/characteristics/characteristicnotifier.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		moc_characteristicwriteprocessor2ad9.cpp
 	
@@ -2647,8 +2913,12 @@ moc_bowflext216treadmill.cpp.json: ../src/devices/bowflext216treadmill/bowflext2
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		moc_bowflext216treadmill.cpp
 	
 
@@ -2683,8 +2953,12 @@ moc_bowflextreadmill.cpp.json: ../src/devices/bowflextreadmill/bowflextreadmill.
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		moc_bowflextreadmill.cpp
 	
 
@@ -2719,6 +2993,9 @@ moc_chronobike.cpp.json: ../src/devices/chronobike/chronobike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -2736,12 +3013,10 @@ moc_chronobike.cpp.json: ../src/devices/chronobike/chronobike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -2789,6 +3064,9 @@ moc_concept2skierg.cpp.json: ../src/devices/concept2skierg/concept2skierg.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -2826,6 +3104,9 @@ moc_cscbike.cpp.json: ../src/devices/cscbike/cscbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -2843,12 +3124,10 @@ moc_cscbike.cpp.json: ../src/devices/cscbike/cscbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -2878,9 +3157,12 @@ moc_dirconmanager.cpp.json: ../src/devices/dircon/dirconmanager.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -2901,12 +3183,10 @@ moc_dirconmanager.cpp.json: ../src/devices/dircon/dirconmanager.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -2937,9 +3217,12 @@ moc_dirconprocessor.cpp.json: ../src/devices/dircon/dirconprocessor.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -2949,11 +3232,9 @@ moc_dirconprocessor.cpp.json: ../src/devices/dircon/dirconprocessor.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
 		../src/virtualdevices/virtualdevice.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
 		../../Qt/5.15.2/ios/include/QtCore/QtGlobal \
@@ -3000,6 +3281,9 @@ moc_domyoselliptical.cpp.json: ../src/devices/domyoselliptical/domyoselliptical.
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		moc_domyoselliptical.cpp
@@ -3036,6 +3320,9 @@ moc_domyosrower.cpp.json: ../src/devices/domyosrower/domyosrower.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -3073,8 +3360,12 @@ moc_domyostreadmill.cpp.json: ../src/devices/domyostreadmill/domyostreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		moc_domyostreadmill.cpp
 	
@@ -3110,6 +3401,9 @@ moc_echelonconnectsport.cpp.json: ../src/devices/echelonconnectsport/echelonconn
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -3127,12 +3421,10 @@ moc_echelonconnectsport.cpp.json: ../src/devices/echelonconnectsport/echelonconn
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -3181,6 +3473,9 @@ moc_echelonrower.cpp.json: ../src/devices/echelonrower/echelonrower.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -3218,8 +3513,12 @@ moc_echelonstride.cpp.json: ../src/devices/echelonstride/echelonstride.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		moc_echelonstride.cpp
 	
@@ -3255,6 +3554,9 @@ moc_eliterizer.cpp.json: ../src/devices/eliterizer/eliterizer.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -3272,12 +3574,10 @@ moc_eliterizer.cpp.json: ../src/devices/eliterizer/eliterizer.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -3326,6 +3626,9 @@ moc_elitesterzosmart.cpp.json: ../src/devices/elitesterzosmart/elitesterzosmart.
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -3343,12 +3646,10 @@ moc_elitesterzosmart.cpp.json: ../src/devices/elitesterzosmart/elitesterzosmart.
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -3379,9 +3680,12 @@ moc_elliptical.cpp.json: ../src/devices/elliptical.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -3425,8 +3729,12 @@ moc_eslinkertreadmill.cpp.json: ../src/devices/eslinkertreadmill/eslinkertreadmi
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		moc_eslinkertreadmill.cpp
 	
 
@@ -3461,6 +3769,9 @@ moc_fakebike.cpp.json: ../src/devices/fakebike/fakebike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -3478,12 +3789,10 @@ moc_fakebike.cpp.json: ../src/devices/fakebike/fakebike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -3541,6 +3850,9 @@ moc_fitmetria_fanfit.cpp.json: ../src/devices/fitmetria_fanfit/fitmetria_fanfit.
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		moc_fitmetria_fanfit.cpp
@@ -3577,6 +3889,9 @@ moc_fitplusbike.cpp.json: ../src/devices/fitplusbike/fitplusbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -3594,12 +3909,10 @@ moc_fitplusbike.cpp.json: ../src/devices/fitplusbike/fitplusbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -3647,6 +3960,9 @@ moc_ftmsrower.cpp.json: ../src/devices/ftmsrower/ftmsrower.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -3664,12 +3980,10 @@ moc_ftmsrower.cpp.json: ../src/devices/ftmsrower/ftmsrower.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -3723,8 +4037,12 @@ moc_homefitnessbuddy.cpp.json: ../src/homefitnessbuddy.h \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../src/devices/apexbike/apexbike.h \
 		../src/devices/bike.h \
@@ -3741,12 +4059,10 @@ moc_homefitnessbuddy.cpp.json: ../src/homefitnessbuddy.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -3781,6 +4097,8 @@ moc_homefitnessbuddy.cpp.json: ../src/homefitnessbuddy.h \
 		../src/devices/rower.h \
 		../src/virtualdevices/virtualrower.h \
 		../src/devices/concept2skierg/concept2skierg.h \
+		../src/devices/crossrope/crossrope.h \
+		../src/devices/jumprope.h \
 		../src/devices/cscbike/cscbike.h \
 		../src/devices/domyosbike/domyosbike.h \
 		../src/devices/domyoselliptical/domyoselliptical.h \
@@ -3805,6 +4123,7 @@ moc_homefitnessbuddy.cpp.json: ../src/homefitnessbuddy.h \
 		../../Qt/5.15.2/ios/include/QtCore/qstring.h \
 		../src/devices/flywheelbike/flywheelbike.h \
 		../src/devices/ftmsrower/ftmsrower.h \
+		../src/devices/focustreadmill/focustreadmill.h \
 		../src/devices/heartratebelt/heartratebelt.h \
 		../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/devices/horizontreadmill/horizontreadmill.h \
@@ -3883,6 +4202,7 @@ moc_homefitnessbuddy.cpp.json: ../src/homefitnessbuddy.h \
 		../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../src/devices/truetreadmill/truetreadmill.h \
 		../src/devices/trxappgateusbbike/trxappgateusbbike.h \
+		../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 		../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 		../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/devices/wahookickrheadwind/wahookickrheadwind.h \
@@ -3903,6 +4223,7 @@ moc_homefitnessbuddy.cpp.json: ../src/homefitnessbuddy.h \
 		../../Qt/5.15.2/ios/include/QtCore/QCoreApplication \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkRequest \
 		../../Qt/5.15.2/ios/include/QtCore/QUrl \
+		../src/zwift-api/zwift_messages.pb.h \
 		moc_homefitnessbuddy.cpp
 	
 
@@ -3937,6 +4258,9 @@ moc_horizongr7bike.cpp.json: ../src/devices/horizongr7bike/horizongr7bike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -3954,12 +4278,10 @@ moc_horizongr7bike.cpp.json: ../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -4009,6 +4331,9 @@ moc_iconceptbike.cpp.json: ../src/devices/iconceptbike/iconceptbike.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -4026,12 +4351,10 @@ moc_iconceptbike.cpp.json: ../src/devices/iconceptbike/iconceptbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -4079,6 +4402,9 @@ moc_keepbike.cpp.json: ../src/devices/keepbike/keepbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -4096,12 +4422,10 @@ moc_keepbike.cpp.json: ../src/devices/keepbike/keepbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -4149,8 +4473,12 @@ moc_kingsmithr1protreadmill.cpp.json: ../src/devices/kingsmithr1protreadmill/kin
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		moc_kingsmithr1protreadmill.cpp
 	
@@ -4187,8 +4515,12 @@ moc_kingsmithr2treadmill.cpp.json: ../src/devices/kingsmithr2treadmill/kingsmith
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		moc_kingsmithr2treadmill.cpp
 	
@@ -4224,6 +4556,9 @@ moc_m3ibike.cpp.json: ../src/devices/m3ibike/m3ibike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -4241,12 +4576,10 @@ moc_m3ibike.cpp.json: ../src/devices/m3ibike/m3ibike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -4296,8 +4629,12 @@ moc_fitshowtreadmill.cpp.json: ../src/devices/fitshowtreadmill/fitshowtreadmill.
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/virtualdevices/virtualtreadmill.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/include/QtCore/qloggingcategory.h \
@@ -4313,12 +4650,10 @@ moc_fitshowtreadmill.cpp.json: ../src/devices/fitshowtreadmill/fitshowtreadmill.
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -4366,6 +4701,9 @@ moc_flywheelbike.cpp.json: ../src/devices/flywheelbike/flywheelbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -4383,12 +4721,10 @@ moc_flywheelbike.cpp.json: ../src/devices/flywheelbike/flywheelbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -4436,6 +4772,9 @@ moc_ftmsbike.cpp.json: ../src/devices/ftmsbike/ftmsbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -4453,12 +4792,10 @@ moc_ftmsbike.cpp.json: ../src/devices/ftmsbike/ftmsbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -4507,8 +4844,12 @@ moc_heartratebelt.cpp.json: ../src/devices/heartratebelt/heartratebelt.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		moc_heartratebelt.cpp
 	
 
@@ -4557,8 +4898,12 @@ moc_homeform.cpp.json: ../src/homeform.h \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../src/devices/apexbike/apexbike.h \
 		../src/devices/bike.h \
@@ -4575,12 +4920,10 @@ moc_homeform.cpp.json: ../src/homeform.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -4615,6 +4958,8 @@ moc_homeform.cpp.json: ../src/homeform.h \
 		../src/devices/rower.h \
 		../src/virtualdevices/virtualrower.h \
 		../src/devices/concept2skierg/concept2skierg.h \
+		../src/devices/crossrope/crossrope.h \
+		../src/devices/jumprope.h \
 		../src/devices/cscbike/cscbike.h \
 		../src/devices/domyosbike/domyosbike.h \
 		../src/devices/domyoselliptical/domyoselliptical.h \
@@ -4639,6 +4984,7 @@ moc_homeform.cpp.json: ../src/homeform.h \
 		../../Qt/5.15.2/ios/include/QtCore/qstring.h \
 		../src/devices/flywheelbike/flywheelbike.h \
 		../src/devices/ftmsrower/ftmsrower.h \
+		../src/devices/focustreadmill/focustreadmill.h \
 		../src/devices/heartratebelt/heartratebelt.h \
 		../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/devices/horizontreadmill/horizontreadmill.h \
@@ -4717,6 +5063,7 @@ moc_homeform.cpp.json: ../src/homeform.h \
 		../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../src/devices/truetreadmill/truetreadmill.h \
 		../src/devices/trxappgateusbbike/trxappgateusbbike.h \
+		../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 		../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 		../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/devices/wahookickrheadwind/wahookickrheadwind.h \
@@ -4743,6 +5090,7 @@ moc_homeform.cpp.json: ../src/homeform.h \
 		../../Qt/5.15.2/ios/include/QtCore/QCoreApplication \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkRequest \
 		../../Qt/5.15.2/ios/include/QtCore/QUrl \
+		../src/zwift-api/zwift_messages.pb.h \
 		../src/filedownloader.h \
 		../src/homefitnessbuddy.h \
 		../src/qmdnsengine/src/include/qmdnsengine/browser.h \
@@ -4805,8 +5153,12 @@ moc_horizontreadmill.cpp.json: ../src/devices/horizontreadmill/horizontreadmill.
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		moc_horizontreadmill.cpp
 	
@@ -4842,6 +5194,9 @@ moc_inspirebike.cpp.json: ../src/devices/inspirebike/inspirebike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -4859,12 +5214,10 @@ moc_inspirebike.cpp.json: ../src/devices/inspirebike/inspirebike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -4919,6 +5272,9 @@ moc_mcfbike.cpp.json: ../src/devices/mcfbike/mcfbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -4936,12 +5292,10 @@ moc_mcfbike.cpp.json: ../src/devices/mcfbike/mcfbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -4989,6 +5343,9 @@ moc_nautiluselliptical.cpp.json: ../src/devices/nautiluselliptical/nautilusellip
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		moc_nautiluselliptical.cpp
@@ -5025,8 +5382,12 @@ moc_nautilustreadmill.cpp.json: ../src/devices/nautilustreadmill/nautilustreadmi
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		moc_nautilustreadmill.cpp
 	
 
@@ -5061,6 +5422,9 @@ moc_npecablebike.cpp.json: ../src/devices/npecablebike/npecablebike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -5078,12 +5442,10 @@ moc_npecablebike.cpp.json: ../src/devices/npecablebike/npecablebike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -5131,6 +5493,9 @@ moc_pafersbike.cpp.json: ../src/devices/pafersbike/pafersbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -5148,12 +5513,10 @@ moc_pafersbike.cpp.json: ../src/devices/pafersbike/pafersbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -5201,8 +5564,12 @@ moc_paferstreadmill.cpp.json: ../src/devices/paferstreadmill/paferstreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		moc_paferstreadmill.cpp
 	
 
@@ -5242,8 +5609,12 @@ moc_peloton.cpp.json: ../src/peloton.h \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../src/devices/apexbike/apexbike.h \
 		../src/devices/bike.h \
@@ -5260,12 +5631,10 @@ moc_peloton.cpp.json: ../src/peloton.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -5300,6 +5669,8 @@ moc_peloton.cpp.json: ../src/peloton.h \
 		../src/devices/rower.h \
 		../src/virtualdevices/virtualrower.h \
 		../src/devices/concept2skierg/concept2skierg.h \
+		../src/devices/crossrope/crossrope.h \
+		../src/devices/jumprope.h \
 		../src/devices/cscbike/cscbike.h \
 		../src/devices/domyosbike/domyosbike.h \
 		../src/devices/domyoselliptical/domyoselliptical.h \
@@ -5324,6 +5695,7 @@ moc_peloton.cpp.json: ../src/peloton.h \
 		../../Qt/5.15.2/ios/include/QtCore/qstring.h \
 		../src/devices/flywheelbike/flywheelbike.h \
 		../src/devices/ftmsrower/ftmsrower.h \
+		../src/devices/focustreadmill/focustreadmill.h \
 		../src/devices/heartratebelt/heartratebelt.h \
 		../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/devices/horizontreadmill/horizontreadmill.h \
@@ -5402,6 +5774,7 @@ moc_peloton.cpp.json: ../src/peloton.h \
 		../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../src/devices/truetreadmill/truetreadmill.h \
 		../src/devices/trxappgateusbbike/trxappgateusbbike.h \
+		../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 		../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 		../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/devices/wahookickrheadwind/wahookickrheadwind.h \
@@ -5423,6 +5796,7 @@ moc_peloton.cpp.json: ../src/peloton.h \
 		../../Qt/5.15.2/ios/include/QtCore/QCoreApplication \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkRequest \
 		../../Qt/5.15.2/ios/include/QtCore/QUrl \
+		../src/zwift-api/zwift_messages.pb.h \
 		../src/filedownloader.h \
 		../src/homefitnessbuddy.h \
 		moc_peloton.cpp
@@ -5478,8 +5852,11 @@ moc_powerzonepack.cpp.json: ../src/powerzonepack.h \
 		../../Qt/5.15.2/ios/include/QtCore/QDebug \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../src/devices/apexbike/apexbike.h \
 		../src/devices/bike.h \
@@ -5500,7 +5877,6 @@ moc_powerzonepack.cpp.json: ../src/powerzonepack.h \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -5534,6 +5910,8 @@ moc_powerzonepack.cpp.json: ../src/powerzonepack.h \
 		../src/devices/rower.h \
 		../src/virtualdevices/virtualrower.h \
 		../src/devices/concept2skierg/concept2skierg.h \
+		../src/devices/crossrope/crossrope.h \
+		../src/devices/jumprope.h \
 		../src/devices/cscbike/cscbike.h \
 		../src/devices/domyosbike/domyosbike.h \
 		../src/devices/domyoselliptical/domyoselliptical.h \
@@ -5558,6 +5936,7 @@ moc_powerzonepack.cpp.json: ../src/powerzonepack.h \
 		../../Qt/5.15.2/ios/include/QtCore/qstring.h \
 		../src/devices/flywheelbike/flywheelbike.h \
 		../src/devices/ftmsrower/ftmsrower.h \
+		../src/devices/focustreadmill/focustreadmill.h \
 		../src/devices/heartratebelt/heartratebelt.h \
 		../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/devices/horizontreadmill/horizontreadmill.h \
@@ -5625,6 +6004,7 @@ moc_powerzonepack.cpp.json: ../src/powerzonepack.h \
 		../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../src/devices/truetreadmill/truetreadmill.h \
 		../src/devices/trxappgateusbbike/trxappgateusbbike.h \
+		../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 		../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 		../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/devices/wahookickrheadwind/wahookickrheadwind.h \
@@ -5644,6 +6024,7 @@ moc_powerzonepack.cpp.json: ../src/powerzonepack.h \
 		../../Qt/5.15.2/ios/include/QtCore/QCoreApplication \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkRequest \
 		../../Qt/5.15.2/ios/include/QtCore/QUrl \
+		../src/zwift-api/zwift_messages.pb.h \
 		moc_powerzonepack.cpp
 	
 
@@ -5678,6 +6059,9 @@ moc_proformbike.cpp.json: ../src/devices/proformbike/proformbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -5695,12 +6079,10 @@ moc_proformbike.cpp.json: ../src/devices/proformbike/proformbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -5748,6 +6130,9 @@ moc_proformelliptical.cpp.json: ../src/devices/proformelliptical/proformelliptic
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -5785,8 +6170,12 @@ moc_proformtreadmill.cpp.json: ../src/devices/proformtreadmill/proformtreadmill.
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		moc_proformtreadmill.cpp
 	
@@ -5804,9 +6193,12 @@ moc_qfit.cpp.json: ../src/qfit.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -5855,6 +6247,9 @@ moc_renphobike.cpp.json: ../src/devices/renphobike/renphobike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -5872,12 +6267,10 @@ moc_renphobike.cpp.json: ../src/devices/renphobike/renphobike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -5907,9 +6300,12 @@ moc_rower.cpp.json: ../src/devices/rower.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -5953,6 +6349,9 @@ moc_schwinnic4bike.cpp.json: ../src/devices/schwinnic4bike/schwinnic4bike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -5970,12 +6369,10 @@ moc_schwinnic4bike.cpp.json: ../src/devices/schwinnic4bike/schwinnic4bike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -6029,8 +6426,12 @@ moc_shuaa5treadmill.cpp.json: ../src/devices/shuaa5treadmill/shuaa5treadmill.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		moc_shuaa5treadmill.cpp
 	
@@ -6066,6 +6467,9 @@ moc_skandikawiribike.cpp.json: ../src/devices/skandikawiribike/skandikawiribike.
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -6083,12 +6487,10 @@ moc_skandikawiribike.cpp.json: ../src/devices/skandikawiribike/skandikawiribike.
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -6136,6 +6538,9 @@ moc_smartrowrower.cpp.json: ../src/devices/smartrowrower/smartrowrower.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -6174,6 +6579,9 @@ moc_smartspin2k.cpp.json: ../src/devices/smartspin2k/smartspin2k.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -6191,12 +6599,10 @@ moc_smartspin2k.cpp.json: ../src/devices/smartspin2k/smartspin2k.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -6335,6 +6741,9 @@ moc_snodebike.cpp.json: ../src/devices/snodebike/snodebike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -6352,12 +6761,10 @@ moc_snodebike.cpp.json: ../src/devices/snodebike/snodebike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -6405,6 +6812,9 @@ moc_solebike.cpp.json: ../src/devices/solebike/solebike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -6422,12 +6832,10 @@ moc_solebike.cpp.json: ../src/devices/solebike/solebike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -6475,6 +6883,9 @@ moc_soleelliptical.cpp.json: ../src/devices/soleelliptical/soleelliptical.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		moc_soleelliptical.cpp
@@ -6511,8 +6922,12 @@ moc_solef80treadmill.cpp.json: ../src/devices/solef80treadmill/solef80treadmill.
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		moc_solef80treadmill.cpp
 	
@@ -6549,8 +6964,12 @@ moc_spirittreadmill.cpp.json: ../src/devices/spirittreadmill/spirittreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		moc_spirittreadmill.cpp
 	
 
@@ -6586,6 +7005,9 @@ moc_sportsplusbike.cpp.json: ../src/devices/sportsplusbike/sportsplusbike.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -6603,12 +7025,10 @@ moc_sportsplusbike.cpp.json: ../src/devices/sportsplusbike/sportsplusbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -6657,6 +7077,9 @@ moc_sportstechbike.cpp.json: ../src/devices/sportstechbike/sportstechbike.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -6674,12 +7097,10 @@ moc_sportstechbike.cpp.json: ../src/devices/sportstechbike/sportstechbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -6727,8 +7148,12 @@ moc_strydrunpowersensor.cpp.json: ../src/devices/strydrunpowersensor/strydrunpow
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		moc_strydrunpowersensor.cpp
 	
@@ -6764,6 +7189,9 @@ moc_tacxneo2.cpp.json: ../src/devices/tacxneo2/tacxneo2.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -6781,12 +7209,10 @@ moc_tacxneo2.cpp.json: ../src/devices/tacxneo2/tacxneo2.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -6845,8 +7271,12 @@ moc_technogymmyruntreadmill.cpp.json: ../src/devices/technogymmyruntreadmill/tec
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		moc_technogymmyruntreadmill.cpp
 	
@@ -6884,8 +7314,12 @@ moc_technogymmyruntreadmillrfcomm.cpp.json: ../src/devices/technogymmyruntreadmi
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		moc_technogymmyruntreadmillrfcomm.cpp
 	
 
@@ -6911,9 +7345,12 @@ moc_templateinfosenderbuilder.cpp.json: ../src/templateinfosenderbuilder.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -6925,7 +7362,6 @@ moc_templateinfosenderbuilder.cpp.json: ../src/templateinfosenderbuilder.h \
 		../src/virtualdevices/virtualdevice.h \
 		../src/templateinfosender.h \
 		../../Qt/5.15.2/ios/include/QtQml/QJSEngine \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QHash \
 		../../Qt/5.15.2/ios/include/QtCore/QJsonArray \
 		moc_templateinfosenderbuilder.cpp
@@ -6962,6 +7398,9 @@ moc_stagesbike.cpp.json: ../src/devices/stagesbike/stagesbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -6979,12 +7418,10 @@ moc_stagesbike.cpp.json: ../src/devices/stagesbike/stagesbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -7034,8 +7471,12 @@ moc_toorxtreadmill.cpp.json: ../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		moc_toorxtreadmill.cpp
 	
 
@@ -7052,9 +7493,12 @@ moc_gpx.cpp.json: ../src/gpx.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -7082,9 +7526,12 @@ moc_treadmill.cpp.json: ../src/devices/treadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -7094,6 +7541,7 @@ moc_treadmill.cpp.json: ../src/devices/treadmill.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		moc_treadmill.cpp
 	
 
@@ -7129,8 +7577,12 @@ moc_mainwindow.cpp.json: ../src/mainwindow.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../src/trainprogram.h \
 		../src/devices/bluetooth.h \
@@ -7153,12 +7605,10 @@ moc_mainwindow.cpp.json: ../src/mainwindow.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -7193,6 +7643,8 @@ moc_mainwindow.cpp.json: ../src/mainwindow.h \
 		../src/devices/rower.h \
 		../src/virtualdevices/virtualrower.h \
 		../src/devices/concept2skierg/concept2skierg.h \
+		../src/devices/crossrope/crossrope.h \
+		../src/devices/jumprope.h \
 		../src/devices/cscbike/cscbike.h \
 		../src/devices/domyosbike/domyosbike.h \
 		../src/devices/domyoselliptical/domyoselliptical.h \
@@ -7216,6 +7668,7 @@ moc_mainwindow.cpp.json: ../src/mainwindow.h \
 		../../Qt/5.15.2/ios/include/QtCore/qstring.h \
 		../src/devices/flywheelbike/flywheelbike.h \
 		../src/devices/ftmsrower/ftmsrower.h \
+		../src/devices/focustreadmill/focustreadmill.h \
 		../src/devices/heartratebelt/heartratebelt.h \
 		../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/devices/horizontreadmill/horizontreadmill.h \
@@ -7294,6 +7747,7 @@ moc_mainwindow.cpp.json: ../src/mainwindow.h \
 		../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../src/devices/truetreadmill/truetreadmill.h \
 		../src/devices/trxappgateusbbike/trxappgateusbbike.h \
+		../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 		../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 		../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/devices/wahookickrheadwind/wahookickrheadwind.h \
@@ -7313,6 +7767,7 @@ moc_mainwindow.cpp.json: ../src/mainwindow.h \
 		../../Qt/5.15.2/ios/include/QtCore/QCoreApplication \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkRequest \
 		../../Qt/5.15.2/ios/include/QtCore/QUrl \
+		../src/zwift-api/zwift_messages.pb.h \
 		../../Qt/5.15.2/ios/include/QtWidgets/QDialog \
 		../../Qt/5.15.2/ios/include/QtWidgets/QTableWidgetItem \
 		moc_mainwindow.cpp
@@ -7354,8 +7809,12 @@ moc_trainprogram.cpp.json: ../src/trainprogram.h \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../src/devices/apexbike/apexbike.h \
 		../src/devices/bike.h \
@@ -7372,12 +7831,10 @@ moc_trainprogram.cpp.json: ../src/trainprogram.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -7412,6 +7869,8 @@ moc_trainprogram.cpp.json: ../src/trainprogram.h \
 		../src/devices/rower.h \
 		../src/virtualdevices/virtualrower.h \
 		../src/devices/concept2skierg/concept2skierg.h \
+		../src/devices/crossrope/crossrope.h \
+		../src/devices/jumprope.h \
 		../src/devices/cscbike/cscbike.h \
 		../src/devices/domyosbike/domyosbike.h \
 		../src/devices/domyoselliptical/domyoselliptical.h \
@@ -7436,6 +7895,7 @@ moc_trainprogram.cpp.json: ../src/trainprogram.h \
 		../../Qt/5.15.2/ios/include/QtCore/qstring.h \
 		../src/devices/flywheelbike/flywheelbike.h \
 		../src/devices/ftmsrower/ftmsrower.h \
+		../src/devices/focustreadmill/focustreadmill.h \
 		../src/devices/heartratebelt/heartratebelt.h \
 		../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/devices/horizontreadmill/horizontreadmill.h \
@@ -7514,6 +7974,7 @@ moc_trainprogram.cpp.json: ../src/trainprogram.h \
 		../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../src/devices/truetreadmill/truetreadmill.h \
 		../src/devices/trxappgateusbbike/trxappgateusbbike.h \
+		../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 		../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 		../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/devices/wahookickrheadwind/wahookickrheadwind.h \
@@ -7533,6 +7994,7 @@ moc_trainprogram.cpp.json: ../src/trainprogram.h \
 		../../Qt/5.15.2/ios/include/QtCore/QCoreApplication \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkRequest \
 		../../Qt/5.15.2/ios/include/QtCore/QUrl \
+		../src/zwift-api/zwift_messages.pb.h \
 		moc_trainprogram.cpp
 	
 
@@ -7567,8 +8029,12 @@ moc_truetreadmill.cpp.json: ../src/devices/truetreadmill/truetreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		moc_truetreadmill.cpp
 	
@@ -7605,6 +8071,9 @@ moc_trxappgateusbbike.cpp.json: ../src/devices/trxappgateusbbike/trxappgateusbbi
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -7622,12 +8091,10 @@ moc_trxappgateusbbike.cpp.json: ../src/devices/trxappgateusbbike/trxappgateusbbi
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -7676,8 +8143,12 @@ moc_trxappgateusbtreadmill.cpp.json: ../src/devices/trxappgateusbtreadmill/trxap
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		moc_trxappgateusbtreadmill.cpp
 	
 
@@ -7712,6 +8183,9 @@ moc_ultrasportbike.cpp.json: ../src/devices/ultrasportbike/ultrasportbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -7729,12 +8203,10 @@ moc_ultrasportbike.cpp.json: ../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -7782,6 +8254,9 @@ moc_virtualbike.cpp.json: ../src/virtualdevices/virtualbike.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
@@ -7796,12 +8271,10 @@ moc_virtualbike.cpp.json: ../src/virtualdevices/virtualbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -7848,6 +8321,9 @@ moc_virtualrower.cpp.json: ../src/virtualdevices/virtualrower.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
@@ -7885,9 +8361,13 @@ moc_virtualtreadmill.cpp.json: ../src/virtualdevices/virtualtreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/devices/dircon/dirconmanager.h \
 		../src/characteristics/characteristicnotifier2a37.h \
 		../src/characteristics/characteristicnotifier.h \
@@ -7900,12 +8380,10 @@ moc_virtualtreadmill.cpp.json: ../src/virtualdevices/virtualtreadmill.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -7953,6 +8431,9 @@ moc_domyosbike.cpp.json: ../src/devices/domyosbike/domyosbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -7970,12 +8451,10 @@ moc_domyosbike.cpp.json: ../src/devices/domyosbike/domyosbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -8023,6 +8502,9 @@ moc_wahookickrsnapbike.cpp.json: ../src/devices/wahookickrsnapbike/wahookickrsna
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -8040,12 +8522,10 @@ moc_wahookickrsnapbike.cpp.json: ../src/devices/wahookickrsnapbike/wahookickrsna
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -8100,6 +8580,9 @@ moc_yesoulbike.cpp.json: ../src/devices/yesoulbike/yesoulbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -8117,12 +8600,10 @@ moc_yesoulbike.cpp.json: ../src/devices/yesoulbike/yesoulbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -8155,9 +8636,12 @@ moc_windows_zwift_incline_paddleocr_thread.cpp.json: ../src/windows_zwift_inclin
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -8420,6 +8904,7 @@ qrc_qml.cpp: ../src/qml.qrc \
 		../src/inner_templates/chartjs/moment.js \
 		../src/inner_templates/chartjs/main_ws_manager.js \
 		../src/inner_templates/chartjs/qzlogo.png \
+		../src/inner_templates/chartjs/dochartliveheart.js \
 		../src/inner_templates/chartjs/chartlive.htm \
 		../src/inner_templates/chartjs/walk.png \
 		../src/inner_templates/chartjs/globals.js \
@@ -8451,10 +8936,10 @@ qrc_qml.cpp: ../src/qml.qrc \
 		../src/templates/debug/style.css
 	/Users/cagnulein/Qt/5.15.2/ios/bin/rcc -name qml ../src/qml.qrc -o qrc_qml.cpp
 
-compiler_moc_header_make_all: moc_webserverinfosender.cpp moc_QTelnet.cpp moc_bkoolbike.cpp moc_csaferower.cpp moc_eliteariafan.cpp moc_proformtelnetbike.cpp moc_windows_zwift_workout_paddleocr_thread.cpp moc_fakerower.cpp moc_PlayerStateWrapper.cpp moc_zwift_client_auth.cpp moc_abstractZapDevice.cpp moc_zwiftPlayDevice.cpp moc_zwiftclickremote.cpp moc_virtualdevice.cpp moc_androidadblog.cpp moc_apexbike.cpp moc_handleurl.cpp moc_iconceptelliptical.cpp moc_pelotonbike.cpp moc_schwinn170bike.cpp moc_wahookickrheadwind.cpp moc_ypooelliptical.cpp moc_ziprotreadmill.cpp moc_characteristicwriteprocessore005.cpp moc_computrainerbike.cpp moc_fakeelliptical.cpp moc_faketreadmill.cpp moc_lifefitnesstreadmill.cpp moc_mepanelbike.cpp moc_nautilusbike.cpp moc_nordictrackelliptical.cpp moc_nordictrackifitadbbike.cpp moc_nordictrackifitadbtreadmill.cpp moc_octaneelliptical.cpp moc_octanetreadmill.cpp moc_proformellipticaltrainer.cpp moc_proformrower.cpp moc_proformwifibike.cpp moc_proformwifitreadmill.cpp moc_abstractserver.cpp moc_browser.cpp moc_cache.cpp moc_hostname.cpp moc_prober.cpp moc_provider.cpp moc_resolver.cpp moc_server.cpp moc_browser_p.cpp moc_cache_p.cpp moc_hostname_p.cpp moc_prober_p.cpp moc_provider_p.cpp moc_resolver_p.cpp moc_server_p.cpp moc_activiotreadmill.cpp moc_bhfitnesselliptical.cpp moc_bike.cpp moc_bluetooth.cpp moc_bluetoothdevice.cpp moc_characteristicnotifier.cpp moc_characteristicwriteprocessor.cpp moc_characteristicwriteprocessor2ad9.cpp moc_bowflext216treadmill.cpp moc_bowflextreadmill.cpp moc_chronobike.cpp moc_concept2skierg.cpp moc_cscbike.cpp moc_dirconmanager.cpp moc_dirconprocessor.cpp moc_domyoselliptical.cpp moc_domyosrower.cpp moc_domyostreadmill.cpp moc_echelonconnectsport.cpp moc_echelonrower.cpp moc_echelonstride.cpp moc_eliterizer.cpp moc_elitesterzosmart.cpp moc_elliptical.cpp moc_eslinkertreadmill.cpp moc_fakebike.cpp moc_filedownloader.cpp moc_fitmetria_fanfit.cpp moc_fitplusbike.cpp moc_ftmsrower.cpp moc_homefitnessbuddy.cpp moc_horizongr7bike.cpp moc_iconceptbike.cpp moc_keepbike.cpp moc_kingsmithr1protreadmill.cpp moc_kingsmithr2treadmill.cpp moc_m3ibike.cpp moc_fitshowtreadmill.cpp moc_flywheelbike.cpp moc_ftmsbike.cpp moc_heartratebelt.cpp moc_homeform.cpp moc_horizontreadmill.cpp moc_inspirebike.cpp moc_material.cpp moc_mcfbike.cpp moc_nautiluselliptical.cpp moc_nautilustreadmill.cpp moc_npecablebike.cpp moc_pafersbike.cpp moc_paferstreadmill.cpp moc_peloton.cpp moc_powerzonepack.cpp moc_proformbike.cpp moc_proformelliptical.cpp moc_proformtreadmill.cpp moc_qfit.cpp moc_renphobike.cpp moc_rower.cpp moc_schwinnic4bike.cpp moc_screencapture.cpp moc_shuaa5treadmill.cpp moc_skandikawiribike.cpp moc_smartrowrower.cpp moc_smartspin2k.cpp moc_emailaddress.cpp moc_mimeattachment.cpp moc_mimecontentformatter.cpp moc_mimefile.cpp moc_mimehtml.cpp moc_mimemultipart.cpp moc_mimepart.cpp moc_quotedprintable.cpp moc_smtpclient.cpp moc_snodebike.cpp moc_solebike.cpp moc_soleelliptical.cpp moc_solef80treadmill.cpp moc_spirittreadmill.cpp moc_sportsplusbike.cpp moc_sportstechbike.cpp moc_strydrunpowersensor.cpp moc_tacxneo2.cpp moc_tcpclientinfosender.cpp moc_technogymmyruntreadmill.cpp moc_technogymmyruntreadmillrfcomm.cpp moc_templateinfosender.cpp moc_templateinfosenderbuilder.cpp moc_stagesbike.cpp moc_toorxtreadmill.cpp moc_gpx.cpp moc_treadmill.cpp moc_mainwindow.cpp moc_trainprogram.cpp moc_truetreadmill.cpp moc_trxappgateusbbike.cpp moc_trxappgateusbtreadmill.cpp moc_ultrasportbike.cpp moc_virtualbike.cpp moc_virtualrower.cpp moc_virtualtreadmill.cpp moc_domyosbike.cpp moc_wahookickrsnapbike.cpp moc_wobjectdefs.cpp moc_yesoulbike.cpp moc_windows_zwift_incline_paddleocr_thread.cpp moc_inappproductqmltype.cpp moc_inappstoreqmltype.cpp moc_inappproduct.cpp moc_inapppurchasebackend.cpp moc_inappstore.cpp moc_inapptransaction.cpp moc_iosinapppurchasebackend.cpp moc_iosinapppurchaseproduct.cpp moc_iosinapppurchasetransaction.cpp
+compiler_moc_header_make_all: moc_webserverinfosender.cpp moc_crossrope.cpp moc_focustreadmill.cpp moc_jumprope.cpp moc_trxappgateusbelliptical.cpp moc_ergtable.cpp moc_treadmillErgTable.cpp moc_QTelnet.cpp moc_bkoolbike.cpp moc_csaferower.cpp moc_eliteariafan.cpp moc_proformtelnetbike.cpp moc_windows_zwift_workout_paddleocr_thread.cpp moc_fakerower.cpp moc_PlayerStateWrapper.cpp moc_zwift_client_auth.cpp moc_abstractZapDevice.cpp moc_zwiftPlayDevice.cpp moc_zwiftclickremote.cpp moc_virtualdevice.cpp moc_androidadblog.cpp moc_apexbike.cpp moc_handleurl.cpp moc_iconceptelliptical.cpp moc_pelotonbike.cpp moc_schwinn170bike.cpp moc_wahookickrheadwind.cpp moc_ypooelliptical.cpp moc_ziprotreadmill.cpp moc_characteristicwriteprocessore005.cpp moc_computrainerbike.cpp moc_fakeelliptical.cpp moc_faketreadmill.cpp moc_lifefitnesstreadmill.cpp moc_mepanelbike.cpp moc_nautilusbike.cpp moc_nordictrackelliptical.cpp moc_nordictrackifitadbbike.cpp moc_nordictrackifitadbtreadmill.cpp moc_octaneelliptical.cpp moc_octanetreadmill.cpp moc_proformellipticaltrainer.cpp moc_proformrower.cpp moc_proformwifibike.cpp moc_proformwifitreadmill.cpp moc_abstractserver.cpp moc_browser.cpp moc_cache.cpp moc_hostname.cpp moc_prober.cpp moc_provider.cpp moc_resolver.cpp moc_server.cpp moc_browser_p.cpp moc_cache_p.cpp moc_hostname_p.cpp moc_prober_p.cpp moc_provider_p.cpp moc_resolver_p.cpp moc_server_p.cpp moc_activiotreadmill.cpp moc_bhfitnesselliptical.cpp moc_bike.cpp moc_bluetooth.cpp moc_bluetoothdevice.cpp moc_characteristicnotifier.cpp moc_characteristicwriteprocessor.cpp moc_characteristicwriteprocessor2ad9.cpp moc_bowflext216treadmill.cpp moc_bowflextreadmill.cpp moc_chronobike.cpp moc_concept2skierg.cpp moc_cscbike.cpp moc_dirconmanager.cpp moc_dirconprocessor.cpp moc_domyoselliptical.cpp moc_domyosrower.cpp moc_domyostreadmill.cpp moc_echelonconnectsport.cpp moc_echelonrower.cpp moc_echelonstride.cpp moc_eliterizer.cpp moc_elitesterzosmart.cpp moc_elliptical.cpp moc_eslinkertreadmill.cpp moc_fakebike.cpp moc_filedownloader.cpp moc_fitmetria_fanfit.cpp moc_fitplusbike.cpp moc_ftmsrower.cpp moc_homefitnessbuddy.cpp moc_horizongr7bike.cpp moc_iconceptbike.cpp moc_keepbike.cpp moc_kingsmithr1protreadmill.cpp moc_kingsmithr2treadmill.cpp moc_m3ibike.cpp moc_fitshowtreadmill.cpp moc_flywheelbike.cpp moc_ftmsbike.cpp moc_heartratebelt.cpp moc_homeform.cpp moc_horizontreadmill.cpp moc_inspirebike.cpp moc_material.cpp moc_mcfbike.cpp moc_nautiluselliptical.cpp moc_nautilustreadmill.cpp moc_npecablebike.cpp moc_pafersbike.cpp moc_paferstreadmill.cpp moc_peloton.cpp moc_powerzonepack.cpp moc_proformbike.cpp moc_proformelliptical.cpp moc_proformtreadmill.cpp moc_qfit.cpp moc_renphobike.cpp moc_rower.cpp moc_schwinnic4bike.cpp moc_screencapture.cpp moc_shuaa5treadmill.cpp moc_skandikawiribike.cpp moc_smartrowrower.cpp moc_smartspin2k.cpp moc_emailaddress.cpp moc_mimeattachment.cpp moc_mimecontentformatter.cpp moc_mimefile.cpp moc_mimehtml.cpp moc_mimemultipart.cpp moc_mimepart.cpp moc_quotedprintable.cpp moc_smtpclient.cpp moc_snodebike.cpp moc_solebike.cpp moc_soleelliptical.cpp moc_solef80treadmill.cpp moc_spirittreadmill.cpp moc_sportsplusbike.cpp moc_sportstechbike.cpp moc_strydrunpowersensor.cpp moc_tacxneo2.cpp moc_tcpclientinfosender.cpp moc_technogymmyruntreadmill.cpp moc_technogymmyruntreadmillrfcomm.cpp moc_templateinfosender.cpp moc_templateinfosenderbuilder.cpp moc_stagesbike.cpp moc_toorxtreadmill.cpp moc_gpx.cpp moc_treadmill.cpp moc_mainwindow.cpp moc_trainprogram.cpp moc_truetreadmill.cpp moc_trxappgateusbbike.cpp moc_trxappgateusbtreadmill.cpp moc_ultrasportbike.cpp moc_virtualbike.cpp moc_virtualrower.cpp moc_virtualtreadmill.cpp moc_domyosbike.cpp moc_wahookickrsnapbike.cpp moc_wobjectdefs.cpp moc_yesoulbike.cpp moc_windows_zwift_incline_paddleocr_thread.cpp moc_inappproductqmltype.cpp moc_inappstoreqmltype.cpp moc_inappproduct.cpp moc_inapppurchasebackend.cpp moc_inappstore.cpp moc_inapptransaction.cpp moc_iosinapppurchasebackend.cpp moc_iosinapppurchaseproduct.cpp moc_iosinapppurchasetransaction.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_webserverinfosender.cpp moc_QTelnet.cpp moc_bkoolbike.cpp moc_csaferower.cpp moc_eliteariafan.cpp moc_proformtelnetbike.cpp moc_windows_zwift_workout_paddleocr_thread.cpp moc_fakerower.cpp moc_PlayerStateWrapper.cpp moc_zwift_client_auth.cpp moc_abstractZapDevice.cpp moc_zwiftPlayDevice.cpp moc_zwiftclickremote.cpp moc_virtualdevice.cpp moc_androidadblog.cpp moc_apexbike.cpp moc_handleurl.cpp moc_iconceptelliptical.cpp moc_pelotonbike.cpp moc_schwinn170bike.cpp moc_wahookickrheadwind.cpp moc_ypooelliptical.cpp moc_ziprotreadmill.cpp moc_characteristicwriteprocessore005.cpp moc_computrainerbike.cpp moc_fakeelliptical.cpp moc_faketreadmill.cpp moc_lifefitnesstreadmill.cpp moc_mepanelbike.cpp moc_nautilusbike.cpp moc_nordictrackelliptical.cpp moc_nordictrackifitadbbike.cpp moc_nordictrackifitadbtreadmill.cpp moc_octaneelliptical.cpp moc_octanetreadmill.cpp moc_proformellipticaltrainer.cpp moc_proformrower.cpp moc_proformwifibike.cpp moc_proformwifitreadmill.cpp moc_abstractserver.cpp moc_browser.cpp moc_cache.cpp moc_hostname.cpp moc_prober.cpp moc_provider.cpp moc_resolver.cpp moc_server.cpp moc_browser_p.cpp moc_cache_p.cpp moc_hostname_p.cpp moc_prober_p.cpp moc_provider_p.cpp moc_resolver_p.cpp moc_server_p.cpp moc_activiotreadmill.cpp moc_bhfitnesselliptical.cpp moc_bike.cpp moc_bluetooth.cpp moc_bluetoothdevice.cpp moc_characteristicnotifier.cpp moc_characteristicwriteprocessor.cpp moc_characteristicwriteprocessor2ad9.cpp moc_bowflext216treadmill.cpp moc_bowflextreadmill.cpp moc_chronobike.cpp moc_concept2skierg.cpp moc_cscbike.cpp moc_dirconmanager.cpp moc_dirconprocessor.cpp moc_domyoselliptical.cpp moc_domyosrower.cpp moc_domyostreadmill.cpp moc_echelonconnectsport.cpp moc_echelonrower.cpp moc_echelonstride.cpp moc_eliterizer.cpp moc_elitesterzosmart.cpp moc_elliptical.cpp moc_eslinkertreadmill.cpp moc_fakebike.cpp moc_filedownloader.cpp moc_fitmetria_fanfit.cpp moc_fitplusbike.cpp moc_ftmsrower.cpp moc_homefitnessbuddy.cpp moc_horizongr7bike.cpp moc_iconceptbike.cpp moc_keepbike.cpp
-	-$(DEL_FILE) moc_kingsmithr1protreadmill.cpp moc_kingsmithr2treadmill.cpp moc_m3ibike.cpp moc_fitshowtreadmill.cpp moc_flywheelbike.cpp moc_ftmsbike.cpp moc_heartratebelt.cpp moc_homeform.cpp moc_horizontreadmill.cpp moc_inspirebike.cpp moc_material.cpp moc_mcfbike.cpp moc_nautiluselliptical.cpp moc_nautilustreadmill.cpp moc_npecablebike.cpp moc_pafersbike.cpp moc_paferstreadmill.cpp moc_peloton.cpp moc_powerzonepack.cpp moc_proformbike.cpp moc_proformelliptical.cpp moc_proformtreadmill.cpp moc_qfit.cpp moc_renphobike.cpp moc_rower.cpp moc_schwinnic4bike.cpp moc_screencapture.cpp moc_shuaa5treadmill.cpp moc_skandikawiribike.cpp moc_smartrowrower.cpp moc_smartspin2k.cpp moc_emailaddress.cpp moc_mimeattachment.cpp moc_mimecontentformatter.cpp moc_mimefile.cpp moc_mimehtml.cpp moc_mimemultipart.cpp moc_mimepart.cpp moc_quotedprintable.cpp moc_smtpclient.cpp moc_snodebike.cpp moc_solebike.cpp moc_soleelliptical.cpp moc_solef80treadmill.cpp moc_spirittreadmill.cpp moc_sportsplusbike.cpp moc_sportstechbike.cpp moc_strydrunpowersensor.cpp moc_tacxneo2.cpp moc_tcpclientinfosender.cpp moc_technogymmyruntreadmill.cpp moc_technogymmyruntreadmillrfcomm.cpp moc_templateinfosender.cpp moc_templateinfosenderbuilder.cpp moc_stagesbike.cpp moc_toorxtreadmill.cpp moc_gpx.cpp moc_treadmill.cpp moc_mainwindow.cpp moc_trainprogram.cpp moc_truetreadmill.cpp moc_trxappgateusbbike.cpp moc_trxappgateusbtreadmill.cpp moc_ultrasportbike.cpp moc_virtualbike.cpp moc_virtualrower.cpp moc_virtualtreadmill.cpp moc_domyosbike.cpp moc_wahookickrsnapbike.cpp moc_wobjectdefs.cpp moc_yesoulbike.cpp moc_windows_zwift_incline_paddleocr_thread.cpp moc_inappproductqmltype.cpp moc_inappstoreqmltype.cpp moc_inappproduct.cpp moc_inapppurchasebackend.cpp moc_inappstore.cpp moc_inapptransaction.cpp moc_iosinapppurchasebackend.cpp moc_iosinapppurchaseproduct.cpp moc_iosinapppurchasetransaction.cpp
+	-$(DEL_FILE) moc_webserverinfosender.cpp moc_crossrope.cpp moc_focustreadmill.cpp moc_jumprope.cpp moc_trxappgateusbelliptical.cpp moc_ergtable.cpp moc_treadmillErgTable.cpp moc_QTelnet.cpp moc_bkoolbike.cpp moc_csaferower.cpp moc_eliteariafan.cpp moc_proformtelnetbike.cpp moc_windows_zwift_workout_paddleocr_thread.cpp moc_fakerower.cpp moc_PlayerStateWrapper.cpp moc_zwift_client_auth.cpp moc_abstractZapDevice.cpp moc_zwiftPlayDevice.cpp moc_zwiftclickremote.cpp moc_virtualdevice.cpp moc_androidadblog.cpp moc_apexbike.cpp moc_handleurl.cpp moc_iconceptelliptical.cpp moc_pelotonbike.cpp moc_schwinn170bike.cpp moc_wahookickrheadwind.cpp moc_ypooelliptical.cpp moc_ziprotreadmill.cpp moc_characteristicwriteprocessore005.cpp moc_computrainerbike.cpp moc_fakeelliptical.cpp moc_faketreadmill.cpp moc_lifefitnesstreadmill.cpp moc_mepanelbike.cpp moc_nautilusbike.cpp moc_nordictrackelliptical.cpp moc_nordictrackifitadbbike.cpp moc_nordictrackifitadbtreadmill.cpp moc_octaneelliptical.cpp moc_octanetreadmill.cpp moc_proformellipticaltrainer.cpp moc_proformrower.cpp moc_proformwifibike.cpp moc_proformwifitreadmill.cpp moc_abstractserver.cpp moc_browser.cpp moc_cache.cpp moc_hostname.cpp moc_prober.cpp moc_provider.cpp moc_resolver.cpp moc_server.cpp moc_browser_p.cpp moc_cache_p.cpp moc_hostname_p.cpp moc_prober_p.cpp moc_provider_p.cpp moc_resolver_p.cpp moc_server_p.cpp moc_activiotreadmill.cpp moc_bhfitnesselliptical.cpp moc_bike.cpp moc_bluetooth.cpp moc_bluetoothdevice.cpp moc_characteristicnotifier.cpp moc_characteristicwriteprocessor.cpp moc_characteristicwriteprocessor2ad9.cpp moc_bowflext216treadmill.cpp moc_bowflextreadmill.cpp moc_chronobike.cpp moc_concept2skierg.cpp moc_cscbike.cpp moc_dirconmanager.cpp moc_dirconprocessor.cpp moc_domyoselliptical.cpp moc_domyosrower.cpp moc_domyostreadmill.cpp moc_echelonconnectsport.cpp moc_echelonrower.cpp moc_echelonstride.cpp moc_eliterizer.cpp moc_elitesterzosmart.cpp moc_elliptical.cpp moc_eslinkertreadmill.cpp moc_fakebike.cpp moc_filedownloader.cpp
+	-$(DEL_FILE) moc_fitmetria_fanfit.cpp moc_fitplusbike.cpp moc_ftmsrower.cpp moc_homefitnessbuddy.cpp moc_horizongr7bike.cpp moc_iconceptbike.cpp moc_keepbike.cpp moc_kingsmithr1protreadmill.cpp moc_kingsmithr2treadmill.cpp moc_m3ibike.cpp moc_fitshowtreadmill.cpp moc_flywheelbike.cpp moc_ftmsbike.cpp moc_heartratebelt.cpp moc_homeform.cpp moc_horizontreadmill.cpp moc_inspirebike.cpp moc_material.cpp moc_mcfbike.cpp moc_nautiluselliptical.cpp moc_nautilustreadmill.cpp moc_npecablebike.cpp moc_pafersbike.cpp moc_paferstreadmill.cpp moc_peloton.cpp moc_powerzonepack.cpp moc_proformbike.cpp moc_proformelliptical.cpp moc_proformtreadmill.cpp moc_qfit.cpp moc_renphobike.cpp moc_rower.cpp moc_schwinnic4bike.cpp moc_screencapture.cpp moc_shuaa5treadmill.cpp moc_skandikawiribike.cpp moc_smartrowrower.cpp moc_smartspin2k.cpp moc_emailaddress.cpp moc_mimeattachment.cpp moc_mimecontentformatter.cpp moc_mimefile.cpp moc_mimehtml.cpp moc_mimemultipart.cpp moc_mimepart.cpp moc_quotedprintable.cpp moc_smtpclient.cpp moc_snodebike.cpp moc_solebike.cpp moc_soleelliptical.cpp moc_solef80treadmill.cpp moc_spirittreadmill.cpp moc_sportsplusbike.cpp moc_sportstechbike.cpp moc_strydrunpowersensor.cpp moc_tacxneo2.cpp moc_tcpclientinfosender.cpp moc_technogymmyruntreadmill.cpp moc_technogymmyruntreadmillrfcomm.cpp moc_templateinfosender.cpp moc_templateinfosenderbuilder.cpp moc_stagesbike.cpp moc_toorxtreadmill.cpp moc_gpx.cpp moc_treadmill.cpp moc_mainwindow.cpp moc_trainprogram.cpp moc_truetreadmill.cpp moc_trxappgateusbbike.cpp moc_trxappgateusbtreadmill.cpp moc_ultrasportbike.cpp moc_virtualbike.cpp moc_virtualrower.cpp moc_virtualtreadmill.cpp moc_domyosbike.cpp moc_wahookickrsnapbike.cpp moc_wobjectdefs.cpp moc_yesoulbike.cpp moc_windows_zwift_incline_paddleocr_thread.cpp moc_inappproductqmltype.cpp moc_inappstoreqmltype.cpp moc_inappproduct.cpp moc_inapppurchasebackend.cpp moc_inappstore.cpp moc_inapptransaction.cpp moc_iosinapppurchasebackend.cpp moc_iosinapppurchaseproduct.cpp moc_iosinapppurchasetransaction.cpp
 moc_webserverinfosender.cpp: ../src/webserverinfosender.h \
 		../src/templateinfosender.h \
 		../../Qt/5.15.2/ios/include/QtQml/QJSEngine \
@@ -8467,6 +8952,174 @@ moc_webserverinfosender.cpp: ../src/webserverinfosender.h \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkCookieJar \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/webserverinfosender.h -o moc_webserverinfosender.cpp
+
+moc_crossrope.cpp: ../src/devices/crossrope/crossrope.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristicdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycontroller.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergydescriptordata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
+		../../Qt/5.15.2/ios/include/QtCore/qbytearray.h \
+		../../Qt/5.15.2/ios/include/QtCore/qcoreapplication.h \
+		../../Qt/5.15.2/ios/include/QtGui/qguiapplication.h \
+		../../Qt/5.15.2/ios/include/QtCore/qlist.h \
+		../../Qt/5.15.2/ios/include/QtCore/qmutex.h \
+		../../Qt/5.15.2/ios/include/QtCore/qscopedpointer.h \
+		../../Qt/5.15.2/ios/include/QtCore/qtimer.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDateTime \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
+		../src/devices/jumprope.h \
+		../src/devices/bluetoothdevice.h \
+		../src/definitions.h \
+		../src/metric.h \
+		../src/qdebugfixup.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDebug \
+		../src/sessionline.h \
+		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
+		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/qzsettings.h \
+		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
+		../src/virtualdevices/virtualdevice.h \
+		../../Qt/5.15.2/ios/bin/moc
+	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/crossrope/crossrope.h -o moc_crossrope.cpp
+
+moc_focustreadmill.cpp: ../src/devices/focustreadmill/focustreadmill.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristicdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycontroller.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergydescriptordata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
+		../../Qt/5.15.2/ios/include/QtCore/qbytearray.h \
+		../../Qt/5.15.2/ios/include/QtCore/qcoreapplication.h \
+		../../Qt/5.15.2/ios/include/QtGui/qguiapplication.h \
+		../../Qt/5.15.2/ios/include/QtCore/qlist.h \
+		../../Qt/5.15.2/ios/include/QtCore/qmutex.h \
+		../../Qt/5.15.2/ios/include/QtCore/qscopedpointer.h \
+		../../Qt/5.15.2/ios/include/QtCore/qtimer.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDateTime \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
+		../src/devices/treadmill.h \
+		../src/devices/bluetoothdevice.h \
+		../src/definitions.h \
+		../src/metric.h \
+		../src/qdebugfixup.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDebug \
+		../src/sessionline.h \
+		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
+		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/qzsettings.h \
+		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
+		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
+		../../Qt/5.15.2/ios/bin/moc
+	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/focustreadmill/focustreadmill.h -o moc_focustreadmill.cpp
+
+moc_jumprope.cpp: ../src/devices/jumprope.h \
+		../src/devices/bluetoothdevice.h \
+		../src/definitions.h \
+		../src/metric.h \
+		../src/qdebugfixup.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDebug \
+		../src/sessionline.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDateTime \
+		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
+		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/qzsettings.h \
+		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristicdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycontroller.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergydescriptordata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
+		../src/virtualdevices/virtualdevice.h \
+		../../Qt/5.15.2/ios/bin/moc
+	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/jumprope.h -o moc_jumprope.cpp
+
+moc_trxappgateusbelliptical.cpp: ../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristicdata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycontroller.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergydescriptordata.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
+		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
+		../../Qt/5.15.2/ios/include/QtCore/qbytearray.h \
+		../../Qt/5.15.2/ios/include/QtCore/qcoreapplication.h \
+		../../Qt/5.15.2/ios/include/QtGui/qguiapplication.h \
+		../../Qt/5.15.2/ios/include/QtCore/qlist.h \
+		../../Qt/5.15.2/ios/include/QtCore/qmutex.h \
+		../../Qt/5.15.2/ios/include/QtCore/qscopedpointer.h \
+		../../Qt/5.15.2/ios/include/QtCore/qtimer.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDateTime \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
+		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/devices/elliptical.h \
+		../src/devices/bluetoothdevice.h \
+		../src/definitions.h \
+		../src/metric.h \
+		../src/qdebugfixup.h \
+		../../Qt/5.15.2/ios/include/QtCore/QDebug \
+		../src/sessionline.h \
+		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
+		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
+		../src/virtualdevices/virtualdevice.h \
+		../src/ios/lockscreen.h \
+		../../Qt/5.15.2/ios/bin/moc
+	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h -o moc_trxappgateusbelliptical.cpp
+
+moc_ergtable.cpp: ../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
+		../../Qt/5.15.2/ios/include/QtCore/QDebug \
+		../../Qt/5.15.2/ios/include/QtCore/QDateTime \
+		../src/qzsettings.h \
+		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../../Qt/5.15.2/ios/bin/moc
+	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/ergtable.h -o moc_ergtable.cpp
+
+moc_treadmillErgTable.cpp: ../src/treadmillErgTable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
+		../../Qt/5.15.2/ios/include/QtCore/QDebug \
+		../../Qt/5.15.2/ios/include/QtCore/QDateTime \
+		../src/qzsettings.h \
+		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../../Qt/5.15.2/ios/bin/moc
+	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/treadmillErgTable.h -o moc_treadmillErgTable.cpp
 
 moc_QTelnet.cpp: ../src/QTelnet.h \
 		../../Qt/5.15.2/ios/include/QtCore/QObject \
@@ -8506,6 +9159,9 @@ moc_bkoolbike.cpp: ../src/devices/bkoolbike/bkoolbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -8523,12 +9179,10 @@ moc_bkoolbike.cpp: ../src/devices/bkoolbike/bkoolbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -8581,6 +9235,8 @@ moc_csaferower.cpp: ../src/devices/csaferower/csaferower.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -8598,7 +9254,6 @@ moc_csaferower.cpp: ../src/devices/csaferower/csaferower.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
@@ -8655,6 +9310,9 @@ moc_eliteariafan.cpp: ../src/devices/eliteariafan/eliteariafan.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../../Qt/5.15.2/ios/bin/moc
@@ -8694,6 +9352,8 @@ moc_proformtelnetbike.cpp: ../src/devices/proformtelnetbike/proformtelnetbike.h 
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
@@ -8724,7 +9384,6 @@ moc_proformtelnetbike.cpp: ../src/devices/proformtelnetbike/proformtelnetbike.h 
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -8759,9 +9418,12 @@ moc_windows_zwift_workout_paddleocr_thread.cpp: ../src/windows_zwift_workout_pad
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -8809,6 +9471,9 @@ moc_fakerower.cpp: ../src/devices/fakerower/fakerower.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -8889,6 +9554,9 @@ moc_zwiftclickremote.cpp: ../src/zwift_play/zwiftclickremote.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/zwift_play/zwiftPlayDevice.h \
@@ -8941,6 +9609,9 @@ moc_apexbike.cpp: ../src/devices/apexbike/apexbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -8958,12 +9629,10 @@ moc_apexbike.cpp: ../src/devices/apexbike/apexbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -9019,6 +9688,9 @@ moc_iconceptelliptical.cpp: ../src/devices/iconceptelliptical/iconceptelliptical
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -9036,12 +9708,10 @@ moc_iconceptelliptical.cpp: ../src/devices/iconceptelliptical/iconceptelliptical
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -9057,6 +9727,7 @@ moc_iconceptelliptical.cpp: ../src/devices/iconceptelliptical/iconceptelliptical
 		../../Qt/5.15.2/ios/include/QtNetwork/QTcpSocket \
 		../src/virtualdevices/virtualtreadmill.h \
 		../src/devices/treadmill.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/iconceptelliptical/iconceptelliptical.h -o moc_iconceptelliptical.cpp
 
@@ -9082,6 +9753,9 @@ moc_pelotonbike.cpp: ../src/devices/pelotonbike/pelotonbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
@@ -9108,12 +9782,10 @@ moc_pelotonbike.cpp: ../src/devices/pelotonbike/pelotonbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -9160,6 +9832,9 @@ moc_schwinn170bike.cpp: ../src/devices/schwinn170bike/schwinn170bike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -9177,12 +9852,10 @@ moc_schwinn170bike.cpp: ../src/devices/schwinn170bike/schwinn170bike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -9229,6 +9902,9 @@ moc_wahookickrheadwind.cpp: ../src/devices/wahookickrheadwind/wahookickrheadwind
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../../Qt/5.15.2/ios/bin/moc
@@ -9264,6 +9940,9 @@ moc_ypooelliptical.cpp: ../src/devices/ypooelliptical/ypooelliptical.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -9281,12 +9960,10 @@ moc_ypooelliptical.cpp: ../src/devices/ypooelliptical/ypooelliptical.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -9302,6 +9979,7 @@ moc_ypooelliptical.cpp: ../src/devices/ypooelliptical/ypooelliptical.h \
 		../../Qt/5.15.2/ios/include/QtNetwork/QTcpSocket \
 		../src/virtualdevices/virtualtreadmill.h \
 		../src/devices/treadmill.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/ypooelliptical/ypooelliptical.h -o moc_ypooelliptical.cpp
 
@@ -9335,8 +10013,12 @@ moc_ziprotreadmill.cpp: ../src/devices/ziprotreadmill/ziprotreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/ziprotreadmill/ziprotreadmill.h -o moc_ziprotreadmill.cpp
 
@@ -9352,9 +10034,12 @@ moc_characteristicwriteprocessore005.cpp: ../src/characteristics/characteristicw
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -9365,7 +10050,6 @@ moc_characteristicwriteprocessore005.cpp: ../src/characteristics/characteristicw
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
 		../src/virtualdevices/virtualdevice.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/characteristics/characteristicwriteprocessore005.h -o moc_characteristicwriteprocessore005.cpp
@@ -9400,6 +10084,8 @@ moc_computrainerbike.cpp: ../src/devices/computrainerbike/computrainerbike.h \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
@@ -9430,7 +10116,6 @@ moc_computrainerbike.cpp: ../src/devices/computrainerbike/computrainerbike.h \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -9477,6 +10162,9 @@ moc_fakeelliptical.cpp: ../src/devices/fakeelliptical/fakeelliptical.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -9513,8 +10201,12 @@ moc_faketreadmill.cpp: ../src/devices/faketreadmill/faketreadmill.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/virtualdevices/virtualbike.h \
 		../../Qt/5.15.2/ios/include/QtCore/qloggingcategory.h \
 		../src/ios/lockscreen.h \
@@ -9530,12 +10222,10 @@ moc_faketreadmill.cpp: ../src/devices/faketreadmill/faketreadmill.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -9583,8 +10273,12 @@ moc_lifefitnesstreadmill.cpp: ../src/devices/lifefitnesstreadmill/lifefitnesstre
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/virtualdevices/virtualbike.h \
 		../../Qt/5.15.2/ios/include/QtCore/qloggingcategory.h \
 		../src/ios/lockscreen.h \
@@ -9600,12 +10294,10 @@ moc_lifefitnesstreadmill.cpp: ../src/devices/lifefitnesstreadmill/lifefitnesstre
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -9653,6 +10345,9 @@ moc_mepanelbike.cpp: ../src/devices/mepanelbike/mepanelbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -9670,12 +10365,10 @@ moc_mepanelbike.cpp: ../src/devices/mepanelbike/mepanelbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -9722,6 +10415,9 @@ moc_nautilusbike.cpp: ../src/devices/nautilusbike/nautilusbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -9739,12 +10435,10 @@ moc_nautilusbike.cpp: ../src/devices/nautilusbike/nautilusbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -9791,6 +10485,9 @@ moc_nordictrackelliptical.cpp: ../src/devices/nordictrackelliptical/nordictracke
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -9820,6 +10517,9 @@ moc_nordictrackifitadbbike.cpp: ../src/devices/nordictrackifitadbbike/nordictrac
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
@@ -9846,12 +10546,10 @@ moc_nordictrackifitadbbike.cpp: ../src/devices/nordictrackifitadbbike/nordictrac
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -9891,6 +10589,9 @@ moc_nordictrackifitadbtreadmill.cpp: ../src/devices/nordictrackifitadbtreadmill/
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
@@ -9902,6 +10603,7 @@ moc_nordictrackifitadbtreadmill.cpp: ../src/devices/nordictrackifitadbtreadmill/
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/nordictrackifitadbtreadmill/nordictrackifitadbtreadmill.h -o moc_nordictrackifitadbtreadmill.cpp
@@ -9936,12 +10638,16 @@ moc_octaneelliptical.cpp: ../src/devices/octaneelliptical/octaneelliptical.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualtreadmill.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/include/QtCore/qloggingcategory.h \
 		../src/devices/treadmill.h \
+		../src/treadmillErgTable.h \
 		../src/devices/dircon/dirconmanager.h \
 		../src/characteristics/characteristicnotifier2a37.h \
 		../src/characteristics/characteristicnotifier.h \
@@ -9954,12 +10660,10 @@ moc_octaneelliptical.cpp: ../src/devices/octaneelliptical/octaneelliptical.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -10006,8 +10710,12 @@ moc_octanetreadmill.cpp: ../src/devices/octanetreadmill/octanetreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/octanetreadmill/octanetreadmill.h -o moc_octanetreadmill.cpp
 
@@ -10041,6 +10749,9 @@ moc_proformellipticaltrainer.cpp: ../src/devices/proformellipticaltrainer/profor
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -10077,6 +10788,9 @@ moc_proformrower.cpp: ../src/devices/proformrower/proformrower.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -10117,6 +10831,8 @@ moc_proformwifibike.cpp: ../src/devices/proformwifibike/proformwifibike.h \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
@@ -10147,7 +10863,6 @@ moc_proformwifibike.cpp: ../src/devices/proformwifibike/proformwifibike.h \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -10198,6 +10913,8 @@ moc_proformwifitreadmill.cpp: ../src/devices/proformwifitreadmill/proformwifitre
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
@@ -10209,6 +10926,7 @@ moc_proformwifitreadmill.cpp: ../src/devices/proformwifitreadmill/proformwifitre
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/proformwifitreadmill/proformwifitreadmill.h -o moc_proformwifitreadmill.cpp
@@ -10380,8 +11098,12 @@ moc_activiotreadmill.cpp: ../src/devices/activiotreadmill/activiotreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/activiotreadmill/activiotreadmill.h -o moc_activiotreadmill.cpp
@@ -10416,6 +11138,9 @@ moc_bhfitnesselliptical.cpp: ../src/devices/bhfitnesselliptical/bhfitnessellipti
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -10434,9 +11159,12 @@ moc_bike.cpp: ../src/devices/bike.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -10467,12 +11195,10 @@ moc_bike.cpp: ../src/devices/bike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -10523,8 +11249,12 @@ moc_bluetooth.cpp: ../src/devices/bluetooth.h \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../src/devices/apexbike/apexbike.h \
 		../src/devices/bike.h \
@@ -10541,12 +11271,10 @@ moc_bluetooth.cpp: ../src/devices/bluetooth.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -10581,6 +11309,8 @@ moc_bluetooth.cpp: ../src/devices/bluetooth.h \
 		../src/devices/rower.h \
 		../src/virtualdevices/virtualrower.h \
 		../src/devices/concept2skierg/concept2skierg.h \
+		../src/devices/crossrope/crossrope.h \
+		../src/devices/jumprope.h \
 		../src/devices/cscbike/cscbike.h \
 		../src/devices/domyosbike/domyosbike.h \
 		../src/devices/domyoselliptical/domyoselliptical.h \
@@ -10605,6 +11335,7 @@ moc_bluetooth.cpp: ../src/devices/bluetooth.h \
 		../../Qt/5.15.2/ios/include/QtCore/qstring.h \
 		../src/devices/flywheelbike/flywheelbike.h \
 		../src/devices/ftmsrower/ftmsrower.h \
+		../src/devices/focustreadmill/focustreadmill.h \
 		../src/devices/heartratebelt/heartratebelt.h \
 		../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/devices/horizontreadmill/horizontreadmill.h \
@@ -10683,6 +11414,7 @@ moc_bluetooth.cpp: ../src/devices/bluetooth.h \
 		../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../src/devices/truetreadmill/truetreadmill.h \
 		../src/devices/trxappgateusbbike/trxappgateusbbike.h \
+		../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 		../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 		../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/devices/wahookickrheadwind/wahookickrheadwind.h \
@@ -10709,9 +11441,12 @@ moc_bluetoothdevice.cpp: ../src/devices/bluetoothdevice.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -10741,9 +11476,12 @@ moc_characteristicwriteprocessor.cpp: ../src/characteristics/characteristicwrite
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -10753,7 +11491,6 @@ moc_characteristicwriteprocessor.cpp: ../src/characteristics/characteristicwrite
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
 		../src/virtualdevices/virtualdevice.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/characteristics/characteristicwriteprocessor.h -o moc_characteristicwriteprocessor.cpp
@@ -10771,9 +11508,12 @@ moc_characteristicwriteprocessor2ad9.cpp: ../src/characteristics/characteristicw
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -10785,7 +11525,6 @@ moc_characteristicwriteprocessor2ad9.cpp: ../src/characteristics/characteristicw
 		../src/virtualdevices/virtualdevice.h \
 		../src/characteristics/characteristicnotifier.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/characteristics/characteristicwriteprocessor2ad9.h -o moc_characteristicwriteprocessor2ad9.cpp
@@ -10820,8 +11559,12 @@ moc_bowflext216treadmill.cpp: ../src/devices/bowflext216treadmill/bowflext216tre
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/bowflext216treadmill/bowflext216treadmill.h -o moc_bowflext216treadmill.cpp
 
@@ -10855,8 +11598,12 @@ moc_bowflextreadmill.cpp: ../src/devices/bowflextreadmill/bowflextreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/bowflextreadmill/bowflextreadmill.h -o moc_bowflextreadmill.cpp
 
@@ -10890,6 +11637,9 @@ moc_chronobike.cpp: ../src/devices/chronobike/chronobike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -10907,12 +11657,10 @@ moc_chronobike.cpp: ../src/devices/chronobike/chronobike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -10959,6 +11707,9 @@ moc_concept2skierg.cpp: ../src/devices/concept2skierg/concept2skierg.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -10995,6 +11746,9 @@ moc_cscbike.cpp: ../src/devices/cscbike/cscbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -11012,12 +11766,10 @@ moc_cscbike.cpp: ../src/devices/cscbike/cscbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -11046,9 +11798,12 @@ moc_dirconmanager.cpp: ../src/devices/dircon/dirconmanager.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -11069,12 +11824,10 @@ moc_dirconmanager.cpp: ../src/devices/dircon/dirconmanager.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -11104,9 +11857,12 @@ moc_dirconprocessor.cpp: ../src/devices/dircon/dirconprocessor.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -11116,11 +11872,9 @@ moc_dirconprocessor.cpp: ../src/devices/dircon/dirconprocessor.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
 		../src/virtualdevices/virtualdevice.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
 		../../Qt/5.15.2/ios/include/QtCore/QtGlobal \
@@ -11166,6 +11920,9 @@ moc_domyoselliptical.cpp: ../src/devices/domyoselliptical/domyoselliptical.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../../Qt/5.15.2/ios/bin/moc
@@ -11201,6 +11958,9 @@ moc_domyosrower.cpp: ../src/devices/domyosrower/domyosrower.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -11237,8 +11997,12 @@ moc_domyostreadmill.cpp: ../src/devices/domyostreadmill/domyostreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/domyostreadmill/domyostreadmill.h -o moc_domyostreadmill.cpp
@@ -11273,6 +12037,9 @@ moc_echelonconnectsport.cpp: ../src/devices/echelonconnectsport/echelonconnectsp
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -11290,12 +12057,10 @@ moc_echelonconnectsport.cpp: ../src/devices/echelonconnectsport/echelonconnectsp
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -11343,6 +12108,9 @@ moc_echelonrower.cpp: ../src/devices/echelonrower/echelonrower.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -11379,8 +12147,12 @@ moc_echelonstride.cpp: ../src/devices/echelonstride/echelonstride.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/echelonstride/echelonstride.h -o moc_echelonstride.cpp
@@ -11415,6 +12187,9 @@ moc_eliterizer.cpp: ../src/devices/eliterizer/eliterizer.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -11432,12 +12207,10 @@ moc_eliterizer.cpp: ../src/devices/eliterizer/eliterizer.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -11485,6 +12258,9 @@ moc_elitesterzosmart.cpp: ../src/devices/elitesterzosmart/elitesterzosmart.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -11502,12 +12278,10 @@ moc_elitesterzosmart.cpp: ../src/devices/elitesterzosmart/elitesterzosmart.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -11537,9 +12311,12 @@ moc_elliptical.cpp: ../src/devices/elliptical.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -11582,8 +12359,12 @@ moc_eslinkertreadmill.cpp: ../src/devices/eslinkertreadmill/eslinkertreadmill.h 
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/eslinkertreadmill/eslinkertreadmill.h -o moc_eslinkertreadmill.cpp
 
@@ -11617,6 +12398,9 @@ moc_fakebike.cpp: ../src/devices/fakebike/fakebike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -11634,12 +12418,10 @@ moc_fakebike.cpp: ../src/devices/fakebike/fakebike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -11695,6 +12477,9 @@ moc_fitmetria_fanfit.cpp: ../src/devices/fitmetria_fanfit/fitmetria_fanfit.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../../Qt/5.15.2/ios/bin/moc
@@ -11730,6 +12515,9 @@ moc_fitplusbike.cpp: ../src/devices/fitplusbike/fitplusbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -11747,12 +12535,10 @@ moc_fitplusbike.cpp: ../src/devices/fitplusbike/fitplusbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -11799,6 +12585,9 @@ moc_ftmsrower.cpp: ../src/devices/ftmsrower/ftmsrower.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -11816,12 +12605,10 @@ moc_ftmsrower.cpp: ../src/devices/ftmsrower/ftmsrower.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -11874,8 +12661,12 @@ moc_homefitnessbuddy.cpp: ../src/homefitnessbuddy.h \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../src/devices/apexbike/apexbike.h \
 		../src/devices/bike.h \
@@ -11892,12 +12683,10 @@ moc_homefitnessbuddy.cpp: ../src/homefitnessbuddy.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -11932,6 +12721,8 @@ moc_homefitnessbuddy.cpp: ../src/homefitnessbuddy.h \
 		../src/devices/rower.h \
 		../src/virtualdevices/virtualrower.h \
 		../src/devices/concept2skierg/concept2skierg.h \
+		../src/devices/crossrope/crossrope.h \
+		../src/devices/jumprope.h \
 		../src/devices/cscbike/cscbike.h \
 		../src/devices/domyosbike/domyosbike.h \
 		../src/devices/domyoselliptical/domyoselliptical.h \
@@ -11956,6 +12747,7 @@ moc_homefitnessbuddy.cpp: ../src/homefitnessbuddy.h \
 		../../Qt/5.15.2/ios/include/QtCore/qstring.h \
 		../src/devices/flywheelbike/flywheelbike.h \
 		../src/devices/ftmsrower/ftmsrower.h \
+		../src/devices/focustreadmill/focustreadmill.h \
 		../src/devices/heartratebelt/heartratebelt.h \
 		../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/devices/horizontreadmill/horizontreadmill.h \
@@ -12034,6 +12826,7 @@ moc_homefitnessbuddy.cpp: ../src/homefitnessbuddy.h \
 		../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../src/devices/truetreadmill/truetreadmill.h \
 		../src/devices/trxappgateusbbike/trxappgateusbbike.h \
+		../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 		../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 		../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/devices/wahookickrheadwind/wahookickrheadwind.h \
@@ -12054,6 +12847,7 @@ moc_homefitnessbuddy.cpp: ../src/homefitnessbuddy.h \
 		../../Qt/5.15.2/ios/include/QtCore/QCoreApplication \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkRequest \
 		../../Qt/5.15.2/ios/include/QtCore/QUrl \
+		../src/zwift-api/zwift_messages.pb.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/homefitnessbuddy.h -o moc_homefitnessbuddy.cpp
 
@@ -12087,6 +12881,9 @@ moc_horizongr7bike.cpp: ../src/devices/horizongr7bike/horizongr7bike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -12104,12 +12901,10 @@ moc_horizongr7bike.cpp: ../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -12158,6 +12953,9 @@ moc_iconceptbike.cpp: ../src/devices/iconceptbike/iconceptbike.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -12175,12 +12973,10 @@ moc_iconceptbike.cpp: ../src/devices/iconceptbike/iconceptbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -12227,6 +13023,9 @@ moc_keepbike.cpp: ../src/devices/keepbike/keepbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -12244,12 +13043,10 @@ moc_keepbike.cpp: ../src/devices/keepbike/keepbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -12296,8 +13093,12 @@ moc_kingsmithr1protreadmill.cpp: ../src/devices/kingsmithr1protreadmill/kingsmit
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h -o moc_kingsmithr1protreadmill.cpp
@@ -12333,8 +13134,12 @@ moc_kingsmithr2treadmill.cpp: ../src/devices/kingsmithr2treadmill/kingsmithr2tre
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/kingsmithr2treadmill/kingsmithr2treadmill.h -o moc_kingsmithr2treadmill.cpp
@@ -12369,6 +13174,9 @@ moc_m3ibike.cpp: ../src/devices/m3ibike/m3ibike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -12386,12 +13194,10 @@ moc_m3ibike.cpp: ../src/devices/m3ibike/m3ibike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -12440,8 +13246,12 @@ moc_fitshowtreadmill.cpp: ../src/devices/fitshowtreadmill/fitshowtreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/virtualdevices/virtualtreadmill.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/include/QtCore/qloggingcategory.h \
@@ -12457,12 +13267,10 @@ moc_fitshowtreadmill.cpp: ../src/devices/fitshowtreadmill/fitshowtreadmill.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -12509,6 +13317,9 @@ moc_flywheelbike.cpp: ../src/devices/flywheelbike/flywheelbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -12526,12 +13337,10 @@ moc_flywheelbike.cpp: ../src/devices/flywheelbike/flywheelbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -12578,6 +13387,9 @@ moc_ftmsbike.cpp: ../src/devices/ftmsbike/ftmsbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -12595,12 +13407,10 @@ moc_ftmsbike.cpp: ../src/devices/ftmsbike/ftmsbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -12648,8 +13458,12 @@ moc_heartratebelt.cpp: ../src/devices/heartratebelt/heartratebelt.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/heartratebelt/heartratebelt.h -o moc_heartratebelt.cpp
 
@@ -12697,8 +13511,12 @@ moc_homeform.cpp: ../src/homeform.h \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../src/devices/apexbike/apexbike.h \
 		../src/devices/bike.h \
@@ -12715,12 +13533,10 @@ moc_homeform.cpp: ../src/homeform.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -12755,6 +13571,8 @@ moc_homeform.cpp: ../src/homeform.h \
 		../src/devices/rower.h \
 		../src/virtualdevices/virtualrower.h \
 		../src/devices/concept2skierg/concept2skierg.h \
+		../src/devices/crossrope/crossrope.h \
+		../src/devices/jumprope.h \
 		../src/devices/cscbike/cscbike.h \
 		../src/devices/domyosbike/domyosbike.h \
 		../src/devices/domyoselliptical/domyoselliptical.h \
@@ -12779,6 +13597,7 @@ moc_homeform.cpp: ../src/homeform.h \
 		../../Qt/5.15.2/ios/include/QtCore/qstring.h \
 		../src/devices/flywheelbike/flywheelbike.h \
 		../src/devices/ftmsrower/ftmsrower.h \
+		../src/devices/focustreadmill/focustreadmill.h \
 		../src/devices/heartratebelt/heartratebelt.h \
 		../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/devices/horizontreadmill/horizontreadmill.h \
@@ -12857,6 +13676,7 @@ moc_homeform.cpp: ../src/homeform.h \
 		../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../src/devices/truetreadmill/truetreadmill.h \
 		../src/devices/trxappgateusbbike/trxappgateusbbike.h \
+		../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 		../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 		../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/devices/wahookickrheadwind/wahookickrheadwind.h \
@@ -12883,6 +13703,7 @@ moc_homeform.cpp: ../src/homeform.h \
 		../../Qt/5.15.2/ios/include/QtCore/QCoreApplication \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkRequest \
 		../../Qt/5.15.2/ios/include/QtCore/QUrl \
+		../src/zwift-api/zwift_messages.pb.h \
 		../src/filedownloader.h \
 		../src/homefitnessbuddy.h \
 		../src/qmdnsengine/src/include/qmdnsengine/browser.h \
@@ -12944,8 +13765,12 @@ moc_horizontreadmill.cpp: ../src/devices/horizontreadmill/horizontreadmill.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/horizontreadmill/horizontreadmill.h -o moc_horizontreadmill.cpp
@@ -12980,6 +13805,9 @@ moc_inspirebike.cpp: ../src/devices/inspirebike/inspirebike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -12997,12 +13825,10 @@ moc_inspirebike.cpp: ../src/devices/inspirebike/inspirebike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -13055,6 +13881,9 @@ moc_mcfbike.cpp: ../src/devices/mcfbike/mcfbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -13072,12 +13901,10 @@ moc_mcfbike.cpp: ../src/devices/mcfbike/mcfbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -13124,6 +13951,9 @@ moc_nautiluselliptical.cpp: ../src/devices/nautiluselliptical/nautiluselliptical
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../../Qt/5.15.2/ios/bin/moc
@@ -13159,8 +13989,12 @@ moc_nautilustreadmill.cpp: ../src/devices/nautilustreadmill/nautilustreadmill.h 
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/nautilustreadmill/nautilustreadmill.h -o moc_nautilustreadmill.cpp
 
@@ -13194,6 +14028,9 @@ moc_npecablebike.cpp: ../src/devices/npecablebike/npecablebike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -13211,12 +14048,10 @@ moc_npecablebike.cpp: ../src/devices/npecablebike/npecablebike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -13263,6 +14098,9 @@ moc_pafersbike.cpp: ../src/devices/pafersbike/pafersbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -13280,12 +14118,10 @@ moc_pafersbike.cpp: ../src/devices/pafersbike/pafersbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -13332,8 +14168,12 @@ moc_paferstreadmill.cpp: ../src/devices/paferstreadmill/paferstreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/paferstreadmill/paferstreadmill.h -o moc_paferstreadmill.cpp
 
@@ -13372,8 +14212,12 @@ moc_peloton.cpp: ../src/peloton.h \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../src/devices/apexbike/apexbike.h \
 		../src/devices/bike.h \
@@ -13390,12 +14234,10 @@ moc_peloton.cpp: ../src/peloton.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -13430,6 +14272,8 @@ moc_peloton.cpp: ../src/peloton.h \
 		../src/devices/rower.h \
 		../src/virtualdevices/virtualrower.h \
 		../src/devices/concept2skierg/concept2skierg.h \
+		../src/devices/crossrope/crossrope.h \
+		../src/devices/jumprope.h \
 		../src/devices/cscbike/cscbike.h \
 		../src/devices/domyosbike/domyosbike.h \
 		../src/devices/domyoselliptical/domyoselliptical.h \
@@ -13454,6 +14298,7 @@ moc_peloton.cpp: ../src/peloton.h \
 		../../Qt/5.15.2/ios/include/QtCore/qstring.h \
 		../src/devices/flywheelbike/flywheelbike.h \
 		../src/devices/ftmsrower/ftmsrower.h \
+		../src/devices/focustreadmill/focustreadmill.h \
 		../src/devices/heartratebelt/heartratebelt.h \
 		../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/devices/horizontreadmill/horizontreadmill.h \
@@ -13532,6 +14377,7 @@ moc_peloton.cpp: ../src/peloton.h \
 		../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../src/devices/truetreadmill/truetreadmill.h \
 		../src/devices/trxappgateusbbike/trxappgateusbbike.h \
+		../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 		../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 		../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/devices/wahookickrheadwind/wahookickrheadwind.h \
@@ -13553,6 +14399,7 @@ moc_peloton.cpp: ../src/peloton.h \
 		../../Qt/5.15.2/ios/include/QtCore/QCoreApplication \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkRequest \
 		../../Qt/5.15.2/ios/include/QtCore/QUrl \
+		../src/zwift-api/zwift_messages.pb.h \
 		../src/filedownloader.h \
 		../src/homefitnessbuddy.h \
 		../../Qt/5.15.2/ios/bin/moc
@@ -13607,8 +14454,11 @@ moc_powerzonepack.cpp: ../src/powerzonepack.h \
 		../../Qt/5.15.2/ios/include/QtCore/QDebug \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../src/devices/apexbike/apexbike.h \
 		../src/devices/bike.h \
@@ -13629,7 +14479,6 @@ moc_powerzonepack.cpp: ../src/powerzonepack.h \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -13663,6 +14512,8 @@ moc_powerzonepack.cpp: ../src/powerzonepack.h \
 		../src/devices/rower.h \
 		../src/virtualdevices/virtualrower.h \
 		../src/devices/concept2skierg/concept2skierg.h \
+		../src/devices/crossrope/crossrope.h \
+		../src/devices/jumprope.h \
 		../src/devices/cscbike/cscbike.h \
 		../src/devices/domyosbike/domyosbike.h \
 		../src/devices/domyoselliptical/domyoselliptical.h \
@@ -13687,6 +14538,7 @@ moc_powerzonepack.cpp: ../src/powerzonepack.h \
 		../../Qt/5.15.2/ios/include/QtCore/qstring.h \
 		../src/devices/flywheelbike/flywheelbike.h \
 		../src/devices/ftmsrower/ftmsrower.h \
+		../src/devices/focustreadmill/focustreadmill.h \
 		../src/devices/heartratebelt/heartratebelt.h \
 		../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/devices/horizontreadmill/horizontreadmill.h \
@@ -13754,6 +14606,7 @@ moc_powerzonepack.cpp: ../src/powerzonepack.h \
 		../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../src/devices/truetreadmill/truetreadmill.h \
 		../src/devices/trxappgateusbbike/trxappgateusbbike.h \
+		../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 		../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 		../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/devices/wahookickrheadwind/wahookickrheadwind.h \
@@ -13773,6 +14626,7 @@ moc_powerzonepack.cpp: ../src/powerzonepack.h \
 		../../Qt/5.15.2/ios/include/QtCore/QCoreApplication \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkRequest \
 		../../Qt/5.15.2/ios/include/QtCore/QUrl \
+		../src/zwift-api/zwift_messages.pb.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/powerzonepack.h -o moc_powerzonepack.cpp
 
@@ -13806,6 +14660,9 @@ moc_proformbike.cpp: ../src/devices/proformbike/proformbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -13823,12 +14680,10 @@ moc_proformbike.cpp: ../src/devices/proformbike/proformbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -13875,6 +14730,9 @@ moc_proformelliptical.cpp: ../src/devices/proformelliptical/proformelliptical.h 
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -13911,8 +14769,12 @@ moc_proformtreadmill.cpp: ../src/devices/proformtreadmill/proformtreadmill.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/proformtreadmill/proformtreadmill.h -o moc_proformtreadmill.cpp
@@ -13929,9 +14791,12 @@ moc_qfit.cpp: ../src/qfit.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -13979,6 +14844,9 @@ moc_renphobike.cpp: ../src/devices/renphobike/renphobike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -13996,12 +14864,10 @@ moc_renphobike.cpp: ../src/devices/renphobike/renphobike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -14030,9 +14896,12 @@ moc_rower.cpp: ../src/devices/rower.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -14075,6 +14944,9 @@ moc_schwinnic4bike.cpp: ../src/devices/schwinnic4bike/schwinnic4bike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -14092,12 +14964,10 @@ moc_schwinnic4bike.cpp: ../src/devices/schwinnic4bike/schwinnic4bike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -14149,8 +15019,12 @@ moc_shuaa5treadmill.cpp: ../src/devices/shuaa5treadmill/shuaa5treadmill.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/shuaa5treadmill/shuaa5treadmill.h -o moc_shuaa5treadmill.cpp
@@ -14185,6 +15059,9 @@ moc_skandikawiribike.cpp: ../src/devices/skandikawiribike/skandikawiribike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -14202,12 +15079,10 @@ moc_skandikawiribike.cpp: ../src/devices/skandikawiribike/skandikawiribike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -14254,6 +15129,9 @@ moc_smartrowrower.cpp: ../src/devices/smartrowrower/smartrowrower.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/ios/lockscreen.h \
@@ -14291,6 +15169,9 @@ moc_smartspin2k.cpp: ../src/devices/smartspin2k/smartspin2k.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -14308,12 +15189,10 @@ moc_smartspin2k.cpp: ../src/devices/smartspin2k/smartspin2k.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -14442,6 +15321,9 @@ moc_snodebike.cpp: ../src/devices/snodebike/snodebike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -14459,12 +15341,10 @@ moc_snodebike.cpp: ../src/devices/snodebike/snodebike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -14511,6 +15391,9 @@ moc_solebike.cpp: ../src/devices/solebike/solebike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -14528,12 +15411,10 @@ moc_solebike.cpp: ../src/devices/solebike/solebike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -14580,6 +15461,9 @@ moc_soleelliptical.cpp: ../src/devices/soleelliptical/soleelliptical.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../../Qt/5.15.2/ios/bin/moc
@@ -14615,8 +15499,12 @@ moc_solef80treadmill.cpp: ../src/devices/solef80treadmill/solef80treadmill.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/solef80treadmill/solef80treadmill.h -o moc_solef80treadmill.cpp
@@ -14652,8 +15540,12 @@ moc_spirittreadmill.cpp: ../src/devices/spirittreadmill/spirittreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/spirittreadmill/spirittreadmill.h -o moc_spirittreadmill.cpp
 
@@ -14688,6 +15580,9 @@ moc_sportsplusbike.cpp: ../src/devices/sportsplusbike/sportsplusbike.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -14705,12 +15600,10 @@ moc_sportsplusbike.cpp: ../src/devices/sportsplusbike/sportsplusbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -14758,6 +15651,9 @@ moc_sportstechbike.cpp: ../src/devices/sportstechbike/sportstechbike.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -14775,12 +15671,10 @@ moc_sportstechbike.cpp: ../src/devices/sportstechbike/sportstechbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -14827,8 +15721,12 @@ moc_strydrunpowersensor.cpp: ../src/devices/strydrunpowersensor/strydrunpowersen
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/strydrunpowersensor/strydrunpowersensor.h -o moc_strydrunpowersensor.cpp
@@ -14863,6 +15761,9 @@ moc_tacxneo2.cpp: ../src/devices/tacxneo2/tacxneo2.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -14880,12 +15781,10 @@ moc_tacxneo2.cpp: ../src/devices/tacxneo2/tacxneo2.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -14942,8 +15841,12 @@ moc_technogymmyruntreadmill.cpp: ../src/devices/technogymmyruntreadmill/technogy
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/technogymmyruntreadmill/technogymmyruntreadmill.h -o moc_technogymmyruntreadmill.cpp
@@ -14980,8 +15883,12 @@ moc_technogymmyruntreadmillrfcomm.cpp: ../src/devices/technogymmyruntreadmillrfc
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.h -o moc_technogymmyruntreadmillrfcomm.cpp
 
@@ -15005,9 +15912,12 @@ moc_templateinfosenderbuilder.cpp: ../src/templateinfosenderbuilder.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -15019,7 +15929,6 @@ moc_templateinfosenderbuilder.cpp: ../src/templateinfosenderbuilder.h \
 		../src/virtualdevices/virtualdevice.h \
 		../src/templateinfosender.h \
 		../../Qt/5.15.2/ios/include/QtQml/QJSEngine \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QHash \
 		../../Qt/5.15.2/ios/include/QtCore/QJsonArray \
 		../../Qt/5.15.2/ios/bin/moc
@@ -15055,6 +15964,9 @@ moc_stagesbike.cpp: ../src/devices/stagesbike/stagesbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -15072,12 +15984,10 @@ moc_stagesbike.cpp: ../src/devices/stagesbike/stagesbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -15126,8 +16036,12 @@ moc_toorxtreadmill.cpp: ../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/toorxtreadmill/toorxtreadmill.h -o moc_toorxtreadmill.cpp
 
@@ -15143,9 +16057,12 @@ moc_gpx.cpp: ../src/gpx.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -15172,9 +16089,12 @@ moc_treadmill.cpp: ../src/devices/treadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -15184,6 +16104,7 @@ moc_treadmill.cpp: ../src/devices/treadmill.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservice.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyservicedata.h \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/treadmill.h -o moc_treadmill.cpp
 
@@ -15218,8 +16139,12 @@ moc_mainwindow.cpp: ../src/mainwindow.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../src/trainprogram.h \
 		../src/devices/bluetooth.h \
@@ -15242,12 +16167,10 @@ moc_mainwindow.cpp: ../src/mainwindow.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -15282,6 +16205,8 @@ moc_mainwindow.cpp: ../src/mainwindow.h \
 		../src/devices/rower.h \
 		../src/virtualdevices/virtualrower.h \
 		../src/devices/concept2skierg/concept2skierg.h \
+		../src/devices/crossrope/crossrope.h \
+		../src/devices/jumprope.h \
 		../src/devices/cscbike/cscbike.h \
 		../src/devices/domyosbike/domyosbike.h \
 		../src/devices/domyoselliptical/domyoselliptical.h \
@@ -15305,6 +16230,7 @@ moc_mainwindow.cpp: ../src/mainwindow.h \
 		../../Qt/5.15.2/ios/include/QtCore/qstring.h \
 		../src/devices/flywheelbike/flywheelbike.h \
 		../src/devices/ftmsrower/ftmsrower.h \
+		../src/devices/focustreadmill/focustreadmill.h \
 		../src/devices/heartratebelt/heartratebelt.h \
 		../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/devices/horizontreadmill/horizontreadmill.h \
@@ -15383,6 +16309,7 @@ moc_mainwindow.cpp: ../src/mainwindow.h \
 		../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../src/devices/truetreadmill/truetreadmill.h \
 		../src/devices/trxappgateusbbike/trxappgateusbbike.h \
+		../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 		../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 		../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/devices/wahookickrheadwind/wahookickrheadwind.h \
@@ -15402,6 +16329,7 @@ moc_mainwindow.cpp: ../src/mainwindow.h \
 		../../Qt/5.15.2/ios/include/QtCore/QCoreApplication \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkRequest \
 		../../Qt/5.15.2/ios/include/QtCore/QUrl \
+		../src/zwift-api/zwift_messages.pb.h \
 		../../Qt/5.15.2/ios/include/QtWidgets/QDialog \
 		../../Qt/5.15.2/ios/include/QtWidgets/QTableWidgetItem \
 		../../Qt/5.15.2/ios/bin/moc
@@ -15442,8 +16370,12 @@ moc_trainprogram.cpp: ../src/trainprogram.h \
 		../src/sessionline.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../src/devices/apexbike/apexbike.h \
 		../src/devices/bike.h \
@@ -15460,12 +16392,10 @@ moc_trainprogram.cpp: ../src/trainprogram.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -15500,6 +16430,8 @@ moc_trainprogram.cpp: ../src/trainprogram.h \
 		../src/devices/rower.h \
 		../src/virtualdevices/virtualrower.h \
 		../src/devices/concept2skierg/concept2skierg.h \
+		../src/devices/crossrope/crossrope.h \
+		../src/devices/jumprope.h \
 		../src/devices/cscbike/cscbike.h \
 		../src/devices/domyosbike/domyosbike.h \
 		../src/devices/domyoselliptical/domyoselliptical.h \
@@ -15524,6 +16456,7 @@ moc_trainprogram.cpp: ../src/trainprogram.h \
 		../../Qt/5.15.2/ios/include/QtCore/qstring.h \
 		../src/devices/flywheelbike/flywheelbike.h \
 		../src/devices/ftmsrower/ftmsrower.h \
+		../src/devices/focustreadmill/focustreadmill.h \
 		../src/devices/heartratebelt/heartratebelt.h \
 		../src/devices/horizongr7bike/horizongr7bike.h \
 		../src/devices/horizontreadmill/horizontreadmill.h \
@@ -15602,6 +16535,7 @@ moc_trainprogram.cpp: ../src/trainprogram.h \
 		../src/devices/toorxtreadmill/toorxtreadmill.h \
 		../src/devices/truetreadmill/truetreadmill.h \
 		../src/devices/trxappgateusbbike/trxappgateusbbike.h \
+		../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 		../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 		../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/devices/wahookickrheadwind/wahookickrheadwind.h \
@@ -15621,6 +16555,7 @@ moc_trainprogram.cpp: ../src/trainprogram.h \
 		../../Qt/5.15.2/ios/include/QtCore/QCoreApplication \
 		../../Qt/5.15.2/ios/include/QtNetwork/QNetworkRequest \
 		../../Qt/5.15.2/ios/include/QtCore/QUrl \
+		../src/zwift-api/zwift_messages.pb.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/trainprogram.h -o moc_trainprogram.cpp
 
@@ -15654,8 +16589,12 @@ moc_truetreadmill.cpp: ../src/devices/truetreadmill/truetreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/ios/lockscreen.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/truetreadmill/truetreadmill.h -o moc_truetreadmill.cpp
@@ -15691,6 +16630,9 @@ moc_trxappgateusbbike.cpp: ../src/devices/trxappgateusbbike/trxappgateusbbike.h 
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -15708,12 +16650,10 @@ moc_trxappgateusbbike.cpp: ../src/devices/trxappgateusbbike/trxappgateusbbike.h 
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -15761,8 +16701,12 @@ moc_trxappgateusbtreadmill.cpp: ../src/devices/trxappgateusbtreadmill/trxappgate
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../../Qt/5.15.2/ios/bin/moc
 	/Users/cagnulein/Qt/5.15.2/ios/bin/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=13 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/macx-ios-clang -I/Users/cagnulein/qdomyos-zwift/src -I/Users/cagnulein/Qt/5.15.2/ios/mkspecs/common/uikit -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/qmdnsengine/src/include -I/Users/cagnulein/qdomyos-zwift/src/fit-sdk -I/Users/cagnulein/qdomyos-zwift/src/devices -I/Users/cagnulein/qdomyos-zwift/src/purchasing/qmltypes -I/Users/cagnulein/qdomyos-zwift/src/purchasing/inapp -I/Users/cagnulein/Qt/5.15.2/ios/include -I/Users/cagnulein/Qt/5.15.2/ios/include/QtHttpServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtSslServer -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCharts -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWidgets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtLocation -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioningQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuickControls2 -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQuick -I/Users/cagnulein/Qt/5.15.2/ios/include/QtMultimedia -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebView -I/Users/cagnulein/Qt/5.15.2/ios/include/QtGui -I/Users/cagnulein/Qt/5.15.2/ios/include/QtBluetooth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtXml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtPositioning -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQmlModels -I/Users/cagnulein/Qt/5.15.2/ios/include/QtQml -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetworkAuth -I/Users/cagnulein/Qt/5.15.2/ios/include/QtWebSockets -I/Users/cagnulein/Qt/5.15.2/ios/include/QtNetwork -I/Users/cagnulein/Qt/5.15.2/ios/include/QtTextToSpeech -I/Users/cagnulein/Qt/5.15.2/ios/include/QtConcurrent -I/Users/cagnulein/Qt/5.15.2/ios/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include --output-json ../src/devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h -o moc_trxappgateusbtreadmill.cpp
 
@@ -15796,6 +16740,9 @@ moc_ultrasportbike.cpp: ../src/devices/ultrasportbike/ultrasportbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -15813,12 +16760,10 @@ moc_ultrasportbike.cpp: ../src/devices/ultrasportbike/ultrasportbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -15865,6 +16810,9 @@ moc_virtualbike.cpp: ../src/virtualdevices/virtualbike.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
@@ -15879,12 +16827,10 @@ moc_virtualbike.cpp: ../src/virtualdevices/virtualbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -15930,6 +16876,9 @@ moc_virtualrower.cpp: ../src/virtualdevices/virtualrower.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
@@ -15966,9 +16915,13 @@ moc_virtualtreadmill.cpp: ../src/virtualdevices/virtualtreadmill.h \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
+		../src/treadmillErgTable.h \
 		../src/devices/dircon/dirconmanager.h \
 		../src/characteristics/characteristicnotifier2a37.h \
 		../src/characteristics/characteristicnotifier.h \
@@ -15981,12 +16934,10 @@ moc_virtualtreadmill.cpp: ../src/virtualdevices/virtualtreadmill.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -16033,6 +16984,9 @@ moc_domyosbike.cpp: ../src/devices/domyosbike/domyosbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -16050,12 +17004,10 @@ moc_domyosbike.cpp: ../src/devices/domyosbike/domyosbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -16102,6 +17054,9 @@ moc_wahookickrsnapbike.cpp: ../src/devices/wahookickrsnapbike/wahookickrsnapbike
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -16119,12 +17074,10 @@ moc_wahookickrsnapbike.cpp: ../src/devices/wahookickrsnapbike/wahookickrsnapbike
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -16177,6 +17130,9 @@ moc_yesoulbike.cpp: ../src/devices/yesoulbike/yesoulbike.h \
 		../../Qt/5.15.2/ios/include/QtPositioning/QGeoCoordinate \
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
 		../src/virtualdevices/virtualdevice.h \
 		../src/virtualdevices/virtualbike.h \
@@ -16194,12 +17150,10 @@ moc_yesoulbike.cpp: ../src/devices/yesoulbike/yesoulbike.h \
 		../src/characteristics/characteristicnotifier2ad9.h \
 		../src/characteristics/characteristicwriteprocessor2ad9.h \
 		../src/characteristics/characteristicwriteprocessor.h \
-		../../Qt/5.15.2/ios/include/QtCore/QSettings \
 		../../Qt/5.15.2/ios/include/QtCore/QtMath \
 		../src/characteristics/characteristicwriteprocessore005.h \
 		../src/devices/dircon/dirconpacket.h \
 		../../Qt/5.15.2/ios/include/QtCore/QByteArray \
-		../../Qt/5.15.2/ios/include/QtCore/QList \
 		../src/devices/dircon/dirconprocessor.h \
 		../src/qmdnsengine/src/include/qmdnsengine/hostname.h \
 		../src/qmdnsengine_export.h \
@@ -16231,9 +17185,12 @@ moc_windows_zwift_incline_paddleocr_thread.cpp: ../src/windows_zwift_incline_pad
 		../../Qt/5.15.2/ios/include/QtCore/QTimer \
 		../src/qzsettings.h \
 		../../Qt/5.15.2/ios/include/QtCore/QString \
+		../src/ergtable.h \
+		../../Qt/5.15.2/ios/include/QtCore/QList \
+		../../Qt/5.15.2/ios/include/QtCore/QSettings \
+		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceDiscoveryAgent \
 		../../Qt/5.15.2/ios/include/QtBluetooth/QBluetoothDeviceInfo \
-		../../Qt/5.15.2/ios/include/QtCore/QObject \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingdata.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergyadvertisingparameters.h \
 		../../Qt/5.15.2/ios/include/QtBluetooth/qlowenergycharacteristic.h \
@@ -16374,6 +17331,12 @@ compiler_moc_collect_json_make_all: qdomyoszwift_metatypes.json
 compiler_moc_collect_json_clean:
 	-$(DEL_FILE) qdomyoszwift_metatypes.json
 qdomyoszwift_metatypes.json: moc_webserverinfosender.cpp.json \
+		moc_crossrope.cpp.json \
+		moc_focustreadmill.cpp.json \
+		moc_jumprope.cpp.json \
+		moc_trxappgateusbelliptical.cpp.json \
+		moc_ergtable.cpp.json \
+		moc_treadmillErgTable.cpp.json \
 		moc_QTelnet.cpp.json \
 		moc_bkoolbike.cpp.json \
 		moc_csaferower.cpp.json \
@@ -16542,7 +17505,7 @@ qdomyoszwift_metatypes.json: moc_webserverinfosender.cpp.json \
 		moc_iosinapppurchasebackend.cpp.json \
 		moc_iosinapppurchaseproduct.cpp.json \
 		moc_iosinapppurchasetransaction.cpp.json 
-	/Users/cagnulein/Qt/5.15.2/ios/bin/moc --collect-json -o qdomyoszwift_metatypes.json moc_webserverinfosender.cpp.json moc_QTelnet.cpp.json moc_bkoolbike.cpp.json moc_csaferower.cpp.json moc_eliteariafan.cpp.json moc_proformtelnetbike.cpp.json moc_windows_zwift_workout_paddleocr_thread.cpp.json moc_fakerower.cpp.json moc_PlayerStateWrapper.cpp.json moc_zwift_client_auth.cpp.json moc_abstractZapDevice.cpp.json moc_zwiftPlayDevice.cpp.json moc_zwiftclickremote.cpp.json moc_virtualdevice.cpp.json moc_androidadblog.cpp.json moc_apexbike.cpp.json moc_handleurl.cpp.json moc_iconceptelliptical.cpp.json moc_pelotonbike.cpp.json moc_schwinn170bike.cpp.json moc_wahookickrheadwind.cpp.json moc_ypooelliptical.cpp.json moc_ziprotreadmill.cpp.json moc_characteristicwriteprocessore005.cpp.json moc_computrainerbike.cpp.json moc_fakeelliptical.cpp.json moc_faketreadmill.cpp.json moc_lifefitnesstreadmill.cpp.json moc_mepanelbike.cpp.json moc_nautilusbike.cpp.json moc_nordictrackelliptical.cpp.json moc_nordictrackifitadbbike.cpp.json moc_nordictrackifitadbtreadmill.cpp.json moc_octaneelliptical.cpp.json moc_octanetreadmill.cpp.json moc_proformellipticaltrainer.cpp.json moc_proformrower.cpp.json moc_proformwifibike.cpp.json moc_proformwifitreadmill.cpp.json moc_abstractserver.cpp.json moc_browser.cpp.json moc_cache.cpp.json moc_hostname.cpp.json moc_prober.cpp.json moc_provider.cpp.json moc_resolver.cpp.json moc_server.cpp.json moc_browser_p.cpp.json moc_cache_p.cpp.json moc_hostname_p.cpp.json moc_prober_p.cpp.json moc_provider_p.cpp.json moc_resolver_p.cpp.json moc_server_p.cpp.json moc_activiotreadmill.cpp.json moc_bhfitnesselliptical.cpp.json moc_bike.cpp.json moc_bluetooth.cpp.json moc_bluetoothdevice.cpp.json moc_characteristicnotifier.cpp.json moc_characteristicwriteprocessor.cpp.json moc_characteristicwriteprocessor2ad9.cpp.json moc_bowflext216treadmill.cpp.json moc_bowflextreadmill.cpp.json moc_chronobike.cpp.json moc_concept2skierg.cpp.json moc_cscbike.cpp.json moc_dirconmanager.cpp.json moc_dirconprocessor.cpp.json moc_domyoselliptical.cpp.json moc_domyosrower.cpp.json moc_domyostreadmill.cpp.json moc_echelonconnectsport.cpp.json moc_echelonrower.cpp.json moc_echelonstride.cpp.json moc_eliterizer.cpp.json moc_elitesterzosmart.cpp.json moc_elliptical.cpp.json moc_eslinkertreadmill.cpp.json moc_fakebike.cpp.json moc_filedownloader.cpp.json moc_fitmetria_fanfit.cpp.json moc_fitplusbike.cpp.json moc_ftmsrower.cpp.json moc_homefitnessbuddy.cpp.json moc_horizongr7bike.cpp.json moc_iconceptbike.cpp.json moc_keepbike.cpp.json moc_kingsmithr1protreadmill.cpp.json moc_kingsmithr2treadmill.cpp.json moc_m3ibike.cpp.json moc_fitshowtreadmill.cpp.json moc_flywheelbike.cpp.json moc_ftmsbike.cpp.json moc_heartratebelt.cpp.json moc_homeform.cpp.json moc_horizontreadmill.cpp.json moc_inspirebike.cpp.json moc_material.cpp.json moc_mcfbike.cpp.json moc_nautiluselliptical.cpp.json moc_nautilustreadmill.cpp.json moc_npecablebike.cpp.json moc_pafersbike.cpp.json moc_paferstreadmill.cpp.json moc_peloton.cpp.json moc_powerzonepack.cpp.json moc_proformbike.cpp.json moc_proformelliptical.cpp.json moc_proformtreadmill.cpp.json moc_qfit.cpp.json moc_renphobike.cpp.json moc_rower.cpp.json moc_schwinnic4bike.cpp.json moc_screencapture.cpp.json moc_shuaa5treadmill.cpp.json moc_skandikawiribike.cpp.json moc_smartrowrower.cpp.json moc_smartspin2k.cpp.json moc_emailaddress.cpp.json moc_mimeattachment.cpp.json moc_mimecontentformatter.cpp.json moc_mimefile.cpp.json moc_mimehtml.cpp.json moc_mimemultipart.cpp.json moc_mimepart.cpp.json moc_quotedprintable.cpp.json moc_smtpclient.cpp.json moc_snodebike.cpp.json moc_solebike.cpp.json moc_soleelliptical.cpp.json moc_solef80treadmill.cpp.json moc_spirittreadmill.cpp.json moc_sportsplusbike.cpp.json moc_sportstechbike.cpp.json moc_strydrunpowersensor.cpp.json moc_tacxneo2.cpp.json moc_tcpclientinfosender.cpp.json moc_technogymmyruntreadmill.cpp.json moc_technogymmyruntreadmillrfcomm.cpp.json moc_templateinfosender.cpp.json moc_templateinfosenderbuilder.cpp.json moc_stagesbike.cpp.json moc_toorxtreadmill.cpp.json moc_gpx.cpp.json moc_treadmill.cpp.json moc_mainwindow.cpp.json moc_trainprogram.cpp.json moc_truetreadmill.cpp.json moc_trxappgateusbbike.cpp.json moc_trxappgateusbtreadmill.cpp.json moc_ultrasportbike.cpp.json moc_virtualbike.cpp.json moc_virtualrower.cpp.json moc_virtualtreadmill.cpp.json moc_domyosbike.cpp.json moc_wahookickrsnapbike.cpp.json moc_wobjectdefs.cpp.json moc_yesoulbike.cpp.json moc_windows_zwift_incline_paddleocr_thread.cpp.json moc_inappproductqmltype.cpp.json moc_inappstoreqmltype.cpp.json moc_inappproduct.cpp.json moc_inapppurchasebackend.cpp.json moc_inappstore.cpp.json moc_inapptransaction.cpp.json moc_iosinapppurchasebackend.cpp.json moc_iosinapppurchaseproduct.cpp.json moc_iosinapppurchasetransaction.cpp.json
+	/Users/cagnulein/Qt/5.15.2/ios/bin/moc --collect-json -o qdomyoszwift_metatypes.json moc_webserverinfosender.cpp.json moc_crossrope.cpp.json moc_focustreadmill.cpp.json moc_jumprope.cpp.json moc_trxappgateusbelliptical.cpp.json moc_ergtable.cpp.json moc_treadmillErgTable.cpp.json moc_QTelnet.cpp.json moc_bkoolbike.cpp.json moc_csaferower.cpp.json moc_eliteariafan.cpp.json moc_proformtelnetbike.cpp.json moc_windows_zwift_workout_paddleocr_thread.cpp.json moc_fakerower.cpp.json moc_PlayerStateWrapper.cpp.json moc_zwift_client_auth.cpp.json moc_abstractZapDevice.cpp.json moc_zwiftPlayDevice.cpp.json moc_zwiftclickremote.cpp.json moc_virtualdevice.cpp.json moc_androidadblog.cpp.json moc_apexbike.cpp.json moc_handleurl.cpp.json moc_iconceptelliptical.cpp.json moc_pelotonbike.cpp.json moc_schwinn170bike.cpp.json moc_wahookickrheadwind.cpp.json moc_ypooelliptical.cpp.json moc_ziprotreadmill.cpp.json moc_characteristicwriteprocessore005.cpp.json moc_computrainerbike.cpp.json moc_fakeelliptical.cpp.json moc_faketreadmill.cpp.json moc_lifefitnesstreadmill.cpp.json moc_mepanelbike.cpp.json moc_nautilusbike.cpp.json moc_nordictrackelliptical.cpp.json moc_nordictrackifitadbbike.cpp.json moc_nordictrackifitadbtreadmill.cpp.json moc_octaneelliptical.cpp.json moc_octanetreadmill.cpp.json moc_proformellipticaltrainer.cpp.json moc_proformrower.cpp.json moc_proformwifibike.cpp.json moc_proformwifitreadmill.cpp.json moc_abstractserver.cpp.json moc_browser.cpp.json moc_cache.cpp.json moc_hostname.cpp.json moc_prober.cpp.json moc_provider.cpp.json moc_resolver.cpp.json moc_server.cpp.json moc_browser_p.cpp.json moc_cache_p.cpp.json moc_hostname_p.cpp.json moc_prober_p.cpp.json moc_provider_p.cpp.json moc_resolver_p.cpp.json moc_server_p.cpp.json moc_activiotreadmill.cpp.json moc_bhfitnesselliptical.cpp.json moc_bike.cpp.json moc_bluetooth.cpp.json moc_bluetoothdevice.cpp.json moc_characteristicnotifier.cpp.json moc_characteristicwriteprocessor.cpp.json moc_characteristicwriteprocessor2ad9.cpp.json moc_bowflext216treadmill.cpp.json moc_bowflextreadmill.cpp.json moc_chronobike.cpp.json moc_concept2skierg.cpp.json moc_cscbike.cpp.json moc_dirconmanager.cpp.json moc_dirconprocessor.cpp.json moc_domyoselliptical.cpp.json moc_domyosrower.cpp.json moc_domyostreadmill.cpp.json moc_echelonconnectsport.cpp.json moc_echelonrower.cpp.json moc_echelonstride.cpp.json moc_eliterizer.cpp.json moc_elitesterzosmart.cpp.json moc_elliptical.cpp.json moc_eslinkertreadmill.cpp.json moc_fakebike.cpp.json moc_filedownloader.cpp.json moc_fitmetria_fanfit.cpp.json moc_fitplusbike.cpp.json moc_ftmsrower.cpp.json moc_homefitnessbuddy.cpp.json moc_horizongr7bike.cpp.json moc_iconceptbike.cpp.json moc_keepbike.cpp.json moc_kingsmithr1protreadmill.cpp.json moc_kingsmithr2treadmill.cpp.json moc_m3ibike.cpp.json moc_fitshowtreadmill.cpp.json moc_flywheelbike.cpp.json moc_ftmsbike.cpp.json moc_heartratebelt.cpp.json moc_homeform.cpp.json moc_horizontreadmill.cpp.json moc_inspirebike.cpp.json moc_material.cpp.json moc_mcfbike.cpp.json moc_nautiluselliptical.cpp.json moc_nautilustreadmill.cpp.json moc_npecablebike.cpp.json moc_pafersbike.cpp.json moc_paferstreadmill.cpp.json moc_peloton.cpp.json moc_powerzonepack.cpp.json moc_proformbike.cpp.json moc_proformelliptical.cpp.json moc_proformtreadmill.cpp.json moc_qfit.cpp.json moc_renphobike.cpp.json moc_rower.cpp.json moc_schwinnic4bike.cpp.json moc_screencapture.cpp.json moc_shuaa5treadmill.cpp.json moc_skandikawiribike.cpp.json moc_smartrowrower.cpp.json moc_smartspin2k.cpp.json moc_emailaddress.cpp.json moc_mimeattachment.cpp.json moc_mimecontentformatter.cpp.json moc_mimefile.cpp.json moc_mimehtml.cpp.json moc_mimemultipart.cpp.json moc_mimepart.cpp.json moc_quotedprintable.cpp.json moc_smtpclient.cpp.json moc_snodebike.cpp.json moc_solebike.cpp.json moc_soleelliptical.cpp.json moc_solef80treadmill.cpp.json moc_spirittreadmill.cpp.json moc_sportsplusbike.cpp.json moc_sportstechbike.cpp.json moc_strydrunpowersensor.cpp.json moc_tacxneo2.cpp.json moc_tcpclientinfosender.cpp.json moc_technogymmyruntreadmill.cpp.json moc_technogymmyruntreadmillrfcomm.cpp.json moc_templateinfosender.cpp.json moc_templateinfosenderbuilder.cpp.json moc_stagesbike.cpp.json moc_toorxtreadmill.cpp.json moc_gpx.cpp.json moc_treadmill.cpp.json moc_mainwindow.cpp.json moc_trainprogram.cpp.json moc_truetreadmill.cpp.json moc_trxappgateusbbike.cpp.json moc_trxappgateusbtreadmill.cpp.json moc_ultrasportbike.cpp.json moc_virtualbike.cpp.json moc_virtualrower.cpp.json moc_virtualtreadmill.cpp.json moc_domyosbike.cpp.json moc_wahookickrsnapbike.cpp.json moc_wobjectdefs.cpp.json moc_yesoulbike.cpp.json moc_windows_zwift_incline_paddleocr_thread.cpp.json moc_inappproductqmltype.cpp.json moc_inappstoreqmltype.cpp.json moc_inappproduct.cpp.json moc_inapppurchasebackend.cpp.json moc_inappstore.cpp.json moc_inapptransaction.cpp.json moc_iosinapppurchasebackend.cpp.json moc_iosinapppurchaseproduct.cpp.json moc_iosinapppurchasetransaction.cpp.json
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
