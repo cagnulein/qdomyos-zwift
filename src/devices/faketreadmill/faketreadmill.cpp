@@ -131,4 +131,3 @@ void faketreadmill::changeInclinationRequested(double grade, double percentage) 
 }
 
 bool faketreadmill::connected() { return true; }
-double faketreadmill::minStepSpeed() { return 0.1; }
