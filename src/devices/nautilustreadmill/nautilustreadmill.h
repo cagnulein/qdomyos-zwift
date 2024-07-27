@@ -59,9 +59,6 @@ class nautilustreadmill : public treadmill {
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
 
-    int64_t lastStart = 0;
-    int64_t lastStop = 0;
-
     QTimer *refresh;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
