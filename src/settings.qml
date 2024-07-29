@@ -959,6 +959,7 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.68
             property int peloton_treadmill_level: 1
             property bool nordictrackadbbike_resistance: false
+            property bool proform_treadmill_carbon_t7: false
         }
 
         function paddingZeros(text, limit) {
@@ -5908,7 +5909,7 @@ import QtQuick.Dialogs 1.0
                                 "Proform/NordicTrack z1300i", "Proform SE", "Proform Cadence LT",
                                 "Proform 8.0", "Proform 9.0", "Proform 705 CST", "Nordictrack x14i", 
                                 "Proform Carbon TL", "Proform Proshox 2", "Nordictrack S20i", "Proform 595i",
-                                "Proform 8.7", "Proform 705 CST V78.239"
+                                "Proform 8.7", "Proform 705 CST V78.239", "Proform Carbon T7"
                             ]
 
                             onCurrentIndexChanged: {
@@ -5946,6 +5947,7 @@ import QtQuick.Dialogs 1.0
                                 settings.proform_595i_proshox2 = false;
                                 settings.proform_treadmill_8_7 = false;
                                 settings.proform_treadmill_705_cst_V78_239 = false;
+                                settings.proform_treadmill_carbon_t7 = false;
 
                                 // Imposta il setting corrispondente al modello selezionato
                                 switch (currentIndex) {
@@ -5980,6 +5982,7 @@ import QtQuick.Dialogs 1.0
                                     case 28: settings.proform_595i_proshox2 = true; break;
                                     case 29: settings.proform_treadmill_8_7 = true; break;
                                     case 30: settings.proform_treadmill_705_cst_V78_239 = true; break;
+                                    case 31: settings.proform_treadmill_carbon_t7 = true; break;
                                 }
                             }
 
@@ -6015,7 +6018,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.nordictrack_s20i_treadmill ? 27 :
                                                     settings.proform_595i_proshox2 ? 28 :
                                                     settings.proform_treadmill_8_7 ? 29 :
-                                                    settings.proform_treadmill_705_cst_V78_239 ? 30 : -1;
+                                                    settings.proform_treadmill_705_cst_V78_239 ? 30 :
+                                                    settings.proform_treadmill_carbon_t7 ? 31 : -1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 
