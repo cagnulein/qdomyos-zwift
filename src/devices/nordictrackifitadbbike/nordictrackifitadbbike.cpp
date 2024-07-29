@@ -310,6 +310,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                             x1 = 1920 - 75;
                             y2 = (int)(803 - (23.777 * requestResistance));
                             y1Resistance = (int)(803 - (23.777 * currentResistance().value()));
+                            Resistance = requestResistance;
                         }
 
                         lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
