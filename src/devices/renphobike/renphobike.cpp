@@ -157,15 +157,25 @@ void renphobike::update() {
         uint8_t init9[] = {0x00, 0x40, 0x00, 0x02, 0xb9, 0x2f, 0xc0};
         uint8_t init10[] = {0x00, 0x40, 0x00, 0x04, 0xd9, 0xe9, 0xc0};
         writeCharacteristicCustom(init0, sizeof(init0), "init0", false, true);
+        QThread::msleep(1000);
         writeCharacteristicCustom(init1, sizeof(init1), "init1", false, true);
+        QThread::msleep(1000);
         writeCharacteristicCustom(init2, sizeof(init2), "init2", false, true);
+        QThread::msleep(1000);
         writeCharacteristicCustom(init3, sizeof(init3), "init3", false, true);
+        QThread::msleep(1000);
         writeCharacteristicCustom(init4, sizeof(init4), "init4", false, true);
+        QThread::msleep(1000);
         writeCharacteristicCustom(init5, sizeof(init5), "init5", false, true);
+        QThread::msleep(1000);
         writeCharacteristicCustom(init6, sizeof(init6), "init6", false, true);
+        QThread::msleep(1000);
         writeCharacteristicCustom(init7, sizeof(init7), "init7", false, true);
+        QThread::msleep(1000);
         writeCharacteristicCustom(init8, sizeof(init8), "init8", false, true);
+        QThread::msleep(1000);
         writeCharacteristicCustom(init9, sizeof(init9), "init9", false, true);
+        QThread::msleep(1000);
         writeCharacteristicCustom(init10, sizeof(init10), "init10", false, true);
         /*
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
