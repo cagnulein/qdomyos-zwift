@@ -1,4 +1,5 @@
 #include "renphobike.h"
+#include "crc16ibm.h"
 #include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
 #include <QBluetoothLocalDevice>
@@ -60,6 +61,39 @@ void renphobike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString in
     loop.exec();
 }
 
+void renphobike::writeCharacteristicCustom(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
+                                     bool wait_for_response) {
+    QEventLoop loop;
+    QTimer timeout;
+
+    if (gattCustomService == nullptr) {
+        qDebug() << QStringLiteral("gattCustomService not found! skip writing...");
+        return;
+    }
+
+    if (wait_for_response) {
+        connect(gattCustomService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)), &loop,
+                SLOT(quit()));
+        timeout.singleShot(300, &loop, SLOT(quit()));
+    } else {
+        connect(gattCustomService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop,
+                SLOT(quit()));
+        timeout.singleShot(300, &loop, SLOT(quit()));
+    }
+
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattFTMSService->writeCharacteristic(gattWriteCustomCharControlPointId, *writeBuffer);
+
+    if (!disable_log)
+        debug(" >> " + writeBuffer->toHex(' ') + " // " + info);
+
+    loop.exec();
+}
+
 void renphobike::forcePower(int16_t requestPower) {
     QSettings settings;
     double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
@@ -75,6 +109,7 @@ void renphobike::forcePower(int16_t requestPower) {
 
 void renphobike::forceResistance(resistance_t requestResistance) {
     // requestPower = powerFromResistanceRequest(requestResistance);
+    /*
     uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
     QSettings settings;
     bool renpho_bike_double_resistance =
@@ -87,6 +122,20 @@ void renphobike::forceResistance(resistance_t requestResistance) {
         write[1] = ((uint8_t)(requestResistance * 2));
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+*/
+    uint8_t write[] = {0x00, 0x44, 0x11, 0x0f, 0x84, 0xc0};
+    write[2] = requestResistance;
+    Resistance = requestResistance;
+    quint16 crc = CRC16IBM::calculateCRC(QByteArray(reinterpret_cast<const char*>(write), 3));
+
+    // Log the calculated CRC (for debugging purposes)
+    qDebug() << "Calculated CRC:" << QString::number(crc, 16);
+
+    // Replace the last two bytes of the write array with the CRC
+    write[3] = static_cast<uint8_t>(crc >> 8);  // High byte of CRC
+    write[4] = static_cast<uint8_t>(crc & 0xFF); // Low byte of CRC
+
+    writeCharacteristicCustom(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 }
 
 void renphobike::update() {
@@ -96,6 +145,29 @@ void renphobike::update() {
     }
 
     if (initRequest) {
+        uint8_t init0[] = {0x00, 0x22, 0x19, 0x2f, 0xc0};
+        uint8_t init1[] = {0x00, 0x46, 0x00, 0x6b, 0xf6, 0xc0};
+        uint8_t init2[] = {0x00, 0x45, 0x00, 0x3e, 0xa5, 0xc0};
+        uint8_t init3[] = {0x00, 0x40, 0x00, 0x02, 0xb9, 0x2f, 0xc0};
+        uint8_t init4[] = {0x00, 0x40, 0x00, 0x04, 0xd9, 0xe9, 0xc0};
+        uint8_t init5[] = {0x00, 0x40, 0x00, 0x03, 0xa9, 0x0e, 0xc0};
+        uint8_t init6[] = {0x00, 0x40, 0x00, 0x05, 0xc9, 0xc8, 0xc0};
+        uint8_t init7[] = {0x00, 0x46, 0x00, 0x6b, 0xf6, 0xc0};
+        uint8_t init8[] = {0x00, 0x45, 0x01, 0x2e, 0x84, 0xc0};
+        uint8_t init9[] = {0x00, 0x40, 0x00, 0x02, 0xb9, 0x2f, 0xc0};
+        uint8_t init10[] = {0x00, 0x40, 0x00, 0x04, 0xd9, 0xe9, 0xc0};
+        writeCharacteristic(init0, sizeof(init0), "init0", false, true);
+        writeCharacteristic(init1, sizeof(init1), "init1", false, true);
+        writeCharacteristic(init2, sizeof(init2), "init2", false, true);
+        writeCharacteristic(init3, sizeof(init3), "init3", false, true);
+        writeCharacteristic(init4, sizeof(init4), "init4", false, true);
+        writeCharacteristic(init5, sizeof(init5), "init5", false, true);
+        writeCharacteristic(init6, sizeof(init6), "init6", false, true);
+        writeCharacteristic(init7, sizeof(init7), "init7", false, true);
+        writeCharacteristic(init8, sizeof(init8), "init8", false, true);
+        writeCharacteristic(init9, sizeof(init9), "init9", false, true);
+        writeCharacteristic(init10, sizeof(init10), "init10", false, true);
+        /*
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(write, sizeof(write), "requestControl", false, true);
         write[0] = {FTMS_START_RESUME};
@@ -103,6 +175,7 @@ void renphobike::update() {
         uint8_t ftms[] = {0x11, 0x00, 0x00, 0xf3, 0x00, 0x28, 0x33};
         writeCharacteristic(ftms, sizeof(ftms), "fake FTMS", false, true);
         initRequest = false;
+        */
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
@@ -421,13 +494,6 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
 
             qDebug() << s->serviceUuid() << "connected!";
 
-            // zwift doesn't write the client configuration on services different from these ones
-            if (s->serviceUuid() != ((QBluetoothUuid)(quint16)0x1826) &&
-                s->serviceUuid() != ((QBluetoothUuid)(quint16)0x1816)) {
-                qDebug() << QStringLiteral("skipping service") << s->serviceUuid();
-                continue;
-            }
-
             foreach (QLowEnergyCharacteristic c, s->characteristics()) {
                 qDebug() << "char uuid" << c.uuid() << "handle" << c.handle();
                 foreach (QLowEnergyDescriptor d, c.descriptors())
@@ -470,6 +536,13 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << "FTMS service and Control Point found";
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
+                }
+
+                QBluetoothUuid _gattWriteCustomCharControlPointId(QStringLiteral("00000004-21a4-11e8-8812-000c2920efff"));
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCustomCharControlPointId) {
+                    qDebug() << "Custom service and Custom Control Point found";
+                    gattWriteCustomCharControlPointId = c;
+                    gattCustomService = s;
                 }
             }
         }
