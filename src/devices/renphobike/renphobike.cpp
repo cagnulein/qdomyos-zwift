@@ -1,5 +1,5 @@
 #include "renphobike.h"
-#include "crc16ibm.h"
+#include "CRC16IBM.h""
 #include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
 #include <QBluetoothLocalDevice>
