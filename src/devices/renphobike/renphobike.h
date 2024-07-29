@@ -78,6 +78,10 @@ class renphobike : public bike {
 
     metric wattFromBike;
 
+    uint16_t oldLastCrankEventTime = 0;
+    uint16_t oldCrankRevs = 0;
+    QDateTime lastGoodCadence = QDateTime::currentDateTime();
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
