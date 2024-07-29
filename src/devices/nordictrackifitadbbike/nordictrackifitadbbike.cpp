@@ -189,7 +189,9 @@ bool nordictrackifitadbbike::inclinationAvailableByHardware() {
     bool proform_studio_NTEX71021 =
     settings.value(QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021)
         .toBool();
-    if(proform_studio_NTEX71021)
+    bool nordictrackadbbike_resistance = settings.value(QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance).toBool();
+
+    if(proform_studio_NTEX71021 || nordictrackadbbike_resistance)
         return false;   
     else
         return true; 
