@@ -135,8 +135,8 @@ void crossrope::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     double steps = (double)(uint16_t)((newValue.at(1) << 8) | ((uint8_t)newValue.at(2)));
     if(steps != JumpsCount.value()) {
+        CadenceRaw = (steps - JumpsCount.value()) / fabs(JumpsCount.valueChanged().msecsTo(now)) * 60000.0;
         JumpsSequence = JumpsSequence.value() + 1;
-        CadenceRaw = (steps - JumpsSequence.value()) / fabs(JumpsSequence.valueChanged().msecsTo(now)) * 60000.0;
         Cadence = CadenceRaw.average20s();
         JumpsCount = steps;
         Speed = Cadence.value() * 0.15; // (speed emulated)

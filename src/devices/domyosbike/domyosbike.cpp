@@ -13,7 +13,7 @@
 
 using namespace std::chrono_literals;
 
-domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testResistance, uint8_t bikeResistanceOffset,
+domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testResistance, int8_t bikeResistanceOffset,
                        double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);

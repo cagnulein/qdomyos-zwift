@@ -15,7 +15,7 @@
 
 using namespace std::chrono_literals;
 
-trxappgateusbelliptical::trxappgateusbelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+trxappgateusbelliptical::trxappgateusbelliptical(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                                  double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);

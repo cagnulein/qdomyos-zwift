@@ -12,7 +12,7 @@
 
 using namespace std::chrono_literals;
 
-apexbike::apexbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+apexbike::apexbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -221,10 +221,17 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 }
 
 void apexbike::btinit() {
+    sendPoll();
+    QThread::msleep(2000);
+    sendPoll();
+    QThread::msleep(2000);
     uint8_t initData1[] = {0xeb, 0x50, 0x51, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa2};
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    QThread::msleep(500);
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    QThread::msleep(500);
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    QThread::msleep(500);
 
     initDone = true;
 

@@ -60,7 +60,7 @@ class nordictrackifitadbbikeLogcatAdbThread : public QThread {
 class nordictrackifitadbbike : public bike {
     Q_OBJECT
   public:
-    nordictrackifitadbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    nordictrackifitadbbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                            double bikeResistanceGain);
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;

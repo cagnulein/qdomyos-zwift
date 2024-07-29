@@ -13,6 +13,9 @@
 #include "windows_zwift_incline_paddleocr_thread.h"
 #include "windows_zwift_workout_paddleocr_thread.h"
 #endif
+#ifdef Q_CC_MSVC
+#include "zwift-api/zwift_messages.pb.h"
+#endif
 #include "localipaddress.h"
 
 using namespace std::chrono_literals;
@@ -631,6 +634,7 @@ void trainprogram::scheduler() {
                     if(zwift_counter++ >= (timeout - 1)) {
                         zwift_counter = 0;
                         QByteArray bb = zwift_world->playerStatus(zwift_player_id);
+                        qDebug() << " ZWIFT API PROTOBUF << " + bb.toHex(' ');
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
                         h->zwift_api_decodemessage_player(bb.data(), bb.length());
@@ -654,6 +658,18 @@ void trainprogram::scheduler() {
 
                         float alt = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
                         float distance = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
+#elif defined Q_CC_MSVC
+                        PlayerState state;
+                        float alt = 0;
+                        float distance = 0;
+                        if (state.ParseFromArray(bb.constData(), bb.size())) {
+                            // Parsing riuscito, ora puoi accedere ai dati in `state`
+                            alt = state.altitude();
+                            distance = state.distance();
+                        } else {
+                            // Errore durante il parsing
+                            qDebug() << "Error parsing PlayerState";
+                        }
 #else
                         float alt = 0;
                         float distance = 0;
@@ -1336,7 +1352,11 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
 void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
 
 trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString Extension) {
-    if (!Extension.toUpper().compare(QStringLiteral("ZWO"))) {
+    if (!Extension.toUpper().compare(QStringLiteral("ZWO"))
+#ifdef Q_OS_ANDROID
+            || filename.toUpper().contains(".ZWO")
+#endif
+            ) {
 
         QString description = "";
         QString tags = "";

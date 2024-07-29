@@ -209,12 +209,21 @@ double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
 void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void treadmill::powerSensor(uint16_t power) {
+void treadmill::powerSensor(uint16_t power) { 
+    double vwatts = 0;
     if(power > 0) {
         powerReceivedFromPowerSensor = true;
         qDebug() << "powerReceivedFromPowerSensor" << powerReceivedFromPowerSensor << power;
+        QSettings settings;
+        if(currentInclination().value() != 0 && settings.value(QZSettings::stryd_add_inclination_gain, QZSettings::default_stryd_add_inclination_gain).toBool()) {
+            QSettings settings;
+            double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+            // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+            vwatts = ((9.8 * w) * (currentInclination().value() / 100.0));
+            qDebug() << QStringLiteral("overrding power read from the sensor of ") << power << QStringLiteral("with ") << vwatts << QStringLiteral(" for the treadmill inclination");
+        }
     }
-    m_watt.setValue(power, false); 
+    m_watt.setValue(power + vwatts, false); 
 }
 void treadmill::speedSensor(double speed) { Speed.setValue(speed); }
 void treadmill::instantaneousStrideLengthSensor(double length) { InstantaneousStrideLengthCM.setValue(length); }

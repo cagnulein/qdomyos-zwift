@@ -741,8 +741,15 @@ const QString QZSettings::proform_treadmill_8_7 = QStringLiteral("proform_treadm
 const QString QZSettings::proform_bike_325_csx = QStringLiteral("proform_bike_325_csx");
 const QString QZSettings::strava_upload_mode = QStringLiteral("strava_upload_mode");
 const QString QZSettings::default_strava_upload_mode = QStringLiteral("Always");
+const QString QZSettings::proform_treadmill_705_cst_V78_239 = QStringLiteral("proform_treadmill_705_cst_V78_239");
+const QString QZSettings::stryd_add_inclination_gain = QStringLiteral("stryd_add_inclination_gain");
+const QString QZSettings::toorx_bike_srx_500 = QStringLiteral("toorx_bike_srx_500");
+const QString QZSettings::atletica_lightspeed_treadmill = QStringLiteral("atletica_lightspeed_treadmill");
+const QString QZSettings::peloton_treadmill_level = QStringLiteral("peloton_treadmill_level");
+const QString QZSettings::nordictrackadbbike_resistance = QStringLiteral("nordictrackadbbike_resistance");
+const QString QZSettings::proform_treadmill_carbon_t7 = QStringLiteral("proform_treadmill_carbon_t7");
 
-const uint32_t allSettingsCount = 625;
+const uint32_t allSettingsCount = 632;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1374,6 +1381,13 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_8_7, QZSettings::default_proform_treadmill_8_7},
     {QZSettings::proform_bike_325_csx, QZSettings::default_proform_bike_325_csx},
     {QZSettings::strava_upload_mode, QZSettings::default_strava_upload_mode},
+    {QZSettings::proform_treadmill_705_cst_V78_239, QZSettings::default_proform_treadmill_705_cst_V78_239},
+    {QZSettings::stryd_add_inclination_gain, QZSettings::default_stryd_add_inclination_gain},
+    {QZSettings::toorx_bike_srx_500, QZSettings::default_toorx_bike_srx_500},
+    {QZSettings::atletica_lightspeed_treadmill, QZSettings::default_atletica_lightspeed_treadmill},
+    {QZSettings::peloton_treadmill_level, QZSettings::default_peloton_treadmill_level},
+    {QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance},
+    {QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

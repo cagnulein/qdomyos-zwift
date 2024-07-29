@@ -531,6 +531,9 @@ class bluetoothdevice : public QObject {
     int8_t requestDecreaseFan = -1;
     double requestFanSpeed = -1;
 
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
+
     /**
      * @brief m_difficult The current difficulty gain. Units: device dependent
      */
@@ -692,7 +695,7 @@ class bluetoothdevice : public QObject {
      * @param watt_calc ??
      * @param watts ?. Unit: watts
      */
-    void update_metrics(bool watt_calc, const double watts);
+    void update_metrics(bool watt_calc, const double watts, const bool from_accessory = false);
 
     /**
      * @brief update_hr_from_external Updates heart rate from Garmin Companion App or Apple Watch

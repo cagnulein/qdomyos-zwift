@@ -18,7 +18,7 @@
 
 using namespace std::chrono_literals;
 
-schwinn170bike::schwinn170bike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+schwinn170bike::schwinn170bike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);

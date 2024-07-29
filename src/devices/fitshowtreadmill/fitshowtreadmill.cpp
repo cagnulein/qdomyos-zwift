@@ -3,6 +3,7 @@
 #include "keepawakehelper.h"
 #endif
 #include "virtualdevices/virtualtreadmill.h"
+#include "homeform.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -18,6 +19,8 @@ fitshowtreadmill::fitshowtreadmill(uint32_t pollDeviceTime, bool noConsole, bool
                                    double forceInitInclination) {
     Q_UNUSED(noConsole)
 
+    m_watt.setType(metric::METRIC_WATT);
+    Speed.setType(metric::METRIC_SPEED);
     this->noHeartService = noHeartService;
 
     if (forceInitSpeed > 0) {
@@ -157,8 +160,9 @@ void fitshowtreadmill::update() {
     }
 
     if (initRequest) {
-        initRequest = false;
-        btinit(true);
+        QSettings settings;
+        initRequest = false;        
+        btinit(settings.value(QZSettings::atletica_lightspeed_treadmill, QZSettings::default_atletica_lightspeed_treadmill).toBool());
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotifyCharacteristic.isValid() && initDone) {
@@ -294,6 +298,12 @@ void fitshowtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     if ((gatt == nobleproconnect && serviceId.isNull()) || servRepr == 0xfff0 || (servRepr == 0xffe0 && serviceId.isNull())) {
         qDebug() << "adding" << gatt.toString() << "as the default service";
         serviceId = gatt; // NOTE: clazy-rule-of-tow
+    }
+    if(gatt == QBluetoothUuid((quint16)0x1826)) {
+        QSettings settings;
+        settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
+        qDebug() << "forcing FTMS treadmill since it has FTMS";
+        homeform::singleton()->setToastRequested("FTMS treadmill found, restart the app to apply the change");
     }
 }
 

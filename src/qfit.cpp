@@ -166,7 +166,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             sessionMesg.SetAvgStrokeDistance(session.last().avgStrokesLength);
     } else if (type == bluetoothdevice::JUMPROPE) {
 
-        sessionMesg.SetSport(FIT_SPORT_JUMPMASTER);
+        sessionMesg.SetSport(FIT_SPORT_JUMPROPE);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
         if (session.last().stepCount)
             sessionMesg.SetJumpCount(session.last().stepCount);
@@ -261,7 +261,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         lapMesg.SetSport(FIT_SPORT_ROWING);
     } else if (type == bluetoothdevice::JUMPROPE) {
 
-        lapMesg.SetSport(FIT_SPORT_JUMPMASTER);
+        lapMesg.SetSport(FIT_SPORT_JUMPROPE);
     } else {
 
         lapMesg.SetSport(FIT_SPORT_CYCLING);
