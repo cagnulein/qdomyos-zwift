@@ -1,6 +1,6 @@
 #include "virtualdevices/virtualbike.h"
 #include "devices/bike.h"
-
+#include <QThread>
 #include <QDataStream>
 #include <QMetaEnum>
 #include <QSettings>
@@ -396,6 +396,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                 } else {
                     service = leController->addService(serviceData);
                 }
+                QThread::msleep(100);
             }
         } else if (ifit) {
             service = leController->addService(serviceData);
@@ -972,6 +973,7 @@ void virtualbike::reconnect() {
             } else {
                 service = leController->addService(serviceData);
             }
+            QThread::msleep(100);
         }
     } else if (ifit) {
         service = leController->addService(serviceData);
