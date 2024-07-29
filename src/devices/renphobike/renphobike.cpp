@@ -156,17 +156,17 @@ void renphobike::update() {
         uint8_t init8[] = {0x00, 0x45, 0x01, 0x2e, 0x84, 0xc0};
         uint8_t init9[] = {0x00, 0x40, 0x00, 0x02, 0xb9, 0x2f, 0xc0};
         uint8_t init10[] = {0x00, 0x40, 0x00, 0x04, 0xd9, 0xe9, 0xc0};
-        writeCharacteristic(init0, sizeof(init0), "init0", false, true);
-        writeCharacteristic(init1, sizeof(init1), "init1", false, true);
-        writeCharacteristic(init2, sizeof(init2), "init2", false, true);
-        writeCharacteristic(init3, sizeof(init3), "init3", false, true);
-        writeCharacteristic(init4, sizeof(init4), "init4", false, true);
-        writeCharacteristic(init5, sizeof(init5), "init5", false, true);
-        writeCharacteristic(init6, sizeof(init6), "init6", false, true);
-        writeCharacteristic(init7, sizeof(init7), "init7", false, true);
-        writeCharacteristic(init8, sizeof(init8), "init8", false, true);
-        writeCharacteristic(init9, sizeof(init9), "init9", false, true);
-        writeCharacteristic(init10, sizeof(init10), "init10", false, true);
+        writeCharacteristicCustom(init0, sizeof(init0), "init0", false, true);
+        writeCharacteristicCustom(init1, sizeof(init1), "init1", false, true);
+        writeCharacteristicCustom(init2, sizeof(init2), "init2", false, true);
+        writeCharacteristicCustom(init3, sizeof(init3), "init3", false, true);
+        writeCharacteristicCustom(init4, sizeof(init4), "init4", false, true);
+        writeCharacteristicCustom(init5, sizeof(init5), "init5", false, true);
+        writeCharacteristicCustom(init6, sizeof(init6), "init6", false, true);
+        writeCharacteristicCustom(init7, sizeof(init7), "init7", false, true);
+        writeCharacteristicCustom(init8, sizeof(init8), "init8", false, true);
+        writeCharacteristicCustom(init9, sizeof(init9), "init9", false, true);
+        writeCharacteristicCustom(init10, sizeof(init10), "init10", false, true);
         /*
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(write, sizeof(write), "requestControl", false, true);
