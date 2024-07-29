@@ -55,7 +55,6 @@ class renphobike : public bike {
     QTimer *refresh;    
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
-    QLowEnergyCharacteristic gattIndoorBikeData;
     QLowEnergyService *gattFTMSService = nullptr;
 
     uint8_t sec1Update = 0;

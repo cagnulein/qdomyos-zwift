@@ -111,13 +111,6 @@ void renphobike::update() {
                /*initDone*/) {
         update_metrics(false, watts());
 
-        if(gattFTMSService && abs(lastRefreshCharacteristicChanged.secsTo(QDateTime::currentDateTime())) > 3) {
-            QByteArray descriptor;
-            descriptor.append((char)0x01);
-            descriptor.append((char)0x00);
-            gattFTMSService->writeDescriptor(gattIndoorBikeData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-        }
-
         if (!autoResistanceEnable) {
             uint8_t write[] = {FTMS_STOP_PAUSE, 0x01};
             writeCharacteristic(write, sizeof(write),
@@ -440,8 +433,7 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
                 foreach (QLowEnergyDescriptor d, c.descriptors())
                     qDebug() << "descriptor uuid" << d.uuid() << "handle" << d.handle();
 
-                if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify && c.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
-                    gattIndoorBikeData = c;
+                if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
@@ -454,7 +446,7 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
                                  << " is not valid";
 
                     qDebug() << s->serviceUuid() << c.uuid() << "notification subscribed!";
-                /*} else if ((c.properties() & QLowEnergyCharacteristic::Indicate) ==
+                } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) ==
                            QLowEnergyCharacteristic::Indicate) {
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
@@ -467,7 +459,7 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
                                  << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
                                  << " is not valid";
 
-                    qDebug() << s->serviceUuid() << c.uuid() << "indication subscribed!";*/
+                    qDebug() << s->serviceUuid() << c.uuid() << "indication subscribed!";
                 } else if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read) {
                     // s->readCharacteristic(c);
                     // qDebug() << s->serviceUuid() << c.uuid() << "reading!";
