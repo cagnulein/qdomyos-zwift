@@ -173,9 +173,10 @@ void renphobike::update() {
         write[0] = {FTMS_START_RESUME};
         writeCharacteristic(write, sizeof(write), "start simulation", false, true);
         uint8_t ftms[] = {0x11, 0x00, 0x00, 0xf3, 0x00, 0x28, 0x33};
-        writeCharacteristic(ftms, sizeof(ftms), "fake FTMS", false, true);
+        writeCharacteristic(ftms, sizeof(ftms), "fake FTMS", false, true);*/
+
         initRequest = false;
-        */
+
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
