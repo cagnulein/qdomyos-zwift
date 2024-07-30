@@ -99,7 +99,7 @@ Page {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("QZ is a versatile app designed to maximize your workout experience on a range of fitness equipment, including indoor bikes, treadmills, ellipticals, and rowers. It offers comprehensive features that help you track your progress, enhance your training routines, and achieve your fitness goals more efficiently. By connecting seamlessly with your devices, QZ provides real-time data, personalized workout plans, and interactive elements to keep you motivated. Whether you're aiming to improve your endurance, build strength, or simply stay active, QZ ensures that you get the most out of every session on your indoor fitness equipment.")
+                        text: qsTr("QZ is designed to maximize your workout experience on a range of fitness equipment, including indoor bikes, treadmills, ellipticals, and rower. By connecting seamlessly with your devices, QZ provides realtime data, personalized workout plans, and interactive elements to keep you motivated.\n\nThe following questions will customize QZ for your equipment and goals.")
                         font.pixelSize: 20
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
