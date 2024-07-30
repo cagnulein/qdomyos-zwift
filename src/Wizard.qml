@@ -1077,13 +1077,13 @@ Page {
                                 displayText = filterDeviceTextField.currentValue
                             }
                         }
+                    }
 
-                        WizardButton {
-                            id: refreshFilterDeviceButton
-                            text: "Refresh Devices List"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: refresh_bluetooth_devices_clicked();
-                        }
+                    WizardButton {
+                        id: refreshFilterDeviceButton
+                        text: "Refresh Devices List"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: refresh_bluetooth_devices_clicked();
                     }
 
                     Item {
@@ -1331,13 +1331,13 @@ Page {
                                 displayText = heartBeltNameTextField.currentValue
                             }
                         }
+                    }
 
-                        WizardButton {
-                            id: refreshHeartBeltNameButton
-                            text: "Refresh Devices List"
-                            Layout.alignment: Qt.AlignHCenter
-                            onClicked: refresh_bluetooth_devices_clicked();
-                        }
+                    WizardButton {
+                        id: refreshHeartBeltNameButton
+                        text: "Refresh Devices List"
+                        Layout.alignment: Qt.AlignHCenter
+                        onClicked: refresh_bluetooth_devices_clicked();
                     }
 
                     Text {
