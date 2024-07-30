@@ -342,6 +342,64 @@ Page {
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
 
+                    WizardButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Next")
+                        onClicked: {
+                            settings.peloton_username = pelotonUsernameTextField.text;
+                            settings.peloton_password = pelotonPasswordTextField.text;
+                            stackViewLocal.push(pelotonDifficultyComponent)
+                        }
+                    }
+
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
+                    WizardButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Back")
+                        onClicked: stackViewLocal.pop()
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: pelotonDifficultyComponent
+
+        Item {
+            anchors.fill: parent
+            ScrollView {
+                contentWidth: -1
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.fill: parent
+                Layout.preferredHeight: parent.height
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                ColumnLayout {
+                    anchors.centerIn: parent
+                    spacing: 20
+                    width: parent.width * 0.9
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Peloton Difficulty")
+                        font.pixelSize: 24
+                        font.bold: true
+                        color: "white"
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average")
+                        font.pixelSize: 16
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        color: "white"
+                    }
+
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Difficulty")
@@ -360,19 +418,14 @@ Page {
                             console.log("combomodel activated" + pelotonDifficultyTextField.currentIndex)
                             displayText = pelotonDifficultyTextField.currentValue
                             settings.peloton_difficulty = pelotonDifficultyTextField.displayText;
-                         }
-
+                        }
                     }
 
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Next")
+                        text: qsTr("Finish")
                         onClicked: {
-                            settings.peloton_username = pelotonUsernameTextField.text;
-                            settings.peloton_password = pelotonPasswordTextField.text;
                             settings.peloton_difficulty = pelotonDifficultyTextField.displayText;
-                            // Here you would typically handle the login process
-                            // For now, we'll just move to the next step
                             stackViewLocal.push(finalStepComponent)
                         }
                     }
