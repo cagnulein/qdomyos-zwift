@@ -281,7 +281,7 @@ Page {
                         rowSpacing: 20
                         columnSpacing: 20
                         Repeater {
-                            model: ["Peloton", "Zwift", "MyWhoosh", "Rouvy", "Kinomap", "Indievelo", "Fulgaz", "EXR"]
+                            model: ["Peloton", "Zwift", "MyWhoosh", "Rouvy", "Kinomap", "Indievelo", "Fulgaz", "EXR", "Other app", "QZ Standalone"]
                             delegate: WizardButton {
                                 Layout.preferredWidth: 150
                                 text: modelData
