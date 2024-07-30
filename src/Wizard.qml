@@ -24,6 +24,8 @@ Page {
         property double gears_gain: 1.0
         property bool tile_gears_enabled: false
         property string theme_background_color: "#303030"
+        property bool wahoo_rgt_dircon: false
+        property bool virtual_device_rower: false
     }
 
     background: Rectangle {
@@ -204,6 +206,12 @@ Page {
                             Layout.alignment: Qt.AlignHCenter
                             text: qsTr(modelData)
                             onClicked: {
+                                if (modelData === "Rower") {
+                                    settings.virtual_device_rower = true
+                                } else {
+                                    settings.virtual_device_rower = false
+                                }
+
                                 selectedOptions.step2 = modelData
                                 stackViewLocal.push(step3Component)
                             }
@@ -249,17 +257,39 @@ Page {
                         color: "white"
                     }
 
-                    Repeater {
-                        model: ["Peloton", "Zwift", "MyWhoosh"]
-                        delegate: WizardButton {
-                            Layout.alignment: Qt.AlignHCenter
-                            text: modelData
-                            onClicked: {
-                                selectedOptions.step3 = modelData
-                                if (modelData === "Peloton") {
-                                    stackViewLocal.push(pelotonLoginComponent)
-                                } else {
-                                    stackViewLocal.push(zwiftComponent)
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("QZ allows you to connect to both of them, even simultaneously if you want!")
+                        font.pixelSize: 20
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        width: stackViewLocal.width * 0.8
+                        horizontalAlignment: Text.AlignHCenter
+                        color: "white"
+                    }
+
+                    GridLayout {
+                        Layout.alignment: Qt.AlignHCenter
+                        columns: 2
+                        rowSpacing: 20
+                        columnSpacing: 20
+                        Repeater {
+                            model: ["Peloton", "Zwift", "MyWhoosh", "Rouvy", "Kinomap", "Indievelo", "EXR"]
+                            delegate: WizardButton {
+                                Layout.preferredWidth: 150
+                                text: modelData
+                                onClicked: {
+                                    selectedOptions.step3 = modelData
+                                    if (modelData === "Peloton") {
+                                        stackViewLocal.push(pelotonLoginComponent)
+                                    } else {
+                                        if(modelData === "Zwift") {
+                                            settings.wahoo_rgt_dircon = false
+                                        } else {
+                                            settings.wahoo_rgt_dircon = true
+                                        }
+                                        stackViewLocal.push(zwiftComponent)
+                                    }
                                 }
                             }
                         }
@@ -660,6 +690,16 @@ Page {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn't work on workout")
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        width: stackViewLocal.width * 0.8
+                        horizontalAlignment: Text.AlignHCenter
+                        color: "white"
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Username")
                         font.pixelSize: 20
                         font.bold: true
@@ -703,8 +743,6 @@ Page {
                             settings.zwift_username = zwiftUsernameTextField.text;
                             settings.zwift_password = zwiftPasswordTextField.text;
                             settings.zwift_api_autoinclination = true;
-                            // Here you would typically handle the login process
-                            // For now, we'll just move to the next step
                             stackViewLocal.push(finalStepComponent);
                         }
                     }
@@ -789,6 +827,16 @@ Page {
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.zwift_play = checked; }
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Corrent startup phase:\n\n1. close any app that can connect to your Zwift devices\n2. wake up your Zwift devices\n3. wake up your trainer\n4. open qz\n5. now if you change gear on your Zwift device you will see a reaction in the gear tile on qz and so on your trainer.")
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        width: stackViewLocal.width * 0.8
+                        horizontalAlignment: Text.AlignHCenter
+                        color: "white"
                     }
 
                     Item {
