@@ -396,15 +396,16 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                 } else {
                     service = leController->addService(serviceData);
                 }
-                QThread::msleep(100);
             }
         } else if (ifit) {
             service = leController->addService(serviceData);
         } else {
 
             service = leController->addService(serviceEchelon);
+            QThread::msleep(100); // give time to Android to add the service async.ly
             service = leController->addService(serviceData);
         }
+        QThread::msleep(100); // give time to Android to add the service async.ly
 
         if (battery) {
             serviceBattery = leController->addService(serviceDataBattery);
@@ -973,15 +974,16 @@ void virtualbike::reconnect() {
             } else {
                 service = leController->addService(serviceData);
             }
-            QThread::msleep(100);
         }
     } else if (ifit) {
         service = leController->addService(serviceData);
     } else {
 
         service = leController->addService(serviceEchelon);
+        QThread::msleep(100); // give time to Android to add the service async.ly
         service = leController->addService(serviceData);
     }
+    QThread::msleep(100); // give time to Android to add the service async.ly
 
     if (battery)
         serviceBattery = leController->addService(serviceDataBattery);
