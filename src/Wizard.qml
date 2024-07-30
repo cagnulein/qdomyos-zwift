@@ -429,12 +429,13 @@ Page {
                     }
 
                     Text {
-                        Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average")
-                        font.pixelSize: 16
+                        font.pixelSize: 20
                         wrapMode: Text.WordWrap
+                        width: stackViewLocal.width * 0.8
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
+                        Layout.fillWidth: true
                     }
 
                     Text {
