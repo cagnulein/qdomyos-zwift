@@ -1145,7 +1145,7 @@ Page {
                     ComboBox {
                         id: unitSystemComboBox
                         Layout.alignment: Qt.AlignHCenter
-                        model: ["Kilometers", "Miles"]
+                        model: ["Metric", "Imperial"]
                         currentIndex: settings.miles_unit ? 1 : 0
                     }
 
