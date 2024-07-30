@@ -424,9 +424,7 @@ double trxappgateusbbike::GetWattFromPacket(const QByteArray &packet) {
 double trxappgateusbbike::GetCadenceFromPacket(const QByteArray &packet) {
 
     uint16_t convertedData;
-    if (bike_type == TUNTURI || bike_type == TYPE::TUNTURI_2) {
-        convertedData = (packet.at(7) - 1) + ((packet.at(8) - 1) * 100);
-    } else if (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08) {
+    if (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08) {
         convertedData = (packet.at(9) - 1) + ((packet.at(8) - 1) * 100);
     } else {
         convertedData = ((uint16_t)packet.at(9)) + ((uint16_t)packet.at(8) * 100);

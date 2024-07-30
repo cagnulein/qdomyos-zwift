@@ -361,11 +361,6 @@ int main(int argc, char *argv[]) {
     {
         bool defaultNoHeartService = !noHeartService;
 
-        // Android 10 doesn't support multiple services for peripheral mode
-        if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 10)) {
-            settings.setValue(QZSettings::bike_heartrate_service, true);
-        }
-
         // some Android 6 doesn't support wake lock
         if (QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 7) &&
             !settings.value(QZSettings::android_wakelock).isValid()) {

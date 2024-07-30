@@ -98,8 +98,6 @@ class fitshowtreadmill : public treadmill {
     void sendSportData();
     void removeFromBuffer();
     QBluetoothUuid serviceId;
-    int64_t lastStart = 0;
-    int64_t lastStop = 0;
     int retrySend = 0;
     bool noHeartService = false;
     bool anyrun = false;

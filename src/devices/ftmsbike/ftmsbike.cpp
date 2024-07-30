@@ -1,4 +1,5 @@
 #include "ftmsbike.h"
+#include "homeform.h"
 #include "virtualdevices/virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -197,7 +198,8 @@ void ftmsbike::update() {
                 }
             }
             requestResistance = -1;
-        } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
+        }
+        if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
             qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP";
             ftmsCharacteristicChanged(QLowEnergyCharacteristic(), lastPacketFromFTMS);
         }
@@ -250,6 +252,16 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         Resistance = (double)(newValue.at(5));
         emit resistanceRead(Resistance.value());
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+        return;
+    }
+
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A19)) { // Battery Service
+        if(newValue.length() > 0) {
+            uint8_t b = (uint8_t)newValue.at(0);
+            if(b != battery_level)
+                homeform::singleton()->setToastRequested(QStringLiteral("Battery Level ") + QString::number(b) + " %");
+            battery_level = b;
+        }
         return;
     }
 
@@ -386,6 +398,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                                    (uint16_t)((uint8_t)newValue.at(index))));
             index += 2;
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+        } else if(DOMYOS) {
+            // doesn't send power at all and the resistance either
+            m_watt = wattFromHR(true);
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
         }
 
         if (Flags.avgPower && newValue.length() > index + 1) {
@@ -397,8 +413,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         if (Flags.expEnergy && newValue.length() > index + 1) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)newValue.at(index))));
+            /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));*/
             index += 2;
 
             // energy per hour
@@ -406,16 +422,16 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
             // energy per minute
             index += 1;
-        } else {
-            if (watts())
-                KCal += ((((0.048 * ((double)watts()) + 1.19) *
-                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                          200.0) /
-                         (60000.0 /
-                          ((double)lastRefreshCharacteristicChanged.msecsTo(
-                              now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                // kg * 3.5) / 200 ) / 60
         }
+
+        if (watts())
+            KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 /
+                      ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                            // kg * 3.5) / 200 ) / 60
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
@@ -706,7 +722,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
-            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool()) {
+            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || ICSE) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
                     qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
@@ -920,6 +936,12 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("DU30 found");
             max_resistance = 32;
             DU30_bike = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("ICSE") && bluetoothDevice.name().length() == 4)) {
+            qDebug() << QStringLiteral("ICSE found");
+            ICSE = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("DOMYOS"))) {
+            qDebug() << QStringLiteral("DOMYOS found");
+            DOMYOS = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
