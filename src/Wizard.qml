@@ -281,7 +281,7 @@ Page {
                         rowSpacing: 20
                         columnSpacing: 20
                         Repeater {
-                            model: ["Peloton", "Zwift", "MyWhoosh", "Rouvy", "Kinomap", "Indievelo", "EXR"]
+                            model: ["Peloton", "Zwift", "MyWhoosh", "Rouvy", "Kinomap", "Indievelo", "Fulgaz", "EXR"]
                             delegate: WizardButton {
                                 Layout.preferredWidth: 150
                                 text: modelData
@@ -1081,7 +1081,7 @@ Page {
 
                     WizardButton {
                         id: refreshFilterDeviceButton
-                        text: "Refresh Devices List"
+                        text: "Refresh"
                         Layout.alignment: Qt.AlignHCenter
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
@@ -1336,7 +1336,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         id: refreshHeartBeltNameButton
-                        text: "Refresh Devices List"
+                        text: "Refresh"
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
 
