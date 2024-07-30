@@ -26,6 +26,13 @@ Page {
         property string theme_background_color: "#303030"
         property bool wahoo_rgt_dircon: false
         property bool virtual_device_rower: false
+        property real weight: 75.0
+        property int age: 35
+        property string sex: "Male"
+        property bool miles_unit: false
+        property string heart_rate_belt_name: "Disabled"
+        property bool garmin_companion: false
+        property string filter_device: "Disabled"
     }
 
     background: Rectangle {
@@ -213,7 +220,7 @@ Page {
                                 }
 
                                 selectedOptions.step2 = modelData
-                                stackViewLocal.push(step3Component)
+                                stackViewLocal.push(bluetoothDeviceSelectionComponent)
                             }
                         }
                     }
@@ -1024,6 +1031,370 @@ Page {
                         onClicked: {
                             stackView.pop();
                         }
+                    }
+                }
+            }
+        }
+    }
+    Component {
+        id: bluetoothDeviceSelectionComponent
+
+        Item {
+            anchors.fill: parent
+            ScrollView {
+                contentWidth: -1
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.fill: parent
+                Layout.preferredHeight: parent.height
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                ColumnLayout {
+                    anchors.centerIn: parent
+                    spacing: 20
+                    width: parent.width * 0.9
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Select Your Fitness Device")
+                        font.pixelSize: 24
+                        font.bold: true
+                        color: "white"
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        ComboBox {
+                            id: filterDeviceTextField
+                            model: rootItem.bluetoothDevices
+                            displayText: settings.filter_device
+                            Layout.fillHeight: false
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + filterDeviceTextField.currentIndex)
+                                displayText = filterDeviceTextField.currentValue
+                            }
+                        }
+                    }
+
+                    WizardButton {
+                        id: refreshFilterDeviceButton
+                        text: "Refresh Devices List"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: refresh_bluetooth_devices_clicked();
+                    }
+
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
+                    WizardButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Next")
+                        onClicked: {
+                            settings.filter_device = filterDeviceTextField.displayText;
+                            stackViewLocal.push(unitSelectionComponent)
+                        }
+                    }
+
+                    WizardButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Back")
+                        onClicked: stackViewLocal.pop()
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: unitSelectionComponent
+
+        Item {
+            anchors.fill: parent
+            ScrollView {
+                contentWidth: -1
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.fill: parent
+                Layout.preferredHeight: parent.height
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                ColumnLayout {
+                    anchors.centerIn: parent
+                    spacing: 20
+                    width: parent.width * 0.9
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Unit System")
+                        font.pixelSize: 24
+                        font.bold: true
+                        color: "white"
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Select your preferred unit system")
+                        font.pixelSize: 20
+                        color: "white"
+                    }
+
+                    ComboBox {
+                        id: unitSystemComboBox
+                        Layout.alignment: Qt.AlignHCenter
+                        model: ["Kilometers", "Miles"]
+                        currentIndex: settings.miles_unit ? 1 : 0
+                    }
+
+                    WizardButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Next")
+                        onClicked: {
+                            settings.miles_unit = unitSystemComboBox.currentIndex === 1
+                            stackViewLocal.push(userInfoComponent)
+                        }
+                    }
+
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
+                    WizardButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Back")
+                        onClicked: stackViewLocal.pop()
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: userInfoComponent
+
+        Item {
+            anchors.fill: parent
+            ScrollView {
+                contentWidth: -1
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.fill: parent
+                Layout.preferredHeight: parent.height
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                ColumnLayout {
+                    anchors.centerIn: parent
+                    spacing: 20
+                    width: parent.width * 0.9
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("User Information")
+                        font.pixelSize: 24
+                        font.bold: true
+                        color: "white"
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Weight (" + (settings.miles_unit ? "lbs" : "kg") + ")")
+                        font.pixelSize: 20
+                        color: "white"
+                    }
+
+                    SpinBox {
+                        id: weightSpinBox
+                        Layout.alignment: Qt.AlignHCenter
+                        from: settings.miles_unit ? 660 : 300  // 66.0 lbs or 30.0 kg
+                        to: settings.miles_unit ? 4400 : 2000  // 440.0 lbs or 200.0 kg
+                        value: settings.weight * 10
+                        stepSize: 1
+                        editable: true
+
+                        property real realValue: value / 10
+
+                        textFromValue: function(value, locale) {
+                            return Number(value / 10).toLocaleString(locale, 'f', 1)
+                        }
+
+                        valueFromText: function(text, locale) {
+                            return Number.fromLocaleString(locale, text) * 10
+                        }
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Age")
+                        font.pixelSize: 20
+                        color: "white"
+                    }
+
+                    SpinBox {
+                        id: ageSpinBox
+                        Layout.alignment: Qt.AlignHCenter
+                        from: 1
+                        to: 120
+                        value: settings.age
+                        editable: true
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Gender")
+                        font.pixelSize: 20
+                        color: "white"
+                    }
+
+                    ComboBox {
+                        id: genderComboBox
+                        Layout.alignment: Qt.AlignHCenter
+                        model: ["Male", "Female"]
+                        currentIndex: settings.sex === "Male" ? 0 : 1
+                    }
+
+                    WizardButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Next")
+                        onClicked: {
+                            settings.weight = weightSpinBox.realValue
+                            settings.age = ageSpinBox.value
+                            settings.sex = genderComboBox.currentText
+                            stackViewLocal.push(heartRateDeviceSelectionComponent)
+                        }
+                    }
+
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
+                    WizardButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Back")
+                        onClicked: stackViewLocal.pop()
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: heartRateDeviceSelectionComponent
+
+        Item {
+            anchors.fill: parent
+            ScrollView {
+                contentWidth: -1
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.fill: parent
+                Layout.preferredHeight: parent.height
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                ColumnLayout {
+                    anchors.centerIn: parent
+                    spacing: 20
+                    width: parent.width * 0.9
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Select Your Heart Rate Device")
+                        font.pixelSize: 24
+                        font.bold: true
+                        color: "white"
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Choose your heart rate belt or select a smartwatch option:")
+                        font.pixelSize: 20
+                        color: "white"
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Layout.fillWidth: true
+
+                        ComboBox {
+                            id: heartBeltNameTextField
+                            model: rootItem.bluetoothDevices
+                            displayText: settings.heart_rate_belt_name
+                            Layout.fillHeight: false
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
+                                displayText = heartBeltNameTextField.currentValue
+                            }
+                        }
+                    }
+
+                    WizardButton {
+                        id: refreshHeartBeltNameButton
+                        text: "Refresh Devices List"
+                        Layout.alignment: Qt.AlignHCenter
+                        onClicked: refresh_bluetooth_devices_clicked();
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Or select a smartwatch option:")
+                        font.pixelSize: 20
+                        color: "white"
+                        Layout.topMargin: 20
+                    }
+
+                    WizardButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("I will use my Apple Watch using the QZ app")
+                        onClicked: {
+                            settings.heart_rate_belt_name = "Disabled"
+                            settings.garmin_companion = false
+                            stackViewLocal.push(step3Component)
+                        }
+                    }
+
+                    WizardButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("I will use my Wear OS watch using the QZ app")
+                        onClicked: {
+                            settings.heart_rate_belt_name = "Disabled"
+                            settings.garmin_companion = false
+                            stackViewLocal.push(step3Component)
+                        }
+                    }
+
+                    WizardButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("I will use my Garmin watch using the QZ app")
+                        onClicked: {
+                            settings.heart_rate_belt_name = "Disabled"
+                            settings.garmin_companion = true
+                            stackViewLocal.push(step3Component)
+                        }
+                    }
+
+                    WizardButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Next")
+                        onClicked: {
+                            settings.heart_rate_belt_name = heartBeltNameTextField.displayText;
+                            settings.garmin_companion = false
+                            stackViewLocal.push(step3Component)
+                        }
+                    }
+
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
+                    WizardButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Back")
+                        onClicked: stackViewLocal.pop()
                     }
                 }
             }
