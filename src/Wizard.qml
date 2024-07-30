@@ -23,6 +23,14 @@ Page {
         property bool zwift_play: false
         property double gears_gain: 1.0
         property bool tile_gears_enabled: false
+        property string theme_background_color: "#303030"
+    }
+
+    background: Rectangle {
+        anchors.fill: parent
+        width: parent.fill
+        height: parent.fill
+        color: settings.theme_background_color
     }
 
     StackView {
@@ -202,6 +210,10 @@ Page {
                         }
                     }
 
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
@@ -251,6 +263,10 @@ Page {
                                 }
                             }
                         }
+                    }
+
+                    Item {
+                        Layout.preferredHeight: 50
                     }
 
                     WizardButton {
@@ -361,6 +377,10 @@ Page {
                         }
                     }
 
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
@@ -426,6 +446,10 @@ Page {
                         }
                     }
 
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
@@ -469,6 +493,10 @@ Page {
                         font.pixelSize: 20
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
+                    }
+
+                    Item {
+                        Layout.preferredHeight: 50
                     }
 
                     WizardButton {
@@ -536,6 +564,10 @@ Page {
                                     stackViewLocal.push(step3HelpComponent)
                             }
                         }
+                    }
+
+                    Item {
+                        Layout.preferredHeight: 50
                     }
 
                     WizardButton {
@@ -624,6 +656,10 @@ Page {
                         }
                     }
 
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
@@ -702,6 +738,10 @@ Page {
                         onClicked: { settings.zwift_play = checked; }
                     }
 
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
@@ -757,6 +797,10 @@ Page {
                         Layout.fillWidth: true
                     }
 
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
@@ -809,6 +853,10 @@ Page {
                         width: parent.width * 0.8
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
+                    }
+
+                    Item {
+                        Layout.preferredHeight: 50
                     }
 
                     WizardButton {
