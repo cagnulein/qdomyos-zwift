@@ -1082,7 +1082,7 @@ Page {
                     WizardButton {
                         id: refreshFilterDeviceButton
                         text: "Refresh Devices List"
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        Layout.alignment: Qt.AlignHCenter
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
 
@@ -1334,9 +1334,9 @@ Page {
                     }
 
                     WizardButton {
+                        Layout.alignment: Qt.AlignHCenter
                         id: refreshHeartBeltNameButton
                         text: "Refresh Devices List"
-                        Layout.alignment: Qt.AlignHCenter
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
 
