@@ -379,6 +379,10 @@ Page {
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
 
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
@@ -387,10 +391,6 @@ Page {
                             settings.peloton_password = pelotonPasswordTextField.text;
                             stackViewLocal.push(pelotonDifficultyComponent)
                         }
-                    }
-
-                    Item {
-                        Layout.preferredHeight: 50
                     }
 
                     WizardButton {
@@ -526,6 +526,10 @@ Page {
                         editable: true
                     }
 
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
@@ -534,11 +538,7 @@ Page {
                             settings.speed_power_based = true;
                             stackViewLocal.push(finalStepComponent);
                         }
-                    }
-
-                    Item {
-                        Layout.preferredHeight: 50
-                    }
+                    }                    
 
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
@@ -743,6 +743,10 @@ Page {
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
 
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
@@ -752,10 +756,6 @@ Page {
                             settings.zwift_api_autoinclination = true;
                             stackViewLocal.push(finalStepComponent);
                         }
-                    }
-
-                    Item {
-                        Layout.preferredHeight: 50
                     }
 
                     WizardButton {
@@ -1148,6 +1148,10 @@ Page {
                         currentIndex: settings.miles_unit ? 1 : 0
                     }
 
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
@@ -1155,10 +1159,6 @@ Page {
                             settings.miles_unit = unitSystemComboBox.currentIndex === 1
                             stackViewLocal.push(userInfoComponent)
                         }
-                    }
-
-                    Item {
-                        Layout.preferredHeight: 50
                     }
 
                     WizardButton {
@@ -1254,6 +1254,10 @@ Page {
                         currentIndex: settings.sex === "Male" ? 0 : 1
                     }
 
+                    Item {
+                        Layout.preferredHeight: 50
+                    }
+
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
@@ -1263,10 +1267,6 @@ Page {
                             settings.sex = genderComboBox.currentText
                             stackViewLocal.push(heartRateDeviceSelectionComponent)
                         }
-                    }
-
-                    Item {
-                        Layout.preferredHeight: 50
                     }
 
                     WizardButton {
@@ -1349,7 +1349,7 @@ Page {
 
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("I will use my Apple Watch using the QZ app")
+                        text: qsTr("Apple Watch")
                         onClicked: {
                             settings.heart_rate_belt_name = "Disabled"
                             settings.garmin_companion = false
@@ -1357,9 +1357,16 @@ Page {
                         }
                     }
 
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Download the QZ Companion App there")
+                        color: "white"
+                        Layout.bottomMargin: 20
+                    }
+
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("I will use my Wear OS watch using the QZ app")
+                        text: qsTr("Wear OS watch")
                         onClicked: {
                             settings.heart_rate_belt_name = "Disabled"
                             settings.garmin_companion = false
@@ -1367,14 +1374,31 @@ Page {
                         }
                     }
 
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Download the QZ Companion App there")
+                        color: "white"
+                        Layout.bottomMargin: 20
+                    }
+
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("I will use my Garmin watch using the QZ app")
+                        text: qsTr("Garmin watch")
                         onClicked: {
                             settings.heart_rate_belt_name = "Disabled"
                             settings.garmin_companion = true
                             stackViewLocal.push(step3Component)
                         }
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("Download the QZ Companion App there")
+                        color: "white"
+                    }
+
+                    Item {
+                        Layout.preferredHeight: 50
                     }
 
                     WizardButton {
@@ -1385,10 +1409,6 @@ Page {
                             settings.garmin_companion = false
                             stackViewLocal.push(step3Component)
                         }
-                    }
-
-                    Item {
-                        Layout.preferredHeight: 50
                     }
 
                     WizardButton {
