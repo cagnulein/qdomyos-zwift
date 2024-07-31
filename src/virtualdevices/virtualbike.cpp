@@ -381,39 +381,6 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             serviceDataChanged.addCharacteristic(charData);
         }
 
-        // zwift ride controller
-        if(1) {
-            QBluetoothUuid _syncRxChar(QStringLiteral("00000003-19CA-4651-86E5-FA29DCDD09D1"));
-            QBluetoothUuid _syncTxChar(QStringLiteral("00000004-19CA-4651-86E5-FA29DCDD09D1"));
-            QBluetoothUuid _asyncChar(QStringLiteral("00000002-19CA-4651-86E5-FA29DCDD09D1"));
-
-            QLowEnergyCharacteristicData charDataASyncChar;
-            charDataASyncChar.setUuid(_asyncChar);
-            charDataASyncChar.setValue(QByteArray(2, 0));
-            charDataASyncChar.setProperties(QLowEnergyCharacteristic::Notify);
-            const QLowEnergyDescriptorData clientConfigAsyncChar(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                                          QByteArray(2, 0));
-            charDataASyncChar.addDescriptor(clientConfigAsyncChar);
-
-            QLowEnergyCharacteristicData charDataSyncTxChar;
-            charDataASyncChar.setUuid(_syncTxChar);
-            charDataASyncChar.setValue(QByteArray(1, 0));
-            charDataASyncChar.setProperties(QLowEnergyCharacteristic::Indicate);
-            const QLowEnergyDescriptorData clientConfigSyncTxChar(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                                                 QByteArray(1, 0));
-            charDataASyncChar.addDescriptor(clientConfigAsyncChar);
-
-            QLowEnergyCharacteristicData charDataSyncRxChar;
-            charDataASyncChar.setUuid(_syncRxChar);
-            charDataASyncChar.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::WriteNoResponse);
-
-            serviceDataZwiftController.setType(QLowEnergyServiceData::ServiceTypePrimary);
-            serviceDataZwiftController.setUuid(QBluetoothUuid(QStringLiteral("00000001-19ca-4651-86e5-fa29dcdd09d1")));
-            serviceDataZwiftController.addCharacteristic(charDataASyncChar);
-            serviceDataZwiftController.addCharacteristic(charDataSyncTxChar);
-            serviceDataZwiftController.addCharacteristic(charDataSyncRxChar);
-        }
-
         //! [Start Advertising]
         leController = QLowEnergyController::createPeripheral();
         Q_ASSERT(leController);
@@ -446,13 +413,6 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
         if (!this->noHeartService || heart_only) {
             serviceHR = leController->addService(serviceDataHR);
-            QThread::msleep(100);
-        }
-
-        // zwift ride
-        if(1) {
-            serviceZwiftController = leController->addService(serviceDataZwiftController);
-            QThread::msleep(100);
         }
 
         if (!echelon && !ifit) {
@@ -1070,17 +1030,8 @@ void virtualbike::reconnect() {
     if (battery)
         serviceBattery = leController->addService(serviceDataBattery);
 
-    if (!this->noHeartService || heart_only) {
+    if (!this->noHeartService || heart_only)
         serviceHR = leController->addService(serviceDataHR);
-        QThread::msleep(100);
-    }
-
-    // zwift ride
-    if(1) {
-        serviceZwiftController = leController->addService(serviceDataZwiftController);
-        QThread::msleep(100);
-    }
-
 #endif
 
     QLowEnergyAdvertisingParameters pars;
