@@ -1,7 +1,7 @@
 #ifndef GPX_H
 #define GPX_H
 
-#include "bluetoothdevice.h"
+#include "devices/bluetoothdevice.h"
 #include "sessionline.h"
 #include <QFile>
 #include <QGeoCoordinate>

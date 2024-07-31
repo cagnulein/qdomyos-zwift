@@ -1,6 +1,0 @@
-framework module ConnectIQ {
-  umbrella header "ConnectIQ.h"
-
-  export *
-  module * { export * }
-}

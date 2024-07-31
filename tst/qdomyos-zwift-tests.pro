@@ -11,6 +11,7 @@ CONFIG += thread
 CONFIG += androidextras
 
 SOURCES += \
+        Devices/DomyosTreadmill/domyostreadmilltestdata.cpp \
         Devices/FTMSBike/ftmsbiketestdata.cpp \
         Devices/FitPlusBike/fitplusbiketestdata.cpp \
         Devices/M3IBike/m3ibiketestdata.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
         Devices/bluetoothdevicetestsuite.cpp \
         Devices/bluetoothsignalreceiver.cpp \
         Devices/devicediscoveryinfo.cpp \
+        Erg/ergtabletestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
         Tools/testsettings.cpp \
         main.cpp
@@ -34,8 +36,8 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../src/release/ -lqdom
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../src/debug/ -lqdomyos-zwift
 else:unix: LIBS += -L$$OUT_PWD/../src/ -lqdomyos-zwift
 
-INCLUDEPATH += $$PWD/../src
-DEPENDPATH += $$PWD/../src
+INCLUDEPATH += $$PWD/../src $$PWD/../src/devices
+DEPENDPATH += $$PWD/../src $$PWD/../src/devices
 
 win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../src/release/libqdomyos-zwift.a
 else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../src/debug/libqdomyos-zwift.a
@@ -45,8 +47,10 @@ else:unix: PRE_TARGETDEPS += $$OUT_PWD/../src/libqdomyos-zwift.a
 
 HEADERS += \
     Devices/ActivioTreadmill/activiotreadmilltestdata.h \
+    Devices/ApexBike/apexbiketestdata.h \
     Devices/BHFitnessElliptical/bhfitnessellipticaltestdata.h \
     Devices/Bike/biketestdata.h \
+    Devices/BkoolBike/bkoolbiketestdata.h \
     Devices/BowflexT216Treadmill/bowflext216treadmilltestdata.h \
     Devices/BowflexTreadmill/bowflextreadmilltestdata.h \
     Devices/CSCBike/cscbiketestdata.h \
@@ -70,6 +74,7 @@ HEADERS += \
     Devices/FakeTreadmill/faketreadmilltestdata.h \
     Devices/FitPlusBike/fitplusbiketestdata.h \
     Devices/FitshowTreadmill/fitshowtreadmilltestdata.h \
+    Devices/FocusTreadmill/focustreadmilltestdata.h \
     Devices/FlywheelBike/flywheelbiketestdata.h \
     Devices/HorizonGR7Bike/horizongr7biketestdata.h \
     Devices/HorizonTreadmill/horizontreadmilltestdata.h \
@@ -87,6 +92,7 @@ HEADERS += \
     Devices/NautilusTreadmill/nautilustreadmilltestdata.h \
     Devices/NordicTrackElliptical/nordictrackellipticaltestdata.h \
     Devices/NordicTrackIFitADBTreadmill/nordictrackifitadbtreadmilltestdata.h \
+    Devices/OctaneElliptical/octaneellipticaltestdata.h \
     Devices/OctaneTreadmill/octanetreadmilltestdata.h \
     Devices/PafersBike/pafersbiketestdata.h \
     Devices/PafersTreadmill/paferstreadmilltestdata.h \
@@ -133,5 +139,7 @@ HEADERS += \
     Devices/iConceptBike/iconceptbiketestdata.h \
     Devices/iConceptElliptical/iconceptellipticaltestdata.h \
     Devices/YpooElliptical/ypooellipticaltestdata.h \
+    Devices/TrxAppGateUsbElliptical/trxappgateusbellipticaltestdata.h \
+    Erg/ergtabletestsuite.h \
     ToolTests/testsettingstestsuite.h \
     Tools/testsettings.h

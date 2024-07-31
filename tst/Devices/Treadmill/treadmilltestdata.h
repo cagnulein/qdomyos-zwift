@@ -1,20 +1,13 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "treadmill.h"
+#include "devices/treadmill.h"
 
 class TreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    TreadmillTestData(): BluetoothDeviceTestData("Treadmill (abstract)") {}
+    TreadmillTestData(std::string deviceName): BluetoothDeviceTestData(deviceName) {}
 
-    bool get_isAbstract() const override { return true; }
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
-    }
 
     deviceType get_expectedDeviceType() const override {
         return deviceType::None; // abstract

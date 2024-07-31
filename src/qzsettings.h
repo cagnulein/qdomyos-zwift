@@ -1950,11 +1950,162 @@ class QZSettings {
     static const QString norditrack_s25_treadmill;
     static constexpr int default_norditrack_s25_treadmill = false;
 
+    static const QString proform_8_5_treadmill;
+    static constexpr int default_proform_8_5_treadmill = false;
+
+    static const QString treadmill_incline_min;
+    static constexpr float default_treadmill_incline_min = -100.0;
+
+    static const QString treadmill_incline_max;
+    static constexpr float default_treadmill_incline_max = 100.0;
+
+    static const QString proform_2000_treadmill;
+    static constexpr bool default_proform_2000_treadmill = false;
+
+    static const QString android_documents_folder;
+    static constexpr bool default_android_documents_folder = false;
+
+    static const QString zwift_api_autoinclination;
+    static constexpr bool default_zwift_api_autoinclination = true;
+
+    static const QString domyos_treadmill_button_5kmh;
+    static constexpr float default_domyos_treadmill_button_5kmh = 5.0;
+
+    static const QString domyos_treadmill_button_10kmh;
+    static constexpr float default_domyos_treadmill_button_10kmh = 10.0;
+
+    static const QString domyos_treadmill_button_16kmh;
+    static constexpr float default_domyos_treadmill_button_16kmh = 16.0;
+
+    static const QString domyos_treadmill_button_22kmh;
+    static constexpr float default_domyos_treadmill_button_22kmh = 22.0;
+
+    static const QString proform_treadmill_sport_8_5;
+    static constexpr bool default_proform_treadmill_sport_8_5 = false;
+
+    static const QString domyos_treadmill_t900a;
+    static constexpr bool default_domyos_treadmill_t900a = false;
+
+    static const QString enerfit_SPX_9500;
+    static constexpr bool default_enerfit_SPX_9500 = false;
+
+    static const QString proform_treadmill_505_cst;
+    static constexpr bool default_proform_treadmill_505_cst = false;
+
+    static const QString nordictrack_treadmill_t8_5s;
+    static constexpr bool default_nordictrack_treadmill_t8_5s = false;
+    
+    static const QString zwift_click;
+    static constexpr bool default_zwift_click = false;
+
+    static const QString proform_treadmill_705_cst;
+    static constexpr bool default_proform_treadmill_705_cst = false;
+
+    static const QString hop_sport_hs_090h_bike;
+    static constexpr bool default_hop_sport_hs_090h_bike = false;
+
+    static const QString zwift_play;
+    static constexpr bool default_zwift_play = false;
+
+    static const QString nordictrack_treadmill_x14i;
+    static constexpr bool default_nordictrack_treadmill_x14i = false;
+
+    static const QString zwift_api_poll;
+    static constexpr int default_zwift_api_poll = 5;
+
+    static const QString tile_step_count_enabled;
+    static constexpr bool default_tile_step_count_enabled = false;
+
+    static const QString tile_step_count_order;
+    static constexpr int default_tile_step_count_order = 51;
+
+    static const QString tile_erg_mode_enabled;
+    static constexpr bool default_tile_erg_mode_enabled = false;
+
+    static const QString tile_erg_mode_order;
+    static constexpr int default_tile_erg_mode_order = 52;
+
+    static const QString toorx_srx_3500;
+    static constexpr bool default_toorx_srx_3500 = false;
+
+    static const QString stryd_speed_instead_treadmill;
+    static constexpr bool default_stryd_speed_instead_treadmill = false;
+    static const QString inclination_delay_seconds;
+    static constexpr float default_inclination_delay_seconds = 0.0;
+
+    static const QString ergDataPoints;
+    static const QString default_ergDataPoints;
+
+    static const QString proform_carbon_tl;
+    static constexpr bool default_proform_carbon_tl = false;    
+
+    static const QString proform_proshox2;
+    static constexpr bool default_proform_proshox2 = false;    
+
+    static const QString proform_tdf_10_0;
+    static constexpr bool default_proform_tdf_10_0 = false;
+
+    static const QString nordictrack_GX4_5_bike;
+    static constexpr bool default_nordictrack_GX4_5_bike = false;
+
+    static const QString ftp_run;
+    static constexpr float default_ftp_run = 200.0;
+
+    static const QString tile_rss_enabled;
+    static constexpr bool default_tile_rss_enabled = false;
+
+    static const QString tile_rss_order;
+    static constexpr int default_tile_rss_order = 53;
+
+    static const QString treadmillDataPoints;
+    static const QString default_treadmillDataPoints;
+
+    static const QString nordictrack_s20i_treadmill;
+    static constexpr bool default_nordictrack_s20i_treadmill = false;
+
+    static const QString proform_595i_proshox2;
+    static constexpr bool default_proform_595i_proshox2 = false;
+
+    static const QString proform_treadmill_8_7;
+    static constexpr bool default_proform_treadmill_8_7 = false;
+
+    static const QString proform_bike_325_csx;
+    static constexpr bool default_proform_bike_325_csx = false;
+
+    static const QString strava_upload_mode;
+    static const QString default_strava_upload_mode;
+
+    static const QString proform_treadmill_705_cst_V78_239;
+    static constexpr bool default_proform_treadmill_705_cst_V78_239 = false;
+
+    static const QString stryd_add_inclination_gain;
+    static constexpr bool default_stryd_add_inclination_gain = false;
+
+    static const QString toorx_bike_srx_500;
+    static constexpr bool default_toorx_bike_srx_500 = false;
+
+    static const QString atletica_lightspeed_treadmill;
+    static constexpr bool default_atletica_lightspeed_treadmill = false;
+
+    static const QString peloton_treadmill_level;
+    static constexpr int default_peloton_treadmill_level = 1;
+
+    static const QString nordictrackadbbike_resistance;
+    static constexpr bool default_nordictrackadbbike_resistance = false;
+
+    static const QString proform_treadmill_carbon_t7;
+    static constexpr bool default_proform_treadmill_carbon_t7 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
-    void qDebugAllSettings(bool showDefaults = false);
+    static void qDebugAllSettings(bool showDefaults = false);
+
+    /**
+     * @brief Restore the default value to all the settings
+     */
+    static void restoreAll();
 };
 
 #endif

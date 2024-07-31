@@ -541,6 +541,7 @@ typedef FIT_ENUM FIT_SPORT;
 #define FIT_SPORT_BOXING                                                         ((FIT_SPORT)47)
 #define FIT_SPORT_FLOOR_CLIMBING                                                 ((FIT_SPORT)48)
 #define FIT_SPORT_DIVING                                                         ((FIT_SPORT)53)
+#define FIT_SPORT_JUMPROPE                                                       ((FIT_SPORT)84)
 #define FIT_SPORT_ALL                                                            ((FIT_SPORT)254) // All is for goals only to include all sports.
 #define FIT_SPORT_COUNT                                                          51
 

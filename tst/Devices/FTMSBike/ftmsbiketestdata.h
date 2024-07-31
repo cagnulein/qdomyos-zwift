@@ -1,17 +1,21 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "ftmsbike.h"
+#include <QVector>
+
+#include "Devices/Bike/biketestdata.h"
+
+
+#include "devices/ftmsbike/ftmsbike.h"
 
 #include "Devices/SnodeBike/snodebiketestdata.h"
 #include "Devices/FitPlusBike/fitplusbiketestdata.h"
 #include "Devices/StagesBike/stagesbiketestdata.h"
 
-class FTMSBikeTestData : public BluetoothDeviceTestData {
+class FTMSBikeTestData : public BikeTestData {
 protected:
     void configureExclusions() override;
 
-    FTMSBikeTestData(std::string testName) : BluetoothDeviceTestData(testName)  {
+    FTMSBikeTestData(std::string testName) : BikeTestData(testName)  {
 
     }
 public:
@@ -50,8 +54,7 @@ public:
         this->addDeviceName("SCHWINN 510T", comparison::StartsWithIgnoreCase);
         this->addDeviceName("ZWIFT HUB", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MAGNUS ", comparison::StartsWithIgnoreCase); // Saris Trainer
-        this->addDeviceName("FLXCY-", comparison::StartsWithIgnoreCase); // Pro FlexBike        
-        this->addDeviceName("KICKR CORE", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("FLXCY-", comparison::StartsWithIgnoreCase); // Pro FlexBike
         this->addDeviceName("B94", comparison::StartsWithIgnoreCase);
         this->addDeviceName("DBF135", comparison::IgnoreCase);
         this->addDeviceName("STAGES BIKE", comparison::StartsWithIgnoreCase);
@@ -95,5 +98,22 @@ public:
         this->ftmsAccessoryName = "accessory";
 
         this->addDeviceName(this->ftmsAccessoryName, comparison::StartsWithIgnoreCase);
+    }
+};
+
+class FTMSBike4TestData : public FTMSBikeTestData {
+protected:
+    void configureBluetoothDeviceInfos(const QBluetoothDeviceInfo& info,  bool enable, std::vector<QBluetoothDeviceInfo>& bluetoothDeviceInfos) const override {
+        auto result = info;
+        if(enable) {
+            result.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1826)}));
+        }
+
+        bluetoothDeviceInfos.push_back(result);
+    }
+public:
+
+    FTMSBike4TestData() : FTMSBikeTestData("FTMS KICKR CORE")  {
+        this->addDeviceName("KICKR CORE", comparison::StartsWithIgnoreCase); // KICKR CORE
     }
 };
