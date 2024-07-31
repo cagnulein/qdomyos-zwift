@@ -363,6 +363,13 @@ class homeform : public QObject {
         return m_locationServices;
     }
 
+    Q_INVOKABLE void enableLocationServices() {
+#ifdef Q_OS_ANDROID
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/LocationHelper", "requestPermissions",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#endif
+    }
+
     homeform(QQmlApplicationEngine *engine, bluetooth *bl);
     ~homeform();
     int topBarHeight() { return m_topBarHeight; }
