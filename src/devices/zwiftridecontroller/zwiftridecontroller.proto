@@ -1,0 +1,114 @@
+syntax = "proto2";
+
+package org.cagnulen.qdomyoszwift;
+
+//---------------- Zwift Play messages
+enum PlayButtonStatus {
+ON = 0;
+OFF = 1;
+}
+// The command code prepending this message is 0x07
+message PlayKeyPadStatus {
+optional PlayButtonStatus RightPad = 1;
+optional PlayButtonStatus Button_Y_Up = 2;
+optional PlayButtonStatus Button_Z_Left = 3;
+optional PlayButtonStatus Button_A_Right = 4;
+optional PlayButtonStatus Button_B_Down = 5;
+optional PlayButtonStatus Button_On = 6;
+optional PlayButtonStatus Button_Shift = 7;
+optional sint32 Analog_LR = 8;
+optional sint32 Analog_UD = 9;
+}
+
+message PlayCommandParameters {
+optional uint32 param1 = 1;
+optional uint32 param2 = 2;
+optional uint32 HapticPattern = 3;
+}
+
+message PlayCommandContents {
+optional PlayCommandParameters CommandParameters = 1;
+}
+
+// The command code prepending this message is 0x12
+// This is sent to the control point to configure and make the controller vibrate
+message PlayCommand {
+optional PlayCommandContents CommandContents = 2;
+}
+
+// The command code prepending this message is 0x19
+// This is sent periodically when there are no button presses
+message Idle {
+optional uint32 Unknown2 = 2;
+}
+
+//----------------- Zwift Ride messages
+enum RideButtonMask {
+LEFT_BTN = 0x00001;
+UP_BTN = 0x00002;
+RIGHT_BTN = 0x00004;
+DOWN_BTN = 0x00008;
+A_BTN = 0x00010;
+B_BTN = 0x00020;
+Y_BTN = 0x00040;
+
+Z_BTN         = 0x00100;
+SHFT_UP_L_BTN = 0x00200;
+SHFT_DN_L_BTN = 0x00400;
+POWERUP_L_BTN = 0x00800;
+ONOFF_L_BTN   = 0x01000;
+SHFT_UP_R_BTN = 0x02000;
+SHFT_DN_R_BTN = 0x04000;
+
+POWERUP_R_BTN = 0x10000;
+ONOFF_R_BTN   = 0x20000;
+}
+
+enum RideAnalogLocation {
+LEFT = 0;
+RIGHT = 1;
+UP = 2;
+DOWN = 3;
+}
+
+message RideAnalogKeyPress {
+optional RideAnalogLocation Location = 1;
+optional sint32 AnalogValue = 2;
+}
+
+message RideAnalogKeyGroup {
+repeated RideAnalogKeyPress GroupStatus = 1;
+}
+
+// The command code prepending this message is 0x23
+message RideKeyPadStatus {
+optional uint32 ButtonMap = 1;
+optional RideAnalogKeyGroup AnalogButtons = 2;
+}
+
+//------------------ Zwift Click messages
+// The command code prepending this message is 0x37
+message ClickKeyPadStatus {
+optional PlayButtonStatus Button_Plus = 1;
+optional PlayButtonStatus Button_Minus = 2;
+}
+
+//------------------ Device Information requested after connection
+// The command code prepending this message is 0x3c
+message DeviceInformationContent {
+repeated uint32 Unknown1 = 2;
+optional string DeviceName = 3;
+optional string SerialNumber = 6;
+optional string HardwareVersion = 7;
+optional uint32 Unknown2 = 9;
+optional uint32 Unknown3 = 10;
+}
+
+message SubContent {
+optional DeviceInformationContent Content = 1;
+}
+
+message DeviceInformation {
+optional uint32 Unknown1 = 1;
+optional SubContent SubContent = 2;
+}
