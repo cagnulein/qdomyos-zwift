@@ -20,6 +20,10 @@ public class LocationHelper {
     private static final int REQUEST_ENABLE_LOCATION = 2;
     private static final int PERMISSION_REQUEST_CODE = 3;
 
+    public interface LocationHelperCallback {
+        void onComplete(boolean isEnabled);
+    }
+
     public static boolean check(Context context) {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -28,9 +32,10 @@ public class LocationHelper {
         return isGpsEnabled && isBluetoothEnabled;
     }
 
-    public static void start(final Activity activity) {
+    public static void start(final Activity activity, final LocationHelperCallback callback) {
         if (!(activity instanceof Activity)) {
             Log.e(TAG, "Context must be an instance of Activity");
+            callback.onComplete(false);
             return;
         }
 
@@ -45,37 +50,23 @@ public class LocationHelper {
         }
 
         if (!check(activity)) {
-            showEnableServicesDialog(activity);
+            showEnableServicesDialog(activity, callback);
+        } else {
+            callback.onComplete(true);
         }
     }
 
-    private static void onServicesCheck(boolean isLocationEnabled, boolean isBluetoothEnabled) {
-         if (isLocationEnabled && isBluetoothEnabled) {
-             Log.d(TAG, "Both Location and Bluetooth are enabled");
-             // You can add any additional logic here when both services are enabled
-         } else {
-             Log.d(TAG, "Some services are still disabled");
-             if (!isLocationEnabled) {
-                 Log.d(TAG, "Location is disabled");
-             }
-             if (!isBluetoothEnabled) {
-                 Log.d(TAG, "Bluetooth is disabled");
-             }
-             // You can add any additional logic here when some services are disabled
-         }
-     }
-
-    private static void showEnableServicesDialog(final Activity activity) {
+    private static void showEnableServicesDialog(final Activity activity, final LocationHelperCallback callback) {
         new AlertDialog.Builder(activity)
             .setTitle("Enable Services")
-            .setMessage("Location Service and Bluetooth are required for this app. Location services is not required for GPS, but it's the way how Google ask for permissions to search devices around you. Would you like to enable them?")
-            .setPositiveButton("Yes", (dialog, which) -> enableServices(activity))
-            .setNegativeButton("No", (dialog, which) -> onServicesCheck(false, false))
+            .setMessage("GPS and Bluetooth are required for this app. Would you like to enable them?")
+            .setPositiveButton("Yes", (dialog, which) -> enableServices(activity, callback))
+            .setNegativeButton("No", (dialog, which) -> callback.onComplete(false))
             .create()
             .show();
     }
 
-    private static void enableServices(Activity activity) {
+    private static void enableServices(Activity activity, LocationHelperCallback callback) {
         LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -89,13 +80,7 @@ public class LocationHelper {
             activity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
-        new AlertDialog.Builder(activity)
-            .setTitle("Restart the app")
-            .setMessage("Do you want to restart the app to apply the changes?")
-            .setPositiveButton("Yes", (dialog, which) -> activity.finish())
-            .setNegativeButton("No", (dialog, which) -> onServicesCheck(false, false))
-            .create()
-            .show();
-
+        // You should handle the result in your Activity's onActivityResult method
+        // and call callback.onComplete(check(activity)) there
     }
 }
