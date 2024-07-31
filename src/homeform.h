@@ -24,6 +24,12 @@
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
 
+#ifdef Q_OS_ANDROID
+
+#include <QAndroidJniEnvironment>
+#include <QtAndroid>
+#endif
+
 #if __has_include("secret.h")
 #include "secret.h"
 #else

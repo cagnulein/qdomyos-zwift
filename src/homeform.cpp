@@ -42,12 +42,6 @@
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
-#ifdef Q_OS_ANDROID
-
-#include <QAndroidJniEnvironment>
-#include <QtAndroid>
-#endif
-
 #ifndef STRAVA_CLIENT_ID
 #define STRAVA_CLIENT_ID 7976
 #if defined(WIN32)
@@ -136,6 +130,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         meters = QStringLiteral("ft");
         cm = QStringLiteral("in");
     }
+
+#ifdef Q_OS_ANDROID
+    m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
+                                              "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
+#endif
 
 #ifdef Q_OS_IOS
     const int labelFontSize = 14;
@@ -682,9 +681,6 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QAndroidJniObject javaPath = QAndroidJniObject::fromString(getWritableAppDir());
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
                                                 "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
-
-    m_locationServices = QAndroidJniObject::callStaticMethod<bool>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
-                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
 #endif
 
     bluetoothManager->homeformLoaded = true;

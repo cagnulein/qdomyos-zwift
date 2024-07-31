@@ -86,13 +86,13 @@ HomeForm {
         onTriggered: {if(rootItem.stopRequested) {rootItem.stopRequested = false; inner_stop(); }}
     }
 
-    var locationServiceRequsted = false
+    property var locationServiceRequsted: false
     MessageDialog {
         text: "Permissions Required"
         informativeText: "QZ needs Bluetooth and Location Services both enabled. Location Services are required on Android because it's how google allow an app to find bluetooth devices around you. The GPS will not be used. Would you like to enable them?"
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {locationServiceRequsted = true; rootItem.enableLocationServices()}
-        visible: !rootItem.locationServices && !locationServiceRequsted
+        visible: !rootItem.locationServices() && !locationServiceRequsted
     }
     MessageDialog {
         text: "Restart the app"
