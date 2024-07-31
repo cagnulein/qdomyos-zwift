@@ -1513,6 +1513,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("TACX SATORI")) ||
                         ((b.name().toUpper().startsWith("KICKR CORE")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && deviceHasService(b, QBluetoothUuid((quint16)0x1818))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("QD")) && b.name().length() == 2) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("DFC")) && b.name().length() == 3) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ASSIOMA")) &&
                          powerSensorName.startsWith(QStringLiteral("Disabled")))) &&
                        !stagesBike && !ftmsBike && filter) {
