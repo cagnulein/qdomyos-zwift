@@ -187,6 +187,7 @@ class homeform : public QObject {
     Q_PROPERTY(QString getStravaAuthUrl READ getStravaAuthUrl NOTIFY stravaAuthUrlChanged)
     Q_PROPERTY(bool stravaWebVisible READ stravaWebVisible NOTIFY stravaWebVisibleChanged)
 
+
   public:
     static homeform *singleton() { return m_singleton; }
 
@@ -340,6 +341,12 @@ class homeform : public QObject {
             axisY->setShadesBrush(QBrush(QColor(0x99, 0xcc, 0xcc, 0x55)));
         }
     }
+
+    Q_INVOKABLE bool firstRun() {
+        QSettings settings;
+        return settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString().isEmpty();
+    }
+
 
     Q_INVOKABLE bool autoInclinationEnabled() {
         QSettings settings;

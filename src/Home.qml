@@ -86,6 +86,11 @@ HomeForm {
         onTriggered: {if(rootItem.stopRequested) {rootItem.stopRequested = false; inner_stop(); }}
     }
 
+    Timer {
+        interval: 200; running: true; repeat: false
+        onTriggered: {if(rootItem.firstRun()) {stackView.push("Wizard.qml")}}
+    }
+
     function inner_stop() {
         stop_clicked();
         rootItem.save_screenshot();
@@ -101,7 +106,9 @@ HomeForm {
     }
     lap.onClicked: { lap_clicked(); popupLap.open(); popupLapAutoClose.running = true; }
 
-    Component.onCompleted: { console.log("completed"); }
+    Component.onCompleted: {
+        console.log("home.qml completed");
+    }
 
     GridView {
         anchors.horizontalCenter: parent.horizontalCenter
