@@ -1,63 +1,86 @@
 package org.cagnulen.qdomyoszwift;
 
-import android.location.LocationManager;
-import android.app.ActivityManager;
+import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.provider.Settings;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
-import android.os.Looper;
-import android.os.Handler;
-import android.util.Log;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.os.Build;
+import android.provider.Settings;
+import android.util.Log;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class LocationHelper {
+    private static final String TAG = "LocationHelper";
+    private static final int REQUEST_ENABLE_BT = 1;
+    private static final int REQUEST_ENABLE_LOCATION = 2;
+    private static final int PERMISSION_REQUEST_CODE = 3;
 
-    public static int check(Context context) {
+    public interface LocationHelperCallback {
+        void onComplete(boolean isEnabled);
+    }
+
+    public static boolean check(Context context) {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
         boolean isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         boolean isBluetoothEnabled = (bluetoothAdapter != null && bluetoothAdapter.isEnabled());
+        return isGpsEnabled && isBluetoothEnabled;
+    }
 
-        return (isGpsEnabled && isBluetoothEnabled ? 1 : 0);
-     }
+    public static void start(final Activity activity, final LocationHelperCallback callback) {
+        if (!(activity instanceof Activity)) {
+            Log.e(TAG, "Context must be an instance of Activity");
+            callback.onComplete(false);
+            return;
+        }
 
-    public static void start(Context context) {
-        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH},
+                    PERMISSION_REQUEST_CODE);
+                return;
+            }
+        }
 
-        boolean isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        boolean isBluetoothEnabled = (bluetoothAdapter != null && bluetoothAdapter.isEnabled());
-
-        Log.d("LocatioHelper", "starting..");
-
-        if (!isGpsEnabled || !isBluetoothEnabled) {
-            Log.d("LocatioHelper", "requesting..");
-                if (!isGpsEnabled) {
-                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    a.startActivity(intent);
-                }
-                // Indirizza l'utente alle impostazioni del Bluetooth
-                if (!isBluetoothEnabled) {
-                    Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    a.startActivity(intent);
-                }
+        if (!check(activity)) {
+            showEnableServicesDialog(activity, callback);
         } else {
-        }        
-     }
+            callback.onComplete(true);
+        }
+    }
+
+    private static void showEnableServicesDialog(final Activity activity, final LocationHelperCallback callback) {
+        new AlertDialog.Builder(activity)
+            .setTitle("Enable Services")
+            .setMessage("GPS and Bluetooth are required for this app. Would you like to enable them?")
+            .setPositiveButton("Yes", (dialog, which) -> enableServices(activity, callback))
+            .setNegativeButton("No", (dialog, which) -> callback.onComplete(false))
+            .create()
+            .show();
+    }
+
+    private static void enableServices(Activity activity, LocationHelperCallback callback) {
+        LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            activity.startActivityForResult(intent, REQUEST_ENABLE_LOCATION);
+        }
+
+        if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            activity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+
+        // You should handle the result in your Activity's onActivityResult method
+        // and call callback.onComplete(check(activity)) there
+    }
 }
