@@ -557,7 +557,7 @@ int main(int argc, char *argv[]) {
     }
 
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
-                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+                                              "(Landroid/content/Context;)V", QtAndroid::androidActivity().object());
 #endif
 
     /* test virtual echelon
