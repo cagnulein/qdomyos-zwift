@@ -27,6 +27,11 @@ let PowerFeatureCharacteristicUUID = CBUUID(string: "0x2A65")
 let PowerSensorLocationCharacteristicUUID = CBUUID(string: "0x2A5D")
 let PowerMeasurementCharacteristicUUID = CBUUID(string: "0x2A63")
 
+let SterzoServiceUUID = CBUUID(string: "347b0001-7635-408b-8918-8ff3949ce592")
+let SterzoWriteUUID = CBUUID(string: "347b0031-7635-408b-8918-8ff3949ce592")
+let SterzoNotifyUUID = CBUUID(string: "347b0030-7635-408b-8918-8ff3949ce592")
+
+
 @objc public class virtualbike_ios_swift: NSObject {
     private var peripheralManager: BLEPeripheralManager!
     
