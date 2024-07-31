@@ -754,7 +754,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
             if(((bike*)Bike)->ifitCompatible()) {
                 if (force_resistance)
-                    Bike->changeResistance(iFit_LastResistanceRequested);
+                    Bike->changeResistance(iFit_resistanceToIfit(iFit_LastResistanceRequested));
             } else if(((bike*)Bike)->inclinationAvailableByHardware()) {
                 Bike->changeInclination((iFit_LastResistanceRequested * bikeResistanceGain) + bikeResistanceOffset, (iFit_LastResistanceRequested * bikeResistanceGain) + bikeResistanceOffset);
             } else {
@@ -928,6 +928,45 @@ int virtualbike::iFit_pelotonToBikeResistance(int pelotonResistance) {
         return 0x26;
     }
     return 0x02;
+}
+
+int virtualbike::iFit_resistanceToIfit(int ifitResistance) {
+    switch(ifitResistance) {
+    case 38:
+        return 16;
+    case 36:
+        return 15;
+    case 33:
+        return 14;
+    case 31:
+        return 13;
+    case 29:
+        return 12;
+    case 26:
+        return 11;
+    case 24:
+        return 10;
+    case 21:
+        return 9;
+    case 19:
+        return 8;
+    case 16:
+        return 7;
+    case 14:
+        return 6;
+    case 11:
+        return 5;
+    case 9:
+        return 4;
+    case 7:
+        return 3;
+    case 4:
+        return 2;
+    default:
+    case 2:
+        return 1;
+
+    }
 }
 
 void virtualbike::writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,

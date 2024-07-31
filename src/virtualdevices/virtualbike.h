@@ -74,6 +74,7 @@ class virtualbike : public virtualdevice {
     double bikeResistanceGain = 1.0;
     DirconManager *dirconManager = 0;
     int iFit_pelotonToBikeResistance(int pelotonResistance);
+    int iFit_resistanceToIfit(int ifitResistance);
     qint64 iFit_timer = 0;
     qint64 iFit_TSLastFrame = 0;
     QByteArray iFit_LastFrameReceived;
