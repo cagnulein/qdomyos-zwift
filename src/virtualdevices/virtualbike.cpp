@@ -752,7 +752,10 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             iFit_LastResistanceRequested = newValue.at(12);
             qDebug() << QStringLiteral("requested iFit resistance ") + QString::number(iFit_LastResistanceRequested);
 
-            if(((bike*)Bike)->inclinationAvailableByHardware()) {
+            if(((bike*)Bike)->ifitCompatible()) {
+                if (force_resistance)
+                    Bike->changeResistance(iFit_LastResistanceRequested);
+            } else if(((bike*)Bike)->inclinationAvailableByHardware()) {
                 Bike->changeInclination((iFit_LastResistanceRequested * bikeResistanceGain) + bikeResistanceOffset, (iFit_LastResistanceRequested * bikeResistanceGain) + bikeResistanceOffset);
             } else {
                 for (int i = 0; i < 100; i++) {

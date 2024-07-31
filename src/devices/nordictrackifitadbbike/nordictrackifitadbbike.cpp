@@ -729,3 +729,5 @@ uint16_t nordictrackifitadbbike::wattsFromResistance(double inclination, double 
 
     return power;
 }
+
+bool nordictrackifitadbbike::ifitCompatible() {return true;}
