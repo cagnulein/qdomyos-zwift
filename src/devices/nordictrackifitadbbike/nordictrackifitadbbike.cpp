@@ -311,7 +311,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
 
                         if(!proform_studio_NTEX71021) { // s22i default
                             x1 = 1920 - 75;
-                            y2 = (int)(803 - (23.777 * requestResistance));
+                            y2 = (int)(803 - (23.777 * (requestResistance - 1)));
                             y1Resistance = (int)(803 - (23.777 * currentResistance().value()));
                             Resistance = requestResistance;
                             emit resistanceRead(Resistance.value());
