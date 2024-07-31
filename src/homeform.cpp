@@ -682,6 +682,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QAndroidJniObject javaPath = QAndroidJniObject::fromString(getWritableAppDir());
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
                                                 "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
+
+    m_locationServices = QAndroidJniObject::callStaticMethod<bool>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
+                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
 #endif
 
     bluetoothManager->homeformLoaded = true;

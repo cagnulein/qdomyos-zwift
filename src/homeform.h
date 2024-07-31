@@ -352,6 +352,10 @@ class homeform : public QObject {
                ((virtualtreadmill *)bluetoothManager->device()->VirtualDevice())->autoInclinationEnabled();
     }
 
+    Q_INVOKABLE bool locationServices() {
+        return m_locationServices;
+    }
+
     homeform(QQmlApplicationEngine *engine, bluetooth *bl);
     ~homeform();
     int topBarHeight() { return m_topBarHeight; }
@@ -734,8 +738,10 @@ class homeform : public QObject {
     bool videoMustBeReset = true;
 
 #ifdef Q_OS_ANDROID
-    bool floating_open = false;
+    bool floating_open = false;    
 #endif
+
+    bool m_locationServices = true;
 
 #ifndef Q_OS_IOS
     QMdnsEngine::Browser *iphone_browser = nullptr;

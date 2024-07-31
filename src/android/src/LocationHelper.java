@@ -9,13 +9,19 @@ import android.util.Log;
 
 public class LocationHelper {
     private static final String TAG = "LocationHelper";
+    private static boolean isLocationEnabled = false;
+    private static boolean isBluetoothEnabled = false;
 
-    public static void start(Context context) {
+    public static boolean start(Context context) {
         Log.d(TAG, "Starting LocationHelper check...");
 
-        boolean isLocationEnabled = isLocationEnabled(context);
-        boolean isBluetoothEnabled = isBluetoothEnabled();
+        isLocationEnabled = isLocationEnabled(context);
+        isBluetoothEnabled = isBluetoothEnabled();
 
+        return isLocationEnabled && isBluetoothEnabled;
+    }
+
+    public static void requestPermissions(Context context) {
         if (!isLocationEnabled || !isBluetoothEnabled) {
             Log.d(TAG, "Some services are disabled. Prompting user...");
             if (!isLocationEnabled) {
@@ -27,9 +33,6 @@ public class LocationHelper {
         } else {
             Log.d(TAG, "All services are already enabled.");
         }
-
-        // Internal callback
-        onServicesCheck(isLocationEnabled, isBluetoothEnabled);
     }
 
     public static boolean check(Context context) {
@@ -58,21 +61,5 @@ public class LocationHelper {
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
-    }
-
-    private static void onServicesCheck(boolean isLocationEnabled, boolean isBluetoothEnabled) {
-        if (isLocationEnabled && isBluetoothEnabled) {
-            Log.d(TAG, "Both Location and Bluetooth are enabled");
-            // You can add any additional logic here when both services are enabled
-        } else {
-            Log.d(TAG, "Some services are still disabled");
-            if (!isLocationEnabled) {
-                Log.d(TAG, "Location is disabled");
-            }
-            if (!isBluetoothEnabled) {
-                Log.d(TAG, "Bluetooth is disabled");
-            }
-            // You can add any additional logic here when some services are disabled
-        }
     }
 }
