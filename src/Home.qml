@@ -89,14 +89,14 @@ HomeForm {
     property var locationServiceRequsted: false
     MessageDialog {
         text: "Permissions Required"
-        informativeText: "QZ needs Bluetooth and Location Services both enabled. Location Services are required on Android because it's how google allow an app to find bluetooth devices around you. The GPS will not be used. Would you like to enable them?"
+        informativeText: "QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?"
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {locationServiceRequsted = true; rootItem.enableLocationServices()}
         visible: !rootItem.locationServices() && !locationServiceRequsted
     }
     MessageDialog {
         text: "Restart the app"
-        informativeText: "In order to apply the changes you need to restart the app.\nDo you want to do it now?"
+        informativeText: "To apply the changes, you need to restart the app.\nWould you like to do that now?"
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;
