@@ -933,38 +933,38 @@ int virtualbike::iFit_pelotonToBikeResistance(int pelotonResistance) {
 int virtualbike::iFit_resistanceToIfit(int ifitResistance) {
     switch(ifitResistance) {
     case 38:
-        return 16;
-    case 36:
         return 15;
-    case 33:
+    case 36:
         return 14;
-    case 31:
+    case 33:
         return 13;
-    case 29:
+    case 31:
         return 12;
-    case 26:
+    case 29:
         return 11;
-    case 24:
+    case 26:
         return 10;
-    case 21:
+    case 24:
         return 9;
-    case 19:
+    case 21:
         return 8;
-    case 16:
+    case 19:
         return 7;
-    case 14:
+    case 16:
         return 6;
-    case 11:
+    case 14:
         return 5;
-    case 9:
+    case 11:
         return 4;
-    case 7:
+    case 9:
         return 3;
-    case 4:
+    case 7:
         return 2;
+    case 4:
+        return 1;
     default:
     case 2:
-        return 1;
+        return 0;
 
     }
 }

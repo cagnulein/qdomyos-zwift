@@ -304,14 +304,14 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         if(proform_studio_NTEX71021 || nordictrackadbbike_resistance) {
             if (nordictrack_ifit_adb_remote) {
                 if (requestResistance != -1) {
-                    if (requestResistance - 1 != currentResistance().value()) {
+                    if (requestResistance != currentResistance().value()) {
                         int x1 = 950;
                         int y2 = (int)(493 - (13.57 * (requestResistance - 1)));
                         int y1Resistance = (int)(493 - (13.57 * currentResistance().value()));
 
                         if(!proform_studio_NTEX71021) { // s22i default
                             x1 = 1920 - 75;
-                            y2 = (int)(803 - (23.777 * (requestResistance - 1)));
+                            y2 = (int)(803 - (23.777 * requestResistance));
                             y1Resistance = (int)(803 - (23.777 * currentResistance().value()));
                             Resistance = requestResistance;
                             emit resistanceRead(Resistance.value());
