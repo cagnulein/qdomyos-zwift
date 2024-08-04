@@ -1302,6 +1302,8 @@ void horizontreadmill::forceIncline(double requestIncline) {
             writeS[1] = conversion[r];
             writeS[2] = conversion1[r];
         } else {
+            if(HORIZON_78AT_treadmill)
+                requestIncline = requestIncline / 2.0;
             writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
             writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
         }
@@ -2232,6 +2234,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith(QStringLiteral("SW"))) {
             qDebug() << QStringLiteral("SW TREADMILL workaround ON!");
             disableAutoPause = true;
+        } else if(device.name().toUpper().startsWith("HORIZON_7.8AT")) {
+            HORIZON_78AT_treadmill = true;
+            qDebug() << QStringLiteral("HORIZON_7.8AT workaround ON!");
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
