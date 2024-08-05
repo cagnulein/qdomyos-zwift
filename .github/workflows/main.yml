@@ -585,21 +585,13 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11'
+          java-version: '11.0.23+9'
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
-
-      - name: Build qthttpserver
-        run: |
-            cd src/qthttpserver 
-            qmake
-            make -j8
-            make install
-            cd ../..
 
       - name: Set Android NDK 21 && build
         run: |
@@ -622,6 +614,14 @@ jobs:
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+
+          # QTHTTPSERVER must use the same NDK
+          cd src/qthttpserver 
+          qmake
+          make -j8
+          make install
+          cd ../..          
+          
           qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
