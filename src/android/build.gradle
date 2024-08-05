@@ -18,6 +18,9 @@ repositories {
     google()
     jcenter()
     maven { url 'https://jitpack.io' }
+    flatDir {
+        dirs 'libs' // Aggiungi questa riga
+    }
 }
 
 apply plugin: 'com.android.application'
