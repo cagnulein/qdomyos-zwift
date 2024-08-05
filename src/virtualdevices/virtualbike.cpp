@@ -778,8 +778,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                    ((uint8_t)newValue.at(8)) == 0x02) { // ff0f0204020b070b0202041032020a0068000000
             qDebug() << "ifit ans 15 stop request";
             iFit_timer = 0;
-            reply1 = QByteArray::fromHex("fe02090200b40000005802000000000038000000");
-            reply2 = QByteArray::fromHex("ff09010402050705020210000000000038000000");
+            reply1 = QByteArray::fromHex("fe0209020205070502021000ffffffffffffffff");
+            reply2 = QByteArray::fromHex("ff0901040205070502021000ffffffffffffffff");
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
         } else if (newValue.length() > 12 && ((uint8_t)newValue.at(0)) == 0xFF &&
