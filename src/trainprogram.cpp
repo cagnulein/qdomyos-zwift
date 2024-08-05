@@ -590,17 +590,17 @@ void trainprogram::pelotonOCRcomputeTime(QString t) {
 
 struct DisplayValue {
     QString value;
-    QString label;
     QRect rect;
 };
 
-static DisplayValue extractValue(const QString& ocrText, int imageWidth, int imageHeight, const QString& targetLabel) {
+static DisplayValue extractValue(const QString& ocrText, int imageWidth, bool isIncline) {
     QStringList lines = ocrText.split("§§");
     QRegularExpression rectRegex("Rect\\((\\d+), (\\d+) - (\\d+), (\\d+)\\)");
     QRegularExpression numericRegex("^-?\\d+(\\.\\d+)?$");
 
     DisplayValue result;
-    int closestDistance = INT_MAX;
+    int minX = isIncline ? 0 : imageWidth - 200;
+    int maxX = isIncline ? 200 : imageWidth;
 
     for (const QString& line : lines) {
         QStringList parts = line.split("$$");
@@ -608,26 +608,17 @@ static DisplayValue extractValue(const QString& ocrText, int imageWidth, int ima
             QString value = parts[0];
             QRegularExpressionMatch match = rectRegex.match(parts[1]);
 
-            if (match.hasMatch()) {
+            if (match.hasMatch() && numericRegex.match(value).hasMatch()) {
                 int x1 = match.captured(1).toInt();
                 int y1 = match.captured(2).toInt();
                 int x2 = match.captured(3).toInt();
                 int y2 = match.captured(4).toInt();
 
-                QRect rect(x1, y1, x2 - x1, y2 - y1);
-
-                // Check if this is the label we're looking for
-                if (value.contains(targetLabel, Qt::CaseInsensitive)) {
-                    result.label = value;
-                    result.rect = rect;
-                }
-                // If we've found the label, look for the closest numeric value
-                else if (!result.label.isEmpty() && numericRegex.match(value).hasMatch()) {
-                    int distance = qAbs(rect.top() - result.rect.top());
-                    if (distance < closestDistance) {
-                        closestDistance = distance;
-                        result.value = value;
-                    }
+                // Check if the rectangle is within our target area
+                if (x1 >= minX && x2 <= maxX) {
+                    result.value = value;
+                    result.rect = QRect(x1, y1, x2 - x1, y2 - y1);
+                    break;  // Take the first matching value
                 }
             }
         }
@@ -636,9 +627,9 @@ static DisplayValue extractValue(const QString& ocrText, int imageWidth, int ima
     return result;
 }
 
-static void processOCROutput(const QString& ocrText, int imageWidth, int imageHeight) {
-    DisplayValue incline = extractValue(ocrText, imageWidth, imageHeight, "INCLINE");
-    DisplayValue speed = extractValue(ocrText, imageWidth, imageHeight, "SPEED");
+static void processOCROutput(const QString& ocrText, int imageWidth) {
+    DisplayValue incline = extractValue(ocrText, imageWidth, true);
+    DisplayValue speed = extractValue(ocrText, imageWidth, false);
 
     if (!incline.value.isEmpty()) {
         qDebug() << "Incline:" << incline.value;
