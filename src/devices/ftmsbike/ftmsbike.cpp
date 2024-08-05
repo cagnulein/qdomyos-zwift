@@ -128,7 +128,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
     if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
-        resistance_lvl_mode == false) {
+        resistance_lvl_mode == false && _3G_Cardio_RB == false) {
         uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
@@ -141,6 +141,8 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
                             QStringLiteral("forceResistance ") + QString::number(requestResistance));
     } else {
         uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
+        if(_3G_Cardio_RB)
+            requestResistance = requestResistance * 10;
         write[1] = ((uint8_t)(requestResistance));
         writeCharacteristic(write, sizeof(write),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance));
@@ -942,6 +944,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("DOMYOS"))) {
             qDebug() << QStringLiteral("DOMYOS found");
             DOMYOS = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("3G Cardio RB"))) {
+            qDebug() << QStringLiteral("_3G_Cardio_RB found");
+            _3G_Cardio_RB = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
