@@ -69,6 +69,9 @@ class apexbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    double lastDistance = 0;
+    QDateTime lastTS = QDateTime::currentDateTime();
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
