@@ -594,9 +594,10 @@ struct DisplayValue {
     QRect rect;
 };
 
-DisplayValue extractValue(const QString& ocrText, int imageWidth, int imageHeight, const QString& targetLabel) {
+static DisplayValue extractValue(const QString& ocrText, int imageWidth, int imageHeight, const QString& targetLabel) {
     QStringList lines = ocrText.split("§§");
     QRegularExpression rectRegex("Rect\\((\\d+), (\\d+) - (\\d+), (\\d+)\\)");
+    QRegularExpression numericRegex("^-?\\d+(\\.\\d+)?$");
 
     DisplayValue result;
     int closestDistance = INT_MAX;
@@ -620,8 +621,8 @@ DisplayValue extractValue(const QString& ocrText, int imageWidth, int imageHeigh
                     result.label = value;
                     result.rect = rect;
                 }
-                // If we've found the label, look for the closest value
-                else if (!result.label.isEmpty()) {
+                // If we've found the label, look for the closest numeric value
+                else if (!result.label.isEmpty() && numericRegex.match(value).hasMatch()) {
                     int distance = qAbs(rect.top() - result.rect.top());
                     if (distance < closestDistance) {
                         closestDistance = distance;
@@ -641,10 +642,14 @@ static void processOCROutput(const QString& ocrText, int imageWidth, int imageHe
 
     if (!incline.value.isEmpty()) {
         qDebug() << "Incline:" << incline.value;
+    } else {
+        qDebug() << "Incline not found";
     }
 
     if (!speed.value.isEmpty()) {
         qDebug() << "Speed:" << speed.value;
+    } else {
+        qDebug() << "Speed not found";
     }
 }
 
