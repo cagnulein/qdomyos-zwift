@@ -593,14 +593,6 @@ jobs:
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
-      - name: Build qthttpserver
-        run: |
-            cd src/qthttpserver 
-            qmake
-            make -j8
-            make install
-            cd ../..
-
       - name: Set Android NDK 21 && build
         run: |
           # Install NDK 21 after GitHub update
@@ -611,6 +603,11 @@ jobs:
           echo "y" | $SDKMANAGER "ndk;21.4.7075529"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
+          cd src/qthttpserver 
+          qmake
+          make -j8
+          make install
+          cd ../..          
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
