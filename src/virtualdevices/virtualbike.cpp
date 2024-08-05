@@ -1,6 +1,6 @@
 #include "virtualdevices/virtualbike.h"
 #include "devices/bike.h"
-
+#include <QThread>
 #include <QDataStream>
 #include <QMetaEnum>
 #include <QSettings>
@@ -402,8 +402,10 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         } else {
 
             service = leController->addService(serviceEchelon);
+            QThread::msleep(100); // give time to Android to add the service async.ly
             service = leController->addService(serviceData);
         }
+        QThread::msleep(100); // give time to Android to add the service async.ly
 
         if (battery) {
             serviceBattery = leController->addService(serviceDataBattery);
@@ -750,7 +752,10 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             iFit_LastResistanceRequested = newValue.at(12);
             qDebug() << QStringLiteral("requested iFit resistance ") + QString::number(iFit_LastResistanceRequested);
 
-            if(((bike*)Bike)->inclinationAvailableByHardware()) {
+            if(((bike*)Bike)->ifitCompatible()) {
+                if (force_resistance)
+                    Bike->changeResistance(iFit_resistanceToIfit(iFit_LastResistanceRequested));
+            } else if(((bike*)Bike)->inclinationAvailableByHardware()) {
                 Bike->changeInclination((iFit_LastResistanceRequested * bikeResistanceGain) + bikeResistanceOffset, (iFit_LastResistanceRequested * bikeResistanceGain) + bikeResistanceOffset);
             } else {
                 for (int i = 0; i < 100; i++) {
@@ -925,6 +930,45 @@ int virtualbike::iFit_pelotonToBikeResistance(int pelotonResistance) {
     return 0x02;
 }
 
+int virtualbike::iFit_resistanceToIfit(int ifitResistance) {
+    switch(ifitResistance) {
+    case 38:
+        return 15;
+    case 36:
+        return 14;
+    case 33:
+        return 13;
+    case 31:
+        return 12;
+    case 29:
+        return 11;
+    case 26:
+        return 10;
+    case 24:
+        return 9;
+    case 21:
+        return 8;
+    case 19:
+        return 7;
+    case 16:
+        return 6;
+    case 14:
+        return 5;
+    case 11:
+        return 4;
+    case 9:
+        return 3;
+    case 7:
+        return 2;
+    case 4:
+        return 1;
+    default:
+    case 2:
+        return 0;
+
+    }
+}
+
 void virtualbike::writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                                       const QByteArray &value) {
     try {
@@ -978,8 +1022,10 @@ void virtualbike::reconnect() {
     } else {
 
         service = leController->addService(serviceEchelon);
+        QThread::msleep(100); // give time to Android to add the service async.ly
         service = leController->addService(serviceData);
     }
+    QThread::msleep(100); // give time to Android to add the service async.ly
 
     if (battery)
         serviceBattery = leController->addService(serviceDataBattery);

@@ -296,7 +296,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 } else if(proform_treadmill_carbon_t7) {
                     x1 = 940;
                     // 458 0 183 10 mph
-                    y1Speed = (int) (275 - (27.5 * ((Speed.value() * 0.621371) - 1)));
+                    y1Speed = (int) (458 - (27.5 * ((Speed.value() * 0.621371) - 1)));
                     y2 = y1Speed - (int)(((requestSpeed - Speed.value()) * 0.621371) * 27.5);
                 }
 
@@ -338,7 +338,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 } else if(proform_treadmill_carbon_t7) {
                     x1 = 75;
                     // 458 0 183 10%
-                    y1Inclination = (int) (275 - (27.5 * (currentInclination().value())));
+                    y1Inclination = (int) (458 - (27.5 * (currentInclination().value())));
                     y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 27.5);
                 }
 

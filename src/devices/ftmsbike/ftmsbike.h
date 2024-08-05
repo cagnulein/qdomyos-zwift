@@ -114,6 +114,7 @@ class ftmsbike : public bike {
     bool DU30_bike = false;
     bool ICSE = false;
     bool DOMYOS = false;
+    bool _3G_Cardio_RB = false;
 
     uint8_t battery_level = 0;
 

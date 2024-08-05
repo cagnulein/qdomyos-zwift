@@ -14,6 +14,8 @@ void bike::changeResistance(resistance_t resistance) {
     double zwift_erg_resistance_down =
         settings.value(QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down).toDouble();
 
+    qDebug() << QStringLiteral("bike::changeResistance") << autoResistanceEnable << resistance;
+
     lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
         double v = (resistance * m_difficult) + gears();

@@ -140,7 +140,7 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
     lastPacket = newValue;
 
-    if (newValue.length() != 10 && newValue.at(2) != 0x31) {
+    if (newValue.length() != 10 || newValue.at(2) != 0x31) {
         return;
     }
 
