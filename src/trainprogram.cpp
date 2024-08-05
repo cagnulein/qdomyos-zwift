@@ -605,6 +605,7 @@ void trainprogram::scheduler() {
         QString t = text.toString();
         QAndroidJniObject textExtended = QAndroidJniObject::callStaticObjectMethod<jstring>(
             "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastTextExtended");
+        QString tt = textExtended.toString();
         // 2272 1027
         jint w = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
                                                             "getImageWidth", "()I");
@@ -615,7 +616,7 @@ void trainprogram::scheduler() {
             "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
         QString packageName = packageNameJava.toString();
 
-        qDebug() << QStringLiteral("OCR") << packageName << t;
+        qDebug() << QStringLiteral("OCR") << packageName << tt;
     }    
 
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
