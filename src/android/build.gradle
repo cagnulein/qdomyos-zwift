@@ -18,9 +18,6 @@ repositories {
     google()
     jcenter()
     maven { url 'https://jitpack.io' }
-    flatDir {
-        dirs 'libs' // Aggiungi questa riga
-    }
 }
 
 apply plugin: 'com.android.application'
@@ -30,7 +27,6 @@ def amazon = System.getenv('AMAZON')
 println(amazon)
 
 dependencies {
-    compile(name: 'fgchecker-1.1.0', ext: 'aar') // Modifica questa riga
     implementation "androidx.core:core:1.12.0"
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
