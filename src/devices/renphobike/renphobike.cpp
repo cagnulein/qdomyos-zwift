@@ -86,7 +86,7 @@ void renphobike::writeCharacteristicCustom(uint8_t *data, uint8_t data_len, QStr
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    gattFTMSService->writeCharacteristic(gattWriteCustomCharControlPointId, *writeBuffer);
+    gattCustomService->writeCharacteristic(gattWriteCustomCharControlPointId, *writeBuffer);
 
     if (!disable_log)
         debug(" >> " + writeBuffer->toHex(' ') + " // " + info);
