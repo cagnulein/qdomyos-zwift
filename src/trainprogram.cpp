@@ -590,14 +590,16 @@ void trainprogram::pelotonOCRcomputeTime(QString t) {
 
 struct DisplayValue {
     QString value;
+    QString label;
     QRect rect;
 };
 
-static DisplayValue extractValue(const QString& ocrText, int imageWidth, int imageHeight, bool leftSide) {
+DisplayValue extractValue(const QString& ocrText, int imageWidth, int imageHeight, const QString& targetLabel) {
     QStringList lines = ocrText.split("§§");
     QRegularExpression rectRegex("Rect\\((\\d+), (\\d+) - (\\d+), (\\d+)\\)");
 
-    int xThreshold = leftSide ? imageWidth / 4 : 3 * imageWidth / 4;
+    DisplayValue result;
+    int closestDistance = INT_MAX;
 
     for (const QString& line : lines) {
         QStringList parts = line.split("$$");
@@ -613,22 +615,29 @@ static DisplayValue extractValue(const QString& ocrText, int imageWidth, int ima
 
                 QRect rect(x1, y1, x2 - x1, y2 - y1);
 
-                // Check if the rectangle is on the correct side of the image
-                if ((leftSide && rect.left() < xThreshold) || (!leftSide && rect.right() > xThreshold)) {
-                    // Additional checks can be added here if needed
-                    return {value, rect};
+                // Check if this is the label we're looking for
+                if (value.contains(targetLabel, Qt::CaseInsensitive)) {
+                    result.label = value;
+                    result.rect = rect;
+                }
+                // If we've found the label, look for the closest value
+                else if (!result.label.isEmpty()) {
+                    int distance = qAbs(rect.top() - result.rect.top());
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        result.value = value;
+                    }
                 }
             }
         }
     }
 
-    return {"", QRect()};
+    return result;
 }
 
-// Usage example
 static void processOCROutput(const QString& ocrText, int imageWidth, int imageHeight) {
-    DisplayValue incline = extractValue(ocrText, imageWidth, imageHeight, true);
-    DisplayValue speed = extractValue(ocrText, imageWidth, imageHeight, false);
+    DisplayValue incline = extractValue(ocrText, imageWidth, imageHeight, "INCLINE");
+    DisplayValue speed = extractValue(ocrText, imageWidth, imageHeight, "SPEED");
 
     if (!incline.value.isEmpty()) {
         qDebug() << "Incline:" << incline.value;
