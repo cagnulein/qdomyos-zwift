@@ -18,6 +18,12 @@
 #endif
 #include "localipaddress.h"
 
+#include <QRect>
+#include <QString>
+#include <QStringList>
+#include <QRegularExpression>
+
+
 using namespace std::chrono_literals;
 
 trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *description, QString *tags,
@@ -582,6 +588,57 @@ void trainprogram::pelotonOCRcomputeTime(QString t) {
     }
 }
 
+struct DisplayValue {
+    QString value;
+    QRect rect;
+};
+
+static DisplayValue extractValue(const QString& ocrText, int imageWidth, int imageHeight, bool leftSide) {
+    QStringList lines = ocrText.split("§§");
+    QRegularExpression rectRegex("Rect\\((\\d+), (\\d+) - (\\d+), (\\d+)\\)");
+
+    int xThreshold = leftSide ? imageWidth / 4 : 3 * imageWidth / 4;
+
+    for (const QString& line : lines) {
+        QStringList parts = line.split("$$");
+        if (parts.size() == 2) {
+            QString value = parts[0];
+            QRegularExpressionMatch match = rectRegex.match(parts[1]);
+
+            if (match.hasMatch()) {
+                int x1 = match.captured(1).toInt();
+                int y1 = match.captured(2).toInt();
+                int x2 = match.captured(3).toInt();
+                int y2 = match.captured(4).toInt();
+
+                QRect rect(x1, y1, x2 - x1, y2 - y1);
+
+                // Check if the rectangle is on the correct side of the image
+                if ((leftSide && rect.left() < xThreshold) || (!leftSide && rect.right() > xThreshold)) {
+                    // Additional checks can be added here if needed
+                    return {value, rect};
+                }
+            }
+        }
+    }
+
+    return {"", QRect()};
+}
+
+// Usage example
+static void processOCROutput(const QString& ocrText, int imageWidth, int imageHeight) {
+    DisplayValue incline = extractValue(ocrText, imageWidth, imageHeight, true);
+    DisplayValue speed = extractValue(ocrText, imageWidth, imageHeight, false);
+
+    if (!incline.value.isEmpty()) {
+        qDebug() << "Incline:" << incline.value;
+    }
+
+    if (!speed.value.isEmpty()) {
+        qDebug() << "Speed:" << speed.value;
+    }
+}
+
 void trainprogram::scheduler() {
 
     QMutexLocker(&this->schedulerMutex);
@@ -616,6 +673,7 @@ void trainprogram::scheduler() {
         QString packageName = packageNameJava.toString();
 
         qDebug() << QStringLiteral("OCR") << packageName << t;
+        processOCROutput(tt, w, h);
     }    
 
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
