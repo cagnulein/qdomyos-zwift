@@ -46,6 +46,8 @@ class renphobike : public bike {
     double bikeResistanceToPeloton(double resistance);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
+    void writeCharacteristicCustom(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
+                             bool wait_for_response = false);
     void startDiscover();
     uint16_t ergModificator(uint16_t powerRequested);
     uint16_t watts() override;
@@ -56,6 +58,9 @@ class renphobike : public bike {
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattFTMSService = nullptr;
+
+    QLowEnergyCharacteristic gattWriteCustomCharControlPointId;
+    QLowEnergyService *gattCustomService = nullptr;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -72,6 +77,10 @@ class renphobike : public bike {
     bool noHeartService = false;
 
     metric wattFromBike;
+
+    uint16_t oldLastCrankEventTime = 0;
+    uint16_t oldCrankRevs = 0;
+    QDateTime lastGoodCadence = QDateTime::currentDateTime();
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
