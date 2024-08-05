@@ -656,6 +656,7 @@ void trainprogram::scheduler() {
         }
     }
 
+#ifdef Q_OS_ANDROID
     {
         QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
             "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
@@ -676,6 +677,7 @@ void trainprogram::scheduler() {
         qDebug() << QStringLiteral("OCR") << packageName << tt;
         processOCROutput(tt, w, h);
     }    
+#endif
 
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
