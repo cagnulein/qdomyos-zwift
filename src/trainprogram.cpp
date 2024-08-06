@@ -18,11 +18,6 @@
 #endif
 #include "localipaddress.h"
 
-#include <QRect>
-#include <QString>
-#include <QStringList>
-#include <QRegularExpression>
-
 
 using namespace std::chrono_literals;
 
@@ -604,29 +599,6 @@ void trainprogram::scheduler() {
             connect(pelotonOCRsocket, SIGNAL(readyRead()), this, SLOT(pelotonOCRprocessPendingDatagrams()));
         }
     }
-
-#ifdef Q_OS_ANDROID
-    {
-        QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
-            "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
-        QString t = text.toString();
-        QAndroidJniObject textExtended = QAndroidJniObject::callStaticObjectMethod<jstring>(
-            "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastTextExtended");
-        QString tt = textExtended.toString();
-        // 2272 1027
-        jint w = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
-                                                            "getImageWidth", "()I");
-        jint h = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
-                                                            "getImageHeight", "()I");
-        QString tExtended = textExtended.toString();
-        QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
-            "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
-        QString packageName = packageNameJava.toString();
-
-        qDebug() << QStringLiteral("OCR") << packageName << tt;
-        processOCROutput(tt, w, h);
-    }    
-#endif
 
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
