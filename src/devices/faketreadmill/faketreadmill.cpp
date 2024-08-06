@@ -52,6 +52,8 @@ void faketreadmill::update() {
     _ergTable.collectTreadmillData(Speed.value(), _watts, Inclination.value());
 
     cadenceFromAppleWatch();
+    if(Cadence.value() == 0)
+        Cadence = 90;
 
     Distance += ((Speed.value() / (double)3600.0) /
                  ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(now))));
