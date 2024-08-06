@@ -115,7 +115,7 @@ nordictrackifitadbtreadmill::DisplayValue nordictrackifitadbtreadmill::extractVa
     DisplayValue result;
     int minX = isLeftSide ? 0 : imageWidth - 200;
     int maxX = isLeftSide ? 200 : imageWidth;
-    QStringList targetLabels = isLeftSide ? QStringList{"INCLINE"} : QStringList{"SPEED", "RESISTANCE"};
+    QStringList targetLabels = isLeftSide ? QStringList{"INCLINE"} : QStringList{"SPEED", "RESISTANCE", "MPH", "KPH"};
 
     QRect labelRect;
     int closestDistance = INT_MAX;
