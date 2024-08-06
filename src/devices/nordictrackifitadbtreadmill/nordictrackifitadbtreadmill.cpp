@@ -617,7 +617,7 @@ void nordictrackifitadbtreadmill::update() {
         QString packageName = packageNameJava.toString();
 
         qDebug() << QStringLiteral("OCR") << packageName << tt;
-        processOCROutput(tt, w, h);
+        processOCROutput(tt, w);
     }
 #endif
 }
