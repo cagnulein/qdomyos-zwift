@@ -34,8 +34,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
     this->useDiscovery = startDiscovery;
 
-    QString nordictrack_2950_ip =
-        settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+    const bool nordictrack = true; // to replace
 
     if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() && !pelotonBike) {
         pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
@@ -47,6 +46,18 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         }
         // this signal is not associated to anything in this moment, since the homeform is not loaded yet
         this->signalBluetoothDeviceConnected(pelotonBike);
+    } else if(nordictrack) {
+        nordictrackifitadbTreadmill = new nordictrackifitadbtreadmill(noWriteResistance, noHeartService);
+        emit deviceConnected(QBluetoothDeviceInfo());
+        connect(nordictrackifitadbTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                &bluetooth::connectedAndDiscovered);
+        connect(nordictrackifitadbTreadmill, &nordictrackifitadbtreadmill::debug, this, &bluetooth::debug);
+        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+            emit searchingStop();
+        }
+        // this signal is not associated to anything in this moment, since the homeform is not loaded yet
+        this->signalBluetoothDeviceConnected(nordictrackifitadbTreadmill);
+        return;
     }
 
 #ifdef TEST
@@ -2558,6 +2569,7 @@ void bluetooth::connectedAndDiscovered() {
         }
     }
 #ifdef Q_OS_ANDROID
+    const bool nordictrack = true; // to replace
     if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() ||
         settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
@@ -2571,7 +2583,7 @@ void bluetooth::connectedAndDiscovered() {
                 device()->deviceType() == bluetoothdevice::ELLIPTICAL);
     }
 
-    if (settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
+    if (settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool() || nordictrack) {
         QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
         QAndroidJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
@@ -2579,10 +2591,10 @@ void bluetooth::connectedAndDiscovered() {
     }
 #endif
 
-#ifdef Q_OS_ANDROID
+#ifdef Q_OS_ANDROID    
     if (settings.value(QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr).toBool() ||
         settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() ||
-        settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool()) {
+        settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool() || nordictrack) {
         AndroidActivityResultReceiver *a = new AndroidActivityResultReceiver();
         QAndroidJniObject MediaProjectionManager = QtAndroid::androidActivity().callObjectMethod(
             "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",

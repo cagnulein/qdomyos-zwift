@@ -588,62 +588,6 @@ void trainprogram::pelotonOCRcomputeTime(QString t) {
     }
 }
 
-struct DisplayValue {
-    QString value;
-    QRect rect;
-};
-
-static DisplayValue extractValue(const QString& ocrText, int imageWidth, bool isIncline) {
-    QStringList lines = ocrText.split("§§");
-    QRegularExpression rectRegex("Rect\\((\\d+), (\\d+) - (\\d+), (\\d+)\\)");
-    QRegularExpression numericRegex("^-?\\d+(\\.\\d+)?$");
-
-    DisplayValue result;
-    int minX = isIncline ? 0 : imageWidth - 200;
-    int maxX = isIncline ? 200 : imageWidth;
-
-    for (const QString& line : lines) {
-        QStringList parts = line.split("$$");
-        if (parts.size() == 2) {
-            QString value = parts[0];
-            QRegularExpressionMatch match = rectRegex.match(parts[1]);
-
-            if (match.hasMatch() && numericRegex.match(value).hasMatch()) {
-                int x1 = match.captured(1).toInt();
-                int y1 = match.captured(2).toInt();
-                int x2 = match.captured(3).toInt();
-                int y2 = match.captured(4).toInt();
-
-                // Check if the rectangle is within our target area
-                if (x1 >= minX && x2 <= maxX) {
-                    result.value = value;
-                    result.rect = QRect(x1, y1, x2 - x1, y2 - y1);
-                    break;  // Take the first matching value
-                }
-            }
-        }
-    }
-
-    return result;
-}
-
-static void processOCROutput(const QString& ocrText, int imageWidth) {
-    DisplayValue incline = extractValue(ocrText, imageWidth, true);
-    DisplayValue speed = extractValue(ocrText, imageWidth, false);
-
-    if (!incline.value.isEmpty()) {
-        qDebug() << "Incline:" << incline.value;
-    } else {
-        qDebug() << "Incline not found";
-    }
-
-    if (!speed.value.isEmpty()) {
-        qDebug() << "Speed:" << speed.value;
-    } else {
-        qDebug() << "Speed not found";
-    }
-}
-
 void trainprogram::scheduler() {
 
     QMutexLocker(&this->schedulerMutex);

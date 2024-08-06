@@ -107,6 +107,96 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
 #endif
 }
 
+nordictrackifitadbtreadmill::DisplayValue nordictrackifitadbtreadmill::extractValue(const QString& ocrText, int imageWidth, bool isLeftSide) {
+    QStringList lines = ocrText.split("§§");
+    QRegularExpression rectRegex("Rect\\((\\d+), (\\d+) - (\\d+), (\\d+)\\)");
+    QRegularExpression numericRegex("^-?\\d+(\\.\\d+)?$");
+
+    DisplayValue result;
+    int minX = isLeftSide ? 0 : imageWidth - 200;
+    int maxX = isLeftSide ? 200 : imageWidth;
+    QStringList targetLabels = isLeftSide ? QStringList{"INCLINE"} : QStringList{"SPEED", "RESISTANCE"};
+
+    QRect labelRect;
+    int closestDistance = INT_MAX;
+
+    // First pass: find the label
+    for (const QString& line : lines) {
+        QStringList parts = line.split("$$");
+        if (parts.size() == 2) {
+            QString value = parts[0];
+            QRegularExpressionMatch match = rectRegex.match(parts[1]);
+
+            if (match.hasMatch()) {
+                int x1 = match.captured(1).toInt();
+                int x2 = match.captured(3).toInt();
+
+                if (x1 >= minX && x2 <= maxX) {
+                    for (const QString& targetLabel : targetLabels) {
+                        if (value.contains(targetLabel, Qt::CaseInsensitive)) {
+                            labelRect = QRect(x1, match.captured(2).toInt(),
+                                              x2 - x1, match.captured(4).toInt() - match.captured(2).toInt());
+                            result.label = value;
+                            break;
+                        }
+                    }
+                    if (!result.label.isEmpty()) break;
+                }
+            }
+        }
+    }
+
+    // Second pass: find the closest numeric value to the label
+    if (!labelRect.isNull()) {
+        for (const QString& line : lines) {
+            QStringList parts = line.split("$$");
+            if (parts.size() == 2) {
+                QString value = parts[0];
+                QRegularExpressionMatch match = rectRegex.match(parts[1]);
+
+                if (match.hasMatch() && numericRegex.match(value).hasMatch()) {
+                    int x1 = match.captured(1).toInt();
+                    int y1 = match.captured(2).toInt();
+                    int x2 = match.captured(3).toInt();
+                    int y2 = match.captured(4).toInt();
+
+                    QRect valueRect(x1, y1, x2 - x1, y2 - y1);
+
+                    if (x1 >= minX && x2 <= maxX) {
+                        int distance = qAbs(valueRect.center().y() - labelRect.center().y());
+                        if (distance < closestDistance) {
+                            closestDistance = distance;
+                            result.value = value;
+                            result.rect = valueRect;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+void nordictrackifitadbtreadmill::processOCROutput(const QString& ocrText, int imageWidth) {
+    DisplayValue leftValue = extractValue(ocrText, imageWidth, true);
+    DisplayValue rightValue = extractValue(ocrText, imageWidth, false);
+
+    if (!leftValue.value.isEmpty()) {
+        qDebug() << "Left value (" << leftValue.label << "):" << leftValue.value;
+        Inclination = leftValue.label.toDouble();
+    } else {
+        qDebug() << "Left value not found";
+    }
+
+    if (!rightValue.value.isEmpty()) {
+        qDebug() << "Right value (" << rightValue.label << "):" << rightValue.value;
+        Speed = rightValue.label.toDouble();
+    } else {
+        qDebug() << "Right value not found";
+    }
+}
+
 double nordictrackifitadbtreadmill::getDouble(QString v) {
     QChar d = QLocale().decimalPoint();
     if (d == ',') {
@@ -507,6 +597,29 @@ void nordictrackifitadbtreadmill::update() {
         // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
         requestStop = -1;
     }
+
+#ifdef Q_OS_ANDROID
+    {
+        QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
+        QString t = text.toString();
+        QAndroidJniObject textExtended = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastTextExtended");
+        QString tt = textExtended.toString();
+        // 2272 1027
+        jint w = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                                                           "getImageWidth", "()I");
+        jint h = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                                                           "getImageHeight", "()I");
+        QString tExtended = textExtended.toString();
+        QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
+        QString packageName = packageNameJava.toString();
+
+        qDebug() << QStringLiteral("OCR") << packageName << tt;
+        processOCROutput(tt, w, h);
+    }
+#endif
 }
 
 void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, double percentage) {

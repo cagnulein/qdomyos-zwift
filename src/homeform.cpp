@@ -4,7 +4,6 @@
 #endif
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
-#include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
 #endif
@@ -682,19 +681,6 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QAndroidJniObject javaPath = QAndroidJniObject::fromString(getWritableAppDir());
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
                                                 "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
-#endif
-
-#ifdef Q_OS_ANDROID
-    // TO REMOVE
-    {
-        AndroidActivityResultReceiver *a = new AndroidActivityResultReceiver();
-        QAndroidJniObject MediaProjectionManager = QtAndroid::androidActivity().callObjectMethod(
-            "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",
-            QAndroidJniObject::fromString("media_projection").object<jstring>());
-        QAndroidJniObject intent =
-            MediaProjectionManager.callObjectMethod("createScreenCaptureIntent", "()Landroid/content/Intent;");
-        QtAndroid::startActivity(intent, 100, a);
-    }
 #endif
 
     bluetoothManager->homeformLoaded = true;
