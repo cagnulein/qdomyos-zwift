@@ -202,7 +202,7 @@ void ftmsbike::update() {
             requestResistance = -1;
         }
         if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
-            qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP";
+            qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP" << lastPacketFromFTMS.toHex(' ');
             ftmsCharacteristicChanged(QLowEnergyCharacteristic(), lastPacketFromFTMS);
         }
 
@@ -843,7 +843,10 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
         // handling gears
         if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
-            lastPacketFromFTMS = newValue;
+            lastPacketFromFTMS.clear();
+            for(int i=0; i<newValue.length(); i++)
+                lastPacketFromFTMS.append(newValue.at(i));
+            qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
             qDebug() << "applying gears mod" << m_gears;
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             if (m_gears != 0) {
