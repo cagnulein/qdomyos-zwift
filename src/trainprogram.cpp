@@ -18,7 +18,6 @@
 #endif
 #include "localipaddress.h"
 
-
 using namespace std::chrono_literals;
 
 trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *description, QString *tags,
