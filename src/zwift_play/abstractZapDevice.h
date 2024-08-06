@@ -92,13 +92,9 @@ public:
                     } else {
                         emit minus();
                     }
-                }/* else if(bytes.length() > 14 && bytes[11] == 0x30 && bytes[12] == 0x00) {
-                    if(zapType == LEFT) {
-                        emit plus();
-                    } else {
-                        emit minus();
-                    }
-                }*/
+                } else if(bytes.length() > 19 && ((uint8_t)bytes[18]) == 0xc8) {
+                    emit plus();
+                }
                 break;
 
         }
