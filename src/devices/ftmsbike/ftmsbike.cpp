@@ -844,8 +844,8 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         // handling gears
         if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
             lastPacketFromFTMS.clear();
-            for(int i=0; i<newValue.length(); i++)
-                lastPacketFromFTMS.append(newValue.at(i));
+            for(int i=0; i<b.length(); i++)
+                lastPacketFromFTMS.append(b.at(i));
             qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
             qDebug() << "applying gears mod" << m_gears;
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
