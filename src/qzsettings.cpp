@@ -748,8 +748,9 @@ const QString QZSettings::atletica_lightspeed_treadmill = QStringLiteral("atleti
 const QString QZSettings::peloton_treadmill_level = QStringLiteral("peloton_treadmill_level");
 const QString QZSettings::nordictrackadbbike_resistance = QStringLiteral("nordictrackadbbike_resistance");
 const QString QZSettings::proform_treadmill_carbon_t7 = QStringLiteral("proform_treadmill_carbon_t7");
+const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordictrack_treadmill_exp_5i");
 
-const uint32_t allSettingsCount = 632;
+const uint32_t allSettingsCount = 633;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1388,6 +1389,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::peloton_treadmill_level, QZSettings::default_peloton_treadmill_level},
     {QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance},
     {QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7},
+    {QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
