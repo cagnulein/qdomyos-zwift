@@ -709,10 +709,15 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x07 &&
                    ((uint8_t)newValue.at(7)) == 0x10) {
             qDebug() << "ifit ans 12";
-            reply1 = QByteArray::fromHex("fe021c0300b4002200580200000000007e0000b4");
+            if(iFit_Stop == false) {
+                reply1 = QByteArray::fromHex("fe021c0300b4002200580200000000007e0000b4");
+            } else {
+                qDebug() << "ifit ans 12 - with stop request";
+                reply1 = QByteArray::fromHex("fe021c0302050705020210000000000036000000");
+                iFit_Stop = false;
+            }
             reply2 = QByteArray::fromHex("001201040218071802020000ffffffffffffffff");
             reply3 = QByteArray::fromHex("ff0a00000000302a00000075ffffffffffffffff");
-
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
@@ -778,6 +783,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                    ((uint8_t)newValue.at(8)) == 0x02) { // ff0f0204020b070b0202041032020a0068000000
             qDebug() << "ifit ans 15 stop request";
             iFit_timer = 0;
+            iFit_Stop = true;
             reply1 = QByteArray::fromHex("fe02090200b40000005802000000000038000000");
             reply2 = QByteArray::fromHex("ff09010402050705020210000000000038000000");
             writeCharacteristic(service, characteristic, reply1);
