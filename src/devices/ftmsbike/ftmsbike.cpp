@@ -226,6 +226,13 @@ void ftmsbike::update() {
             emit debug(QStringLiteral("stopping..."));
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
+
+            QSettings settings;
+            if (settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool()) {
+                uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+                writeCharacteristic(write, sizeof(write), QStringLiteral("init SS2K"));
+            }
         }
     }
 }
