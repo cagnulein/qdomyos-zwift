@@ -1080,6 +1080,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                            // X23 King Smith
                            b.name().toUpper().startsWith(QStringLiteral("KS-NACH-MXG")) ||
 
+                           // Kingsmith WalkingPad Z1
+                           b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D")) ||
+
                            // KingSmith Walking Pad G1
                            b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-G1C"))) &&
                        !kingsmithR2Treadmill && filter) {
