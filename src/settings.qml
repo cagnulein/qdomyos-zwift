@@ -961,6 +961,7 @@ import QtQuick.Dialogs 1.0
             property bool nordictrackadbbike_resistance: false
             property bool proform_treadmill_carbon_t7: false
             property bool nordictrack_treadmill_exp_5i: false
+            property int dircon_id: 0
         }
 
         function paddingZeros(text, limit) {
@@ -9875,6 +9876,42 @@ import QtQuick.Dialogs 1.0
 
                                     Label {
                                         text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to Wahoo RGT app. Leave the RGT compatibility disabled in order to use Zwift.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: 9
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            text: qsTr("ID:")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: dirconIdTextField
+                                            text: settings.dircon_id
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                            onAccepted: settings.dircon_id = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: { settings.dircon_id = dirconIdTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true; }
+                                        }
+                                    }
+
+                                    Label {
+                                        text: qsTr("If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0")
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: 9

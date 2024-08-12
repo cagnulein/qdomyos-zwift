@@ -2099,6 +2099,9 @@ class QZSettings {
     static const QString nordictrack_treadmill_exp_5i;
     static constexpr bool default_nordictrack_treadmill_exp_5i = false;
 
+    static const QString dircon_id;
+    static constexpr int default_dircon_id = 0;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
