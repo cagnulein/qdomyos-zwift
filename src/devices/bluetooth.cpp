@@ -1114,6 +1114,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("KS-BLC")) || // Walkingpad C2 #1672
                         b.name().toUpper().startsWith(
                             QStringLiteral("KS-BLR"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
+                       !(b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D"))) && // it's an FTMS one
                        !kingsmithR1ProTreadmill &&
                        !kingsmithR2Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
