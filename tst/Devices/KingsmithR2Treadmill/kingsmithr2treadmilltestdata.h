@@ -1,12 +1,17 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "kingsmithr2treadmill.h"
 
-class KingsmithR2TreadmillTestData : public BluetoothDeviceTestData {
+#include "Devices/Treadmill/treadmilltestdata.h"
+
+
+
+#include "devices/kingsmithr2treadmill/kingsmithr2treadmill.h"
+
+
+class KingsmithR2TreadmillTestData : public TreadmillTestData {
 
 public:
-    KingsmithR2TreadmillTestData() : BluetoothDeviceTestData("Kingsmith R2 Treadmill") {
+    KingsmithR2TreadmillTestData() : TreadmillTestData("Kingsmith R2 Treadmill") {
         this->addDeviceName("KS-ST-K12PRO", comparison::StartsWithIgnoreCase);
 
         // KingSmith Walking Pad R2
@@ -19,6 +24,10 @@ public:
         this->addDeviceName("KS-HDSC-X21C", comparison::StartsWithIgnoreCase);
         this->addDeviceName("KS-HDSY-X21C", comparison::StartsWithIgnoreCase);
         this->addDeviceName("KS-NGCH-X21C", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("KS-NACH-X21C", comparison::StartsWithIgnoreCase);
+
+        // KingSmith Walking Pad G1
+        this->addDeviceName("KS-NGCH-G1C", comparison::StartsWithIgnoreCase);
 
     }
 

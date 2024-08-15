@@ -10,11 +10,11 @@
 #include <QQmlContext>
 
 #include "bluetooth.h"
-#include "domyostreadmill.h"
+#include "devices/domyostreadmill/domyostreadmill.h"
 #include "homeform.h"
 #include "mainwindow.h"
 #include "qfit.h"
-#include "virtualtreadmill.h"
+#include "virtualdevices/virtualtreadmill.h"
 #include <QDir>
 #include <QGuiApplication>
 #include <QOperatingSystemVersion>
@@ -37,6 +37,8 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
+
+#include "handleurl.h"
 
 bool logs = true;
 bool noWriteResistance = false;
@@ -68,7 +70,7 @@ bool reebok_fr30_treadmill = false;
 QString trainProgram;
 QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
-uint8_t bikeResistanceOffset = 4;
+int8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
 QString logfilename = QStringLiteral("debug-") +
                       QDateTime::currentDateTime()
@@ -280,10 +282,6 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 }
 
 int main(int argc, char *argv[]) {
-
-#ifdef Q_OS_ANDROID
-    qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
-#endif
 #ifdef Q_OS_WIN32
     qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");
 #endif
@@ -291,6 +289,11 @@ int main(int argc, char *argv[]) {
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 #else
+#ifdef Q_OS_IOS
+    HandleURL *URLHandler = new HandleURL();
+    QDesktopServices::setUrlHandler("org.cagnulein.ConnectIQComms-ciq", URLHandler, "handleURL");
+#endif
+
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
@@ -314,10 +317,38 @@ int main(int argc, char *argv[]) {
     app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
 
     QSettings settings;
-#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+
+#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
+    QString profileName = "";
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    profileName = lockscreen::get_action_profile();
+    lockscreen::nslog(QString("quick_action profile " + profileName).toLatin1());
+#endif
+#else
+    QAndroidJniObject javaPath = QAndroidJniObject::fromString(homeform::getWritableAppDir());
+    QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Shortcuts", "getProfileExtras",
+                                                "(Landroid/content/Context;)Ljava/lang/String;", QtAndroid::androidContext().object());
+    profileName = r.toString();
+#endif
+    
+    QFileInfo pp(profileName);
+    profileName = pp.baseName();
+    
+    if(profileName.count()) {
+        if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
+            profileToLoad = QUrl::fromLocalFile(homeform::getProfileDir() + "/" + profileName + ".qzs");
+        } else {
+            qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
+        }
+    }
+#endif
+
     if (!profileToLoad.isEmpty()) {
         homeform::loadSettings(profileToLoad);
     }
+
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
 
     if (fit_file_saved_on_quit) {
         settings.setValue(QZSettings::fit_file_saved_on_quit, true);
@@ -330,11 +361,6 @@ int main(int argc, char *argv[]) {
     {
         bool defaultNoHeartService = !noHeartService;
 
-        // Android 10 doesn't support multiple services for peripheral mode
-        if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 10)) {
-            settings.setValue(QZSettings::bike_heartrate_service, true);
-        }
-
         // some Android 6 doesn't support wake lock
         if (QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 7) &&
             !settings.value(QZSettings::android_wakelock).isValid()) {
@@ -345,6 +371,7 @@ int main(int argc, char *argv[]) {
         bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, bikeResistanceOffset).toInt();
         bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, bikeResistanceGain).toDouble();
         deviceName = settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString();
+        pollDeviceTime = settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt();
     }
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     else {
@@ -362,6 +389,13 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
+#ifdef Q_OS_ANDROID
+    if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
+        qDebug() << "handling volume keys";
+        qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
+    }
+#endif
+    
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
@@ -520,7 +554,7 @@ int main(int argc, char *argv[]) {
             QtAndroid::requestPermissionsSync(QStringList({"android.permission.POST_NOTIFICATIONS"}));
         if (resultHash["android.permission.POST_NOTIFICATIONS"] == QtAndroid::PermissionResult::Denied)
             qDebug() << "POST_NOTIFICATIONS denied!";
-    }
+    }    
 #endif
 
     /* test virtual echelon
@@ -589,6 +623,11 @@ int main(int argc, char *argv[]) {
         unlockScreen();
 #endif
     }
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    else {
+        bl.homeformLoaded = true;
+    }
+#endif
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (qobject_cast<QApplication *>(app.data())) {

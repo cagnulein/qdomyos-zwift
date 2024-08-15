@@ -185,6 +185,14 @@ ScrollView {
 		  property int tile_avg_watt_lap_order: 48
         property bool tile_pace_last500m_enabled: true
         property int  tile_pace_last500m_order: 49
+        property bool tile_target_pace_enabled: false
+        property int  tile_target_pace_order: 50
+        property bool tile_step_count_enabled: false
+        property int  tile_step_count_order: 51
+        property bool tile_erg_mode_enabled: false
+        property int  tile_erg_mode_order: 52
+        property bool tile_rss_enabled: false
+        property int  tile_rss_order: 53        
     }
 
 
@@ -1456,6 +1464,39 @@ ScrollView {
                 }
             }
         }
+
+        AccordionCheckElement {
+            id: targetPaceEnabledAccordion
+            title: qsTr("Target Pace")
+            linkedBoolSetting: "tile_target_pace_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labeltargetpaceOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: target_paceOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_target_pace_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = target_paceOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: oktarget_paceOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_target_pace_order = target_paceOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
         AccordionCheckElement {
             id: targetInclineEnabledAccordion
             title: qsTr("Target Incline")
@@ -2180,6 +2221,99 @@ ScrollView {
                 }
             }
         }
+
+        AccordionCheckElement {
+            id: stepCountEnabledAccordion
+            title: qsTr("Step Count")
+            linkedBoolSetting: "tile_step_count_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelStepCountOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: stepCountOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_step_count_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = stepCountOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okStepCountOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_step_count_order = stepCountOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        AccordionCheckElement {
+            id: ergModeEnabledAccordion
+            title: qsTr("Erg Mode")
+            linkedBoolSetting: "tile_erg_mode_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelErgModeOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: ergModeOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_erg_mode_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = ergModeOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okErgModeOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_erg_mode_order = ergModeOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        AccordionCheckElement {
+            title: qsTr("Running Stress Score")
+            linkedBoolSetting: "tile_rss_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: rssOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_rss_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = rssOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_rss_order = rssOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }        
 
         AccordionCheckElement {
             id: presetResistance1EnabledAccordion

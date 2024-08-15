@@ -36,6 +36,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
+import android.os.Build;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 
@@ -50,10 +52,12 @@ public class ChannelService extends Service {
     HeartChannelController heartChannelController = null;
     PowerChannelController powerChannelController = null;
     SpeedChannelController speedChannelController = null;
+    SDMChannelController sdmChannelController = null;
 
     private ServiceConnection mAntRadioServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.v(TAG, "onServiceConnected");
             // Must pass in the received IBinder object to correctly construct an AntService object
             mAntRadioService = new AntService(service);
 
@@ -68,6 +72,8 @@ public class ChannelService extends Service {
                 // radio by attempting to acquire a channel.
                 boolean legacyInterfaceInUse = mAntChannelProvider.isLegacyInterfaceInUse();
 
+                Log.v(TAG, "onServiceConnected mChannelAvailable=" + mChannelAvailable + " legacyInterfaceInUse=" + legacyInterfaceInUse);
+
                 // If there are channels OR legacy interface in use, allow adding channels
                 if (mChannelAvailable || legacyInterfaceInUse) {
                     mAllowAddChannel = true;
@@ -76,7 +82,11 @@ public class ChannelService extends Service {
                     mAllowAddChannel = false;
                 }
 
-
+                try {
+                    openAllChannels();
+                } catch (ChannelNotAvailableException exception) {
+                    Log.e(TAG, "Channel not available!!");
+                }
             } catch (RemoteException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -104,6 +114,9 @@ public class ChannelService extends Service {
             if (null != speedChannelController) {
                 speedChannelController.speed = speed;
             }
+            if (null != sdmChannelController) {
+                sdmChannelController.speed = speed;
+            }
         }
 
         void setPower(int power) {
@@ -119,10 +132,14 @@ public class ChannelService extends Service {
             if (null != speedChannelController) {
                 speedChannelController.cadence = cadence;
             }
+            if (null != sdmChannelController) {
+                sdmChannelController.cadence = cadence;
+            }
         }
 
         int getHeart() {
             if (null != heartChannelController) {
+                Log.v(TAG, "getHeart");
                 return heartChannelController.heart;
             }
             return 0;
@@ -137,12 +154,16 @@ public class ChannelService extends Service {
     }
 
     public void openAllChannels() throws ChannelNotAvailableException {
-        if (Ant.heartRequest)
+        if (Ant.heartRequest && heartChannelController == null)
             heartChannelController = new HeartChannelController(acquireChannel());
 
         if (Ant.speedRequest) {
-            powerChannelController = new PowerChannelController(acquireChannel());
-            speedChannelController = new SpeedChannelController(acquireChannel());
+            if(Ant.treadmill && sdmChannelController == null) {
+                sdmChannelController = new SDMChannelController(acquireChannel());
+            } else if(powerChannelController == null) {
+                powerChannelController = new PowerChannelController(acquireChannel());
+                speedChannelController = new SpeedChannelController(acquireChannel());
+            }
         }
     }
 
@@ -153,9 +174,12 @@ public class ChannelService extends Service {
             powerChannelController.close();
         if (speedChannelController != null)
             speedChannelController.close();
+        if (sdmChannelController != null)
+            sdmChannelController.close();
         heartChannelController = null;
         powerChannelController = null;
         speedChannelController = null;
+        sdmChannelController = null;
     }
 
     AntChannel acquireChannel() throws ChannelNotAvailableException {
@@ -199,11 +223,14 @@ public class ChannelService extends Service {
     private final BroadcastReceiver mChannelProviderStateChangedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "onReceive");
             if (AntChannelProvider.ACTION_CHANNEL_PROVIDER_STATE_CHANGED.equals(intent.getAction())) {
                 boolean update = false;
                 // Retrieving the data contained in the intent
                 int numChannels = intent.getIntExtra(AntChannelProvider.NUM_CHANNELS_AVAILABLE, 0);
                 boolean legacyInterfaceInUse = intent.getBooleanExtra(AntChannelProvider.LEGACY_INTERFACE_IN_USE, false);
+
+                Log.d(TAG, "onReceive" + mAllowAddChannel + " " +  numChannels + " " + legacyInterfaceInUse);
 
                 if (mAllowAddChannel) {
                     // Was a acquire channel allowed
@@ -233,8 +260,12 @@ public class ChannelService extends Service {
     private void doBindAntRadioService() {
         if (BuildConfig.DEBUG) Log.v(TAG, "doBindAntRadioService");
 
-        // Start listing for channel available intents
-        registerReceiver(mChannelProviderStateChangedReceiver, new IntentFilter(AntChannelProvider.ACTION_CHANNEL_PROVIDER_STATE_CHANGED));
+        ContextCompat.registerReceiver(
+            this,
+            mChannelProviderStateChangedReceiver,
+            new IntentFilter(AntChannelProvider.ACTION_CHANNEL_PROVIDER_STATE_CHANGED),
+            ContextCompat.RECEIVER_EXPORTED
+        );
 
         // Creating the intent and calling context.bindService() is handled by
         // the static bindService() method in AntService

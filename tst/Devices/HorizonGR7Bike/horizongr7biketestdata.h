@@ -1,12 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "horizongr7bike.h"
 
-class HorizonGR7BikeTestData : public BluetoothDeviceTestData {
+#include "Devices/Bike/biketestdata.h"
+
+#include "devices/horizongr7bike/horizongr7bike.h"
+
+
+class HorizonGR7BikeTestData : public BikeTestData {
 
 public:
-    HorizonGR7BikeTestData() : BluetoothDeviceTestData("Horizon GR7 Bike") {
+    HorizonGR7BikeTestData() : BikeTestData("Horizon GR7 Bike") {
         this->addDeviceName("JFIC", comparison::StartsWithIgnoreCase);
     }
 

@@ -1,17 +1,21 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "ftmsbike.h"
+#include <QVector>
+
+#include "Devices/Bike/biketestdata.h"
+
+
+#include "devices/ftmsbike/ftmsbike.h"
 
 #include "Devices/SnodeBike/snodebiketestdata.h"
 #include "Devices/FitPlusBike/fitplusbiketestdata.h"
 #include "Devices/StagesBike/stagesbiketestdata.h"
 
-class FTMSBikeTestData : public BluetoothDeviceTestData {
+class FTMSBikeTestData : public BikeTestData {
 protected:
     void configureExclusions() override;
 
-    FTMSBikeTestData(std::string testName) : BluetoothDeviceTestData(testName)  {
+    FTMSBikeTestData(std::string testName) : BikeTestData(testName)  {
 
     }
 public:
@@ -45,13 +49,14 @@ public:
         this->addDeviceName("DHZ-", comparison::StartsWithIgnoreCase); // JK fitness 577
         this->addDeviceName("MKSM", comparison::StartsWithIgnoreCase); // MKSM3600036
         this->addDeviceName("YS_C1_", comparison::StartsWithIgnoreCase);// Yesoul C1H
+        this->addDeviceName("YS_G1_", comparison::StartsWithIgnoreCase);// Yesoul S3
         this->addDeviceName("DS25-", comparison::StartsWithIgnoreCase); // Bodytone DS25
         this->addDeviceName("SCHWINN 510T", comparison::StartsWithIgnoreCase);
         this->addDeviceName("ZWIFT HUB", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MAGNUS ", comparison::StartsWithIgnoreCase); // Saris Trainer
-        this->addDeviceName("FLXCY-", comparison::StartsWithIgnoreCase); // Pro FlexBike        
-        this->addDeviceName("KICKR CORE", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("FLXCY-", comparison::StartsWithIgnoreCase); // Pro FlexBike
         this->addDeviceName("B94", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("DBF135", comparison::IgnoreCase);
         this->addDeviceName("STAGES BIKE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("SUITO", comparison::StartsWithIgnoreCase);
         this->addDeviceName("D2RIDE", comparison::StartsWithIgnoreCase);
@@ -59,7 +64,9 @@ public:
         this->addDeviceName("SMB1", comparison::StartsWithIgnoreCase);
         this->addDeviceName("INRIDE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("XBR55", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("EW-JS-", comparison::StartsWithIgnoreCase);
         this->addDeviceName("HAMMER ", comparison::StartsWithIgnoreCase); // HAMMER 64123
+        this->addDeviceName("QB-WC01", comparison::StartsWithIgnoreCase);
 
 
         // Starts with DT- and is 14+ characters long.
@@ -67,6 +74,8 @@ public:
         this->addDeviceName("DT-0123456789A", comparison::IgnoreCase); // Sole SB700
         this->addDeviceName("DT-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", comparison::IgnoreCase); // Sole SB700
         this->addInvalidDeviceName("DT-0123456789", comparison::IgnoreCase); // too short for Sole SB700
+        this->addInvalidDeviceName("DBF13", comparison::IgnoreCase); // too short for DBF135
+        this->addInvalidDeviceName("DBF1355", comparison::IgnoreCase); // too long for DBF135
      }
 };
 
@@ -89,5 +98,22 @@ public:
         this->ftmsAccessoryName = "accessory";
 
         this->addDeviceName(this->ftmsAccessoryName, comparison::StartsWithIgnoreCase);
+    }
+};
+
+class FTMSBike4TestData : public FTMSBikeTestData {
+protected:
+    void configureBluetoothDeviceInfos(const QBluetoothDeviceInfo& info,  bool enable, std::vector<QBluetoothDeviceInfo>& bluetoothDeviceInfos) const override {
+        auto result = info;
+        if(enable) {
+            result.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1826)}));
+        }
+
+        bluetoothDeviceInfos.push_back(result);
+    }
+public:
+
+    FTMSBike4TestData() : FTMSBikeTestData("FTMS KICKR CORE")  {
+        this->addDeviceName("KICKR CORE", comparison::StartsWithIgnoreCase); // KICKR CORE
     }
 };

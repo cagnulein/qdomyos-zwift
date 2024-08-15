@@ -1,9 +1,12 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "paferstreadmill.h"
 
-class PafersTreadmillTestData : public BluetoothDeviceTestData {
+#include "Devices/Treadmill/treadmilltestdata.h"
+
+#include "devices/paferstreadmill/paferstreadmill.h"
+
+
+class PafersTreadmillTestData : public TreadmillTestData {
 protected:
     void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
         DeviceDiscoveryInfo config(info);
@@ -24,7 +27,7 @@ protected:
 
 
 public:
-    PafersTreadmillTestData() : BluetoothDeviceTestData("Pafers Treadmill") {
+    PafersTreadmillTestData() : TreadmillTestData("Pafers Treadmill") {
         this->addDeviceName("PAFERS_", comparison::StartsWithIgnoreCase);
     }
 

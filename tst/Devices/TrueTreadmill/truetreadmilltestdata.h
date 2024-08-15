@@ -1,14 +1,18 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "truetreadmill.h"
 
-class TrueTreadmillTestData : public BluetoothDeviceTestData {
+#include "Devices/Treadmill/treadmilltestdata.h"
+
+#include "devices/truetreadmill/truetreadmill.h"
+
+
+class TrueTreadmillTestData : public TreadmillTestData {
 
 public:
-    TrueTreadmillTestData() : BluetoothDeviceTestData("True Treadmill") {
+    TrueTreadmillTestData() : TreadmillTestData("True Treadmill") {
         this->addDeviceName("TRUE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TREADMILL", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("ASSAULT TREADMILL ", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::TrueTreadmill; }

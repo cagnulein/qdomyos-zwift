@@ -25,6 +25,9 @@ class WatchKitConnection: NSObject {
     static var distance = 0.0
     static var stepCadence = 0
     static var kcal = 0.0
+    static var speed = 0.0
+    static var power = 0.0
+    static var cadence = 0.0
     
     private override init() {
         super.init()
@@ -130,6 +133,9 @@ extension WatchKitConnection: WCSessionDelegate {
         
         replyValues["distance"] = WatchKitConnection.distance
         replyValues["kcal"] = WatchKitConnection.kcal
+        replyValues["cadence"] = WatchKitConnection.cadence
+        replyValues["power"] = WatchKitConnection.power
+        replyValues["speed"] = WatchKitConnection.speed
         
         replyHandler(replyValues)
                 
