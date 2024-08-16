@@ -962,6 +962,7 @@ import QtQuick.Dialogs 1.0
             property bool proform_treadmill_carbon_t7: false
             property bool nordictrack_treadmill_exp_5i: false
             property int dircon_id: 0
+            property string proform_elliptical_ip: ""
         }
 
         function paddingZeros(text, limit) {
@@ -7488,6 +7489,41 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.nordictrack_elliptical_c7_5 = checked; window.settings_restart_to_apply = true; }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Companion IP:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: proformEllipticalCompanionIPTextField
+                                text: settings.proform_elliptical_ip
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.proform_elliptical_ip = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.proform_elliptical_ip = proformEllipticalCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            }
+                        }
+                        SwitchDelegate {
+                            text: qsTr("ADB Remote")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_ifit_adb_remote
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.nordictrack_ifit_adb_remote = checked; window.settings_restart_to_apply = true; }
                         }
                     }                    
 

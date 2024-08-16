@@ -2102,6 +2102,9 @@ class QZSettings {
     static const QString dircon_id;
     static constexpr int default_dircon_id = 0;
 
+    static const QString proform_elliptical_ip;
+    static const QString default_proform_elliptical_ip;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

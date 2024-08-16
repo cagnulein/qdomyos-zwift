@@ -76,6 +76,7 @@
 #include "devices/nautilustreadmill/nautilustreadmill.h"
 #include "devices/nordictrackelliptical/nordictrackelliptical.h"
 #include "devices/nordictrackifitadbbike/nordictrackifitadbbike.h"
+#include "devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h"
 #include "devices/nordictrackifitadbtreadmill/nordictrackifitadbtreadmill.h"
 #include "devices/npecablebike/npecablebike.h"
 #include "devices/octaneelliptical/octaneelliptical.h"
@@ -193,6 +194,7 @@ class bluetooth : public QObject, public SignalHandler {
     nordictrackelliptical *nordictrackElliptical = nullptr;
     nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
     nordictrackifitadbbike *nordictrackifitadbBike = nullptr;
+    nordictrackifitadbelliptical *nordictrackifitadbElliptical = nullptr;
     octaneelliptical *octaneElliptical = nullptr;
     octanetreadmill *octaneTreadmill = nullptr;
     pelotonbike *pelotonBike = nullptr;
