@@ -487,7 +487,7 @@ class homeform : public QObject {
     void videoSeekPosition(int ms);      // in realtime
     void setVideoRate(double rate);
     void setMapsVisible(bool value);
-    void setToastRequested(QString value) { m_toastRequested = value; }
+    void setToastRequested(QString value) { m_toastRequested = value; emit toastRequestedChanged(value); }
     void setStravaUploadRequested(bool value) {
         m_stravaUploadRequested = value;
     }

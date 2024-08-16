@@ -856,8 +856,7 @@ void homeform::pelotonLoginState(bool ok) {
     m_pelotonLoginState = (ok ? 1 : 0);
     emit pelotonLoginChanged(m_pelotonLoginState);
     if (!ok) {
-        setToastRequested("Peloton Login Error!");
-        emit toastRequestedChanged(toastRequested());
+        setToastRequested("Peloton Login Error!");        
     }
 }
 
@@ -867,7 +866,6 @@ void homeform::zwiftLoginState(bool ok) {
     emit zwiftLoginChanged(m_zwiftLoginState);
     if (!ok) {
         setToastRequested("Zwift Login Error!");
-        emit toastRequestedChanged(toastRequested());
     }
 }
 
@@ -1130,7 +1128,6 @@ void homeform::trainProgramSignals() {
 
 void homeform::onToastRequested(QString message) {
     setToastRequested(message);
-    emit toastRequestedChanged(message);
 }
 
 QStringList homeform::tile_order() {
@@ -5453,7 +5450,6 @@ void homeform::update() {
                         qDebug() << QStringLiteral("Autolap based on distance");
                         Lap();
                         setToastRequested("AutoLap " + QString::number(settings.value(QZSettings::autolap_distance, QZSettings::default_autolap_distance).toDouble(), 'f', 1));
-                        emit toastRequestedChanged(toastRequested());
                 }
             }
 
@@ -6164,7 +6160,6 @@ void homeform::strava_refreshtoken() {
     if (reply->error() != 0) {
         qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
         setToastRequested("Strava Auth Failed!");
-        emit toastRequestedChanged(toastRequested());
         return;
     }
 
@@ -6188,7 +6183,6 @@ void homeform::strava_refreshtoken() {
     settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
 
     setToastRequested("Strava Login OK!");
-    emit toastRequestedChanged(toastRequested());
 }
 
 bool homeform::strava_upload_file(const QByteArray &data, const QString &remotename) {
@@ -6306,7 +6300,6 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
 void homeform::errorOccurredUploadStrava(QNetworkReply::NetworkError code) {
     qDebug() << QStringLiteral("strava upload error!") << code;
     setToastRequested("Strava Upload Failed!");
-    emit toastRequestedChanged(toastRequested());
 }
 
 void homeform::writeFileCompleted() {
@@ -6321,7 +6314,6 @@ void homeform::writeFileCompleted() {
     qDebug() << "reply:" << response;
 
     setToastRequested("Strava Upload Completed!");
-    emit toastRequestedChanged(toastRequested());
 }
 
 void homeform::onStravaGranted() {

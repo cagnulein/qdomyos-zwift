@@ -2550,6 +2550,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
                 connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
                 zwiftClickRemote->deviceDiscovered(b);
+                homeform::singleton()->setToastRequested("Zwift Click Connected!");
                 break;
             }
         }
@@ -2573,6 +2574,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
                 connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
                 zwiftPlayDevice.last()->deviceDiscovered(b);
+                homeform::singleton()->setToastRequested("Zwift Play/Ride Connected!");
             }
         }
     }
