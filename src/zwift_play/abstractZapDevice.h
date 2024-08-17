@@ -95,12 +95,12 @@ public:
                 } else if(bytes.length() > 19 && ((uint8_t)bytes[18]) == 0xc8) {
                     emit plus();
                 } else if(bytes.length() > 3 &&
-                          (((uint8_t)bytes[3]) == 0xdf) || // right top button
-                          (((uint8_t)bytes[3]) == 0xbf)) { // right bottom button
+                          ((((uint8_t)bytes[3]) == 0xdf) || // right top button
+                          (((uint8_t)bytes[3]) == 0xbf))) { // right bottom button
                     emit plus();
                 } else if(bytes.length() > 3 &&
-                          (((uint8_t)bytes[3]) == 0xfd) || // left top button
-                          (((uint8_t)bytes[3]) == 0xfb)) { // left bottom button
+                          ((((uint8_t)bytes[3]) == 0xfd) || // left top button
+                          (((uint8_t)bytes[3]) == 0xfb))) { // left bottom button
                     emit minus();
                 }
                 break;
