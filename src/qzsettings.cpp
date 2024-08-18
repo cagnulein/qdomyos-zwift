@@ -763,7 +763,7 @@ const QString QZSettings::dircon_id = QStringLiteral("dircon_id");
 const QString QZSettings::proform_elliptical_ip = QStringLiteral("proform_elliptical_ip");
 const QString QZSettings::default_proform_elliptical_ip = QStringLiteral("");
 
-const uint32_t allSettingsCount = 639;
+const uint32_t allSettingsCount = 640;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
