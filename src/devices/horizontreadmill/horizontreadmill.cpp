@@ -1735,35 +1735,37 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                                   ) /
                               10.0);
             else if(ICONCEPT_FTMS_treadmill) {
-                if(newValue.at(index) == 0x3C && newValue.at(index + 1) == 0x00) {
+                uint8_t val1 = (uint8_t)newValue.at(index);
+                uint8_t val2 = (uint8_t)newValue.at(index + 1);
+                if(val1 == 0x3C && val2 == 0x00) {
                     Inclination = 1;
-                } else if(newValue.at(index) == 0x82 && newValue.at(index + 1) == 0x00) {
+                } else if(val1 == 0x82 && val2 == 0x00) {
                     Inclination = 2;
-                } else if(newValue.at(index) == 0xC8 && newValue.at(index + 1) == 0x00) {
+                } else if(val1 == 0xC8 && val2 == 0x00) {
                     Inclination = 3;
-                } else if(newValue.at(index) == 0x04 && newValue.at(index + 1) == 0x01) {
+                } else if(val1 == 0x04 && val2 == 0x01) {
                     Inclination = 4;
-                } else if(newValue.at(index) == 0x4A && newValue.at(index + 1) == 0x01) {
+                } else if(val1 == 0x4A && val2 == 0x01) {
                     Inclination = 5;
-                } else if(newValue.at(index) == 0x90 && newValue.at(index + 1) == 0x01) {
+                } else if(val1 == 0x90 && val2 == 0x01) {
                     Inclination = 6;
-                } else if(newValue.at(index) == 0xCC && newValue.at(index + 1) == 0x01) {
+                } else if(val1 == 0xCC && val2 == 0x01) {
                     Inclination = 7;
-                } else if(newValue.at(index) == 0x12 && newValue.at(index + 1) == 0x02) {
+                } else if(val1 == 0x12 && val2 == 0x02) {
                     Inclination = 8;
-                } else if(newValue.at(index) == 0x58 && newValue.at(index + 1) == 0x02) {
+                } else if(val1 == 0x58 && val2 == 0x02) {
                     Inclination = 9;
-                } else if(newValue.at(index) == 0x94 && newValue.at(index + 1) == 0x02) {
+                } else if(val1 == 0x94 && val2 == 0x02) {
                     Inclination = 10;
-                } else if(newValue.at(index) == 0xDA && newValue.at(index + 1) == 0x02) {
+                } else if(val1 == 0xDA && val2 == 0x02) {
                     Inclination = 11;
-                } else if(newValue.at(index) == 0x20 && newValue.at(index + 1) == 0x03) {
+                } else if(val1 == 0x20 && val2 == 0x03) {
                     Inclination = 12;
-                } else if(newValue.at(index) == 0x5C && newValue.at(index + 1) == 0x03) {
+                } else if(val1 == 0x5C && val2 == 0x03) {
                     Inclination = 13;
-                } else if(newValue.at(index) == 0xA2 && newValue.at(index + 1) == 0x03) {
+                } else if(val1 == 0xA2 && val2 == 0x03) {
                     Inclination = 14;
-                } else if(newValue.at(index) == 0xE8 && newValue.at(index + 1) == 0x03) {
+                } else if(val1 == 0xE8 && val2 == 0x03) {
                     Inclination = 15;                    
                 } else {
                     Inclination = 0;
