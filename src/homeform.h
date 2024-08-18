@@ -758,6 +758,7 @@ class homeform : public QObject {
     QOAuth2AuthorizationCodeFlow *concept2log = nullptr;
     QNetworkAccessManager *managerConcept2log = nullptr;
     QOAuthHttpServerReplyHandler *concept2logReplyHandler = nullptr;
+    void log_requested_workouts();
   
     QString concept2log_code;
     QOAuth2AuthorizationCodeFlow *concept2log_connect();
@@ -765,7 +766,7 @@ class homeform : public QObject {
     QNetworkReply *replyConcept2log;
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunctionConcept2log(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
-    bool concept2log_upload_file();
+    bool concept2log_upload_file(const QString& type, int distance, int time, int intervals = 0);
     QString concept2logAuthUrl;
     bool concept2logAuthWebVisible;
 

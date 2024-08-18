@@ -753,26 +753,6 @@ ApplicationWindow {
                     }
                 }
 
-            ItemDelegate {
-                text: qsTr("Connect to Concept2 Log (Testing)")
-                width: parent.width
-                onClicked: {
-                    stackView.push("WebConcept2LogAuth.qml")
-                    concept2log_connect_clicked()
-                    drawer.close()
-                }
-            }
-
-            ItemDelegate {
-                id: help
-                text: qsTr("Help")
-                width: parent.width
-                onClicked: {
-                    Qt.openUrlExternally("https://robertoviola.cloud/qdomyos-zwift-guide/");
-                    drawer.close()
-                  }
-            }
-
                 ItemDelegate {
                     id: community
                     text: qsTr("Community")
@@ -820,6 +800,16 @@ ApplicationWindow {
                     onClicked: {
                         stackView.push("WebStravaAuth.qml")
                         strava_connect_clicked()
+                        drawer.close()
+                    }
+                }
+
+                ItemDelegate {
+                    text: qsTr("Connect to Concept2 Log (Testing)")
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("WebConcept2LogAuth.qml")
+                        concept2log_connect_clicked()
                         drawer.close()
                     }
                 }

@@ -5996,8 +5996,7 @@ void homeform::fit_save_clicked() {
         if (!settings.value(QZSettings::concept2log_accesstoken, QZSettings::default_concept2log_accesstoken)
                  .toString()
                  .isEmpty()) {
-
-            concept2log_upload_file();
+            concept2log_upload_file("time", bluetoothManager->device()->odometer() == 0 ? 1 : bluetoothManager->device()->odometer(), abs(bluetoothManager->device()->elapsedTime().secsTo(QTime(0,0,0,0))));
         }
     }
 }
@@ -6571,33 +6570,20 @@ void homeform::writeFileCompletedConcept2log() {
 
 }
 
-bool homeform::concept2log_upload_file() {
-    if(bluetoothManager && bluetoothManager->device() &&
-            bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING) {
+bool homeform::concept2log_upload_file(const QString& type, int distance, int time, int intervals) {
+    if (!bluetoothManager || !bluetoothManager->device() ||
+        bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING) {
         return false;
     }
 
     concept2log_refreshtoken();
-
     QSettings settings;
     QString token = settings.value(QZSettings::concept2log_accesstoken).toString();
+    QUrl url = QUrl(QStringLiteral("https://log.concept2.com/api/users/me/results"));
+    QNetworkRequest request(url);
 
-    // The V3 API doc said "https://api.strava.com" but it is not working yet
-    QUrl url = QUrl(QStringLiteral("https://log-dev.concept2.com/api/users/me/results"));
-    QNetworkRequest request = QNetworkRequest(url);
-
-    // QString boundary = QString::number(qrand() * (90000000000) / (RAND_MAX + 1) + 10000000000, 16);
-    QString boundary = QVariant(QRandomGenerator::global()->generate()).toString() +
-                       QVariant(QRandomGenerator::global()->generate()).toString() +
-                       QVariant(QRandomGenerator::global()->generate()).toString(); // NOTE: qrand is deprecated
-
-
-    // this must be performed asynchronously and call made
-    // to notifyWriteCompleted(QString remotename, QString message) when done
     if (managerConcept2log) {
-
         delete managerConcept2log;
-        managerConcept2log = 0;
     }
     managerConcept2log = new QNetworkAccessManager(this);
 
@@ -6606,22 +6592,66 @@ bool homeform::concept2log_upload_file() {
 
     QJsonObject obj;
     obj["type"] = "rower";
-    obj["date"] = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-    obj["distance"] = QString::number(bluetoothManager->device()->odometer() == 0 ? 1 : bluetoothManager->device()->odometer());
-    obj["time"] = QString::number(abs(bluetoothManager->device()->elapsedTime().secsTo(QTime(0,0,0,0))));
+    obj["date"] = QDateTime::currentDateTime().toString("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    obj["distance"] = distance;
+    obj["time"] = time;
     obj["weight_class"] = "H";
+
+    QJsonArray splits;
+
+    if (type == "time") {
+        obj["workout_type"] = "FixedTimeSplits";
+        QJsonObject split;
+        split["type"] = "time";
+        split["time"] = time;
+        split["distance"] = distance;
+        splits.append(split);
+    } else if (type == "distance") {
+        obj["workout_type"] = "FixedDistanceSplits";
+        QJsonObject split;
+        split["type"] = "distance";
+        split["distance"] = distance;
+        split["time"] = time;
+        splits.append(split);
+    } else if (type == "intervals") {
+        obj["workout_type"] = "FixedTimeInterval";
+        obj["interval_type"] = "time";
+        obj["interval_count"] = intervals;
+        int intervalTime = time / intervals;
+        for (int i = 0; i < intervals; ++i) {
+            QJsonObject split;
+            split["type"] = "time";
+            split["time"] = intervalTime;
+            split["distance"] = distance / intervals; // Assuming equal distance per interval
+            splits.append(split);
+        }
+    }
+
+    obj["splits"] = splits;
+
     QJsonDocument doc(obj);
     QByteArray data = doc.toJson(QJsonDocument::Compact);
+    qDebug() << "Uploading workout:" << data;
 
-    qDebug() << data;
     replyConcept2log = managerConcept2log->post(request, data);
-
-    // catch finished signal
     connect(replyConcept2log, &QNetworkReply::finished, this, &homeform::writeFileCompletedConcept2log);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
     connect(replyConcept2log, &QNetworkReply::errorOccurred, this, &homeform::errorOccurredUploadConcept2log);
 #endif
+
     return true;
+}
+
+// used to validate concept2 log
+void homeform::log_requested_workouts() {
+    // 1 minute fixed time
+    concept2log_upload_file("time", 0, 60);
+
+    // 200m fixed distance
+    concept2log_upload_file("distance", 200, 0);
+
+    // Short interval workout with at least 2 intervals (assuming 30 seconds each)
+    concept2log_upload_file("intervals", 0, 60, 2);
 }
 
 
