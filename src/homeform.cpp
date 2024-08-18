@@ -3642,7 +3642,7 @@ void homeform::Start() { Start_inner(true); }
 void homeform::Start_inner(bool send_event_to_device) {
     QSettings settings;
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
-
+    
     m_overridePower = false;
 
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
@@ -3815,6 +3815,7 @@ void homeform::Stop() {
 
 void homeform::Lap() {
     qDebug() << QStringLiteral("lap pressed");
+    log_requested_workouts();
     if (bluetoothManager) {
         if (bluetoothManager->device()) {
 
@@ -6570,7 +6571,7 @@ void homeform::writeFileCompletedConcept2log() {
 
 }
 
-bool homeform::concept2log_upload_file(const QString& type, int distance, int time, int intervals) {
+bool homeform::concept2log_upload_file(const QString& type, double distance, int time, int intervals) {
     if (!bluetoothManager || !bluetoothManager->device() ||
         bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING) {
         return false;
@@ -6579,11 +6580,21 @@ bool homeform::concept2log_upload_file(const QString& type, int distance, int ti
     concept2log_refreshtoken();
     QSettings settings;
     QString token = settings.value(QZSettings::concept2log_accesstoken).toString();
-    QUrl url = QUrl(QStringLiteral("https://log.concept2.com/api/users/me/results"));
-    QNetworkRequest request(url);
+    // The V3 API doc said "https://api.strava.com" but it is not working yet
+    QUrl url = QUrl(QStringLiteral("https://log-dev.concept2.com/api/users/me/results"));
+    QNetworkRequest request = QNetworkRequest(url);
 
+    // QString boundary = QString::number(qrand() * (90000000000) / (RAND_MAX + 1) + 10000000000, 16);
+    QString boundary = QVariant(QRandomGenerator::global()->generate()).toString() +
+                     QVariant(QRandomGenerator::global()->generate()).toString() +
+                     QVariant(QRandomGenerator::global()->generate()).toString(); // NOTE: qrand is deprecated
+
+
+    // this must be performed asynchronously and call made
+    // to notifyWriteCompleted(QString remotename, QString message) when done
     if (managerConcept2log) {
         delete managerConcept2log;
+        managerConcept2log = 0;
     }
     managerConcept2log = new QNetworkAccessManager(this);
 
@@ -6593,8 +6604,8 @@ bool homeform::concept2log_upload_file(const QString& type, int distance, int ti
     QJsonObject obj;
     obj["type"] = "rower";
     obj["date"] = QDateTime::currentDateTime().toString("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    obj["distance"] = distance;
-    obj["time"] = time;
+    obj["distance"] = distance * 1000.0;
+    obj["time"] = time * 10;
     obj["weight_class"] = "H";
 
     QJsonArray splits;
@@ -6614,15 +6625,17 @@ bool homeform::concept2log_upload_file(const QString& type, int distance, int ti
         split["time"] = time;
         splits.append(split);
     } else if (type == "intervals") {
-        obj["workout_type"] = "FixedTimeInterval";
+        obj["workout_type"] = "FixedTimeSplits";
         obj["interval_type"] = "time";
         obj["interval_count"] = intervals;
+        obj["stroke_count"] = 100;
         int intervalTime = time / intervals;
         for (int i = 0; i < intervals; ++i) {
             QJsonObject split;
             split["type"] = "time";
+            split["stroke_rate"] = 33,
             split["time"] = intervalTime;
-            split["distance"] = distance / intervals; // Assuming equal distance per interval
+            split["distance"] = (distance * 1000.0) / intervals; // Assuming equal distance per interval
             splits.append(split);
         }
     }
@@ -6643,15 +6656,27 @@ bool homeform::concept2log_upload_file(const QString& type, int distance, int ti
 }
 
 // used to validate concept2 log
+static int concept2_log_example = 0;
 void homeform::log_requested_workouts() {
-    // 1 minute fixed time
-    concept2log_upload_file("time", 0, 60);
+    switch (concept2_log_example) {
+        case 0:
+            // 1 minute fixed time
+            concept2log_upload_file("time", 0.1, 60);
+            break;
+        case 1:
+            // 200m fixed distance
+            concept2log_upload_file("distance", 0.2, 60);
+            break;
 
-    // 200m fixed distance
-    concept2log_upload_file("distance", 200, 0);
-
-    // Short interval workout with at least 2 intervals (assuming 30 seconds each)
-    concept2log_upload_file("intervals", 0, 60, 2);
+        default:
+            // Short interval workout with at least 2 intervals (assuming 30 seconds each)
+            concept2log_upload_file("intervals", 0.1, 120, 3);
+            break;
+    }
+    concept2_log_example++;
+    if(concept2_log_example > 2)
+        concept2_log_example = 0;
+    
 }
 
 

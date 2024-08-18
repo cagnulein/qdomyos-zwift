@@ -766,7 +766,7 @@ class homeform : public QObject {
     QNetworkReply *replyConcept2log;
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunctionConcept2log(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
-    bool concept2log_upload_file(const QString& type, int distance, int time, int intervals = 0);
+    bool concept2log_upload_file(const QString& type, double distance, int time, int intervals = 0);
     QString concept2logAuthUrl;
     bool concept2logAuthWebVisible;
 
