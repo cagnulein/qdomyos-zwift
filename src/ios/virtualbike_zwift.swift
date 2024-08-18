@@ -98,6 +98,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     private var PowerSensorLocationCharacteristic: CBMutableCharacteristic!
     private var PowerMeasurementCharacteristic: CBMutableCharacteristic!
 
+  private var WattBikeService: CBMutableService!
+    private var WattBikeReadCharacteristic: CBMutableCharacteristic!
+    private var WattBikeWriteCharacteristic: CBMutableCharacteristic!
+
     
     public var LastFTMSMessageReceived: Data?
     public var LastFTMSMessageReceivedAndPassed: Data?
@@ -254,6 +258,28 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                         PowerMeasurementCharacteristic]
           self.peripheralManager.add(PowerService)
 
+       
+        // WATT BIKE
+        self.WattBikeService = CBMutableService(type: WattBikeServiceUUID, primary: true)
+        
+        let WattBikeReadProperties: CBCharacteristicProperties = [.notify, .read]
+          let WattBikeReadPermissions: CBAttributePermissions = [.readable]
+          self.WattBikeReadCharacteristic = CBMutableCharacteristic(type: WattBikeReadUUID,
+                                                           properties: WattBikeReadProperties,
+                                                                           value: nil,
+                                                                           permissions: WattBikeReadPermissions)
+
+        let WattBikeWriteProperties: CBCharacteristicProperties = [.write]
+          let WattBikeWritePermissions: CBAttributePermissions = [.writeable]
+          self.WattBikeWriteCharacteristic = CBMutableCharacteristic(type: WattBikeWriteUUID,
+                                                     properties: WattBikeWriteProperties,
+                                                                   value: nil,
+                                                                   permissions: WattBikeWritePermissions)
+
+
+        WattBikeService.characteristics = [WattBikeReadCharacteristic,
+                                           WattBikeWriteCharacteristic]
+          self.peripheralManager.add(WattBikeService)
         
     default:
       print("Peripheral manager is down")
@@ -277,8 +303,8 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                     CBAdvertisementDataServiceUUIDsKey: [FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
       } else {
-          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                                  CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "WattbikeAtom26003871",
+                                  CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID, WattBikeServiceUUID]] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
       }
     
