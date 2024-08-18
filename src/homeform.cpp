@@ -6607,41 +6607,45 @@ bool homeform::concept2log_upload_file(const QString& type, double distance, int
     obj["distance"] = distance * 1000.0;
     obj["time"] = time * 10;
     obj["weight_class"] = "H";
+    obj["stroke_rate"] = 100;
 
+    QJsonObject workout;
     QJsonArray splits;
 
     if (type == "time") {
-        obj["workout_type"] = "FixedTimeSplits";
+        workout["type"] = "FixedTimeSplits";
         QJsonObject split;
         split["type"] = "time";
-        split["time"] = time;
-        split["distance"] = distance;
+        split["time"] = time * 10;
+        split["distance"] = distance * 1000.0;
+        split["stroke_rate"] = 33;
         splits.append(split);
     } else if (type == "distance") {
-        obj["workout_type"] = "FixedDistanceSplits";
+        workout["type"] = "FixedDistanceSplits";
         QJsonObject split;
         split["type"] = "distance";
-        split["distance"] = distance;
-        split["time"] = time;
+        split["distance"] = distance * 1000.0;
+        split["time"] = time * 10;
+        split["stroke_rate"] = 33;
         splits.append(split);
     } else if (type == "intervals") {
-        obj["workout_type"] = "FixedTimeSplits";
-        obj["interval_type"] = "time";
-        obj["interval_count"] = intervals;
-        obj["stroke_count"] = 100;
+        workout["type"] = "FixedTimeSplits";
+        workout["intervalType"] = "time";
+        workout["intervalCount"] = intervals;
         int intervalTime = time / intervals;
         for (int i = 0; i < intervals; ++i) {
             QJsonObject split;
             split["type"] = "time";
-            split["stroke_rate"] = 33,
-            split["time"] = intervalTime;
+            split["time"] = intervalTime * 10;
+            split["stroke_rate"] = 33;
             split["distance"] = (distance * 1000.0) / intervals; // Assuming equal distance per interval
             splits.append(split);
         }
     }
-
-    obj["splits"] = splits;
-
+    
+    workout["splits"] = splits;
+    obj["workout"] = workout;
+  
     QJsonDocument doc(obj);
     QByteArray data = doc.toJson(QJsonDocument::Compact);
     qDebug() << "Uploading workout:" << data;
