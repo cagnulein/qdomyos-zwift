@@ -354,7 +354,20 @@ class homeform : public QObject {
 
     Q_INVOKABLE bool firstRun() {
         QSettings settings;
-        return settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString().isEmpty();
+        QString nordictrack_2950_ip =
+            settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+        QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+        QString proform_elliptical_ip = settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
+        bool fake_bike =
+            settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
+        bool fakedevice_elliptical =
+            settings.value(QZSettings::fakedevice_elliptical, QZSettings::default_fakedevice_elliptical).toBool();
+        bool fakedevice_rower = settings.value(QZSettings::fakedevice_rower, QZSettings::default_fakedevice_rower).toBool();
+        bool fakedevice_treadmill =
+            settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
+
+        return settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString().isEmpty() && 
+                nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical && !fakedevice_rower && !fakedevice_treadmill && proform_elliptical_ip.isEmpty();
     }
 
 
@@ -478,7 +491,7 @@ class homeform : public QObject {
     void videoSeekPosition(int ms);      // in realtime
     void setVideoRate(double rate);
     void setMapsVisible(bool value);
-    void setToastRequested(QString value) { m_toastRequested = value; }
+    void setToastRequested(QString value) { m_toastRequested = value; emit toastRequestedChanged(value); }
     void setStravaUploadRequested(bool value) {
         m_stravaUploadRequested = value;
     }
