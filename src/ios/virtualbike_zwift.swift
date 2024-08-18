@@ -303,8 +303,8 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                     CBAdvertisementDataServiceUUIDsKey: [FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
       } else {
-          let advertisementData = [CBAdvertisementDataLocalNameKey: "WattbikeAtom26003871",
-                                  CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID, WattBikeServiceUUID]] as [String : Any]
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "WattbikeAtom",
+                                  CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
       }
     
@@ -353,6 +353,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     }
     
   func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
+    SwiftDebug.qtDebug("virtualbike_zwift didReceiveRead: " + String(describing: request.characteristic))
     if request.characteristic == self.heartRateCharacteristic {
       request.value = self.calculateHeartRate()
       self.peripheralManager.respond(to: request, withResult: .success)
@@ -503,14 +504,24 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       return indoorBikeData
     }
   
+    var WattBikeSequence: UInt8 = 0
+    
   @objc func updateSubscribers() {
-    if(self.serviceToggle == 3 || garmin_bluetooth_compatibility)
-    {
-        let powerData = self.calculatePower()
-        let ok = self.peripheralManager.updateValue(powerData, for: self.PowerMeasurementCharacteristic, onSubscribedCentrals: nil)
-        if(ok) {
-            self.serviceToggle = 0
-        }
+      if(self.serviceToggle == 4 || garmin_bluetooth_compatibility)
+      {
+          let powerData = self.calculatePower()
+          let ok = self.peripheralManager.updateValue(powerData, for: self.PowerMeasurementCharacteristic, onSubscribedCentrals: nil)
+          if(ok) {
+              self.serviceToggle = 0
+          }
+      } else if(self.serviceToggle == 3) {
+      WattBikeSequence = WattBikeSequence + 1
+      let WattBikeArray : [UInt8] = [ WattBikeSequence, 0x03, 0xB6, 0x06 ]
+      let WattBikeData = Data(bytes: WattBikeArray, count: 4)
+      let ok = self.peripheralManager.updateValue(WattBikeData, for: self.WattBikeReadCharacteristic, onSubscribedCentrals: nil)
+      if(ok) {
+          self.serviceToggle = self.serviceToggle + 1
+      }
     } else if(self.serviceToggle == 2) {
       let cadenceData = self.calculateCadence()
       let ok = self.peripheralManager.updateValue(cadenceData, for: self.CSCMeasurementCharacteristic, onSubscribedCentrals: nil)
