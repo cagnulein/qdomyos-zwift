@@ -101,11 +101,11 @@ void trxappgateusbtreadmill::forceSpeed(double requestSpeed) {
     /*
     if (gattFTMSService) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
-        writeCharacteristic(gattFTMSService, gattFTMSWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                            false);
+        /*writeCharacteristic(gattFTMSService, gattFTMSWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                            false);*/
         write[0] = {FTMS_START_RESUME};
-        writeCharacteristic(gattFTMSService, gattFTMSWriteCharControlPointId, write, sizeof(write), "start simulation",
-                            false, false);
+        /*writeCharacteristic(gattFTMSService, gattFTMSWriteCharControlPointId, write, sizeof(write), "start simulation",
+                            false, false);*/
 
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
         writeS[1] = ((uint16_t)(requestSpeed * 100)) & 0xFF;
@@ -602,6 +602,8 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
 void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+
+    if(state != QLowEnergyService::ServiceDiscovered) return;
 
     if (gattCommunicationChannelService->state() == QLowEnergyService::ServiceDiscovered && !gattWriteCharacteristic.isValid()) {
         auto characteristics_list = gattCommunicationChannelService->characteristics();
