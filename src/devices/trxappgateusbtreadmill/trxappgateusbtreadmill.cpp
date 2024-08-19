@@ -3,6 +3,7 @@
 #include "keepawakehelper.h"
 #endif
 #include "ftmsbike/ftmsbike.h"
+#include "homeform.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -97,6 +98,7 @@ void trxappgateusbtreadmill::forceIncline(double requestIncline) {
 }
 
 void trxappgateusbtreadmill::forceSpeed(double requestSpeed) {
+    /*
     if (gattFTMSService) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattFTMSWriteCharControlPointId, write, sizeof(write), "requestControl", false,
@@ -111,7 +113,13 @@ void trxappgateusbtreadmill::forceSpeed(double requestSpeed) {
 
         writeCharacteristic(gattFTMSService, gattFTMSWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceSpeed"), false, false);
-    }
+    }*/
+
+    uint8_t write[] = {0xf0, 0xac, testspeed, 0xd3, 0x03, 0x64, 0x64, 0x3b};
+    write[7] = testspeed + 0x38;
+    testspeed++;
+
+    writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, write, sizeof(write), QStringLiteral("forceSpeed"), false, true);
 }
 
 void trxappgateusbtreadmill::update() {
@@ -141,8 +149,10 @@ void trxappgateusbtreadmill::update() {
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
-        if (sec1update++ == (1000 / refresh->interval())) {
+        if (sec1update++ == (5000 / refresh->interval())) {
             sec1update = 0;
+            forceSpeed(3.0);
+            homeform::singleton()->setToastRequested("bruteforcing: " + QString::number(testspeed) + " of 256");
             // updateDisplay(elapsed);
         }
 
