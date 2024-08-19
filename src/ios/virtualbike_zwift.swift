@@ -41,7 +41,7 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
         return peripheralManager.PowerRequested;
     }
     
-    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16, CrankRevolutions: UInt16, LastCrankEventTime: UInt16) -> Bool
+    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16, CrankRevolutions: UInt16, LastCrankEventTime: UInt16, Gears: Int16) -> Bool
     {
         peripheralManager.NormalizeSpeed = normalizeSpeed
         peripheralManager.CurrentCadence = currentCadence
@@ -49,6 +49,7 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
         peripheralManager.CurrentWatt = currentWatt
         peripheralManager.lastCrankEventTime = LastCrankEventTime
         peripheralManager.crankRevolutions = CrankRevolutions
+        peripheralManager.CurrentGears = Gears
 
         return peripheralManager.connected;
     }
@@ -107,6 +108,8 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     public var LastFTMSMessageReceivedAndPassed: Data?
     
     public var serviceToggle: UInt8 = 0
+    
+    public var CurrentGears: Int16 = 0
 
   public var connected: Bool = false
 
@@ -266,7 +269,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           let WattBikeReadPermissions: CBAttributePermissions = [.readable]
           self.WattBikeReadCharacteristic = CBMutableCharacteristic(type: WattBikeReadUUID,
                                                            properties: WattBikeReadProperties,
-                                                                           value: nil,
+                                                                    value: nil,
                                                                            permissions: WattBikeReadPermissions)
 
         let WattBikeWriteProperties: CBCharacteristicProperties = [.write]
@@ -324,7 +327,12 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {      
     if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
-        SwiftDebug.qtDebug("virtualbike_zwift didReceiveWrite: " + String(describing: requests.first!.value))
+        if let value = requests.first?.value {
+            let hexString = value.map { String(format: "%02x", $0) }.joined(separator: " ")
+            let debugMessage = "virtualbike_zwift didReceiveWrite: " + String(describing: requests.first!.characteristic) + " " + hexString
+            SwiftDebug.qtDebug(debugMessage)
+        }
+
         if(LastFTMSMessageReceived == nil || LastFTMSMessageReceived?.count == 0) {
             LastFTMSMessageReceived = requests.first!.value
         }
@@ -516,7 +524,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           }
       } else if(self.serviceToggle == 3) {
       WattBikeSequence = WattBikeSequence + 1
-      let WattBikeArray : [UInt8] = [ WattBikeSequence, 0x03, 0xB6, 0x06 ]
+          let WattBikeArray : [UInt8] = [ WattBikeSequence, 0x03, 0xB6, (UInt8)(self.CurrentGears) ]
       let WattBikeData = Data(bytes: WattBikeArray, count: 4)
       let ok = self.peripheralManager.updateValue(WattBikeData, for: self.WattBikeReadCharacteristic, onSubscribedCentrals: nil)
       if(ok) {
