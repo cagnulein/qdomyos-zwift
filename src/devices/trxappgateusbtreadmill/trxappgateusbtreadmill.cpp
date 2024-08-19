@@ -593,6 +593,8 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
+    if(state != QLowEnergyService::ServiceDiscovered) return;
+
     if (gattCommunicationChannelService->state() == QLowEnergyService::ServiceDiscovered && !gattWriteCharacteristic.isValid()) {
         auto characteristics_list = gattCommunicationChannelService->characteristics();
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
