@@ -408,6 +408,7 @@
 		879F74152893D732009A64C8 /* CoreMedia.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F74142893D732009A64C8 /* CoreMedia.framework */; };
 		87A0771029B641D600A368BF /* wahookickrheadwind.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0770F29B641D500A368BF /* wahookickrheadwind.cpp */; };
 		87A0771229B6420200A368BF /* moc_wahookickrheadwind.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0771129B6420200A368BF /* moc_wahookickrheadwind.cpp */; };
+		87A083082C73361C00567A4E /* characteristicnotifier1224.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A083052C73361B00567A4E /* characteristicnotifier1224.cpp */; };
 		87A0C4BB262329A600121A76 /* npecablebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B7262329A600121A76 /* npecablebike.cpp */; };
 		87A0C4BC262329A600121A76 /* cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B9262329A600121A76 /* cscbike.cpp */; };
 		87A0C4BF262329B500121A76 /* moc_cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4BD262329B500121A76 /* moc_cscbike.cpp */; };
@@ -1305,6 +1306,9 @@
 		87A0770E29B641D500A368BF /* wahookickrheadwind.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wahookickrheadwind.h; path = ../src/devices/wahookickrheadwind/wahookickrheadwind.h; sourceTree = "<group>"; };
 		87A0770F29B641D500A368BF /* wahookickrheadwind.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wahookickrheadwind.cpp; path = ../src/devices/wahookickrheadwind/wahookickrheadwind.cpp; sourceTree = "<group>"; };
 		87A0771129B6420200A368BF /* moc_wahookickrheadwind.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_wahookickrheadwind.cpp; sourceTree = "<group>"; };
+		87A083052C73361B00567A4E /* characteristicnotifier1224.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicnotifier1224.cpp; path = ../src/characteristics/characteristicnotifier1224.cpp; sourceTree = "<group>"; };
+		87A083062C73361C00567A4E /* characteristicnotifier2ad9.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = characteristicnotifier2ad9.h; path = ../src/characteristics/characteristicnotifier2ad9.h; sourceTree = "<group>"; };
+		87A083072C73361C00567A4E /* characteristicnotifier1224.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = characteristicnotifier1224.h; path = ../src/characteristics/characteristicnotifier1224.h; sourceTree = "<group>"; };
 		87A0C4B7262329A600121A76 /* npecablebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = npecablebike.cpp; path = ../src/devices/npecablebike/npecablebike.cpp; sourceTree = "<group>"; };
 		87A0C4B8262329A600121A76 /* cscbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cscbike.h; path = ../src/devices/cscbike/cscbike.h; sourceTree = "<group>"; };
 		87A0C4B9262329A600121A76 /* cscbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cscbike.cpp; path = ../src/devices/cscbike/cscbike.cpp; sourceTree = "<group>"; };
@@ -2063,6 +2067,9 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87A083062C73361C00567A4E /* characteristicnotifier2ad9.h */,
+				87A083052C73361B00567A4E /* characteristicnotifier1224.cpp */,
+				87A083072C73361C00567A4E /* characteristicnotifier1224.h */,
 				872973832C6F13C300D6D9A4 /* nordictrackifitadbelliptical.cpp */,
 				872973842C6F13C400D6D9A4 /* nordictrackifitadbelliptical.h */,
 				872973812C6F13B000D6D9A4 /* moc_nordictrackifitadbelliptical.cpp */,
@@ -3577,6 +3584,7 @@
 				87D2699F25F535200076AA48 /* m3ibike.cpp in Compile Sources */,
 				87917A7528E768D200F8D9AC /* Connection.swift in Compile Sources */,
 				87FFA13727BBE3FF00924E4E /* solebike.cpp in Compile Sources */,
+				87A083082C73361C00567A4E /* characteristicnotifier1224.cpp in Compile Sources */,
 				87F4FB5A29D550C00061BB4A /* schwinn170bike.cpp in Compile Sources */,
 				7352E0F0EE5366AC809B9D64 /* qrc_qml.cpp in Compile Sources */,
 				873824E727E647A8004F1B46 /* record.cpp in Compile Sources */,
