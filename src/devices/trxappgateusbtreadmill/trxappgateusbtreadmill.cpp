@@ -80,19 +80,19 @@ void trxappgateusbtreadmill::forceIncline(double requestIncline) {
         write[4] = (requestIncline + 1);
         write[7] = write[4] + 0x92;
 
-        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, gattCommunicationChannelService, gattWriteCharacteristic, write, sizeof(write), QStringLiteral("forceIncline"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, write, sizeof(write), QStringLiteral("forceIncline"), false, true);
     } else if (!reebok_fr30_treadmill) {
         uint8_t write[] = {0xf0, 0xac, 0x01, 0xd3, 0x03, 0x64, 0x64, 0x3b};
         write[4] = (requestIncline + 1);
         write[7] = write[4] + 0x38;
 
-        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, gattCommunicationChannelService, gattWriteCharacteristic, write, sizeof(write), QStringLiteral("forceIncline"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, write, sizeof(write), QStringLiteral("forceIncline"), false, true);
     } else {
         uint8_t write[] = {0xf0, 0xac, 0x32, 0xd3, 0x01, 0x64, 0x64, 0x6a};
         write[4] = (requestIncline + 1);
         write[7] = write[4] + 0x69;
 
-        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, gattCommunicationChannelService, gattWriteCharacteristic, write, sizeof(write), QStringLiteral("forceIncline"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, write, sizeof(write), QStringLiteral("forceIncline"), false, true);
     }
 }
 
