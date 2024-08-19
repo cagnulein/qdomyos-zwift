@@ -2,6 +2,7 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
+#include "ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -23,17 +24,23 @@ trxappgateusbtreadmill::trxappgateusbtreadmill() {
     refresh->start(200ms);
 }
 
-void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                                 bool wait_for_response) {
+void trxappgateusbtreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic,
+                                           uint8_t *data, uint8_t data_len, QString info, bool disable_log,
+                                           bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
+    if (!service) {
+        qDebug() << "no gattCustomService available";
+        return;
+    }
+
     if (wait_for_response) {
         connect(this, &trxappgateusbtreadmill::packetReceived, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        timeout.singleShot(8000, &loop, SLOT(quit())); // 6 seconds are important
     } else {
-        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        connect(service, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop, SLOT(quit()));
+        timeout.singleShot(3000, &loop, SLOT(quit()));
     }
 
     if (writeBuffer) {
@@ -41,22 +48,18 @@ void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
+    if (characteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        service->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
                                                              QLowEnergyService::WriteWithoutResponse);
     } else {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+        service->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
     }
 
-    if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
-    }
+
+    if (!disable_log)
+        qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
 
     loop.exec();
-
-    if (timeout.isActive() == false) {
-        emit debug(QStringLiteral(" exit for timeout"));
-    }
 }
 
 void trxappgateusbtreadmill::changeInclinationRequested(double grade, double percentage) {
@@ -77,23 +80,39 @@ void trxappgateusbtreadmill::forceIncline(double requestIncline) {
         write[4] = (requestIncline + 1);
         write[7] = write[4] + 0x92;
 
-        writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, gattCommunicationChannelService, gattWriteCharacteristic, write, sizeof(write), QStringLiteral("forceIncline"), false, true);
     } else if (!reebok_fr30_treadmill) {
         uint8_t write[] = {0xf0, 0xac, 0x01, 0xd3, 0x03, 0x64, 0x64, 0x3b};
         write[4] = (requestIncline + 1);
         write[7] = write[4] + 0x38;
 
-        writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, gattCommunicationChannelService, gattWriteCharacteristic, write, sizeof(write), QStringLiteral("forceIncline"), false, true);
     } else {
         uint8_t write[] = {0xf0, 0xac, 0x32, 0xd3, 0x01, 0x64, 0x64, 0x6a};
         write[4] = (requestIncline + 1);
         write[7] = write[4] + 0x69;
 
-        writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, gattCommunicationChannelService, gattWriteCharacteristic, write, sizeof(write), QStringLiteral("forceIncline"), false, true);
     }
 }
 
-void trxappgateusbtreadmill::forceSpeed(double requestSpeed) {}
+void trxappgateusbtreadmill::forceSpeed(double requestSpeed) {
+    if (gattFTMSService) {
+        uint8_t write[] = {FTMS_REQUEST_CONTROL};
+        writeCharacteristic(gattFTMSService, gattFTMSWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                            false);
+        write[0] = {FTMS_START_RESUME};
+        writeCharacteristic(gattFTMSService, gattFTMSWriteCharControlPointId, write, sizeof(write), "start simulation",
+                            false, false);
+
+        uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
+        writeS[1] = ((uint16_t)(requestSpeed * 100)) & 0xFF;
+        writeS[2] = ((uint16_t)(requestSpeed * 100)) >> 8;
+
+        writeCharacteristic(gattFTMSService, gattFTMSWriteCharControlPointId, writeS, sizeof(writeS),
+                            QStringLiteral("forceSpeed"), false, false);
+    }
+}
 
 void trxappgateusbtreadmill::update() {
     QSettings settings;
@@ -130,20 +149,20 @@ void trxappgateusbtreadmill::update() {
         bool toorx30 = settings.value(QZSettings::toorx_3_0, QZSettings::default_toorx_3_0).toBool();
         if (treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::REEBOK_2) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x32, 0xd3, 0x97};
-            writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+            writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else if (treadmill_type == TYPE::DKN_2) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x04, 0x01, 0x97};
-            writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+            writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else if (treadmill_type == TYPE::ADIDAS) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x5b, 0xd3, 0xc0};
-            writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+            writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_2 || treadmill_type == TYPE::DKN_3 || toorx30 == false ||
                    jtx_fitness_sprint_treadmill) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x01, 0xd3, 0x66};
-            writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+            writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x23, 0xd3, 0x88};
-            writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+            writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         }
 
         if (requestSpeed != -1) {
@@ -169,17 +188,17 @@ void trxappgateusbtreadmill::update() {
             // btinit(true);
             if (treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::REEBOK_2) {
                 const uint8_t startTape[] = {0xf0, 0xa5, 0x32, 0xd3, 0x02, 0x9c};
-                writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
+                writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
             } else if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_2 || toorx30 == false) {
                 const uint8_t startTape[] = {0xf0, 0xa5, 0x01, 0xd3, 0x02, 0x6b};
-                writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
+                writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
             } else if (treadmill_type == TYPE::ADIDAS) {
                 const uint8_t startTape[] = {0xf0, 0xa5, 0x5b, 0xd3, 0x02, 0xc5};
-                writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
-                writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
+                writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
+                writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
             } else {
                 const uint8_t startTape[] = {0xf0, 0xa5, 0x23, 0xd3, 0x02, 0x8d};
-                writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
+                writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
             }
 
             requestStart = -1;
@@ -187,11 +206,11 @@ void trxappgateusbtreadmill::update() {
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
-            // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+            // writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
 
             if (treadmill_type == TYPE::ADIDAS) {
                 const uint8_t stopTape[] = {0xf0, 0xa5, 0x5b, 0xd3, 0x04, 0xc7};
-                writeCharacteristic((uint8_t *)stopTape, sizeof(stopTape), QStringLiteral("stopTape"), false, true);
+                writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)stopTape, sizeof(stopTape), QStringLiteral("stopTape"), false, true);
             }
 
             requestStop = -1;
@@ -363,31 +382,31 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
                                      0x01, 0x01, 0x01, 0x01, 0x0b, 0x01, 0x01, 0x7d};
         const uint8_t initData8[] = {0xf0, 0xaf, 0x01, 0xd3, 0x02, 0x75};
 
-        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData8, sizeof(initData8), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData8, sizeof(initData8), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, false);
         QThread::msleep(400);
 
     } else if (treadmill_type == TYPE::ADIDAS) {
@@ -401,31 +420,31 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
                                      0x01, 0x01, 0x01, 0x01, 0x0b, 0x01, 0x01, 0xd7};
         const uint8_t initData8[] = {0xf0, 0xaf, 0x5b, 0xd3, 0x02, 0xcf};
 
-        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData8, sizeof(initData8), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData8, sizeof(initData8), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, false);
         QThread::msleep(400);
 
     } else if (treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::REEBOK_2) {
@@ -438,23 +457,23 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
                                      0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xa4};
         const uint8_t initData7[] = {0xf0, 0xaf, 0x32, 0xd3, 0x02, 0xa6};
 
-        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
         QThread::msleep(400);
     } else if (treadmill_type == TYPE::DKN_2) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x04, 0x01, 0x95};
@@ -471,33 +490,33 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
         const uint8_t initData9[] = {0xf0, 0xa2, 0x04, 0x01, 0x97};
         const uint8_t initData10[] = {0xf0, 0xa5, 0x04, 0x01, 0x02, 0x9c};
 
-        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData8, sizeof(initData8), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData8, sizeof(initData8), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData9, sizeof(initData9), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData9, sizeof(initData9), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData10, sizeof(initData10), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData10, sizeof(initData10), QStringLiteral("init"), false, true);
         QThread::msleep(400);
     } else if (toorx30 == false || jtx_fitness_sprint_treadmill) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
@@ -509,43 +528,43 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
                                      0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x73};
         const uint8_t initData7[] = {0xf0, 0xaf, 0x01, 0xd3, 0x02, 0x75};
 
-        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
         if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
         if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
-        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
         if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
         if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2 || jtx_fitness_sprint_treadmill) {
-            writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
             QThread::msleep(400);
-            writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
             QThread::msleep(400);
-            writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
             QThread::msleep(400);
         }
-        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
         if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
-        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
-        writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
         if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
@@ -559,13 +578,13 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
                                      0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x95};
         const uint8_t initData7[] = {0xf0, 0xaf, 0x23, 0xd3, 0x02, 0x97};
 
-        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, (uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
     }
     initDone = true;
 }
@@ -574,7 +593,7 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (gattCommunicationChannelService->state() == QLowEnergyService::ServiceDiscovered && !gattWriteCharacteristic.isValid()) {
         auto characteristics_list = gattCommunicationChannelService->characteristics();
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
             emit debug("characteristic " + c.uuid().toString());
@@ -637,6 +656,26 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
         if (treadmill_type == TYPE::DKN_2 && gattNotify2Characteristic.isValid())
             gattCommunicationChannelService->writeDescriptor(
                 gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+    }
+
+    if(gattFTMSService->state() == QLowEnergyService::ServiceDiscovered && !gattFTMSWriteCharControlPointId.isValid()) {
+        QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
+        gattFTMSWriteCharControlPointId = gattFTMSService->characteristic(_gattWriteCharControlPointId);
+
+        // establish hook into notifications
+        connect(gattFTMSService, &QLowEnergyService::characteristicChanged, this,
+                &trxappgateusbtreadmill::characteristicChanged);
+        connect(gattFTMSService, &QLowEnergyService::characteristicWritten, this,
+                &trxappgateusbtreadmill::characteristicWritten);
+        connect(gattFTMSService,
+                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                this, &trxappgateusbtreadmill::errorService);
+        connect(gattFTMSService, &QLowEnergyService::descriptorWritten, this,
+                &trxappgateusbtreadmill::descriptorWritten);
+
+        if(gattFTMSWriteCharControlPointId.isValid())
+            qDebug() << "FTMS control point found!";
+
     }
 }
 
@@ -707,6 +746,13 @@ void trxappgateusbtreadmill::serviceScanDone(void) {
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
             &trxappgateusbtreadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();
+
+    QBluetoothUuid _gattFTMSChannelServiceId((uint16_t)0x1826);
+    gattFTMSService = m_control->createServiceObject(_gattFTMSChannelServiceId);    
+    if(gattFTMSService != nullptr) {
+        qDebug() << "FTMS also available";
+        gattCommunicationChannelService->discoverDetails();
+    }
 }
 
 void trxappgateusbtreadmill::errorService(QLowEnergyService::ServiceError err) {

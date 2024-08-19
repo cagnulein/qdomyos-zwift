@@ -46,7 +46,8 @@ class trxappgateusbtreadmill : public treadmill {
     void forceIncline(double requestIncline);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+    void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic,
+                             uint8_t *data, uint8_t data_len, QString info, bool disable_log,
                              bool wait_for_response);
     void waitForAPacket();
     void startDiscover();
@@ -64,6 +65,9 @@ class trxappgateusbtreadmill : public treadmill {
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
+    
+    QLowEnergyService *gattFTMSService = nullptr;
+    QLowEnergyCharacteristic gattFTMSWriteCharControlPointId;
 
     bool initDone = false;
     bool initRequest = false;
