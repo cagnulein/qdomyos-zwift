@@ -115,8 +115,8 @@ void trxappgateusbtreadmill::forceSpeed(double requestSpeed) {
                             QStringLiteral("forceSpeed"), false, false);
     }*/
 
-    uint8_t write[] = {0xf0, 0xac, testspeed, 0xd3, 0x03, 0x64, 0x64, 0x3b};
-    write[7] = testspeed + 0x38;
+    uint8_t write[] = {0xf0, 0xac, testspeed, 0xd3, 0x14, 0x64, 0x64, 0x3b};
+    write[7] = write[2] + 0x38 + write[4];
     testspeed++;
 
     writeCharacteristic(gattCommunicationChannelService, gattWriteCharacteristic, write, sizeof(write), QStringLiteral("forceSpeed"), false, true);
