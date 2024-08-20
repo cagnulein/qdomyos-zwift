@@ -306,7 +306,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                     CBAdvertisementDataServiceUUIDsKey: [FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
       } else {
-          let advertisementData = [CBAdvertisementDataLocalNameKey: "WattbikeAtom",
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
                                   CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
       }

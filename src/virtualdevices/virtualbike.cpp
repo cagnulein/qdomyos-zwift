@@ -1188,7 +1188,10 @@ void virtualbike::bikeProvider() {
                     value.append(seq);
                     value.append(0x03);
                     value.append(0xB6);
-                    value.append(0x03);
+                    int8_t g = ((bike*)Bike)->gears();
+                    if(g < 1)
+                        g = 1;
+                    value.append(g);
                     writeCharacteristic(serviceWattAtomBike, characteristic1, value);
                 }
             } else if (power) {
