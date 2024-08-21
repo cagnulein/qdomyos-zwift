@@ -138,10 +138,10 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
             FootCad = dictionary[1] as? Int ?? 0
             Power = dictionary[2] as? Int ?? 0
             Speed = dictionary[3] as? Double ?? 0
-            print("Garmin HR: \(HR)")
-            print("Garmin Foot Cadence: \(FootCad)")
-            print("Garmin Power: \(Power)")
-            print("Garmin Speed: \(Speed)")
+            SwiftDebug.qtDebug("Garmin HR: \(HR)")
+            SwiftDebug.qtDebug("Garmin Foot Cadence: \(FootCad)")
+            SwiftDebug.qtDebug("Garmin Power: \(Power)")
+            SwiftDebug.qtDebug("Garmin Speed: \(Speed)")
         }
     }
 
