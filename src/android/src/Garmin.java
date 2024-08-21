@@ -49,7 +49,7 @@ public class Garmin {
 
     private static Integer HR = 0;
     private static Integer FootCad = 0;
-    private static Double Speed = 0;
+    private static Double Speed = 0.0;
     private static Integer Power = 0;
 
     public static int getHR() {
