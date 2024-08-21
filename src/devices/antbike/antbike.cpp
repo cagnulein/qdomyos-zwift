@@ -35,18 +35,17 @@ void antbike::update() {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    if(h) {
-        Cadence = h->getFootCad();
-        m_watt = h->getPower();
-        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
-        if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            Speed = metric::calculateSpeedFromPower(
-                                                    m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
-                                                    speedLimit());
-        } else {
-            Speed = h->getSpeed();
+    lockscreen hh;
+    Cadence = hh.getFootCad();
+    m_watt = hh.getPower();
+    qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
+    if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+        Speed = metric::calculateSpeedFromPower(
+                                                m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
+                                                speedLimit());
+    } else {
+        Speed = hh.getSpeed();
         }
-    }
 #endif
 #endif
 
