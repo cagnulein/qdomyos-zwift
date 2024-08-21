@@ -752,8 +752,9 @@ const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordict
 const QString QZSettings::dircon_id = QStringLiteral("dircon_id");
 const QString QZSettings::proform_elliptical_ip = QStringLiteral("proform_elliptical_ip");
 const QString QZSettings::default_proform_elliptical_ip = QStringLiteral("");
+const QString QZSettings::antbike = QStringLiteral("antbike");
 
-const uint32_t allSettingsCount = 635;
+const uint32_t allSettingsCount = 636;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1395,6 +1396,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i},
     {QZSettings::dircon_id, QZSettings::default_dircon_id},
     {QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip},
+    {QZSettings::antbike, QZSettings::default_antbike},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

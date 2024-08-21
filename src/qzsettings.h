@@ -2105,6 +2105,9 @@ class QZSettings {
     static const QString proform_elliptical_ip;
     static const QString default_proform_elliptical_ip;
 
+    static const QString antbike;
+    static constexpr bool default_antbike = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

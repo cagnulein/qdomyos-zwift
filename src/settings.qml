@@ -963,6 +963,9 @@ import QtQuick.Dialogs 1.0
             property bool nordictrack_treadmill_exp_5i: false
             property int dircon_id: 0
             property string proform_elliptical_ip: ""
+
+            // from version 2.16.69
+            property bool antbike: false
         }
 
         function paddingZeros(text, limit) {
@@ -4918,6 +4921,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("You have to install the QZ Companion App on your Garmin Watch/Computer first.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Ant+ Bike Over Garmin Watch")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.antbike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.antbike = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Use your garmin watch to get the ANT+ metrics from a bike")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
