@@ -45,7 +45,7 @@ void antbike::update() {
                                                 speedLimit());
     } else {
         Speed = hh.getSpeed();
-        }
+    }
 #endif
 #endif
 

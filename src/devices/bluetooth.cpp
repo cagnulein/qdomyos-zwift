@@ -742,7 +742,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->stopDiscovery();
                 antBike = new antbike(noWriteResistance, noHeartService, false);
                 emit deviceConnected(b);
-                connect(proformWifiTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                connect(antBike, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
                 // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(antBike, &antbike::debug, this, &bluetooth::debug);
