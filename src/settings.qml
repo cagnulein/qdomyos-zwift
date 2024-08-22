@@ -966,6 +966,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.69
             property bool antbike: false
+            property bool domyosbike_notfmts: false
         }
 
         function paddingZeros(text, limit) {

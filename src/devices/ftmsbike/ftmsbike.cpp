@@ -793,6 +793,11 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
         }
     }
 
+    if(gattFTMSService == nullptr && DOMYOS) {
+        settings.setValue(QZSettings::domyosbike_notfmts, true);
+        homeform::singleton()->setToastRequested("Domyos bike presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
+    }
+
     if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
         settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool()) {
         init();

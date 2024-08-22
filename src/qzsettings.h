@@ -2108,6 +2108,9 @@ class QZSettings {
     static const QString antbike;
     static constexpr bool default_antbike = false;
 
+    static const QString domyosbike_notfmts;
+    static constexpr bool default_domyosbike_notfmts = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
