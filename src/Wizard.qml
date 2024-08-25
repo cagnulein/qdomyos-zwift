@@ -1210,11 +1210,11 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         from: settings.miles_unit ? 660 : 300  // 66.0 lbs or 30.0 kg
                         to: settings.miles_unit ? 4400 : 2000  // 440.0 lbs or 200.0 kg
-                        value: settings.weight * 10
+                        value: settings.miles_unit ? (settings.weight * 2.20462 * 10).toFixed(0) : (settings.weight * 10)
                         stepSize: 1
                         editable: true
 
-                        property real realValue: value / 10
+                        property real realValue: settings.miles_unit ? value / 22.0462 : value / 10
 
                         textFromValue: function(value, locale) {
                             return Number(value / 10).toLocaleString(locale, 'f', 1)
@@ -1222,6 +1222,10 @@ Page {
 
                         valueFromText: function(text, locale) {
                             return Number.fromLocaleString(locale, text) * 10
+                        }
+
+                        onValueChanged: {
+                            settings.weight = realValue
                         }
                     }
 
