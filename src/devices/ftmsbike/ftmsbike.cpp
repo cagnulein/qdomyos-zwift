@@ -359,7 +359,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+                     ((double)lastRefreshCharacteristicChanged2AD2.msecsTo(now)));
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
@@ -438,7 +438,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                        settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                       200.0) /
                      (60000.0 /
-                      ((double)lastRefreshCharacteristicChanged.msecsTo(
+                      ((double)lastRefreshCharacteristicChanged2AD2.msecsTo(
                           now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                             // kg * 3.5) / 200 ) / 60
 
@@ -471,6 +471,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         if (Flags.remainingTime) {
             // todo
         }
+
+        lastRefreshCharacteristicChanged2AD2 = now;
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE)) {
         union flags {
             struct {
@@ -532,7 +534,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             index += 3;
         } else {
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+                         ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(now)));
         }
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -627,7 +629,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                            settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                           200.0) /
                          (60000.0 /
-                          ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(
                               now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                 // kg * 3.5) / 200 ) / 60
         }
@@ -661,6 +663,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         if (Flags.remainingTime) {
             // todo
         }
+
+        lastRefreshCharacteristicChanged2ACE = now;
     } else {
         return;
     }
@@ -669,8 +673,6 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
-
-    lastRefreshCharacteristicChanged = now;
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
         (!heart || Heart.value() == 0 || disable_hr_frommachinery)) {
