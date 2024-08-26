@@ -142,7 +142,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         workoutInProgress = true;
         WorkoutTracking.lastDateMetric = Date()
         print("Start workout")
-        setSport(deviceType)
+        setSport(Int(deviceType))
         configWorkout()
         workoutBuilder.beginCollection(withStart: Date()) { (success, error) in
             print(success)
@@ -243,12 +243,12 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         print("GET DATA: \(Date())")
         
         if(workoutInProgress == false && power > 0) {
-            startWorkOut()
+            startWorkOut(deviceType: 2) // FORCING BIKE!!!!!
         } else if(workoutInProgress == false && power == 0) {
             return;
         }
 
-        speed = speed / 100;
+        let Speed = speed / 100;
         
         if(sport == 0) {
             if #available(watchOSApplicationExtension 10.0, *) {
@@ -294,7 +294,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 }
                 
                 let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
-                                                  doubleValue: (speed / 3.6))
+                                                  doubleValue: (Speed / 3.6))
                 
                 guard let speedType = HKQuantityType.quantityType(
                     forIdentifier: .cyclingSpeed) else {
@@ -337,7 +337,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 }
             
                 let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
-                                                doubleValue: speed * 0.277778)
+                                                doubleValue: Speed * 0.277778)
                 
                 guard let speedType = HKQuantityType.quantityType(
                     forIdentifier: .runningSpeed) else {
@@ -359,7 +359,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         } else if(sport == 2) {
             if #available(watchOSApplicationExtension 10.0, *) {
                 let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
-                                                doubleValue: speed * 0.277778)
+                                                doubleValue: Speed * 0.277778)
                 
                 guard let speedType = HKQuantityType.quantityType(
                     forIdentifier: .walkingSpeed) else {
