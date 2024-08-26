@@ -1,5 +1,6 @@
 #include "stagesbike.h"
 #include "virtualdevices/virtualbike.h"
+#include "homeform.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -73,7 +74,10 @@ void stagesbike::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(false, watts());
+        QSettings settings;
+        bool power_as_bike =
+            settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
+        update_metrics(false, watts(), !power_as_bike);
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
@@ -112,6 +116,12 @@ void stagesbike::update() {
 
 void stagesbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+    if(gatt == QBluetoothUuid((quint16)0x1826)) {
+        QSettings settings;
+        settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
+        qDebug() << "forcing FTMS bike since it has FTMS";
+        homeform::singleton()->setToastRequested("FTMS bike found, restart the app to apply the change!");
+    }
 }
 
 resistance_t stagesbike::pelotonToBikeResistance(int pelotonResistance) {

@@ -68,7 +68,7 @@ enum FtmsResultCode {
 class ftmsbike : public bike {
     Q_OBJECT
   public:
-    ftmsbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
+    ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
@@ -92,10 +92,13 @@ class ftmsbike : public bike {
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
-    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QByteArray lastPacketFromFTMS;
+    QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
+    QDateTime lastRefreshCharacteristicChanged2ACE = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
+    double lastGearValue = -1;
     int max_resistance = 100;
 
     bool initDone = false;
@@ -110,6 +113,11 @@ class ftmsbike : public bike {
     bool resistance_received = false;
 
     bool DU30_bike = false;
+    bool ICSE = false;
+    bool DOMYOS = false;
+    bool _3G_Cardio_RB = false;
+
+    uint8_t battery_level = 0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

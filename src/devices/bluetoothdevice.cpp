@@ -21,7 +21,7 @@ bluetoothdevice::~bluetoothdevice() {
 }
 
 bluetoothdevice::BLUETOOTH_TYPE bluetoothdevice::deviceType() { return bluetoothdevice::UNKNOWN; }
-void bluetoothdevice::start() { requestStart = 1; }
+void bluetoothdevice::start() { requestStart = 1; lastStart = QDateTime::currentMSecsSinceEpoch(); }
 void bluetoothdevice::stop(bool pause) {
     requestStop = 1;
     if (pause)
@@ -169,7 +169,7 @@ void bluetoothdevice::setVirtualDevice(virtualdevice *virtualDevice, VIRTUAL_DEV
 }
 
 // keiser m3i has a separate management of this, so please check it
-void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
+void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const bool from_accessory) {
 
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
@@ -186,6 +186,9 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
                 .startsWith(QStringLiteral("Disabled")) == false &&
         !power_as_bike && !power_as_treadmill)
         watt_calc = false;
+
+    if(deviceType() == bluetoothdevice::BIKE && !from_accessory)  // append only if it's coming from the bike, not from the power sensor
+        _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value());
 
     if (!_firstUpdate && !paused) {
         if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving, true).toBool()) {
@@ -256,8 +259,10 @@ void bluetoothdevice::update_hr_from_external() {
 #endif
 #endif
 #ifdef Q_OS_ANDROID
+    if (!settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/WearableController", "getHeart", "()I");
         qDebug() << "WearOS Companion Heart:" << Heart.value();
+    }
 #endif
     }
 }
@@ -277,6 +282,9 @@ void bluetoothdevice::clearStats() {
     WeightLoss.clear(false);
     WattKg.clear(false);
     Cadence.clear(false);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].clear(false);
+    }    
 }
 
 void bluetoothdevice::setPaused(bool p) {
@@ -294,6 +302,9 @@ void bluetoothdevice::setPaused(bool p) {
     WeightLoss.setPaused(p);
     WattKg.setPaused(p);
     Cadence.setPaused(p);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setPaused(p);
+    }    
 }
 
 void bluetoothdevice::setLap() {
@@ -310,6 +321,9 @@ void bluetoothdevice::setLap() {
     WeightLoss.setLap(false);
     WattKg.setLap(false);
     Cadence.setLap(false);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setLap(false);
+    }    
 }
 
 QStringList bluetoothdevice::metrics() {
@@ -457,4 +471,25 @@ void bluetoothdevice::setGPXFile(QString filename) {
         gpxBase64 = "data:@file/xml;base64," + asSaved.toBase64();
         input.close();
     }
+}
+
+void bluetoothdevice::setHeartZone(double hz) { 
+    HeartZone = hz;
+    if(isPaused() == false) {
+        hz = hz - 1;
+        if(hz >= maxHeartZone() ) {
+            hrZonesSeconds[maxHeartZone() - 1].setValue(hrZonesSeconds[maxHeartZone() - 1].value() + 1);
+        } else if(hz <= 0) {
+            hrZonesSeconds[0].setValue(hrZonesSeconds[0].value() + 1);
+        } else {
+            hrZonesSeconds[(int)hz].setValue(hrZonesSeconds[(int)hz].value() + 1);
+        }
+    }
+}
+
+uint32_t bluetoothdevice::secondsForHeartZone(uint8_t zone) {
+    if(zone < maxHeartZone()) {
+       return hrZonesSeconds[zone].value();
+    }
+    return 0;
 }

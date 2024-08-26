@@ -59,7 +59,9 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
     for (int i = 0; i < input.length(); i++) {
         int idx = PLAINTEXT_TABLE.indexOf(input.at(i));
         QSettings settings;
-        if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
+        if(KS_NACH_MXG)
+            encrypted.append(ENCRYPT_TABLE_v7[idx]);
+        else if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
             encrypted.append(ENCRYPT_TABLE_v2[idx]);
         else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3).toBool())
             encrypted.append(ENCRYPT_TABLE_v3[idx]);
@@ -68,7 +70,7 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
         else if (settings.value(QZSettings::kingsmith_encrypt_v5, QZSettings::default_kingsmith_encrypt_v5).toBool())
             encrypted.append(ENCRYPT_TABLE_v5[idx]);
         else if (settings.value(QZSettings::kingsmith_encrypt_g1_walking_pad, QZSettings::default_kingsmith_encrypt_g1_walking_pad).toBool())
-            encrypted.append(ENCRYPT_TABLE_v6[idx]);            
+            encrypted.append(ENCRYPT_TABLE_v6[idx]);
         else
             encrypted.append(ENCRYPT_TABLE[idx]);
     }
@@ -263,7 +265,9 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         }
         int idx;
         QSettings settings;
-        if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
+        if(KS_NACH_MXG)
+            idx = ENCRYPT_TABLE_v7.indexOf(ch);
+        else if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
             idx = ENCRYPT_TABLE_v2.indexOf(ch);
         else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3).toBool())
             idx = ENCRYPT_TABLE_v3.indexOf(ch);
@@ -411,7 +415,7 @@ void kingsmithr2treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     if (KS_NACH_X21C) {
         _gattWriteCharacteristicId = QBluetoothUuid(QStringLiteral("0002FED7-0000-1000-8000-00805f9b34fb"));
         _gattNotifyCharacteristicId = QBluetoothUuid(QStringLiteral("0002FED8-0000-1000-8000-00805f9b34fb"));
-    } else if (KS_NGCH_G1C) {
+    } else if (KS_NGCH_G1C || KS_NACH_MXG) {
         _gattWriteCharacteristicId = QBluetoothUuid(QStringLiteral("0001FED7-0000-1000-8000-00805f9b34fb"));
         _gattNotifyCharacteristicId = QBluetoothUuid(QStringLiteral("0001FED8-0000-1000-8000-00805f9b34fb"));
     }
@@ -467,7 +471,7 @@ void kingsmithr2treadmill::serviceScanDone(void) {
 
     if (KS_NACH_X21C)
         _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00021234-0000-1000-8000-00805f9b34fb"));
-    else if(KS_NGCH_G1C)
+    else if(KS_NGCH_G1C || KS_NACH_MXG)
         _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00011234-0000-1000-8000-00805f9b34fb"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
@@ -500,6 +504,9 @@ void kingsmithr2treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
         } else if (device.name().toUpper().startsWith(QStringLiteral("KS-NGCH-G1C"))) {
             qDebug() << "KS-NGCH-G1C workaround!";
             KS_NGCH_G1C = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("KS-NACH-MXG"))) {
+            qDebug() << "KS-NACH-MXG workaround!";
+            KS_NACH_MXG = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

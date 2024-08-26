@@ -1,7 +1,14 @@
 #include "virtualdevices/virtualtreadmill.h"
+#include <QThread>
 #include <QSettings>
 #include <QtMath>
 #include <chrono>
+
+#ifdef Q_OS_ANDROID
+#include "androidactivityresultreceiver.h"
+#include "keepawakehelper.h"
+#include <QAndroidJniObject>
+#endif
 
 using namespace std::chrono_literals;
 
@@ -232,8 +239,10 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         Q_ASSERT(leController);
         if (ftmsServiceEnable())
             serviceFTMS = leController->addService(serviceDataFTMS);
+        QThread::msleep(100); // give time to Android to add the service async.ly
         if (RSCEnable())
             serviceRSC = leController->addService(serviceDataRSC);
+        QThread::msleep(100); // give time to Android to add the service async.ly
         if (noHeartService == false) {
             serviceHR = leController->addService(serviceDataHR);
         }
@@ -249,7 +258,13 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             pars.setInterval(100, 100);
         }
 
+#ifdef Q_OS_ANDROID
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingTreadmill",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#else
         leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
+
         //! [Start Advertising]
 
         //! [Provide Heartbeat]
@@ -315,8 +330,10 @@ void virtualtreadmill::reconnect() {
     qDebug() << QStringLiteral("virtualtreadmill reconnect ") << treadMill->connected();
     if (ftmsServiceEnable())
         serviceFTMS = leController->addService(serviceDataFTMS);
+    QThread::msleep(100); // give time to Android to add the service async.ly
     if (RSCEnable())
         serviceRSC = leController->addService(serviceDataRSC);
+    QThread::msleep(100); // give time to Android to add the service async.ly
 
     if (noHeartService == false) {
         serviceHR = leController->addService(serviceDataHR);
@@ -326,7 +343,13 @@ void virtualtreadmill::reconnect() {
     pars.setInterval(100, 100);
 
     if (serviceFTMS || serviceRSC) {
-        leController->startAdvertising(QLowEnergyAdvertisingParameters(), advertisingData, advertisingData);
+#ifdef Q_OS_ANDROID
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingTreadmill",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#else
+        leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
+
     }
 }
 

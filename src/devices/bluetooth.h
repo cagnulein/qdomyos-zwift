@@ -21,6 +21,7 @@
 #include "qzsettings.h"
 
 #include "devices/activiotreadmill/activiotreadmill.h"
+#include "devices/antbike/antbike.h"
 #include "devices/apexbike/apexbike.h"
 #include "devices/bhfitnesselliptical/bhfitnesselliptical.h"
 #include "devices/bkoolbike/bkoolbike.h"
@@ -33,6 +34,7 @@
 #include "devices/csaferower/csaferower.h"
 #endif
 #include "devices/concept2skierg/concept2skierg.h"
+#include "devices/crossrope/crossrope.h"
 #include "devices/cscbike/cscbike.h"
 #include "devices/domyosbike/domyosbike.h"
 #include "devices/domyoselliptical/domyoselliptical.h"
@@ -75,6 +77,7 @@
 #include "devices/nautilustreadmill/nautilustreadmill.h"
 #include "devices/nordictrackelliptical/nordictrackelliptical.h"
 #include "devices/nordictrackifitadbbike/nordictrackifitadbbike.h"
+#include "devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h"
 #include "devices/nordictrackifitadbtreadmill/nordictrackifitadbtreadmill.h"
 #include "devices/npecablebike/npecablebike.h"
 #include "devices/octaneelliptical/octaneelliptical.h"
@@ -144,7 +147,7 @@ class bluetooth : public QObject, public SignalHandler {
     bluetooth(const discoveryoptions &options);
     explicit bluetooth(bool logs, const QString &deviceName = QLatin1String(""), bool noWriteResistance = false,
                        bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false,
-                       bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
+                       bool testResistance = false, int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
                        bool startDiscovery = true);
     ~bluetooth();
     bluetoothdevice *device();
@@ -158,11 +161,13 @@ class bluetooth : public QObject, public SignalHandler {
     bool useDiscovery = false;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
+    antbike *antBike = nullptr;
     apexbike *apexBike = nullptr;
     bkoolbike *bkoolBike = nullptr;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;
     bowflext216treadmill *bowflexT216Treadmill = nullptr;
+    crossrope *crossRope = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
     focustreadmill *focusTreadmill = nullptr;
 #ifndef Q_OS_IOS
@@ -191,6 +196,7 @@ class bluetooth : public QObject, public SignalHandler {
     nordictrackelliptical *nordictrackElliptical = nullptr;
     nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
     nordictrackifitadbbike *nordictrackifitadbBike = nullptr;
+    nordictrackifitadbelliptical *nordictrackifitadbElliptical = nullptr;
     octaneelliptical *octaneElliptical = nullptr;
     octanetreadmill *octaneTreadmill = nullptr;
     pelotonbike *pelotonBike = nullptr;
@@ -272,7 +278,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool noConsole = false;
     bool logs = true;
     uint32_t pollDeviceTime = 200;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bool forceHeartBeltOffForTimeout = false;
 

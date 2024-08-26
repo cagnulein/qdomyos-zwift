@@ -33,8 +33,9 @@ void faketreadmill::update() {
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     QDateTime now = QDateTime::currentDateTime();
+    float _watts = watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat());
 
-    update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
+    update_metrics(true, _watts);
 
     if (requestSpeed != -1) {
         Speed = requestSpeed;
@@ -47,6 +48,8 @@ void faketreadmill::update() {
         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
         requestInclination = -100;
     }
+
+    _ergTable.collectTreadmillData(Speed.value(), _watts, Inclination.value());
 
     cadenceFromAppleWatch();
 

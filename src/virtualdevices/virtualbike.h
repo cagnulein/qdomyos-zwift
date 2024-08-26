@@ -33,7 +33,7 @@ class virtualbike : public virtualdevice {
     Q_OBJECT
   public:
     virtualbike(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false,
-                uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
+                int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     bool connected() override;
     bool ftmsDeviceConnected() { return lastFTMSFrameReceived != 0 || lastDirconFTMSFrameReceived != 0; }
     qint64 whenLastFTMSFrameReceived() {
@@ -70,14 +70,16 @@ class virtualbike : public virtualdevice {
     qint64 lastDirconFTMSFrameReceived = 0;
 
     bool noHeartService = false;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     DirconManager *dirconManager = 0;
     int iFit_pelotonToBikeResistance(int pelotonResistance);
+    int iFit_resistanceToIfit(int ifitResistance);
     qint64 iFit_timer = 0;
     qint64 iFit_TSLastFrame = 0;
     QByteArray iFit_LastFrameReceived;
     resistance_t iFit_LastResistanceRequested = 0;
+    bool iFit_Stop = false;
 
     bool echelonInitDone = false;
     void echelonWriteResistance();

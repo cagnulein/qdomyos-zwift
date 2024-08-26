@@ -14,6 +14,8 @@ void bike::changeResistance(resistance_t resistance) {
     double zwift_erg_resistance_down =
         settings.value(QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down).toDouble();
 
+    qDebug() << QStringLiteral("bike::changeResistance") << autoResistanceEnable << resistance;
+
     lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
         double v = (resistance * m_difficult) + gears();
@@ -132,6 +134,9 @@ void bike::clearStats() {
     Cadence.clear(false);
     Resistance.clear(false);
     WattKg.clear(false);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].clear(false);
+    }    
 }
 
 void bike::setPaused(bool p) {
@@ -155,6 +160,9 @@ void bike::setPaused(bool p) {
     RequestedCadence.setPaused(p);
     RequestedPower.setPaused(p);
     WattKg.setPaused(p);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setPaused(p);
+    }    
 }
 
 void bike::setLap() {
@@ -178,6 +186,9 @@ void bike::setLap() {
     m_pelotonResistance.setLap(false);
     Cadence.setLap(false);
     Resistance.setLap(false);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setLap(false);
+    }    
 }
 
 uint8_t bike::metrics_override_heartrate() {

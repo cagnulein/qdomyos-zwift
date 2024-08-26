@@ -5,7 +5,7 @@
 #include <QSettings>
 #include <QObject>
 #include <QDebug>
-#include <QDateTime>>
+#include <QDateTime>
 #include "qzsettings.h"
 
 struct ergDataPoint {

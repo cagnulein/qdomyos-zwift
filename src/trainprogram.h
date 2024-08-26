@@ -15,6 +15,10 @@
 #include "zwift-api/PlayerStateWrapper.h"
 #include "zwift-api/zwift_client_auth.h"
 
+#ifdef Q_CC_MSVC
+#include "zwift-api/zwift_messages.pb.h"
+#endif
+
 class trainrow {
   public:
     QTime duration = QTime(0, 0, 0, 0);
@@ -72,7 +76,7 @@ class trainprogram : public QObject {
                  bool videoAvailable = false);
     void save(const QString &filename);
     static trainprogram *load(const QString &filename, bluetooth *b, QString Extension);
-    static QList<trainrow> loadXML(const QString &filename);
+    static QList<trainrow> loadXML(const QString &filename, bluetoothdevice::BLUETOOTH_TYPE device_type);
     static bool saveXML(const QString &filename, const QList<trainrow> &rows);
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
@@ -140,6 +144,7 @@ private slots:
     void zwiftLoginState(bool ok);
 
   private:
+    void end();
     mutable QRecursiveMutex schedulerMutex;
     double avgAzimuthNext300Meters();
     QList<MetersByInclination> inclinationNext300Meters();

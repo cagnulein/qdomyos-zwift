@@ -23,6 +23,7 @@ class elliptical : public bluetoothdevice {
     metric pelotonResistance();
     virtual int pelotonToEllipticalResistance(int pelotonResistance);
     virtual bool inclinationAvailableByHardware();
+    virtual bool inclinationSeparatedFromResistance();
     bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
     void clearStats() override;
     void setPaused(bool p) override;

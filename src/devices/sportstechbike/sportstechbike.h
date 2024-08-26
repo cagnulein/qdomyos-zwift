@@ -30,7 +30,8 @@
 class sportstechbike : public bike {
     Q_OBJECT
   public:
-    sportstechbike(bool noWriteResistance, bool noHeartService);
+    sportstechbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
+                   double bikeResistanceGain);
     bool connected() override;
     resistance_t maxResistance() override { return 24; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;    
@@ -56,6 +57,8 @@ class sportstechbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    int8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
 
     uint8_t firstVirtualBike = 0;
     bool firstCharChanged = true;

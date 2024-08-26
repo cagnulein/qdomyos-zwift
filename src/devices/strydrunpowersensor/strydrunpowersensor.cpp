@@ -327,6 +327,9 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         // Unit is in m/s with a resolution of 1/256
         uint16_t speedMs = (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(1)));
         double speed = (((double)speedMs) / 256.0) * 3.6; // km/h
+        bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
+        if(stryd_speed_instead_treadmill)
+            emit speedChanged(speed);
         double cadence = (uint8_t)newValue.at(3) * cadence_multiplier;
         if (newValue.length() >= 6 && InstantaneousStrideLengthPresent) {
             instantaneousStrideLengthCMAvailableFromDevice = true;
@@ -463,6 +466,8 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
     }
 
+    _ergTable.collectTreadmillData(Speed.value(), watts(), Inclination.value());
+
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
@@ -542,7 +547,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual treadmill/bike init *************************************
-    if (!firstStateChanged && !this->hasVirtualDevice()
+    if (!firstStateChanged && !this->hasVirtualDevice() && !noVirtualDevice
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
