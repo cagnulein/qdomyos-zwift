@@ -41,10 +41,13 @@ void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
+#ifndef Q_OS_IOS
     if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
                                                              QLowEnergyService::WriteWithoutResponse);
-    } else {
+    } else
+#endif
+    {
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
     }
 
