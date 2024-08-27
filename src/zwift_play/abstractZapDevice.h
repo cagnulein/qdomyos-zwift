@@ -4,9 +4,11 @@
 #include <QByteArray>
 #include <QString>
 #include <QDebug>
+#include <QSettings>
 //#include "localKeyProvider.h"
 //#include "zapCrypto.h"
 #include "zapConstants.h"
+#include "qzsettings.h"
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniObject>
 #include <QAndroidJniEnvironment>
@@ -35,7 +37,12 @@ public:
     int processCharacteristic(const QString& characteristicName, const QByteArray& bytes, ZWIFT_PLAY_TYPE zapType) {
         if (bytes.isEmpty()) return 0;
 
-        qDebug() << zapType << characteristicName << bytes.toHex() ;
+        QSettings settings;
+        bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
+
+        qDebug() << zapType << characteristicName << bytes.toHex() << gears_volume_debouncing << risingEdge;
+
+#define DEBOUNCE (!gears_volume_debouncing || !risingEdge)
 
 #ifdef Q_OS_ANDROID_ENCRYPTION
         QAndroidJniEnvironment env;
@@ -58,9 +65,15 @@ public:
             case 0x37:
                 if(bytes.length() == 5) {
                     if(bytes[2] == 0) {
-                        emit plus();
+                        if(DEBOUNCE)
+                            emit plus();
+                        risingEdge = true;
                     } else if(bytes[4] == 0) {
-                        emit minus();
+                        if(DEBOUNCE)
+                            emit minus();
+                        risingEdge = true;
+                    } else {
+                        risingEdge = false;
                     }
                 }
                 break;
@@ -70,16 +83,26 @@ public:
                         (((uint8_t)bytes[bytes.length() - 4]) == 0xc8 && zapType == LEFT)
                     ) && bytes[bytes.length() - 3] == 0x01) {
                     if(zapType == LEFT) {
-                        emit plus();
+                        if(DEBOUNCE)
+                            emit plus();
+                        risingEdge = true;
                     } else {
-                        emit minus();
+                        if(DEBOUNCE)
+                            emit minus();
+                        risingEdge = true;
                     }
                 } else if(bytes.length() > 14 && bytes[11] == 0x30 && bytes[12] == 0x00) {
                     if(zapType == LEFT) {
-                        emit plus();
+                        if(DEBOUNCE)
+                            emit plus();
+                        risingEdge = true;
                     } else {
-                        emit minus();
+                        if(DEBOUNCE)
+                            emit minus();
+                        risingEdge = true;
                     }
+                } else {
+                    risingEdge = false;
                 }
                 break;
             case 0x23: // zwift ride
@@ -88,20 +111,32 @@ public:
                         (((uint8_t)bytes[12]) == 0xc8 && zapType == LEFT))
                     ) {
                     if(zapType == LEFT) {
-                        emit plus();
+                        if(DEBOUNCE)
+                            emit plus();
+                        risingEdge = true;
                     } else {
-                        emit minus();
+                        if(DEBOUNCE)
+                            emit minus();
+                        risingEdge = true;
                     }
                 } else if(bytes.length() > 19 && ((uint8_t)bytes[18]) == 0xc8) {
-                    emit plus();
+                    if(DEBOUNCE)
+                        emit plus();
+                    risingEdge = true;
                 } else if(bytes.length() > 3 &&
                           ((((uint8_t)bytes[3]) == 0xdf) || // right top button
                           (((uint8_t)bytes[3]) == 0xbf))) { // right bottom button
-                    emit plus();
+                    if(DEBOUNCE)
+                        emit plus();
+                    risingEdge = true;
                 } else if(bytes.length() > 3 &&
                           ((((uint8_t)bytes[3]) == 0xfd) || // left top button
                           (((uint8_t)bytes[3]) == 0xfb))) { // left bottom button
-                    emit minus();
+                    if(DEBOUNCE)
+                        emit minus();
+                    risingEdge = true;
+                } else {
+                    risingEdge = false;
                 }
                 break;
 
@@ -148,6 +183,7 @@ protected:
 
 private:
     QByteArray devicePublicKeyBytes;
+    bool risingEdge = false;
 
 signals:
     void plus();
