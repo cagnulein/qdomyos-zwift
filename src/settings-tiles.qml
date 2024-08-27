@@ -193,6 +193,8 @@ ScrollView {
         property int  tile_erg_mode_order: 52
         property bool tile_rss_enabled: false
         property int  tile_rss_order: 53        
+        property bool tile_biggears_enabled: false
+        property int  tile_biggears_order: 54
     }
 
 
@@ -1607,6 +1609,48 @@ ScrollView {
 
         Label {
             text: qsTr("Allows you to change resistance while in Auto-Follow Mode.This tile allows you override the target resistance sent by third-party apps. For example, you would use the Gears Tile to increase resistance and generate more watts for sprinting in Zwift.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 9
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            title: qsTr("Gears Big Buttons")
+            linkedBoolSetting: "tile_biggears_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: biggearsOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_biggears_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = biggearsOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_biggears_order = biggearsOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("It shows 2 big gear buttons on the UI")
             font.bold: true
             font.italic: true
             font.pixelSize: 9

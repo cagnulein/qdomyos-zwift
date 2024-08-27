@@ -2114,6 +2114,13 @@ class QZSettings {
     static const QString gears_volume_debouncing;
     static constexpr bool default_gears_volume_debouncing = false;
 
+    static const QString tile_biggears_enabled;
+    static constexpr bool default_tile_biggears_enabled = false;
+
+    static const QString tile_biggears_order;
+    static constexpr int default_tile_biggears_order = 54;
+
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

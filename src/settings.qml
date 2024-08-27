@@ -970,6 +970,8 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.70
             property bool gears_volume_debouncing: false
+            property bool tile_biggears_enabled: false
+            property int  tile_biggears_order: 54
         }
 
         function paddingZeros(text, limit) {
