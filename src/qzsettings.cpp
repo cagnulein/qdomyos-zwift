@@ -754,8 +754,9 @@ const QString QZSettings::proform_elliptical_ip = QStringLiteral("proform_ellipt
 const QString QZSettings::default_proform_elliptical_ip = QStringLiteral("");
 const QString QZSettings::antbike = QStringLiteral("antbike");
 const QString QZSettings::domyosbike_notfmts = QStringLiteral("domyosbike_notfmts");
+const QString QZSettings::gears_volume_debouncing = QStringLiteral("gears_volume_debouncing");
 
-const uint32_t allSettingsCount = 637;
+const uint32_t allSettingsCount = 638;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1399,6 +1400,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip},
     {QZSettings::antbike, QZSettings::default_antbike},
     {QZSettings::domyosbike_notfmts, QZSettings::default_domyosbike_notfmts},
+    {QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

@@ -967,6 +967,9 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.69
             property bool antbike: false
             property bool domyosbike_notfmts: false
+
+            // from version 2.16.70
+            property bool gears_volume_debouncing: false
         }
 
         function paddingZeros(text, limit) {
@@ -8060,7 +8063,7 @@ import QtQuick.Dialogs 1.0
 
                     SwitchDelegate {
                         id: volumeChangeGearsDelegate
-                        text: qsTr("Volumes buttons change gears")
+                        text: qsTr("Volume buttons change gears")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -8075,6 +8078,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Allows you to change resistance during auto-follow mode using the volume buttons of the device running QZ, Bluetooth headphones or a Bluetooth remote. Changes made using these external controls will be visible in the Gears tile. This is a VERY USEFUL feature! Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Volume buttons debouncing")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.gears_volume_debouncing
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.gears_volume_debouncing = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("Debounce the volume buttons, so you will only see 1 gear step if there are 2 or more volume near steps.  Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9

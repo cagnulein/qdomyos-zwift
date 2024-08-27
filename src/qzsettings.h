@@ -2111,6 +2111,9 @@ class QZSettings {
     static const QString domyosbike_notfmts;
     static constexpr bool default_domyosbike_notfmts = false;
 
+    static const QString gears_volume_debouncing;
+    static constexpr bool default_gears_volume_debouncing = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
