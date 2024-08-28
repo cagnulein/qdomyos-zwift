@@ -2103,7 +2103,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(ultraSportBike, &solebike::debug, this, &bluetooth::debug);
                 ultraSportBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(ultraSportBike);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("KEEP_BIKE_"))) && !keepBike && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("KEEP_BIKE_")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("KEEP_CC_"))) && !keepBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 keepBike = new keepbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
