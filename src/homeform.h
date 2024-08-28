@@ -638,6 +638,8 @@ class homeform : public QObject {
     DataObject *strokesCount;
     DataObject *wattKg;
     DataObject *gears;
+    DataObject *biggearsPlus;
+    DataObject *biggearsMinus;
     DataObject *remaningTimeTrainingProgramCurrentRow;
     DataObject *nextRows;
     DataObject *mets;

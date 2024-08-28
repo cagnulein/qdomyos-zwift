@@ -755,8 +755,10 @@ const QString QZSettings::default_proform_elliptical_ip = QStringLiteral("");
 const QString QZSettings::antbike = QStringLiteral("antbike");
 const QString QZSettings::domyosbike_notfmts = QStringLiteral("domyosbike_notfmts");
 const QString QZSettings::gears_volume_debouncing = QStringLiteral("gears_volume_debouncing");
+const QString QZSettings::tile_biggears_enabled = QStringLiteral("tile_biggears_enabled");
+const QString QZSettings::tile_biggears_order = QStringLiteral("tile_biggears_order");
 
-const uint32_t allSettingsCount = 638;
+const uint32_t allSettingsCount = 640;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1401,6 +1403,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::antbike, QZSettings::default_antbike},
     {QZSettings::domyosbike_notfmts, QZSettings::default_domyosbike_notfmts},
     {QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing},
+    {QZSettings::tile_biggears_enabled, QZSettings::default_tile_biggears_enabled},
+    {QZSettings::tile_biggears_order, QZSettings::default_tile_biggears_order},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
