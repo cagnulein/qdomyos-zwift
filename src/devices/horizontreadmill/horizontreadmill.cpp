@@ -2087,6 +2087,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
+    QBluetoothUuid _gattInclinationSupported((quint16)0x2AD5);
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
@@ -2130,6 +2131,9 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     // some treadmills doesn't have the control point and also are Cross Trainer devices so i need
                     // anyway to get the FTMS Service at least
                     gattFTMSService = s;
+                } else if (c.uuid() == _gattInclinationSupported) {
+                    s->readCharacteristic(c);
+                    qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }
 
                 if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService &&
@@ -2245,6 +2249,17 @@ void horizontreadmill::characteristicWritten(const QLowEnergyCharacteristic &cha
 
 void horizontreadmill::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
+    QBluetoothUuid _gattInclinationSupported((quint16)0x2AD5);
+    if(characteristic.uuid() == _gattInclinationSupported && newValue.length() > 2) {
+        minInclination = ((double)(
+             (int16_t)(
+                 ((int16_t)(int8_t)newValue.at(1) << 8) |
+                 (uint8_t)newValue.at(0)
+                 )
+             ) /
+         10.0);
+        qDebug() << "new minInclination is " << minInclination;
+    }
 }
 
 void horizontreadmill::serviceScanDone(void) {
