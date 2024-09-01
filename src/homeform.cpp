@@ -1055,6 +1055,7 @@ void homeform::trainProgramSignals() {
 
         connect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         connect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
+        connect(trainProgram, &trainprogram::stop, this, &homeform::StopFromTrainProgram);
         connect(trainProgram, &trainprogram::lap, this, &homeform::Lap);
         connect(trainProgram, &trainprogram::toastRequest, this, &homeform::onToastRequested);
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
@@ -3733,6 +3734,10 @@ void homeform::StopRequested() {
     m_stopRequested = true;
     emit startRequestedChanged(m_startRequested);
     emit stopRequestedChanged(m_stopRequested);
+}
+
+void homeform::StopFromTrainProgram(bool paused) {
+    Stop();
 }
 
 void homeform::Stop() {

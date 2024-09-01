@@ -803,6 +803,7 @@ class homeform : public QObject {
   private slots:
     void Start();
     void Stop();
+    void StopFromTrainProgram(bool paused);
     void StartRequested();
     void StopRequested();
     void Lap();
