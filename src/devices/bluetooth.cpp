@@ -2375,7 +2375,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(heartRateBelt, &heartratebelt::debug, this, &bluetooth::debug);
                 connect(heartRateBelt, &heartratebelt::heartRate, this->device(), &bluetoothdevice::heartRate);
                 heartRateBelt->deviceDiscovered(b);
-
+                homeform::singleton()->setToastRequested(b.name() + " (HR sensor) connected!");
                 break;
             }
         }
@@ -2462,6 +2462,7 @@ void bluetooth::connectedAndDiscovered() {
                     connect(cadenceSensor, &bluetoothdevice::cadenceChanged, this->device(),
                             &bluetoothdevice::cadenceSensor);
                     cadenceSensor->deviceDiscovered(b);
+                    homeform::singleton()->setToastRequested(b.name() + " (cadence sensor) connected!");
                     break;
                 }
             }
@@ -2507,6 +2508,9 @@ void bluetooth::connectedAndDiscovered() {
                             &bluetoothdevice::verticalOscillationSensor);
                     powerSensorRun->deviceDiscovered(b);
                 }
+
+                homeform::singleton()->setToastRequested(b.name() + " (power sensor) connected!");
+
                 break;
             }
         }
