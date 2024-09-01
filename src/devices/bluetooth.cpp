@@ -1298,6 +1298,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("XT285")) ||
                         b.name().toUpper().startsWith(QStringLiteral("XTERRA TR")) ||
                         b.name().toUpper().startsWith(QStringLiteral("T118_")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("RUNN ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("EW-EP-")) ||                          // Miweba MC700 ellipital Trainer #2419
                         b.name().toUpper().startsWith(QStringLiteral("TF04-")) ||                           // Sport Synology Z5 Treadmill #2415
                         b.name().toUpper().startsWith(QStringLiteral("FIT-")) ||                            // FIT-1596
