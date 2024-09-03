@@ -2,6 +2,8 @@
 #define EVENTHANDLER_H
 
 #include <QDebug>
+#include <QFile>
+#include <QThread>
 
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
