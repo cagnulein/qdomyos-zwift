@@ -3493,6 +3493,7 @@ import QtQuick.Dialogs 1.0
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
                         color: Material.color(Material.Red)
+                        Layout.fillWidth: true
                     }
 
                     SwitchDelegate {
@@ -3841,7 +3842,7 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
-                            spacing: 10
+                            spacing: 0
                             SwitchDelegate {
                                 id: tilesIconsDelegate
                                 text: qsTr("Tiles Icons")
@@ -8388,7 +8389,7 @@ import QtQuick.Dialogs 1.0
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
-                    spacing: 10
+                    spacing: 0
 
                     AccordionElement {
                         id: cadenceSensorOptionsAccordion
@@ -8397,7 +8398,7 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
-                            spacing: 10
+                            spacing: 0
 
                             Label {
                                 id: cadenceSensorLabel
@@ -8409,6 +8410,7 @@ import QtQuick.Dialogs 1.0
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
                                 color: Material.color(Material.Red)
+                                Layout.fillWidth: true
                             }
 
                             SwitchDelegate {
@@ -8534,7 +8536,7 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
-                            spacing: 10
+                            spacing: 0
                             SwitchDelegate {
                                 id: powerSensorAsBikeDelegate
                                 text: qsTr("Power Sensor as a Bike")
@@ -8758,7 +8760,7 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
-                            spacing: 10
+                            spacing: 0
                             AccordionElement {
                                 id: eliteRizerOptionsAccordion
                                 title: qsTr("Elite Rizer Options")
@@ -8766,7 +8768,7 @@ import QtQuick.Dialogs 1.0
                                 textColor: Material.color(Material.Blue)
                                 color: Material.backgroundColor
                                 accordionContent: ColumnLayout {
-                                    spacing: 10
+                                    spacing: 0
                                     Label {
                                         id: labelEliteRizerName
                                         text: qsTr("Elite Rizer:")
@@ -8834,7 +8836,7 @@ import QtQuick.Dialogs 1.0
                                 textColor: Material.color(Material.Blue)
                                 color: Material.backgroundColor
                                 accordionContent: ColumnLayout {
-                                    spacing: 10
+                                    spacing: 0
                                     Label {
                                         id: labelEliteSterzoSmartName
                                         text: qsTr("Elite Sterzo Smart:")
@@ -8881,7 +8883,7 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
-                            spacing: 10
+                            spacing: 0
                             Label {
                                 id: labelFTMSAccessoryName
                                 text: qsTr("SmartSpin2k device:")
