@@ -5,7 +5,6 @@
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
 #include <unistd.h> // getuid
-#include <linux/input.h>
 #include "EventHandler.h"
 #endif
 #endif
