@@ -2132,7 +2132,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 soleBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(soleBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("BFCP")) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("HT")) && b.name().length() == 11)) &&
+                        (b.name().toUpper().startsWith(QStringLiteral("HT")) && (b.name().length() == 11 || b.name().length() == 12))) &&
                        !skandikaWiriBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
