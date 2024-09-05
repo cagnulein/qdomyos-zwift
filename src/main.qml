@@ -30,6 +30,7 @@ ApplicationWindow {
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
     signal strava_connect_clicked()
+    signal concept2log_connect_clicked()
     signal loadSettings(url name)
     signal saveSettings(url name)
     signal deleteSettings(url name)
@@ -721,6 +722,7 @@ ApplicationWindow {
                         popupSaveFile.open()
                     }
                 }
+
                 ItemDelegate {
                     id: fit_save
                     text: qsTr("Save FIT")
@@ -739,6 +741,7 @@ ApplicationWindow {
                         stackView.push("Wizard.qml")
                         drawer.close()
                     }
+
                 }
                 ItemDelegate {
                     id: help
@@ -749,6 +752,7 @@ ApplicationWindow {
                         drawer.close()
                     }
                 }
+
                 ItemDelegate {
                     id: community
                     text: qsTr("Community")
@@ -757,6 +761,7 @@ ApplicationWindow {
                         Qt.openUrlExternally("https://www.facebook.com/groups/149984563348738");
                         drawer.close()
                     }
+
                 }
                 ItemDelegate {
                     text: qsTr("Credits")
@@ -795,6 +800,16 @@ ApplicationWindow {
                     onClicked: {
                         stackView.push("WebStravaAuth.qml")
                         strava_connect_clicked()
+                        drawer.close()
+                    }
+                }
+
+                ItemDelegate {
+                    text: qsTr("Connect to Concept2 Log (Testing)")
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("WebConcept2LogAuth.qml")
+                        concept2log_connect_clicked()
                         drawer.close()
                     }
                 }

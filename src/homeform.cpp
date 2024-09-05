@@ -42,6 +42,29 @@
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
+#ifdef Q_OS_ANDROID
+
+#include <QAndroidJniEnvironment>
+#include <QtAndroid>
+#endif
+
+#if __has_include("secret.h")
+#include "secret.h"
+#else
+#define STRAVA_SECRET_KEY test
+#if defined(WIN32)
+#pragma message("DEFINE STRAVA_SECRET_KEY!!!")
+#else
+#warning "DEFINE STRAVA_SECRET_KEY!!!"
+#endif
+#define CONCEPT2LOG_SECRET_KEY test
+#if defined(WIN32)
+#pragma message("DEFINE CONCEPT2LOG_SECRET_KEY!!!")
+#else
+#warning "DEFINE CONCEPT2LOG_SECRET_KEY!!!"
+#endif
+#endif
+
 #ifndef STRAVA_CLIENT_ID
 #define STRAVA_CLIENT_ID 7976
 #if defined(WIN32)
@@ -53,6 +76,16 @@ using namespace std::chrono_literals;
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
 #define STRAVA_CLIENT_ID_S STRINGIFY(STRAVA_CLIENT_ID)
+
+#ifndef CONCEPT2LOG_CLIENT_ID
+#define CONCEPT2LOG_CLIENT_ID lz8lm0PbaphYM10GqgZjf5oEhp8dj9klr2yw6o52
+#if defined(WIN32)
+#pragma message("DEFINE CONCEPT2LOG_CLIENT_ID!!!")
+#else
+#warning "DEFINE CONCEPT2LOG_CLIENT_ID!!!"
+#endif
+#endif
+#define CONCEPT2LOG_CLIENT_ID_S STRINGIFY(CONCEPT2LOG_CLIENT_ID)
 
 DataObject::DataObject(const QString &name, const QString &icon, const QString &value, bool writable, const QString &id,
                        int valueFontSize, int labelFontSize, const QString &valueFontColor, const QString &secondLine,
@@ -502,6 +535,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
     QObject::connect(stack, SIGNAL(fit_save_clicked()), this, SLOT(fit_save_clicked()));
     QObject::connect(stack, SIGNAL(strava_connect_clicked()), this, SLOT(strava_connect_clicked()));
+    QObject::connect(stack, SIGNAL(concept2log_connect_clicked()), this, SLOT(concept2log_connect_clicked()));
     QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()), this,
                      SLOT(refresh_bluetooth_devices_clicked()));
     QObject::connect(home, SIGNAL(lap_clicked()), this, SLOT(Lap()));
@@ -3632,7 +3666,7 @@ void homeform::Start() { Start_inner(true); }
 void homeform::Start_inner(bool send_event_to_device) {
     QSettings settings;
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
-
+    
     m_overridePower = false;
 
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
@@ -3809,6 +3843,7 @@ void homeform::Stop() {
 
 void homeform::Lap() {
     qDebug() << QStringLiteral("lap pressed");
+    log_requested_workouts();
     if (bluetoothManager) {
         if (bluetoothManager->device()) {
 
@@ -5998,6 +6033,12 @@ void homeform::fit_save_clicked() {
                 emit stravaUploadRequestedChanged(true);
             }
         }
+
+        if (!settings.value(QZSettings::concept2log_accesstoken, QZSettings::default_concept2log_accesstoken)
+                 .toString()
+                 .isEmpty()) {
+            concept2log_upload_file("time", bluetoothManager->device()->odometer() == 0 ? 1 : bluetoothManager->device()->odometer(), abs(bluetoothManager->device()->elapsedTime().secsTo(QTime(0,0,0,0))));
+        }
     }
 }
 
@@ -6120,6 +6161,8 @@ QStringList homeform::bluetoothDevices() {
 }
 
 QStringList homeform::metrics() { return bluetoothdevice::metrics(); }
+
+// ******************************************************** STRAVA ***************************************************
 
 struct OAuth2Parameter {
     QString responseType = QStringLiteral("code");
@@ -6536,10 +6579,429 @@ void homeform::strava_connect_clicked() {
     connect(strava, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, this, &homeform::onStravaAuthorizeWithBrowser);
     connect(strava, &QOAuth2AuthorizationCodeFlow::granted, this, &homeform::onStravaGranted);
 
-    strava->grant();
+    if(strava)
+        strava->grant();
     // qDebug() <<
     // QAbstractOAuth2::post("https://www.strava.com/oauth/authorize?client_id=7976&scope=activity:read_all,activity:write&redirect_uri=http://127.0.0.1&response_type=code&approval_prompt=force");
 }
+
+// ******************************************************** END STRAVA ***************************************************
+
+// ******************************************************* CONCEPT2 LOG **************************************************
+
+void homeform::errorOccurredUploadConcept2log(QNetworkReply::NetworkError code) {
+    qDebug() << QStringLiteral("concept2 log upload error!") << code;
+    setToastRequested("Concept2 Log Upload Failed!");
+    emit toastRequestedChanged(toastRequested());
+}
+
+void homeform::writeFileCompletedConcept2log() {
+    qDebug() << QStringLiteral("concept2 log upload completed!");
+
+    QNetworkReply *reply = static_cast<QNetworkReply *>(QObject::sender());
+
+    QString response = reply->readAll();
+    // QString uploadError = QStringLiteral("invalid response or parser error");
+    // NOTE: clazy-unused-non-trivial-variable
+
+    qDebug() << "reply:" << response;
+
+    setToastRequested("Concept2 Log Upload Completed!");
+    emit toastRequestedChanged(toastRequested());
+
+}
+
+bool homeform::concept2log_upload_file(const QString& type, double distance, int time, int intervals) {
+    if (!bluetoothManager || !bluetoothManager->device() ||
+        bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING) {
+        return false;
+    }
+
+    concept2log_refreshtoken();
+    QSettings settings;
+    QString token = settings.value(QZSettings::concept2log_accesstoken).toString();
+    // The V3 API doc said "https://api.strava.com" but it is not working yet
+    QUrl url = QUrl(QStringLiteral("https://log-dev.concept2.com/api/users/me/results"));
+    QNetworkRequest request = QNetworkRequest(url);
+
+    // QString boundary = QString::number(qrand() * (90000000000) / (RAND_MAX + 1) + 10000000000, 16);
+    QString boundary = QVariant(QRandomGenerator::global()->generate()).toString() +
+                     QVariant(QRandomGenerator::global()->generate()).toString() +
+                     QVariant(QRandomGenerator::global()->generate()).toString(); // NOTE: qrand is deprecated
+
+
+    // this must be performed asynchronously and call made
+    // to notifyWriteCompleted(QString remotename, QString message) when done
+    if (managerConcept2log) {
+        delete managerConcept2log;
+        managerConcept2log = 0;
+    }
+    managerConcept2log = new QNetworkAccessManager(this);
+
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader(QByteArray("Authorization"), "Bearer " + token.toLatin1());
+
+    QJsonObject obj;
+    obj["type"] = "rower";
+    obj["date"] = QDateTime::currentDateTime().toString("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    obj["distance"] = distance * 1000.0;
+    obj["time"] = time * 10;
+    obj["weight_class"] = "H";
+    obj["stroke_rate"] = 100;
+
+    QJsonObject workout;
+    QJsonArray splits;
+
+    if (type == "time") {
+        workout["type"] = "FixedTimeSplits";
+        QJsonObject split;
+        split["type"] = "time";
+        split["time"] = time * 10;
+        split["distance"] = distance * 1000.0;
+        split["stroke_rate"] = 33;
+        splits.append(split);
+    } else if (type == "distance") {
+        workout["type"] = "FixedDistanceSplits";
+        QJsonObject split;
+        split["type"] = "distance";
+        split["distance"] = distance * 1000.0;
+        split["time"] = time * 10;
+        split["stroke_rate"] = 33;
+        splits.append(split);
+    } else if (type == "intervals") {
+        workout["type"] = "FixedTimeSplits";
+        workout["intervalType"] = "time";
+        workout["intervalCount"] = intervals;
+        int intervalTime = time / intervals;
+        for (int i = 0; i < intervals; ++i) {
+            QJsonObject split;
+            split["type"] = "time";
+            split["time"] = intervalTime * 10;
+            split["stroke_rate"] = 33;
+            split["distance"] = (distance * 1000.0) / intervals; // Assuming equal distance per interval
+            splits.append(split);
+        }
+    }
+    
+    workout["splits"] = splits;
+    obj["workout"] = workout;
+  
+    QJsonDocument doc(obj);
+    QByteArray data = doc.toJson(QJsonDocument::Compact);
+    qDebug() << "Uploading workout:" << data;
+
+    replyConcept2log = managerConcept2log->post(request, data);
+    connect(replyConcept2log, &QNetworkReply::finished, this, &homeform::writeFileCompletedConcept2log);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+    connect(replyConcept2log, &QNetworkReply::errorOccurred, this, &homeform::errorOccurredUploadConcept2log);
+#endif
+
+    return true;
+}
+
+// used to validate concept2 log
+static int concept2_log_example = 0;
+void homeform::log_requested_workouts() {
+    switch (concept2_log_example) {
+        case 0:
+            // 1 minute fixed time
+            concept2log_upload_file("time", 0.1, 60);
+            break;
+        case 1:
+            // 200m fixed distance
+            concept2log_upload_file("distance", 0.2, 60);
+            break;
+
+        default:
+            // Short interval workout with at least 2 intervals (assuming 30 seconds each)
+            concept2log_upload_file("intervals", 0.1, 120, 3);
+            break;
+    }
+    concept2_log_example++;
+    if(concept2_log_example > 2)
+        concept2_log_example = 0;
+    
+}
+
+
+QAbstractOAuth::ModifyParametersFunction
+homeform::buildModifyParametersFunctionConcept2log(const QUrl &clientIdentifier, const QUrl &clientIdentifierSharedKey) {
+    return [clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
+        if (stage == QAbstractOAuth::Stage::RequestingAuthorization) {
+            parameters->insert(QStringLiteral("responseType"), QStringLiteral("code")); /* Request refresh token*/
+            QByteArray code = parameters->value(QStringLiteral("code")).toByteArray();
+            // DON'T TOUCH THIS LINE, THANKS Roberto Viola
+            (*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code); // NOTE: Old code replaced by
+        }
+        if (stage == QAbstractOAuth::Stage::RefreshingAccessToken) {
+            parameters->insert(QStringLiteral("client_id"), clientIdentifier);
+            parameters->insert(QStringLiteral("client_secret"), clientIdentifierSharedKey);
+        }
+    };
+}
+
+void homeform::concept2log_refreshtoken() {
+
+    QSettings settings;
+    // QUrlQuery params; //NOTE: clazy-unuse-non-tirial-variable
+
+    if (settings.value(QZSettings::concept2log_refreshtoken).toString().isEmpty()) {
+
+        concept2log_connect();
+        return;
+    }
+
+    QNetworkRequest request(QUrl(QStringLiteral("https://log-dev.concept2.com/oauth/access_token?")));
+    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    // set params
+    QString data;
+    data += QStringLiteral("client_id=" CONCEPT2LOG_CLIENT_ID_S);
+#ifdef CONCEPT2LOG_SECRET_KEY
+    data += "&client_secret=";
+    data += STRINGIFY(CONCEPT2LOG_SECRET_KEY);
+#endif
+    data += QStringLiteral("&refresh_token=") + settings.value(QZSettings::concept2log_refreshtoken).toString();
+    data += QStringLiteral("&grant_type=refresh_token");
+    data += QStringLiteral("&scope=results:write");
+
+    // make request
+    if (managerConcept2log) {
+
+        delete managerConcept2log;
+        managerConcept2log = nullptr;
+    }
+    managerConcept2log = new QNetworkAccessManager(this);
+    qDebug() << data;
+    QNetworkReply *reply = managerConcept2log->post(request, data.toLatin1());
+
+    // blocking request
+    QEventLoop loop;
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qDebug() << QStringLiteral("HTTP response code: ") << statusCode;
+
+    // oops, no dice
+    if (reply->error() != 0) {
+        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        setToastRequested("Concept2 Log Auth Failed!");
+        emit toastRequestedChanged(toastRequested());
+        return;
+    }
+
+    // lets extract the access token, and possibly a new refresh token
+    QByteArray r = reply->readAll();
+    qDebug() << QStringLiteral("Got response:") << r.data();
+
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(r, &parseError);
+
+    // failed to parse result !?
+    if (parseError.error != QJsonParseError::NoError) {
+        qDebug() << tr("JSON parser error") << parseError.errorString();
+    }
+
+    QString access_token = document[QStringLiteral("access_token")].toString();
+    QString refresh_token = document[QStringLiteral("refresh_token")].toString();
+
+    settings.setValue(QZSettings::concept2log_accesstoken, access_token);
+    settings.setValue(QZSettings::concept2log_refreshtoken, refresh_token);
+    settings.setValue(QZSettings::concept2log_lastrefresh, QDateTime::currentDateTime());
+
+    setToastRequested("Concept2 Log Login OK!");
+    emit toastRequestedChanged(toastRequested());
+}
+
+
+void homeform::onConcept2logGranted() {
+
+    concept2logAuthWebVisible = false;
+    concept2logWebVisibleChanged(concept2logAuthWebVisible);
+    QSettings settings;
+    settings.setValue(QZSettings::concept2log_accesstoken, concept2log->token());
+    settings.setValue(QZSettings::concept2log_refreshtoken, concept2log->refreshToken());
+    settings.setValue(QZSettings::concept2log_lastrefresh, QDateTime::currentDateTime());
+    qDebug() << QStringLiteral("concept2log authenticathed") << concept2log->token() << concept2log->refreshToken();
+    concept2log_refreshtoken();
+    setGeneralPopupVisible(true);
+}
+
+void homeform::onConcept2logAuthorizeWithBrowser(const QUrl &url) {
+
+    // ui->textBrowser->append(tr("Open with browser:") + url.toString());
+    QSettings settings;
+    bool strava_auth_external_webbrowser =
+        settings.value(QZSettings::strava_auth_external_webbrowser, QZSettings::default_strava_auth_external_webbrowser)
+            .toBool();
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+    strava_auth_external_webbrowser = true;
+#endif
+    concept2logAuthUrl = url.toString();
+    qDebug() << getConcept2logAuthUrl();
+    emit concept2logAuthUrlChanged(getConcept2logAuthUrl());
+
+    if (strava_auth_external_webbrowser)
+        QDesktopServices::openUrl(url);
+    else {
+        concept2logAuthWebVisible = true;
+        concept2logWebVisibleChanged(concept2logAuthWebVisible);
+    }
+}
+
+
+void homeform::onSslErrorsConcept2log(QNetworkReply *reply, const QList<QSslError> &error) {
+
+    reply->ignoreSslErrors();
+    qDebug() << QStringLiteral("homeform::onSslErrors") << error;
+}
+
+void homeform::networkRequestFinishedConcept2log(QNetworkReply *reply) {
+
+    QSettings settings;
+
+    // we can handle SSL handshake errors, if we got here then some kind of protocol was agreed
+    if (reply->error() == QNetworkReply::NoError || reply->error() == QNetworkReply::SslHandshakeFailedError) {
+
+        QByteArray payload = reply->readAll(); // JSON
+        QString refresh_token;
+        QString access_token;
+
+        // parse the response and extract the tokens, pretty much the same for all services
+        // although polar choose to also pass a user id, which is needed for future calls
+        QJsonParseError parseError;
+        QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
+        if (parseError.error == QJsonParseError::NoError) {
+            refresh_token = document[QStringLiteral("refresh_token")].toString();
+            access_token = document[QStringLiteral("access_token")].toString();
+        }
+
+        settings.setValue(QZSettings::concept2log_accesstoken, access_token);
+        settings.setValue(QZSettings::concept2log_refreshtoken, refresh_token);
+        settings.setValue(QZSettings::concept2log_lastrefresh, QDateTime::currentDateTime());
+
+        qDebug() << access_token << refresh_token;
+
+    } else {
+
+        // general error getting response
+        QString error =
+            QString(tr("Error retrieving access token, %1 (%2)")).arg(reply->errorString()).arg(reply->error());
+        qDebug() << error << reply->url() << reply->readAll();
+    }
+}
+
+void homeform::replyDataReceivedConcept2log(const QByteArray &v) {
+
+    qDebug() << v;
+
+    QByteArray data;
+    QSettings settings;
+    QString s(v);
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(s.toUtf8());
+    settings.setValue(QZSettings::concept2log_accesstoken, jsonResponse[QStringLiteral("access_token")]);
+    settings.setValue(QZSettings::concept2log_refreshtoken, jsonResponse[QStringLiteral("refresh_token")]);
+    settings.setValue(QZSettings::concept2log_expires, jsonResponse[QStringLiteral("expires_in")]);
+
+    qDebug() << jsonResponse[QStringLiteral("access_token")] << jsonResponse[QStringLiteral("refresh_token")]
+             << jsonResponse[QStringLiteral("expires_in")];
+
+    QString urlstr = QStringLiteral("https://log-dev.concept2.com/oauth/access_token?");
+    QUrlQuery params;
+    params.addQueryItem(QStringLiteral("client_id"), QStringLiteral(CONCEPT2LOG_CLIENT_ID_S));
+#ifdef CONCEPT2LOG_SECRET_KEY
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+    params.addQueryItem("client_secret", STRINGIFY(CONCEPT2LOG_SECRET_KEY));
+#endif
+
+    params.addQueryItem(QStringLiteral("code"), concept2log_code);
+    data.append(params.query(QUrl::FullyEncoded).toUtf8());
+
+    // trade-in the temporary access code retrieved by the Call-Back URL for the finale token
+    QUrl url = QUrl(urlstr);
+
+    QNetworkRequest request = QNetworkRequest(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
+
+    // now get the final token - but ignore errors
+    if (managerConcept2log) {
+
+        delete managerConcept2log;
+        managerConcept2log = 0;
+    }
+    managerConcept2log = new QNetworkAccessManager(this);
+    // connect(manager, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> & )), this,
+    // SLOT(onSslErrors(QNetworkReply*, const QList<QSslError> & ))); connect(manager,
+    // SIGNAL(finished(QNetworkReply*)), this, SLOT(networkRequestFinished(QNetworkReply*)));
+    managerConcept2log->post(request, data);
+}
+
+void homeform::callbackReceivedConcept2log(const QVariantMap &values) {
+    qDebug() << QStringLiteral("homeform::callbackReceivedConcept2Log") << values;
+    if (!values.value(QZSettings::code).toString().isEmpty()) {
+        concept2log_code = values.value(QZSettings::code).toString();
+
+        qDebug() << concept2log_code;
+    }
+}
+
+QOAuth2AuthorizationCodeFlow *homeform::concept2log_connect() {
+    if (managerConcept2log) {
+
+        delete managerConcept2log;
+        managerConcept2log = nullptr;
+    }
+    if (concept2log) {
+
+        delete concept2log;
+        concept2log = nullptr;
+    }
+    if (concept2logReplyHandler) {
+
+        delete concept2logReplyHandler;
+        concept2logReplyHandler = nullptr;
+    }
+    managerConcept2log = new QNetworkAccessManager(this);
+    OAuth2Parameter parameter;
+    concept2log = new QOAuth2AuthorizationCodeFlow(managerConcept2log, this);
+    concept2log->setScope(QStringLiteral("results:write"));
+    concept2log->setClientIdentifier(QStringLiteral(CONCEPT2LOG_CLIENT_ID_S));
+    concept2log->setAuthorizationUrl(QUrl(QStringLiteral("https://log-dev.concept2.com/oauth/authorize")));
+    concept2log->setAccessTokenUrl(QUrl(QStringLiteral("https://log-dev.concept2.com/oauth/access_token")));
+#ifdef CONCEPT2LOG_SECRET_KEY
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+    concept2log->setClientIdentifierSharedKey(STRINGIFY(CONCEPT2LOG_SECRET_KEY));
+#elif defined(WIN32)
+#pragma message("DEFINE CONCEPT2LOG_SECRET_KEY!!!")
+#else
+#warning "DEFINE CONCEPT2LOG_SECRET_KEY!!!"
+#endif
+    concept2log->setModifyParametersFunction(
+            buildModifyParametersFunctionConcept2log(QUrl(QLatin1String("")), QUrl(QLatin1String(""))));
+    concept2logReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 8091, this);
+    connect(concept2logReplyHandler, &QOAuthHttpServerReplyHandler::replyDataReceived, this, &homeform::replyDataReceivedConcept2log);
+    connect(concept2logReplyHandler, &QOAuthHttpServerReplyHandler::callbackReceived, this, &homeform::callbackReceivedConcept2log);
+
+    concept2log->setReplyHandler(concept2logReplyHandler);
+
+    return concept2log;
+}
+
+void homeform::concept2log_connect_clicked() {
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
+
+    concept2log_connect();
+    connect(concept2log, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, this, &homeform::onConcept2logAuthorizeWithBrowser);
+    connect(concept2log, &QOAuth2AuthorizationCodeFlow::granted, this, &homeform::onConcept2logGranted);
+
+    if(concept2log)
+        concept2log->grant();
+}
+
+// ************************************************** END CONCEPT2 LOG ***************************************************
 
 bool homeform::generalPopupVisible() { return m_generalPopupVisible; }
 

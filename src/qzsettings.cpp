@@ -644,6 +644,16 @@ const QString QZSettings::fit_file_saved_on_quit = QStringLiteral("fit_file_save
 const QString QZSettings::gem_module_inclination = QStringLiteral("gem_module_inclination");
 const QString QZSettings::treadmill_simulate_inclination_with_speed =
     QStringLiteral("treadmill_simulate_inclination_with_speed");
+const QString QZSettings::concept2log_accesstoken = QStringLiteral("concept2log_accesstoken");
+const QString QZSettings::default_concept2log_accesstoken = QStringLiteral("");
+const QString QZSettings::concept2log_refreshtoken = QStringLiteral("concept2log_refreshtoken");
+const QString QZSettings::default_concept2log_refreshtoken = QStringLiteral("");
+const QString QZSettings::concept2log_lastrefresh = QStringLiteral("concept2log_lastrefresh");
+const QString QZSettings::default_concept2log_lastrefresh = QStringLiteral("");
+const QString QZSettings::concept2log_expires = QStringLiteral("concept2log_expires");
+const QString QZSettings::default_concept2log_expires = QStringLiteral("");
+const QString QZSettings::concept2log_code = QStringLiteral("concept2log_code");
+const QString QZSettings::default_concept2log_code = QStringLiteral("");
 const QString QZSettings::garmin_companion = QStringLiteral("garmin_companion");
 const QString QZSettings::iconcept_elliptical = QStringLiteral("iconcept_elliptical");
 const QString QZSettings::gears_gain = QStringLiteral("gears_gain");
@@ -1302,6 +1312,11 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::gem_module_inclination, QZSettings::default_gem_module_inclination},
     {QZSettings::treadmill_simulate_inclination_with_speed,
      QZSettings::default_treadmill_simulate_inclination_with_speed},
+    {QZSettings::concept2log_accesstoken, QZSettings::default_concept2log_accesstoken},
+    {QZSettings::concept2log_refreshtoken, QZSettings::default_concept2log_refreshtoken},
+    {QZSettings::concept2log_lastrefresh, QZSettings::default_concept2log_lastrefresh},
+    {QZSettings::concept2log_expires, QZSettings::default_concept2log_expires},
+    {QZSettings::concept2log_code, QZSettings::default_concept2log_code},
     {QZSettings::garmin_companion, QZSettings::default_garmin_companion},
     {QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr},
     {QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical},
