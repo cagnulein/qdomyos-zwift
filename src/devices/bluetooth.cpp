@@ -167,10 +167,14 @@ void bluetooth::finished() {
     bool fitmetriaFanfitFound =
         !settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool();
 
+    bool zwiftDeviceFound =
+        !settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool() && !settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool();
+
     if ((!heartRateBeltFound && !heartRateBeltAvaiable()) || (!ftmsAccessoryFound && !ftmsAccessoryAvaiable()) ||
         (!cscFound && !cscSensorAvaiable()) || (!powerSensorFound && !powerSensorAvaiable()) ||
         (!eliteRizerFound && !eliteRizerAvaiable()) || (!eliteSterzoSmartFound && !eliteSterzoSmartAvaiable()) ||
-        (!fitmetriaFanfitFound && !fitmetriaFanfitAvaiable())) {
+        (!fitmetriaFanfitFound && !fitmetriaFanfitAvaiable()) ||
+        (!zwiftDeviceFound && !zwiftDeviceAvaiable())) {
 
         // force heartRateBelt off
         forceHeartBeltOffForTimeout = true;
@@ -277,6 +281,20 @@ bool bluetooth::fitmetriaFanfitAvaiable() {
     return false;
 }
 
+bool bluetooth::zwiftDeviceAvaiable() {
+
+    uint8_t count = 0;
+    Q_FOREACH (QBluetoothDeviceInfo b, devices) {
+        if (b.name().toUpper().startsWith("ZWIFT ")) {
+            count++;
+            if(count >= 2)
+                return true;
+        }
+    }
+    return false;
+}
+
+
 bool bluetooth::powerSensorAvaiable() {
 
     QSettings settings;
@@ -374,6 +392,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name).toString();
     bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
+    bool zwiftDeviceFound =
+        !settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool() && !settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool();
     bool fitmetriaFanfitFound =
         !settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool();
     bool toorx_ftms = settings.value(QZSettings::toorx_ftms, QZSettings::default_toorx_ftms).toBool();
@@ -463,6 +483,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if (!fitmetriaFanfitFound) {
 
         fitmetriaFanfitFound = fitmetriaFanfitAvaiable();
+    }
+    if (!zwiftDeviceFound) {
+
+        zwiftDeviceFound = zwiftDeviceAvaiable();
     }
     if (!ftmsAccessoryFound) {
 
@@ -595,7 +619,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #endif
 
     bool searchDevices = (heartRateBeltFound && ftmsAccessoryFound && cscFound && powerSensorFound && eliteRizerFound &&
-                          eliteSterzoSmartFound && fitmetriaFanfitFound) ||
+                          eliteSterzoSmartFound && fitmetriaFanfitFound && zwiftDeviceFound) ||
                          forceHeartBeltOffForTimeout;
 
     if (searchDevices) {

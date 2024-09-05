@@ -303,6 +303,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool eliteRizerAvaiable();
     bool eliteSterzoSmartAvaiable();
     bool fitmetriaFanfitAvaiable();
+    bool zwiftDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
 #ifdef Q_OS_WIN
