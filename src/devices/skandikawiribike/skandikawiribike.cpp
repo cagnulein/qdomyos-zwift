@@ -432,6 +432,7 @@ void skandikawiribike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 qDebug() << "X-2000 WORKAROUND!";
             } else if (device.name().length() == 12) // Bikes compatible with delightech app/protocol, for example Skandika Morpheus
             {
+                qDebug() << "deligthechbike WORKAROUND!";
                 delightechBike = true; 
             }
         }
