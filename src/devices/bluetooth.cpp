@@ -1102,7 +1102,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (b.name().startsWith(QStringLiteral("Domyos")) &&
                        !b.name().startsWith(QStringLiteral("DomyosBr")) &&
                        !b.name().toUpper().startsWith(QStringLiteral("DOMYOS-BIKING-")) && !domyos && !domyosElliptical && b.name().compare(ftms_treadmill, Qt::CaseInsensitive) &&
-                       !domyosBike && !domyosRower && !ftmsBike && !horizonTreadmill && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && filter) {
+                       !domyosBike && !domyosRower && !ftmsBike && !horizonTreadmill &&
+                       (!deviceHasService(b, QBluetoothUuid((quint16)0x1826)) || settings.value(QZSettings::domyostreadmill_notfmts, QZSettings::default_domyostreadmill_notfmts).toBool()) &&
+                       filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -1317,7 +1319,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                           (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")))) &&
                          !toorx_ftms && toorx_ftms_treadmill) ||
                         !b.name().compare(ftms_treadmill, Qt::CaseInsensitive) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("DOMYOS-TC")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("DOMYOS-TC")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && !settings.value(QZSettings::domyostreadmill_notfmts, QZSettings::default_domyostreadmill_notfmts).toBool()) ||
                         b.name().toUpper().startsWith(QStringLiteral("XT685")) ||
                         b.name().toUpper().startsWith(QStringLiteral("XT285")) ||
                         b.name().toUpper().startsWith(QStringLiteral("XTERRA TR")) ||

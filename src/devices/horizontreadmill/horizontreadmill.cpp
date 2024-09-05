@@ -1,5 +1,5 @@
 #include "horizontreadmill.h"
-
+#include "homeform.h"
 #include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
 #include "virtualdevices/virtualtreadmill.h"
@@ -2088,10 +2088,18 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
     QBluetoothUuid _gattInclinationSupported((quint16)0x2AD5);
+    QBluetoothUuid _DomyosServiceId(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
+
+        if(s->serviceUuid() == _DomyosServiceId && DOMYOS) {
+            settings.setValue(QZSettings::domyostreadmill_notfmts, true);
+            homeform::singleton()->setToastRequested("Domyos Treadmill presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
+            return;
+        }
+
         if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
@@ -2343,6 +2351,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("T01_")) {
             ICONCEPT_FTMS_treadmill = true;
             qDebug() << QStringLiteral("ICONCEPT_FTMS_treadmill workaround ON!");
+        } else if ((device.name().toUpper().startsWith("DOMYOS"))) {
+            qDebug() << QStringLiteral("DOMYOS found");
+            DOMYOS = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {

@@ -972,6 +972,7 @@ import QtQuick.Dialogs 1.0
             property bool gears_volume_debouncing: false
             property bool tile_biggears_enabled: false
             property int  tile_biggears_order: 54
+            property bool domyostreadmill_notfmts: false
         }
 
         function paddingZeros(text, limit) {

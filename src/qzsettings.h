@@ -2120,6 +2120,8 @@ class QZSettings {
     static const QString tile_biggears_order;
     static constexpr int default_tile_biggears_order = 54;
 
+    static const QString domyostreadmill_notfmts;
+    static constexpr bool default_domyostreadmill_notfmts = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
