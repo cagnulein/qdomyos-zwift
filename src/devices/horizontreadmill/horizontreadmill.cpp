@@ -2096,6 +2096,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
         if(s->serviceUuid() == _DomyosServiceId && DOMYOS) {
             settings.setValue(QZSettings::domyostreadmill_notfmts, true);
+            settings.sync();
             homeform::singleton()->setToastRequested("Domyos Treadmill presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
             return;
         }
