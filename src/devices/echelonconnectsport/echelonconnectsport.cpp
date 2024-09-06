@@ -1,4 +1,5 @@
 #include "echelonconnectsport.h"
+#include "homeform.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -469,7 +470,12 @@ void echelonconnectsport::serviceScanDone(void) {
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
             &echelonconnectsport::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if(gattCommunicationChannelService != nullptr) {
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        homeform::singleton()->setToastRequested("Bluetooth Service Error! Restart the bike!");
+        m_control->disconnectFromDevice();
+    }
 }
 
 void echelonconnectsport::errorService(QLowEnergyService::ServiceError err) {
