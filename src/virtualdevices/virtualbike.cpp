@@ -439,6 +439,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                 if (!cadence && !power) {
                     QObject::connect(serviceFIT, &QLowEnergyService::characteristicChanged, this,
                                      &virtualbike::characteristicChanged);
+                    QObject::connect(serviceWattAtomBike, &QLowEnergyService::characteristicChanged, this,
+                                     &virtualbike::characteristicChanged);
                 } else {
                     QObject::connect(service, &QLowEnergyService::characteristicChanged, this,
                                      &virtualbike::characteristicChanged);
