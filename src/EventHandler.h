@@ -8,7 +8,7 @@
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
 #include <linux/input.h>
-#include "bluetooth."
+#include "bluetooth.h"
 
 class EventHandler : public QObject
 {
