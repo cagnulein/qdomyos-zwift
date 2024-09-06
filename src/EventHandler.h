@@ -8,6 +8,7 @@
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
 #include <linux/input.h>
+#include "bluetooth."
 
 class EventHandler : public QObject
 {
@@ -67,8 +68,9 @@ class BluetoothHandler : public QObject
     Q_OBJECT
 
   public:
-    BluetoothHandler(QObject* parent = nullptr) : QObject(parent)
+    BluetoothHandler(bluetooth* bl, QObject* parent = nullptr) : QObject(parent)
     {
+        m_bluetooth = bl;
         m_thread = new QThread(this);
         m_handler = new EventHandler("/dev/input/event2"); // Adjust this path as needed
         m_handler->moveToThread(m_thread);
@@ -91,8 +93,12 @@ class BluetoothHandler : public QObject
     void onKeyPressed(int keyCode)
     {
         qDebug() << "Key pressed:" << keyCode;
-        // Handle the key press event here
-        // For example, you could emit a signal or call a function to change the volume
+        if(m_bluetooth && m_bluetooth->device() && m_bluetooth->device()->deviceType() == BLUETOOTH_TYPE::BIKE) {
+            if(keyCode == 115) // up
+                ((bike*)m_bluetooth->device())->setGears(((bike*)m_bluetooth->device())->gears() + 1);
+            else if(keyCode == 114) // down
+                ((bike*)m_bluetooth->device())->setGears(((bike*)m_bluetooth->device())->gears() - 1);
+        }
     }
 
     void onError(const QString& errorMessage)
@@ -103,6 +109,7 @@ class BluetoothHandler : public QObject
   private:
     QThread* m_thread;
     EventHandler* m_handler;
+    bluetooth* m_bluetooth = 0;
 };
 #endif
 #endif
