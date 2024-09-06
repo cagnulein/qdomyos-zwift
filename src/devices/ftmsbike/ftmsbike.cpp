@@ -861,13 +861,19 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             for(int i=0; i<b.length(); i++)
                 lastPacketFromFTMS.append(b.at(i));
             qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
-            qDebug() << "applying gears mod" << m_gears;
+            qDebug() << "applying gears mod" << gears();
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
-            if (m_gears != 0) {
-                slope += (m_gears * 50);
-                b[3] = slope & 0xFF;
-                b[4] = slope >> 8;
+            QSettings settings;
+            bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+            if(!gears_zwift_ratio) {
+                if (gears() != 0) {
+                    slope += (gears() * 50);
+                }
+            } else {
+                slope *= gearsZwiftRatio();
             }
+            b[3] = slope & 0xFF;
+            b[4] = slope >> 8;
         }
 
         if (writeBuffer) {

@@ -2126,6 +2126,10 @@ class QZSettings {
     static const QString zwiftplay_swap;
     static constexpr bool default_zwiftplay_swap = false;
 
+    static const QString gears_zwift_ratio;
+    static constexpr bool default_gears_zwift_ratio = false;
+
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

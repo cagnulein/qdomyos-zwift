@@ -974,6 +974,7 @@ import QtQuick.Dialogs 1.0
             property int  tile_biggears_order: 54
             property bool domyostreadmill_notfmts: false
             property bool zwiftplay_swap: false
+            property bool gears_zwift_ratio: false
         }
 
         function paddingZeros(text, limit) {
@@ -9612,6 +9613,33 @@ import QtQuick.Dialogs 1.0
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
                             }
+
+                            SwitchDelegate {
+                                text: qsTr("Use Zwift app ratio for gears")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.gears_zwift_ratio
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.gears_zwift_ratio = checked; }
+                            }
+
+                            Label {
+                                text: qsTr("Use the zwift gears table instead of the QZ classic gears algorithm.  Default is off.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }                            
                         }
                     }
 

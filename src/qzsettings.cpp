@@ -759,8 +759,9 @@ const QString QZSettings::tile_biggears_enabled = QStringLiteral("tile_biggears_
 const QString QZSettings::tile_biggears_order = QStringLiteral("tile_biggears_order");
 const QString QZSettings::domyostreadmill_notfmts = QStringLiteral("domyostreadmill_notfmts");
 const QString QZSettings::zwiftplay_swap = QStringLiteral("zwiftplay_swap");
+const QString QZSettings::gears_zwift_ratio = QStringLiteral("gears_zwift_ratio");
 
-const uint32_t allSettingsCount = 642;
+const uint32_t allSettingsCount = 643;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1409,6 +1410,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_biggears_order, QZSettings::default_tile_biggears_order},
     {QZSettings::domyostreadmill_notfmts, QZSettings::default_domyostreadmill_notfmts},
     {QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap},
+    {QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

@@ -816,7 +816,14 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     Q_UNUSED(percentage);
     lastGrade = grade;
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
-    QByteArray a = setSimGrade(grade + gears());
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    double g = grade;
+    if(!gears_zwift_ratio)
+        g += gears();
+    else
+        g *= gearsZwiftRatio();
+    QByteArray a = setSimGrade(g);
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());
     writeCharacteristic(b, a.length(), "setSimGrade", false, true);
