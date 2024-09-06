@@ -707,6 +707,15 @@ void tacxneo2::serviceScanDone(void) {
 
     auto services = m_control->services();
     for (const QBluetoothUuid &s : services) {
+#ifdef Q_OS_WIN
+        QBluetoothUuid custom = QBluetoothUuid(QStringLiteral("6e40fec1-b5a3-f393-e0a9-e50e24dcca9e"));
+        QBluetoothUuid ftms = QBluetoothUuid((quint16)0x1826);
+        QBluetoothUuid power = QBluetoothUuid((quint16)0x1818);
+        if(s != custom && s != power && s != ftms) {
+            qDebug() << "skipping service";
+            continue;
+        }
+#endif
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &tacxneo2::stateChanged);
