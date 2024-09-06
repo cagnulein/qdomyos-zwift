@@ -2298,6 +2298,7 @@ void horizontreadmill::serviceScanDone(void) {
             qDebug() << s << "NOT discovering!";
         }
 #endif
+    }
 }
 
 void horizontreadmill::errorService(QLowEnergyService::ServiceError err) {
