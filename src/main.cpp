@@ -646,7 +646,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
-    BluetoothHandler handler;
+    BluetoothHandler handler(&bl);
 #endif
 #endif
     return app->exec();
