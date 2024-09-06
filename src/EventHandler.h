@@ -32,15 +32,18 @@ class EventHandler : public QObject
         qDebug() << "EventHandler opened correctly";
 
         while (!m_shouldStop) {
+            input_event ev;
+            QByteArray buffer;
+            qDebug() << "EventHandler read()";
+            
+            qint64 bytesRead = inputFile.read(buffer.data(), sizeof(ev));            
             if (bytesRead == sizeof(ev)) {
-                // Se abbiamo letto l'intero evento, procedi come prima
                 memcpy(&ev, buffer.constData(), sizeof(ev));
                 qDebug() << "EV_KEY" << ev.type;
                 if (ev.type == EV_KEY && ev.value == 1) { // Key press event
                     emit keyPressed(ev.code);
                 }
             } else {
-                // Se non abbiamo letto l'intero evento, stampa i byte in esadecimale
                 qDebug() << "Bytes read:" << bytesRead << sizeof(ev);
                 qDebug() << "Hex dump:" << buffer.left(bytesRead).toHex(' ');
             }            
