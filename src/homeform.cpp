@@ -937,11 +937,14 @@ void homeform::backup() {
     qDebug() << QStringLiteral("saving fit file backup...");
 
     QString path = getWritableAppDir();
+    qDebug() << QStringLiteral("writable dir") << path;
     bluetoothdevice *dev = bluetoothManager->device();
     if (dev) {
-
+      
         QString filename = path + QString::number(index) + backupFitFileName;
+        qDebug() << QStringLiteral("filename") << filename;
         QFile::remove(filename);
+        qDebug() << QStringLiteral("filename removed") << filename;
         qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
                    stravaPelotonWorkoutType, dev->bluetoothDevice.name());
