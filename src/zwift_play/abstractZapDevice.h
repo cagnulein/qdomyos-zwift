@@ -39,6 +39,7 @@ public:
 
         QSettings settings;
         bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
+        bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
 
         qDebug() << zapType << characteristicName << bytes.toHex() << gears_volume_debouncing << risingEdge;
 
@@ -65,12 +66,20 @@ public:
             case 0x37:
                 if(bytes.length() == 5) {
                     if(bytes[2] == 0) {
-                        if(DEBOUNCE)
-                            emit plus();
+                        if(DEBOUNCE) {
+                            if(!zwiftplay_swap)
+                                emit plus();
+                            else
+                                emit minus();
+                        }
                         risingEdge = true;
                     } else if(bytes[4] == 0) {
-                        if(DEBOUNCE)
-                            emit minus();
+                        if(DEBOUNCE) {
+                            if(!zwiftplay_swap)
+                                emit minus();
+                            else
+                                emit plus();
+                        }
                         risingEdge = true;
                     } else {
                         risingEdge = false;
@@ -83,22 +92,38 @@ public:
                         (((uint8_t)bytes[bytes.length() - 4]) == 0xc8 && zapType == LEFT)
                     ) && bytes[bytes.length() - 3] == 0x01) {
                     if(zapType == LEFT) {
-                        if(DEBOUNCE)
-                            emit plus();
+                        if(DEBOUNCE) {
+                            if(!zwiftplay_swap)
+                                emit plus();
+                            else
+                                emit minus();
+                        }
                         risingEdge = true;
                     } else {
-                        if(DEBOUNCE)
-                            emit minus();
+                        if(DEBOUNCE) {
+                            if(!zwiftplay_swap)
+                                emit minus();
+                            else
+                                emit plus();
+                        }
                         risingEdge = true;
                     }
                 } else if(bytes.length() > 14 && bytes[11] == 0x30 && bytes[12] == 0x00) {
                     if(zapType == LEFT) {
-                        if(DEBOUNCE)
-                            emit plus();
+                        if(DEBOUNCE) {
+                            if(!zwiftplay_swap)
+                                emit plus();
+                            else
+                                emit minus();
+                        }
                         risingEdge = true;
                     } else {
-                        if(DEBOUNCE)
-                            emit minus();
+                        if(DEBOUNCE) {
+                            if(!zwiftplay_swap)
+                                emit minus();
+                            else
+                                emit plus();
+                        }
                         risingEdge = true;
                     }
                 } else {
@@ -111,29 +136,49 @@ public:
                         (((uint8_t)bytes[12]) == 0xc8 && zapType == LEFT))
                     ) {
                     if(zapType == LEFT) {
-                        if(DEBOUNCE)
-                            emit plus();
+                        if(DEBOUNCE) {
+                            if(!zwiftplay_swap)
+                                emit plus();
+                            else
+                                emit minus();
+                        }
                         risingEdge = true;
                     } else {
-                        if(DEBOUNCE)
-                            emit minus();
+                        if(DEBOUNCE) {
+                            if(!zwiftplay_swap)
+                                emit minus();
+                            else
+                                emit plus();
+                        }
                         risingEdge = true;
                     }
                 } else if(bytes.length() > 19 && ((uint8_t)bytes[18]) == 0xc8) {
-                    if(DEBOUNCE)
-                        emit plus();
+                    if(DEBOUNCE) {
+                        if(!zwiftplay_swap)
+                            emit plus();
+                        else
+                            emit minus();
+                    }
                     risingEdge = true;
                 } else if(bytes.length() > 3 &&
                           ((((uint8_t)bytes[3]) == 0xdf) || // right top button
                           (((uint8_t)bytes[3]) == 0xbf))) { // right bottom button
-                    if(DEBOUNCE)
-                        emit plus();
+                    if(DEBOUNCE) {
+                        if(!zwiftplay_swap)
+                            emit plus();
+                        else
+                            emit minus();
+                    }
                     risingEdge = true;
                 } else if(bytes.length() > 3 &&
                           ((((uint8_t)bytes[3]) == 0xfd) || // left top button
                           (((uint8_t)bytes[3]) == 0xfb))) { // left bottom button
-                    if(DEBOUNCE)
-                        emit minus();
+                    if(DEBOUNCE) {
+                        if(!zwiftplay_swap)
+                            emit minus();
+                        else
+                            emit plus();
+                    }
                     risingEdge = true;
                 } else {
                     risingEdge = false;

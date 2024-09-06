@@ -973,6 +973,7 @@ import QtQuick.Dialogs 1.0
             property bool tile_biggears_enabled: false
             property int  tile_biggears_order: 54
             property bool domyostreadmill_notfmts: false
+            property bool zwiftplay_swap: false
         }
 
         function paddingZeros(text, limit) {
@@ -9574,6 +9575,33 @@ import QtQuick.Dialogs 1.0
 
                             Label {
                                 text: qsTr("Debounce the buttons, so you will only see 1 gear step even if you are keep pressing the buttons.  Default is off.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            SwitchDelegate {
+                                text: qsTr("Swap sides")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.zwiftplay_swap
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.zwiftplay_swap = checked; }
+                            }
+
+                            Label {
+                                text: qsTr("You can swap the left to the right controller and viceversa.  Default is off.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2

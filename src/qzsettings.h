@@ -2123,6 +2123,9 @@ class QZSettings {
     static const QString domyostreadmill_notfmts;
     static constexpr bool default_domyostreadmill_notfmts = false;
 
+    static const QString zwiftplay_swap;
+    static constexpr bool default_zwiftplay_swap = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
