@@ -975,6 +975,7 @@ import QtQuick.Dialogs 1.0
             property bool domyostreadmill_notfmts: false
             property bool zwiftplay_swap: false
             property bool gears_zwift_ratio: false
+            property bool domyos_bike_500_profile_v2: false
         }
 
         function paddingZeros(text, limit) {
@@ -2964,7 +2965,6 @@ import QtQuick.Dialogs 1.0
                         }
                     }
                     SwitchDelegate {
-                        id: domyosBikeCaloriesDisplayDelegate
                         text: qsTr("Fix Calories/Km to Console")
                         spacing: 0
                         bottomPadding: 0
@@ -2978,7 +2978,6 @@ import QtQuick.Dialogs 1.0
                         onClicked: settings.domyos_bike_display_calories = checked
                     }
                     SwitchDelegate {
-                        id: domyosBike500ProfileV1Delegate
                         text: qsTr("Bike 500 wattage profile")
                         spacing: 0
                         bottomPadding: 0
@@ -2989,8 +2988,21 @@ import QtQuick.Dialogs 1.0
                         checked: settings.domyos_bike_500_profile_v1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.domyos_bike_500_profile_v1 = checked
+                        onClicked: { settings.domyos_bike_500_profile_v1 = checked; settings.domyos_bike_500_profile_v2 = false; }
                     }
+                    SwitchDelegate {
+                        text: qsTr("Bike 500 wattage profile v2")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.domyos_bike_500_profile_v2
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.domyos_bike_500_profile_v2 = checked; settings.domyos_bike_500_profile_v1 = false; }
+                    }                    
                 }                
                 AccordionElement {
                     title: qsTr("Tacx Neo Options")
