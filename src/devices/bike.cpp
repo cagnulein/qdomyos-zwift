@@ -308,3 +308,60 @@ uint16_t bike::wattFromHR(bool useSpeedAndCadence) {
     }
     return watt;
 }
+
+double bike::gearsZwiftRatio() {
+    if(m_gears <= 0)
+        return 0.65;
+    else if(m_gears > 24)
+        return 6;
+    switch((int)m_gears) {
+        case 1:
+            return 0.75;
+        case 2:
+            return 0.87;
+        case 3:
+            return 0.99;
+        case 4:
+            return 1.11;
+        case 5:
+            return 1.23;
+        case 6:
+            return 1.38;
+        case 7:
+            return 1.53;
+        case 8:
+            return 1.68;
+        case 9:
+            return 1.86;
+        case 10:
+            return 2.04;
+        case 11:
+            return 2.22;
+        case 12:
+            return 2.40;
+        case 13:
+            return 2.61;
+        case 14:
+            return 2.82;
+        case 15:
+            return 3.03;
+        case 16:
+            return 3.24;
+        case 17:
+            return 3.49;
+        case 18:
+            return 3.74;
+        case 19:
+            return 3.99;
+        case 20:
+            return 4.24;
+        case 21:
+            return 4.54;
+        case 22:
+            return 4.84;
+        case 23:
+            return 5.14;
+        case 24:
+            return 5.49;                        
+    }
+}

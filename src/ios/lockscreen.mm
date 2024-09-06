@@ -259,6 +259,14 @@ int lockscreen::getFootCad() {
     return [Garmin getFootCad];
 }
 
+int lockscreen::getPower() {
+    return [Garmin getPower];
+}
+
+double lockscreen::getSpeed() {
+    return [Garmin getSpeed];
+}
+
 // getVolume
 
 double lockscreen::getVolume()

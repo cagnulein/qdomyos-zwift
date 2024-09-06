@@ -359,7 +359,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+                     ((double)lastRefreshCharacteristicChanged2AD2.msecsTo(now)));
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
@@ -438,7 +438,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                        settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                       200.0) /
                      (60000.0 /
-                      ((double)lastRefreshCharacteristicChanged.msecsTo(
+                      ((double)lastRefreshCharacteristicChanged2AD2.msecsTo(
                           now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                             // kg * 3.5) / 200 ) / 60
 
@@ -471,6 +471,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         if (Flags.remainingTime) {
             // todo
         }
+
+        lastRefreshCharacteristicChanged2AD2 = now;
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE)) {
         union flags {
             struct {
@@ -532,7 +534,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             index += 3;
         } else {
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+                         ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(now)));
         }
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -627,7 +629,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                            settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                           200.0) /
                          (60000.0 /
-                          ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(
                               now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                 // kg * 3.5) / 200 ) / 60
         }
@@ -661,6 +663,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         if (Flags.remainingTime) {
             // todo
         }
+
+        lastRefreshCharacteristicChanged2ACE = now;
     } else {
         return;
     }
@@ -669,8 +673,6 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
-
-    lastRefreshCharacteristicChanged = now;
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
         (!heart || Heart.value() == 0 || disable_hr_frommachinery)) {
@@ -793,6 +795,11 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
         }
     }
 
+    if(gattFTMSService == nullptr && DOMYOS) {
+        settings.setValue(QZSettings::domyosbike_notfmts, true);
+        homeform::singleton()->setToastRequested("Domyos bike presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
+    }
+
     if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
         settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool()) {
         init();
@@ -854,13 +861,19 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             for(int i=0; i<b.length(); i++)
                 lastPacketFromFTMS.append(b.at(i));
             qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
-            qDebug() << "applying gears mod" << m_gears;
+            qDebug() << "applying gears mod" << gears();
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
-            if (m_gears != 0) {
-                slope += (m_gears * 50);
-                b[3] = slope & 0xFF;
-                b[4] = slope >> 8;
+            QSettings settings;
+            bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+            if(!gears_zwift_ratio) {
+                if (gears() != 0) {
+                    slope += (gears() * 50);
+                }
+            } else {
+                slope *= gearsZwiftRatio();
             }
+            b[3] = slope & 0xFF;
+            b[4] = slope >> 8;
         }
 
         if (writeBuffer) {

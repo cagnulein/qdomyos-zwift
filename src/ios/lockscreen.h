@@ -56,6 +56,8 @@ class lockscreen {
     void garminconnect_init();
     int getHR();
     int getFootCad();
+    int getPower();
+    double getSpeed();
     
     // debug
     static void debug(const char* debugstring);

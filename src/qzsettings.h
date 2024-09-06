@@ -2105,6 +2105,31 @@ class QZSettings {
     static const QString proform_elliptical_ip;
     static const QString default_proform_elliptical_ip;
 
+    static const QString antbike;
+    static constexpr bool default_antbike = false;
+
+    static const QString domyosbike_notfmts;
+    static constexpr bool default_domyosbike_notfmts = false;
+
+    static const QString gears_volume_debouncing;
+    static constexpr bool default_gears_volume_debouncing = false;
+
+    static const QString tile_biggears_enabled;
+    static constexpr bool default_tile_biggears_enabled = false;
+
+    static const QString tile_biggears_order;
+    static constexpr int default_tile_biggears_order = 54;
+
+    static const QString domyostreadmill_notfmts;
+    static constexpr bool default_domyostreadmill_notfmts = false;
+
+    static const QString zwiftplay_swap;
+    static constexpr bool default_zwiftplay_swap = false;
+
+    static const QString gears_zwift_ratio;
+    static constexpr bool default_gears_zwift_ratio = false;
+
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

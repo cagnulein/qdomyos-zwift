@@ -36,6 +36,7 @@ class bike : public bluetoothdevice {
     uint8_t metrics_override_heartrate() override;
     void setGears(double d);
     double gears();
+    double gearsZwiftRatio();
     void setSpeedLimit(double speed) { m_speedLimit = speed; }
     double speedLimit() { return m_speedLimit; }
     virtual bool ifitCompatible() {return false;}
