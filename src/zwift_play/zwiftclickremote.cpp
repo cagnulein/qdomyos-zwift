@@ -35,7 +35,7 @@ void zwiftclickremote::update() {
         writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
     } else if(initDone) {
         countRxTimeout++;
-        if(countRxTimeout == 5) {
+        if(countRxTimeout == 10) {
             homeform::singleton()->setToastRequested("Zwift device: UPGRADE THE FIRMWARE!");
         }
     }
