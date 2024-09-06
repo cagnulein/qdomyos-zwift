@@ -22,20 +22,28 @@ class EventHandler : public QObject
   public slots:
     void run()
     {
+        qDebug() << "EventHandler run()";
         QFile inputFile(m_devicePath);
         if (!inputFile.open(QIODevice::ReadOnly)) {
+            qDebug() << "EventHandler open error";
             emit error(QString("Failed to open device: %1").arg(m_devicePath));
             return;
         }
+        qDebug() << "EventHandler opened correctly";
 
         while (!m_shouldStop) {
-            input_event ev;
-            if (inputFile.read(reinterpret_cast<char*>(&ev), sizeof(ev)) == sizeof(ev)) {
+            if (bytesRead == sizeof(ev)) {
+                // Se abbiamo letto l'intero evento, procedi come prima
+                memcpy(&ev, buffer.constData(), sizeof(ev));
                 qDebug() << "EV_KEY" << ev.type;
                 if (ev.type == EV_KEY && ev.value == 1) { // Key press event
                     emit keyPressed(ev.code);
                 }
-            }
+            } else {
+                // Se non abbiamo letto l'intero evento, stampa i byte in esadecimale
+                qDebug() << "Bytes read:" << bytesRead << sizeof(ev);
+                qDebug() << "Hex dump:" << buffer.left(bytesRead).toHex(' ');
+            }            
             QThread::msleep(10); // Small delay to prevent busy waiting
         }
 
