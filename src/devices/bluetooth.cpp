@@ -1308,7 +1308,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("MX-TM ")) ||     // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||       // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("CT800")) ||      // FTMS
-                        (b.name().toUpper().startsWith(QStringLiteral("TRX4500")) && toorx_ftms_treadmill) ||    // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TRX4500")) ||    // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("MATRIXTF50")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("T01_")) ||       // FTMS
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14 &&
@@ -2077,7 +2077,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(activioTreadmill);
             } else if (((b.name().startsWith(QStringLiteral("TOORX"))) ||
                         (b.name().startsWith(QStringLiteral("V-RUN"))) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("TRX4500")) && !toorx_ftms_treadmill) ||
                         (b.name().toUpper().startsWith(QStringLiteral("K80_"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+"))) ||
