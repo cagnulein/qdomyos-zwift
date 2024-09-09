@@ -36,7 +36,8 @@ void zwiftclickremote::update() {
     } else if(initDone) {
         countRxTimeout++;
         if(countRxTimeout == 10) {
-            homeform::singleton()->setToastRequested("Zwift device: UPGRADE THE FIRMWARE!");
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("Zwift device: UPGRADE THE FIRMWARE!");
         }
     }
 }

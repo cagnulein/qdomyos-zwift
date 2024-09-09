@@ -268,7 +268,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         if(newValue.length() > 0) {
             uint8_t b = (uint8_t)newValue.at(0);
             if(b != battery_level)
-                homeform::singleton()->setToastRequested(QStringLiteral("Battery Level ") + QString::number(b) + " %");
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested(QStringLiteral("Battery Level ") + QString::number(b) + " %");
             battery_level = b;
         }
         return;
@@ -797,7 +798,8 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     if(gattFTMSService == nullptr && DOMYOS) {
         settings.setValue(QZSettings::domyosbike_notfmts, true);
-        homeform::singleton()->setToastRequested("Domyos bike presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Domyos bike presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
     }
 
     if (gattFTMSService && gattWriteCharControlPointId.isValid() &&

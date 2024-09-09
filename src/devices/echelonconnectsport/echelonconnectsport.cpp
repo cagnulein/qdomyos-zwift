@@ -473,7 +473,8 @@ void echelonconnectsport::serviceScanDone(void) {
     if(gattCommunicationChannelService != nullptr) {
         gattCommunicationChannelService->discoverDetails();
     } else {
-        homeform::singleton()->setToastRequested("Bluetooth Service Error! Restart the bike!");
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Bluetooth Service Error! Restart the bike!");
         m_control->disconnectFromDevice();
     }
 }
