@@ -364,4 +364,5 @@ double bike::gearsZwiftRatio() {
         case 24:
             return 5.49;                        
     }
+    return 1;
 }

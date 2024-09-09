@@ -870,18 +870,21 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
                     slope += (gears() * 50);
                 }
             } else {
-                slope *= gearsZwiftRatio();
+                if(slope == 0) {
+                    slope = 10 * gearsZwiftRatio();
+                } else if(slope < 0) {
+                    int16_t absslope = abs(slope);
+                    absslope *= gearsZwiftRatio();
+                    slope += absslope - slope;
+                } else {
+                    slope *= gearsZwiftRatio();
+                }
             }
             b[3] = slope & 0xFF;
             b[4] = slope >> 8;
         }
 
-        if (writeBuffer) {
-            delete writeBuffer;
-        }
-        writeBuffer = new QByteArray(b);
-
-        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
+        writeCharacteristic((uint8_t*)b.data(), b.length(), "injectWrite", false, true);
     }
 }
 

@@ -821,8 +821,17 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     double g = grade;
     if(!gears_zwift_ratio)
         g += gears();
-    else
-        g *= gearsZwiftRatio();
+    else {
+        if(g == 0) {
+            g = 0.1 * gearsZwiftRatio();
+        } else if(g < 0) {
+            int16_t absslope = abs(g);
+            absslope *= gearsZwiftRatio();
+            g += absslope - g;
+        } else {
+            g *= gearsZwiftRatio();
+        }
+    }
     QByteArray a = setSimGrade(g);
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());

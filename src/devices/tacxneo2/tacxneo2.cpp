@@ -146,7 +146,17 @@ void tacxneo2::update() {
                 forceInclination(lastRawRequestedInclinationValue + gears());   // since this bike doesn't have the concept of resistance,
                                                                 // i'm using the gears in the inclination
             } else {
-                forceInclination(lastRawRequestedInclinationValue * gearsZwiftRatio()); 
+                double slope = lastRawRequestedInclinationValue;
+                if(slope == 0) {
+                    slope = 0.1 * gearsZwiftRatio();
+                } else if(slope < 0) {
+                    double absslope = fabs(slope);
+                    absslope *= gearsZwiftRatio();
+                    slope += absslope - slope;
+                } else {
+                    slope *= gearsZwiftRatio();
+                }
+                forceInclination(slope);
             }
         }
 
