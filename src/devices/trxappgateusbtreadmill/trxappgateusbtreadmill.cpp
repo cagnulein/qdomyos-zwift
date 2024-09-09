@@ -738,6 +738,7 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
         device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
         device.name().toUpper().startsWith(QStringLiteral("DKN RUN")) ||
         device.name().toUpper().startsWith(QStringLiteral("K80_")) ||
+        device.name().toUpper().startsWith(QStringLiteral("TRX4500")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT900")) ||
         device.name().toUpper().startsWith(QStringLiteral("ADIDAS ")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
@@ -749,6 +750,7 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
                    device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
                    device.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
                    device.name().startsWith(QStringLiteral("F63")) ||
+                   device.name().toUpper().startsWith(QStringLiteral("TRX4500")) ||
                    device.name().toUpper().startsWith(QStringLiteral("DKN RUN")) ||
                    device.name().toUpper().startsWith(QStringLiteral("XT900")) ||
                    device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
