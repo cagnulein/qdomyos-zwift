@@ -2402,7 +2402,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
             emit debug(QStringLiteral("Controller connected. Search services..."));
+#ifndef Q_OS_WIN
             m_control->discoverServices();
+#endif            
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
@@ -2412,6 +2414,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         // Connect
         m_control->connectToDevice();
+#ifdef Q_OS_WIN
+        QThread::sleep(1);
+        m_control->discoverServices();
+#endif
         return;
     }
 }
