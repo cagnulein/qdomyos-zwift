@@ -37,20 +37,29 @@ class EventHandler : public QObject
             QByteArray buffer;
             qDebug() << "EventHandler read()";
             
-            qint64 bytesRead = inputFile.read(buffer.data(), sizeof(ev));            
+            qint64 bytesRead = inputFile.read(reinterpret_cast<char*>(&ev), sizeof(ev));
+        
             if (bytesRead == sizeof(ev)) {
-                memcpy(&ev, buffer.constData(), sizeof(ev));
                 qDebug() << "EV_KEY" << ev.type;
                 if (ev.type == EV_KEY && ev.value == 1) { // Key press event
                     emit keyPressed(ev.code);
                 }
+            } else if (bytesRead == 0) {
+                // End of file reached
+                qDebug() << "End of file reached";
+                break;
+            } else if (bytesRead == -1) {
+                // Error occurred
+                qDebug() << "Read error:" << inputFile.errorString();
+                emit error(QString("Failed to read from device: %1").arg(inputFile.errorString()));
+                break;
             } else {
-                qDebug() << "Bytes read:" << bytesRead << sizeof(ev);
-                qDebug() << "Hex dump:" << buffer.left(bytesRead).toHex(' ');
-            }            
+                qDebug() << "Incomplete read. Bytes read:" << bytesRead << "Expected:" << sizeof(ev);
+            }          
             QThread::msleep(10); // Small delay to prevent busy waiting
         }
-
+        qDebug() << "EventHandler close()";
+        
         inputFile.close();
     }
 
