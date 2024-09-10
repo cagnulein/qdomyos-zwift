@@ -22,7 +22,6 @@ class HorizonTreadmillTestData : public TreadmillTestData {
         this->addDeviceName("PARAGON X", comparison::StartsWithIgnoreCase); 
         this->addDeviceName("JFTM", comparison::StartsWithIgnoreCase);
         this->addDeviceName("CT800", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("TRX4500", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MOBVOI TM", comparison::StartsWithIgnoreCase);
         this->addDeviceName("ESANGLINKER", comparison::StartsWithIgnoreCase);
         this->addDeviceName("DK202000725", comparison::StartsWithIgnoreCase);

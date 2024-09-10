@@ -189,14 +189,14 @@ void ftmsbike::update() {
                 requestResistance = 1;
             }
 
-            if (requestResistance != currentResistance().value()) {
+            if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
                 // FTMS bike. This condition handles the peloton requests                
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                     (requestPower == 0 || requestPower == -1)) {
                     init();
-                    forceResistance(requestResistance);
+                    forceResistance(requestResistance + (gears() * 5));
                 }
             }
             requestResistance = -1;
@@ -268,7 +268,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         if(newValue.length() > 0) {
             uint8_t b = (uint8_t)newValue.at(0);
             if(b != battery_level)
-                homeform::singleton()->setToastRequested(QStringLiteral("Battery Level ") + QString::number(b) + " %");
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested(QStringLiteral("Battery Level ") + QString::number(b) + " %");
             battery_level = b;
         }
         return;
@@ -797,7 +798,8 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     if(gattFTMSService == nullptr && DOMYOS) {
         settings.setValue(QZSettings::domyosbike_notfmts, true);
-        homeform::singleton()->setToastRequested("Domyos bike presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Domyos bike presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
     }
 
     if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
@@ -860,8 +862,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
                 lastPacketFromFTMS.append(b.at(i));
-            qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
-            qDebug() << "applying gears mod" << gears();
+            qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');            
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             QSettings settings;
             bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
@@ -871,20 +872,26 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
                 }
             } else {
                 if(slope == 0) {
-                    slope = 10 * gearsZwiftRatio();
+                    slope = 100 * gearsZwiftRatio();
                 } else if(slope < 0) {
                     int16_t absslope = abs(slope);
+                    if(absslope < 100)
+                        absslope = 100;
                     absslope *= gearsZwiftRatio();
                     slope += absslope - slope;
                 } else {
+                    if(slope < 100)
+                        slope = 100;
                     slope *= gearsZwiftRatio();
                 }
             }
             b[3] = slope & 0xFF;
             b[4] = slope >> 8;
+
+            qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << slope;
         }
 
-        writeCharacteristic((uint8_t*)b.data(), b.length(), "injectWrite", false, true);
+        writeCharacteristic((uint8_t*)b.data(), b.length(), "injectWrite ", false, true);
     }
 }
 

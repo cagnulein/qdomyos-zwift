@@ -1308,7 +1308,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("MX-TM ")) ||     // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||       // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("CT800")) ||      // FTMS
-                        (b.name().toUpper().startsWith(QStringLiteral("TRX4500")) && toorx_ftms_treadmill) ||    // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TRX4500")) ||    // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("MATRIXTF50")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("T01_")) ||       // FTMS
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14 &&
@@ -1551,7 +1551,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith("KICKR ROLLR") ||
                         (b.name().toUpper().startsWith("HAMMER ") && saris_trainer) ||
                         (b.name().toUpper().startsWith("WAHOO KICKR"))) &&
-                       !wahooKickrSnapBike && filter) {
+                       !wahooKickrSnapBike && !ftmsBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 wahooKickrSnapBike =
@@ -2077,7 +2077,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(activioTreadmill);
             } else if (((b.name().startsWith(QStringLiteral("TOORX"))) ||
                         (b.name().startsWith(QStringLiteral("V-RUN"))) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("TRX4500")) && !toorx_ftms_treadmill) ||
                         (b.name().toUpper().startsWith(QStringLiteral("K80_"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+"))) ||
@@ -2403,7 +2402,8 @@ void bluetooth::connectedAndDiscovered() {
                 connect(heartRateBelt, &heartratebelt::debug, this, &bluetooth::debug);
                 connect(heartRateBelt, &heartratebelt::heartRate, this->device(), &bluetoothdevice::heartRate);
                 heartRateBelt->deviceDiscovered(b);
-                homeform::singleton()->setToastRequested(b.name() + " (HR sensor) connected!");
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested(b.name() + " (HR sensor) connected!");
                 break;
             }
         }
@@ -2490,7 +2490,8 @@ void bluetooth::connectedAndDiscovered() {
                     connect(cadenceSensor, &bluetoothdevice::cadenceChanged, this->device(),
                             &bluetoothdevice::cadenceSensor);
                     cadenceSensor->deviceDiscovered(b);
-                    homeform::singleton()->setToastRequested(b.name() + " (cadence sensor) connected!");
+                    if(homeform::singleton())
+                        homeform::singleton()->setToastRequested(b.name() + " (cadence sensor) connected!");
                     break;
                 }
             }
@@ -2537,7 +2538,8 @@ void bluetooth::connectedAndDiscovered() {
                     powerSensorRun->deviceDiscovered(b);
                 }
 
-                homeform::singleton()->setToastRequested(b.name() + " (power sensor) connected!");
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested(b.name() + " (power sensor) connected!");
 
                 break;
             }
@@ -2606,7 +2608,8 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
                 connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
                 zwiftClickRemote->deviceDiscovered(b);
-                homeform::singleton()->setToastRequested("Zwift Click Connected!");
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested("Zwift Click Connected!");
                 break;
             }
         }
@@ -2633,7 +2636,8 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
                 connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
                 zwiftPlayDevice.last()->deviceDiscovered(b);
-                homeform::singleton()->setToastRequested("Zwift Play/Ride Connected!");
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested("Zwift Play/Ride Connected!");
             }
         }
     }
