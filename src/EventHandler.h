@@ -2,11 +2,8 @@
 #define EVENTHANDLER_H
 
 #include <QDebug>
+#include <QSocketNotifier>
 #include <QFile>
-#include <QThread>
-
-#ifdef Q_OS_LINUX
-#ifndef Q_OS_ANDROID
 #include <linux/input.h>
 #include "bluetooth.h"
 
@@ -16,60 +13,53 @@ class EventHandler : public QObject
 
   public:
     EventHandler(const QString& devicePath, QObject* parent = nullptr)
-        : QObject(parent), m_devicePath(devicePath), m_shouldStop(false) {}
+        : QObject(parent), m_devicePath(devicePath), m_notifier(nullptr), m_fd(-1) {}
 
-    void stop() { m_shouldStop = true; }
+    ~EventHandler() {
+        if (m_fd != -1) {
+            ::close(m_fd);
+        }
+    }
 
-  public slots:
-    void run()
-    {
-        qDebug() << "EventHandler run()";
-        QFile inputFile(m_devicePath);
-        if (!inputFile.open(QIODevice::ReadOnly)) {
-            qDebug() << "EventHandler open error";
+    bool initialize() {
+        m_fd = ::open(m_devicePath.toStdString().c_str(), O_RDONLY | O_NONBLOCK);
+        if (m_fd == -1) {
+            qDebug() << "Failed to open device:" << m_devicePath;
             emit error(QString("Failed to open device: %1").arg(m_devicePath));
-            return;
+            return false;
         }
-        qDebug() << "EventHandler opened correctly";
-
-        while (!m_shouldStop) {
-            input_event ev;
-            QByteArray buffer;
-            qDebug() << "EventHandler read()";
-            
-            qint64 bytesRead = inputFile.read(reinterpret_cast<char*>(&ev), sizeof(ev));
-        
-            if (bytesRead == sizeof(ev)) {
-                qDebug() << "EV_KEY" << ev.type;
-                if (ev.type == EV_KEY && ev.value == 1) { // Key press event
-                    emit keyPressed(ev.code);
-                }
-            } else if (bytesRead == 0) {
-                // End of file reached
-                qDebug() << "End of file reached";
-                break;
-            } else if (bytesRead == -1) {
-                // Error occurred
-                qDebug() << "Read error:" << inputFile.errorString();
-                emit error(QString("Failed to read from device: %1").arg(inputFile.errorString()));
-                break;
-            } else {
-                qDebug() << "Incomplete read. Bytes read:" << bytesRead << "Expected:" << sizeof(ev);
-            }          
-            QThread::msleep(10); // Small delay to prevent busy waiting
-        }
-        qDebug() << "EventHandler close()";
-        
-        inputFile.close();
+        m_notifier = new QSocketNotifier(m_fd, QSocketNotifier::Read, this);
+        connect(m_notifier, &QSocketNotifier::activated, this, &EventHandler::handleEvent);
+        qDebug() << "Device opened successfully:" << m_devicePath;
+        return true;
     }
 
   signals:
     void keyPressed(int keyCode);
     void error(const QString& errorMessage);
 
+  private slots:
+    void handleEvent() {
+        input_event ev;
+        ssize_t bytesRead = ::read(m_fd, &ev, sizeof(ev));
+
+        if (bytesRead == sizeof(ev)) {
+            if (ev.type == EV_KEY && ev.value == 1) { // Key press event
+                emit keyPressed(ev.code);
+            }
+        } else if (bytesRead == 0) {
+            qDebug() << "End of file reached.";
+            m_notifier->setEnabled(false);
+        } else if (bytesRead == -1) {
+            qDebug() << "Read error:" << strerror(errno);
+            emit error(QString("Failed to read from device: %1").arg(strerror(errno)));
+        }
+    }
+
   private:
     QString m_devicePath;
-    bool m_shouldStop;
+    int m_fd;
+    QSocketNotifier* m_notifier;
 };
 
 class BluetoothHandler : public QObject
@@ -77,35 +67,32 @@ class BluetoothHandler : public QObject
     Q_OBJECT
 
   public:
-    BluetoothHandler(bluetooth* bl, QObject* parent = nullptr) : QObject(parent)
+    BluetoothHandler(bluetooth* bl, QObject* parent = nullptr)
+        : QObject(parent), m_bluetooth(bl)
     {
-        m_bluetooth = bl;
-        m_thread = new QThread(this);
         m_handler = new EventHandler("/dev/input/event2"); // Adjust this path as needed
-        m_handler->moveToThread(m_thread);
 
-        connect(m_thread, &QThread::started, m_handler, &EventHandler::run);
+        if (!m_handler->initialize()) {
+            qDebug() << "Failed to initialize EventHandler.";
+            return;
+        }
+
         connect(m_handler, &EventHandler::keyPressed, this, &BluetoothHandler::onKeyPressed);
         connect(m_handler, &EventHandler::error, this, &BluetoothHandler::onError);
-
-        m_thread->start();
     }
 
-    ~BluetoothHandler()
-    {
-        m_handler->stop();
-        m_thread->quit();
-        m_thread->wait();
+    ~BluetoothHandler() {
+        delete m_handler;
     }
 
   private slots:
     void onKeyPressed(int keyCode)
     {
         qDebug() << "Key pressed:" << keyCode;
-        if(m_bluetooth && m_bluetooth->device() && m_bluetooth->device()->deviceType() == bluetoothdevice::BIKE) {
-            if(keyCode == 115) // up
+        if (m_bluetooth && m_bluetooth->device() && m_bluetooth->device()->deviceType() == bluetoothdevice::BIKE) {
+            if (keyCode == 115) // up
                 ((bike*)m_bluetooth->device())->setGears(((bike*)m_bluetooth->device())->gears() + 1);
-            else if(keyCode == 114) // down
+            else if (keyCode == 114) // down
                 ((bike*)m_bluetooth->device())->setGears(((bike*)m_bluetooth->device())->gears() - 1);
         }
     }
@@ -116,11 +103,8 @@ class BluetoothHandler : public QObject
     }
 
   private:
-    QThread* m_thread;
     EventHandler* m_handler;
-    bluetooth* m_bluetooth = 0;
+    bluetooth* m_bluetooth;
 };
-#endif
-#endif
 
 #endif // EVENTHANDLER_H
