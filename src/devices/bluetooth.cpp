@@ -57,6 +57,27 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     return;
 #endif
 
+    QBluetoothDeviceInfo b;
+    horizonTreadmill = new horizontreadmill(noWriteResistance, noHeartService);
+    emit deviceConnected(b);
+    connect(horizonTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+            &bluetooth::connectedAndDiscovered);
+    // connect(horizonTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+    connect(horizonTreadmill, &horizontreadmill::debug, this, &bluetooth::debug);
+    // NOTE: Commented due to #358
+    // connect(horizonTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+    // NOTE: Commented due to #358
+    // connect(horizonTreadmill, SIGNAL(inclinationChanged(double)), this,
+    // SLOT(inclinationChanged(double)));
+    horizonTreadmill->deviceDiscovered(b);
+    // NOTE: Commented due to #358
+    // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
+    if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+        emit searchingStop();
+    }
+    this->signalBluetoothDeviceConnected(horizonTreadmill);
+    return;
+
     if (!startDiscovery) {
         this->discoveryAgent = nullptr;
         return;

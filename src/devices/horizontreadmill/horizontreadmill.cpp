@@ -2370,7 +2370,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #endif            
         }
 
-        m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
+        m_control = QLowEnergyController::createCentral(QBluetoothAddress("F6:C0:00:02:7A:28"), QBluetoothLocalDevice().address());
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &horizontreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &horizontreadmill::serviceScanDone);
         connect(m_control,
