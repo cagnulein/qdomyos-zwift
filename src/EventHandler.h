@@ -4,6 +4,9 @@
 #include <QDebug>
 #include <QSocketNotifier>
 #include <QFile>
+
+#ifdef Q_OS_LINUX
+#ifndef Q_OS_ANDROID
 #include <linux/input.h>
 #include "bluetooth.h"
 
@@ -107,4 +110,6 @@ class BluetoothHandler : public QObject
     bluetooth* m_bluetooth;
 };
 
+#endif // EVENTHANDLER_H
+#endif // EVENTHANDLER_H
 #endif // EVENTHANDLER_H
