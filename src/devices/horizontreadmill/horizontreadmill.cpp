@@ -2422,6 +2422,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 }
 
+horizontreadmill::~horizontreadmill() {
+    if(connected())
+        m_control->disconnectFromDevice();
+}
+
 bool horizontreadmill::connected() {
     if (!m_control) {
 
