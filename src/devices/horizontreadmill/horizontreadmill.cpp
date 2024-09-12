@@ -2437,8 +2437,8 @@ bool horizontreadmill::connected() {
 
 void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
-    if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << QStringLiteral("trying to connect back again...");
+    if (state == QLowEnergyController::UnconnectedState && m_control && !closing) {
+        qDebug() << QStringLiteral("trying to connect back again...") << closing;
 
         initDone = false;
         m_control->connectToDevice();

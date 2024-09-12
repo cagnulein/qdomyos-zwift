@@ -134,8 +134,8 @@ metric bluetoothdevice::elevationGain() { return elevationAcc; }
 void bluetoothdevice::heartRate(uint8_t heart) { Heart.setValue(heart); }
 void bluetoothdevice::disconnectBluetooth() {
     if (m_control) {
+        closing = true;
         m_control->disconnectFromDevice();
-        m_control = 0; // so it will never connect again in case of exit from the app
     }
 }
 metric bluetoothdevice::wattsMetric() { return m_watt; }

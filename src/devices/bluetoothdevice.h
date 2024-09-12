@@ -732,6 +732,8 @@ class bluetoothdevice : public QObject {
   protected:
     // useful to understand if a power sensor device for treadmill, it's a real one like the stryd or it's a dumb one like the runpod from Zwift
     bool powerReceivedFromPowerSensor = false;
+
+    volatile bool closing = false;
 };
 
 #endif // BLUETOOTHDEVICE_H
