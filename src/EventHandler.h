@@ -70,10 +70,10 @@ class BluetoothHandler : public QObject
     Q_OBJECT
 
   public:
-    BluetoothHandler(bluetooth* bl, QObject* parent = nullptr)
+    BluetoothHandler(bluetooth* bl, QString eventDevice, QObject* parent = nullptr)
         : QObject(parent), m_bluetooth(bl)
     {
-        m_handler = new EventHandler("/dev/input/event2"); // Adjust this path as needed
+        m_handler = new EventHandler(eventDevice); // Adjust this path as needed
 
         if (!m_handler->initialize()) {
             qDebug() << "Failed to initialize EventHandler.";
