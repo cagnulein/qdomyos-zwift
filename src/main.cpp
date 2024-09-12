@@ -652,7 +652,7 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
     if(eventGearDevice.length())
-        BluetoothHandler handler(&bl, eventGearDevice);
+        new BluetoothHandler(&bl, eventGearDevice);
 #endif
 #endif
     return app->exec();
