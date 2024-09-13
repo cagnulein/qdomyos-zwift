@@ -83,7 +83,17 @@ void bike::changePower(int32_t power) {
     }
 }
 
-double bike::gears() { return m_gears; }
+double bike::gears() {
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    if(gears_zwift_ratio) {
+        if(m_gears < 1)
+            return 1.0;
+        else if(m_gears > 24)
+            return 24.0;
+    }
+    return m_gears;
+}
 void bike::setGears(double gears) {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
