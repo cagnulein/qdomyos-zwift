@@ -181,7 +181,7 @@ void ftmsbike::update() {
 
         auto virtualBike = this->VirtualBike();
 
-        if (requestResistance != -1) {
+        if (requestResistance != -1 || lastGearValue != gears()) {
             if (requestResistance > 100) {
                 requestResistance = 100;
             } // TODO, use the bluetooth value
