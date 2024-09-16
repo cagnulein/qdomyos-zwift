@@ -872,16 +872,16 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
                 }
             } else {
                 if(slope == 0) {
-                    slope = 100 * gearsZwiftRatio();
+                    slope = 30 * gearsZwiftRatio();
                 } else if(slope < 0) {
                     int16_t absslope = abs(slope);
-                    if(absslope < 100)
-                        absslope = 100;
+                    if(absslope < 30)
+                        absslope = 30;
                     absslope *= gearsZwiftRatio();
                     slope += absslope - slope;
                 } else {
-                    if(slope < 100)
-                        slope = 100;
+                    if(slope < 30)
+                        slope = 30;
                     slope *= gearsZwiftRatio();
                 }
             }
