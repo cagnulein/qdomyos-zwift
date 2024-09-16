@@ -1324,8 +1324,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("XT285")) ||
                         b.name().toUpper().startsWith(QStringLiteral("XTERRA TR")) ||
                         b.name().toUpper().startsWith(QStringLiteral("T118_")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("RUNN ")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("EW-EP-")) ||                          // Miweba MC700 ellipital Trainer #2419
+                        b.name().toUpper().startsWith(QStringLiteral("RUNN ")) ||                        
                         b.name().toUpper().startsWith(QStringLiteral("TF04-")) ||                           // Sport Synology Z5 Treadmill #2415
                         b.name().toUpper().startsWith(QStringLiteral("FIT-")) ||                            // FIT-1596
                         b.name().toUpper().startsWith(QStringLiteral("LJJ-")) ||                            // LJJ-02351A
@@ -1834,6 +1833,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 sportsTechBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsTechBike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("EW-EP-")) && !sportsTechElliptical && !horizonTreadmill && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                sportsTechElliptical = new sportstechelliptical(noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                    bikeResistanceGain);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(sportsTechElliptical, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(sportsTechElliptical, &sportstechelliptical::debug, this, &bluetooth::debug);
+                // connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this,
+                // SLOT(inclinationChanged(double)));
+                sportsTechElliptical->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(sportsTechElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) ||
                         (b.name().toUpper().contains(QStringLiteral("CARE")) &&
                          b.name().length() == 11)) // CARE9040177 - Carefitness CV-351
@@ -3127,6 +3142,11 @@ void bluetooth::restart() {
         delete sportsTechBike;
         sportsTechBike = nullptr;
     }
+    if (sportsTechElliptical) {
+
+        delete sportstechElliptical;
+        sportstechElliptical = nullptr;
+    }
     if (sportsPlusBike) {
 
         delete sportsPlusBike;
@@ -3428,6 +3448,8 @@ bluetoothdevice *bluetooth::device() {
         return schwinn170Bike;
     } else if (sportsTechBike) {
         return sportsTechBike;
+    } else if (sportsTechElliptical) {
+        return sportsTechElliptical;
     } else if (sportsPlusBike) {
         return sportsPlusBike;
     } else if (inspireBike) {
