@@ -86,17 +86,20 @@ void bike::changePower(int32_t power) {
 double bike::gears() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    double gears_offset = settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble();
     if(gears_zwift_ratio) {
         if(m_gears < 1)
             return 1.0;
         else if(m_gears > 24)
             return 24.0;
     }
-    return m_gears;
+    return m_gears + gears_offset;
 }
 void bike::setGears(double gears) {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    double gears_offset = settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble();
+    gears -= gears_offset;
     qDebug() << "setGears" << gears;
     if(gears_zwift_ratio && (gears > 24 || gears < 1)) {
         qDebug() << "new gear value ignored because of gears_zwift_ratio setting!";

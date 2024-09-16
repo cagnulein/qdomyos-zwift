@@ -761,8 +761,9 @@ const QString QZSettings::domyostreadmill_notfmts = QStringLiteral("domyostreadm
 const QString QZSettings::zwiftplay_swap = QStringLiteral("zwiftplay_swap");
 const QString QZSettings::gears_zwift_ratio = QStringLiteral("gears_zwift_ratio");
 const QString QZSettings::domyos_bike_500_profile_v2 = QStringLiteral("domyos_bike_500_profile_v2");
+const QString QZSettings::gears_offset = QStringLiteral("gears_offset");
 
-const uint32_t allSettingsCount = 644;
+const uint32_t allSettingsCount = 645;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1413,6 +1414,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap},
     {QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio},
     {QZSettings::domyos_bike_500_profile_v2, QZSettings::default_domyos_bike_500_profile_v2},
+    {QZSettings::gears_offset, QZSettings::default_gears_offset},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

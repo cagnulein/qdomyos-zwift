@@ -976,6 +976,7 @@ import QtQuick.Dialogs 1.0
             property bool zwiftplay_swap: false
             property bool gears_zwift_ratio: false
             property bool domyos_bike_500_profile_v2: false
+            property double gears_offset: 0.0
         }
 
         function paddingZeros(text, limit) {
@@ -2368,7 +2369,43 @@ import QtQuick.Dialogs 1.0
                     }
 
                     Label {
-                        text: qsTr("Applies a multiplier to the gears tile. Default is 1.")
+                        text: qsTr("Applies a multiplier to the gears. Default is 1.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Gears Offset:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: gearsOffsetTextField
+                            text: settings.gears_offset
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.gears_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.gears_offset = gearsOffsetTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Applies an offset to the gears. Default is 0.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9627,7 +9664,7 @@ import QtQuick.Dialogs 1.0
                             }
 
                             SwitchDelegate {
-                                text: qsTr("Use Zwift app ratio for gears")
+                                text: qsTr("Use Zwift app ratio for gears (Experimental)")
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0

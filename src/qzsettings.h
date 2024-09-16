@@ -2132,6 +2132,9 @@ class QZSettings {
     static const QString domyos_bike_500_profile_v2;
     static constexpr bool default_domyos_bike_500_profile_v2 = false;
 
+    static const QString gears_offset;
+    static constexpr double default_gears_offset = 0.0;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
