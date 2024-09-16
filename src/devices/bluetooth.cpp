@@ -3144,8 +3144,8 @@ void bluetooth::restart() {
     }
     if (sportsTechElliptical) {
 
-        delete sportstechElliptical;
-        sportstechElliptical = nullptr;
+        delete sportsTechElliptical;
+        sportsTechElliptical = nullptr;
     }
     if (sportsPlusBike) {
 
