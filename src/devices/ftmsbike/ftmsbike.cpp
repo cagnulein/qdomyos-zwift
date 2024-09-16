@@ -911,7 +911,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
@@ -959,7 +959,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 QBluetoothUuid _zwiftPlayWriteCharControlPointId(QStringLiteral("00000003-19ca-4651-86e5-fa29dcdd09d1"));
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _zwiftPlayWriteCharControlPointId) {
+                if (c.uuid() == _zwiftPlayWriteCharControlPointId) {
                     qDebug() << QStringLiteral("Zwift Play service and Control Point found");
                     zwiftPlayWriteChar = c;
                     zwiftPlayService = s;
