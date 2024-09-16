@@ -36,6 +36,43 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
     refresh->start(200ms);
 }
 
+void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+                                   bool wait_for_response) {
+    QEventLoop loop;
+    QTimer timeout;
+
+    if(!zwiftPlayService) {
+        qDebug() << QStringLiteral("zwiftPlayService is null!");
+        return;
+    }
+
+    if (wait_for_response) {
+        connect(zwiftPlayService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+    } else {
+        connect(zwiftPlayService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+    }
+
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    if (zwiftPlayWriteChar.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        zwiftPlayService->writeCharacteristic(zwiftPlayWriteChar, *writeBuffer,
+                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        zwiftPlayService->writeCharacteristic(zwiftPlayWriteChar, *writeBuffer);
+    }
+
+    if (!disable_log) {
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
+    }
+
+    loop.exec();
+}
+
 void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
     QEventLoop loop;
@@ -81,6 +118,46 @@ void ftmsbike::init() {
     writeCharacteristic(write, sizeof(write), "requestControl", false, true);
     write[0] = {FTMS_START_RESUME};
     writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+
+    if(zwiftPlayService && gears_zwift_ratio) {
+        uint8_t rideOn[] = {0x52, 0x69, 0x64, 0x65, 0x4f, 0x6e, 0x02, 0x01};
+        writeCharacteristicZwiftPlay(rideOn, sizeof(rideOn), "rideOn", false, true);
+
+        uint8_t init1[] = {0x41, 0x08, 0x05};
+        writeCharacteristicZwiftPlay(init1, sizeof(init1), "init1", false, true);
+
+        uint8_t init2[] = {0x04, 0x2a, 0x04, 0x10, 0xc0, 0xbb, 0x01};
+        writeCharacteristicZwiftPlay(init2, sizeof(init2), "init2", false, true);
+
+        uint8_t init3[] = {0x00, 0x08, 0x00};
+        writeCharacteristicZwiftPlay(init3, sizeof(init3), "init3", false, true);
+
+        writeCharacteristicZwiftPlay(init1, sizeof(init1), "init1", false, true);
+
+        uint8_t init4[] = {0x00, 0x08, 0x88, 0x04};
+        writeCharacteristicZwiftPlay(init4, sizeof(init4), "init4", false, true);
+
+        uint8_t init5[] = {0x04, 0x2a, 0x0a, 0x10, 0xc0, 0xbb, 0x01, 0x20, 0xbf, 0x06, 0x28, 0xb4, 0x42};
+        writeCharacteristicZwiftPlay(init5, sizeof(init5), "init5", false, true);
+
+        uint8_t init6[] = {0x04, 0x22, 0x0b, 0x08, 0x00, 0x10, 0xda, 0x02, 0x18, 0xec, 0x27, 0x20, 0x90, 0x03};
+        writeCharacteristicZwiftPlay(init6, sizeof(init6), "init6", false, true);
+
+        writeCharacteristicZwiftPlay(init2, sizeof(init2), "init2", false, true);
+        writeCharacteristicZwiftPlay(init4, sizeof(init4), "init4", false, true);
+
+        uint8_t init7[] = {0x04, 0x22, 0x03, 0x10, 0xa9, 0x01};
+        writeCharacteristicZwiftPlay(init7, sizeof(init7), "init7", false, true);
+
+        writeCharacteristicZwiftPlay(init2, sizeof(init2), "init2", false, true);
+        writeCharacteristicZwiftPlay(init4, sizeof(init4), "init4", false, true);
+
+        uint8_t init8[] = {0x04, 0x22, 0x02, 0x10, 0x01};
+        writeCharacteristicZwiftPlay(init8, sizeof(init8), "init8", false, true);
+    }
 
     initDone = true;
     initRequest = false;
@@ -204,6 +281,94 @@ void ftmsbike::update() {
         if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
             qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP" << lastPacketFromFTMS.toHex(' ');
             ftmsCharacteristicChanged(QLowEnergyCharacteristic(), lastPacketFromFTMS);
+        }
+
+        QSettings settings;
+        bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+        if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
+            uint8_t gear[] = {0x04, 0x2a, 0x04, 0x10, 0xdc, 0xec, 0x01};
+            switch((int)gears()) {
+            case 1:
+                gear[4] = 0xf3; gear[5] = 0xac;
+                break;
+            case 2:
+                gear[4] = 0xc8; gear[5] = 0x91;
+                break;
+            case 3:
+                gear[4] = 0x90; gear[5] = 0xfa;
+                break;
+            case 4:
+                gear[4] = 0xd8; gear[5] = 0xe2;
+                break;
+            case 5:
+                gear[4] = 0x9f; gear[5] = 0xcb;
+                break;
+            case 6:
+                gear[4] = 0xdc; gear[5] = 0xb7;
+                break;
+            case 7:
+                gear[4] = 0x98; gear[5] = 0xa4;
+                break;
+            case 8:
+                gear[4] = 0xd4; gear[5] = 0x90;
+                break;
+            case 9:
+                gear[4] = 0x90; gear[5] = 0xfd;
+                break;
+            case 10:
+                gear[4] = 0xdc; gear[5] = 0xec;
+                break;
+            case 11:
+                gear[4] = 0xa8; gear[5] = 0xdc;
+                break;
+            case 12:
+                gear[4] = 0xf3; gear[5] = 0xcb;
+                break;
+            case 13:
+                gear[4] = 0xc0; gear[5] = 0xbb;
+                break;
+            case 14:
+                gear[4] = 0xb8; gear[5] = 0xad;
+                break;
+            case 15:
+                gear[4] = 0xb0; gear[5] = 0x9f;
+                break;
+            case 16:
+                gear[4] = 0xa8; gear[5] = 0x91;
+                break;
+            case 17:
+                gear[4] = 0xa0; gear[5] = 0x83;
+                break;
+            case 18:
+                gear[4] = 0xc0; gear[5] = 0xbb;
+                break;
+            case 19:
+                gear[4] = 0xa2; gear[5] = 0x8b;
+                break;
+            case 20:
+                gear[4] = 0xa4; gear[5] = 0x93;
+                break;
+            case 21:
+                gear[4] = 0xa6; gear[5] = 0x9b;
+                break;
+            case 22:
+                gear[4] = 0xa8; gear[5] = 0xa3;
+                break;
+            case 23:
+                gear[4] = 0xaa; gear[5] = 0xab;
+                break;
+            case 24:
+                gear[4] = 0xac; gear[5] = 0xb3;
+                break;
+            default:
+                // Gestione del caso di default
+                break;
+            }
+
+            writeCharacteristicZwiftPlay(gear, sizeof(gear), "gear", false, true);
+
+            uint8_t gearApply[] = {0x00, 0x08, 0x88, 0x04};
+            writeCharacteristicZwiftPlay(gearApply, sizeof(gearApply), "gearApply", false, true);
         }
 
         lastGearValue = gears();
@@ -792,6 +957,13 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
                 }
+
+                QBluetoothUuid _zwiftPlayWriteCharControlPointId(QStringLiteral("00000003-19ca-4651-86e5-fa29dcdd09d1"));
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _zwiftPlayWriteCharControlPointId) {
+                    qDebug() << QStringLiteral("Zwift Play service and Control Point found");
+                    zwiftPlayWriteChar = c;
+                    zwiftPlayService = s;
+                }
             }
         }
     }
@@ -854,18 +1026,19 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
     }
 
     QByteArray b = newValue;
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
         // handling gears
-        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && (zwiftPlayService == nullptr && gears_zwift_ratio)) {
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
                 lastPacketFromFTMS.append(b.at(i));
             qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');            
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
-            QSettings settings;
-            bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
             if(!gears_zwift_ratio) {
                 if (gears() != 0) {
                     slope += (gears() * 50);
