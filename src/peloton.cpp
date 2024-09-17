@@ -1656,4 +1656,17 @@ void peloton::peloton_refreshtoken() {
     settings.setValue(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime());
 
     homeform::singleton()->setToastRequested("Peloton Login OK!");
+    
+}
+
+void peloton::peloton_connect_clicked() {
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
+
+    peloton_connect();
+    connect(peloton, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, this, &peloton::onPelotonAuthorizeWithBrowser);
+    connect(peloton, &QOAuth2AuthorizationCodeFlow::granted, this, &peloton::onPelotonGranted);
+
+    peloton->grant();
+    // qDebug() <<
+    // QAbstractOAuth2::post("https://www.peloton.com/oauth/authorize?client_id=7976&scope=activity:read_all,activity:write&redirect_uri=http://127.0.0.1&response_type=code&approval_prompt=force");
 }
