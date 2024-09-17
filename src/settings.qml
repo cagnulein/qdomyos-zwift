@@ -977,6 +977,12 @@ import QtQuick.Dialogs 1.0
             property bool gears_zwift_ratio: false
             property bool domyos_bike_500_profile_v2: false
             property double gears_offset: 0.0
+
+            property string  peloton_accesstoken: ""
+            property string  peloton_refreshtoken: ""
+            property string  peloton_lastrefresh: ""
+            property string  peloton_expires: ""
+            property string  peloton_code: ""
         }
 
         function paddingZeros(text, limit) {
