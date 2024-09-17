@@ -1,3 +1,4 @@
+#include "homeform.h"
 #include "peloton.h"
 #include "secret.h"
 #include <chrono>
@@ -12,6 +13,8 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     bluetoothManager = bl;
     mgr = new QNetworkAccessManager(this);
     timer = new QTimer(this);
+
+    peloton_connect();
 
     // only for test purpose
     /*
@@ -1401,12 +1404,12 @@ void peloton::onPelotonGranted() {
     pelotonAuthWebVisible = false;
     pelotonWebVisibleChanged(pelotonAuthWebVisible);
     QSettings settings;
-    settings.setValue(QZSettings::peloton_accesstoken, peloton->token());
-    settings.setValue(QZSettings::peloton_refreshtoken, peloton->refreshToken());
+    settings.setValue(QZSettings::peloton_accesstoken, pelotonOAuth->token());
+    settings.setValue(QZSettings::peloton_refreshtoken, pelotonOAuth->refreshToken());
     settings.setValue(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime());
-    qDebug() << QStringLiteral("peloton authenticathed") << peloton->token() << peloton->refreshToken();
+    qDebug() << QStringLiteral("peloton authenticathed") << pelotonOAuth->token() << pelotonOAuth->refreshToken();
     peloton_refreshtoken();
-    setGeneralPopupVisible(true);
+    homeform::singleton()->setGeneralPopupVisible(true);
 }
 
 void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
@@ -1519,8 +1522,8 @@ void peloton::networkRequestFinished(QNetworkReply *reply) {
 
 void peloton::callbackReceived(const QVariantMap &values) {
     qDebug() << QStringLiteral("peloton::callbackReceived") << values;
-    if (!values.value(QZSettings::code).toString().isEmpty()) {
-        peloton_code = values.value(QZSettings::code).toString();
+    if (!values.value(QZSettings::peloton_code).toString().isEmpty()) {
+        peloton_code = values.value(QZSettings::peloton_code).toString();
 
         qDebug() << peloton_code;
     }
@@ -1545,26 +1548,26 @@ QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
     manager = new QNetworkAccessManager(this);
     OAuth2Parameter parameter;
     pelotonOAuth = new QOAuth2AuthorizationCodeFlow(manager, this);
-    pelotonOAuth->setScope(QStringLiteral("activity:read_all,activity:write"));
+    pelotonOAuth->setScope(QStringLiteral("openid offline_access 3p.profile:r 3p.workout:r"));
     pelotonOAuth->setClientIdentifier(QStringLiteral(PELOTON_CLIENT_ID_S));
-    pelotonOAuth->setAuthorizationUrl(QUrl(QStringLiteral("https://www.peloton.com/oauth/authorize")));
-    pelotonOAuth->setAccessTokenUrl(QUrl(QStringLiteral("https://www.peloton.com/oauth/token")));
+    pelotonOAuth->setAuthorizationUrl(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/authorize")));
+    pelotonOAuth->setAccessTokenUrl(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token")));
 #ifdef PELOTON_SECRET_KEY
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
-    pelotonoauth->setClientIdentifierSharedKey(STRINGIFY(PELOTON_SECRET_KEY));
+    pelotonOAuth->setClientIdentifierSharedKey(STRINGIFY(PELOTON_SECRET_KEY));
 #elif defined(WIN32)
 #pragma message("DEFINE PELOTON_SECRET_KEY!!!")
 #else
 #pragma message "DEFINE PELOTON_SECRET_KEY!!!"
 #endif
-    pelotonoauth->setModifyParametersFunction(
+    pelotonOAuth->setModifyParametersFunction(
         buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String(""))));
     pelotonReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 8091, this);
     connect(pelotonReplyHandler, &QOAuthHttpServerReplyHandler::replyDataReceived, this, &peloton::replyDataReceived);
     connect(pelotonReplyHandler, &QOAuthHttpServerReplyHandler::callbackReceived, this, &peloton::callbackReceived);
 
-    pelotonoauth->setReplyHandler(pelotonReplyHandler);
+    pelotonOAuth->setReplyHandler(pelotonReplyHandler);
 
     return pelotonOAuth;
 }
@@ -1579,4 +1582,21 @@ void peloton::peloton_connect_clicked() {
     pelotonOAuth->grant();
     // qDebug() <<
     // QAbstractOAuth2::post("https://www.peloton.com/oauth/authorize?client_id=7976&scope=activity:read_all,activity:write&redirect_uri=http://127.0.0.1&response_type=code&approval_prompt=force");
+}
+
+QAbstractOAuth::ModifyParametersFunction peloton::buildModifyParametersFunction(const QUrl &clientIdentifier, const QUrl &clientIdentifierSharedKey) {
+    return [clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
+        if (stage == QAbstractOAuth::Stage::RequestingAuthorization) {
+            parameters->insert(QStringLiteral("responseType"), QStringLiteral("code")); /* Request refresh token*/
+            parameters->insert(QStringLiteral("approval_prompt"),
+                               QStringLiteral("force")); /* force user check scope again */
+            QByteArray code = parameters->value(QStringLiteral("code")).toByteArray();
+            // DON'T TOUCH THIS LINE, THANKS Roberto Viola
+            (*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code); // NOTE: Old code replaced by
+        }
+        if (stage == QAbstractOAuth::Stage::RefreshingAccessToken) {
+            parameters->insert(QStringLiteral("client_id"), clientIdentifier);
+            parameters->insert(QStringLiteral("client_secret"), clientIdentifierSharedKey);
+        }
+    };
 }

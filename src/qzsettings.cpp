@@ -762,8 +762,18 @@ const QString QZSettings::zwiftplay_swap = QStringLiteral("zwiftplay_swap");
 const QString QZSettings::gears_zwift_ratio = QStringLiteral("gears_zwift_ratio");
 const QString QZSettings::domyos_bike_500_profile_v2 = QStringLiteral("domyos_bike_500_profile_v2");
 const QString QZSettings::gears_offset = QStringLiteral("gears_offset");
+const QString QZSettings::peloton_accesstoken = QStringLiteral("peloton_accesstoken");
+const QString QZSettings::default_peloton_accesstoken = QStringLiteral("");
+const QString QZSettings::peloton_refreshtoken = QStringLiteral("peloton_refreshtoken");
+const QString QZSettings::default_peloton_refreshtoken = QStringLiteral("");
+const QString QZSettings::peloton_lastrefresh = QStringLiteral("peloton_lastrefresh");
+const QString QZSettings::default_peloton_lastrefresh = QStringLiteral("");
+const QString QZSettings::peloton_expires = QStringLiteral("peloton_expires");
+const QString QZSettings::default_peloton_expires = QStringLiteral("");
+const QString QZSettings::peloton_code = QStringLiteral("peloton_code");
+const QString QZSettings::default_peloton_code = QStringLiteral("");
 
-const uint32_t allSettingsCount = 645;
+const uint32_t allSettingsCount = 650;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1415,6 +1425,11 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio},
     {QZSettings::domyos_bike_500_profile_v2, QZSettings::default_domyos_bike_500_profile_v2},
     {QZSettings::gears_offset, QZSettings::default_gears_offset},
+    {QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken},
+    {QZSettings::peloton_refreshtoken, QZSettings::default_peloton_refreshtoken},
+    {QZSettings::peloton_lastrefresh, QZSettings::default_peloton_lastrefresh},
+    {QZSettings::peloton_expires, QZSettings::default_peloton_expires},
+    {QZSettings::peloton_code, QZSettings::default_peloton_code},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

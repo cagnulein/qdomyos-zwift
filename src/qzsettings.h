@@ -2135,6 +2135,21 @@ class QZSettings {
     static const QString gears_offset;
     static constexpr double default_gears_offset = 0.0;
 
+    static const QString peloton_accesstoken;
+    static const QString default_peloton_accesstoken;
+
+    static const QString peloton_refreshtoken;
+    static const QString default_peloton_refreshtoken;
+
+    static const QString peloton_lastrefresh;
+    static const QString default_peloton_lastrefresh;
+
+    static const QString peloton_expires;
+    static const QString default_peloton_expires;
+
+    static const QString peloton_code;
+    static const QString default_peloton_code;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
