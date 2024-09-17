@@ -24,6 +24,13 @@
 #include "filedownloader.h"
 #include "homefitnessbuddy.h"
 
+#define PELOTON_SECRET_KEY test
+#if defined(WIN32)
+#pragma message("DEFINE PELOTON_SECRET_KEY!!!")
+#else
+#warning "DEFINE PELOTON_SECRET_KEY!!!"
+#endif
+
 class peloton : public QObject {
 
     Q_OBJECT

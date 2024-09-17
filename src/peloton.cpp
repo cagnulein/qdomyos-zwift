@@ -1,4 +1,5 @@
 #include "peloton.h"
+#include "secret.h"
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -1394,3 +1395,188 @@ void peloton::getWorkoutList(int num) {
 }
 
 void peloton::setTestMode(bool test) { testMode = test; }
+
+void peloton::onPelotonGranted() {
+
+    pelotonAuthWebVisible = false;
+    pelotonWebVisibleChanged(pelotonAuthWebVisible);
+    QSettings settings;
+    settings.setValue(QZSettings::peloton_accesstoken, peloton->token());
+    settings.setValue(QZSettings::peloton_refreshtoken, peloton->refreshToken());
+    settings.setValue(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime());
+    qDebug() << QStringLiteral("peloton authenticathed") << peloton->token() << peloton->refreshToken();
+    peloton_refreshtoken();
+    setGeneralPopupVisible(true);
+}
+
+void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
+
+    // ui->textBrowser->append(tr("Open with browser:") + url.toString());
+    QSettings settings;
+    bool strava_auth_external_webbrowser =
+        settings.value(QZSettings::strava_auth_external_webbrowser, QZSettings::default_strava_auth_external_webbrowser)
+            .toBool();
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+    strava_auth_external_webbrowser = true;
+#endif
+    pelotonAuthUrl = url.toString();
+    emit pelotonAuthUrlChanged(pelotonAuthUrl);
+
+    if (strava_auth_external_webbrowser)
+        QDesktopServices::openUrl(url);
+    else {
+        pelotonAuthWebVisible = true;
+        pelotonWebVisibleChanged(pelotonAuthWebVisible);
+    }
+}
+
+void peloton::replyDataReceived(const QByteArray &v) {
+
+    qDebug() << v;
+
+    QByteArray data;
+    QSettings settings;
+    QString s(v);
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(s.toUtf8());
+    settings.setValue(QZSettings::peloton_accesstoken, jsonResponse[QStringLiteral("access_token")]);
+    settings.setValue(QZSettings::peloton_refreshtoken, jsonResponse[QStringLiteral("refresh_token")]);
+    settings.setValue(QZSettings::peloton_expires, jsonResponse[QStringLiteral("expires_at")]);
+
+    qDebug() << jsonResponse[QStringLiteral("access_token")] << jsonResponse[QStringLiteral("refresh_token")]
+             << jsonResponse[QStringLiteral("expires_at")];
+
+    QString urlstr = QStringLiteral("https://www.peloton.com/oauth/token?");
+    QUrlQuery params;
+    params.addQueryItem(QStringLiteral("client_id"), QStringLiteral(PELOTON_CLIENT_ID_S));
+#ifdef PELOTON_SECRET_KEY
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+    params.addQueryItem("client_secret", STRINGIFY(PELOTON_SECRET_KEY));
+#endif
+
+    params.addQueryItem(QStringLiteral("code"), peloton_code);
+    data.append(params.query(QUrl::FullyEncoded).toUtf8());
+
+    // trade-in the temporary access code retrieved by the Call-Back URL for the finale token
+    QUrl url = QUrl(urlstr);
+
+    QNetworkRequest request = QNetworkRequest(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
+
+    // now get the final token - but ignore errors
+    if (manager) {
+
+        delete manager;
+        manager = 0;
+    }
+    manager = new QNetworkAccessManager(this);
+    // connect(manager, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> & )), this,
+    // SLOT(onSslErrors(QNetworkReply*, const QList<QSslError> & ))); connect(manager,
+    // SIGNAL(finished(QNetworkReply*)), this, SLOT(networkRequestFinished(QNetworkReply*)));
+    manager->post(request, data);
+}
+
+void peloton::onSslErrors(QNetworkReply *reply, const QList<QSslError> &error) {
+
+    reply->ignoreSslErrors();
+    qDebug() << QStringLiteral("peloton::onSslErrors") << error;
+}
+
+void peloton::networkRequestFinished(QNetworkReply *reply) {
+
+    QSettings settings;
+
+    // we can handle SSL handshake errors, if we got here then some kind of protocol was agreed
+    if (reply->error() == QNetworkReply::NoError || reply->error() == QNetworkReply::SslHandshakeFailedError) {
+
+        QByteArray payload = reply->readAll(); // JSON
+        QString refresh_token;
+        QString access_token;
+
+        // parse the response and extract the tokens, pretty much the same for all services
+        // although polar choose to also pass a user id, which is needed for future calls
+        QJsonParseError parseError;
+        QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
+        if (parseError.error == QJsonParseError::NoError) {
+            refresh_token = document[QStringLiteral("refresh_token")].toString();
+            access_token = document[QStringLiteral("access_token")].toString();
+        }
+
+        settings.setValue(QZSettings::peloton_accesstoken, access_token);
+        settings.setValue(QZSettings::peloton_refreshtoken, refresh_token);
+        settings.setValue(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime());
+
+        qDebug() << access_token << refresh_token;
+
+    } else {
+
+        // general error getting response
+        QString error =
+            QString(tr("Error retrieving access token, %1 (%2)")).arg(reply->errorString()).arg(reply->error());
+        qDebug() << error << reply->url() << reply->readAll();
+    }
+}
+
+void peloton::callbackReceived(const QVariantMap &values) {
+    qDebug() << QStringLiteral("peloton::callbackReceived") << values;
+    if (!values.value(QZSettings::code).toString().isEmpty()) {
+        peloton_code = values.value(QZSettings::code).toString();
+
+        qDebug() << peloton_code;
+    }
+}
+
+QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
+    if (manager) {
+
+        delete manager;
+        manager = nullptr;
+    }
+    if (pelotonOAuth) {
+
+        delete pelotonOAuth;
+        pelotonOAuth = nullptr;
+    }
+    if (pelotonReplyHandler) {
+
+        delete pelotonReplyHandler;
+        pelotonReplyHandler = nullptr;
+    }
+    manager = new QNetworkAccessManager(this);
+    OAuth2Parameter parameter;
+    pelotonOAuth = new QOAuth2AuthorizationCodeFlow(manager, this);
+    pelotonOAuth->setScope(QStringLiteral("activity:read_all,activity:write"));
+    pelotonOAuth->setClientIdentifier(QStringLiteral(PELOTON_CLIENT_ID_S));
+    pelotonOAuth->setAuthorizationUrl(QUrl(QStringLiteral("https://www.peloton.com/oauth/authorize")));
+    pelotonOAuth->setAccessTokenUrl(QUrl(QStringLiteral("https://www.peloton.com/oauth/token")));
+#ifdef PELOTON_SECRET_KEY
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+    pelotonoauth->setClientIdentifierSharedKey(STRINGIFY(PELOTON_SECRET_KEY));
+#elif defined(WIN32)
+#pragma message("DEFINE PELOTON_SECRET_KEY!!!")
+#else
+#pragma message "DEFINE PELOTON_SECRET_KEY!!!"
+#endif
+    pelotonoauth->setModifyParametersFunction(
+        buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String(""))));
+    pelotonReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 8091, this);
+    connect(pelotonReplyHandler, &QOAuthHttpServerReplyHandler::replyDataReceived, this, &peloton::replyDataReceived);
+    connect(pelotonReplyHandler, &QOAuthHttpServerReplyHandler::callbackReceived, this, &peloton::callbackReceived);
+
+    pelotonoauth->setReplyHandler(pelotonReplyHandler);
+
+    return pelotonOAuth;
+}
+
+void peloton::peloton_connect_clicked() {
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
+
+    peloton_connect();
+    connect(pelotonOAuth, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, this, &peloton::onPelotonAuthorizeWithBrowser);
+    connect(pelotonOAuth, &QOAuth2AuthorizationCodeFlow::granted, this, &peloton::onPelotonGranted);
+
+    pelotonOAuth->grant();
+    // qDebug() <<
+    // QAbstractOAuth2::post("https://www.peloton.com/oauth/authorize?client_id=7976&scope=activity:read_all,activity:write&redirect_uri=http://127.0.0.1&response_type=code&approval_prompt=force");
+}
