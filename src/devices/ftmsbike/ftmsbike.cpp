@@ -119,6 +119,11 @@ void ftmsbike::init() {
     write[0] = {FTMS_START_RESUME};
     writeCharacteristic(write, sizeof(write), "start simulation", false, true);
 
+    initDone = true;
+    initRequest = false;
+}
+
+void ftmsbike::zwiftPlayInit() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
@@ -158,9 +163,6 @@ void ftmsbike::init() {
         uint8_t init8[] = {0x04, 0x22, 0x02, 0x10, 0x01};
         writeCharacteristicZwiftPlay(init8, sizeof(init8), "init8", false, true);
     }
-
-    initDone = true;
-    initRequest = false;
 }
 
 void ftmsbike::forcePower(int16_t requestPower) {
@@ -233,6 +235,7 @@ void ftmsbike::update() {
     }
 
     if (initRequest) {
+        zwiftPlayInit();
         initRequest = false;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
