@@ -1552,15 +1552,6 @@ QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
     pelotonOAuth->setClientIdentifier(QStringLiteral(PELOTON_CLIENT_ID_S));
     pelotonOAuth->setAuthorizationUrl(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/authorize")));
     pelotonOAuth->setAccessTokenUrl(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token")));
-#ifdef PELOTON_SECRET_KEY
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-    pelotonOAuth->setClientIdentifierSharedKey(STRINGIFY(PELOTON_SECRET_KEY));
-#elif defined(WIN32)
-#pragma message("DEFINE PELOTON_SECRET_KEY!!!")
-#else
-#pragma message "DEFINE PELOTON_SECRET_KEY!!!"
-#endif
     pelotonOAuth->setModifyParametersFunction(
         buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String(""))));
     pelotonReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 8091, this);
