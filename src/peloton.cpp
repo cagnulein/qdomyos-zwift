@@ -1600,3 +1600,69 @@ QAbstractOAuth::ModifyParametersFunction peloton::buildModifyParametersFunction(
         }
     };
 }
+
+void peloton::peloton_refreshtoken() {
+
+    QSettings settings;
+    // QUrlQuery params; //NOTE: clazy-unuse-non-tirial-variable
+
+    if (settings.value(QZSettings::peloton_refreshtoken).toString().isEmpty()) {
+
+        peloton_connect();
+        return;
+    }
+
+    QNetworkRequest request(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token?")));
+    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    // set params
+    QString data;
+    data += QStringLiteral("client_id=" PELOTON_CLIENT_ID_S);
+    data += QStringLiteral("&refresh_token=") + settings.value(QZSettings::peloton_refreshtoken).toString();
+    data += QStringLiteral("&grant_type=refresh_token");
+
+    // make request
+    if (manager) {
+
+        delete manager;
+        manager = nullptr;
+    }
+    manager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = manager->post(request, data.toLatin1());
+
+    // blocking request
+    QEventLoop loop;
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qDebug() << QStringLiteral("HTTP response code: ") << statusCode;
+
+    // oops, no dice
+    if (reply->error() != 0) {
+        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        return;
+    }
+
+    // lets extract the access token, and possibly a new refresh token
+    QByteArray r = reply->readAll();
+    qDebug() << QStringLiteral("Got response:") << r.data();
+
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(r, &parseError);
+
+    // failed to parse result !?
+    if (parseError.error != QJsonParseError::NoError) {
+        qDebug() << tr("JSON parser error") << parseError.errorString();
+    }
+
+    QString access_token = document[QStringLiteral("access_token")].toString();
+    QString refresh_token = document[QStringLiteral("refresh_token")].toString();
+
+    settings.setValue(QZSettings::peloton_accesstoken, access_token);
+    settings.setValue(QZSettings::peloton_refreshtoken, refresh_token);
+    settings.setValue(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime());
+
+    homeform::singleton()->setToastRequested("Peloton Login OK!");
+}
