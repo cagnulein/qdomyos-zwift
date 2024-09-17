@@ -556,7 +556,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                        br) /
                       (2.0 * ar)) *
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+ settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
                 if (!resistance_received && !DU30_bike) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
@@ -1036,7 +1036,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
         // handling gears
-        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && (zwiftPlayService == nullptr && gears_zwift_ratio)) {
+        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && ((zwiftPlayService == nullptr && gears_zwift_ratio) || !gears_zwift_ratio)) {
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
                 lastPacketFromFTMS.append(b.at(i));
