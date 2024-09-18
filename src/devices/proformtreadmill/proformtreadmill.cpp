@@ -1490,6 +1490,22 @@ void proformtreadmill::update() {
 
             switch (counterPoll) {
             case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), false, true);
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"), false, true);
                 if (requestInclination != -100) {
                     if (requestInclination < 0)
                         requestInclination = 0;
@@ -1520,22 +1536,6 @@ void proformtreadmill::update() {
                     // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
                     requestStop = -1;
                 }
-                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
-                break;
-            case 1:
-                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
-                break;
-            case 2:
-                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
-                break;
-            case 3:
-                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), false, true);
-                break;
-            case 4:
-                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
-                break;
-            case 5:
-                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"), false, true);
                 break;
             }
             counterPoll++;
