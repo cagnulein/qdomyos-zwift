@@ -239,7 +239,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         workoutInProgress = false;
     }
     
-    @objc func addMetrics(power: Double, cadence: Double, speed: Double) {
+    @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double) {
         print("GET DATA: \(Date())")
         
         if(workoutInProgress == false && power > 0) {
@@ -250,6 +250,8 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
 
         let Speed = speed / 100;
         
+        WorkoutTracking.kcal = kcal
+
         if(sport == 0) {
             if #available(watchOSApplicationExtension 10.0, *) {
                 let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
