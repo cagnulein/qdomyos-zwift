@@ -1065,6 +1065,18 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             b[4] = slope >> 8;
 
             qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << slope;
+        } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
+            lastPacketFromFTMS.clear();
+            for(int i=0; i<b.length(); i++)
+                lastPacketFromFTMS.append(b.at(i));
+            qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
+            int16_t power = (((uint8_t)b.at(1)) + (b.at(2) << 8));
+            if (gears() != 0) {
+                power += (gears() * 10);
+            }
+            b[1] = power & 0xFF;
+            b[2] = power >> 8;
+            qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << power;
         }
 
         writeCharacteristic((uint8_t*)b.data(), b.length(), "injectWrite ", false, true);
