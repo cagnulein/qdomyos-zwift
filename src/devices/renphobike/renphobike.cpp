@@ -576,10 +576,10 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
             qDebug() << QStringLiteral("sending") << lastFTMSPacketReceived.toHex(' ');
         // handling gears
         } else if (lastFTMSPacketReceived.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
-            qDebug() << "applying gears mod" << m_gears;
+            qDebug() << "applying gears mod" << gears();
             int16_t slope = (((uint8_t)lastFTMSPacketReceived.at(3)) + (lastFTMSPacketReceived.at(4) << 8));
-            if (m_gears != 0) {
-                slope += (m_gears * 50);
+            if (gears() != 0) {
+                slope += (gears() * 50);
                 lastFTMSPacketReceived[3] = slope & 0xFF;
                 lastFTMSPacketReceived[4] = slope >> 8;
             }

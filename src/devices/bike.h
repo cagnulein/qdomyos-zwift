@@ -36,6 +36,7 @@ class bike : public bluetoothdevice {
     uint8_t metrics_override_heartrate() override;
     void setGears(double d);
     double gears();
+    double gearsZwiftRatio();
     void setSpeedLimit(double speed) { m_speedLimit = speed; }
     double speedLimit() { return m_speedLimit; }
     virtual bool ifitCompatible() {return false;}
@@ -74,11 +75,9 @@ class bike : public bluetoothdevice {
     metric RequestedResistance;
     metric RequestedPelotonResistance;
     metric RequestedCadence;
-    metric RequestedPower;
 
     resistance_t requestResistance = -1;
     double requestInclination = -100;
-    int16_t requestPower = -1;
 
     bool ergModeSupported = false; // if a bike has this mode supported, when from the virtual bike there is a power
                                    // request there is no need to translate in resistance levels

@@ -640,6 +640,8 @@ class homeform : public QObject {
     DataObject *strokesCount;
     DataObject *wattKg;
     DataObject *gears;
+    DataObject *biggearsPlus;
+    DataObject *biggearsMinus;
     DataObject *remaningTimeTrainingProgramCurrentRow;
     DataObject *nextRows;
     DataObject *mets;
@@ -806,6 +808,7 @@ class homeform : public QObject {
   private slots:
     void Start();
     void Stop();
+    void StopFromTrainProgram(bool paused);
     void StartRequested();
     void StopRequested();
     void Lap();

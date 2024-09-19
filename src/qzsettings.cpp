@@ -754,8 +754,16 @@ const QString QZSettings::proform_elliptical_ip = QStringLiteral("proform_ellipt
 const QString QZSettings::default_proform_elliptical_ip = QStringLiteral("");
 const QString QZSettings::antbike = QStringLiteral("antbike");
 const QString QZSettings::domyosbike_notfmts = QStringLiteral("domyosbike_notfmts");
+const QString QZSettings::gears_volume_debouncing = QStringLiteral("gears_volume_debouncing");
+const QString QZSettings::tile_biggears_enabled = QStringLiteral("tile_biggears_enabled");
+const QString QZSettings::tile_biggears_order = QStringLiteral("tile_biggears_order");
+const QString QZSettings::domyostreadmill_notfmts = QStringLiteral("domyostreadmill_notfmts");
+const QString QZSettings::zwiftplay_swap = QStringLiteral("zwiftplay_swap");
+const QString QZSettings::gears_zwift_ratio = QStringLiteral("gears_zwift_ratio");
+const QString QZSettings::domyos_bike_500_profile_v2 = QStringLiteral("domyos_bike_500_profile_v2");
+const QString QZSettings::gears_offset = QStringLiteral("gears_offset");
 
-const uint32_t allSettingsCount = 637;
+const uint32_t allSettingsCount = 645;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1399,6 +1407,14 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip},
     {QZSettings::antbike, QZSettings::default_antbike},
     {QZSettings::domyosbike_notfmts, QZSettings::default_domyosbike_notfmts},
+    {QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing},
+    {QZSettings::tile_biggears_enabled, QZSettings::default_tile_biggears_enabled},
+    {QZSettings::tile_biggears_order, QZSettings::default_tile_biggears_order},
+    {QZSettings::domyostreadmill_notfmts, QZSettings::default_domyostreadmill_notfmts},
+    {QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap},
+    {QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio},
+    {QZSettings::domyos_bike_500_profile_v2, QZSettings::default_domyos_bike_500_profile_v2},
+    {QZSettings::gears_offset, QZSettings::default_gears_offset},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

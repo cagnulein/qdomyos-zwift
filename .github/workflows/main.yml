@@ -195,14 +195,14 @@ jobs:
         if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-binary
           path: windows-binary.zip
         if: matrix.config.python
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-binary-no-python
           path: windows-binary-no-python.zip
@@ -433,7 +433,7 @@ jobs:
         run: qmake; make -j8
 
       - name: Archive linux-desktop binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: linux-desktop-binary
           path: src/qdomyos-zwift         
@@ -442,7 +442,7 @@ jobs:
         run: cd tst; GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests; cd ..
 
       - name: Upload test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: test_results_xml
@@ -630,7 +630,7 @@ jobs:
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
 
       - name: Archive apk binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: fdroid-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
@@ -904,14 +904,14 @@ jobs:
         if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-msvc2019-binary
           path: windows-msvc2019-binary.zip
         if: matrix.config.python
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-msvc2019-binary-no-python
           path: windows-msvc2019-binary-no-python.zip
@@ -1047,7 +1047,7 @@ jobs:
         run: Compress-Archive src/debug/output windows-msvc2019-ai-server-binary.zip
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-msvc2019-ai-server-binary
           path: windows-msvc2019-ai-server-binary.zip
@@ -1059,7 +1059,7 @@ jobs:
     needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build]  # Specify the job dependencies
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       - name: Update nightly release
         uses: andelf/nightly-release@main
         env:

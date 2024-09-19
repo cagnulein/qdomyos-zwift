@@ -110,6 +110,7 @@
 #include "devices/spirittreadmill/spirittreadmill.h"
 #include "devices/sportsplusbike/sportsplusbike.h"
 #include "devices/sportstechbike/sportstechbike.h"
+#include "devices/sportstechelliptical/sportstechelliptical.h"
 #include "devices/stagesbike/stagesbike.h"
 
 #include "devices/renphobike/renphobike.h"
@@ -217,6 +218,7 @@ class bluetooth : public QObject, public SignalHandler {
     horizongr7bike *horizonGr7Bike = nullptr;
     schwinnic4bike *schwinnIC4Bike = nullptr;
     sportstechbike *sportsTechBike = nullptr;
+    sportstechelliptical *sportsTechElliptical = nullptr;
     sportsplusbike *sportsPlusBike = nullptr;
     inspirebike *inspireBike = nullptr;
     snodebike *snodeBike = nullptr;
@@ -303,6 +305,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool eliteRizerAvaiable();
     bool eliteSterzoSmartAvaiable();
     bool fitmetriaFanfitAvaiable();
+    bool zwiftDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
 #ifdef Q_OS_WIN

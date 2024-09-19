@@ -276,6 +276,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                    QStringLiteral("0"), false, QStringLiteral("strokes_length"), 48, labelFontSize);
     gears = new DataObject(QStringLiteral("Gears"), QStringLiteral("icons/icons/elevationgain.png"),
                            QStringLiteral("0"), true, QStringLiteral("gears"), 48, labelFontSize);
+    biggearsPlus = new DataObject(QStringLiteral("GearsPlus"), QStringLiteral("icons/icons/elevationgain.png"),
+                                  QStringLiteral("0"), true, QStringLiteral("biggearsplus"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Gear +", QStringLiteral("red"));
+    biggearsMinus = new DataObject(QStringLiteral("GearsMinus"), QStringLiteral("icons/icons/elevationgain.png"),
+                                  QStringLiteral("0"), true, QStringLiteral("biggearsminus"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Gear -", QStringLiteral("green"));
     pidHR = new DataObject(QStringLiteral("PID Heart"), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), true, QStringLiteral("pid_hr"), 48, labelFontSize);
     extIncline = new DataObject(QStringLiteral("Ext.Inclin.(%)"), QStringLiteral("icons/icons/inclination.png"),
@@ -1006,6 +1010,7 @@ void homeform::trainProgramSignals() {
     if (bluetoothManager->device()) {
         disconnect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         disconnect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
+        disconnect(trainProgram, &trainprogram::stop, this, &homeform::StopFromTrainProgram);
         disconnect(trainProgram, &trainprogram::lap, this, &homeform::Lap);
         disconnect(trainProgram, &trainprogram::changeSpeed, ((treadmill *)bluetoothManager->device()),
                    &treadmill::changeSpeed);
@@ -1055,6 +1060,7 @@ void homeform::trainProgramSignals() {
 
         connect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         connect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
+        connect(trainProgram, &trainprogram::stop, this, &homeform::StopFromTrainProgram);
         connect(trainProgram, &trainprogram::lap, this, &homeform::Lap);
         connect(trainProgram, &trainprogram::toastRequest, this, &homeform::onToastRequested);
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
@@ -1814,6 +1820,18 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_erg_mode_order, QZSettings::default_tile_erg_mode_order).toInt() == i) {
                 ergMode->setGridId(i);
                 dataList.append(ergMode);
+            }
+
+            if (settings.value(QZSettings::tile_biggears_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_biggears_order, 54).toInt() == i) {
+                biggearsPlus->setGridId(i);
+                dataList.append(biggearsPlus);
+            }
+
+            if (settings.value(QZSettings::tile_biggears_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_biggears_order, 54).toInt() + 1 == i) {
+                biggearsMinus->setGridId(i);
+                dataList.append(biggearsMinus);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
@@ -3108,6 +3126,12 @@ void homeform::LargeButton(const QString &name) {
                                         .toDouble());
         }
     }
+
+    if(name.contains(QStringLiteral("biggearsplus"))) {
+        gearUp();
+    } else if(name.contains(QStringLiteral("biggearsminus"))) {
+        gearDown();
+    }
 }
 
 void homeform::Plus(const QString &name) {
@@ -3722,6 +3746,10 @@ void homeform::StopRequested() {
     emit stopRequestedChanged(m_stopRequested);
 }
 
+void homeform::StopFromTrainProgram(bool paused) {
+    Stop();
+}
+
 void homeform::Stop() {
     QSettings settings;
 
@@ -4110,16 +4138,28 @@ void homeform::update() {
             static double volumeLast = -1;
             double currentVolume = h.getVolume() * 10.0;
             qDebug() << "volume" << volumeLast << currentVolume;
+            QSettings settings;
+            bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
             if (volumeLast == -1)
                 qDebug() << "volume init";
             else if (volumeLast > currentVolume) {
                 double diff = volumeLast - currentVolume;
-                for (int i = 0; i < diff; i++)
+                for (int i = 0; i < diff; i++) {
                     Minus(QStringLiteral("gears"));
+                    if(gears_volume_debouncing) {
+                        i = diff;
+                        break;
+                    }
+                }
             } else if (volumeLast < currentVolume) {
                 double diff = currentVolume - volumeLast;
-                for (int i = 0; i < diff; i++)
+                for (int i = 0; i < diff; i++) {
                     Plus(QStringLiteral("gears"));
+                    if(gears_volume_debouncing) {
+                        i = diff;
+                        break;
+                    }
+                }
             }
             volumeLast = currentVolume;
         }

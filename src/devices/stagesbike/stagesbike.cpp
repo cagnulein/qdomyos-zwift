@@ -120,7 +120,8 @@ void stagesbike::serviceDiscovered(const QBluetoothUuid &gatt) {
         QSettings settings;
         settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
         qDebug() << "forcing FTMS bike since it has FTMS";
-        homeform::singleton()->setToastRequested("FTMS bike found, restart the app to apply the change!");
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("FTMS bike found, restart the app to apply the change!");
     }
 }
 

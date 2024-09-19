@@ -2111,6 +2111,30 @@ class QZSettings {
     static const QString domyosbike_notfmts;
     static constexpr bool default_domyosbike_notfmts = false;
 
+    static const QString gears_volume_debouncing;
+    static constexpr bool default_gears_volume_debouncing = false;
+
+    static const QString tile_biggears_enabled;
+    static constexpr bool default_tile_biggears_enabled = false;
+
+    static const QString tile_biggears_order;
+    static constexpr int default_tile_biggears_order = 54;
+
+    static const QString domyostreadmill_notfmts;
+    static constexpr bool default_domyostreadmill_notfmts = false;
+
+    static const QString zwiftplay_swap;
+    static constexpr bool default_zwiftplay_swap = false;
+
+    static const QString gears_zwift_ratio;
+    static constexpr bool default_gears_zwift_ratio = false;
+
+    static const QString domyos_bike_500_profile_v2;
+    static constexpr bool default_domyos_bike_500_profile_v2 = false;
+
+    static const QString gears_offset;
+    static constexpr double default_gears_offset = 0.0;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

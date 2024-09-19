@@ -1,5 +1,5 @@
 #include "horizontreadmill.h"
-
+#include "homeform.h"
 #include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
 #include "virtualdevices/virtualtreadmill.h"
@@ -2087,10 +2087,21 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
+    QBluetoothUuid _gattInclinationSupported((quint16)0x2AD5);
+    QBluetoothUuid _DomyosServiceId(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
+
+        if(s->serviceUuid() == _DomyosServiceId && DOMYOS) {
+            settings.setValue(QZSettings::domyostreadmill_notfmts, true);
+            settings.sync();
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("Domyos Treadmill presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
+            return;
+        }
+
         if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
@@ -2130,6 +2141,9 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     // some treadmills doesn't have the control point and also are Cross Trainer devices so i need
                     // anyway to get the FTMS Service at least
                     gattFTMSService = s;
+                } else if (c.uuid() == _gattInclinationSupported) {
+                    s->readCharacteristic(c);
+                    qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }
 
                 if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService &&
@@ -2245,6 +2259,17 @@ void horizontreadmill::characteristicWritten(const QLowEnergyCharacteristic &cha
 
 void horizontreadmill::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
+    QBluetoothUuid _gattInclinationSupported((quint16)0x2AD5);
+    if(characteristic.uuid() == _gattInclinationSupported && newValue.length() > 2) {
+        minInclination = ((double)(
+             (int16_t)(
+                 ((int16_t)(int8_t)newValue.at(1) << 8) |
+                 (uint8_t)newValue.at(0)
+                 )
+             ) /
+         10.0);
+        qDebug() << "new minInclination is " << minInclination;
+    }
 }
 
 void horizontreadmill::serviceScanDone(void) {
@@ -2328,6 +2353,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("T01_")) {
             ICONCEPT_FTMS_treadmill = true;
             qDebug() << QStringLiteral("ICONCEPT_FTMS_treadmill workaround ON!");
+        } else if ((device.name().toUpper().startsWith("DOMYOS"))) {
+            qDebug() << QStringLiteral("DOMYOS found");
+            DOMYOS = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {

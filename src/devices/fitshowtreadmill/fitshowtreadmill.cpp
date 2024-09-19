@@ -303,7 +303,8 @@ void fitshowtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
         QSettings settings;
         settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
         qDebug() << "forcing FTMS treadmill since it has FTMS";
-        homeform::singleton()->setToastRequested("FTMS treadmill found, restart the app to apply the change");
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("FTMS treadmill found, restart the app to apply the change");
     }
 }
 

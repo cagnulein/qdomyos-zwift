@@ -98,6 +98,7 @@ class horizontreadmill : public treadmill {
     bool disableAutoPause = false;
     bool HORIZON_78AT_treadmill = false;
     bool ICONCEPT_FTMS_treadmill = false;
+    bool DOMYOS = false;
 
     void testProfileCRC();
     void updateProfileCRC();
