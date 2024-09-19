@@ -41,6 +41,10 @@ public class LocationHelper {
 
     private static boolean isLocationEnabled(Context context) {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager == null) {
+            Log.d(TAG, "LocationManager is null, device might not have GPS. Returning true.");
+            return true;
+        }        
         return locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
