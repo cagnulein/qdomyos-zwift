@@ -564,6 +564,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     }    
 #ifdef Q_OS_ANDROID
+
+    QString bluetoothName = getBluetoothName();
+    qDebug() << "getBluetoothName()" << bluetoothName;
+    
     // Android 14 restrics access to /Android/data folder
     bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
     if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
@@ -6961,6 +6965,27 @@ void homeform::sendMail() {
 }
 
 #if defined(Q_OS_ANDROID)
+
+QString homeform::getBluetoothName()
+{
+    QAndroidJniObject bluetoothAdapter = QAndroidJniObject::callStaticObjectMethod(
+        "android/bluetooth/BluetoothAdapter",
+        "getDefaultAdapter",
+        "()Landroid/bluetooth/BluetoothAdapter;");
+    
+    if (bluetoothAdapter.isValid()) {
+        QAndroidJniObject name = bluetoothAdapter.callObjectMethod(
+            "getName",
+            "()Ljava/lang/String;");
+        
+        if (name.isValid()) {
+            return name.toString();
+        }
+    }
+    
+    return QString();
+}
+
 QString homeform::getAndroidDataAppDir() {
     static QString path = "";
 
