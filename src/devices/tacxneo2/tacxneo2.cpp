@@ -278,7 +278,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     .toDouble();
 
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+                     ((double)lastRefreshCharacteristicChanged2A5B.msecsTo(now)));
 
         // Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
         // (uint16_t)((uint8_t)newValue.at(index)))); debug("Current Resistance: " +
@@ -312,10 +312,10 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 ((((0.048 * ((double)watts()) + 1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged2A5B.msecsTo(
                                 now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
-        lastRefreshCharacteristicChanged = now;
+        lastRefreshCharacteristicChanged2A5B = now;
 
         emit debug(QStringLiteral("Current CrankRevsRead: ") + QString::number(CrankRevsRead));
         emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
@@ -445,7 +445,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
                 Distance += ((Speed.value() / 3600000.0) *
-                             ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+                             ((double)lastRefreshCharacteristicChangedPower.msecsTo(now)));
                 emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
                 // if we change this, also change the wattsFromResistance function. We can create a standard function in
@@ -492,11 +492,12 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
                         ((((0.048 * ((double)watts()) + 1.19) *
                            settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                           200.0) /
-                         (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                         (60000.0 / ((double)lastRefreshCharacteristicChangedPower.msecsTo(
                                         now)))); //(( (0.048* Output in watts +1.19) * body weight
                                                                           // in kg * 3.5) / 200 ) / 60
                 emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
+                lastRefreshCharacteristicChangedPower = now;
             }
         }
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
@@ -584,7 +585,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+                     ((double)lastRefreshCharacteristicChanged2AD2.msecsTo(now)));
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
@@ -656,7 +657,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
                            settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                           200.0) /
                          (60000.0 /
-                          ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          ((double)lastRefreshCharacteristicChanged2AD2.msecsTo(
                               now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                        // kg * 3.5) / 200 ) / 60
         }
@@ -690,6 +691,8 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         if (Flags.remainingTime) {
             // todo
         }
+
+        lastRefreshCharacteristicChanged2AD2 = now;
     }
 
 #ifdef Q_OS_ANDROID
