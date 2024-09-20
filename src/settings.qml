@@ -6120,7 +6120,7 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_treadmill_8_7 ? 29 :
                                                     settings.proform_treadmill_705_cst_V78_239 ? 30 :
                                                     settings.proform_treadmill_carbon_t7 ? 31 :
-                                                    settings.nordictrack_treadmill_exp_5i ? 32 
+                                                    settings.nordictrack_treadmill_exp_5i ? 32 :
                                                     settings.proform_carbon_tl_PFTL59720 ? 33 : -1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
