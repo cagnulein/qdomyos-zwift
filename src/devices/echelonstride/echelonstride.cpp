@@ -383,9 +383,8 @@ void echelonstride::btinit() {
     // stride4
     uint8_t initDataStride4_0[] = {0xf0, 0xe0, 0xfd, 0x3e, 0x65, 0x48, 0xd5, 0x8d};
 
-    
-
     if(stride4) {
+        writeCharacteristic(initData0, sizeof(initData0), QStringLiteral("init"), false, true); // send a frame to wait the Value: f0e0728518586198
         writeCharacteristic(initData0, sizeof(initData0), QStringLiteral("init"), false, false);
         writeCharacteristic(initDataStride4_0, sizeof(initDataStride4_0), QStringLiteral("init"), false, false);
         writeCharacteristic(initData0, sizeof(initData0), QStringLiteral("init"), false, false);
