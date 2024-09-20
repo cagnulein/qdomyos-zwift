@@ -975,6 +975,9 @@ import QtQuick.Dialogs 1.0
             property bool domyostreadmill_notfmts: false
             property bool zwiftplay_swap: false
             property bool gears_zwift_ratio: false
+            property bool domyos_bike_500_profile_v2: false
+            property double gears_offset: 0.0
+            property bool proform_carbon_tl_PFTL59720: false
         }
 
         function paddingZeros(text, limit) {
@@ -2367,7 +2370,43 @@ import QtQuick.Dialogs 1.0
                     }
 
                     Label {
-                        text: qsTr("Applies a multiplier to the gears tile. Default is 1.")
+                        text: qsTr("Applies a multiplier to the gears. Default is 1.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Gears Offset:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: gearsOffsetTextField
+                            text: settings.gears_offset
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.gears_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.gears_offset = gearsOffsetTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Applies an offset to the gears. Default is 0.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -2964,7 +3003,6 @@ import QtQuick.Dialogs 1.0
                         }
                     }
                     SwitchDelegate {
-                        id: domyosBikeCaloriesDisplayDelegate
                         text: qsTr("Fix Calories/Km to Console")
                         spacing: 0
                         bottomPadding: 0
@@ -2978,7 +3016,6 @@ import QtQuick.Dialogs 1.0
                         onClicked: settings.domyos_bike_display_calories = checked
                     }
                     SwitchDelegate {
-                        id: domyosBike500ProfileV1Delegate
                         text: qsTr("Bike 500 wattage profile")
                         spacing: 0
                         bottomPadding: 0
@@ -2989,8 +3026,21 @@ import QtQuick.Dialogs 1.0
                         checked: settings.domyos_bike_500_profile_v1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.domyos_bike_500_profile_v1 = checked
+                        onClicked: { settings.domyos_bike_500_profile_v1 = checked; settings.domyos_bike_500_profile_v2 = false; }
                     }
+                    SwitchDelegate {
+                        text: qsTr("Bike 500 wattage profile v2")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.domyos_bike_500_profile_v2
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.domyos_bike_500_profile_v2 = checked; settings.domyos_bike_500_profile_v1 = false; }
+                    }                    
                 }                
                 AccordionElement {
                     title: qsTr("Tacx Neo Options")
@@ -5955,7 +6005,7 @@ import QtQuick.Dialogs 1.0
                                 "Proform 8.0", "Proform 9.0", "Proform 705 CST", "Nordictrack x14i", 
                                 "Proform Carbon TL", "Proform Proshox 2", "Nordictrack S20i", "Proform 595i",
                                 "Proform 8.7", "Proform 705 CST V78.239", "Proform Carbon T7",
-                                "Nordictrack EXP 5i"
+                                "Nordictrack EXP 5i", "Proform Carbon TL PFTL59720"
                             ]
 
                             onCurrentIndexChanged: {
@@ -5995,6 +6045,7 @@ import QtQuick.Dialogs 1.0
                                 settings.proform_treadmill_705_cst_V78_239 = false;
                                 settings.proform_treadmill_carbon_t7 = false;
                                 settings.nordictrack_treadmill_exp_5i = false;
+                                settings.proform_carbon_tl_PFTL59720 = false;
 
                                 // Imposta il setting corrispondente al modello selezionato
                                 switch (currentIndex) {
@@ -6031,6 +6082,7 @@ import QtQuick.Dialogs 1.0
                                     case 30: settings.proform_treadmill_705_cst_V78_239 = true; break;
                                     case 31: settings.proform_treadmill_carbon_t7 = true; break;
                                     case 32: settings.nordictrack_treadmill_exp_5i = true; break;
+                                    case 33: settings.proform_carbon_tl_PFTL59720 = true; break;
                                 }
                             }
 
@@ -6068,7 +6120,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_treadmill_8_7 ? 29 :
                                                     settings.proform_treadmill_705_cst_V78_239 ? 30 :
                                                     settings.proform_treadmill_carbon_t7 ? 31 :
-                                                    settings.nordictrack_treadmill_exp_5i ? 32 : -1;
+                                                    settings.nordictrack_treadmill_exp_5i ? 32 :
+                                                    settings.proform_carbon_tl_PFTL59720 ? 33 : -1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 
@@ -9615,7 +9668,7 @@ import QtQuick.Dialogs 1.0
                             }
 
                             SwitchDelegate {
-                                text: qsTr("Use Zwift app ratio for gears")
+                                text: qsTr("Use Zwift app ratio for gears (Experimental)")
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0

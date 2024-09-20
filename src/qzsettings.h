@@ -2129,6 +2129,14 @@ class QZSettings {
     static const QString gears_zwift_ratio;
     static constexpr bool default_gears_zwift_ratio = false;
 
+    static const QString domyos_bike_500_profile_v2;
+    static constexpr bool default_domyos_bike_500_profile_v2 = false;
+
+    static const QString gears_offset;
+    static constexpr double default_gears_offset = 0.0;
+
+    static const QString proform_carbon_tl_PFTL59720;
+    static constexpr bool default_proform_carbon_tl_PFTL59720 = false;    
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

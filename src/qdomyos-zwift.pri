@@ -81,6 +81,7 @@ SOURCES += \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
     $$PWD/devices/jumprope.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
+    $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
@@ -301,11 +302,13 @@ INCLUDEPATH += fit-sdk/ devices/
 
 HEADERS += \
     $$PWD/characteristics/characteristicnotifier1224.h \
+    $$PWD/EventHandler.h \
     $$PWD/devices/antbike/antbike.h \
     $$PWD/devices/crossrope/crossrope.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/jumprope.h \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
+    $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/ergtable.h \
     $$PWD/treadmillErgTable.h \

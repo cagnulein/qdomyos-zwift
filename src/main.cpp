@@ -5,6 +5,7 @@
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
 #include <unistd.h> // getuid
+#include "EventHandler.h"
 #endif
 #endif
 #include <QQmlContext>
@@ -67,6 +68,7 @@ bool bike_wheel_revs = false;
 bool run_cadence_sensor = false;
 bool nordictrack_10_treadmill = false;
 bool reebok_fr30_treadmill = false;
+QString eventGearDevice = QStringLiteral("");
 QString trainProgram;
 QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
@@ -147,6 +149,10 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-name")) {
 
             deviceName = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-bluetooth-event-gear-device")) {
+
+            eventGearDevice = argv[++i];
         }
         if (!qstrcmp(argv[i], "-peloton-username")) {
 
@@ -642,6 +648,13 @@ int main(int argc, char *argv[]) {
     } else {
         // start non-GUI version...
     }
+
+#ifdef Q_OS_LINUX
+#ifndef Q_OS_ANDROID
+    if(eventGearDevice.length())
+        new BluetoothHandler(&bl, eventGearDevice);
+#endif
+#endif
     return app->exec();
 #endif
 }

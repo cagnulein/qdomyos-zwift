@@ -1,5 +1,5 @@
-#ifndef ECHELONSTRIDE_H
-#define ECHELONSTRIDE_H
+#ifndef SPORTSTECHelliptical_H
+#define SPORTSTECHelliptical_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -22,72 +22,61 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
-#include <QDateTime>
 #include <QObject>
-#include <QString>
+#include <QTime>
 
-#include "treadmill.h"
+#include "devices/elliptical.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
-class echelonstride : public treadmill {
+class sportstechelliptical : public elliptical {
     Q_OBJECT
   public:
-    echelonstride(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
-                  double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
+    sportstechelliptical(bool noWriteResistance, bool noHeartService, int8_t ellipticalResistanceOffset,
+                   double ellipticalResistanceGain);
     bool connected() override;
-    double minStepInclination() override;
-
-    bool autoPauseWhenSpeedIsZero() override;
-    bool autoStartWhenSpeedIsGreaterThenZero() override;
-    bool canHandleSpeedChange() override { return false; }
-    bool canHandleInclineChange() override { return false; }    
+    resistance_t maxResistance() override { return 24; }
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
 
   private:
-    double GetSpeedFromPacket(QByteArray packet);
-    double GetInclinationFromPacket(QByteArray packet);
-    double GetKcalFromPacket(QByteArray packet);
+    double GetSpeedFromPacket(const QByteArray &packet);
+    double GetResistanceFromPacket(const QByteArray &packet);
+    double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(QByteArray packet);
-    void forceSpeed(double requestSpeed);
-    void forceIncline(double requestIncline);
+    uint16_t GetElapsedFromPacket(const QByteArray &packet);
+    uint16_t wattsFromResistance(double resistance);
+    void forceResistance(resistance_t requestResistance);
     void updateDisplay(uint16_t elapsed);
-    void btinit();
-    void sendPoll();
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
-                             bool wait_for_response = false);
+    void btinit(bool startTape);
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+                             bool wait_for_response);
     void startDiscover();
-    bool noConsole = false;
-    bool noHeartService = false;
-    uint32_t pollDeviceTime = 200;
-    uint8_t sec1Update = 0;
-    uint8_t firstInit = 0;
-    uint8_t counterPoll = 1;
-    QByteArray lastPacket;
-    QDateTime lastTimeCharacteristicChanged;
-    bool firstCharacteristicChanged = true;
+    uint16_t watts() override;
+    double GetWattFromPacket(const QByteArray &packet);
+    double GetCadenceFromPacket(const QByteArray &packet);
 
     QTimer *refresh;
+
+    bool noWriteResistance = false;
+    bool noHeartService = false;
+    int8_t ellipticalResistanceOffset = 4;
+    double ellipticalResistanceGain = 1.0;
+
+    uint8_t firstVirtualelliptical = 0;
+    bool firstCharChanged = true;
+    QTime lastTimeCharChanged;
+    uint8_t sec1update = 0;
+    QByteArray lastPacket;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
-    QLowEnergyCharacteristic gattNotify2Characteristic;
 
     bool initDone = false;
     bool initRequest = false;
-
-    bool stride4 = false;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
+    bool readyToStart = false;
 
   signals:
     void disconnected();
     void debug(QString string);
-    void speedChanged(double speed);
     void packetReceived();
 
   public slots:
@@ -100,7 +89,6 @@ class echelonstride : public treadmill {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
-    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
@@ -109,4 +97,4 @@ class echelonstride : public treadmill {
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // ECHELONSTRIDE_H
+#endif // SPORTSTECHelliptical_H
