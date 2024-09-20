@@ -1,6 +1,6 @@
+#include "secret.h"
 #include "homeform.h"
 #include "peloton.h"
-#include "secret.h"
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -14,7 +14,7 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     mgr = new QNetworkAccessManager(this);
     timer = new QTimer(this);
 
-    peloton_connect();
+    peloton_connect_clicked();
 
     // only for test purpose
     /*
@@ -1657,16 +1657,4 @@ void peloton::peloton_refreshtoken() {
 
     homeform::singleton()->setToastRequested("Peloton Login OK!");
     
-}
-
-void peloton::peloton_connect_clicked() {
-    QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
-
-    peloton_connect();
-    connect(peloton, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, this, &peloton::onPelotonAuthorizeWithBrowser);
-    connect(peloton, &QOAuth2AuthorizationCodeFlow::granted, this, &peloton::onPelotonGranted);
-
-    peloton->grant();
-    // qDebug() <<
-    // QAbstractOAuth2::post("https://www.peloton.com/oauth/authorize?client_id=7976&scope=activity:read_all,activity:write&redirect_uri=http://127.0.0.1&response_type=code&approval_prompt=force");
 }
