@@ -1554,7 +1554,7 @@ QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
     pelotonOAuth->setAccessTokenUrl(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token")));
     pelotonOAuth->setModifyParametersFunction(
         buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String(""))));
-    pelotonReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 8091, this);
+    pelotonReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 18080, this);
     connect(pelotonReplyHandler, &QOAuthHttpServerReplyHandler::replyDataReceived, this, &peloton::replyDataReceived);
     connect(pelotonReplyHandler, &QOAuthHttpServerReplyHandler::callbackReceived, this, &peloton::callbackReceived);
 
