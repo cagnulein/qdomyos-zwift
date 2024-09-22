@@ -102,6 +102,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var ZwiftPlayService: CBMutableService!
     private var ZwiftPlayReadCharacteristic: CBMutableCharacteristic!
     private var ZwiftPlayWriteCharacteristic: CBMutableCharacteristic!
+    private var ZwiftPlayIndicateCharacteristic: CBMutableCharacteristic!
 
     
     public var LastFTMSMessageReceived: Data?
@@ -280,7 +281,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                                                    permissions: ZwiftPlayWritePermissions)
 
         let ZwiftPlayIndicateProperties: CBCharacteristicProperties = [.indicate]
-          let ZwiftPlayIndicatePermissions: CBAttributePermissions = [.indicate]
+        let ZwiftPlayIndicatePermissions: CBAttributePermissions = [.readable]
           self.ZwiftPlayIndicateCharacteristic = CBMutableCharacteristic(type: ZwiftPlayIndicateUUID,
                                                      properties: ZwiftPlayIndicateProperties,
                                                                    value: nil,
@@ -288,7 +289,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
 
         ZwiftPlayService.characteristics = [ZwiftPlayReadCharacteristic,
                                            ZwiftPlayWriteCharacteristic,
-                                           ZwiftPlayIndicatePermissions]
+                                            ZwiftPlayIndicateCharacteristic]
           self.peripheralManager.add(ZwiftPlayService)
         
     default:
@@ -364,8 +365,8 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         let responseData = Data(bytes: &response, count: 3)
           
         self.peripheralManager.updateValue(responseData, for: self.FitnessMachineControlPointCharacteristic, onSubscribedCentrals: nil)
-    } else if requests.first!.characteristic == self.ZwiftPlayReadUUID {
-      let receivedData = request.value ?? Data()
+    } else if requests.first!.characteristic == ZwiftPlayReadUUID {
+        let receivedData = requests.first!.value ?? Data()
       let expectedHexArray: [UInt8] = [0x52, 0x69, 0x64, 0x65, 0x4F, 0x6E, 0x02, 0x01]
       let expectedHexArray2: [UInt8] = [0x00, 0x08, 0x00]
       let expectedHexArray3: [UInt8] = [0x00, 0x08, 0x88, 0x04]
@@ -375,58 +376,58 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       
       if receivedBytes == expectedHexArray {
         SwiftDebug.qtDebug("Zwift Play Ask 1")
-        peripheral.respond(to: request.first!, withResult: .success)  
+        peripheral.respond(to: requests.first!, withResult: .success)
         
         var response: [UInt8] = [0x2a, 0x08, 0x03, 0x12, 0x11, 0x22, 0x0f, 0x41, 0x54, 0x58, 0x20, 0x30, 0x34, 0x2c, 0x20, 0x53, 0x54, 0x58, 0x20, 0x30, 0x34, 0x00]
         var responseData = Data(bytes: &response, count: 22)
 
-        self.peripheralManager.updateValue(responseData, for: self.ZwiftPlayWriteUUID, onSubscribedCentrals: nil)  
+        self.peripheralManager.updateValue(responseData, for: ZwiftPlayWriteCharacteristic, onSubscribedCentrals: nil)
 
-        response: [UInt8] = [0x2a, 0x08, 0x03, 0x12, 0x0d, 0x22, 0x0b, 0x52, 0x49, 0x44, 0x45, 0x5f, 0x4f, 0x4e, 0x28, 0x32, 0x29, 0x00]
-        var responseData = Data(bytes: &response, count: 18)
+        response = [0x2a, 0x08, 0x03, 0x12, 0x0d, 0x22, 0x0b, 0x52, 0x49, 0x44, 0x45, 0x5f, 0x4f, 0x4e, 0x28, 0x32, 0x29, 0x00]
+        responseData = Data(bytes: &response, count: 18)
 
-        self.peripheralManager.updateValue(responseData, for: self.ZwiftPlayWriteUUID, onSubscribedCentrals: nil)  
+        self.peripheralManager.updateValue(responseData, for: ZwiftPlayWriteCharacteristic, onSubscribedCentrals: nil)
 
-        response: [UInt8] = [0x52, 0x69, 0x64, 0x65, 0x4f, 0x6e, 0x02, 0x00]
-        var responseData = Data(bytes: &response, count: 8)
+        response = [0x52, 0x69, 0x64, 0x65, 0x4f, 0x6e, 0x02, 0x00]
+        responseData = Data(bytes: &response, count: 8)
 
-        self.peripheralManager.updateValue(responseData, for: self.ZwiftPlayIndicateUUID, onSubscribedCentrals: nil)              
+        self.peripheralManager.updateValue(responseData, for: ZwiftPlayIndicateCharacteristic, onSubscribedCentrals: nil)
       }
       let receivedBytes2 = [UInt8](receivedData.prefix(expectedHexArray2.count))
       
       if receivedBytes2 == expectedHexArray2 {
         SwiftDebug.qtDebug("Zwift Play Ask 2")
-        peripheral.respond(to: request.first!, withResult: .success)  
+        peripheral.respond(to: requests.first!, withResult: .success)
         
         
         var response: [UInt8] = [0x3c, 0x08, 0x00, 0x12, 0x32, 0x0a, 0x30, 0x08, 0x80, 0x04, 0x12, 0x04, 0x05, 0x00, 0x05, 0x01, 0x1a, 0x0b, 0x4b, 0x49, 0x43, 0x4b, 0x52, 0x20, 0x43, 0x4f, 0x52, 0x45, 0x00, 0x32, 0x0f, 0x34, 0x30, 0x32, 0x34, 0x31, 0x38, 0x30, 0x30, 0x39, 0x38, 0x34, 0x00, 0x00, 0x00, 0x00, 0x3a, 0x01, 0x31, 0x42, 0x04, 0x08, 0x01, 0x10, 0x14 ]
         var responseData = Data(bytes: &response, count: 55)
 
-        self.peripheralManager.updateValue(responseData, for: self.ZwiftPlayIndicateUUID, onSubscribedCentrals: nil)  
+        self.peripheralManager.updateValue(responseData, for: self.ZwiftPlayIndicateCharacteristic, onSubscribedCentrals: nil)
       }
       let receivedBytes3 = [UInt8](receivedData.prefix(expectedHexArray3.count))
       
       if receivedBytes3 == expectedHexArray3 {
         SwiftDebug.qtDebug("Zwift Play Ask 3")
-        peripheral.respond(to: request.first!, withResult: .success)  
+        peripheral.respond(to: requests.first!, withResult: .success)
         
         
         var response: [UInt8] = [0x3c, 0x08, 0x88, 0x04, 0x12, 0x06, 0x0a, 0x04, 0x40, 0xc0, 0xbb, 0x01 ]
         var responseData = Data(bytes: &response, count: 12)
 
-        self.peripheralManager.updateValue(responseData, for: self.ZwiftPlayIndicateUUID, onSubscribedCentrals: nil)  
+        self.peripheralManager.updateValue(responseData, for: ZwiftPlayIndicateCharacteristic, onSubscribedCentrals: nil)
       }
       let receivedBytes4 = [UInt8](receivedData.prefix(expectedHexArray4.count))
       
       if receivedBytes4 == expectedHexArray4 {
         SwiftDebug.qtDebug("Zwift Play Ask 4")
-        peripheral.respond(to: request.first!, withResult: .success)  
+        peripheral.respond(to: requests.first!, withResult: .success)
         
         
         var response: [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0x59, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01]
         var responseData = Data(bytes: &response, count: 15)
 
-        self.peripheralManager.updateValue(responseData, for: self.ZwiftPlayWriteUUID, onSubscribedCentrals: nil)  
+        self.peripheralManager.updateValue(responseData, for: self.ZwiftPlayWriteCharacteristic, onSubscribedCentrals: nil)  
       }
     }
     } 
