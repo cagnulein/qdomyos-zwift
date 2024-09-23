@@ -831,6 +831,61 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         }
     }
 
+    //********************ZWIFT PLAY**************
+
+    if(characteristic.uuid().toString().contains(QStringLiteral("00000003-19ca-4651-86e5-fa29dcdd09d1"))) {
+        const QByteArray expectedHexArray2 = QByteArray::fromHex("000800");
+        const QByteArray expectedHexArray3 = QByteArray::fromHex("00088804");
+        const QByteArray expectedHexArray4 = QByteArray::fromHex("042a0a10c0bb0120bf0628b442");
+
+        QByteArray receivedBytes = newValue.left(expectedHexArray2.size());
+
+        QLowEnergyCharacteristic characteristic =
+            service->characteristic(QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")));
+        QLowEnergyCharacteristic characteristicIndicate =
+            service->characteristic(QBluetoothUuid(QStringLiteral("00000004-19ca-4651-86e5-fa29dcdd09d1")));
+
+        if (receivedBytes == expectedHexArray2) {
+            qDebug() << "Zwift Play Ask 1";
+
+            QByteArray response = QByteArray::fromHex("2a08031211220f4154582030342c205354582030340000");
+            writeCharacteristic(serviceZwiftPlayBike, characteristic, response);
+
+            response = QByteArray::fromHex("2a0803120d220b524944455f4f4e28322900");
+            writeCharacteristic(serviceZwiftPlayBike, characteristic, response);
+
+            response = QByteArray::fromHex("5269646f4f6e0200");
+            writeCharacteristic(serviceZwiftPlayBike, characteristicIndicate, response);
+        }
+
+        QByteArray receivedBytes2 = newValue.left(expectedHexArray2.size());
+
+        if (receivedBytes2 == expectedHexArray2) {
+            qDebug() << "Zwift Play Ask 2";
+
+            QByteArray response = QByteArray::fromHex("3c080012320a3008800412040500050110a0b4b4c4b52000320f3430323431383030393834000000003a0131420408011014");
+            writeCharacteristic(serviceZwiftPlayBike, characteristicIndicate, response);
+        }
+
+        QByteArray receivedBytes3 = newValue.left(expectedHexArray3.size());
+
+        if (receivedBytes3 == expectedHexArray3) {
+            qDebug() << "Zwift Play Ask 3";
+
+            QByteArray response = QByteArray::fromHex("3c08880412060a0440c0bb01");
+            writeCharacteristic(serviceZwiftPlayBike, characteristicIndicate, response);
+        }
+
+        QByteArray receivedBytes4 = newValue.left(expectedHexArray4.size());
+
+        if (receivedBytes4 == expectedHexArray4) {
+            qDebug() << "Zwift Play Ask 4";
+
+            QByteArray response = QByteArray::fromHex("03080010001859200028003097ed01");
+            writeCharacteristic(serviceZwiftPlayBike, characteristic, response);
+        }
+    }
+
     //******************** ECHELON ***************
     if (characteristic.uuid().toString().contains(QStringLiteral("0bf669f2-45f2-11e7-9598-0800200c9a66"))) {
         QLowEnergyCharacteristic characteristic =
