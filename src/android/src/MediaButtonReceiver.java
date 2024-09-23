@@ -8,6 +8,8 @@ import android.content.IntentFilter;
 import android.util.Log;
 
 public class MediaButtonReceiver extends BroadcastReceiver {
+    private static MediaButtonReceiver instance;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         String intentAction = intent.getAction();
