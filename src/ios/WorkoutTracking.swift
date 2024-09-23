@@ -139,6 +139,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         if(workoutInProgress) {
             return;
         }
+        WorkoutTracking.authorizeHealthKit()
         workoutInProgress = true;
         WorkoutTracking.lastDateMetric = Date()
         print("Start workout")
