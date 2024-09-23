@@ -504,14 +504,13 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     qDebug() << QStringLiteral("characteristicChanged ") + QString::number(characteristic.uuid().toUInt16()) +
                     QStringLiteral(" ") + newValue.toHex(' ');
 
-    if (!echelon && !ifit) {
-        lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
-        emit ftmsCharacteristicChanged(characteristic, newValue);
-    }
-
     switch (characteristic.uuid().toUInt16()) {
 
     case 0x2AD9: // Fitness Machine Control Point
+        if (!echelon && !ifit) {
+            lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
+            emit ftmsCharacteristicChanged(characteristic, newValue);
+        }
         if (writeP2AD9->writeProcess(0x2AD9, newValue, reply) == CP_OK) {
 
             QLowEnergyCharacteristic characteristic =
@@ -834,6 +833,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     //********************ZWIFT PLAY**************
 
     if(characteristic.uuid().toString().contains(QStringLiteral("00000003-19ca-4651-86e5-fa29dcdd09d1"))) {
+        const QByteArray  expectedHexArray = QByteArray::fromHex("526964654F6E0201");
         const QByteArray expectedHexArray2 = QByteArray::fromHex("000800");
         const QByteArray expectedHexArray3 = QByteArray::fromHex("00088804");
         const QByteArray expectedHexArray4 = QByteArray::fromHex("042a0a10c0bb0120bf0628b442");
@@ -845,7 +845,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         QLowEnergyCharacteristic characteristicIndicate =
             service->characteristic(QBluetoothUuid(QStringLiteral("00000004-19ca-4651-86e5-fa29dcdd09d1")));
 
-        if (receivedBytes == expectedHexArray2) {
+        if (receivedBytes == expectedHexArray) {
             qDebug() << "Zwift Play Ask 1";
 
             QByteArray response = QByteArray::fromHex("2a08031211220f4154582030342c205354582030340000");
