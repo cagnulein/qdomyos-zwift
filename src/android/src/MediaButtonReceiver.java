@@ -33,7 +33,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
             instance = new MediaButtonReceiver();
         }
         IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
-        context.registerReceiver(instance, filter);
+        context.registerReceiver(instance, filter, Context.RECEIVER_EXPORTED);
         Log.d("MediaButtonReceiver", "registerReceiver");
     }
 

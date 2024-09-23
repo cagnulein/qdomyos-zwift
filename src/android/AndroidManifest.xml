@@ -112,7 +112,7 @@
 
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
 
-                                <receiver android:name=".MediaButtonReceiver" android:exported="true">
+                                <receiver android:name=".MediaButtonReceiver" android:exported="true" android:permission="android.permission.BIND_DEVICE_ADMIN">
                                     <intent-filter>
                                         <action android:name="android.intent.action.MEDIA_BUTTON" />
                                     </intent-filter>
