@@ -841,9 +841,9 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         QByteArray receivedBytes = newValue.left(expectedHexArray2.size());
 
         QLowEnergyCharacteristic characteristic =
-            service->characteristic(QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")));
+            serviceZwiftPlayBike->characteristic(QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")));
         QLowEnergyCharacteristic characteristicIndicate =
-            service->characteristic(QBluetoothUuid(QStringLiteral("00000004-19ca-4651-86e5-fa29dcdd09d1")));
+            serviceZwiftPlayBike->characteristic(QBluetoothUuid(QStringLiteral("00000004-19ca-4651-86e5-fa29dcdd09d1")));
 
         if (receivedBytes == expectedHexArray) {
             qDebug() << "Zwift Play Ask 1";
