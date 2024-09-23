@@ -199,20 +199,29 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     serviceDataFIT.addCharacteristic(charDataFIT6);
 
                     QLowEnergyCharacteristicData charData;
-                    charData.setUuid(QBluetoothUuid(QStringLiteral("b4cc1225-bc02-4cae-adb9-1217ad2860d1")));
+                    charData.setUuid(QBluetoothUuid(QStringLiteral("00000003-19ca-4651-86e5-fa29dcdd09d1")));
                     charData.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::WriteNoResponse);
 
                     QLowEnergyCharacteristicData charData2;
-                    charData2.setUuid(QBluetoothUuid(QStringLiteral("b4cc1224-bc02-4cae-adb9-1217ad2860d1")));
+                    charData2.setUuid(QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")));
                     charData2.setProperties(QLowEnergyCharacteristic::Notify);
                     const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
-
                     charData2.addDescriptor(clientConfig2);
 
-                    serviceDataWattAtomBike.setType(QLowEnergyServiceData::ServiceTypePrimary);
-                    serviceDataWattAtomBike.setUuid(QBluetoothUuid(QStringLiteral("b4cc1223-bc02-4cae-adb9-1217ad2860d1")));
-                    serviceDataWattAtomBike.addCharacteristic(charData);
-                    serviceDataWattAtomBike.addCharacteristic(charData2);                    
+                    QLowEnergyCharacteristicData charData3;
+                    charData3.setUuid(QBluetoothUuid(QStringLiteral("00000004-19ca-4651-86e5-fa29dcdd09d1")));
+                    charData3.setProperties(QLowEnergyCharacteristic::Indicate);
+                    QByteArray descriptorIndicate;
+                    descriptorIndicate.append((char)0x02);
+                    descriptorIndicate.append((char)0x00);
+                    const QLowEnergyDescriptorData clientConfig3(QBluetoothUuid::ClientCharacteristicConfiguration, descriptorIndicate);
+                    charData3.addDescriptor(clientConfig3);
+
+                    serviceDataZwiftPlayBike.setType(QLowEnergyServiceData::ServiceTypePrimary);
+                    serviceDataZwiftPlayBike.setUuid(QBluetoothUuid(QStringLiteral("00000001-19ca-4651-86e5-fa29dcdd09d1")));
+                    serviceDataZwiftPlayBike.addCharacteristic(charData);
+                    serviceDataZwiftPlayBike.addCharacteristic(charData2);
+                    serviceDataZwiftPlayBike.addCharacteristic(charData3);
                 } else if (power) {
 
                     QLowEnergyCharacteristicData charData;
@@ -411,7 +420,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
                     serviceFIT = leController->addService(serviceDataFIT);
                     QThread::msleep(100); // give time to Android to add the service async.ly
-                    serviceWattAtomBike = leController->addService(serviceDataWattAtomBike);
+                    serviceZwiftPlayBike = leController->addService(serviceDataZwiftPlayBike);
                 } else {
                     service = leController->addService(serviceData);
                 }
@@ -439,7 +448,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                 if (!cadence && !power) {
                     QObject::connect(serviceFIT, &QLowEnergyService::characteristicChanged, this,
                                      &virtualbike::characteristicChanged);
-                    QObject::connect(serviceWattAtomBike, &QLowEnergyService::characteristicChanged, this,
+                    QObject::connect(serviceZwiftPlayBike, &QLowEnergyService::characteristicChanged, this,
                                      &virtualbike::characteristicChanged);
                 } else {
                     QObject::connect(service, &QLowEnergyService::characteristicChanged, this,
@@ -1041,7 +1050,7 @@ void virtualbike::reconnect() {
 
                 serviceFIT = leController->addService(serviceDataFIT);
                 QThread::msleep(100); // give time to Android to add the service async.ly
-                serviceWattAtomBike = leController->addService(serviceDataWattAtomBike);
+                serviceZwiftPlayBike = leController->addService(serviceDataZwiftPlayBike);
 
             } else {
                 service = leController->addService(serviceData);
@@ -1183,18 +1192,10 @@ void virtualbike::bikeProvider() {
                     writeCharacteristic(serviceFIT, characteristic, value);
 
                     QLowEnergyCharacteristic characteristic1 =
-                        serviceWattAtomBike->characteristic(QBluetoothUuid(QStringLiteral("b4cc1224-bc02-4cae-adb9-1217ad2860d1")));
-                    value.clear();
-                    static uint8_t seq = 0;
-                    ++seq;
-                    value.append(seq);
-                    value.append(0x03);
-                    value.append(0xB6);
-                    int8_t g = ((bike*)Bike)->gears();
-                    if(g < 1)
-                        g = 1;
-                    value.append(g);
-                    writeCharacteristic(serviceWattAtomBike, characteristic1, value);
+                        serviceZwiftPlayBike->characteristic(QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")));
+                    const uint8_t v[] = {0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0x59, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01};
+                    value = QByteArray::fromRawData((char*)v, 15);
+                    writeCharacteristic(serviceZwiftPlayBike, characteristic1, value);
                 }
             } else if (power) {
                 value.clear();
