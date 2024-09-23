@@ -29,8 +29,8 @@ let PowerMeasurementCharacteristicUUID = CBUUID(string: "0x2A63")
 
 // Zwift Play
 let ZwiftPlayServiceUUID = CBUUID(string: "00000001-19ca-4651-86e5-fa29dcdd09d1")
-let ZwiftPlayReadUUID = CBUUID(string:    "00000003-19ca-4651-86e5-fa29dcdd09d1")
-let ZwiftPlayWriteUUID = CBUUID(string:   "00000002-19ca-4651-86e5-fa29dcdd09d1")
+let ZwiftPlayWriteUUID = CBUUID(string:    "00000003-19ca-4651-86e5-fa29dcdd09d1")
+let ZwiftPlayReadUUID = CBUUID(string:   "00000002-19ca-4651-86e5-fa29dcdd09d1")
 let ZwiftPlayIndicateUUID = CBUUID(string:"00000004-19ca-4651-86e5-fa29dcdd09d1")
 
 @objc public class virtualbike_ios_swift: NSObject {
