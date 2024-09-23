@@ -848,13 +848,13 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (receivedBytes == expectedHexArray) {
             qDebug() << "Zwift Play Ask 1";
 
-            QByteArray response = QByteArray::fromHex("2a08031211220f4154582030342c205354582030340000");
+            QByteArray response = QByteArray::fromHex("2a08031211220f4154582030342c2053545820303400");
             writeCharacteristic(serviceZwiftPlayBike, characteristic, response);
 
             response = QByteArray::fromHex("2a0803120d220b524944455f4f4e28322900");
             writeCharacteristic(serviceZwiftPlayBike, characteristic, response);
 
-            response = QByteArray::fromHex("5269646f4f6e0200");
+            response = QByteArray::fromHex("526964654f6e0200");
             writeCharacteristic(serviceZwiftPlayBike, characteristicIndicate, response);
         }
 
