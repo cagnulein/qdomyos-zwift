@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
+import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -21,6 +22,11 @@ public class LocationHelper {
         return isLocationEnabled && isBluetoothEnabled;
     }
 
+    public static boolean hasGps(Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        return packageManager.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
+    }
+    
     public static void requestPermissions(Context context) {
         if (!isLocationEnabled || !isBluetoothEnabled) {
             Log.d(TAG, "Some services are disabled. Prompting user...");
@@ -40,6 +46,10 @@ public class LocationHelper {
     }
 
     private static boolean isLocationEnabled(Context context) {
+        if(!hasGps(context)) {
+            Log.d(TAG, "Device doesn't have the GPS, so I can't force the popup");
+            return true;
+        }
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         if (locationManager == null) {
             Log.d(TAG, "LocationManager is null, device might not have GPS. Returning true.");
