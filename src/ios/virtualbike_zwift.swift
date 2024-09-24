@@ -381,12 +381,12 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         var response: [UInt8] = [0x2a, 0x08, 0x03, 0x12, 0x11, 0x22, 0x0f, 0x41, 0x54, 0x58, 0x20, 0x30, 0x34, 0x2c, 0x20, 0x53, 0x54, 0x58, 0x20, 0x30, 0x34, 0x00]
         var responseData = Data(bytes: &response, count: 22)
 
-        self.peripheralManager.updateValue(responseData, for: ZwiftPlayWriteCharacteristic, onSubscribedCentrals: nil)
+        self.peripheralManager.updateValue(responseData, for: ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
 
         response = [0x2a, 0x08, 0x03, 0x12, 0x0d, 0x22, 0x0b, 0x52, 0x49, 0x44, 0x45, 0x5f, 0x4f, 0x4e, 0x28, 0x32, 0x29, 0x00]
         responseData = Data(bytes: &response, count: 18)
 
-        self.peripheralManager.updateValue(responseData, for: ZwiftPlayWriteCharacteristic, onSubscribedCentrals: nil)
+        self.peripheralManager.updateValue(responseData, for: ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
 
         response = [0x52, 0x69, 0x64, 0x65, 0x4f, 0x6e, 0x02, 0x00]
         responseData = Data(bytes: &response, count: 8)
@@ -427,7 +427,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         var response: [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0x59, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01]
         var responseData = Data(bytes: &response, count: 15)
 
-        self.peripheralManager.updateValue(responseData, for: self.ZwiftPlayWriteCharacteristic, onSubscribedCentrals: nil)  
+        self.peripheralManager.updateValue(responseData, for: self.ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
       }
     }
     } 
