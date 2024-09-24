@@ -14,7 +14,8 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     mgr = new QNetworkAccessManager(this);
     timer = new QTimer(this);
 
-    peloton_connect_clicked();
+    //peloton_connect_clicked();
+    peloton_refreshtoken();
 
     // only for test purpose
     /*
@@ -23,9 +24,9 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
                                 "img_1646099287_a620f71b3d6740718457b21769a7ed46.png"));
     */
 
-    if (!settings.value(QZSettings::peloton_username, QZSettings::default_peloton_username)
+    if (!settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken)
              .toString()
-             .compare(QStringLiteral("username"))) {
+        .length()) {
         qDebug() << QStringLiteral("invalid peloton credentials");
         return;
     }
@@ -495,21 +496,18 @@ void peloton::startEngine() {
     QSettings settings;
     timer->stop();
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::login_onfinish);
-    QUrl url(QStringLiteral("https://api.onepeloton.com/auth/login"));
+        
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/me"));
+    qDebug() << "peloton::getMe" << url;
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
     request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
-
-    QJsonObject obj;
-    obj[QStringLiteral("username_or_email")] =
-        settings.value(QZSettings::peloton_username, QZSettings::default_peloton_username).toString();
-    obj[QStringLiteral("password")] =
-        settings.value(QZSettings::peloton_password, QZSettings::default_peloton_password).toString();
-    QJsonDocument doc(obj);
-    QByteArray data = doc.toJson();
-
-    mgr->post(request, data);
+    request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString().toUtf8());
+    
+    qDebug() << settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString().toLatin1() << request.rawHeader(QByteArray("authorization"));
+    
+    mgr->get(request);
 }
 
 void peloton::login_onfinish(QNetworkReply *reply) {
@@ -1307,7 +1305,7 @@ double peloton::rowerpaceToSpeed(double pace) {
 void peloton::getInstructor(const QString &instructor_id) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::instructor_onfinish);
 
-    QUrl url(QStringLiteral("https://api.onepeloton.com/api/instructor/") + instructor_id);
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/instructor/") + instructor_id);
     qDebug() << "peloton::getInstructor" << url;
     QNetworkRequest request(url);
 
@@ -1320,7 +1318,7 @@ void peloton::getInstructor(const QString &instructor_id) {
 void peloton::getRide(const QString &ride_id) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::ride_onfinish);
 
-    QUrl url(QStringLiteral("https://api.onepeloton.com/api/ride/") + ride_id +
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/ride/") + ride_id +
              QStringLiteral("/details?stream_source=multichannel"));
     qDebug() << "peloton::getRide" << url;
     QNetworkRequest request(url);
@@ -1334,7 +1332,7 @@ void peloton::getRide(const QString &ride_id) {
 void peloton::getPerformance(const QString &workout) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::performance_onfinish);
 
-    QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout +
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/workout/") + workout +
              QStringLiteral("/performance_graph?every_n=") + QString::number(peloton_workout_second_resolution));
     qDebug() << "peloton::getPerformance" << url;
     QNetworkRequest request(url);
@@ -1348,7 +1346,7 @@ void peloton::getPerformance(const QString &workout) {
 void peloton::getWorkout(const QString &workout) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::workout_onfinish);
 
-    QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout);
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/workout/") + workout);
     qDebug() << "peloton::getWorkout" << url;
     QNetworkRequest request(url);
 
@@ -1361,12 +1359,14 @@ void peloton::getWorkout(const QString &workout) {
 void peloton::getSummary(const QString &workout) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::summary_onfinish);
 
-    QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout + QStringLiteral("/summary"));
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/workout/") + workout + QStringLiteral("/summary"));
     qDebug() << "peloton::getSummary" << url;
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
     request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+    QSettings settings;
+    request.setRawHeader(QByteArray("authorization"), QByteArray("Bearer ") + settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString().toLatin1());
 
     mgr->get(request);
 }
@@ -1385,7 +1385,7 @@ void peloton::getWorkoutList(int num) {
 
     int current_page = 0;
 
-    QUrl url(QStringLiteral("https://api.onepeloton.com/api/user/") + user_id +
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/user/") + user_id +
              QStringLiteral("/workouts?sort_by=-created&page=") + QString::number(current_page) +
              QStringLiteral("&limit=") + QString::number(limit));
     qDebug() << "peloton::getWorkoutList" << url;
