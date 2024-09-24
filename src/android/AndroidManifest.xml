@@ -112,9 +112,9 @@
 
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
 
-                                <receiver android:name=".MediaButtonReceiver" android:exported="true" android:permission="android.permission.BIND_DEVICE_ADMIN">
+                                <receiver android:name=".MediaButtonReceiver" android:exported="true" android:permission="android.permission.MODIFY_AUDIO_SETTINGS">
                                     <intent-filter>
-                                        <action android:name="android.intent.action.MEDIA_BUTTON" />
+                                        <action android:name="android.media.VOLUME_CHANGED_ACTION" />
                                     </intent-filter>
                                 </receiver>
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
@@ -136,6 +136,7 @@
 	 <uses-permission android:name="com.android.vending.BILLING"/>
 	 <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 	 <uses-permission android:name="com.google.android.things.permission.USE_PERIPHERAL_IO" />
+         <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 	 <uses-permission android:name="android.permission.GET_TASKS" />
 	 <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
 	     tools:ignore="ProtectedPermissions" />
