@@ -365,7 +365,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         let responseData = Data(bytes: &response, count: 3)
           
         self.peripheralManager.updateValue(responseData, for: self.FitnessMachineControlPointCharacteristic, onSubscribedCentrals: nil)
-    } else if requests.first!.characteristic == ZwiftPlayReadUUID {
+    } else if requests.first!.characteristic == ZwiftPlayWriteCharacteristic {
         let receivedData = requests.first!.value ?? Data()
       let expectedHexArray: [UInt8] = [0x52, 0x69, 0x64, 0x65, 0x4F, 0x6E, 0x02, 0x01]
       let expectedHexArray2: [UInt8] = [0x00, 0x08, 0x00]
