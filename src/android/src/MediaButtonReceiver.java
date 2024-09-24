@@ -3,8 +3,8 @@ package org.cagnulen.qdomyoszwift;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.view.KeyEvent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.util.Log;
 
 public class MediaButtonReceiver extends BroadcastReceiver {
@@ -12,17 +12,15 @@ public class MediaButtonReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.d("MediaButtonReceiver", "Received intent: " + intent.toString());
         String intentAction = intent.getAction();
-        if (Intent.ACTION_MEDIA_BUTTON.equals(intentAction)) {
-            KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-            if (event != null) {
-                int keycode = event.getKeyCode();
-                int action = event.getAction();
+        if ("android.media.VOLUME_CHANGED_ACTION".equals(intentAction)) {
+            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            int currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+            int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 
-                Log.d("MediaButtonReceiver", "onReceive");
-
-                nativeOnMediaButtonEvent(keycode, action);
-            }
+            Log.d("MediaButtonReceiver", "Volume changed. Current: " + currentVolume + ", Max: " + maxVolume);
+            nativeOnMediaButtonEvent(currentVolume, maxVolume);
         }
     }
 
@@ -32,7 +30,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
         if (instance == null) {
             instance = new MediaButtonReceiver();
         }
-        IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
+        IntentFilter filter = new IntentFilter("android.media.VOLUME_CHANGED_ACTION");
         context.registerReceiver(instance, filter, Context.RECEIVER_EXPORTED);
         Log.d("MediaButtonReceiver", "registerReceiver");
     }
