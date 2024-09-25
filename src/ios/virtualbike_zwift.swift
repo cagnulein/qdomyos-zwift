@@ -378,10 +378,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     } else if requests.first!.characteristic == ZwiftPlayWriteCharacteristic {
         let receivedData = requests.first!.value ?? Data()
       let expectedHexArray: [UInt8] = [0x52, 0x69, 0x64, 0x65, 0x4F, 0x6E, 0x02, 0x01]
-      let expectedHexArray2: [UInt8] = [0x00, 0x08, 0x00]
+      let expectedHexArray2: [UInt8] = [0x41, 0x08, 0x05]
       let expectedHexArray3: [UInt8] = [0x00, 0x08, 0x88, 0x04]
-      let expectedHexArray4: [UInt8] = [0x04, 0x2a, 0x0a, 0x10, 0xc0, 0xbb, 0x01, 0x20, 0xbf, 0x06, 0x28, 0xb4, 0x42]
-      let expectedHexArray5: [UInt8] = [0x04, 0x22, 0x03, 0x10]
+      let expectedHexArray4: [UInt8] = [0x04, 0x2a, 0x0a, 0x10, 0xc0, 0xbb, 0x01, 0x20]
+      let expectedHexArray5: [UInt8] = [0x04, 0x22]
 
       let receivedBytes = [UInt8](receivedData.prefix(expectedHexArray.count))
       
@@ -450,7 +450,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         var response: [UInt8] = [ 0x3c, 0x08, 0x88, 0x04, 0x12, 0x06, 0x0a, 0x04, 0x40, 0xc0, 0xbb, 0x01 ]
         var responseData = Data(bytes: &response, count: 12)
 
-          updateQueue.append((ZwiftPlayIndicationCharacteristic, responseData))
+          updateQueue.append((ZwiftPlayIndicateCharacteristic, responseData))
       }
     }
     } 
