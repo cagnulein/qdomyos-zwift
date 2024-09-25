@@ -709,10 +709,21 @@ extern "C" {
 JNIEXPORT void JNICALL
   Java_org_cagnulen_qdomyoszwift_MediaButtonReceiver_nativeOnMediaButtonEvent(JNIEnv *env, jobject obj, jint prev, jint current, jint max) {
     qDebug() << "Media button event: current =" << current << "max =" << max << "prev =" << prev;
+    static QDateTime volumeLastChange = QDateTime::currentDateTime();
+    QSettings settings;
+    bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
+
+    if(gears_volume_debouncing && volumeLastChange.msecsTo(QDateTime::currentDateTime()) < 500) {
+      qDebug() << "volume debouncing"; 
+      return;
+    }
+  
     if(prev > current)
       homeform::singleton()->Minus(QStringLiteral("gears"));
     else
       homeform::singleton()->Plus(QStringLiteral("gears"));      
+
+    volumeLastChange = QDateTime::currentDateTime();
   }
 }
 #endif
