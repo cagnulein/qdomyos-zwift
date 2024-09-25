@@ -466,6 +466,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         var responseData = Data(bytes: &response, count: 12)
 
           updateQueue.append((ZwiftPlayIndicateCharacteristic, responseData))
+
+        response = [0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x96, 0x14, 0x30, 0x9b, 0xed, 0x01]
+        responseData = Data(bytes: &response, count: 17)
+        updateQueue.append((ZwiftPlayReadCharacteristic, responseData))
       }
     }
     } 
@@ -632,8 +636,8 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           }
       } else if(self.serviceToggle == 3) {
           if(!sendUpdates()) {
-              let ZwiftPlayArray : [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0x59, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01 ]
-              let ZwiftPlayData = Data(bytes: ZwiftPlayArray, count: 15)
+              let ZwiftPlayArray : [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01 ]
+              let ZwiftPlayData = Data(bytes: ZwiftPlayArray, count: 16)
               let ok = self.peripheralManager.updateValue(ZwiftPlayData, for: self.ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
               if(ok) {
                   self.serviceToggle = self.serviceToggle + 1
