@@ -1578,6 +1578,7 @@ void peloton::peloton_connect_clicked() {
 QAbstractOAuth::ModifyParametersFunction peloton::buildModifyParametersFunction(const QUrl &clientIdentifier, const QUrl &clientIdentifierSharedKey) {
     return [clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
         if (stage == QAbstractOAuth::Stage::RequestingAuthorization) {
+            parameters->insert(QStringLiteral("audience"), QStringLiteral("https://api-3p.onepeloton.com/"));
             parameters->insert(QStringLiteral("responseType"), QStringLiteral("code")); /* Request refresh token*/
             parameters->insert(QStringLiteral("approval_prompt"),
                                QStringLiteral("force")); /* force user check scope again */
