@@ -18,13 +18,14 @@ public class MediaButtonReceiver extends BroadcastReceiver {
             AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             int currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
             int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            int previousVolume = intent.getIntExtra("android.media.EXTRA_PREV_VOLUME_STREAM_VALUE", -1);
 
             Log.d("MediaButtonReceiver", "Volume changed. Current: " + currentVolume + ", Max: " + maxVolume);
-            nativeOnMediaButtonEvent(currentVolume, maxVolume);
+            nativeOnMediaButtonEvent(previousVolume, currentVolume, maxVolume);
         }
     }
 
-    private native void nativeOnMediaButtonEvent(int keycode, int action);
+    private native void nativeOnMediaButtonEvent(int prev, int current, int max);
 
     public static void registerReceiver(Context context) {
         if (instance == null) {
