@@ -299,11 +299,12 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     }
   }
     
-    func sendUpdates() {
-        guard !updateQueue.isEmpty else { return }
+    func sendUpdates() -> Bool {
+        guard !updateQueue.isEmpty else { return false }
         
         let update = updateQueue.removeFirst()
         peripheralManager.updateValue(update.data, for: update.characteristic, onSubscribedCentrals: nil)
+        return true
     }
     
   func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
@@ -602,14 +603,16 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
               self.serviceToggle = 0
           }
       } else if(self.serviceToggle == 3) {
-         /* let ZwiftPlayArray : [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01 ]
-      let ZwiftPlayData = Data(bytes: ZwiftPlayArray, count: 16)
-      let ok = self.peripheralManager.updateValue(ZwiftPlayData, for: self.ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
-      if(ok) {
-          self.serviceToggle = self.serviceToggle + 1
-      }*/
-          sendUpdates()
-          self.serviceToggle = self.serviceToggle + 1
+          if(!sendUpdates()) {
+              let ZwiftPlayArray : [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0x59, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01 ]
+              let ZwiftPlayData = Data(bytes: ZwiftPlayArray, count: 15)
+              let ok = self.peripheralManager.updateValue(ZwiftPlayData, for: self.ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
+              if(ok) {
+                  self.serviceToggle = self.serviceToggle + 1
+              }
+          } else {
+              self.serviceToggle = self.serviceToggle + 1
+          }
     } else if(self.serviceToggle == 2) {
       let cadenceData = self.calculateCadence()
       let ok = self.peripheralManager.updateValue(cadenceData, for: self.CSCMeasurementCharacteristic, onSubscribedCentrals: nil)
