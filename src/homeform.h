@@ -800,6 +800,8 @@ class homeform : public QObject {
     void saveProfile(QString profilename);
     void restart();
     bool pelotonAskStart() { return m_pelotonAskStart; }
+    void Minus(const QString &);
+    void Plus(const QString &);
 
   private slots:
     void Start();
@@ -808,8 +810,6 @@ class homeform : public QObject {
     void StartRequested();
     void StopRequested();
     void Lap();
-    void Minus(const QString &);
-    void Plus(const QString &);
     void LargeButton(const QString &);
     void volumeDown();
     void volumeUp();
