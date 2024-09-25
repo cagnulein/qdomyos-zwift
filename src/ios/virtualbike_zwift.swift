@@ -116,6 +116,8 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
 
   private var notificationTimer: Timer! = nil
     
+  var updateQueue: [(characteristic: CBMutableCharacteristic, data: Data)] = []
+    
   let SwiftDebug = swiftDebug()
   //var delegate: BLEPeripheralManagerDelegate?
 
@@ -297,6 +299,13 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     }
   }
     
+    func sendUpdates() {
+        guard !updateQueue.isEmpty else { return }
+        
+        let update = updateQueue.removeFirst()
+        peripheralManager.updateValue(update.data, for: update.characteristic, onSubscribedCentrals: nil)
+    }
+    
   func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
     if let uwError = error {
       print("Failed to add service with error: \(uwError.localizedDescription)")
@@ -381,17 +390,17 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         var response: [UInt8] = [0x2a, 0x08, 0x03, 0x12, 0x11, 0x22, 0x0f, 0x41, 0x54, 0x58, 0x20, 0x30, 0x34, 0x2c, 0x20, 0x53, 0x54, 0x58, 0x20, 0x30, 0x34, 0x00]
         var responseData = Data(bytes: &response, count: 22)
 
-        self.peripheralManager.updateValue(responseData, for: ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
+        updateQueue.append((ZwiftPlayReadCharacteristic, responseData))
 
         response = [0x2a, 0x08, 0x03, 0x12, 0x0d, 0x22, 0x0b, 0x52, 0x49, 0x44, 0x45, 0x5f, 0x4f, 0x4e, 0x28, 0x32, 0x29, 0x00]
         responseData = Data(bytes: &response, count: 18)
 
-        self.peripheralManager.updateValue(responseData, for: ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
+        updateQueue.append((ZwiftPlayReadCharacteristic, responseData))
 
         response = [0x52, 0x69, 0x64, 0x65, 0x4f, 0x6e, 0x02, 0x00]
         responseData = Data(bytes: &response, count: 8)
 
-        self.peripheralManager.updateValue(responseData, for: ZwiftPlayIndicateCharacteristic, onSubscribedCentrals: nil)
+        updateQueue.append((ZwiftPlayIndicateCharacteristic, responseData))
       }
       let receivedBytes2 = [UInt8](receivedData.prefix(expectedHexArray2.count))
       
@@ -403,7 +412,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         var response: [UInt8] = [0x3c, 0x08, 0x00, 0x12, 0x32, 0x0a, 0x30, 0x08, 0x80, 0x04, 0x12, 0x04, 0x05, 0x00, 0x05, 0x01, 0x1a, 0x0b, 0x4b, 0x49, 0x43, 0x4b, 0x52, 0x20, 0x43, 0x4f, 0x52, 0x45, 0x00, 0x32, 0x0f, 0x34, 0x30, 0x32, 0x34, 0x31, 0x38, 0x30, 0x30, 0x39, 0x38, 0x34, 0x00, 0x00, 0x00, 0x00, 0x3a, 0x01, 0x31, 0x42, 0x04, 0x08, 0x01, 0x10, 0x14 ]
         var responseData = Data(bytes: &response, count: 55)
 
-        self.peripheralManager.updateValue(responseData, for: self.ZwiftPlayIndicateCharacteristic, onSubscribedCentrals: nil)
+        updateQueue.append((ZwiftPlayIndicateCharacteristic, responseData))
       }
       let receivedBytes3 = [UInt8](receivedData.prefix(expectedHexArray3.count))
       
@@ -415,7 +424,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         var response: [UInt8] = [0x3c, 0x08, 0x88, 0x04, 0x12, 0x06, 0x0a, 0x04, 0x40, 0xc0, 0xbb, 0x01 ]
         var responseData = Data(bytes: &response, count: 12)
 
-        self.peripheralManager.updateValue(responseData, for: ZwiftPlayIndicateCharacteristic, onSubscribedCentrals: nil)
+        updateQueue.append((ZwiftPlayIndicateCharacteristic, responseData))
       }
       let receivedBytes4 = [UInt8](receivedData.prefix(expectedHexArray4.count))
       
@@ -427,7 +436,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         var response: [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0x59, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01]
         var responseData = Data(bytes: &response, count: 15)
 
-        self.peripheralManager.updateValue(responseData, for: self.ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
+          updateQueue.append((ZwiftPlayReadCharacteristic, responseData))
       }
     }
     } 
@@ -593,12 +602,14 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
               self.serviceToggle = 0
           }
       } else if(self.serviceToggle == 3) {
-          let ZwiftPlayArray : [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01 ]
+         /* let ZwiftPlayArray : [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01 ]
       let ZwiftPlayData = Data(bytes: ZwiftPlayArray, count: 16)
       let ok = self.peripheralManager.updateValue(ZwiftPlayData, for: self.ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
       if(ok) {
           self.serviceToggle = self.serviceToggle + 1
-      }
+      }*/
+          sendUpdates()
+          self.serviceToggle = self.serviceToggle + 1
     } else if(self.serviceToggle == 2) {
       let cadenceData = self.calculateCadence()
       let ok = self.peripheralManager.updateValue(cadenceData, for: self.CSCMeasurementCharacteristic, onSubscribedCentrals: nil)
