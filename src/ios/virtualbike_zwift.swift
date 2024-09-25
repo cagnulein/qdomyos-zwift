@@ -382,6 +382,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       let expectedHexArray3: [UInt8] = [0x00, 0x08, 0x88, 0x04]
       let expectedHexArray4: [UInt8] = [0x04, 0x2a, 0x0a, 0x10, 0xc0, 0xbb, 0x01, 0x20]
       let expectedHexArray5: [UInt8] = [0x04, 0x22]
+      let expectedHexArray6: [UInt8] = [0x04, 0x2a, 0x04, 0x10]
 
       let receivedBytes = [UInt8](receivedData.prefix(expectedHexArray.count))
       
@@ -448,6 +449,20 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         
         
         var response: [UInt8] = [ 0x3c, 0x08, 0x88, 0x04, 0x12, 0x06, 0x0a, 0x04, 0x40, 0xc0, 0xbb, 0x01 ]
+        var responseData = Data(bytes: &response, count: 12)
+
+          updateQueue.append((ZwiftPlayIndicateCharacteristic, responseData))
+      }
+      let receivedBytes6 = [UInt8](receivedData.prefix(expectedHexArray6.count))
+      
+      if receivedBytes6 == expectedHexArray6 {
+        SwiftDebug.qtDebug("Zwift Play Ask 6")
+        peripheral.respond(to: requests.first!, withResult: .success)
+        
+        
+        var response: [UInt8] = [ 0x3c, 0x08, 0x88, 0x04, 0x12, 0x06, 0x0a, 0x04, 0x40, 0xc0, 0xbb, 0x01 ]
+        response[9] = receivedData[4]
+        response[10] = receivedData[5]
         var responseData = Data(bytes: &response, count: 12)
 
           updateQueue.append((ZwiftPlayIndicateCharacteristic, responseData))
