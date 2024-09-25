@@ -303,6 +303,9 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         guard !updateQueue.isEmpty else { return false }
         
         let update = updateQueue.removeFirst()
+        let hexString = update.data.map { String(format: "%02x", $0) }.joined(separator: " ")
+        let debugMessage = "virtualbike_zwift send: " + String(describing: update.characteristic) + " " + hexString
+        SwiftDebug.qtDebug(debugMessage)
         peripheralManager.updateValue(update.data, for: update.characteristic, onSubscribedCentrals: nil)
         return true
     }
