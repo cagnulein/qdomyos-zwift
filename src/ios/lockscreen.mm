@@ -56,7 +56,7 @@ void lockscreen::request()
 
 void lockscreen::startWorkout(unsigned short deviceType) {
     if(workoutTracking != nil)
-        [workoutTracking startWorkOut : deviceType];
+        [workoutTracking startWorkOutWithDeviceType:deviceType];
 }
 
 void lockscreen::stopWorkout() {

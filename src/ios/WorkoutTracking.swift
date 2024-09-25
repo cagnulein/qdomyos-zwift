@@ -253,7 +253,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         
         WorkoutTracking.kcal = kcal
 
-        if(sport == 0) {
+        if(sport == 2) {
             if #available(watchOSApplicationExtension 10.0, *) {
                 let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
                                                 doubleValue: power)
@@ -359,7 +359,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             } else {
                 // Fallback on earlier versions
             }
-        } else if(sport == 2) {
+        }/* else if(sport == 2) {
             if #available(watchOSApplicationExtension 10.0, *) {
                 let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
                                                 doubleValue: Speed * 0.277778)
@@ -381,7 +381,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             } else {
                 // Fallback on earlier versions
             }
-        }
+        }*/
+        
+        // TODO HANDLE WALKING, ROWING AND ELLIPTICAL
         
         WorkoutTracking.lastDateMetric = Date()
     }
