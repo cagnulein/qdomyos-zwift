@@ -178,7 +178,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         let quantityMiles = HKQuantity(unit: unitDistance,
                                   doubleValue: miles)
         
-        if(sport == 0) {
+        if(sport == 2) {
             
             guard let quantityTypeDistance = HKQuantityType.quantityType(
                     forIdentifier: .distanceCycling) else {
