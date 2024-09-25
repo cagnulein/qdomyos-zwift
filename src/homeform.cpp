@@ -707,9 +707,13 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 #ifdef Q_OS_ANDROID
 extern "C" {
 JNIEXPORT void JNICALL
-Java_org_cagnulen_qdomyoszwift_MediaButtonReceiver_nativeOnMediaButtonEvent(JNIEnv *env, jobject obj, jint keycode, jint action) {
-    qDebug() << "Media button event: keycode =" << keycode << "action =" << action;
-}
+  Java_org_cagnulen_qdomyoszwift_MediaButtonReceiver_nativeOnMediaButtonEvent(JNIEnv *env, jobject obj, jint prev, jint current, jint max) {
+    qDebug() << "Media button event: current =" << current << "max =" << max << "prev =" << prev;
+    if(prev > current)
+      Minus(QStringLiteral("gears"));
+    else
+      Plus(QStringLiteral("gears"));      
+  }
 }
 #endif
 
