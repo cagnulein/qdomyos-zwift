@@ -67,20 +67,20 @@ public:
                 if(bytes.length() == 5) {
                     if(bytes[2] == 0) {
                         if(DEBOUNCE) {
+                            risingEdge = true;
                             if(!zwiftplay_swap)
                                 emit plus();
                             else
                                 emit minus();
                         }
-                        risingEdge = true;
                     } else if(bytes[4] == 0) {
                         if(DEBOUNCE) {
+                            risingEdge = true;
                             if(!zwiftplay_swap)
                                 emit minus();
                             else
                                 emit plus();
                         }
-                        risingEdge = true;
                     } else {
                         risingEdge = false;
                     }
@@ -93,43 +93,46 @@ public:
                     ) && bytes[bytes.length() - 3] == 0x01) {
                     if(zapType == LEFT) {
                         if(DEBOUNCE) {
+                            risingEdge = true;
                             if(!zwiftplay_swap)
                                 emit plus();
                             else
                                 emit minus();
                         }
-                        risingEdge = true;
                     } else {
                         if(DEBOUNCE) {
+                            risingEdge = true;
                             if(!zwiftplay_swap)
                                 emit minus();
                             else
                                 emit plus();
                         }
-                        risingEdge = true;
                     }
                 } else if(bytes.length() > 14 && bytes[11] == 0x30 && bytes[12] == 0x00) {
                     if(zapType == LEFT) {
                         if(DEBOUNCE) {
+                            risingEdge = true;
                             if(!zwiftplay_swap)
                                 emit plus();
                             else
                                 emit minus();
                         }
-                        risingEdge = true;
                     } else {
                         if(DEBOUNCE) {
+                            risingEdge = true;
                             if(!zwiftplay_swap)
                                 emit minus();
                             else
                                 emit plus();
                         }
-                        risingEdge = true;
                     }
                 } else {
                     risingEdge = false;
                 }
                 break;
+            case 0x15: // empty data
+                qDebug() << "ignoring this frame";
+                return 1;
             case 0x23: // zwift ride
                 if(bytes.length() > 12 &&
                         ((((uint8_t)bytes[12]) == 0xc7 && zapType == RIGHT) ||
@@ -137,49 +140,49 @@ public:
                     ) {
                     if(zapType == LEFT) {
                         if(DEBOUNCE) {
+                            risingEdge = true;
                             if(!zwiftplay_swap)
                                 emit plus();
                             else
                                 emit minus();
                         }
-                        risingEdge = true;
                     } else {
                         if(DEBOUNCE) {
+                            risingEdge = true;
                             if(!zwiftplay_swap)
                                 emit minus();
                             else
                                 emit plus();
                         }
-                        risingEdge = true;
                     }
                 } else if(bytes.length() > 19 && ((uint8_t)bytes[18]) == 0xc8) {
                     if(DEBOUNCE) {
+                        risingEdge = true;
                         if(!zwiftplay_swap)
                             emit plus();
                         else
                             emit minus();
                     }
-                    risingEdge = true;
                 } else if(bytes.length() > 3 &&
                           ((((uint8_t)bytes[3]) == 0xdf) || // right top button
                           (((uint8_t)bytes[3]) == 0xbf))) { // right bottom button
                     if(DEBOUNCE) {
+                        risingEdge = true;
                         if(!zwiftplay_swap)
                             emit plus();
                         else
                             emit minus();
                     }
-                    risingEdge = true;
                 } else if(bytes.length() > 3 &&
                           ((((uint8_t)bytes[3]) == 0xfd) || // left top button
                           (((uint8_t)bytes[3]) == 0xfb))) { // left bottom button
                     if(DEBOUNCE) {
+                        risingEdge = true;
                         if(!zwiftplay_swap)
                             emit minus();
                         else
                             emit plus();
                     }
-                    risingEdge = true;
                 } else {
                     risingEdge = false;
                 }
