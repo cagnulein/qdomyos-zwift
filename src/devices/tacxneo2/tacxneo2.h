@@ -61,7 +61,9 @@ class tacxneo2 : public bike {
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
-    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastRefreshCharacteristicChanged2A5B = QDateTime::currentDateTime();
+    QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
+    QDateTime lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
 

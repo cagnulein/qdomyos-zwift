@@ -772,8 +772,9 @@ const QString QZSettings::peloton_expires = QStringLiteral("peloton_expires");
 const QString QZSettings::default_peloton_expires = QStringLiteral("");
 const QString QZSettings::peloton_code = QStringLiteral("peloton_code");
 const QString QZSettings::default_peloton_code = QStringLiteral("");
+const QString QZSettings::proform_carbon_tl_PFTL59720 = QStringLiteral("proform_carbon_tl_PFTL59720");
 
-const uint32_t allSettingsCount = 650;
+const uint32_t allSettingsCount = 651;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1430,6 +1431,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::peloton_lastrefresh, QZSettings::default_peloton_lastrefresh},
     {QZSettings::peloton_expires, QZSettings::default_peloton_expires},
     {QZSettings::peloton_code, QZSettings::default_peloton_code},
+    {QZSettings::proform_carbon_tl_PFTL59720, QZSettings::default_proform_carbon_tl_PFTL59720},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

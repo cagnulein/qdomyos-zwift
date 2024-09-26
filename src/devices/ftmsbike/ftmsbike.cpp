@@ -289,86 +289,90 @@ void ftmsbike::update() {
         QSettings settings;
         bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
         if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
-            uint8_t gear[] = {0x04, 0x2a, 0x04, 0x10, 0xdc, 0xec, 0x01};
+            uint8_t gear1[] = {0x04, 0x2a, 0x03, 0x10, 0xdc, 0xec};
+            uint8_t gear2[] = {0x04, 0x2a, 0x04, 0x10, 0xdc, 0xec, 0x01};
             switch((int)gears()) {
             case 1:
-                gear[4] = 0xf3; gear[5] = 0xac;
+                gear1[4] = 0xcc; gear1[5] = 0x3a;
                 break;
             case 2:
-                gear[4] = 0xc8; gear[5] = 0x91;
+                gear1[4] = 0xfc; gear1[5] = 0x43;
                 break;
             case 3:
-                gear[4] = 0x90; gear[5] = 0xfa;
+                gear1[4] = 0xac; gear1[5] = 0x4d;
                 break;
             case 4:
-                gear[4] = 0xd8; gear[5] = 0xe2;
+                gear1[4] = 0xd5; gear1[5] = 0x56;
                 break;
             case 5:
-                gear[4] = 0x9f; gear[5] = 0xcb;
+                gear1[4] = 0x8c; gear1[5] = 0x60;
                 break;
             case 6:
-                gear[4] = 0xdc; gear[5] = 0xb7;
+                gear1[4] = 0xe8; gear1[5] = 0x6b;
                 break;
             case 7:
-                gear[4] = 0x98; gear[5] = 0xa4;
+                gear1[4] = 0xc4; gear1[5] = 0x77;
                 break;
             case 8:
-                gear[4] = 0xd4; gear[5] = 0x90;
+                gear2[4] = 0xa0; gear2[5] = 0x83;
                 break;
             case 9:
-                gear[4] = 0x90; gear[5] = 0xfd;
+                gear2[4] = 0xa8; gear2[5] = 0x91;
                 break;
             case 10:
-                gear[4] = 0xdc; gear[5] = 0xec;
+                gear2[4] = 0xb0; gear2[5] = 0x9f;
                 break;
             case 11:
-                gear[4] = 0xa8; gear[5] = 0xdc;
+                gear2[4] = 0xb8; gear2[5] = 0xad;
                 break;
             case 12:
-                gear[4] = 0xf3; gear[5] = 0xcb;
+                gear2[4] = 0xc0; gear2[5] = 0xbb;
                 break;
             case 13:
-                gear[4] = 0xc0; gear[5] = 0xbb;
+                gear2[4] = 0xf3; gear2[5] = 0xcb;
                 break;
             case 14:
-                gear[4] = 0xb8; gear[5] = 0xad;
+                gear2[4] = 0xa8; gear2[5] = 0xdc;
                 break;
             case 15:
-                gear[4] = 0xb0; gear[5] = 0x9f;
+                gear2[4] = 0xdc; gear2[5] = 0xec;
                 break;
             case 16:
-                gear[4] = 0xa8; gear[5] = 0x91;
+                gear2[4] = 0x90; gear2[5] = 0xfd;
                 break;
             case 17:
-                gear[4] = 0xa0; gear[5] = 0x83;
+                gear2[4] = 0xd4; gear2[5] = 0x90; gear2[6] = 0x02;
                 break;
             case 18:
-                gear[4] = 0xc0; gear[5] = 0xbb;
+                gear2[4] = 0x98; gear2[5] = 0xa4; gear2[6] = 0x02;
                 break;
             case 19:
-                gear[4] = 0xa2; gear[5] = 0x8b;
+                gear2[4] = 0xdc; gear2[5] = 0xb7; gear2[6] = 0x02;
                 break;
             case 20:
-                gear[4] = 0xa4; gear[5] = 0x93;
+                gear2[4] = 0x9f; gear2[5] = 0xcb; gear2[6] = 0x02;
                 break;
             case 21:
-                gear[4] = 0xa6; gear[5] = 0x9b;
+                gear2[4] = 0xd8; gear2[5] = 0xe2; gear2[6] = 0x02;
                 break;
             case 22:
-                gear[4] = 0xa8; gear[5] = 0xa3;
+                gear2[4] = 0x90; gear2[5] = 0xfa; gear2[6] = 0x02;
                 break;
             case 23:
-                gear[4] = 0xaa; gear[5] = 0xab;
+                gear2[4] = 0xc8; gear2[5] = 0x91; gear2[6] = 0x03;
                 break;
             case 24:
-                gear[4] = 0xac; gear[5] = 0xb3;
+                gear2[4] = 0xf3; gear2[5] = 0xac; gear2[6] = 0x03;
                 break;
             default:
                 // Gestione del caso di default
                 break;
             }
 
-            writeCharacteristicZwiftPlay(gear, sizeof(gear), "gear", false, true);
+            if((int)gears() < 8)
+              writeCharacteristicZwiftPlay(gear1, sizeof(gear1), "gear", false, true);
+            else 
+              writeCharacteristicZwiftPlay(gear2, sizeof(gear2), "gear", false, true);
 
             uint8_t gearApply[] = {0x00, 0x08, 0x88, 0x04};
             writeCharacteristicZwiftPlay(gearApply, sizeof(gearApply), "gearApply", false, true);
@@ -556,7 +560,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                        br) /
                       (2.0 * ar)) *
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+ settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
                 if (!resistance_received && !DU30_bike) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
@@ -1036,7 +1040,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
         // handling gears
-        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && (zwiftPlayService == nullptr && gears_zwift_ratio)) {
+        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && ((zwiftPlayService == nullptr && gears_zwift_ratio) || !gears_zwift_ratio)) {
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
                 lastPacketFromFTMS.append(b.at(i));
@@ -1065,6 +1069,18 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             b[4] = slope >> 8;
 
             qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << slope;
+        } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
+            lastPacketFromFTMS.clear();
+            for(int i=0; i<b.length(); i++)
+                lastPacketFromFTMS.append(b.at(i));
+            qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
+            int16_t power = (((uint8_t)b.at(1)) + (b.at(2) << 8));
+            if (gears() != 0) {
+                power += (gears() * 10);
+            }
+            b[1] = power & 0xFF;
+            b[2] = power >> 8;
+            qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << power;
         }
 
         writeCharacteristic((uint8_t*)b.data(), b.length(), "injectWrite ", false, true);

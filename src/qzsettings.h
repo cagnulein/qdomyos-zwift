@@ -2149,6 +2149,9 @@ class QZSettings {
 
     static const QString peloton_code;
     static const QString default_peloton_code;
+    
+    static const QString proform_carbon_tl_PFTL59720;
+    static constexpr bool default_proform_carbon_tl_PFTL59720 = false;    
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
