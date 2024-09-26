@@ -86,6 +86,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     public var CurrentResistance: UInt8! = 0
     public var CurrentWatt: UInt16! = 0
     public var AccumulatedTorque: UInt16! = 0
+    public var CurrentZwiftGear: UInt8! = 12
     
   private var CSCService: CBMutableService!
   private var CSCFeatureCharacteristic: CBMutableCharacteristic!
@@ -475,6 +476,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         response[9] = receivedData[4]
         response[10] = receivedData[5]
         response[11] = receivedData[6]
+        handleZwiftGear(receivedData[4...])
         var responseData = Data(bytes: &response, count: 12)
 
           updateQueue.append((ZwiftPlayIndicateCharacteristic, responseData))
@@ -499,12 +501,74 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         response[9] = receivedData[4]
         response[10] = receivedData[5]
         responseData = Data(bytes: &response, count: 11)
+        handleZwiftGear(receivedData[4...])
 
           updateQueue.append((ZwiftPlayIndicateCharacteristic, responseData))
 
     }
     }
-    } 
+    }
+    
+    func handleZwiftGear(_ array: Data) {
+        var g : UInt8 = 0;
+        if(array[4] == 0xCC && array[5] == 0x3a) {
+            g = 1;
+        } else if(array[4] == 0xFC && array[5] == 0x43) {
+            g = 2;
+        } else if(array[4] == 0xac && array[5] == 0x4d) {
+            g = 3;
+        } else if(array[4] == 0xd5 && array[5] == 0x56) {
+            g = 4;
+        } else if(array[4] == 0x8c && array[5] == 0x60) {
+            g = 5;
+        } else if(array[4] == 0xe8 && array[5] == 0x6b) {
+            g = 6;
+        } else if(array[4] == 0xc4 && array[5] == 0x77) {
+            g = 7;
+        } else if(array[4] == 0xa0 && array[5] == 0x83 && array[6] == 0x01) {
+            g = 8;
+        } else if(array[4] == 0xa8 && array[5] == 0x91 && array[6] == 0x01) {
+            g = 9;
+        } else if(array[4] == 0xb0 && array[5] == 0x9f && array[6] == 0x01) {
+            g = 10;
+        } else if(array[4] == 0xb8 && array[5] == 0xad && array[6] == 0x01) {
+            g = 11;
+        } else if(array[4] == 0xc0 && array[5] == 0xbb && array[6] == 0x01) {
+            g = 12;
+        } else if(array[4] == 0xf3 && array[5] == 0xcb && array[6] == 0x01) {
+            g = 13;
+        } else if(array[4] == 0xa8 && array[5] == 0xdc && array[6] == 0x01) {
+            g = 14;
+        } else if(array[4] == 0xdc && array[5] == 0xec && array[6] == 0x01) {
+            g = 15;
+        } else if(array[4] == 0x90 && array[5] == 0xfd && array[6] == 0x01) {
+            g = 16;
+        } else if(array[4] == 0xd4 && array[5] == 0x90 && array[6] == 0x02) {
+            g = 17;
+        } else if(array[4] == 0x98 && array[5] == 0xa4 && array[6] == 0x02) {
+            g = 18;
+        } else if(array[4] == 0xdc && array[5] == 0xb7 && array[6] == 0x02) {
+            g = 19;
+        } else if(array[4] == 0x9f && array[5] == 0xcb && array[6] == 0x02) {
+            g = 20;
+        } else if(array[4] == 0xd8 && array[5] == 0xe2 && array[6] == 0x02) {
+            g = 21;
+        } else if(array[4] == 0x90 && array[5] == 0xfa && array[6] == 0x02) {
+            g = 22;
+        } else if(array[4] == 0xc8 && array[5] == 0x91 && array[6] == 0x03) {
+            g = 23;
+        } else if(array[4] == 0xf3 && array[5] == 0xac && array[6] == 0x03) {
+            g = 24;
+        }
+
+        
+        if(g < self.CurrentZwiftGear) {
+            SwiftDebug.gearDown();
+        } else if(g > self.CurrentZwiftGear) {
+            SwiftDebug.gearUp();
+        }
+        self.CurrentZwiftGear = g
+    }
     
   func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
     SwiftDebug.qtDebug("virtualbike_zwift didReceiveRead: " + String(describing: request.characteristic))
@@ -674,7 +738,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           }
       } else if(self.serviceToggle == 3) {
           if(!sendUpdates()) {
-              var ZwiftPlayArray : [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01 ]
+              var ZwiftPlayArray : [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe0, 0x01, 0x20, 0x00, 0x28, 0xB9, 0x39, 0x30, 0x9b, 0xed, 0x01 ]
               ZwiftPlayArray[2] = UInt8(self.CurrentWatt & 0xFF)
               let ZwiftPlayData = Data(bytes: ZwiftPlayArray, count: 16)
               let ok = self.peripheralManager.updateValue(ZwiftPlayData, for: self.ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
