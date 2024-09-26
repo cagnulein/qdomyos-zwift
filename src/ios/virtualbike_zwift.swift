@@ -386,6 +386,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       let expectedHexArray4: [UInt8] = [0x04, 0x2a, 0x0a, 0x10, 0xc0, 0xbb, 0x01, 0x20]
       let expectedHexArray5: [UInt8] = [0x04, 0x22]
       let expectedHexArray6: [UInt8] = [0x04, 0x2a, 0x04, 0x10]
+      let expectedHexArray7: [UInt8] = [0x04, 0x2a, 0x03, 0x10]
 
       let receivedBytes = [UInt8](receivedData.prefix(expectedHexArray.count))
       
@@ -443,6 +444,11 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         var responseData = Data(bytes: &response, count: 15)
 
           updateQueue.append((ZwiftPlayReadCharacteristic, responseData))
+          
+        response = [ 0x2a, 0x08, 0x03, 0x12, 0x27, 0x22, 0x25, 0x67, 0x61, 0x70, 0x5f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x5f, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x28, 0x32, 0x29, 0x3a, 0x20, 0x37, 0x32, 0x2c, 0x20, 0x37, 0x32, 0x2c, 0x20, 0x30, 0x2c, 0x20, 0x36, 0x30, 0x30, 0x00 ]
+        responseData = Data(bytes: &response, count: 44)
+
+        updateQueue.append((ZwiftPlayReadCharacteristic, responseData))
       }
       let receivedBytes5 = [UInt8](receivedData.prefix(expectedHexArray5.count))
       
@@ -474,6 +480,24 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         responseData = Data(bytes: &response, count: 17)
         updateQueue.append((ZwiftPlayReadCharacteristic, responseData))
       }
+    let receivedBytes7 = [UInt8](receivedData.prefix(expectedHexArray7.count))
+
+    if receivedBytes7 == expectedHexArray7 {
+      SwiftDebug.qtDebug("Zwift Play Ask 7")
+      peripheral.respond(to: requests.first!, withResult: .success)
+      
+      var response: [UInt8]  = [0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01]
+      var responseData = Data(bytes: &response, count: 17)
+      updateQueue.append((ZwiftPlayReadCharacteristic, responseData))
+        
+        response = [ 0x3c, 0x08, 0x88, 0x04, 0x12, 0x05, 0x0a, 0x03, 0x40, 0x8c, 0x60 ]
+        response[9] = receivedData[4]
+        response[10] = receivedData[5]
+        responseData = Data(bytes: &response, count: 11)
+
+          updateQueue.append((ZwiftPlayIndicateCharacteristic, responseData))
+
+    }
     }
     } 
     
