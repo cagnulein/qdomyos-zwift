@@ -85,6 +85,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     public var CurrentCadence: UInt16! = 0
     public var CurrentResistance: UInt8! = 0
     public var CurrentWatt: UInt16! = 0
+    public var AccumulatedTorque: UInt16! = 0
     
   private var CSCService: CBMutableService!
   private var CSCFeatureCharacteristic: CBMutableCharacteristic!
@@ -441,6 +442,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         
         
         var response: [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0x59, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01]
+        response[2] = UInt8(self.CurrentWatt & 0xFF)
         var responseData = Data(bytes: &response, count: 15)
 
           updateQueue.append((ZwiftPlayReadCharacteristic, responseData))
@@ -478,6 +480,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           updateQueue.append((ZwiftPlayIndicateCharacteristic, responseData))
 
         response = [0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x96, 0x14, 0x30, 0x9b, 0xed, 0x01]
+        response[2] = UInt8(self.CurrentWatt & 0xFF)
         responseData = Data(bytes: &response, count: 17)
         updateQueue.append((ZwiftPlayReadCharacteristic, responseData))
       }
@@ -488,6 +491,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       peripheral.respond(to: requests.first!, withResult: .success)
       
       var response: [UInt8]  = [0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01]
+      response[2] = UInt8(self.CurrentWatt & 0xFF)
       var responseData = Data(bytes: &response, count: 17)
       updateQueue.append((ZwiftPlayReadCharacteristic, responseData))
         
@@ -591,7 +595,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
             let powerData = Data(bytes: &power, count: MemoryLayout.size(ofValue: power))
             return powerData
         } else {
-            let flags:UInt8 = 0x30
+            let flags:UInt8 = 0x34
 
                     /*
                      // set measurement
@@ -625,9 +629,15 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                      */
 
                   //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
+                    let pi = Double.pi
+                    let angularVelocity = (Double(self.CurrentCadence)) * (2.0 * pi) / 60.0
+                    let torque = (Double(self.CurrentWatt)) / angularVelocity
+                    let roundedTorque = (torque * 32).rounded() / 32
+                    self.AccumulatedTorque = self.AccumulatedTorque + (UInt16(roundedTorque))
                     let wheelrev: UInt32 = ((UInt32)(crankRevolutions)) * 3;
                     let lastWheel: UInt16 = (UInt16)((((UInt32)(lastCrankEventTime)) * 2) & 0xFFFF);
                     var power: [UInt8] = [flags, 0x00, (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF),
+                                          (UInt8)(self.AccumulatedTorque & 0xFF), (UInt8)((self.AccumulatedTorque >> 8) & 0xFF),
                                           (UInt8)(wheelrev & 0xFF), (UInt8)((wheelrev >> 8) & 0xFF), (UInt8)((wheelrev >> 16) & 0xFF), (UInt8)((wheelrev >> 24) & 0xFF),
                                           (UInt8)(lastWheel & 0xFF), (UInt8)((lastWheel >> 8) & 0xFF),
                                           (UInt8)(crankRevolutions & 0xFF), (UInt8)((crankRevolutions >> 8) & 0xFF),
@@ -664,7 +674,8 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           }
       } else if(self.serviceToggle == 3) {
           if(!sendUpdates()) {
-              let ZwiftPlayArray : [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01 ]
+              var ZwiftPlayArray : [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01 ]
+              ZwiftPlayArray[2] = UInt8(self.CurrentWatt & 0xFF)
               let ZwiftPlayData = Data(bytes: ZwiftPlayArray, count: 16)
               let ok = self.peripheralManager.updateValue(ZwiftPlayData, for: self.ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
               if(ok) {
