@@ -472,6 +472,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         var response: [UInt8] = [ 0x3c, 0x08, 0x88, 0x04, 0x12, 0x06, 0x0a, 0x04, 0x40, 0xc0, 0xbb, 0x01 ]
         response[9] = receivedData[4]
         response[10] = receivedData[5]
+        response[11] = receivedData[6]
         var responseData = Data(bytes: &response, count: 12)
 
           updateQueue.append((ZwiftPlayIndicateCharacteristic, responseData))
