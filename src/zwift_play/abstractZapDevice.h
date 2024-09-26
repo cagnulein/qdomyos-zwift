@@ -41,7 +41,7 @@ public:
         bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
         bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
 
-        qDebug() << zapType << characteristicName << bytes.toHex() << gears_volume_debouncing << risingEdge;
+        qDebug() << zapType << characteristicName << bytes.toHex() << zwiftplay_swap << gears_volume_debouncing << risingEdge;
 
 #define DEBOUNCE (!gears_volume_debouncing || !risingEdge)
 
@@ -183,6 +183,16 @@ public:
                         else
                             emit plus();
                     }
+                } else if(bytes.length() > 5 &&
+                          ((((uint8_t)bytes[4]) == 0xfd) || // left top button
+                          (((uint8_t)bytes[4]) == 0xfb))) { // left bottom button
+                    if(DEBOUNCE) {
+                        risingEdge = true;
+                        if(!zwiftplay_swap)
+                            emit minus();
+                        else
+                            emit plus();
+                    }   
                 } else {
                     risingEdge = false;
                 }
