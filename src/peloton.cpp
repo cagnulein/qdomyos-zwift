@@ -533,9 +533,11 @@ void peloton::login_onfinish(QNetworkReply *reply) {
         return;
     }
 
-    user_id = document[QStringLiteral("user_id")].toString();
-    total_workout = document[QStringLiteral("user_data")][QStringLiteral("total_workouts")].toInt();
+    user_id = document[QStringLiteral("id")].toString();
+    total_workout = document[QStringLiteral("total_workouts")].toInt();
 
+    qDebug() << "user_id" << user_id << "total workout" << total_workout;
+    
     emit loginState(!user_id.isEmpty());
 
     getWorkoutList(1);
@@ -1452,7 +1454,7 @@ void peloton::getWorkoutList(int num) {
 
     int current_page = 0;
 
-    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/user/") + user_id +
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/user") +
              QStringLiteral("/workouts?sort_by=-created&page=") + QString::number(current_page) +
              QStringLiteral("&limit=") + QString::number(limit));
     qDebug() << "peloton::getWorkoutList" << url;
