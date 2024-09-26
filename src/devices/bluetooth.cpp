@@ -2654,8 +2654,13 @@ void bluetooth::connectedAndDiscovered() {
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(zwiftPlayDevice.last(), &zwiftclickremote::debug, this, &bluetooth::debug);
-                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
-                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+                if(!b.name().toUpper().startsWith("ZWIFT RIDE") || (b.name().toUpper().startsWith("ZWIFT RIDE") && zwiftPlayDevice.size() == 1)) {
+                    connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
+                    connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+                    qDebug() << "listeing to events from" << b.name();
+                } else {
+                    qDebug() << "ignoring gears event because the ZWIFT RIDE sends the same events from both side, so I just need to listen 1 source";
+                }
                 zwiftPlayDevice.last()->deviceDiscovered(b);
                 if(homeform::singleton())
                     homeform::singleton()->setToastRequested("Zwift Play/Ride Connected!");

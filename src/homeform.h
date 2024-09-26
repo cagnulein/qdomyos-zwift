@@ -498,6 +498,7 @@ class homeform : public QObject {
     int preview_workout_points();
 
 #if defined(Q_OS_ANDROID)
+    QString getBluetoothName();
     static QString getAndroidDataAppDir();
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
