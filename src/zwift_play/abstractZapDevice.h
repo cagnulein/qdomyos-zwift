@@ -32,6 +32,7 @@ public:
         RIDE_ON = QByteArray::fromRawData("\x52\x69\x64\x65\x4F\x6E", 6);  // "RideOn"
         REQUEST_START = QByteArray::fromRawData("\x00\x09", 2);  // {0, 9}
         RESPONSE_START = QByteArray::fromRawData("\x01\x03", 2);  // {1, 3}
+        risingEdge = false;
     }
 
     int processCharacteristic(const QString& characteristicName, const QByteArray& bytes, ZWIFT_PLAY_TYPE zapType) {
@@ -241,7 +242,7 @@ protected:
 
 private:
     QByteArray devicePublicKeyBytes;
-    static volatile bool risingEdge = false;
+    static volatile bool risingEdge;
 
 signals:
     void plus();
