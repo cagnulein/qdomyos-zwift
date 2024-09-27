@@ -713,6 +713,11 @@ JNIEXPORT void JNICALL
     QSettings settings;
     bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
 
+    if (!settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
+      qDebug() << "volume_change_gears disabled!"; 
+      return;
+    }
+  
     if(gears_volume_debouncing && volumeLastChange.msecsTo(QDateTime::currentDateTime()) < 500) {
       qDebug() << "volume debouncing"; 
       return;
