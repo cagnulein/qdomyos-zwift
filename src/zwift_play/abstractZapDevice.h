@@ -241,7 +241,7 @@ protected:
 
 private:
     QByteArray devicePublicKeyBytes;
-    volatile bool risingEdge = false;
+    static volatile bool risingEdge;
 
 signals:
     void plus();
