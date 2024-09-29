@@ -292,88 +292,98 @@ void ftmsbike::update() {
         if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
             uint8_t gear1[] = {0x04, 0x2a, 0x03, 0x10, 0xdc, 0xec};
             uint8_t gear2[] = {0x04, 0x2a, 0x04, 0x10, 0xdc, 0xec, 0x01};
+            uint32_t gear_value = 0;
+
             switch((int)gears()) {
-            case 1:
-                gear1[4] = 0xcc; gear1[5] = 0x3a;
-                break;
-            case 2:
-                gear1[4] = 0xfc; gear1[5] = 0x43;
-                break;
-            case 3:
-                gear1[4] = 0xac; gear1[5] = 0x4d;
-                break;
-            case 4:
-                gear1[4] = 0xd5; gear1[5] = 0x56;
-                break;
-            case 5:
-                gear1[4] = 0x8c; gear1[5] = 0x60;
-                break;
-            case 6:
-                gear1[4] = 0xe8; gear1[5] = 0x6b;
-                break;
-            case 7:
-                gear1[4] = 0xc4; gear1[5] = 0x77;
-                break;
-            case 8:
-                gear2[4] = 0xa0; gear2[5] = 0x83;
-                break;
-            case 9:
-                gear2[4] = 0xa8; gear2[5] = 0x91;
-                break;
-            case 10:
-                gear2[4] = 0xb0; gear2[5] = 0x9f;
-                break;
-            case 11:
-                gear2[4] = 0xb8; gear2[5] = 0xad;
-                break;
-            case 12:
-                gear2[4] = 0xc0; gear2[5] = 0xbb;
-                break;
-            case 13:
-                gear2[4] = 0xf3; gear2[5] = 0xcb;
-                break;
-            case 14:
-                gear2[4] = 0xa8; gear2[5] = 0xdc;
-                break;
-            case 15:
-                gear2[4] = 0xdc; gear2[5] = 0xec;
-                break;
-            case 16:
-                gear2[4] = 0x90; gear2[5] = 0xfd;
-                break;
-            case 17:
-                gear2[4] = 0xd4; gear2[5] = 0x90; gear2[6] = 0x02;
-                break;
-            case 18:
-                gear2[4] = 0x98; gear2[5] = 0xa4; gear2[6] = 0x02;
-                break;
-            case 19:
-                gear2[4] = 0xdc; gear2[5] = 0xb7; gear2[6] = 0x02;
-                break;
-            case 20:
-                gear2[4] = 0x9f; gear2[5] = 0xcb; gear2[6] = 0x02;
-                break;
-            case 21:
-                gear2[4] = 0xd8; gear2[5] = 0xe2; gear2[6] = 0x02;
-                break;
-            case 22:
-                gear2[4] = 0x90; gear2[5] = 0xfa; gear2[6] = 0x02;
-                break;
-            case 23:
-                gear2[4] = 0xc8; gear2[5] = 0x91; gear2[6] = 0x03;
-                break;
-            case 24:
-                gear2[4] = 0xf3; gear2[5] = 0xac; gear2[6] = 0x03;
-                break;
-            default:
-                // Gestione del caso di default
-                break;
+                case 1:
+                    gear_value = 0x3acc;
+                    break;
+                case 2:
+                    gear_value = 0x43fc;
+                    break;
+                case 3:
+                    gear_value = 0x4dac;
+                    break;
+                case 4:
+                    gear_value = 0x56d5;
+                    break;
+                case 5:
+                    gear_value = 0x608c;
+                    break;
+                case 6:
+                    gear_value = 0x6be8;
+                    break;
+                case 7:
+                    gear_value = 0x77c4;
+                    break;
+                case 8:
+                    gear_value = 0x183a0;
+                    break;
+                case 9:
+                    gear_value = 0x191a8;
+                    break;
+                case 10:
+                    gear_value = 0x19fb0;
+                    break;
+                case 11:
+                    gear_value = 0x1adb8;
+                    break;
+                case 12:
+                    gear_value = 0x1bbc0;
+                    break;
+                case 13:
+                    gear_value = 0x1cbf3;
+                    break;
+                case 14:
+                    gear_value = 0x1dca8;
+                    break;
+                case 15:
+                    gear_value = 0x1ecdc;
+                    break;
+                case 16:
+                    gear_value = 0x1fd90;
+                    break;
+                case 17:
+                    gear_value = 0x290d4;
+                    break;
+                case 18:
+                    gear_value = 0x2a498;
+                    break;
+                case 19:
+                    gear_value = 0x2b7dc;
+                    break;
+                case 20:
+                    gear_value = 0x2cb9f;
+                    break;
+                case 21:
+                    gear_value = 0x2e2d8;
+                    break;
+                case 22:
+                    gear_value = 0x2fa90;
+                    break;
+                case 23:
+                    gear_value = 0x391c8;
+                    break;
+                case 24:
+                    gear_value = 0x3acf3;
+                    break;
+                default:
+                    // Gestione del caso di default
+                    break;
             }
 
-            if((int)gears() < 8)
-              writeCharacteristicZwiftPlay(gear1, sizeof(gear1), "gear", false, true);
-            else 
-              writeCharacteristicZwiftPlay(gear2, sizeof(gear2), "gear", false, true);
+            gear_value = gear_value * settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble();
+
+            if(gear_value < 0x10000) {
+                gear1[4] = gear_value & 0xFF;
+                gear1[5] = ((gear_value & 0xFF00) >> 8) & 0xFF;
+                writeCharacteristicZwiftPlay(gear1, sizeof(gear1), "gear", false, true);
+            } else {
+                gear2[4] = gear_value & 0xFF;
+                gear2[5] = ((gear_value & 0xFF00) >> 8) & 0xFF;
+                gear2[6] = ((gear_value & 0xFF0000) >> 16) & 0xFF;
+                writeCharacteristicZwiftPlay(gear2, sizeof(gear2), "gear", false, true);
+            }
 
             uint8_t gearApply[] = {0x00, 0x08, 0x88, 0x04};
             writeCharacteristicZwiftPlay(gearApply, sizeof(gearApply), "gearApply", false, true);
@@ -1070,7 +1080,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             b[4] = slope >> 8;
             
             qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << slope;
-        } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
+        /*} else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             uint8_t gear2[] = {0x04, 0x22, 0x02, 0x10, 0x00};
             int g = (int)(((double)slope / 100.0) + settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble());
@@ -1078,7 +1088,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
                 g = 0;
             }
             gear2[4] = g;
-            writeCharacteristicZwiftPlay(gear2, sizeof(gear2), "gearInclination", false, false);
+            writeCharacteristicZwiftPlay(gear2, sizeof(gear2), "gearInclination", false, false);*/
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
