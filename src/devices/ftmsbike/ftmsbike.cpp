@@ -24,6 +24,7 @@ using namespace std::chrono_literals;
 
 ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
+    QSettings settings;
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -33,7 +34,7 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &ftmsbike::update);
-    refresh->start(200ms);
+    refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
 }
 
 void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -160,7 +161,7 @@ void ftmsbike::zwiftPlayInit() {
         writeCharacteristicZwiftPlay(init2, sizeof(init2), "init2", false, true);
         writeCharacteristicZwiftPlay(init4, sizeof(init4), "init4", false, true);
 
-        uint8_t init8[] = {0x04, 0x22, 0x02, 0x10, 0x01};
+        uint8_t init8[] = {0x04, 0x22, 0x02, 0x10, 0x00};
         writeCharacteristicZwiftPlay(init8, sizeof(init8), "init8", false, true);
     }
 }
@@ -1044,7 +1045,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
                 lastPacketFromFTMS.append(b.at(i));
-            qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');            
+            qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             if(!gears_zwift_ratio) {
                 if (gears() != 0) {
@@ -1067,8 +1068,17 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             }
             b[3] = slope & 0xFF;
             b[4] = slope >> 8;
-
+            
             qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << slope;
+        } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
+            int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
+            uint8_t gear2[] = {0x04, 0x22, 0x02, 0x10, 0x00};
+            int g = (int)(((double)slope / 100.0) + settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble());
+            if(g < 0) {
+                g = 0;
+            }
+            gear2[4] = g;
+            writeCharacteristicZwiftPlay(gear2, sizeof(gear2), "gearInclination", false, false);
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
