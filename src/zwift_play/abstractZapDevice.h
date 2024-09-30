@@ -83,6 +83,8 @@ class AbstractZapDevice: public QObject {
                     }
                 } else {
                     risingEdge--;
+                    if(risingEdge < 0)
+                        risingEdge = 0;
                 }
             }
             break;
@@ -128,6 +130,8 @@ class AbstractZapDevice: public QObject {
                 }
             } else {
                 risingEdge--;
+                if(risingEdge < 0)
+                    risingEdge = 0;
             }
             break;
         case 0x15: // empty data
@@ -195,6 +199,8 @@ class AbstractZapDevice: public QObject {
                 }
             } else {
                 risingEdge--;
+                if(risingEdge < 0)
+                    risingEdge = 0;
             }
             break;
 
