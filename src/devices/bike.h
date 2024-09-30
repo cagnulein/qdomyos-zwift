@@ -60,10 +60,18 @@ class bike : public bluetoothdevice {
     void changeInclination(double grade, double percentage) override;
     virtual void changeSteeringAngle(double angle) { m_steeringAngle = angle; }
     virtual void resistanceFromFTMSAccessory(resistance_t res) { Q_UNUSED(res); }
-    void gearUp() {QSettings settings; setGears(gears() +
-                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());}
-    void gearDown() {QSettings settings; setGears(gears() -
-                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());}
+    void gearUp() {
+        QSettings settings;
+        bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+        setGears(gears() + (gears_zwift_ratio ? 1 :
+                                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble()));
+    }
+    void gearDown() {
+        QSettings settings;
+        bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+        setGears(gears() - (gears_zwift_ratio ? 1 :
+                                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble()));
+    }
 
   Q_SIGNALS:
     void bikeStarted();
