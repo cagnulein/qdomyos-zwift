@@ -156,8 +156,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                 (QBluetoothUuid::CharacteristicType)0x2AD6); // supported_resistance_level_rangeCharacteristicUuid
             charDataFIT2.setProperties(QLowEnergyCharacteristic::Read);
             QByteArray valueFIT2;
-            valueFIT2.append((char)0x6A); // min resistance value
-            valueFIT2.append((char)0xFF); // min resistance value (-15 for kinomap)
+            valueFIT2.append((char)0x0A); // min resistance value
+            valueFIT2.append((char)0x00); // min resistance value
             valueFIT2.append((char)0x96); // max resistance value
             valueFIT2.append((char)0x00); // max resistance value
             valueFIT2.append((char)0x0A); // step resistance
