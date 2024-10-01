@@ -7,6 +7,8 @@ using namespace std::chrono_literals;
 
 const bool log_request = true;
 
+#define RAWHEADER request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString().toUtf8());
+
 peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
 
     QSettings settings;
@@ -501,9 +503,7 @@ void peloton::startEngine() {
     qDebug() << "peloton::getMe" << url;
     QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
-    request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString().toUtf8());
+    RAWHEADER
     
     qDebug() << settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString().toLatin1() << request.rawHeader(QByteArray("authorization"));
     
@@ -1372,19 +1372,20 @@ double peloton::rowerpaceToSpeed(double pace) {
 }
 
 void peloton::getInstructor(const QString &instructor_id) {
+    QSettings settings;
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::instructor_onfinish);
 
     QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/instructor/") + instructor_id);
     qDebug() << "peloton::getInstructor" << url;
     QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+    RAWHEADER
 
     mgr->get(request);
 }
 
 void peloton::getRide(const QString &ride_id) {
+    QSettings settings;
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::ride_onfinish);
 
     QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/ride/") + ride_id +
@@ -1392,13 +1393,13 @@ void peloton::getRide(const QString &ride_id) {
     qDebug() << "peloton::getRide" << url;
     QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+    RAWHEADER
 
     mgr->get(request);
 }
 
 void peloton::getPerformance(const QString &workout) {
+    QSettings settings;
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::performance_onfinish);
 
     QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/workout/") + workout +
@@ -1406,42 +1407,40 @@ void peloton::getPerformance(const QString &workout) {
     qDebug() << "peloton::getPerformance" << url;
     QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+    RAWHEADER
 
     mgr->get(request);
 }
 
 void peloton::getWorkout(const QString &workout) {
+    QSettings settings;
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::workout_onfinish);
 
     QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/workout/") + workout);
     qDebug() << "peloton::getWorkout" << url;
     QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+    RAWHEADER
 
     mgr->get(request);
 }
 
 void peloton::getSummary(const QString &workout) {
+    QSettings settings;
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::summary_onfinish);
 
     QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/workout/") + workout + QStringLiteral("/summary"));
     qDebug() << "peloton::getSummary" << url;
     QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
-    QSettings settings;
-    request.setRawHeader(QByteArray("authorization"), QByteArray("Bearer ") + settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString().toLatin1());
+    RAWHEADER
 
     mgr->get(request);
 }
 
 void peloton::getWorkoutList(int num) {
     Q_UNUSED(num)
+    QSettings settings;
     //    if (num == 0) { //NOTE: clang-analyzer-deadcode.DeadStores
     //        num = this->total_workout;
     //    }
@@ -1460,8 +1459,7 @@ void peloton::getWorkoutList(int num) {
     qDebug() << "peloton::getWorkoutList" << url;
     QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+    RAWHEADER
 
     mgr->get(request);
 }
