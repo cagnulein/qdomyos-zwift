@@ -140,24 +140,8 @@ void tacxneo2::update() {
             requestInclination = -100;            
         } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
             // in order to send the new gear value ASAP
-            QSettings settings;
-            bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
-            if(!gears_zwift_ratio) {
-                forceInclination(lastRawRequestedInclinationValue + gears());   // since this bike doesn't have the concept of resistance,
-                                                                // i'm using the gears in the inclination
-            } else {
-                double slope = lastRawRequestedInclinationValue;
-                if(slope == 0) {
-                    slope = 0.1 * gearsZwiftRatio();
-                } else if(slope < 0) {
-                    double absslope = fabs(slope);
-                    absslope *= gearsZwiftRatio();
-                    slope += absslope - slope;
-                } else {
-                    slope *= gearsZwiftRatio();
-                }
-                forceInclination(slope);
-            }
+            forceInclination(lastRawRequestedInclinationValue + gears());   // since this bike doesn't have the concept of resistance,
+                                                            // i'm using the gears in the inclination
         }
 
         lastGearValue = gears();
