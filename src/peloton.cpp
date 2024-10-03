@@ -1099,18 +1099,6 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     }
 }
 
-// TO HANDLE
-/*
- 
- "peloton::performance_onfinish" 0 QJsonDocument({"average_summaries":[],"effort_zones":null,"metrics":[],"splits_data":{"distance_marker_display_unit":"km","elevation_change_display_unit":"m","splits":[]},"summaries":[],"target_metrics_performance_data":{"target_metrics":[{"metrics":[{"lower":30,"name":"resistance","upper":40},{"lower":80,"name":"cadence","upper":85}],"offsets":{"end":144,"start":60},"segment_type":"cycling"},{"metrics":[{"lower":40,"name":"resistance","upper":50},{"lower":80,"name":"cadence","upper":85}],"offsets":{"end":240,"start":145},"segment_type":"cycling"},{"metrics":[{"lower":40,"name":"resistance","upper":42},{"lower":80,"name":"cadence","upper":85}],"offsets":{"end":246,"start":241},"segment_type":"cycling"},{"metrics":[{"lower":40,"name":"resistance","upper":42},{"lower":70,"name":"cadence","upper":75}],"offsets":{"end":332,"start":247},"segment_type":"cycling"},{"metrics":[{"lower":41,"name":"resistance","upper":44},{"lower":70,"name":"cadence","upper":75}],"offsets":{"end":372,"start":333},"segment_type":"cycling"},{"metrics":[{"lower":40,"name":"resistance","upper":45},{"lower":70,"name":"cadence","upper":75}],"offsets":{"end":447,"start":373},"segment_type":"cycling"},{"metrics":[{"lower":40,"name":"resistance","upper":45},{"lower":75,"name":"cadence","upper":85}],"offsets":{"end":459,"start":448},"segment_type":"cycling"},{"metrics":[{"lower":40,"name":"resistance","upper":45},{"lower":70,"name":"cadence","upper":75}],"offsets":{"end":485,"start":460},"segment_type":"cycling"},{"metrics":[{"lower":40,"name":"resistance","upper":45},{"lower":75,"name":"cadence","upper":85}],"offsets":{"end":495,"start":486},"segment_type":"cycling"},{"metrics":[{"lower":40,"name":"resistance","upper":45},{"lower":70,"name":"cadence","upper":75}],"offsets":{"end":541,"start":496},"segment_type":"cycling"},{"metrics":[{"lower":40,"name":"resistance","upper":45},{"lower":75,"name":"cadence","upper":85}],"offsets":{"end":553,"start":542},"segment_type":"cycling"},{"metrics":[{"lower":40,"name":"resistance","upper":45},{"lower":70,"name":"cadence","upper":75}],"offsets":{"end":640,"start":554},"segment_type":"cycling"},{"metrics":[{"lower":45,"name":"resistance","upper":50},{"lower":70,"name":"cadence","upper":75}],"offsets":{"end":672,"start":641},"segment_type":"cycling"},{"metrics":[{"lower":40,"name":"resistance","upper":45},{"lower":70,"name":"cadence","upper":75}],"offsets":{"end":710,"start":673},"segment_type":"cycling"},{"metrics":[{"lower":45,"name":"resistance","upper":50},{"lower":70,"name":"cadence","upper":75}],"offsets":{"end":744,"start":711},"segment_type":"cycling"},{"metrics":[{"lower":40,"name":"resistance","upper":45},{"lower":70,"name":"cadence","upper":75}],"offsets":{"end":792,"start":745},"segment_type":"cycling"},{"metrics":[{"lower":45,"name":"resistance","upper":50},{"lower":70,"name":"cadence","upper":75}],"offsets":{"end":833,"start":793},"segment_type":"cycling"},{"metrics":[{"lower":40,"name":"resistance","upper":45},{"lower":70,"name":"cadence","upper":75}],"offsets":{"end":857,"start":834},"segment_type":"cycling"},{"metrics":[{"lower":45,"name":"resistance","upper":50},{"lower":60,"name":"cadence","upper":65}],"offsets":{"end":967,"start":858},"segment_type":"cycling"},{"metrics":[{"lower":47,"name":"resistance","upper":52},{"lower":60,"name":"cadence","upper":65}],"offsets":{"end":1035,"start":968},"segment_type":"cycling"},{"metrics":[{"lower":47,"name":"resistance","upper":52},{"lower":55,"name":"cadence","upper":65}],"offsets":{"end":1061,"start":1036},"segment_type":"cycling"},{"metrics":[{"lower":50,"name":"resistance","upper":55},{"lower":55,"name":"cadence","upper":65}],"offsets":{"end":1138,"start":1062},"segment_type":"cycling"},{"metrics":[{"lower":60,"name":"resistance","upper":65},{"lower":55,"name":"cadence","upper":65}],"offsets":{"end":1189,"start":1139},"segment_type":"cycling"},{"metrics":[{"lower":60,"name":"resistance","upper":65},{"lower":75,"name":"cadence","upper":85}],"offsets":{"end":1199,"start":1190},"segment_type":"cycling"},{"metrics":[{"lower":25,"name":"resistance","upper":35},{"lower":70,"name":"cadence","upper":100}],"offsets":{"end":1260,"start":1200},"segment_type":"cycling"}],"time_in_metric":[{"name":"resistance","value":0},{"name":"cadence","value":0}]},"target_performance_metrics":{"cadence_time_in_range":0,"resistance_time_in_range":0,"target_graph_metrics":[{"average":71,"graph_data":{"average":[82,82,82,82,82,82,82,82,82,82,82,82,82,82,82,82,82,82,82,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,80,72,72,72,80,72,72,72,72,72,80,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,62,62,62,62,62,62,62,62,62,62,62,62,62,62,62,62,62,62,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,80,85,85,85,85,85,85],"lower":[80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,75,70,70,70,75,70,70,70,70,70,75,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,75,70,70,70,70,70,70],"upper":[85,85,85,85,85,85,85,85,85,85,85,85,85,85,85,85,85,85,85,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,85,75,75,75,85,75,75,75,75,75,85,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,75,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,85,100,100,100,100,100,100]},"max":100,"min":55,"type":"cadence"},{"average":44,"graph_data":{"average":[35,35,35,35,35,35,35,35,35,45,45,45,45,45,45,45,45,45,45,41,41,41,41,41,41,41,41,41,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,47,47,47,42,42,42,42,47,47,47,42,42,42,42,42,47,47,47,47,42,42,47,47,47,47,47,47,47,47,47,47,47,49,49,49,49,49,49,49,49,49,49,52,52,52,52,52,52,52,62,62,62,62,62,62,30,30,30,30,30,30],"lower":[30,30,30,30,30,30,30,30,30,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,41,41,41,41,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,45,45,45,40,40,40,40,45,45,45,40,40,40,40,40,45,45,45,45,40,40,45,45,45,45,45,45,45,45,45,45,45,47,47,47,47,47,47,47,47,47,47,50,50,50,50,50,50,50,60,60,60,60,60,60,25,25,25,25,25,25],"upper":[40,40,40,40,40,40,40,40,40,50,50,50,50,50,50,50,50,50,50,42,42,42,42,42,42,42,42,42,44,44,44,44,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,50,50,50,45,45,45,45,50,50,50,45,45,45,45,45,50,50,50,50,45,45,50,50,50,50,50,50,50,50,50,50,50,52,52,52,52,52,52,52,52,52,52,55,55,55,55,55,55,55,65,65,65,65,65,65,35,35,35,35,35,35]},"max":65,"min":25,"type":"resistance"}]}})
- 
- 
- also
- 
- "peloton::performance_onfinish" 0 QJsonDocument({"average_summaries":[],"effort_zones":null,"metrics":[],"splits_data":{"distance_marker_display_unit":"km","elevation_change_display_unit":"m","splits":[]},"summaries":[{"display_name":"Calories","display_unit":"kcal","slug":"calories","value":1}],"target_metrics_performance_data":{"target_metrics":[{"metrics":[{"lower":1,"name":"power_zone","upper":1}],"offsets":{"end":179,"start":60},"segment_type":"power_zone"},{"metrics":[{"lower":1,"name":"power_zone","upper":1}],"offsets":{"end":419,"start":360},"segment_type":"power_zone"},{"metrics":[{"lower":2,"name":"power_zone","upper":2}],"offsets":{"end":449,"start":420},"segment_type":"power_zone"},{"metrics":[{"lower":3,"name":"power_zone","upper":3}],"offsets":{"end":509,"start":450},"segment_type":"power_zone"},{"metrics":[{"lower":4,"name":"power_zone","upper":4}],"offsets":{"end":569,"start":510},"segment_type":"power_zone"},{"metrics":[{"lower":5,"name":"power_zone","upper":5}],"offsets":{"end":629,"start":570},"segment_type":"power_zone"},{"metrics":[{"lower":6,"name":"power_zone","upper":6}],"offsets":{"end":659,"start":630},"segment_type":"power_zone"},{"metrics":[{"lower":1,"name":"power_zone","upper":1}],"offsets":{"end":719,"start":660},"segment_type":"power_zone"},{"metrics":[{"lower":3,"name":"power_zone","upper":3}],"offsets":{"end":779,"start":720},"segment_type":"power_zone"},{"metrics":[{"lower":4,"name":"power_zone","upper":4}],"offsets":{"end":899,"start":780},"segment_type":"power_zone"},{"metrics":[{"lower":5,"name":"power_zone","upper":5}],"offsets":{"end":959,"start":900},"segment_type":"power_zone"},{"metrics":[{"lower":6,"name":"power_zone","upper":6}],"offsets":{"end":1004,"start":960},"segment_type":"power_zone"},{"metrics":[{"lower":1,"name":"power_zone","upper":1}],"offsets":{"end":1114,"start":1005},"segment_type":"power_zone"},{"metrics":[{"lower":3,"name":"power_zone","upper":3}],"offsets":{"end":1174,"start":1115},"segment_type":"power_zone"},{"metrics":[{"lower":4,"name":"power_zone","upper":4}],"offsets":{"end":1294,"start":1175},"segment_type":"power_zone"},{"metrics":[{"lower":5,"name":"power_zone","upper":5}],"offsets":{"end":1354,"start":1295},"segment_type":"power_zone"},{"metrics":[{"lower":6,"name":"power_zone","upper":6}],"offsets":{"end":1399,"start":1355},"segment_type":"power_zone"},{"metrics":[{"lower":1,"name":"power_zone","upper":1}],"offsets":{"end":1509,"start":1400},"segment_type":"power_zone"},{"metrics":[{"lower":3,"name":"power_zone","upper":3}],"offsets":{"end":1569,"start":1510},"segment_type":"power_zone"},{"metrics":[{"lower":4,"name":"power_zone","upper":4}],"offsets":{"end":1689,"start":1570},"segment_type":"power_zone"},{"metrics":[{"lower":5,"name":"power_zone","upper":5}],"offsets":{"end":1749,"start":1690},"segment_type":"power_zone"},{"metrics":[{"lower":6,"name":"power_zone","upper":6}],"offsets":{"end":1799,"start":1750},"segment_type":"power_zone"},{"metrics":[{"lower":1,"name":"power_zone","upper":1}],"offsets":{"end":1859,"start":1800},"segment_type":"power_zone"}],"time_in_metric":[{"distribution":{},"name":"power_zone","value":0}]}})
- 
- */
-
 void peloton::performance_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::performance_onfinish);
 
@@ -1129,7 +1117,164 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     QJsonArray segment_list = json[QStringLiteral("segment_list")].toArray();
     trainrows.clear();
 
-    if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
+    if(!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
+        bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        QJsonArray targetMetrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
+
+        if (targetMetrics.count() > 0)
+            trainrows.reserve(targetMetrics.count());
+
+        QSettings settings;
+        QString difficulty =
+            settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
+
+        for (int i = 0; i < targetMetrics.count(); i++) {
+            QJsonObject targetMetric = targetMetrics.at(i).toObject();
+            QJsonObject offsets = targetMetric[QStringLiteral("offsets")].toObject();
+            QJsonArray metrics = targetMetric[QStringLiteral("metrics")].toArray();
+
+                   // Find resistance and cadence metrics
+            int lowerResistance = 0, upperResistance = 0, lowerCadence = 0, upperCadence = 0;
+            for (QJsonValue metricValue : metrics) {
+                QJsonObject metric = metricValue.toObject();
+                QString name = metric[QStringLiteral("name")].toString();
+
+                if (name == QStringLiteral("resistance")) {
+                        lowerResistance = metric[QStringLiteral("lower")].toInt();
+                        upperResistance = metric[QStringLiteral("upper")].toInt();
+                } else if (name == QStringLiteral("cadence")) {
+                        lowerCadence = metric[QStringLiteral("lower")].toInt();
+                        upperCadence = metric[QStringLiteral("upper")].toInt();
+                }
+            }
+
+            trainrow r;
+            int duration = offsets[QStringLiteral("end")].toInt() - offsets[QStringLiteral("start")].toInt();
+            if (i != 0) {
+                // offsets have a 1s gap
+                duration++;
+            }
+
+            r.lower_requested_peloton_resistance = lowerResistance;
+            r.upper_requested_peloton_resistance = upperResistance;
+            r.lower_cadence = lowerCadence;
+            r.upper_cadence = upperCadence;
+
+            r.average_requested_peloton_resistance =
+                (r.lower_requested_peloton_resistance + r.upper_requested_peloton_resistance) / 2;
+            r.average_cadence = (r.lower_cadence + r.upper_cadence) / 2;
+
+            if (bluetoothManager && bluetoothManager->device()) {
+                if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                        r.lower_resistance = ((bike *)bluetoothManager->device())
+                                                 ->pelotonToBikeResistance(lowerResistance);
+                        r.upper_resistance = ((bike *)bluetoothManager->device())
+                                                 ->pelotonToBikeResistance(upperResistance);
+                        r.average_resistance = ((bike *)bluetoothManager->device())
+                                                   ->pelotonToBikeResistance(r.average_requested_peloton_resistance);
+                } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                        r.lower_resistance =
+                            ((elliptical *)bluetoothManager->device())
+                                ->pelotonToEllipticalResistance(lowerResistance);
+                        r.upper_resistance =
+                            ((elliptical *)bluetoothManager->device())
+                                ->pelotonToEllipticalResistance(upperResistance);
+                        r.average_resistance = ((elliptical *)bluetoothManager->device())
+                                                   ->pelotonToEllipticalResistance(r.average_requested_peloton_resistance);
+                }
+            }
+
+                   // Set for compatibility
+            if (difficulty == QStringLiteral("average")) {
+                r.resistance = r.average_resistance;
+                r.requested_peloton_resistance = r.average_requested_peloton_resistance;
+                r.cadence = r.average_cadence;
+            } else if (difficulty == QStringLiteral("upper")) {
+                r.resistance = r.upper_resistance;
+                r.requested_peloton_resistance = r.upper_requested_peloton_resistance;
+                r.cadence = r.upper_cadence;
+            } else { // lower
+                r.resistance = r.lower_resistance;
+                r.requested_peloton_resistance = r.lower_requested_peloton_resistance;
+                r.cadence = r.lower_cadence;
+            }
+
+                   // Compact rows in the training program
+            if (i == 0 ||
+                (r.lower_requested_peloton_resistance != trainrows.last().lower_requested_peloton_resistance ||
+                 r.upper_requested_peloton_resistance != trainrows.last().upper_requested_peloton_resistance ||
+                 r.lower_cadence != trainrows.last().lower_cadence ||
+                 r.upper_cadence != trainrows.last().upper_cadence)) {
+                r.duration = QTime(0, 0, 0).addSecs(duration);
+                trainrows.append(r);
+            } else {
+                trainrows.last().duration = trainrows.last().duration.addSecs(duration);
+            }
+        }
+
+        QJsonArray targetMetricsList = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
+
+        bool atLeastOnePower = false;
+        if (trainrows.empty() && !targetMetricsList.isEmpty() &&
+            bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
+            bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
+
+            for (QJsonValue metric : targetMetricsList) {
+                QJsonObject metricObj = metric.toObject();
+                QJsonObject offsets = metricObj[QStringLiteral("offsets")].toObject();
+                int start = offsets[QStringLiteral("start")].toInt();
+                int end = offsets[QStringLiteral("end")].toInt();
+                int len = end - start;
+
+                QJsonArray metricsArray = metricObj[QStringLiteral("metrics")].toArray();
+                if (!metricsArray.isEmpty()) {
+                        QJsonObject powerMetric = metricsArray[0].toObject();
+                        int zone = powerMetric[QStringLiteral("lower")].toInt();
+
+                        trainrow r;
+                        r.duration = QTime(0, len / 60, len % 60, 0);
+
+                        switch(zone) {
+                        case 1: // Zone 1 / Recovery
+                            r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.50;
+                        break;
+                        case 2: // Zone 2
+                            r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.66;
+                        break;
+                        case 3: // Zone 3
+                            r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.83;
+                        break;
+                        case 4: // Zone 4 / Sweet Spot
+                            r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.98;
+                        break;
+                        case 5: // Zone 5
+                            r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.13;
+                        break;
+                        case 6: // Zone 6
+                            r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.35;
+                        break;
+                        case 7: // Zone 7
+                            r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.5;
+                        break;
+                        default:
+                            r.power = -1;
+                        break;
+                        }
+
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power << "zone" << zone;
+                }
+            }
+
+            // If this list doesn't have anything useful for this session
+            if (!atLeastOnePower) {
+                trainrows.clear();
+            }
+        }
+    } else if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
         bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
         double miles = 1;
         bool treadmill_force_speed =
