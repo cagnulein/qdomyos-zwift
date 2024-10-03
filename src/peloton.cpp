@@ -1,7 +1,11 @@
 #if __has_include("secret.h")
 #include "secret.h"
 #else
+#if defined(WIN32)
+#pragma message("PELOTON API WILL NOT WORK!!!")
+#else
 #warning "PELOTON API WILL NOT WORK!!!"
+#endif
 #endif
 #include "homeform.h"
 #include "peloton.h"
