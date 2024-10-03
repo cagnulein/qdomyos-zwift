@@ -1,4 +1,8 @@
+#if __has_include("secret.h")
 #include "secret.h"
+#else
+#warning "PELOTON API WILL NOT WORK!!!"
+#endif
 #include "homeform.h"
 #include "peloton.h"
 #include <chrono>
