@@ -872,7 +872,8 @@ void horizontreadmill::update() {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(requestSpeed);
             }
-            requestSpeed = -1;
+            if(!FS)
+                requestSpeed = -1;
         }
         if (requestInclination != -100) {
             requestInclination = treadmillInclinationOverrideReverse(requestInclination);
@@ -2356,6 +2357,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((device.name().toUpper().startsWith("DOMYOS"))) {
             qDebug() << QStringLiteral("DOMYOS found");
             DOMYOS = true;
+        } else if ((device.name().toUpper().startsWith("FS-"))) {
+            qDebug() << QStringLiteral("FS- workaround on!");
+            FS = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
