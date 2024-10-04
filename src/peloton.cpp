@@ -1126,7 +1126,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     trainrows.clear();
 
     if(!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
-        bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
         QJsonArray targetMetrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
 
         if (targetMetrics.count() > 0)
@@ -1135,7 +1135,8 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         QSettings settings;
         QString difficulty =
             settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
-
+        bool powerZoneFound = false;
+        
         for (int i = 0; i < targetMetrics.count(); i++) {
             QJsonObject targetMetric = targetMetrics.at(i).toObject();
             QJsonObject offsets = targetMetric[QStringLiteral("offsets")].toObject();
@@ -1153,9 +1154,15 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 } else if (name == QStringLiteral("cadence")) {
                         lowerCadence = metric[QStringLiteral("lower")].toInt();
                         upperCadence = metric[QStringLiteral("upper")].toInt();
+                } else if (name == QStringLiteral("power_zone")) {
+                    powerZoneFound = true;
+                    break;
                 }
             }
 
+            if(powerZoneFound == true)
+                break;
+            
             trainrow r;
             int duration = offsets[QStringLiteral("end")].toInt() - offsets[QStringLiteral("start")].toInt();
             if (i != 0) {
@@ -1218,6 +1225,10 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             } else {
                 trainrows.last().duration = trainrows.last().duration.addSecs(duration);
             }
+        }
+        
+        foreach(trainrow r, trainrows) {
+            qDebug() << r.duration << r.average_cadence << r.average_resistance;
         }
 
         QJsonArray targetMetricsList = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
