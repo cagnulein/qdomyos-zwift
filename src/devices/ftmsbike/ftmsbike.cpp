@@ -1057,29 +1057,13 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
                 lastPacketFromFTMS.append(b.at(i));
             qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
-            if(!gears_zwift_ratio) {
-                if (gears() != 0) {
-                    slope += (gears() * 50);
-                }
-            } else {
-                if(slope == 0) {
-                    slope = 30 * gearsZwiftRatio();
-                } else if(slope < 0) {
-                    int16_t absslope = abs(slope);
-                    if(absslope < 30)
-                        absslope = 30;
-                    absslope *= gearsZwiftRatio();
-                    slope += absslope - slope;
-                } else {
-                    if(slope < 30)
-                        slope = 30;
-                    slope *= gearsZwiftRatio();
-                }
+            if (gears() != 0) {
+                slope += (gears() * 50);
             }
             b[3] = slope & 0xFF;
             b[4] = slope >> 8;
             
-            qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << slope;
+            qDebug() << "applying gears mod" << gears() << slope;
         /*} else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             uint8_t gear2[] = {0x04, 0x22, 0x02, 0x10, 0x00};
