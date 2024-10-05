@@ -66,7 +66,7 @@ class gpiotreadmill : public treadmill {
 
     Q_OBJECT
   public:
-    gpiotreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
+    gpiotreadmill(uint32_t poolDeviceTime = 400, bool noConsole = false, bool noHeartService = false,
                   double forceInitSpeed = 1.0, double forceInitInclination = 0.0);
     ~gpiotreadmill();
     bool connected();
@@ -83,7 +83,7 @@ class gpiotreadmill : public treadmill {
   private:
     bool noConsole = false;
     bool noHeartService = false;
-    uint32_t pollDeviceTime = 200;
+    uint32_t pollDeviceTime = 400;
     bool searchStopped = false;
     uint8_t sec1Update = 0;
     uint8_t firstInit = 0;
@@ -104,8 +104,8 @@ class gpiotreadmill : public treadmill {
     const uint8_t OUTPUT_START = 4;
     const uint8_t OUTPUT_STOP = 5;
 
-    const uint16_t GPIO_KEEP_MS = 50;
-    //const uint16_t GPIO_REBOUND_MS = 200;
+    const uint16_t GPIO_KEEP_MS = = 50;
+    //const uint16_t GPIO_REBOUND_MS = 400;
     
     const double SPEED_STEP = 0.1;
     const double INCLINATION_STEP = 1.0;

@@ -107,7 +107,7 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
 
     modbusDevice = new QModbusRtuSerialMaster(this);
     modbusDevice->setConnectionParameter(QModbusDevice::SerialPortNameParameter,
-        "COM4");
+        "/dev/ttyUSB0");
     modbusDevice->setConnectionParameter(QModbusDevice::SerialParityParameter,
         QSerialPort::Parity::NoParity);
     modbusDevice->setConnectionParameter(QModbusDevice::SerialBaudRateParameter,
