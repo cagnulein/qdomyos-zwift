@@ -160,7 +160,7 @@ private:
                 uint16_t wattage = fields[1].toUInt();
                 uint16_t resistance = fields[2].toUInt();
 
-                qDebug() << "inputs.append(ergDataPoint(" << cadence << ", " << wattage << ", "<< resistance << "));";
+                //qDebug() << "inputs.append(ergDataPoint(" << cadence << ", " << wattage << ", "<< resistance << "));";
 
                 dataTable.append(ergDataPoint(cadence, wattage, resistance));
             }

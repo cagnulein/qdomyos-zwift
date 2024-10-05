@@ -213,14 +213,14 @@ jobs:
         if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-binary
           path: windows-binary.zip
         if: matrix.config.python
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-binary-no-python
           path: windows-binary-no-python.zip
@@ -451,7 +451,7 @@ jobs:
         run: qmake; make -j8
 
       - name: Archive linux-desktop binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: linux-desktop-binary
           path: src/qdomyos-zwift         
@@ -460,7 +460,7 @@ jobs:
         run: cd tst; GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests; cd ..
 
       - name: Upload test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: test_results_xml
@@ -603,21 +603,13 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11'
+          java-version: '11.0.23+9'
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
-
-      - name: Build qthttpserver
-        run: |
-            cd src/qthttpserver 
-            qmake
-            make -j8
-            make install
-            cd ../..
 
       - name: Set Android NDK 21 && build
         run: |
@@ -640,6 +632,14 @@ jobs:
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+
+          # QTHTTPSERVER must use the same NDK
+          cd src/qthttpserver 
+          qmake
+          make -j8
+          make install
+          cd ../..          
+          
           qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
@@ -648,7 +648,7 @@ jobs:
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
 
       - name: Archive apk binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: fdroid-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
@@ -922,14 +922,14 @@ jobs:
         if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-msvc2019-binary
           path: windows-msvc2019-binary.zip
         if: matrix.config.python
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-msvc2019-binary-no-python
           path: windows-msvc2019-binary-no-python.zip
@@ -1065,7 +1065,7 @@ jobs:
         run: Compress-Archive src/debug/output windows-msvc2019-ai-server-binary.zip
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-msvc2019-ai-server-binary
           path: windows-msvc2019-ai-server-binary.zip
@@ -1077,7 +1077,7 @@ jobs:
     needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build]  # Specify the job dependencies
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       - name: Update nightly release
         uses: andelf/nightly-release@main
         env:

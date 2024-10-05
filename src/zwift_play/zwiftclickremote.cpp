@@ -1,3 +1,4 @@
+#include "homeform.h"
 #include "zwiftclickremote.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -12,6 +13,8 @@ using namespace std::chrono_literals;
 #ifdef Q_OS_IOS
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
+
+volatile int8_t AbstractZapDevice::risingEdge = 0;
 
 zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap) {
 #ifdef Q_OS_IOS
@@ -32,6 +35,12 @@ void zwiftclickremote::update() {
         QByteArray s = playDevice->buildHandshakeStart();
         qDebug() << s.length();
         writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
+    } else if(initDone) {
+        countRxTimeout++;
+        if(countRxTimeout == 10) {
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("Zwift device: UPGRADE THE FIRMWARE!");
+        }
     }
 }
 
@@ -51,6 +60,8 @@ void zwiftclickremote::characteristicChanged(const QLowEnergyCharacteristic &cha
                                                const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit packetReceived();
+
+    countRxTimeout = 0;
 
     qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << QString(newValue) << characteristic.uuid().Name << characteristic.uuid().toString() << typeZap;
 

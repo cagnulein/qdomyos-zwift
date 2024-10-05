@@ -5,6 +5,7 @@
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include <jni.h>
 #include <QAndroidJniObject>
 #endif
 #include "material.h"
@@ -41,12 +42,6 @@
 
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
-
-#ifdef Q_OS_ANDROID
-
-#include <QAndroidJniEnvironment>
-#include <QtAndroid>
-#endif
 
 #ifndef STRAVA_CLIENT_ID
 #define STRAVA_CLIENT_ID 7976
@@ -136,6 +131,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         meters = QStringLiteral("ft");
         cm = QStringLiteral("in");
     }
+
+#ifdef Q_OS_ANDROID
+    m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
+                                              "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
+#endif
 
 #ifdef Q_OS_IOS
     const int labelFontSize = 14;
@@ -277,6 +277,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                    QStringLiteral("0"), false, QStringLiteral("strokes_length"), 48, labelFontSize);
     gears = new DataObject(QStringLiteral("Gears"), QStringLiteral("icons/icons/elevationgain.png"),
                            QStringLiteral("0"), true, QStringLiteral("gears"), 48, labelFontSize);
+    biggearsPlus = new DataObject(QStringLiteral("GearsPlus"), QStringLiteral("icons/icons/elevationgain.png"),
+                                  QStringLiteral("0"), true, QStringLiteral("biggearsplus"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Gear +", QStringLiteral("red"));
+    biggearsMinus = new DataObject(QStringLiteral("GearsMinus"), QStringLiteral("icons/icons/elevationgain.png"),
+                                  QStringLiteral("0"), true, QStringLiteral("biggearsminus"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Gear -", QStringLiteral("green"));
     pidHR = new DataObject(QStringLiteral("PID Heart"), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), true, QStringLiteral("pid_hr"), 48, labelFontSize);
     extIncline = new DataObject(QStringLiteral("Ext.Inclin.(%)"), QStringLiteral("icons/icons/inclination.png"),
@@ -561,6 +565,14 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     }    
 #ifdef Q_OS_ANDROID
+
+    QString bluetoothName = getBluetoothName();
+    qDebug() << "getBluetoothName()" << bluetoothName;
+
+    if(bluetoothName.length() > 4) {
+        setToastRequested("Bluetooth name too long, change it to a 4 letters one in the android settings");
+    }
+    
     // Android 14 restrics access to /Android/data folder
     bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
     if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
@@ -682,10 +694,44 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QAndroidJniObject javaPath = QAndroidJniObject::fromString(getWritableAppDir());
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
                                                 "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
+
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
+                                              "registerReceiver",
+                                              "(Landroid/content/Context;)V",
+                                              QtAndroid::androidContext().object());
 #endif
 
     bluetoothManager->homeformLoaded = true;
 }
+
+#ifdef Q_OS_ANDROID
+extern "C" {
+JNIEXPORT void JNICALL
+  Java_org_cagnulen_qdomyoszwift_MediaButtonReceiver_nativeOnMediaButtonEvent(JNIEnv *env, jobject obj, jint prev, jint current, jint max) {
+    qDebug() << "Media button event: current =" << current << "max =" << max << "prev =" << prev;
+    static QDateTime volumeLastChange = QDateTime::currentDateTime();
+    QSettings settings;
+    bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
+
+    if (!settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
+      qDebug() << "volume_change_gears disabled!"; 
+      return;
+    }
+  
+    if(gears_volume_debouncing && volumeLastChange.msecsTo(QDateTime::currentDateTime()) < 500) {
+      qDebug() << "volume debouncing"; 
+      return;
+    }
+  
+    if(prev > current)
+      homeform::singleton()->Minus(QStringLiteral("gears"));
+    else
+      homeform::singleton()->Plus(QStringLiteral("gears"));      
+
+    volumeLastChange = QDateTime::currentDateTime();
+  }
+}
+#endif
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
 
@@ -857,8 +903,7 @@ void homeform::pelotonLoginState(bool ok) {
     m_pelotonLoginState = (ok ? 1 : 0);
     emit pelotonLoginChanged(m_pelotonLoginState);
     if (!ok) {
-        setToastRequested("Peloton Login Error!");
-        emit toastRequestedChanged(toastRequested());
+        setToastRequested("Peloton Login Error!");        
     }
 }
 
@@ -868,7 +913,6 @@ void homeform::zwiftLoginState(bool ok) {
     emit zwiftLoginChanged(m_zwiftLoginState);
     if (!ok) {
         setToastRequested("Zwift Login Error!");
-        emit toastRequestedChanged(toastRequested());
     }
 }
 
@@ -1005,6 +1049,7 @@ void homeform::trainProgramSignals() {
     if (bluetoothManager->device()) {
         disconnect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         disconnect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
+        disconnect(trainProgram, &trainprogram::stop, this, &homeform::StopFromTrainProgram);
         disconnect(trainProgram, &trainprogram::lap, this, &homeform::Lap);
         disconnect(trainProgram, &trainprogram::changeSpeed, ((treadmill *)bluetoothManager->device()),
                    &treadmill::changeSpeed);
@@ -1054,6 +1099,7 @@ void homeform::trainProgramSignals() {
 
         connect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         connect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
+        connect(trainProgram, &trainprogram::stop, this, &homeform::StopFromTrainProgram);
         connect(trainProgram, &trainprogram::lap, this, &homeform::Lap);
         connect(trainProgram, &trainprogram::toastRequest, this, &homeform::onToastRequested);
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
@@ -1131,7 +1177,6 @@ void homeform::trainProgramSignals() {
 
 void homeform::onToastRequested(QString message) {
     setToastRequested(message);
-    emit toastRequestedChanged(message);
 }
 
 QStringList homeform::tile_order() {
@@ -1814,6 +1859,18 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_erg_mode_order, QZSettings::default_tile_erg_mode_order).toInt() == i) {
                 ergMode->setGridId(i);
                 dataList.append(ergMode);
+            }
+
+            if (settings.value(QZSettings::tile_biggears_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_biggears_order, 54).toInt() == i) {
+                biggearsPlus->setGridId(i);
+                dataList.append(biggearsPlus);
+            }
+
+            if (settings.value(QZSettings::tile_biggears_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_biggears_order, 54).toInt() + 1 == i) {
+                biggearsMinus->setGridId(i);
+                dataList.append(biggearsMinus);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
@@ -3120,6 +3177,12 @@ void homeform::LargeButton(const QString &name) {
                                         .toDouble());
         }
     }
+
+    if(name.contains(QStringLiteral("biggearsplus"))) {
+        gearUp();
+    } else if(name.contains(QStringLiteral("biggearsminus"))) {
+        gearDown();
+    }
 }
 
 void homeform::Plus(const QString &name) {
@@ -3729,6 +3792,10 @@ void homeform::StopRequested() {
     emit stopRequestedChanged(m_stopRequested);
 }
 
+void homeform::StopFromTrainProgram(bool paused) {
+    Stop();
+}
+
 void homeform::Stop() {
     QSettings settings;
 
@@ -4110,16 +4177,28 @@ void homeform::update() {
             static double volumeLast = -1;
             double currentVolume = h.getVolume() * 10.0;
             qDebug() << "volume" << volumeLast << currentVolume;
+            QSettings settings;
+            bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
             if (volumeLast == -1)
                 qDebug() << "volume init";
             else if (volumeLast > currentVolume) {
                 double diff = volumeLast - currentVolume;
-                for (int i = 0; i < diff; i++)
+                for (int i = 0; i < diff; i++) {
                     Minus(QStringLiteral("gears"));
+                    if(gears_volume_debouncing) {
+                        i = diff;
+                        break;
+                    }
+                }
             } else if (volumeLast < currentVolume) {
                 double diff = currentVolume - volumeLast;
-                for (int i = 0; i < diff; i++)
+                for (int i = 0; i < diff; i++) {
                     Plus(QStringLiteral("gears"));
+                    if(gears_volume_debouncing) {
+                        i = diff;
+                        break;
+                    }
+                }
             }
             volumeLast = currentVolume;
         }
@@ -4325,7 +4404,8 @@ void homeform::update() {
             this->target_power->setValue(
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
-            if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0)
+            bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+            if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0 || gears_zwift_ratio)
                 this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears()));
             else
                 this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears(), 'f', 1));
@@ -5466,7 +5546,6 @@ void homeform::update() {
                         qDebug() << QStringLiteral("Autolap based on distance");
                         Lap();
                         setToastRequested("AutoLap " + QString::number(settings.value(QZSettings::autolap_distance, QZSettings::default_autolap_distance).toDouble(), 'f', 1));
-                        emit toastRequestedChanged(toastRequested());
                 }
             }
 
@@ -6177,7 +6256,6 @@ void homeform::strava_refreshtoken() {
     if (reply->error() != 0) {
         qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
         setToastRequested("Strava Auth Failed!");
-        emit toastRequestedChanged(toastRequested());
         return;
     }
 
@@ -6201,7 +6279,6 @@ void homeform::strava_refreshtoken() {
     settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
 
     setToastRequested("Strava Login OK!");
-    emit toastRequestedChanged(toastRequested());
 }
 
 bool homeform::strava_upload_file(const QByteArray &data, const QString &remotename) {
@@ -6319,7 +6396,6 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
 void homeform::errorOccurredUploadStrava(QNetworkReply::NetworkError code) {
     qDebug() << QStringLiteral("strava upload error!") << code;
     setToastRequested("Strava Upload Failed!");
-    emit toastRequestedChanged(toastRequested());
 }
 
 void homeform::writeFileCompleted() {
@@ -6334,7 +6410,6 @@ void homeform::writeFileCompleted() {
     qDebug() << "reply:" << response;
 
     setToastRequested("Strava Upload Completed!");
-    emit toastRequestedChanged(toastRequested());
 }
 
 void homeform::onStravaGranted() {
@@ -6942,6 +7017,27 @@ void homeform::sendMail() {
 }
 
 #if defined(Q_OS_ANDROID)
+
+QString homeform::getBluetoothName()
+{
+    QAndroidJniObject bluetoothAdapter = QAndroidJniObject::callStaticObjectMethod(
+        "android/bluetooth/BluetoothAdapter",
+        "getDefaultAdapter",
+        "()Landroid/bluetooth/BluetoothAdapter;");
+    
+    if (bluetoothAdapter.isValid()) {
+        QAndroidJniObject name = bluetoothAdapter.callObjectMethod(
+            "getName",
+            "()Ljava/lang/String;");
+        
+        if (name.isValid()) {
+            return name.toString();
+        }
+    }
+    
+    return QString();
+}
+
 QString homeform::getAndroidDataAppDir() {
     static QString path = "";
 
