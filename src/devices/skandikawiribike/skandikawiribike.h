@@ -75,6 +75,7 @@ class skandikawiribike : public bike {
     bool noHeartService = false;
 
     bool X2000 = false;
+    bool delightechBike = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

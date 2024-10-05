@@ -83,10 +83,28 @@ void bike::changePower(int32_t power) {
     }
 }
 
-double bike::gears() { return m_gears; }
+double bike::gears() {
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    double gears_offset = settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble();
+    if(gears_zwift_ratio) {
+        if(m_gears < 1)
+            return 1.0;
+        else if(m_gears > 24)
+            return 24.0;
+    }
+    return m_gears + gears_offset;
+}
 void bike::setGears(double gears) {
     QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    double gears_offset = settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble();
+    gears -= gears_offset;
     qDebug() << "setGears" << gears;
+    if(gears_zwift_ratio && (gears > 24 || gears < 1)) {
+        qDebug() << "new gear value ignored because of gears_zwift_ratio setting!";
+        return;
+    }
     m_gears = gears;
     settings.setValue(QZSettings::gears_current_value, m_gears);
     if (lastRawRequestedResistanceValue != -1) {
@@ -307,4 +325,62 @@ uint16_t bike::wattFromHR(bool useSpeedAndCadence) {
         watt = currentCadence().value() * 1.2; // random value cloned from Zwift when HR is not available
     }
     return watt;
+}
+
+double bike::gearsZwiftRatio() {
+    if(m_gears <= 0)
+        return 0.65;
+    else if(m_gears > 24)
+        return 6;
+    switch((int)m_gears) {
+        case 1:
+            return 0.75;
+        case 2:
+            return 0.87;
+        case 3:
+            return 0.99;
+        case 4:
+            return 1.11;
+        case 5:
+            return 1.23;
+        case 6:
+            return 1.38;
+        case 7:
+            return 1.53;
+        case 8:
+            return 1.68;
+        case 9:
+            return 1.86;
+        case 10:
+            return 2.04;
+        case 11:
+            return 2.22;
+        case 12:
+            return 2.40;
+        case 13:
+            return 2.61;
+        case 14:
+            return 2.82;
+        case 15:
+            return 3.03;
+        case 16:
+            return 3.24;
+        case 17:
+            return 3.49;
+        case 18:
+            return 3.74;
+        case 19:
+            return 3.99;
+        case 20:
+            return 4.24;
+        case 21:
+            return 4.54;
+        case 22:
+            return 4.84;
+        case 23:
+            return 5.14;
+        case 24:
+            return 5.49;                        
+    }
+    return 1;
 }

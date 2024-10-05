@@ -281,7 +281,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                              const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicChanged ") + QString::number(characteristic.uuid().toUInt16()) +
-                    QStringLiteral(" ") + newValue;
+                    QStringLiteral(" ") << newValue.toHex(' ');
     QByteArray reply;
 
     switch (characteristic.uuid().toUInt16()) {

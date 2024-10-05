@@ -79,6 +79,7 @@ class virtualbike : public virtualdevice {
     qint64 iFit_TSLastFrame = 0;
     QByteArray iFit_LastFrameReceived;
     resistance_t iFit_LastResistanceRequested = 0;
+    bool iFit_Stop = false;
 
     bool echelonInitDone = false;
     void echelonWriteResistance();
