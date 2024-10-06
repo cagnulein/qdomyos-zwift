@@ -1,15 +1,17 @@
-#ifndef ESLINKERTREADMILL_H
-#define ESLINKERTREADMILL_H
+#ifndef DEERRUNTREADMILL_H
+#define DEERRUNTREADMILL_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
+
 #include <QtBluetooth/qlowenergycontroller.h>
 #include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
+
 #include <QtCore/qbytearray.h>
 
 #ifndef Q_OS_ANDROID
@@ -25,58 +27,52 @@
 #include <QDateTime>
 #include <QObject>
 
-#include "treadmill.h"
+#include "devices/treadmill.h"
 
-class eslinkertreadmill : public treadmill {
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
+class deerruntreadmill : public treadmill {
+
     Q_OBJECT
   public:
-    eslinkertreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
-                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
+    deerruntreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
+                     double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
     double minStepInclination() override;
-    bool autoPauseWhenSpeedIsZero() override;
-    bool autoStartWhenSpeedIsGreaterThenZero() override;
 
   private:
-    double GetSpeedFromPacket(const QByteArray &packet);
-    double GetInclinationFromPacket(const QByteArray &packet);
-    double GetKcalFromPacket(const QByteArray &packet);
-    double GetDistanceFromPacket(const QByteArray &packet);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
-    void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
-                             bool wait_for_response = false);
+    void writeCharacteristic(const QLowEnergyCharacteristic characteristic, uint8_t *data, uint8_t data_len,
+                             const QString &info, bool disable_log = false, bool wait_for_response = false);
     void startDiscover();
+    uint8_t calculateXOR(uint8_t arr[], size_t size);
     bool noConsole = false;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
+    uint8_t pollCounter = 0;
+    bool searchStopped = false;
     uint8_t sec1Update = 0;
     uint8_t firstInit = 0;
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
-    uint8_t requestHandshake = 0;
-    bool requestVar2 = false;
-    bool toggleRequestSpeed = false;
-
-    typedef enum TYPE {
-        RHYTHM_FUN = 0,
-        CADENZA_FITNESS_T45 = 1, // it has the same protocol of RHYTHM_FUN but without the header and the footer
-        YPOO_MINI_CHANGE = 2,    // Similar to RHYTHM_FUN but has no ascension
-        COSTAWAY = 3,
-        ESANGLINKER = 4,
-    } TYPE;
-    volatile TYPE treadmill_type = RHYTHM_FUN;
 
     QTimer *refresh;
+
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 
     bool initDone = false;
     bool initRequest = false;
+
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
 
   Q_SIGNALS:
     void disconnected();
@@ -86,6 +82,7 @@ class eslinkertreadmill : public treadmill {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void searchingStop();
 
   private slots:
 
@@ -94,6 +91,7 @@ class eslinkertreadmill : public treadmill {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
@@ -102,4 +100,4 @@ class eslinkertreadmill : public treadmill {
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // ESLINKERTREADMILL_H
+#endif // DEERRUNTREADMILL_H
