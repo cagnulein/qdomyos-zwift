@@ -457,7 +457,14 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         SwiftDebug.qtDebug("Zwift Play Ask 5")
         peripheral.respond(to: requests.first!, withResult: .success)
         
-        
+        // 04 22 02 10 1a TODO
+          var slope: [UInt8] = [ receivedBytes[4], 0x00 ]
+          if receivedBytes[2] == 0x03 {
+              slope[1] = receivedBytes[5]
+          }
+          self.CurrentSlope = Double(UInt16(slope[0]) + ((UInt16(slope[1]) << 8) & 0xFF00))
+          LastFTMSMessageReceived = Data([0x11, 0x00, 0x00, slope[0], slope[1] , 0x00, 0x00])
+          
         var response: [UInt8] = [ 0x3c, 0x08, 0x88, 0x04, 0x12, 0x06, 0x0a, 0x04, 0x40, 0xc0, 0xbb, 0x01 ]
         var responseData = Data(bytes: &response, count: 12)
 
