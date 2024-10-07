@@ -614,7 +614,7 @@
         'inclination', 'inclination_lapavg',
         'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
         'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears', 'elevation', 'pace_s' , 'pace_m', 
-        'avgpace_s', 'avgpace_m', 'maxpace_s' , 'maxpace_m', 'remaining_time_s', 'remaining_time_m', 'remaining_time_h']
+        'avgpace_s', 'avgpace_m', 'maxpace_s' , 'maxpace_m', 'remaining_time_s', 'remaining_time_m', 'remaining_time_h', 'nextrow']
       let ell = new MainWSQueueElement(null, function (msg) {
         if (msg.msg === 'workout') {
           var speed = 0;
