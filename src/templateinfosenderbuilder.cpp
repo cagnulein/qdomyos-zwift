@@ -1028,6 +1028,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("peloton_offset"), pelotonOffset());
         obj.setProperty(QStringLiteral("peloton_ask_start"), pelotonAskStart());
         obj.setProperty(QStringLiteral("autoresistance"), homeform::singleton()->autoResistance());
+        obj.setProperty(QStringLiteral("nextrow"), homeform::singleton()->nextRows->value());
         if (homeform::singleton()->trainingProgram()) {
             el = homeform::singleton()->trainingProgram()->currentRowRemainingTime();
             obj.setProperty(QStringLiteral("row_remaining_time_s"), el.second());
@@ -1090,6 +1091,9 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("req_cadence"), (dep = ((bike *)device)->lastRequestedCadence()).value());
             obj.setProperty(QStringLiteral("req_resistance"),
                             (dep = ((bike *)device)->lastRequestedResistance()).value());
+            obj.setProperty(QStringLiteral("inclination"),
+                            (dep = ((bike *)device)->currentInclination()).value());
+            obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
         } else if (tp == bluetoothdevice::ROWING) {
             obj.setProperty(QStringLiteral("gears"), ((rower *)device)->gears());
             el = ((rower *)device)->lastRequestedPace();

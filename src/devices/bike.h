@@ -36,8 +36,10 @@ class bike : public bluetoothdevice {
     uint8_t metrics_override_heartrate() override;
     void setGears(double d);
     double gears();
+    double gearsZwiftRatio();
     void setSpeedLimit(double speed) { m_speedLimit = speed; }
     double speedLimit() { return m_speedLimit; }
+    virtual bool ifitCompatible() {return false;}
 
     /**
      * @brief currentSteeringAngle Gets a metric object to get or set the current steering angle
@@ -58,10 +60,18 @@ class bike : public bluetoothdevice {
     void changeInclination(double grade, double percentage) override;
     virtual void changeSteeringAngle(double angle) { m_steeringAngle = angle; }
     virtual void resistanceFromFTMSAccessory(resistance_t res) { Q_UNUSED(res); }
-    void gearUp() {QSettings settings; setGears(gears() +
-                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());}
-    void gearDown() {QSettings settings; setGears(gears() -
-                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());}
+    void gearUp() {
+        QSettings settings;
+        bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+        setGears(gears() + (gears_zwift_ratio ? 1 :
+                                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble()));
+    }
+    void gearDown() {
+        QSettings settings;
+        bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+        setGears(gears() - (gears_zwift_ratio ? 1 :
+                                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble()));
+    }
 
   Q_SIGNALS:
     void bikeStarted();
@@ -73,11 +83,9 @@ class bike : public bluetoothdevice {
     metric RequestedResistance;
     metric RequestedPelotonResistance;
     metric RequestedCadence;
-    metric RequestedPower;
 
     resistance_t requestResistance = -1;
     double requestInclination = -100;
-    int16_t requestPower = -1;
 
     bool ergModeSupported = false; // if a bike has this mode supported, when from the virtual bike there is a power
                                    // request there is no need to translate in resistance levels
