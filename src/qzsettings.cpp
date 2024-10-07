@@ -763,8 +763,9 @@ const QString QZSettings::gears_zwift_ratio = QStringLiteral("gears_zwift_ratio"
 const QString QZSettings::domyos_bike_500_profile_v2 = QStringLiteral("domyos_bike_500_profile_v2");
 const QString QZSettings::gears_offset = QStringLiteral("gears_offset");
 const QString QZSettings::proform_carbon_tl_PFTL59720 = QStringLiteral("proform_carbon_tl_PFTL59720");
+const QString QZSettings::proform_treadmill_sport_70 = QStringLiteral("proform_treadmill_sport_70");
 
-const uint32_t allSettingsCount = 646;
+const uint32_t allSettingsCount = 647;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1417,6 +1418,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::domyos_bike_500_profile_v2, QZSettings::default_domyos_bike_500_profile_v2},
     {QZSettings::gears_offset, QZSettings::default_gears_offset},
     {QZSettings::proform_carbon_tl_PFTL59720, QZSettings::default_proform_carbon_tl_PFTL59720},
+    {QZSettings::proform_treadmill_sport_70, QZSettings::default_proform_treadmill_sport_70},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
