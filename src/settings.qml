@@ -981,6 +981,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.71
             property bool proform_treadmill_sport_70: false
+            property string peloton_date_format: "MM/dd/yy"
         }
 
         function paddingZeros(text, limit) {
@@ -4575,6 +4576,31 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Date Format:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonDateFormatTextField
+                            model: [ "MM/dd/yy", "yy/MM/dd" ]
+                            displayText: settings.peloton_date_format
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonDateFormatTextField.currentIndex)
+                                displayText = pelotonDateFormatTextField.currentValue
+                            }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_date_format = pelotonDateFormatTextField.displayText; toast.show("Setting saved!"); }
+                        }
                     }
 
                     SwitchDelegate {

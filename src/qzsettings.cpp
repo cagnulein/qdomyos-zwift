@@ -764,8 +764,10 @@ const QString QZSettings::domyos_bike_500_profile_v2 = QStringLiteral("domyos_bi
 const QString QZSettings::gears_offset = QStringLiteral("gears_offset");
 const QString QZSettings::proform_carbon_tl_PFTL59720 = QStringLiteral("proform_carbon_tl_PFTL59720");
 const QString QZSettings::proform_treadmill_sport_70 = QStringLiteral("proform_treadmill_sport_70");
+const QString QZSettings::peloton_date_format = QStringLiteral("peloton_date_format");
+const QString QZSettings::default_peloton_date_format = QStringLiteral("MM/dd/yy");
 
-const uint32_t allSettingsCount = 647;
+const uint32_t allSettingsCount = 648;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1419,6 +1421,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::gears_offset, QZSettings::default_gears_offset},
     {QZSettings::proform_carbon_tl_PFTL59720, QZSettings::default_proform_carbon_tl_PFTL59720},
     {QZSettings::proform_treadmill_sport_70, QZSettings::default_proform_treadmill_sport_70},
+    {QZSettings::peloton_date_format, QZSettings::default_peloton_date_format},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
