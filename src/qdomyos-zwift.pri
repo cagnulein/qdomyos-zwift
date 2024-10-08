@@ -75,7 +75,7 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
-    $$PWD/characteristics/characteristicnotifier1224.cpp \
+    $$PWD/characteristics/characteristicnotifier0002.cpp \
     $$PWD/devices/antbike/antbike.cpp \
     $$PWD/devices/crossrope/crossrope.cpp \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.cpp \
@@ -302,9 +302,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/ devices/
 
 HEADERS += \
-    $$PWD/characteristics/characteristicnotifier1224.h \
     $$PWD/CRC16IBM.h \
     $$PWD/EventHandler.h \
+    $$PWD/characteristics/characteristicnotifier0002.h \
     $$PWD/devices/antbike/antbike.h \
     $$PWD/devices/crossrope/crossrope.h \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.h \

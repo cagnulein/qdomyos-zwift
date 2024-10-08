@@ -10,7 +10,7 @@ using namespace std::chrono_literals;
 
 #define DM_SERV_OP(OP, P1, P2, P3)                                                                                     \
     OP(FITNESS_MACHINE_CYCLE, 0x1826, WAHOO_KICKR, P1, P2, P3)                                                         \
-    OP(WATTBIKEATOM, 0x1223, WAHOO_KICKR, P1, P2, P3)                                                         \
+    OP(WATTBIKEATOM, 0x0001, WAHOO_KICKR, P1, P2, P3)                                                         \
     OP(FITNESS_MACHINE_TREADMILL, 0x1826, WAHOO_TREADMILL, P1, P2, P3)                                                 \
     OP(CYCLING_POWER, 0x1818, WAHOO_KICKR, P1, P2, P3)                                                                 \
     OP(CYCLING_SPEED_AND_CADENCE, 0x1816, WAHOO_KICKR, P1, P2, P3)                                                     \
@@ -42,8 +42,8 @@ using namespace std::chrono_literals;
     OP(FITNESS_MACHINE_CYCLE, 0xE005, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_E005, P1, P2, P3)     \
     OP(FITNESS_MACHINE_CYCLE, 0x2AD2, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)    \
     OP(FITNESS_MACHINE_CYCLE, 0x2AD3, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x00\x01"), DP_PROCESS_WRITE_NULL, P1, P2, P3)  \
-    OP(WATTBIKEATOM, 0x1225, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)     \
-    OP(WATTBIKEATOM, 0x1224, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)    \
+    OP(WATTBIKEATOM, 0x0003, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)     \
+    OP(WATTBIKEATOM, 0x0002, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)    \
     OP(FITNESS_MACHINE_TREADMILL, 0x2ACC, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x08\x14\x00\x00\x00\x00\x00\x00"),         \
        DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                                              \
     OP(FITNESS_MACHINE_TREADMILL, 0x2AD6, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x0A\x00\x96\x00\x0A\x00"),                 \

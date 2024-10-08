@@ -45,7 +45,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     notif2AD9 = new CharacteristicNotifier2AD9(Bike, this);
     notif2A63 = new CharacteristicNotifier2A63(Bike, this);
     notif2A37 = new CharacteristicNotifier2A37(Bike, this);
-    notif1224 = new CharacteristicNotifier1224(Bike, this);
+    notif1224 = new CharacteristicNotifier0002(Bike, this);
     notif2A5B = new CharacteristicNotifier2A5B(Bike, this);
     writeP2AD9 = new CharacteristicWriteProcessor2AD9(bikeResistanceGain, bikeResistanceOffset, Bike, notif2AD9, this);
     connect(writeP2AD9, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
