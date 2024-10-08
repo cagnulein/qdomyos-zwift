@@ -982,6 +982,7 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.71
             property bool proform_treadmill_sport_70: false
             property string peloton_date_format: "MM/dd/yy"
+            property bool force_resistance_instead_inclination: false
         }
 
         function paddingZeros(text, limit) {
@@ -8395,6 +8396,33 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+                    SwitchDelegate {
+                        text: qsTr("Use Resistance instead of Inclination")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.force_resistance_instead_inclination
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.force_resistance_instead_inclination = checked
+                    }
+
+                    Label {
+                        text: qsTr("For the smart trainers, use resistance instead of inclination. This should help if you don't want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }                    
 
                     RowLayout {
                         spacing: 10
