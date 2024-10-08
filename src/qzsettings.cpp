@@ -766,8 +766,9 @@ const QString QZSettings::proform_carbon_tl_PFTL59720 = QStringLiteral("proform_
 const QString QZSettings::proform_treadmill_sport_70 = QStringLiteral("proform_treadmill_sport_70");
 const QString QZSettings::peloton_date_format = QStringLiteral("peloton_date_format");
 const QString QZSettings::default_peloton_date_format = QStringLiteral("MM/dd/yy");
+const QString QZSettings::force_resistance_instead_inclination = QStringLiteral("force_resistance_instead_inclination");
 
-const uint32_t allSettingsCount = 648;
+const uint32_t allSettingsCount = 649;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1422,6 +1423,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_carbon_tl_PFTL59720, QZSettings::default_proform_carbon_tl_PFTL59720},
     {QZSettings::proform_treadmill_sport_70, QZSettings::default_proform_treadmill_sport_70},
     {QZSettings::peloton_date_format, QZSettings::default_peloton_date_format},
+    {QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

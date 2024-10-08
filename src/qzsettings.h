@@ -2144,6 +2144,9 @@ class QZSettings {
     static const QString peloton_date_format;
     static const QString default_peloton_date_format;
 
+    static const QString force_resistance_instead_inclination;
+    static constexpr bool default_force_resistance_instead_inclination = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
