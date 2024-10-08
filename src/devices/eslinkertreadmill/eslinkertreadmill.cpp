@@ -49,7 +49,7 @@ void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, con
     writeBuffer = new QByteArray((const char *)data, data_len);
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
-                                                         QLowEnergyService::WriteWithoutResponse);
+                                            QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
@@ -409,7 +409,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             lastInclination = incline;
         }
     } else if (treadmill_type == COSTAWAY || treadmill_type == TYPE::ESANGLINKER) {
-        if(newValue.at(1) != 0x09 && treadmill_type == TYPE::ESANGLINKER)
+        if(newValue.at(1) != 0xe0 && treadmill_type == TYPE::ESANGLINKER)
             return;
 
         const double miles = 1.60934;
@@ -490,7 +490,7 @@ void eslinkertreadmill::btinit(bool startTape) {
 
     if (treadmill_type == ESANGLINKER) {
         uint8_t initData1[] = {0xa9, 0xf2, 0x01, 0x2f, 0x75};
-        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
 
         uint8_t initData2[] = {0xa9, 0x0a, 0x01, 0xc6, 0x64};
         writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
@@ -501,11 +501,15 @@ void eslinkertreadmill::btinit(bool startTape) {
         uint8_t initData4[] = {0xa9, 0xa0, 0x03, 0x00, 0x00, 0x00, 0x0a};
         writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
 
+        QThread::sleep(2);
+
         uint8_t initData5[] = {0xa9, 0x08, 0x01, 0xad, 0x0d};
         writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
 
         uint8_t initData6[] = {0xa9, 0x08, 0x04, 0x0c, 0x06, 0x48, 0x12, 0xf5};
         writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+
+        QThread::sleep(1);
 
         uint8_t initData7[] = {0xa9, 0x1e, 0x01, 0xfe, 0x48};
         writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
@@ -513,20 +517,26 @@ void eslinkertreadmill::btinit(bool startTape) {
         uint8_t initData8[] = {0xa9, 0xae, 0x01, 0xfe, 0xf8};
         writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
 
+        QThread::sleep(2);
+
         uint8_t initData9[] = {0xa9, 0xa3, 0x01, 0x01, 0x0a};
         writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
 
         uint8_t initData10[] = {0xa9, 0x8e, 0x01, 0x09, 0x2f};
-        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
 
         uint8_t initData11[] = {0xa9, 0xb2, 0x01, 0xfe, 0xe4};
         writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, true);
 
+        QThread::sleep(3);
+
         uint8_t initData12[] = {0xa9, 0x8e, 0x01, 0x09, 0x2f};
-        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
 
         uint8_t initData13[] = {0xa9, 0xae, 0x01, 0xfe, 0xf8};
         writeCharacteristic(initData13, sizeof(initData13), QStringLiteral("init"), false, true);
+
+        QThread::sleep(4);
 
         uint8_t initData14[] = {0xa9, 0x08, 0x01, 0x76, 0xd6};
         writeCharacteristic(initData14, sizeof(initData14), QStringLiteral("init"), false, true);
@@ -534,11 +544,19 @@ void eslinkertreadmill::btinit(bool startTape) {
         uint8_t initData15[] = {0xa9, 0x08, 0x04, 0x0a, 0x04, 0x28, 0x0e, 0x8d};
         writeCharacteristic(initData15, sizeof(initData15), QStringLiteral("init"), false, true);
 
+        QThread::sleep(2);
+
         uint8_t initData16[] = {0xa9, 0x08, 0x01, 0x72, 0xd2};
         writeCharacteristic(initData16, sizeof(initData16), QStringLiteral("init"), false, true);
 
+        QThread::msleep(500);
+
         uint8_t initData17[] = {0xa9, 0x08, 0x04, 0x70, 0x16, 0x0e, 0x08, 0xc5};
         writeCharacteristic(initData17, sizeof(initData17), QStringLiteral("init"), false, true);
+
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Init completed, you can use the treadmill now!");
+
     } else if (treadmill_type == COSTAWAY) {
         uint8_t initData1[] = {0xa9, 0xf2, 0x01, 0x2f, 0x75};
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);

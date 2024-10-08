@@ -978,6 +978,10 @@ import QtQuick.Dialogs 1.0
             property bool domyos_bike_500_profile_v2: false
             property double gears_offset: 0.0
             property bool proform_carbon_tl_PFTL59720: false
+
+            // from version 2.16.71
+            property bool proform_treadmill_sport_70: false
+            property string peloton_date_format: "MM/dd/yy"
         }
 
         function paddingZeros(text, limit) {
@@ -4574,6 +4578,31 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Date Format:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonDateFormatTextField
+                            model: [ "MM/dd/yy", "yy/MM/dd" ]
+                            displayText: settings.peloton_date_format
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonDateFormatTextField.currentIndex)
+                                displayText = pelotonDateFormatTextField.currentValue
+                            }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_date_format = pelotonDateFormatTextField.displayText; toast.show("Setting saved!"); }
+                        }
+                    }
+
                     SwitchDelegate {
                         id: pelotonDescriptionLinkDelegate
                         text: qsTr("Activity Link in Strava")
@@ -6005,7 +6034,7 @@ import QtQuick.Dialogs 1.0
                                 "Proform 8.0", "Proform 9.0", "Proform 705 CST", "Nordictrack x14i", 
                                 "Proform Carbon TL", "Proform Proshox 2", "Nordictrack S20i", "Proform 595i",
                                 "Proform 8.7", "Proform 705 CST V78.239", "Proform Carbon T7",
-                                "Nordictrack EXP 5i", "Proform Carbon TL PFTL59720"
+                                "Nordictrack EXP 5i", "Proform Carbon TL PFTL59720", "Proform Sport 7.0"
                             ]
 
                             onCurrentIndexChanged: {
@@ -6046,6 +6075,7 @@ import QtQuick.Dialogs 1.0
                                 settings.proform_treadmill_carbon_t7 = false;
                                 settings.nordictrack_treadmill_exp_5i = false;
                                 settings.proform_carbon_tl_PFTL59720 = false;
+                                settings.proform_treadmill_sport_70 = false;
 
                                 // Imposta il setting corrispondente al modello selezionato
                                 switch (currentIndex) {
@@ -6083,6 +6113,7 @@ import QtQuick.Dialogs 1.0
                                     case 31: settings.proform_treadmill_carbon_t7 = true; break;
                                     case 32: settings.nordictrack_treadmill_exp_5i = true; break;
                                     case 33: settings.proform_carbon_tl_PFTL59720 = true; break;
+                                    case 34: settings.proform_treadmill_sport_70 = true; break;
                                 }
                             }
 
@@ -6121,7 +6152,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_treadmill_705_cst_V78_239 ? 30 :
                                                     settings.proform_treadmill_carbon_t7 ? 31 :
                                                     settings.nordictrack_treadmill_exp_5i ? 32 :
-                                                    settings.proform_carbon_tl_PFTL59720 ? 33 : -1;
+                                                    settings.proform_carbon_tl_PFTL59720 ? 33 :
+                                                    settings.proform_treadmill_sport_70 ? 34 : -1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 

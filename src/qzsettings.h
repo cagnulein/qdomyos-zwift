@@ -2138,6 +2138,12 @@ class QZSettings {
     static const QString proform_carbon_tl_PFTL59720;
     static constexpr bool default_proform_carbon_tl_PFTL59720 = false;    
 
+    static const QString proform_treadmill_sport_70;
+    static constexpr bool default_proform_treadmill_sport_70 = false;
+
+    static const QString peloton_date_format;
+    static const QString default_peloton_date_format;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
