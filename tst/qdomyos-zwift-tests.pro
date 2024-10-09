@@ -5,7 +5,7 @@ include(gtest_dependency.pri)
 
 TEMPLATE = app
 
-CONFIG += console c++11
+CONFIG += console c++17
 CONFIG -= app_bundle
 CONFIG += thread
 CONFIG += androidextras
@@ -18,6 +18,9 @@ SOURCES += \
         Devices/RenphoBike/renphobiketestdata.cpp \
         Devices/SnodeBike/snodebiketestdata.cpp \
         Devices/StagesBike/stagesbiketestdata.cpp \
+        Devices/TrixterXDreamBike/TrixterXDreamV1PacketInterpreterTests.cpp \
+        Devices/TrixterXDreamBike/trixterxdreamv1bikestub.cpp \
+        Devices/TrixterXDreamBike/trixterxdreamv1biketestsuite.cpp \
         Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.cpp \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
@@ -124,6 +127,10 @@ HEADERS += \
     Devices/TechnogymMyRunTreadmillRFComm/technogymmyruntreadmillrfcommtestdata.h \
     Devices/ToorxTreadmill/toorxtreadmilltestdata.h \
     Devices/Treadmill/treadmilltestdata.h \
+    Devices/TrixterXDreamBike/TrixterXDreamV1PacketInterpreterTests.h \
+    Devices/TrixterXDreamBike/trixterxdreamv1bikestub.h \
+    Devices/TrixterXDreamBike/trixterxdreamv1biketestdata.h \
+    Devices/TrixterXDreamBike/trixterxdreamv1biketestsuite.h \
     Devices/TrueTreadmill/truetreadmilltestdata.h \
     Devices/TrxAppGateUSBBike/trxappgateusbbiketestdata.h \
     Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.h \

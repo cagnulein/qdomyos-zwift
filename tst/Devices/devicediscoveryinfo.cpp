@@ -1,5 +1,6 @@
 #include "devicediscoveryinfo.h"
 #include "qzsettings.h"
+#include "devices/trixterxdreamv1bike/trixterxdreamv1settings.h"
 
 
 DeviceDiscoveryInfo::DeviceDiscoveryInfo(bool loadDefaults){
@@ -35,6 +36,8 @@ void DeviceDiscoveryInfo::setValues(QSettings &settings, bool clear) const {
     settings.setValue(QZSettings::computrainer_serialport, this->computrainer_serial_port);
     settings.setValue(QZSettings::ss2k_peloton, this->ss2k_peloton);
     settings.setValue(QZSettings::ftms_accessory_name, this->ftmsAccessoryName);
+
+    settings.setValue(trixterxdreamv1settings::keys::Enabled, this->trixter_xdream_v1_bike);
     settings.setValue(QZSettings::pafers_treadmill_bh_iboxster_plus, this->pafers_treadmill_bh_iboxster_plus);
     settings.setValue(QZSettings::iconcept_elliptical, this->iconcept_elliptical);
     settings.setValue(QZSettings::sole_treadmill_inclination, this->sole_treadmill_inclination);
@@ -67,6 +70,8 @@ void DeviceDiscoveryInfo::getValues(QSettings &settings){
     this->computrainer_serial_port = settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
     this->ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
     this->ftmsAccessoryName = settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name).toString();
+
+    this->trixter_xdream_v1_bike = settings.value(trixterxdreamv1settings::keys::Enabled, trixterxdreamv1settings::DefaultEnabled).toBool();
     this->pafers_treadmill_bh_iboxster_plus = settings.value(QZSettings::pafers_treadmill_bh_iboxster_plus, QZSettings::default_pafers_treadmill_bh_iboxster_plus).toBool();
     this->iconcept_elliptical = settings.value(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical).toBool();
     this->sole_treadmill_inclination = settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();

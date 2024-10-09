@@ -568,12 +568,12 @@ class bluetoothdevice : public QObject {
     metric elevationAcc;
 
     /**
-     * @brief m_watt Metric to get and set the power expended in the session. Unit: watts
+     * @brief m_watt Metric to get and set the current power being expended. Unit: watts
      */
     metric m_watt;
 
     /**
-     * @brief WattKg Metric to get and set the watt kg for the session (what's this?). Unit: watt kg
+     * @brief WattKg Metric to get and set the current watts per kg. E.g. power / mass. Unit: watt/kg
      */
     metric WattKg;
 

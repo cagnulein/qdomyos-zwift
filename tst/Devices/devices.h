@@ -86,6 +86,7 @@
 #include "ToorxTreadmill/toorxtreadmilltestdata.h"
 #include "Treadmill/treadmilltestdata.h"
 #include "TrueTreadmill/truetreadmilltestdata.h"
+#include "TrixterXDreamBike/trixterxdreamv1biketestdata.h"
 #include "TrxAppGateUSBBike/trxappgateusbbiketestdata.h"
 #include "TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.h"
 #include "UltrasportBike/ultrasportbiketestdata.h"
@@ -186,6 +187,7 @@ TechnoGymMyRunTreadmillTestData,
 TechnogymMyRunTreadmillRFCommTestData,
 ToorxTreadmillTestData,
 TrueTreadmillTestData,
+TrixterXDreamV1BikeTestData,
 TrxAppGateUSBBike1TestData,
 TrxAppGateUSBBike2TestData,
 TrxAppGateUSBTreadmillTestData,
