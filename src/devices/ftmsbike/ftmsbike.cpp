@@ -1153,6 +1153,7 @@ resistance_t ftmsbike::pelotonToBikeResistance(int pelotonResistance) {
 }
 
 void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+    QSettings settings;
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
@@ -1176,6 +1177,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("3G Cardio RB"))) {
             qDebug() << QStringLiteral("_3G_Cardio_RB found");
             _3G_Cardio_RB = true;
+        }
+        
+        if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
+            resistance_lvl_mode = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
