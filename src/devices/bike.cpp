@@ -1,6 +1,7 @@
 
 #include "devices/bike.h"
 #include "qdebugfixup.h"
+#include "homeform.h"
 #include <QSettings>
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
@@ -104,6 +105,9 @@ void bike::setGears(double gears) {
     if(gears_zwift_ratio && (gears > 24 || gears < 1)) {
         qDebug() << "new gear value ignored because of gears_zwift_ratio setting!";
         return;
+    }
+    if(homeform::singleton()) {
+        homeform::singleton()->gears->setValue(QString::number(gears, 'f', 0));
     }
     m_gears = gears;
     settings.setValue(QZSettings::gears_current_value, m_gears);
