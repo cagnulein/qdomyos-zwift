@@ -597,4 +597,3 @@ bool kingsmithr2treadmill::connected() {
 }
 
 void kingsmithr2treadmill::searchingStop() { searchStopped = true; }
-bool kingsmithr2treadmill::supportStateMachine() { return true; }
