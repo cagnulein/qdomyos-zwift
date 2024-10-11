@@ -475,6 +475,11 @@ void kingsmithr2treadmill::serviceScanDone(void) {
         _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00011234-0000-1000-8000-00805f9b34fb"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    if(gattCommunicationChannelService == nullptr && KS_NACH_X21C) {
+        qDebug() << "KS_NACH_X21C default service id not found";
+        _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00011234-0000-1000-8000-00805f9b34fb"));
+        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
             &kingsmithr2treadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();
