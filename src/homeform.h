@@ -805,8 +805,6 @@ class homeform : public QObject {
 
   private slots:
     void Start();
-    void onPaused();
-    void onStarted();
     void Stop();
     void StopFromTrainProgram(bool paused);
     void StartRequested();

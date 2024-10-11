@@ -1200,23 +1200,6 @@ void homeform::gearDown() {
         Minus(QStringLiteral("gears"));
 }
 
-void homeform::deviceStateChanged(uint8_t state) {
-    qDebug() << QStringLiteral("update device state") << state;
-    switch (state) {
-        case 1:
-            if (requestPause) {
-                onPaused();
-            } else {
-                onStopped();
-            }
-            requestPause = false;
-            break;
-        case 2:
-            onStarted();
-            break;
-    }
-}
-
 void homeform::ftmsAccessoryConnected(smartspin2k *d) {
     connect(this, &homeform::autoResistanceChanged, d, &smartspin2k::autoResistanceChanged);
     connect(d, &smartspin2k::gearUp, this, &homeform::gearUp);
@@ -3762,60 +3745,10 @@ void homeform::Start_inner(bool send_event_to_device) {
                 videoPlaybackHalfPlayer->play();
             }
         }
-        onStarted();
+
+        paused = false;
+        stopped = false;
     }
-}
-
-void homeform::onPaused() {
-    paused = true;
-    emit workoutEventStateChanged(bluetoothdevice::PAUSED);
-
-    QSettings settings;
-    if (settings.value(QStringLiteral("top_bar_enabled"), true).toBool()) {
-
-        emit stopIconChanged(stopIcon());
-        emit stopTextChanged(stopText());
-        emit stopColorChanged(stopColor());
-        emit startIconChanged(startIcon());
-        emit startTextChanged(startText());
-        emit startColorChanged(startColor());
-    }
-
-    if (bluetoothManager->device()) {
-        bluetoothManager->device()->setPaused(paused | stopped);
-    }
-}
-
-void homeform::onStarted() {
-    if (stopped) {
-        trainProgram->restart();
-        if (bluetoothManager->device()) {
-
-            bluetoothManager->device()->clearStats();
-        }
-        Session.clear();
-        chartImagesFilenames.clear();
-
-        if (!pelotonHandler || (pelotonHandler && !pelotonHandler->isWorkoutInProgress())) {
-            stravaPelotonActivityName = QLatin1String("");
-            stravaPelotonInstructorName = QLatin1String("");
-            stravaPelotonWorkoutType = FIT_SPORT_INVALID;
-            emit workoutNameChanged(workoutName());
-            emit instructorNameChanged(instructorName());
-        }
-        emit workoutEventStateChanged(bluetoothdevice::STARTED);
-    } else {
-        // if loading a training program (gpx or xml) directly from the startup of QZ, there is no way to start the
-        // program otherwise
-        if (!trainProgram->isStarted()) {
-            qDebug() << QStringLiteral("starting training program from a resume");
-            trainProgram->restart();
-        }
-        emit workoutEventStateChanged(bluetoothdevice::RESUMED);
-    }
-
-    paused = false;
-    stopped = false;
 
     if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
 
@@ -3887,14 +3820,6 @@ void homeform::Stop() {
         bluetoothManager->device()->stop(false);
     }
 
-    if (bluetoothManager->device()->supportStateMachine()) {
-        requestPause = false;
-        return;
-    }
-    onStopped();
-}
-
-void homeform::onStopped() {
     paused = false;
     stopped = true;
 
