@@ -410,15 +410,6 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     }
     if (lastRunState != runState) {
         lastRunState = runState;
-        // TODO define bitflag enums to bluetoothdevice
-        switch (runState) {
-            case STOP:
-                emit deviceStateChanged(1);
-                break;
-            case START:
-                emit deviceStateChanged(2);
-                break;
-        }
     }
     firstCharacteristicChanged = false;
 }
@@ -447,8 +438,7 @@ void kingsmithr2treadmill::btinit(bool startTape) {
     //    QStringLiteral("servers getProp 1 3 7 8 9 16 17 18 19 21 22 23 24 31"), QStringLiteral("init"), false, true);
     writeCharacteristic(QStringLiteral("servers getProp 1 2 7 12 23 24 31"), QStringLiteral("init"), false, true);
 
-    // TODO need reset BurnCalories & RunningDistance
-    // initDone = true;
+    initDone = true;
 }
 
 void kingsmithr2treadmill::stateChanged(QLowEnergyService::ServiceState state) {
