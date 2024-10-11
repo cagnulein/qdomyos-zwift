@@ -51,5 +51,63 @@
         <file>inner_templates/googlemaps/main_ws_manager.js</file>
         <file>inner_templates/googlemaps/globals.js</file>
         <file>inner_templates/googlemaps/marker.png</file>
+        <file>settings-tts.qml</file>
+        <file>NewPageElement.qml</file>
+        <file>inner_templates/googlemaps/jquery-3.6.0.min.js</file>
+        <file>inner_templates/googlemaps/bike.js</file>
+        <file>zwo/Easy intervals.zwo</file>
+        <file>zwo/HIIT Aerobic.zwo</file>
+        <file>zwo/HIIT Anaerobic Sprint.zwo</file>
+        <file>zwo/HIIT Anaerobic.zwo</file>
+        <file>zwo/HIIT Neuromuscular.zwo</file>
+        <file>zwo/Short Mix by Jonathan.zwo</file>
+        <file>zwo/Tabata plus 2 with sweet spot and threshold.zwo</file>
+        <file>zwo/Tabata with sweet spot.zwo</file>
+        <file>zwo/Tempo and endurance.zwo</file>
+        <file>zwo/VO2max with recovery.zwo</file>
+        <file>zwo/VO2max with sweet spot.zwo</file>
+        <file>inner_templates/googlemaps/chart.js</file>
+        <file>inner_templates/googlemaps/chartjs.3.4.1.min.js</file>
+        <file>inner_templates/googlemaps/chartjs-adapter-moment.js</file>
+        <file>inner_templates/googlemaps/chartjs-plugin-annotation.min.js</file>
+        <file>inner_templates/googlemaps/cesium-key.js</file>
+        <file>inner_templates/maps2d/globals.js</file>
+        <file>inner_templates/maps2d/main_ws_manager.js</file>
+        <file>inner_templates/maps2d/maps.htm</file>
+        <file>inner_templates/maps2d/marker.png</file>
+        <file>gpx/Italy - Passo dello Stelvio.gpx</file>
+        <file>gpx/Box Hill.gpx</file>
+        <file>gpx/Butterfield Canyon Road.gpx</file>
+        <file>gpx/Crater Lake.gpx</file>
+        <file>gpx/Govi to Hood.gpx</file>
+        <file>gpx/Pittenweem to St Andrews.gpx</file>
+        <file>gpx/Richmond Park.gpx</file>
+        <file>gpx/St Andrews to Pittenweem.gpx</file>
+        <file>GPXList.qml</file>
+        <file>videoPlayback.qml</file>
+        <file>settings-tiles.qml</file>
+        <file>inner_templates/floating/floating.htm</file>
+        <file>inner_templates/floating/globals.js</file>
+        <file>inner_templates/floating/jquery-3.6.0.min.js</file>
+        <file>inner_templates/floating/main_ws_manager.js</file>
+        <file>inner_templates/floating/radikalmedium.otf</file>
+        <file>settings-treadmill-inclination-override.qml</file>
+        <file>WebStravaAuth.qml</file>
+        <file>Toast.qml</file>
+        <file>ToastManager.qml</file>
+        <file>inner_templates/chartjs/elliptical.png</file>
+        <file>inner_templates/chartjs/row.png</file>
+        <file>inner_templates/chartjs/run.png</file>
+        <file>inner_templates/chartjs/walk.png</file>
+        <file>inner_templates/chartjs/bike.png</file>
+        <file>inner_templates/chartjs/html2canvas.min.js</file>
+        <file>inner_templates/chartjs/qzlogo.png</file>
+        <file>inner_templates/chartjs/dochartlive.js</file>
+        <file>inner_templates/chartjs/chartlive.htm</file>
+        <file>ChartFooter.qml</file>
+        <file>ChartFooterInnerJS.qml</file>
+        <file>ChartFooterInnerNoJS.qml</file>
+        <file>inner_templates/chartjs/dochartliveheart.js</file>
+        <file>Wizard.qml</file>
     </qresource>
 </RCC>

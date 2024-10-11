@@ -171,7 +171,7 @@ void WebServerInfoSender::processTextMessage(QString message) {
     if (pClient) {
         pClient->sendTextMessage(message);
     }*/
-    qDebug() << QStringLiteral("Message received:") << message;
+    //qDebug() << QStringLiteral("Message received:") << message;
     emit onDataReceived(message.toUtf8());
 }
 
@@ -260,6 +260,6 @@ void WebServerInfoSender::processBinaryMessage(QByteArray message) {
     if (pClient) {
         pClient->sendBinaryMessage(message);
     }*/
-    qDebug() << QStringLiteral("Binary Message received:") << message.toHex();
+    //qDebug() << QStringLiteral("Binary Message received:") << message.toHex();
     emit onDataReceived(message);
 }

@@ -49,7 +49,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 }
             }
         } else {
-            print("HealthKit not avaiable")
+            print("HealthKit not available")
         }
     }
     

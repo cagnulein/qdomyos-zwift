@@ -2,6 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtGraphicalEffects 1.12
+import Qt.labs.settings 1.0
 
 Page {
 
@@ -12,6 +13,13 @@ Page {
     property alias stop: stop
     property alias lap: lap
     property alias row: row
+
+    Settings {
+	     id: settings
+		  property real ui_zoom: 100.0
+		  property bool theme_tile_icon_enabled: true
+		  property string theme_background_color: "#303030"
+		}
 
     Item {
         width: parent.width
@@ -30,7 +38,7 @@ Page {
             Rectangle {
                 width: 50
                 height: row.height
-                color: Material.backgroundColor
+					 color: settings.theme_background_color
                 Column {
                     id: column
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -42,7 +50,7 @@ Page {
                     Rectangle {
                         width: 50
                         height: row.height
-                        color: Material.backgroundColor
+                        color: settings.theme_background_color
 
                         Image {
                             anchors.verticalCenter: parent.verticalCenter
@@ -73,7 +81,7 @@ Page {
             Rectangle {
                 width: 120
                 height: row.height
-                color: Material.backgroundColor
+					 color: settings.theme_background_color
                 RoundButton {
                     icon.source: rootItem.startIcon
                     icon.height: row.height - 54
@@ -95,7 +103,7 @@ Page {
             Rectangle {
                 width: 120
                 height: row.height
-                color: Material.backgroundColor
+					 color: settings.theme_background_color
 
                 RoundButton {
                     icon.source: rootItem.stopIcon
@@ -119,7 +127,7 @@ Page {
                 id: item2
                 width: 50
                 height: row.height
-                color: Material.backgroundColor
+					 color: settings.theme_background_color
                 RoundButton {
                     anchors.verticalCenter: parent.verticalCenter
                     id: lap
@@ -157,7 +165,7 @@ Page {
             width: parent.width
             anchors.top: row1.bottom
             anchors.topMargin: 30
-            text: "This app should automatically connects to your bike/treadmill. <b>If it doesn't, please check</b>:<br>1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;<br>2) bluetooth and bluetooth permission MUST be on<br>3) your bike/treadmill should be turned on BEFORE starting this app<br>4) try to restart your device<br><br>If your bike/treadmill disconnects every 30 seconds try to disable the 'virtual device' setting on the left bar.<br><br>In case of issue, please, feel free to contact me to roberto.viola83@gmail.com.<br><br><b>Have a nice ride!</b><br/ ><i>QZ specifically disclaims liability for<br>incidental or consequential damages and assumes<br>no responsibility or liability for any loss<br>or damage suffered by any person as a result of<br>the use or misuse of the app.</i><br><br>Roberto Viola"
+            text: "This app should automatically connect to your bike/treadmill/rower. <b>If it doesn't, please check</b>:<br>1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;<br>2) bluetooth and bluetooth permission MUST be on<br>3) your bike/treadmill/rower should be turned on BEFORE starting this app<br>4) try to restart your device<br><br>If your bike/treadmill disconnects every 30 seconds try to disable the 'virtual device' setting on the left bar.<br><br>In case of issues, please feel free to contact me at roberto.viola83@gmail.com.<br><br><b>Have a nice ride!</b><br/ ><i>QZ specifically disclaims liability for<br>incidental or consequential damages and assumes<br>no responsibility or liability for any loss<br>or damage suffered by any person as a result of<br>the use or misuse of the app.</i><br><br>Roberto Viola"
             wrapMode: Label.WordWrap
             visible: rootItem.labelHelp
         }

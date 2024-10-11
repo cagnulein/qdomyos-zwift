@@ -26,5 +26,5 @@ You can have ae true 4k video stream while you ride ("extreme quality" setting) 
 The application do not read the FTMS value. It is required to start the application with `-heart-service` or `bike_heartrate_service: true` in settings.
 
 ### Resistance management
-You can adjust resistence using arrows [up and down](img/21_zwift-resistance-buttons.jpg) rom the riding screen.
+You can adjust resistance using arrows [up and down](img/21_zwift-resistance-buttons.jpg) rom the riding screen.
 

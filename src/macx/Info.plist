@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Our app uses bluetooth to find, connect and transfer data between the treadmill/bike and 3rd app like Zwift. The connection is always required.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Our app uses bluetooth to find, connect and transfer data between the treadmill/bike and 3rd app like Zwift</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_wahoo-fitness-tnp._tcp</string>
+	</array>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>application needs Documents access in order to save logs and gpx file for the training sessions</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app will need access to the local network for Discovery services (Wahoo Fitness Direct Connect).</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Location service are used to give access to bluetooth peripheral.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>bluetooth-central</string>
+		<string>bluetooth-peripheral</string>
+	</array>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>bluetooth-le</string>
+	</array>
+</dict>
+</plist>

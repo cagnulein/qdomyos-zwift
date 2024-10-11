@@ -1,26 +1,93 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/css/ol.css" type="text/css">
-    <style>
-      .map {
-        height: 1000px;
-        width: 100%;
-      }
-    </style>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="globals.js"></script>
-     <script src="main_ws_manager.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/build/ol.js"></script>
-    <title>OpenLayers example</title>
-  </head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Include the CesiumJS JavaScript and CSS files -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.94/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.94/Build/Cesium/Widgets/widgets.css" rel="stylesheet">  
+  <script src="jquery-3.6.0.min.js"></script>
+  <script src="chartjs.3.4.1.min.js"></script>
+  <script src="chart.js"></script>
+  <script src="globals.js"></script>
+  <script src="bike.js"></script>
+  <script src="main_ws_manager.js"></script>
+  <script src="cesium-key.js"></script>
+  <style>
+  canvas{
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+  }
+  </style>
+</head>
+<body>
+  <div id="cesiumContainer" style="display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: none;
+  width: 100%;
+  height: 100%;"></div>
+  <script>    
+    // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
+    const viewer = new Cesium.Viewer('cesiumContainer', {
+      terrainProvider: Cesium.createWorldTerrain()
+    });
+
+    $('.cesium-viewer-animationContainer').css("visibility", "hidden");
+	 $('.cesium-viewer-bottom').css("visibility", "hidden");
+	 $('.cesium-viewer-timelineContainer').css("visibility", "hidden");
+	 $('.cesium-viewer-fullscreenContainer').css("visibility", "hidden");
+
+
+    viewer.scene.globe.enableLighting = true;
+	 viewer.scene.fog.enabled = true;
+    viewer.scene.globe.depthTestAgainstTerrain = true;
+    // Add Cesium OSM Buildings, a global 3D buildings layer.
+    //const buildingTileset = viewer.scene.primitives.add(Cesium.createOsmBuildings());
+         var center = Cesium.Cartesian3.fromDegrees(10.855092, 44.508273);
+	 var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
+	 let map = viewer;
+
+// Add our vehicle model.
+const bike = viewer.entities.add({
+  position: center,
+  model: {
+    uri: bikeUri,
+    runAnimations: false,
+          minimumPixelSize: 32,
+          scale: 0.5,
+          color: Cesium.Color.ORANGE,
+          silhouetteColor: Cesium.Color.ORANGE,
+          silhouetteSize: 1,
+  },
+
+});
+
+viewer.trackedEntity = bike;
+
+  </script>
+ </div>
+</body>
   <body>
-    <div id="map" class="map"></div>
+    <div id="cesiumContainer" class="cesiumContainer"></div>
+	 <div><p class="metrics" style="color: #FFFFFF; position: absolute; bottom: 0px; right: 0px; margin-bottom: 0px; border-radius: 25px; border: 2px solid #73AD21; background: #73AD21; padding: 2px;">🏃Speed: 0.00<br>🚴Cadence:0<br>💓Heart:0<br>🔥Calories:0.0<br>📏Odometer:0.00<br>⚡Watt:0<br>⏲️Elapsed:0:00:00<br>📐Inclination:0.0<br>🧲Resistance:0<br>✈️Altitude:0.0<br>⛰️Elevation:0.0</p></div>
+	      <div style="border: 0px solid #aaa; border-radius: 10px; overflow: hidden; position:absolute; bottom: 0px; right: 150px; width=150px; height=75px"><canvas id="canvasChart" style="width=150px; height=75px; border-right: 0pt solid #ffff00;"></canvas></div>
     <script type="text/javascript">
+    let cameraComplete = true
+    let lastAzimuth = 0
+    let lastAlt = 0
+    let lastLat = 0
+    let lastLon = 0
+    let refreshRate = 25
+    let currentSpeed = 0
+    let lastCoordinateTS = 0
+    let altOffset = 0
+    let lastBikeHeight = 0
+    let firstTime = 0
+
     function a() {
-    let lat = 0
-    let lon = 0
+    onWorkout = false;
     let el = new MainWSQueueElement({
         msg: 'getlatlon'
     }, function(msg) {
@@ -29,49 +96,166 @@
         }
         return null;
     }, 15000, 3);
-    el.enqueue().then(process_latlon).catch(function(err) {
-        console.error('Error is ' + err);
-    });
+    el.enqueue().then(process_latlon);
+    keys_arr = ['speed', 'cadence', 'heart', 'calories', 'distance', 'watts', 'elapsed_h', 'elapsed_m', 'elapsed_s', 'inclination', 'resistance', 'elevation', 'altitude']
+         let ell = new MainWSQueueElement({
+	     msg: null,
+		}, function(msg) {
+		  if (msg.msg === 'workout') {
+		      var speed = 0;
+				var cadence = 0;
+				var hr = 0;
+				var calories = 0;
+				var odometer = 0;
+				var watt = 0;
+				var elapsed_h = 0;
+				var elapsed_m = 0;
+				var elapsed_s = 0;
+				var inclination = 0;
+				var resistance = 0;
+				var elevation = 0;
+				var altitude = 0;
+				for (let key of keys_arr) {
+				    if (msg.content[key] === undefined)
+                                             continue;
+						if (key === 'speed') {
+                                                  currentSpeed = speed = msg.content[key];
+						} else if (key === 'cadence') {
+						  cadence = msg.content[key];
+						} else if (key === 'heart') {
+                                                  hr = msg.content[key];
+						} else if (key === 'calories') {
+                                                  calories = msg.content[key];
+						} else if (key === 'distance') {
+                                                  odometer = msg.content[key];
+						} else if (key === 'watts') {
+                                                  watt = msg.content[key];
+						} else if (key === 'elapsed_h') {
+                                                  elapsed_h = msg.content[key];
+						} else if (key === 'elapsed_m') {
+                                                  elapsed_m = msg.content[key];
+						} else if (key === 'elapsed_s') {
+                                                  elapsed_s = msg.content[key];
+						} else if (key === 'inclination') {
+                                                  inclination = msg.content[key];
+						} else if (key === 'resistance') {
+                                                  resistance = msg.content[key];
+						} else if (key === 'elevation') {
+                                                  elevation = msg.content[key];
+																} else if (key === 'altitude') {
+																  altitude = msg.content[key];
+																}
+				}
+
+            $('.metrics').html("🏃Speed: " + speed.toFixed(2) + "<br>🚴Cadence:" + cadence.toFixed(0) + "<br>💓Heart:"+ hr.toFixed(0) + "<br>🔥Calories:"+ calories.toFixed(1) + "<br>📏Odometer:"+ odometer.toFixed(2) + "<br>⚡Watt:"+ watt.toFixed(0) + "<br>⏲️Elapsed:"+ elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "<br>📐Inclination:"+ inclination.toFixed(1) + "<br>🧲Resistance:"+ resistance.toFixed(0) + "<br>✈️Altitude:"+ altitude.toFixed(1) + "<br>⛰️Elevation:"+ elevation.toFixed(2));
+		  }
+		  return null;
+		}, 15000, 3);
+         ell.enqueue().then(onWorkout).catch(function(err) {
+	     console.error('Error is ' + err);
+                });
+    }
+
+    function camera_complete() {
+        cameraComplete = true;
+    }
+
+    function easing_function(time) {
+        return time;
     }
 
     function  process_latlon(msg) {
+
+    if(firstTime==0)
+        viewer.camera.zoomOut(200);
+    firstTime=1;
+
+
+	 /*if(!cameraComplete) return;*/
+    cameraComplete = false;
     let lat = parseFloat(msg.split(",")[0]);
     let lon = parseFloat(msg.split(",")[1]);
-    map.getView().animate({center: ol.proj.fromLonLat([lon, lat])});
-	markers.getSource().getFeatures()[0].getGeometry().setCoordinates(ol.proj.fromLonLat([lon, lat]));
-    setTimeout(a,2000);
+	 let alt = parseFloat(msg.split(",")[2]) + altOffset;
+	 let realAzimuth = parseFloat(msg.split(",")[3]);
+	 let azimuth = parseFloat(msg.split(",")[4]);
+	 let realLat = lat
+	 let realLon = lon
+
+    if(lastAlt != alt && Math.abs(lastAlt-alt) < 30) {
+        if(lastAlt > alt)
+            lastAlt = alt = lastAlt - 0.01;
+        else
+            lastAlt = alt = lastAlt + 0.01;
+    } else {
+        lastAlt = alt;
     }
+    if(Math.abs(lastAlt - alt) < 0.01)
+        lastAlt = alt;
 
-      let map = new ol.Map({
-        target: 'map',
-        layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM()
-          })
-        ],
-        view: new ol.View({
-          center: ol.proj.fromLonLat([37.41, 8.82]),
-          zoom: 16
-        })
-      });
-	  
-	markers = new ol.layer.Vector({
-	  source: new ol.source.Vector(),
-	  style: new ol.style.Style({
-		image: new ol.style.Icon({
-          anchor: [0.5, 0.5],
-          anchorXUnits: 'fraction',
-          anchorYUnits: 'fraction',
-		  scale: 0.2,
-		  src: 'marker.png'
-		})
-	  })
-	});
-	map.addLayer(markers);
 
-	let marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([37.41, 8.82])));
-	markers.getSource().addFeature(marker);
-  
+   const length = 2;
+
+   const startLon = Cesium.Math.toRadians(realLon);
+	const endLon = Cesium.Math.toRadians(realLon + 0.000001);
+
+   const startLat = Cesium.Math.toRadians(realLat);
+
+   const terrainSamplePositions = [];
+   let i
+        for (i = 0; i < length; ++i) {
+	  const lonL = Cesium.Math.lerp(
+	    endLon,
+		 startLon,
+		 i / (length - 1)
+	  );
+	  const position = new Cesium.Cartographic(lonL, startLat);
+	  terrainSamplePositions.push(position);
+	  }
+
+    bike.position = Cesium.Cartesian3.fromDegrees(realLon, realLat, lastBikeHeight);
+    bike.orientation = Cesium.Transforms.headingPitchRollQuaternion(Cesium.Cartesian3.fromDegrees(realLon, realLat), new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(realAzimuth), 0, 0));
+
+Promise.resolve(
+       Cesium.sampleTerrainMostDetailed(
+         viewer.terrainProvider,
+              terrainSamplePositions
+       )
+       ).then(function (samples) {
+       const hpr = new Cesium.HeadingPitchRoll(
+         Cesium.Math.toRadians(realAzimuth),
+              0,
+              0
+       );
+           lastBikeHeight = samples[0].height
+           //bike.modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(Cesium.Cartesian3.fromDegrees(realLon, realLat, lastBikeHeight), hpr);
+       });
+
+
+         setTimeout(a,refreshRate);
+
+                }
+					function process_gpxbase64(msg) {
+	  viewer.dataSources
+	            .add(
+					  Cesium.GpxDataSource.load(
+                                            msg,
+						 {
+						   clampToGround: true,
+							}
+						))
+	  }
+
+let el = new MainWSQueueElement({
+msg: 'getgpxbase64'
+}, function(msg) {
+if (msg.msg === 'R_getgpxbase64') {
+return msg.content;
+}
+return null;
+}, 15000, 3);
+el.enqueue().then(process_gpxbase64).catch(function(err) {
+console.error('Error is ' + err);
+});
       setTimeout(a,0);
     </script>
   </body>

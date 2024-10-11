@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<workout_file>
+    <author>Jonathan Colledge</author>
+    <name>HIIT Anaerobic Sprint</name>
+    <description>30 and 40 second maximum effort intervals with long recovery - pure anaerobic efforts to simulate repeated short slalom runs. This will hit the Sprint category on Garmin's Primary Benefit category of training impact with very little aerobic training effect.</description>
+    <sportType>bike</sportType>
+    <tags>
+        <tag name="INTERVALS"/>
+		<tag name="JonathanC"/>
+        <tag name="Anaerobic"/>
+        <tag name="Sprint"/>
+    </tags>
+    <workout>
+        <SteadyState Duration="300" Power="0.64823318" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.81077737" pace="1128505344"/>
+        <SteadyState Duration="30" Power="2.4750884" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.4998233" pace="1128505344"/>
+        <SteadyState Duration="40" Power="2.1217315" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.4998233" pace="1128505344"/>
+        <SteadyState Duration="30" Power="2.4750884" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.4998233" pace="1128505344"/>
+        <SteadyState Duration="40" Power="2.1217315" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.5" pace="1128505344"/>
+        <SteadyState Duration="30" Power="2.4750884" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.4998233" pace="1128505344"/>
+        <SteadyState Duration="40" Power="2.1217315" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.4998233" pace="1128505344"/>
+        <SteadyState Duration="30" Power="2.4750884" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.4998233" pace="1128505344"/>
+        <SteadyState Duration="40" Power="2.1217315" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.4998233" pace="1128505344"/>
+        <SteadyState Duration="30" Power="2.4750884" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.4998233" pace="1128505344"/>
+    </workout>
+</workout_file>
