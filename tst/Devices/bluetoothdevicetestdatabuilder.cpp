@@ -27,17 +27,17 @@ BluetoothDeviceTestDataBuilder *BluetoothDeviceTestDataBuilder::rejectDeviceName
     return this;
 }
 
-BluetoothDeviceTestDataBuilder *BluetoothDeviceTestDataBuilder::configureSettingsWith(ConfigurationApplicatorMultiple configurator) {
-    if(this->configuratorMultiple || this->configuratorSingle)
+BluetoothDeviceTestDataBuilder *BluetoothDeviceTestDataBuilder::configureSettingsWith(ConfigurationApplicatorMultiple applicator) {
+    if(this->applicatorMultiple || this->applicatorSingle)
         throw std::invalid_argument("Only 1 configurator is supported.");
-    this->configuratorMultiple = configurator;
+    this->applicatorMultiple = applicator;
     return this;
 }
 
-BluetoothDeviceTestDataBuilder *BluetoothDeviceTestDataBuilder::configureSettingsWith(ConfigurationApplicatorSingle configurator) {
-    if(this->configuratorMultiple || this->configuratorSingle)
+BluetoothDeviceTestDataBuilder *BluetoothDeviceTestDataBuilder::configureSettingsWith(ConfigurationApplicatorSingle applicator) {
+    if(this->applicatorMultiple || this->applicatorSingle)
         throw std::invalid_argument("Only 1 configurator is supported.");
-    this->configuratorSingle = configurator;
+    this->applicatorSingle = applicator;
     return this;
 }
 
@@ -46,20 +46,20 @@ BluetoothDeviceTestDataBuilder *BluetoothDeviceTestDataBuilder::configureSetting
 }
 
 BluetoothDeviceTestDataBuilder *BluetoothDeviceTestDataBuilder::configureSettingsWith(const QString &qzSettingsKey, QVariant enablingValue, QVariant disablingValue) {
-    if(this->configuratorMultiple || this->configuratorSingle)
+    if(this->applicatorMultiple || this->applicatorSingle)
         throw std::invalid_argument("Only 1 configurator is supported.");
 
     if(enablingValue==disablingValue)
         throw std::invalid_argument("Enabling and disabling values must be different.");
 
-    this->configuratorSingle = [qzSettingsKey, enablingValue, disablingValue](DeviceDiscoveryInfo& info, bool enable) -> void {
+    this->applicatorSingle = [qzSettingsKey, enablingValue, disablingValue](DeviceDiscoveryInfo& info, bool enable) -> void {
         info.setValue(qzSettingsKey, enable ? enablingValue:disablingValue);
     };
     return this;
 }
 
 BluetoothDeviceTestDataBuilder *BluetoothDeviceTestDataBuilder::configureSettingsWith(const QBluetoothUuid &uuid, bool addedIsEnabled) {
-    this->configuratorSingle = [uuid,addedIsEnabled](DeviceDiscoveryInfo& info, bool enable) -> void {
+    this->applicatorSingle = [uuid,addedIsEnabled](DeviceDiscoveryInfo& info, bool enable) -> void {
         if(enable==addedIsEnabled)
             info.addBluetoothService(uuid);
         else

@@ -84,6 +84,13 @@ protected:
      */
     void test_deviceDetection(const bool validNames, const bool enablingConfigs);
 
+    /**
+     * @brief getConfigurations Gets the configurations of settings and bluetooth device information, for the specified device name.
+     * @param testData
+     * @param deviceName The bluetooth device name to be configured in the bluetooth device information object.
+     * @param enabled Indicates if it is enabling configurations being requested.
+     * @return
+     */
     std::vector<DeviceDiscoveryInfo> getConfigurations(const BluetoothDeviceTestData* testData, const QString& deviceName, bool enabled) const;
 public:
     BluetoothDeviceTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {}
@@ -129,6 +136,9 @@ INSTANTIATE_TEST_SUITE_P(AllDevicesDetection, BluetoothDeviceTestSuite,
                          testing::ValuesIn(DeviceTestDataIndex::Names()),
                          [](const testing::TestParamInfo<QString>& item) {return DeviceIndex::Identifier(item.param).toStdString(); });
 #else
+
+// Use this for debugging a single test data set.
+
 INSTANTIATE_TEST_SUITE_P(SelectedDevicesDetection, BluetoothDeviceTestSuite,
                          testing::Values(DeviceIndex::TacxNeo2Bike),
                          [](const testing::TestParamInfo<QString>& item) {return DeviceIndex::Identifier(item.param).toStdString(); });

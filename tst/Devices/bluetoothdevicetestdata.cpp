@@ -44,7 +44,7 @@ const QStringList BluetoothDeviceTestData::Exclusions() const {
 const DeviceNamePatternGroup *BluetoothDeviceTestData::NamePatternGroup() const { return this->deviceNamePatternGroup; }
 
 BluetoothDeviceTestData::~BluetoothDeviceTestData(){
-
+    delete this->deviceNamePatternGroup;
 }
 
 BluetoothDeviceTestData::BluetoothDeviceTestData() {}
@@ -55,16 +55,16 @@ std::vector<DeviceDiscoveryInfo> BluetoothDeviceTestData::ApplyConfigurations(co
 
     auto name = info.DeviceName();
 
-    if(this->configuratorSingle)
+    if(this->applicatorSingle)
     {
         DeviceDiscoveryInfo newInfo(info);
-        this->configuratorSingle(newInfo, enable);
+        this->applicatorSingle(newInfo, enable);
         result.push_back(newInfo);
     }
 
-    if(this->configuratorMultiple) {
+    if(this->applicatorMultiple) {
         auto count = result.size();
-        this->configuratorMultiple(info, enable, result);
+        this->applicatorMultiple(info, enable, result);
 
         //if(result.size()<=count)
         //    throw std::domain_error("No configurations added. Please check the lambda is accepting the vector by address.");

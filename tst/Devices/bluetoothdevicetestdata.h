@@ -25,20 +25,65 @@ protected:
 
     std::unordered_set<DeviceTypeId> exclusions;
     DeviceNamePatternGroup * deviceNamePatternGroup=nullptr;
-    ConfigurationApplicatorMultiple configuratorMultiple=nullptr;
-    ConfigurationApplicatorSingle configuratorSingle=nullptr;
+    ConfigurationApplicatorMultiple applicatorMultiple=nullptr;
+    ConfigurationApplicatorSingle applicatorSingle=nullptr;
     std::function<bool(bluetoothdevice*)> isExpectedDevice=nullptr;
     DeviceTypeId expectedDeviceType=-1;
     BluetoothDeviceTestData();
 public:
+    /**
+     * @brief Gets the name of the device, or device variant.
+     * @return
+     */
     QString Name() const;
+
+    /**
+     * @brief Gets a unique identifier
+     * @return
+     */
     DeviceTypeId ExpectedDeviceType() const;
+
+    /**
+     * @brief Indicates if the test data is enabled to be included in the test runs.
+     * @return
+     */
     bool IsEnabled() const;
+
+    /**
+     * @brief Indicates if the test data should be included in test runs, but skipped.
+     * @return
+     */
     bool IsSkipped() const { return skipped; }
+
+    /**
+     * @brief Indicates the reason the test data is disabled.
+     * @return
+     */
     const QString DisabledReason() const;
+
+    /**
+     * @brief Indicates the reason the test data is skipped.
+     * @return
+     */
     const QString SkippedReason() const;
+
+    /**
+     * @brief Indicates if the object is of the expected type.
+     * @param device The device to check.
+     * @return
+     */
     bool IsExpectedDevice(bluetoothdevice * device) const;
+
+    /**
+     * @brief Gets a list of test data object names for devices that should prevent this test data object's expected device from being detected.
+     * @return
+     */
     const QStringList Exclusions() const;
+
+    /**
+     * @brief Gets the manager for the valid and invalid device names for this test data object.
+     * @return
+     */
     const DeviceNamePatternGroup * NamePatternGroup() const;
 
     /**

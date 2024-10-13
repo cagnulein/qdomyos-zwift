@@ -12,6 +12,10 @@ class BluetoothDeviceTestDataBuilder : public virtual BluetoothDeviceTestData
 {
 
 public:
+    /**
+     * @brief Constructor.
+     * @param name A user-friendly name for the device variant this test data is for. Should be unique for this object.
+     */
     BluetoothDeviceTestDataBuilder(QString name);
 
     /**
@@ -69,17 +73,17 @@ public:
 
     /**
      * @brief Sets a generator for multiple enabling or disabling settings configurations.
-     * @param configurator
+     * @param applicator
      * @return
      */
-    BluetoothDeviceTestDataBuilder * configureSettingsWith(ConfigurationApplicatorMultiple configurator);
+    BluetoothDeviceTestDataBuilder * configureSettingsWith(ConfigurationApplicatorMultiple applicator);
 
     /**
      * @brief Sets a functor to produce the single enabling or disabling settings configuration.
-     * @param configurator
+     * @param applicator
      * @return
      */
-    BluetoothDeviceTestDataBuilder * configureSettingsWith(ConfigurationApplicatorSingle configurator);
+    BluetoothDeviceTestDataBuilder * configureSettingsWith(ConfigurationApplicatorSingle applicator);
 
     /**
      * @brief Specifies that a single boolean setting is used to generate an enabling or
