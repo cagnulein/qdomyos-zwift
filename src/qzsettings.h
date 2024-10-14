@@ -2147,6 +2147,9 @@ class QZSettings {
     static const QString force_resistance_instead_inclination;
     static constexpr bool default_force_resistance_instead_inclination = false;
 
+    static const QString proform_treadmill_575i;
+    static constexpr bool default_proform_treadmill_575i = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
