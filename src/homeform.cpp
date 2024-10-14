@@ -776,15 +776,21 @@ void homeform::keyMediaNext() {
 void homeform::volumeUp() {
     qDebug() << QStringLiteral("volumeUp");
     QSettings settings;
-    if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool())
+    if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        Plus(QStringLiteral("speed"));
+    } else if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
         Plus(QStringLiteral("gears"));
+    }
 }
 
 void homeform::volumeDown() {
     qDebug() << QStringLiteral("volumeDown");
     QSettings settings;
-    if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool())
+    if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        Minus(QStringLiteral("speed"));
+    } else if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
         Minus(QStringLiteral("gears"));
+    }
 }
 
 void homeform::floatingOpen() {
