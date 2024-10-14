@@ -12,6 +12,10 @@ class lockscreen {
     void setSpeed(double speed);
     void setPower(double power);
     void setCadence(double cadence);
+    void startWorkout(unsigned short deviceType);
+    void stopWorkout();
+
+    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories);
 
     // virtualbike
     void virtualbike_ios();
@@ -25,7 +29,7 @@ class lockscreen {
     double virtualbike_getPowerRequested();
     bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                 unsigned short currentCadence, unsigned short currentWatt,
-                                unsigned short CrankRevolutions, unsigned short LastCrankEventTime);
+                                unsigned short CrankRevolutions, unsigned short LastCrankEventTime, unsigned short currentCalories);
     int virtualbike_getLastFTMSMessage(unsigned char *message);
 
     // virtualrower
@@ -35,7 +39,7 @@ class lockscreen {
                                  unsigned short currentCadence, unsigned short currentWatt,
                                  unsigned short CrankRevolutions, unsigned short LastCrankEventTime,
                                  unsigned short StrokesCount, unsigned int Distance, unsigned short KCal,
-                                 unsigned short Pace);
+                                 unsigned short Pace, unsigned short currentCalories);
     int virtualrower_getLastFTMSMessage(unsigned char *message);
 
     // virtualtreadmill
@@ -46,7 +50,7 @@ class lockscreen {
     double virtualtreadmill_getPowerRequested();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
-                                     unsigned short currentInclination, unsigned long long currentDistance);
+                                     unsigned short currentInclination, unsigned long long currentDistance, unsigned short currentCalories);
 
     // volume
     double getVolume();

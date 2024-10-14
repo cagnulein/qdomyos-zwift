@@ -22,6 +22,7 @@ static virtualbike_ios_swift* _virtualbike = nil;
 static virtualbike_zwift* _virtualbike_zwift = nil;
 static virtualrower* _virtualrower = nil;
 static virtualtreadmill_zwift* _virtualtreadmill_zwift = nil;
+static WorkoutTracking* workoutTracking = nil;
 
 static GarminConnect* Garmin = 0;
 
@@ -45,7 +46,22 @@ void lockscreen::request()
     if (@available(iOS 13, *)) {
         Garmin = [[GarminConnect alloc] init];
     }
-    _adb = [[AdbClient alloc] initWithVerbose:YES];
+    // just to be sure, I built the library for iOS17 only but theorically we can use any iOS version
+    if (@available(iOS 17, *)) {
+        workoutTracking = [[WorkoutTracking alloc] init];
+        [WorkoutTracking requestAuth];
+        _adb = [[AdbClient alloc] initWithVerbose:YES];
+    }
+}
+
+void lockscreen::startWorkout(unsigned short deviceType) {
+    if(workoutTracking != nil)
+        [workoutTracking startWorkOutWithDeviceType:deviceType];
+}
+
+void lockscreen::stopWorkout() {
+    if(workoutTracking != nil)
+        [workoutTracking stopWorkOut];
 }
 
 long lockscreen::heartRate()
@@ -101,6 +117,11 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
         [_virtualbike updateCadenceWithCrankRevolutions:crankRevolutions LastCrankEventTime:lastCrankEventTime];
 }
 
+void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories) {
+    if(workoutTracking != nil)
+        [workoutTracking addMetricsWithPower:watt cadence:cadence*2 speed:speed * 100 kcal:currentCalories];
+}
+
 void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility)
 {
     _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr:disable_hr garmin_bluetooth_compatibility:garmin_bluetooth_compatibility];
@@ -147,15 +168,21 @@ double lockscreen::virtualbike_getPowerRequested()
     return 0;
 }
 
-bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime)
+bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, UInt16 currentCalories)
 {
+    if(workoutTracking != nil)
+        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories];
+
     if(_virtualbike_zwift != nil)
         return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime];
     return 0;
 }
 
-bool lockscreen::virtualrower_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, UInt16 StrokesCount, UInt32 Distance, UInt16 KCal, UInt16 Pace)
+bool lockscreen::virtualrower_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, UInt16 StrokesCount, UInt32 Distance, UInt16 KCal, UInt16 Pace, UInt16 currentCalories)
 {
+    if(workoutTracking != nil)
+        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories];
+
     if(_virtualrower != nil)
         return [_virtualrower updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime StrokesCount:StrokesCount Distance:Distance KCal:KCal Pace:Pace];
     return 0;
@@ -207,8 +234,11 @@ double lockscreen::virtualtreadmill_getPowerRequested()
     return 0;
 }
 
-bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance)
+bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, UInt16 currentCalories)
 {
+    if(workoutTracking != nil)
+        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories];
+
     if(_virtualtreadmill_zwift != nil)
         return [_virtualtreadmill_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt currentInclination:currentInclination currentDistance:currentDistance];
     return 0;
