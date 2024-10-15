@@ -24,6 +24,12 @@
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
 
+#ifdef Q_OS_ANDROID
+
+#include <QAndroidJniEnvironment>
+#include <QtAndroid>
+#endif
+
 #if __has_include("secret.h")
 #include "secret.h"
 #else
@@ -70,6 +76,7 @@ class DataObject : public QObject {
     void setLabelFontSize(int value);
     void setVisible(bool visible);
     void setGridId(int id);
+    void setLargeButtonColor(const QString &color);
     QString name() { return m_name; }
     QString icon() { return m_icon; }
     QString value() { return m_value; }
@@ -157,6 +164,7 @@ class homeform : public QObject {
     Q_PROPERTY(double currentSpeed READ currentSpeed NOTIFY currentSpeedChanged)
     Q_PROPERTY(int pelotonLogin READ pelotonLogin NOTIFY pelotonLoginChanged)
     Q_PROPERTY(int pzpLogin READ pzpLogin NOTIFY pzpLoginChanged)
+    Q_PROPERTY(int zwiftLogin READ zwiftLogin NOTIFY zwiftLoginChanged)
     Q_PROPERTY(QString workoutStartDate READ workoutStartDate)
     Q_PROPERTY(QString workoutName READ workoutName)
     Q_PROPERTY(QString instructorName READ instructorName)
@@ -171,6 +179,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool stopRequested READ stopRequested NOTIFY stopRequestedChanged WRITE setStopRequestedChanged)
     Q_PROPERTY(bool startRequested READ startRequested NOTIFY startRequestedChanged WRITE setStartRequestedChanged)
     Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
+    Q_PROPERTY(bool stravaUploadRequested READ stravaUploadRequested NOTIFY stravaUploadRequestedChanged WRITE setStravaUploadRequested)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -183,6 +192,7 @@ class homeform : public QObject {
 
     Q_PROPERTY(QString getStravaAuthUrl READ getStravaAuthUrl NOTIFY stravaAuthUrlChanged)
     Q_PROPERTY(bool stravaWebVisible READ stravaWebVisible NOTIFY stravaWebVisibleChanged)
+
 
   public:
     static homeform *singleton() { return m_singleton; }
@@ -338,6 +348,27 @@ class homeform : public QObject {
         }
     }
 
+    Q_INVOKABLE bool firstRun() {
+        QSettings settings;
+        QString nordictrack_2950_ip =
+            settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+        QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+        QString proform_elliptical_ip = settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
+        bool fake_bike =
+            settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
+        bool fakedevice_elliptical =
+            settings.value(QZSettings::fakedevice_elliptical, QZSettings::default_fakedevice_elliptical).toBool();
+        bool fakedevice_rower = settings.value(QZSettings::fakedevice_rower, QZSettings::default_fakedevice_rower).toBool();
+        bool fakedevice_treadmill =
+            settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
+        bool antbike =
+            settings.value(QZSettings::antbike, QZSettings::default_antbike).toBool();
+
+        return settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString().isEmpty() && 
+                nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical && !fakedevice_rower && !fakedevice_treadmill && !antbike && proform_elliptical_ip.isEmpty();
+    }
+
+
     Q_INVOKABLE bool autoInclinationEnabled() {
         QSettings settings;
         bool virtual_bike =
@@ -347,6 +378,17 @@ class homeform : public QObject {
                bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL && !virtual_bike &&
                bluetoothManager->device()->VirtualDevice() &&
                ((virtualtreadmill *)bluetoothManager->device()->VirtualDevice())->autoInclinationEnabled();
+    }
+
+    Q_INVOKABLE bool locationServices() {
+        return m_locationServices;
+    }
+
+    Q_INVOKABLE void enableLocationServices() {
+#ifdef Q_OS_ANDROID
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/LocationHelper", "requestPermissions",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#endif
     }
 
     homeform(QQmlApplicationEngine *engine, bluetooth *bl);
@@ -390,9 +432,11 @@ class homeform : public QObject {
     QString instructorName() { return stravaPelotonInstructorName; }
     int pelotonLogin() { return m_pelotonLoginState; }
     int pzpLogin() { return m_pzpLoginState; }
+    int zwiftLogin() { return m_zwiftLoginState; }
     void setPelotonAskStart(bool value) { m_pelotonAskStart = value; }
     QString pelotonProvider() { return m_pelotonProvider; }
     QString toastRequested() { return m_toastRequested; }
+    bool stravaUploadRequested() { return m_stravaUploadRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool licensePopupVisible();
@@ -445,12 +489,16 @@ class homeform : public QObject {
     void videoSeekPosition(int ms);      // in realtime
     void setVideoRate(double rate);
     void setMapsVisible(bool value);
-    void setToastRequested(QString value) { m_toastRequested = value; }
+    void setToastRequested(QString value) { m_toastRequested = value; emit toastRequestedChanged(value); }
+    void setStravaUploadRequested(bool value) {
+        m_stravaUploadRequested = value;
+    }
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
     int preview_workout_points();
 
 #if defined(Q_OS_ANDROID)
+    QString getBluetoothName();
     static QString getAndroidDataAppDir();
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
@@ -555,6 +603,73 @@ class homeform : public QObject {
     QString getStravaAuthUrl() { return stravaAuthUrl; }
     bool stravaWebVisible() { return stravaAuthWebVisible; }
     trainprogram *trainingProgram() { return trainProgram; }
+    
+    DataObject *speed;
+    DataObject *inclination;
+    DataObject *cadence;
+    DataObject *elevation;
+    DataObject *calories;
+    DataObject *odometer;
+    DataObject *pace;
+    DataObject *datetime;
+    DataObject *resistance;
+    DataObject *watt;
+    DataObject *avgWatt;
+    DataObject *avgWattLap;
+    DataObject *heart;
+    DataObject *fan;
+    DataObject *jouls;
+    DataObject *peloton_offset;
+    DataObject *peloton_remaining;
+    DataObject *elapsed;
+    DataObject *moving_time;
+    DataObject *peloton_resistance;
+    DataObject *target_resistance;
+    DataObject *target_peloton_resistance;
+    DataObject *target_cadence;
+    DataObject *target_power;
+    DataObject *target_zone;
+    DataObject *target_speed;
+    DataObject *target_pace;
+    DataObject *target_incline;
+    DataObject *ftp;
+    DataObject *lapElapsed;
+    DataObject *weightLoss;
+    DataObject *strokesLength;
+    DataObject *strokesCount;
+    DataObject *wattKg;
+    DataObject *gears;
+    DataObject *biggearsPlus;
+    DataObject *biggearsMinus;
+    DataObject *remaningTimeTrainingProgramCurrentRow;
+    DataObject *nextRows;
+    DataObject *mets;
+    DataObject *targetMets;
+    DataObject *steeringAngle;
+    DataObject *pidHR;
+    DataObject *extIncline;
+    DataObject *instantaneousStrideLengthCM;
+    DataObject *groundContactMS;
+    DataObject *verticalOscillationMM;
+    DataObject *preset_resistance_1;
+    DataObject *preset_resistance_2;
+    DataObject *preset_resistance_3;
+    DataObject *preset_resistance_4;
+    DataObject *preset_resistance_5;
+    DataObject *preset_speed_1;
+    DataObject *preset_speed_2;
+    DataObject *preset_speed_3;
+    DataObject *preset_speed_4;
+    DataObject *preset_speed_5;
+    DataObject *preset_inclination_1;
+    DataObject *preset_inclination_2;
+    DataObject *preset_inclination_3;
+    DataObject *preset_inclination_4;
+    DataObject *preset_inclination_5;
+    DataObject *pace_last500m;
+    DataObject *stepCount;
+    DataObject *ergMode;
+    DataObject *rss;
 
   private:
     static homeform *m_singleton;
@@ -595,8 +710,10 @@ class homeform : public QObject {
     bool m_pelotonAskStart = false;
     QString m_pelotonProvider = "";
     QString m_toastRequested = "";
+    bool m_stravaUploadRequested = false;
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
+    int m_zwiftLoginState = -1;
     QString stravaPelotonActivityName;
     QString stravaPelotonInstructorName;
     QString stravaWorkoutName = "";
@@ -617,68 +734,6 @@ class homeform : public QObject {
     bool m_stopRequested = false;
     bool m_startRequested = false;
     bool m_overridePower = false;
-
-    DataObject *speed;
-    DataObject *inclination;
-    DataObject *cadence;
-    DataObject *elevation;
-    DataObject *calories;
-    DataObject *odometer;
-    DataObject *pace;
-    DataObject *datetime;
-    DataObject *resistance;
-    DataObject *watt;
-    DataObject *avgWatt;
-    DataObject *avgWattLap;
-    DataObject *heart;
-    DataObject *fan;
-    DataObject *jouls;
-    DataObject *peloton_offset;
-    DataObject *peloton_remaining;
-    DataObject *elapsed;
-    DataObject *moving_time;
-    DataObject *peloton_resistance;
-    DataObject *target_resistance;
-    DataObject *target_peloton_resistance;
-    DataObject *target_cadence;
-    DataObject *target_power;
-    DataObject *target_zone;
-    DataObject *target_speed;
-    DataObject *target_pace;
-    DataObject *target_incline;
-    DataObject *ftp;
-    DataObject *lapElapsed;
-    DataObject *weightLoss;
-    DataObject *strokesLength;
-    DataObject *strokesCount;
-    DataObject *wattKg;
-    DataObject *gears;
-    DataObject *remaningTimeTrainingProgramCurrentRow;
-    DataObject *nextRows;
-    DataObject *mets;
-    DataObject *targetMets;
-    DataObject *steeringAngle;
-    DataObject *pidHR;
-    DataObject *extIncline;
-    DataObject *instantaneousStrideLengthCM;
-    DataObject *groundContactMS;
-    DataObject *verticalOscillationMM;
-    DataObject *preset_resistance_1;
-    DataObject *preset_resistance_2;
-    DataObject *preset_resistance_3;
-    DataObject *preset_resistance_4;
-    DataObject *preset_resistance_5;
-    DataObject *preset_speed_1;
-    DataObject *preset_speed_2;
-    DataObject *preset_speed_3;
-    DataObject *preset_speed_4;
-    DataObject *preset_speed_5;
-    DataObject *preset_inclination_1;
-    DataObject *preset_inclination_2;
-    DataObject *preset_inclination_3;
-    DataObject *preset_inclination_4;
-    DataObject *preset_inclination_5;
-    DataObject *pace_last500m;
 
     QTimer *timer;
     QTimer *backupTimer;
@@ -721,8 +776,10 @@ class homeform : public QObject {
     bool videoMustBeReset = true;
 
 #ifdef Q_OS_ANDROID
-    bool floating_open = false;
+    bool floating_open = false;    
 #endif
+
+    bool m_locationServices = true;
 
 #ifndef Q_OS_IOS
     QMdnsEngine::Browser *iphone_browser = nullptr;
@@ -739,18 +796,20 @@ class homeform : public QObject {
     void saveSettings(const QUrl &filename);
     static void loadSettings(const QUrl &filename);
     void deleteSettings(const QUrl &filename);
+    void restoreSettings();
     void saveProfile(QString profilename);
     void restart();
     bool pelotonAskStart() { return m_pelotonAskStart; }
+    void Minus(const QString &);
+    void Plus(const QString &);
 
   private slots:
     void Start();
     void Stop();
+    void StopFromTrainProgram(bool paused);
     void StartRequested();
     void StopRequested();
     void Lap();
-    void Minus(const QString &);
-    void Plus(const QString &);
     void LargeButton(const QString &);
     void volumeDown();
     void volumeUp();
@@ -785,6 +844,7 @@ class homeform : public QObject {
     void pelotonWorkoutStarted(const QString &name, const QString &instructor);
     void pelotonWorkoutChanged(const QString &name, const QString &instructor);
     void pelotonLoginState(bool ok);
+    void zwiftLoginState(bool ok);
     void pzpLoginState(bool ok);
     void peloton_start_workout();
     void peloton_abort_workout();
@@ -801,6 +861,7 @@ class homeform : public QObject {
     void bluetoothDeviceConnected(bluetoothdevice *b);
     void bluetoothDeviceDisconnected();
     void onToastRequested(QString message);
+    void strava_upload_file_prepare();
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
     void licenseReply(QNetworkReply *reply);
@@ -828,6 +889,7 @@ class homeform : public QObject {
     void changePelotonAskStart(bool value);
     void changePelotonProvider(QString value);
     void toastRequestedChanged(QString value);
+    void stravaUploadRequestedChanged(bool value);
     void generalPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
     void videoIconVisibleChanged(bool value);
@@ -840,8 +902,9 @@ class homeform : public QObject {
     void currentSpeedChanged(double value);
     void mapsVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
-    void pelotonLoginChanged(int ok);
+    void pelotonLoginChanged(int ok);    
     void pzpLoginChanged(int ok);
+    void zwiftLoginChanged(int ok);
     void workoutNameChanged(QString name);
     void workoutStartDateChanged(QString name);
     void instructorNameChanged(QString name);

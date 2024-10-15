@@ -70,15 +70,20 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: 3.10.11
+          python-version: 3.7
       - name: download python and paddleocr
         run: |
           python -VV
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade setuptools
+          python -m pip install "protobuf<=3.20.2,>=3.1.0"
+          python -m pip install paddlepaddle==2.5.1
+          python -m pip install paddleocr
+          python -m pip install imutils
+          python -m pip install "Pillow<10.0.0"
           python -m pip install opencv-python
+          python -m pip install numpy
           python -m pip install pywin32
-          python -m pip install paddlepaddle-gpu==2.4.2.post117 -f https://www.paddlepaddle.org.cn/whl/windows/mkl/avx/stable.html
-          python -m pip install https://files.pythonhosted.org/packages/03/ac/13fbe0ebf110d57a89f055a292d4fe430fee3fb22c56f8c077e63e0c5a4e/paddlepaddle-2.4.2-cp310-cp310-win_amd64.whl
-          python -m pip install paddleocr>=2.0.1
         if: matrix.config.python
 
       - uses: msys2/setup-msys2@v2
@@ -117,16 +122,20 @@ jobs:
             make install
             cd ../..
 
+      - name: Secrets
+        if: github.ref == 'refs/heads/master'
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          cd ..  
+
       - name: Build
         run: |
             qmake
-            cd src
-            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-            cd ..
             make -j8
             cd src/debug
             mkdir output
@@ -144,7 +153,7 @@ jobs:
             cp ../../../windows_openssl/*.* .
             mkdir adb
             mkdir python
-            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.10.11\x64 -Destination python -Recurse
+            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
             cp ../../adb/* adb/
             cd ..
             cd appx
@@ -154,13 +163,6 @@ jobs:
       - name: Build without python
         run: |
             qmake
-            cd src
-            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-            cd ..
             make -j8
             cd src/debug
             mkdir output
@@ -193,21 +195,21 @@ jobs:
         if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-binary
           path: windows-binary.zip
         if: matrix.config.python
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-binary-no-python
           path: windows-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
       # - name: Exit if not on master branch
-      #   if: github.ref == 'refs/heads/main'
+      #   if: github.ref == 'refs/heads/master'
       #   run: exit 1
 
       # - uses: actions/checkout@v3
@@ -335,7 +337,7 @@ jobs:
   # This workflow contains a single job called "build"
   linux-x86-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -431,7 +433,7 @@ jobs:
         run: qmake; make -j8
 
       - name: Archive linux-desktop binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: linux-desktop-binary
           path: src/qdomyos-zwift         
@@ -440,7 +442,7 @@ jobs:
         run: cd tst; GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests; cd ..
 
       - name: Upload test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: test_results_xml
@@ -505,7 +507,7 @@ jobs:
   # This workflow contains a single job called "build"
   android-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -583,21 +585,13 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11'
+          java-version: '11.0.23+9'
           
 #      - name: patching qt for bluetooth
 #        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
-
-      - name: Build qthttpserver
-        run: |
-            cd src/qthttpserver 
-            qmake
-            make -j8
-            make install
-            cd ../..
 
       - name: Set Android NDK 21 && build
         run: |
@@ -620,6 +614,14 @@ jobs:
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+
+          # QTHTTPSERVER must use the same NDK
+          cd src/qthttpserver 
+          qmake
+          make -j8
+          make install
+          cd ../..          
+          
           qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
@@ -628,13 +630,13 @@ jobs:
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
 
       - name: Archive apk binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: fdroid-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
 
       # - name: Exit if not on master branch
-      #   if: github.ref == 'refs/heads/main'
+      #   if: github.ref == 'refs/heads/master'
       #   run: exit 1
 
       # - name: upload windows artifact
@@ -649,7 +651,7 @@ jobs:
 
   ios-build:
     # The type of runner that the job will run on
-    runs-on: macos-latest
+    runs-on: macos-12
     permissions:
       contents: write
 
@@ -763,15 +765,20 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: 3.10.11
+          python-version: 3.7
       - name: download python and paddleocr
         run: |
           python -VV
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade setuptools
+          python -m pip install "protobuf<=3.20.2,>=3.1.0"
+          python -m pip install paddlepaddle==2.5.1
+          python -m pip install paddleocr
+          python -m pip install imutils
+          python -m pip install "Pillow<10.0.0"
           python -m pip install opencv-python
+          python -m pip install numpy
           python -m pip install pywin32
-          python -m pip install paddlepaddle-gpu==2.4.2.post117 -f https://www.paddlepaddle.org.cn/whl/windows/mkl/avx/stable.html
-          python -m pip install https://files.pythonhosted.org/packages/03/ac/13fbe0ebf110d57a89f055a292d4fe430fee3fb22c56f8c077e63e0c5a4e/paddlepaddle-2.4.2-cp310-cp310-win_amd64.whl
-          python -m pip install paddleocr>=2.0.1
         if: matrix.config.python          
 
       - name: Install Qt
@@ -806,16 +813,36 @@ jobs:
             nmake install
             cd ../..          
 
+      - name: Secrets
+        if: github.ref == 'refs/heads/master'
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          cd ..        
+
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg.git
+        working-directory: ${{ runner.workspace }}
+  
+      - name: Bootstrap vcpkg
+        run: .\vcpkg\bootstrap-vcpkg.bat
+        working-directory: ${{ runner.workspace }}
+        
+      - name: Install dependencies
+        run: |
+          .\vcpkg\vcpkg install protobuf protobuf-c abseil
+        working-directory: ${{ runner.workspace }}
+  
       - name: Build
         run: |
-            qmake
-            cd src
-            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-            cd ..
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+            qmake            
             nmake
             cd src/debug
             mkdir output
@@ -828,9 +855,10 @@ jobs:
             cp ../../windows/*.py .
             cp ../../windows/*.bat .
             cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
             mkdir adb
             mkdir python
-            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.10.11\x64 -Destination python -Recurse
+            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
             cp ../../adb/* adb/
             cd ..
             cd appx
@@ -838,15 +866,11 @@ jobs:
         if: matrix.config.python
             
       - name: Build without python
-        run: |
-            qmake
-            cd src
-            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-            cd ..
+        run: |          
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+            qmake           
             nmake
             cd src/debug
             mkdir output
@@ -856,10 +880,11 @@ jobs:
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
-            cp "C:/mingw64/bin/libstdc++-6.dll" .
+            cp "C:/mingw64/bin/libstdc++-6.dll" .              
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
             mkdir adb
             cp ../../adb/* adb/
             cd ..
@@ -879,27 +904,162 @@ jobs:
         if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-msvc2019-binary
           path: windows-msvc2019-binary.zip
         if: matrix.config.python
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-msvc2019-binary-no-python
           path: windows-msvc2019-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
+  window-msvc2019-aiserver-build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: cagnulein/qmdnsengine
+          path: "src/qmdnsengine/"
+          ref: "zwift"   
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
+
+      - uses: actions/checkout@v2
+      - name: Checkout qHttpServer
+        uses: actions/checkout@v2
+        with:
+          repository: qt-labs/qthttpserver
+          path: "src/qthttpserver"      
+
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+  
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '5.15.2'
+          host: 'windows'
+          modules: 'qtnetworkauth qtcharts'
+          target: "desktop"
+          arch: win64_msvc2019_64
+          dir: "${{github.workspace}}/qt/"
+          install-deps: "true"
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-windows'          
+
+      - name: Install MSVC compiler
+        uses: ilammy/msvc-dev-cmd@v1
+        with: 
+          # 14.1 is for vs2017, 14.2 is vs2019, following the upstream vcpkg build from Qv2ray-deps repo
+          toolset: 14.2
+          arch: x64
+
+      - name: download 3rd party files for qthttpserver
+        run: |
+            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+
+      - name: Build qthttpserver
+        run: |
+            cd src\qthttpserver 
+            qmake
+            nmake
+            nmake install
+            cd ../..          
+
+      - name: Secrets
+        if: github.ref == 'refs/heads/master'
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h          
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          cd ..                    
+
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg.git
+        working-directory: ${{ runner.workspace }}
+  
+      - name: Bootstrap vcpkg
+        run: .\vcpkg\bootstrap-vcpkg.bat
+        working-directory: ${{ runner.workspace }}
+        
+      - name: Install dependencies
+        run: |
+          .\vcpkg\vcpkg install protobuf protobuf-c abseil
+        working-directory: ${{ runner.workspace }}
+
+      - name: Build
+        run: |
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+            cd src
+            echo "#define AISERVER" >> aiserver.h
+            cd ..
+            qmake
+            nmake
+            cd src/debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.exe output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .
+            cp ../../AppxManifest.xml .
+            cp ../../windows/zwift-incline-ai-server.py zwift-incline.py
+            cp ../../windows/zwift-incline-climb-portal-ai-server.py zwift-incline-climb-portal.py
+            cp ../../windows/zwift-workout-ai-server.py zwift-workout.py
+            cp ../../windows/*.bat .
+            cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
+            mkdir adb
+            cp ../../adb/* adb/
+            cd ..
+            cd appx
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz                      
+
+      - name: patching qt for bluetooth
+        run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-msvc2019-ai-server-binary.zip
+
+      - name: Archive windows binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msvc2019-ai-server-binary
+          path: windows-msvc2019-ai-server-binary.zip
+
   upload_to_release:
     permissions: write-all
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04 
     if: github.event_name == 'schedule'
     needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build]  # Specify the job dependencies
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       - name: Update nightly release
         uses: andelf/nightly-release@main
         env:
@@ -921,6 +1081,7 @@ jobs:
           files: |
             windows-msvc2019-binary-no-python/*
             windows-msvc2019-binary/*
+            windows-msvc2019-ai-server-binary/*            
             windows-binary-no-python/*
             windows-binary/*
             fdroid-android-trial/*

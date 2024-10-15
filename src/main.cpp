@@ -5,16 +5,17 @@
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
 #include <unistd.h> // getuid
+#include "EventHandler.h"
 #endif
 #endif
 #include <QQmlContext>
 
 #include "bluetooth.h"
-#include "domyostreadmill.h"
+#include "devices/domyostreadmill/domyostreadmill.h"
 #include "homeform.h"
 #include "mainwindow.h"
 #include "qfit.h"
-#include "virtualtreadmill.h"
+#include "virtualdevices/virtualtreadmill.h"
 #include <QDir>
 #include <QGuiApplication>
 #include <QOperatingSystemVersion>
@@ -67,10 +68,11 @@ bool bike_wheel_revs = false;
 bool run_cadence_sensor = false;
 bool nordictrack_10_treadmill = false;
 bool reebok_fr30_treadmill = false;
+QString eventGearDevice = QStringLiteral("");
 QString trainProgram;
 QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
-uint8_t bikeResistanceOffset = 4;
+int8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
 QString logfilename = QStringLiteral("debug-") +
                       QDateTime::currentDateTime()
@@ -147,6 +149,10 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-name")) {
 
             deviceName = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-bluetooth-event-gear-device")) {
+
+            eventGearDevice = argv[++i];
         }
         if (!qstrcmp(argv[i], "-peloton-username")) {
 
@@ -282,7 +288,6 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 }
 
 int main(int argc, char *argv[]) {
-
 #ifdef Q_OS_WIN32
     qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");
 #endif
@@ -318,10 +323,38 @@ int main(int argc, char *argv[]) {
     app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
 
     QSettings settings;
-#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+
+#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
+    QString profileName = "";
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    profileName = lockscreen::get_action_profile();
+    lockscreen::nslog(QString("quick_action profile " + profileName).toLatin1());
+#endif
+#else
+    QAndroidJniObject javaPath = QAndroidJniObject::fromString(homeform::getWritableAppDir());
+    QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Shortcuts", "getProfileExtras",
+                                                "(Landroid/content/Context;)Ljava/lang/String;", QtAndroid::androidContext().object());
+    profileName = r.toString();
+#endif
+    
+    QFileInfo pp(profileName);
+    profileName = pp.baseName();
+    
+    if(profileName.count()) {
+        if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
+            profileToLoad = QUrl::fromLocalFile(homeform::getProfileDir() + "/" + profileName + ".qzs");
+        } else {
+            qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
+        }
+    }
+#endif
+
     if (!profileToLoad.isEmpty()) {
         homeform::loadSettings(profileToLoad);
     }
+
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
 
     if (fit_file_saved_on_quit) {
         settings.setValue(QZSettings::fit_file_saved_on_quit, true);
@@ -333,11 +366,6 @@ int main(int argc, char *argv[]) {
 #endif
     {
         bool defaultNoHeartService = !noHeartService;
-
-        // Android 10 doesn't support multiple services for peripheral mode
-        if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 10)) {
-            settings.setValue(QZSettings::bike_heartrate_service, true);
-        }
 
         // some Android 6 doesn't support wake lock
         if (QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 7) &&
@@ -373,11 +401,11 @@ int main(int argc, char *argv[]) {
         qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
     }
 #endif
-
+    
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email")) {
+        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username")) {
 
             qDebug() << s << settings.value(s);
         }
@@ -532,7 +560,7 @@ int main(int argc, char *argv[]) {
             QtAndroid::requestPermissionsSync(QStringList({"android.permission.POST_NOTIFICATIONS"}));
         if (resultHash["android.permission.POST_NOTIFICATIONS"] == QtAndroid::PermissionResult::Denied)
             qDebug() << "POST_NOTIFICATIONS denied!";
-    }
+    }    
 #endif
 
     /* test virtual echelon
@@ -601,6 +629,11 @@ int main(int argc, char *argv[]) {
         unlockScreen();
 #endif
     }
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    else {
+        bl.homeformLoaded = true;
+    }
+#endif
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (qobject_cast<QApplication *>(app.data())) {
@@ -615,6 +648,13 @@ int main(int argc, char *argv[]) {
     } else {
         // start non-GUI version...
     }
+
+#ifdef Q_OS_LINUX
+#ifndef Q_OS_ANDROID
+    if(eventGearDevice.length())
+        new BluetoothHandler(&bl, eventGearDevice);
+#endif
+#endif
     return app->exec();
 #endif
 }

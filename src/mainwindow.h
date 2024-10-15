@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "domyostreadmill.h"
+#include "devices/domyostreadmill/domyostreadmill.h"
 #include "qdebugfixup.h"
 #include "sessionline.h"
 #include "trainprogram.h"

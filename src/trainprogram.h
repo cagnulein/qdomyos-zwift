@@ -8,9 +8,22 @@
 #include <QTime>
 #include <QTimer>
 
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
+#include "zwift-api/PlayerStateWrapper.h"
+#include "zwift-api/zwift_client_auth.h"
+
+#ifdef Q_CC_MSVC
+#include "zwift-api/zwift_messages.pb.h"
+#endif
+
 class trainrow {
   public:
     QTime duration = QTime(0, 0, 0, 0);
+    QDateTime started = QDateTime();
+    QDateTime ended = QDateTime();
     double distance = -1;
     double speed = -1;
     double lower_speed = -1;   // used for peloton
@@ -63,7 +76,7 @@ class trainprogram : public QObject {
                  bool videoAvailable = false);
     void save(const QString &filename);
     static trainprogram *load(const QString &filename, bluetooth *b, QString Extension);
-    static QList<trainrow> loadXML(const QString &filename);
+    static QList<trainrow> loadXML(const QString &filename, bluetoothdevice::BLUETOOTH_TYPE device_type);
     static bool saveXML(const QString &filename, const QList<trainrow> &rows);
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
@@ -128,8 +141,10 @@ private slots:
     void changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters);
     void changeTimestamp(QTime source, QTime actual);
     void toastRequest(QString message);
+    void zwiftLoginState(bool ok);
 
   private:
+    void end();
     mutable QRecursiveMutex schedulerMutex;
     double avgAzimuthNext300Meters();
     QList<MetersByInclination> inclinationNext300Meters();
@@ -155,6 +170,15 @@ private slots:
 
     QUdpSocket* pelotonOCRsocket = nullptr;
     void pelotonOCRcomputeTime(QString t);
+    
+    AuthToken* zwift_auth_token = nullptr;
+    World* zwift_world = nullptr;
+    int zwift_player_id = -1;
+    
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
+
 };
 
 #endif // TRAINPROGRAM_H

@@ -53,12 +53,17 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_accessibility_support_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_bluetooth.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_bluetooth_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_bodymovin_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_bootstrap_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_charts.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_charts_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_clipboard_support_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_concurrent.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_concurrent_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_core.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_core_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_datavisualization.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_datavisualization_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_devicediscovery_support_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_edid_support_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_eventdispatcher_support_private.pri \
@@ -71,6 +76,9 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_gui_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_help.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_help_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules-inst/qt_lib_httpserver.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules-inst/qt_lib_httpserver_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_httpserver.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_location.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_location_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_macextras.pri \
@@ -95,6 +103,8 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_positioning_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_positioningquick.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_positioningquick_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_purchasing.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_purchasing_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_qml.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_qml_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_qmldebug_private.pri \
@@ -107,6 +117,16 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_qmlworkerscript_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_qtmultimediaquicktools_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3d.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3d_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3dassetimport.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3dassetimport_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3drender.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3drender_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3druntimerender.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3druntimerender_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3dutils.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3dutils_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quickcontrols2.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quickcontrols2_private.pri \
@@ -120,12 +140,21 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_remoteobjects_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_repparser.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_repparser_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_script.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_script_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_scripttools.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_scripttools_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_scxml.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_scxml_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_sensors.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_sensors_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_serialbus.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_serialbus_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_sql.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_sql_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules-inst/qt_lib_sslserver.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules-inst/qt_lib_sslserver_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_sslserver.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_svg.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_svg_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_testlib.pri \
@@ -136,6 +165,8 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_uiplugin.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_uitools.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_uitools_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_virtualkeyboard.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_virtualkeyboard_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_webchannel.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_webchannel_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_websockets.pri \
@@ -194,15 +225,26 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtiff.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtmedia_audioengine.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtmultimedia_m3u.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtpassthrucanbus.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtpeakcanbus.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtposition_cl.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtposition_positionpoll.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtsensorgestures_plugin.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtsensorgestures_shakeplugin.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtsensors_generic.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtsensors_ios.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qttinycanbus.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtuiotouchplugin.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtvirtualcanbus.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtvirtualkeyboard_hangul.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtvirtualkeyboard_openwnn.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtvirtualkeyboard_pinyin.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtvirtualkeyboard_tcime.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtvirtualkeyboard_thai.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtvirtualkeyboardplugin.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtwebview_darwin.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qwbmp.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qwebgl.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qwebp.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_scene2d.pri \
 		../../Qt/5.15.2/ios/mkspecs/features/qt_functions.prf \
@@ -219,6 +261,9 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/mkspecs/features/default_pre.prf \
 		../../Qt/5.15.2/ios/mkspecs/features/mac/default_pre.prf \
 		../../Qt/5.15.2/ios/mkspecs/features/uikit/default_pre.prf \
+		../defaults.pri \
+		../src/purchasing/purchasing.pri \
+		../src/qdomyos-zwift.pri \
 		../../Qt/5.15.2/ios/mkspecs/features/resolve_config.prf \
 		../../Qt/5.15.2/ios/mkspecs/features/uikit/resolve_config.prf \
 		../../Qt/5.15.2/ios/mkspecs/features/default_post.prf \
@@ -226,6 +271,9 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/mkspecs/features/uikit/default_post.prf \
 		../../Qt/5.15.2/ios/mkspecs/macx-ios-clang/features/default_post.prf \
 		../../Qt/5.15.2/ios/mkspecs/features/mac/objective_c.prf \
+		../../Qt/5.15.2/ios/mkspecs/features/qmltypes.prf \
+		../../Qt/5.15.2/ios/mkspecs/features/metatypes.prf \
+		../../Qt/5.15.2/ios/mkspecs/features/ltcg.prf \
 		../../Qt/5.15.2/ios/mkspecs/features/qml_debug.prf \
 		../../Qt/5.15.2/ios/mkspecs/features/mac/mac.prf \
 		../../Qt/5.15.2/ios/mkspecs/features/uikit/bitcode.prf \
@@ -264,6 +312,18 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/lib/libqtharfbuzz_debug.prl \
 		../../Qt/5.15.2/ios/lib/libQt5Core_debug.prl \
 		../../Qt/5.15.2/ios/lib/libqtpcre2_debug.prl \
+		../../Qt/5.15.2/ios/plugins/mediaservice/libqavfmediaplayer_debug.prl \
+		../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_esri_debug.prl \
+		../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_itemsoverlay_debug.prl \
+		../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_mapbox_debug.prl \
+		../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_mapboxgl_debug.prl \
+		../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_nokia_debug.prl \
+		../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_osm_debug.prl \
+		../../Qt/5.15.2/ios/plugins/webview/libqtwebview_darwin_debug.prl \
+		../../Qt/5.15.2/ios/plugins/mediaservice/libqavfcamera_debug.prl \
+		../../Qt/5.15.2/ios/plugins/mediaservice/libqtmedia_audioengine_debug.prl \
+		../../Qt/5.15.2/ios/plugins/audio/libqtaudio_coreaudio_debug.prl \
+		../../Qt/5.15.2/ios/plugins/playlistformats/libqtmultimedia_m3u_debug.prl \
 		../../Qt/5.15.2/ios/plugins/imageformats/libqgif_debug.prl \
 		../../Qt/5.15.2/ios/plugins/imageformats/libqicns_debug.prl \
 		../../Qt/5.15.2/ios/plugins/imageformats/libqico_debug.prl \
@@ -288,32 +348,51 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/plugins/qmltooling/libqmldbg_server_debug.prl \
 		../../Qt/5.15.2/ios/plugins/qmltooling/libqmldbg_tcp_debug.prl \
 		../../Qt/5.15.2/ios/plugins/bearer/libqgenericbearer_debug.prl \
+		../../Qt/5.15.2/ios/plugins/texttospeech/libqtexttospeech_speechios_debug.prl \
+		../../Qt/5.15.2/ios/plugins/sqldrivers/libqsqlite_debug.prl \
+		../../Qt/5.15.2/ios/lib/libQt5HttpServer_debug.prl \
+		../../Qt/5.15.2/ios/lib/libQt5SslServer_debug.prl \
+		../../Qt/5.15.2/ios/lib/libQt5Charts_debug.prl \
 		../../Qt/5.15.2/ios/lib/libQt5Widgets_debug.prl \
+		../../Qt/5.15.2/ios/lib/libQt5Location_debug.prl \
+		../../Qt/5.15.2/ios/lib/libQt5PositioningQuick_debug.prl \
+		../../Qt/5.15.2/ios/lib/libQt5QuickControls2_debug.prl \
 		../../Qt/5.15.2/ios/lib/libQt5Quick_debug.prl \
+		../../Qt/5.15.2/ios/lib/libQt5Multimedia_debug.prl \
+		../../Qt/5.15.2/ios/lib/libQt5WebView_debug.prl \
 		../../Qt/5.15.2/ios/lib/libQt5Bluetooth_debug.prl \
 		../../Qt/5.15.2/ios/lib/libQt5Xml_debug.prl \
 		../../Qt/5.15.2/ios/lib/libQt5Positioning_debug.prl \
 		../../Qt/5.15.2/ios/lib/libQt5QmlModels_debug.prl \
 		../../Qt/5.15.2/ios/lib/libQt5Qml_debug.prl \
 		../../Qt/5.15.2/ios/lib/libQt5NetworkAuth_debug.prl \
+		../../Qt/5.15.2/ios/lib/libQt5WebSockets_debug.prl \
 		../../Qt/5.15.2/ios/lib/libQt5Network_debug.prl \
+		../../Qt/5.15.2/ios/lib/libQt5TextToSpeech_debug.prl \
+		../../Qt/5.15.2/ios/lib/libQt5Concurrent_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQuick.2/libqtquick2plugin_debug.prl \
+		../../Qt/5.15.2/ios/qml/QtQuick/Layouts/libqquicklayoutsplugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/libqtquickcontrols2plugin_debug.prl \
-		../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/Material/libqtquickcontrols2materialstyleplugin_debug.prl \
-		../../Qt/5.15.2/ios/qml/QtGraphicalEffects/libqtgraphicaleffectsplugin_debug.prl \
-		../../Qt/5.15.2/ios/qml/QtQuick/Window.2/libwindowplugin_debug.prl \
+		../../Qt/5.15.2/ios/qml/Qt/labs/settings/libqmlsettingsplugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQml/libqmlplugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQuick/Templates.2/libqtquicktemplates2plugin_debug.prl \
-		../../Qt/5.15.2/ios/qml/QtGraphicalEffects/private/libqtgraphicaleffectsprivate_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQml/Models.2/libmodelsplugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQml/WorkerScript.2/libworkerscriptplugin_debug.prl \
-		../../Qt/5.15.2/ios/qml/QtQuick/Dialogs/libdialogplugin_debug.prl \
+		../../Qt/5.15.2/ios/qml/QtQuick/Window.2/libwindowplugin_debug.prl \
+		../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/Material/libqtquickcontrols2materialstyleplugin_debug.prl \
+		../../Qt/5.15.2/ios/qml/QtWebView/libdeclarative_webview_debug.prl \
+		../../Qt/5.15.2/ios/qml/QtCharts/libqtchartsqml2_debug.prl \
 		../../Qt/5.15.2/ios/qml/Qt/labs/folderlistmodel/libqmlfolderlistmodelplugin_debug.prl \
-		../../Qt/5.15.2/ios/qml/Qt/labs/settings/libqmlsettingsplugin_debug.prl \
+		../../Qt/5.15.2/ios/qml/QtQuick/Dialogs/libdialogplugin_debug.prl \
+		../../Qt/5.15.2/ios/qml/QtPositioning/libdeclarative_positioning_debug.prl \
+		../../Qt/5.15.2/ios/qml/QtLocation/libdeclarative_location_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQuick/Dialogs/Private/libdialogsprivateplugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQuick/Controls/libqtquickcontrolsplugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQuick/PrivateWidgets/libwidgetsplugin_debug.prl \
-		../../Qt/5.15.2/ios/qml/QtQuick/Layouts/libqquicklayoutsplugin_debug.prl \
+		../../Qt/5.15.2/ios/qml/QtGraphicalEffects/libqtgraphicaleffectsplugin_debug.prl \
+		../../Qt/5.15.2/ios/qml/Qt/labs/platform/libqtlabsplatformplugin_debug.prl \
+		../../Qt/5.15.2/ios/qml/QtMultimedia/libdeclarative_multimedia_debug.prl \
+		../../Qt/5.15.2/ios/qml/QtGraphicalEffects/private/libqtgraphicaleffectsprivate_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/Fusion/libqtquickcontrols2fusionstyleplugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/Universal/libqtquickcontrols2universalstyleplugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/Imagine/libqtquickcontrols2imaginestyleplugin_debug.prl
@@ -361,12 +440,17 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_accessibility_support_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_bluetooth.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_bluetooth_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_bodymovin_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_bootstrap_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_charts.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_charts_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_clipboard_support_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_concurrent.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_concurrent_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_core.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_core_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_datavisualization.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_datavisualization_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_devicediscovery_support_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_edid_support_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_eventdispatcher_support_private.pri:
@@ -379,6 +463,9 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_gui_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_help.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_help_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules-inst/qt_lib_httpserver.pri:
+../../Qt/5.15.2/ios/mkspecs/modules-inst/qt_lib_httpserver_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_httpserver.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_location.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_location_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_macextras.pri:
@@ -403,6 +490,8 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_positioning_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_positioningquick.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_positioningquick_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_purchasing.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_purchasing_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_qml.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_qml_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_qmldebug_private.pri:
@@ -415,6 +504,16 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_qmlworkerscript_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_qtmultimediaquicktools_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3d.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3d_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3dassetimport.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3dassetimport_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3drender.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3drender_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3druntimerender.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3druntimerender_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3dutils.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick3dutils_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quick_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quickcontrols2.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_quickcontrols2_private.pri:
@@ -428,12 +527,21 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_remoteobjects_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_repparser.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_repparser_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_script.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_script_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_scripttools.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_scripttools_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_scxml.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_scxml_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_sensors.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_sensors_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_serialbus.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_serialbus_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_sql.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_sql_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules-inst/qt_lib_sslserver.pri:
+../../Qt/5.15.2/ios/mkspecs/modules-inst/qt_lib_sslserver_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_sslserver.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_svg.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_svg_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_testlib.pri:
@@ -444,6 +552,8 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_uiplugin.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_uitools.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_uitools_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_virtualkeyboard.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_virtualkeyboard_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_webchannel.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_webchannel_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_websockets.pri:
@@ -502,15 +612,26 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtiff.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtmedia_audioengine.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtmultimedia_m3u.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtpassthrucanbus.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtpeakcanbus.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtposition_cl.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtposition_positionpoll.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtsensorgestures_plugin.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtsensorgestures_shakeplugin.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtsensors_generic.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtsensors_ios.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qttinycanbus.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtuiotouchplugin.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtvirtualcanbus.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtvirtualkeyboard_hangul.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtvirtualkeyboard_openwnn.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtvirtualkeyboard_pinyin.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtvirtualkeyboard_tcime.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtvirtualkeyboard_thai.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtvirtualkeyboardplugin.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qtwebview_darwin.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qwbmp.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qwebgl.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_qwebp.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_plugin_scene2d.pri:
 ../../Qt/5.15.2/ios/mkspecs/features/qt_functions.prf:
@@ -527,6 +648,9 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/mkspecs/features/default_pre.prf:
 ../../Qt/5.15.2/ios/mkspecs/features/mac/default_pre.prf:
 ../../Qt/5.15.2/ios/mkspecs/features/uikit/default_pre.prf:
+../defaults.pri:
+../src/purchasing/purchasing.pri:
+../src/qdomyos-zwift.pri:
 ../../Qt/5.15.2/ios/mkspecs/features/resolve_config.prf:
 ../../Qt/5.15.2/ios/mkspecs/features/uikit/resolve_config.prf:
 ../../Qt/5.15.2/ios/mkspecs/features/default_post.prf:
@@ -534,6 +658,9 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/mkspecs/features/uikit/default_post.prf:
 ../../Qt/5.15.2/ios/mkspecs/macx-ios-clang/features/default_post.prf:
 ../../Qt/5.15.2/ios/mkspecs/features/mac/objective_c.prf:
+../../Qt/5.15.2/ios/mkspecs/features/qmltypes.prf:
+../../Qt/5.15.2/ios/mkspecs/features/metatypes.prf:
+../../Qt/5.15.2/ios/mkspecs/features/ltcg.prf:
 ../../Qt/5.15.2/ios/mkspecs/features/qml_debug.prf:
 ../../Qt/5.15.2/ios/mkspecs/features/mac/mac.prf:
 ../../Qt/5.15.2/ios/mkspecs/features/uikit/bitcode.prf:
@@ -572,6 +699,18 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/lib/libqtharfbuzz_debug.prl:
 ../../Qt/5.15.2/ios/lib/libQt5Core_debug.prl:
 ../../Qt/5.15.2/ios/lib/libqtpcre2_debug.prl:
+../../Qt/5.15.2/ios/plugins/mediaservice/libqavfmediaplayer_debug.prl:
+../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_esri_debug.prl:
+../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_itemsoverlay_debug.prl:
+../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_mapbox_debug.prl:
+../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_mapboxgl_debug.prl:
+../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_nokia_debug.prl:
+../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_osm_debug.prl:
+../../Qt/5.15.2/ios/plugins/webview/libqtwebview_darwin_debug.prl:
+../../Qt/5.15.2/ios/plugins/mediaservice/libqavfcamera_debug.prl:
+../../Qt/5.15.2/ios/plugins/mediaservice/libqtmedia_audioengine_debug.prl:
+../../Qt/5.15.2/ios/plugins/audio/libqtaudio_coreaudio_debug.prl:
+../../Qt/5.15.2/ios/plugins/playlistformats/libqtmultimedia_m3u_debug.prl:
 ../../Qt/5.15.2/ios/plugins/imageformats/libqgif_debug.prl:
 ../../Qt/5.15.2/ios/plugins/imageformats/libqicns_debug.prl:
 ../../Qt/5.15.2/ios/plugins/imageformats/libqico_debug.prl:
@@ -596,32 +735,51 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/plugins/qmltooling/libqmldbg_server_debug.prl:
 ../../Qt/5.15.2/ios/plugins/qmltooling/libqmldbg_tcp_debug.prl:
 ../../Qt/5.15.2/ios/plugins/bearer/libqgenericbearer_debug.prl:
+../../Qt/5.15.2/ios/plugins/texttospeech/libqtexttospeech_speechios_debug.prl:
+../../Qt/5.15.2/ios/plugins/sqldrivers/libqsqlite_debug.prl:
+../../Qt/5.15.2/ios/lib/libQt5HttpServer_debug.prl:
+../../Qt/5.15.2/ios/lib/libQt5SslServer_debug.prl:
+../../Qt/5.15.2/ios/lib/libQt5Charts_debug.prl:
 ../../Qt/5.15.2/ios/lib/libQt5Widgets_debug.prl:
+../../Qt/5.15.2/ios/lib/libQt5Location_debug.prl:
+../../Qt/5.15.2/ios/lib/libQt5PositioningQuick_debug.prl:
+../../Qt/5.15.2/ios/lib/libQt5QuickControls2_debug.prl:
 ../../Qt/5.15.2/ios/lib/libQt5Quick_debug.prl:
+../../Qt/5.15.2/ios/lib/libQt5Multimedia_debug.prl:
+../../Qt/5.15.2/ios/lib/libQt5WebView_debug.prl:
 ../../Qt/5.15.2/ios/lib/libQt5Bluetooth_debug.prl:
 ../../Qt/5.15.2/ios/lib/libQt5Xml_debug.prl:
 ../../Qt/5.15.2/ios/lib/libQt5Positioning_debug.prl:
 ../../Qt/5.15.2/ios/lib/libQt5QmlModels_debug.prl:
 ../../Qt/5.15.2/ios/lib/libQt5Qml_debug.prl:
 ../../Qt/5.15.2/ios/lib/libQt5NetworkAuth_debug.prl:
+../../Qt/5.15.2/ios/lib/libQt5WebSockets_debug.prl:
 ../../Qt/5.15.2/ios/lib/libQt5Network_debug.prl:
+../../Qt/5.15.2/ios/lib/libQt5TextToSpeech_debug.prl:
+../../Qt/5.15.2/ios/lib/libQt5Concurrent_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQuick.2/libqtquick2plugin_debug.prl:
+../../Qt/5.15.2/ios/qml/QtQuick/Layouts/libqquicklayoutsplugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/libqtquickcontrols2plugin_debug.prl:
-../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/Material/libqtquickcontrols2materialstyleplugin_debug.prl:
-../../Qt/5.15.2/ios/qml/QtGraphicalEffects/libqtgraphicaleffectsplugin_debug.prl:
-../../Qt/5.15.2/ios/qml/QtQuick/Window.2/libwindowplugin_debug.prl:
+../../Qt/5.15.2/ios/qml/Qt/labs/settings/libqmlsettingsplugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQml/libqmlplugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQuick/Templates.2/libqtquicktemplates2plugin_debug.prl:
-../../Qt/5.15.2/ios/qml/QtGraphicalEffects/private/libqtgraphicaleffectsprivate_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQml/Models.2/libmodelsplugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQml/WorkerScript.2/libworkerscriptplugin_debug.prl:
-../../Qt/5.15.2/ios/qml/QtQuick/Dialogs/libdialogplugin_debug.prl:
+../../Qt/5.15.2/ios/qml/QtQuick/Window.2/libwindowplugin_debug.prl:
+../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/Material/libqtquickcontrols2materialstyleplugin_debug.prl:
+../../Qt/5.15.2/ios/qml/QtWebView/libdeclarative_webview_debug.prl:
+../../Qt/5.15.2/ios/qml/QtCharts/libqtchartsqml2_debug.prl:
 ../../Qt/5.15.2/ios/qml/Qt/labs/folderlistmodel/libqmlfolderlistmodelplugin_debug.prl:
-../../Qt/5.15.2/ios/qml/Qt/labs/settings/libqmlsettingsplugin_debug.prl:
+../../Qt/5.15.2/ios/qml/QtQuick/Dialogs/libdialogplugin_debug.prl:
+../../Qt/5.15.2/ios/qml/QtPositioning/libdeclarative_positioning_debug.prl:
+../../Qt/5.15.2/ios/qml/QtLocation/libdeclarative_location_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQuick/Dialogs/Private/libdialogsprivateplugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQuick/Controls/libqtquickcontrolsplugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQuick/PrivateWidgets/libwidgetsplugin_debug.prl:
-../../Qt/5.15.2/ios/qml/QtQuick/Layouts/libqquicklayoutsplugin_debug.prl:
+../../Qt/5.15.2/ios/qml/QtGraphicalEffects/libqtgraphicaleffectsplugin_debug.prl:
+../../Qt/5.15.2/ios/qml/Qt/labs/platform/libqtlabsplatformplugin_debug.prl:
+../../Qt/5.15.2/ios/qml/QtMultimedia/libdeclarative_multimedia_debug.prl:
+../../Qt/5.15.2/ios/qml/QtGraphicalEffects/private/libqtgraphicaleffectsprivate_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/Fusion/libqtquickcontrols2fusionstyleplugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/Universal/libqtquickcontrols2universalstyleplugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/Imagine/libqtquickcontrols2imaginestyleplugin_debug.prl:
