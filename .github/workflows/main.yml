@@ -405,32 +405,6 @@ jobs:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
 
-      - name: Install Qt6 repository
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y software-properties-common
-          sudo add-apt-repository ppa:beineri/opt-qt-6.5.1-focal -y
-
-      - name: Install Qt6 packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            qt6-base-dev \
-            qt6-declarative-dev \
-            qt6-tools-dev \
-            qt6-tools-dev-tools \
-            qt6-scxml-dev \
-            qt6-connectivity-dev \
-            qt6-websockets-dev \
-            qt6-positioning-dev \
-            qt6-charts-dev \
-            libgl1-mesa-dev
-
-      - name: Set up Qt6 environment
-        run: |
-          echo 'export PATH=/opt/qt615/bin:$PATH' >> $GITHUB_ENV
-          echo 'export LD_LIBRARY_PATH=/opt/qt615/lib:$LD_LIBRARY_PATH' >> $GITHUB_ENV          
-
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qt6-base-dev qtchooser qmake6 qt6-base-dev-tools qml6-module-qtquick-controls libqt6bluetooth6 libqt6widgets6 libqt6positioning6 libqt6xml6 qt6-connectivity-dev qt6-positioning-dev libqt6charts6-dev libqt6charts6 libqt6networkauth6-dev libqt6websockets6-dev libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
 
@@ -593,32 +567,6 @@ jobs:
       #- uses: nttld/setup-ndk@v1
 #        with:
 #          ndk-version: r21d
-
-      - name: Install Qt6 repository
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y software-properties-common
-          sudo add-apt-repository ppa:beineri/opt-qt-6.5.1-focal -y
-
-      - name: Install Qt6 packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            qt6-base-dev \
-            qt6-declarative-dev \
-            qt6-tools-dev \
-            qt6-tools-dev-tools \
-            qt6-scxml-dev \
-            qt6-connectivity-dev \
-            qt6-websockets-dev \
-            qt6-positioning-dev \
-            qt6-charts-dev \
-            libgl1-mesa-dev
-
-      - name: Set up Qt6 environment
-        run: |
-          echo 'export PATH=/opt/qt615/bin:$PATH' >> $GITHUB_ENV
-          echo 'export LD_LIBRARY_PATH=/opt/qt615/lib:$LD_LIBRARY_PATH' >> $GITHUB_ENV
 
 # waiting github.com/jurplel/install-qt-action/issues/63
       - name: Install Qt Android
