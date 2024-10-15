@@ -1675,6 +1675,19 @@ import QtQuick.Dialogs 1.0
                                 }
                             }
 
+                            Label {
+                                text: qsTr("Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
                             AccordionElement {
                                 id: heartRatemaxOverrideAccordion
                                 title: qsTr("Heart Rate Max Override")
