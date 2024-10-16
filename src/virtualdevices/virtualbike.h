@@ -59,6 +59,8 @@ class virtualbike : public virtualdevice {
     QLowEnergyServiceData serviceDataChanged;
     QLowEnergyServiceData serviceEchelon;
     QLowEnergyServiceData serviceDataZwiftPlayBike;
+    QLowEnergyCharacteristic zwiftPlayRead;
+    QLowEnergyCharacteristic zwiftPlayIndicate;
     QTimer bikeTimer;
     bluetoothdevice *Bike;
     CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
@@ -76,6 +78,7 @@ class virtualbike : public virtualdevice {
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     DirconManager *dirconManager = 0;
+    uint8_t CurrentZwiftGear = 12;
     int iFit_pelotonToBikeResistance(int pelotonResistance);
     int iFit_resistanceToIfit(int ifitResistance);
     qint64 iFit_timer = 0;
@@ -83,6 +86,8 @@ class virtualbike : public virtualdevice {
     QByteArray iFit_LastFrameReceived;
     resistance_t iFit_LastResistanceRequested = 0;
     bool iFit_Stop = false;
+
+    void handleZwiftGear(const QByteArray &array);
 
     bool echelonInitDone = false;
     void echelonWriteResistance();
