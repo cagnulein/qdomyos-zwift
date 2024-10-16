@@ -104,7 +104,7 @@ public:
     /**
      * @brief Calls the initializer for the device if it is defined.
      */
-    void Initialize();
+    void InitializeDevice() const;
 
     virtual ~BluetoothDeviceTestData();
 };

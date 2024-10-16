@@ -79,7 +79,7 @@ std::vector<DeviceDiscoveryInfo> BluetoothDeviceTestData::ApplyConfigurations(co
     return result;
 }
 
-void BluetoothDeviceTestData::Initialize()
+void BluetoothDeviceTestData::InitializeDevice() const
 {
     if(this->initializer!=nullptr)
         this->initializer();

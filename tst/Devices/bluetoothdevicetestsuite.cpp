@@ -115,6 +115,7 @@ void BluetoothDeviceTestSuite::SetUp() {
     if(skipMessage!=nullptr)
         GTEST_SKIP() << skipMessage.toStdString();
 
+    this->testParam->InitializeDevice();
 
     this->defaultDiscoveryOptions = discoveryoptions{};
     this->defaultDiscoveryOptions.startDiscovery = false;

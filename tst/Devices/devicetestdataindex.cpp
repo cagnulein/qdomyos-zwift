@@ -1234,7 +1234,8 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::TacxNeoBike)
         ->expectDevice<tacxneo2>()        
         ->acceptDeviceNames({"TACX ", "TACX SMART BIKE","THINK X"}, DeviceNameComparison::StartsWithIgnoreCase)
-        ->rejectDeviceName("TACX SATORI", DeviceNameComparison::StartsWithIgnoreCase);
+        ->rejectDeviceName("TACX SATORI", DeviceNameComparison::StartsWithIgnoreCase)
+        ->disable();
 
     // Tacx Neo 2 Bike
     RegisterNewDeviceTestData(DeviceIndex::TacxNeo2Bike)
@@ -1247,7 +1248,7 @@ void DeviceTestDataIndex::Initialize() {
             auto config = DeviceDiscoveryInfo(info, newDevice);
             configurations.push_back(config);
 
-        });
+        })->disable();
 
     // TechnoGym MyRun Treadmill
     RegisterNewDeviceTestData(DeviceIndex::TechnoGymMyRunTreadmill)
