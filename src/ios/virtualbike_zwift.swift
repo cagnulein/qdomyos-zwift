@@ -85,7 +85,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     public var CurrentCadence: UInt16! = 0
     public var CurrentResistance: UInt8! = 0
     public var CurrentWatt: UInt16! = 0
-    public var CurrentZwiftGear: UInt8! = 12
+    public var CurrentZwiftGear: UInt8! = 8
     
   private var CSCService: CBMutableService!
   private var CSCFeatureCharacteristic: CBMutableCharacteristic!

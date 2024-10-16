@@ -76,7 +76,7 @@ class virtualbike : public virtualdevice {
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     DirconManager *dirconManager = 0;
-    uint8_t CurrentZwiftGear = 12;
+    uint8_t CurrentZwiftGear = 8;
     int iFit_pelotonToBikeResistance(int pelotonResistance);
     int iFit_resistanceToIfit(int ifitResistance);
     qint64 iFit_timer = 0;
