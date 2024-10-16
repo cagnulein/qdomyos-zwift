@@ -202,26 +202,26 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     charData.setUuid(QBluetoothUuid(QStringLiteral("00000003-19ca-4651-86e5-fa29dcdd09d1")));
                     charData.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::WriteNoResponse);
 
-                    QLowEnergyCharacteristicData zwiftPlayRead;
-                    zwiftPlayRead.setUuid(QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")));
-                    zwiftPlayRead.setProperties(QLowEnergyCharacteristic::Notify);
+                    QLowEnergyCharacteristicData charData2;
+                    charData2.setUuid(QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")));
+                    charData2.setProperties(QLowEnergyCharacteristic::Notify);
                     const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
-                    zwiftPlayRead.addDescriptor(clientConfig2);
+                    charData2.addDescriptor(clientConfig2);
 
-                    QLowEnergyCharacteristicData zwiftPlayIndicate;
-                    zwiftPlayIndicate.setUuid(QBluetoothUuid(QStringLiteral("00000004-19ca-4651-86e5-fa29dcdd09d1")));
-                    zwiftPlayIndicate.setProperties(QLowEnergyCharacteristic::Indicate);
+                    QLowEnergyCharacteristicData charData3;
+                    charData3.setUuid(QBluetoothUuid(QStringLiteral("00000004-19ca-4651-86e5-fa29dcdd09d1")));
+                    charData3.setProperties(QLowEnergyCharacteristic::Indicate);
                     QByteArray descriptorIndicate;
                     descriptorIndicate.append((char)0x02);
                     descriptorIndicate.append((char)0x00);
                     const QLowEnergyDescriptorData clientConfig3(QBluetoothUuid::ClientCharacteristicConfiguration, descriptorIndicate);
-                    zwiftPlayIndicate.addDescriptor(clientConfig3);
+                    charData3.addDescriptor(clientConfig3);
 
                     serviceDataZwiftPlayBike.setType(QLowEnergyServiceData::ServiceTypePrimary);
                     serviceDataZwiftPlayBike.setUuid(QBluetoothUuid(QStringLiteral("00000001-19ca-4651-86e5-fa29dcdd09d1")));
                     serviceDataZwiftPlayBike.addCharacteristic(charData);
-                    serviceDataZwiftPlayBike.addCharacteristic(zwiftPlayRead);
-                    serviceDataZwiftPlayBike.addCharacteristic(zwiftPlayIndicate);
+                    serviceDataZwiftPlayBike.addCharacteristic(charData2);
+                    serviceDataZwiftPlayBike.addCharacteristic(charData3);
                 } else if (power) {
 
                     QLowEnergyCharacteristicData charData;
@@ -842,6 +842,12 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         static const QByteArray expectedHexArray7 = QByteArray::fromHex("042A0310");
 
         QByteArray receivedData = newValue;
+
+        QLowEnergyCharacteristic zwiftPlayRead =
+            serviceZwiftPlayBike->characteristic(QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")));
+
+        QLowEnergyCharacteristic zwiftPlayIndicate =
+            serviceZwiftPlayBike->characteristic(QBluetoothUuid(QStringLiteral("00000004-19ca-4651-86e5-fa29dcdd09d1")));
 
         if (receivedData.startsWith(expectedHexArray)) {
             qDebug() << "Zwift Play Ask 1";
