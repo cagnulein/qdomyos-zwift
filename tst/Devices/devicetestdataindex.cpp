@@ -7,6 +7,7 @@
 #include "bluetoothdevicetestdatabuilder.h"
 #include "devicediscoveryinfo.h"
 #include "qzsettings.h"
+#include "TrixterXDreamBike/trixterxdreamv1bikestub.h"
 
 
 
@@ -1233,7 +1234,8 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::TacxNeoBike)
         ->expectDevice<tacxneo2>()        
         ->acceptDeviceNames({"TACX ", "TACX SMART BIKE","THINK X"}, DeviceNameComparison::StartsWithIgnoreCase)
-        ->rejectDeviceName("TACX SATORI", DeviceNameComparison::StartsWithIgnoreCase);
+        ->rejectDeviceName("TACX SATORI", DeviceNameComparison::StartsWithIgnoreCase)
+        ->disable();
 
     // Tacx Neo 2 Bike
     RegisterNewDeviceTestData(DeviceIndex::TacxNeo2Bike)
@@ -1246,7 +1248,7 @@ void DeviceTestDataIndex::Initialize() {
             auto config = DeviceDiscoveryInfo(info, newDevice);
             configurations.push_back(config);
 
-        });
+        })->disable();
 
     // TechnoGym MyRun Treadmill
     RegisterNewDeviceTestData(DeviceIndex::TechnoGymMyRunTreadmill)
@@ -1265,6 +1267,17 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<toorxtreadmill>()        
         ->acceptDeviceName("TRX ROUTE KEY", DeviceNameComparison::StartsWith)
         ->acceptDeviceNames({"BH DUALKIT TREAD", "BH-TR-", "MASTERT40-"}, DeviceNameComparison::StartsWithIgnoreCase);
+
+    // Trixter X-Dream V1 Bike
+    RegisterNewDeviceTestData(DeviceIndex::TrixterXDreamV1Bike)
+        ->expectDevice<trixterxdreamv1bike>()
+        ->initializeWith([]() -> void {
+            // use the test serial data source because the bike won't be there usually, during test runs.
+            trixterxdreamv1serial::serialDataSourceFactory = TrixterXDreamV1BikeStub::create;
+        })
+        ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith(trixterxdreamv1settings::keys::Enabled)
+        ->useNonBluetoothDiscovery();
 
     // True Treadmill
     RegisterNewDeviceTestData(DeviceIndex::TrueTreadmill)

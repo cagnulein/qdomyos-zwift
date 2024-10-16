@@ -2,6 +2,7 @@
 
 #include "devicediscoveryinfo.h"
 #include "qzsettings.h"
+#include "trixterxdreamv1bike/trixterxdreamv1settings.h"
 
 static QMap<QString, QVariant> trackedSettings;
 
@@ -51,6 +52,19 @@ void InitializeTrackedSettings()
     trackedSettings.insert(QZSettings::toorx_bike, QZSettings::default_toorx_bike);
     trackedSettings.insert(QZSettings::toorx_ftms, QZSettings::default_toorx_ftms);
     trackedSettings.insert(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill);
+
+
+    trackedSettings.insert(trixterxdreamv1settings::keys::Enabled, trixterxdreamv1settings::DefaultEnabled );
+    trackedSettings.insert(trixterxdreamv1settings::keys::HeartRateEnabled,trixterxdreamv1settings::DefaultHeartRateEnabled);
+    trackedSettings.insert(trixterxdreamv1settings::keys::SteeringEnabled,trixterxdreamv1settings::DefaultSteeringEnabled);
+    trackedSettings.insert(trixterxdreamv1settings::keys::SteeringCalibrationLeft,trixterxdreamv1settings::DefaultSteeringCalibrationL);
+    trackedSettings.insert(trixterxdreamv1settings::keys::SteeringCalibrationCenterLeft,trixterxdreamv1settings::DefaultSteeringCalibrationCR);
+    trackedSettings.insert(trixterxdreamv1settings::keys::SteeringCalibrationCenterRight, trixterxdreamv1settings::DefaultSteeringCalibrationCR);
+    trackedSettings.insert(trixterxdreamv1settings::keys::SteeringCalibrationRight, trixterxdreamv1settings::DefaultSteeringCalibrationR);
+    trackedSettings.insert(trixterxdreamv1settings::keys::SteeringCalibrationMAX, trixterxdreamv1settings::MaxSteeringAngle);
+    trackedSettings.insert(trixterxdreamv1settings::keys::ConnectionTimeoutMilliseconds, trixterxdreamv1settings::DefaultConnectionTimeoutMilliseconds);
+
+
 };
 
 static void AssertKeyIsTracked(const QString& key) {
