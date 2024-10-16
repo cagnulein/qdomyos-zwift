@@ -567,10 +567,14 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         }
 
         
-        if(g < self.CurrentZwiftGear) {
-            SwiftDebug.gearDown();
-        } else if(g > self.CurrentZwiftGear) {
-            SwiftDebug.gearUp();
+        if (g < self.CurrentZwiftGear) {
+            for _ in 0..<(self.CurrentZwiftGear - g) {
+                SwiftDebug.gearDown()
+            }
+        } else if (g > self.CurrentZwiftGear) {
+            for _ in 0..<(g - self.CurrentZwiftGear) {
+                SwiftDebug.gearUp()
+            }
         }
         self.CurrentZwiftGear = g
     }
