@@ -886,7 +886,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
             QByteArray slope(2, 0);
             slope[0] = receivedData[4];
-            if (receivedData[2] == (uint8_t)0x03) {
+            if (receivedData.at(2) == (uint8_t)0x03) {
                 slope[1] = receivedData[5];
             }
             double CurrentSlope = (qint16(slope[0]) + ((qint16(slope[1]) << 8) & 0xFF00)) / 4.0;
@@ -1026,30 +1026,30 @@ void virtualbike::handleZwiftGear(const QByteArray &array)
 {
     uint8_t g = 0;
     if (array.size() >= 3) {
-        if (array[0] == (uint8_t)0xCC && array[1] == (uint8_t)0x3A) g = 1;
-        else if (array[0] == (uint8_t)0xFC && array[1] == (uint8_t)0x43) g = 2;
-        else if (array[0] == (uint8_t)0xAC && array[1] == (uint8_t)0x4D) g = 3;
-        else if (array[0] == (uint8_t)0xD5 && array[1] == (uint8_t)0x56) g = 4;
-        else if (array[0] == (uint8_t)0x8C && array[1] == (uint8_t)0x60) g = 5;
-        else if (array[0] == (uint8_t)0xE8 && array[1] == (uint8_t)0x6B) g = 6;
-        else if (array[0] == (uint8_t)0xC4 && array[1] == (uint8_t)0x77) g = 7;
-        else if (array[0] == (uint8_t)0xA0 && array[1] == (uint8_t)0x83 && array[2] == (uint8_t)0x01) g = 8;
-        else if (array[0] == (uint8_t)0xA8 && array[1] == (uint8_t)0x91 && array[2] == (uint8_t)0x01) g = 9;
-        else if (array[0] == (uint8_t)0xB0 && array[1] == (uint8_t)0x9F && array[2] == (uint8_t)0x01) g = 10;
-        else if (array[0] == (uint8_t)0xB8 && array[1] == (uint8_t)0xAD && array[2] == (uint8_t)0x01) g = 11;
-        else if (array[0] == (uint8_t)0xC0 && array[1] == (uint8_t)0xBB && array[2] == (uint8_t)0x01) g = 12;
-        else if (array[0] == (uint8_t)0xF3 && array[1] == (uint8_t)0xCB && array[2] == (uint8_t)0x01) g = 13;
-        else if (array[0] == (uint8_t)0xA8 && array[1] == (uint8_t)0xDC && array[2] == (uint8_t)0x01) g = 14;
-        else if (array[0] == (uint8_t)0xDC && array[1] == (uint8_t)0xEC && array[2] == (uint8_t)0x01) g = 15;
-        else if (array[0] == (uint8_t)0x90 && array[1] == (uint8_t)0xFD && array[2] == (uint8_t)0x01) g = 16;
-        else if (array[0] == (uint8_t)0xD4 && array[1] == (uint8_t)0x90 && array[2] == (uint8_t)0x02) g = 17;
-        else if (array[0] == (uint8_t)0x98 && array[1] == (uint8_t)0xA4 && array[2] == (uint8_t)0x02) g = 18;
-        else if (array[0] == (uint8_t)0xDC && array[1] == (uint8_t)0xB7 && array[2] == (uint8_t)0x02) g = 19;
-        else if (array[0] == (uint8_t)0x9F && array[1] == (uint8_t)0xCB && array[2] == (uint8_t)0x02) g = 20;
-        else if (array[0] == (uint8_t)0xD8 && array[1] == (uint8_t)0xE2 && array[2] == (uint8_t)0x02) g = 21;
-        else if (array[0] == (uint8_t)0x90 && array[1] == (uint8_t)0xFA && array[2] == (uint8_t)0x02) g = 22;
-        else if (array[0] == (uint8_t)0xC8 && array[1] == (uint8_t)0x91 && array[2] == (uint8_t)0x03) g = 23;
-        else if (array[0] == (uint8_t)0xF3 && array[1] == (uint8_t)0xAC && array[2] == (uint8_t)0x03) g = 24;
+        if ((uint8_t)array[0] == (uint8_t)0xCC && (uint8_t)array[1] == (uint8_t)0x3A) g = 1;
+        else if ((uint8_t)array[0] == (uint8_t)0xFC && (uint8_t)array[1] == (uint8_t)0x43) g = 2;
+        else if ((uint8_t)array[0] == (uint8_t)0xAC && (uint8_t)array[1] == (uint8_t)0x4D) g = 3;
+        else if ((uint8_t)array[0] == (uint8_t)0xD5 && (uint8_t)array[1] == (uint8_t)0x56) g = 4;
+        else if ((uint8_t)array[0] == (uint8_t)0x8C && (uint8_t)array[1] == (uint8_t)0x60) g = 5;
+        else if ((uint8_t)array[0] == (uint8_t)0xE8 && (uint8_t)array[1] == (uint8_t)0x6B) g = 6;
+        else if ((uint8_t)array[0] == (uint8_t)0xC4 && (uint8_t)array[1] == (uint8_t)0x77) g = 7;
+        else if ((uint8_t)array[0] == (uint8_t)0xA0 && (uint8_t)array[1] == (uint8_t)0x83 && (uint8_t)array[2] == (uint8_t)0x01) g = 8;
+        else if ((uint8_t)array[0] == (uint8_t)0xA8 && (uint8_t)array[1] == (uint8_t)0x91 && (uint8_t)array[2] == (uint8_t)0x01) g = 9;
+        else if ((uint8_t)array[0] == (uint8_t)0xB0 && (uint8_t)array[1] == (uint8_t)0x9F && (uint8_t)array[2] == (uint8_t)0x01) g = 10;
+        else if ((uint8_t)array[0] == (uint8_t)0xB8 && (uint8_t)array[1] == (uint8_t)0xAD && (uint8_t)array[2] == (uint8_t)0x01) g = 11;
+        else if ((uint8_t)array[0] == (uint8_t)0xC0 && (uint8_t)array[1] == (uint8_t)0xBB && (uint8_t)array[2] == (uint8_t)0x01) g = 12;
+        else if ((uint8_t)array[0] == (uint8_t)0xF3 && (uint8_t)array[1] == (uint8_t)0xCB && (uint8_t)array[2] == (uint8_t)0x01) g = 13;
+        else if ((uint8_t)array[0] == (uint8_t)0xA8 && (uint8_t)array[1] == (uint8_t)0xDC && (uint8_t)array[2] == (uint8_t)0x01) g = 14;
+        else if ((uint8_t)array[0] == (uint8_t)0xDC && (uint8_t)array[1] == (uint8_t)0xEC && (uint8_t)array[2] == (uint8_t)0x01) g = 15;
+        else if ((uint8_t)array[0] == (uint8_t)0x90 && (uint8_t)array[1] == (uint8_t)0xFD && (uint8_t)array[2] == (uint8_t)0x01) g = 16;
+        else if ((uint8_t)array[0] == (uint8_t)0xD4 && (uint8_t)array[1] == (uint8_t)0x90 && (uint8_t)array[2] == (uint8_t)0x02) g = 17;
+        else if ((uint8_t)array[0] == (uint8_t)0x98 && (uint8_t)array[1] == (uint8_t)0xA4 && (uint8_t)array[2] == (uint8_t)0x02) g = 18;
+        else if ((uint8_t)array[0] == (uint8_t)0xDC && (uint8_t)array[1] == (uint8_t)0xB7 && (uint8_t)array[2] == (uint8_t)0x02) g = 19;
+        else if ((uint8_t)array[0] == (uint8_t)0x9F && (uint8_t)array[1] == (uint8_t)0xCB && (uint8_t)array[2] == (uint8_t)0x02) g = 20;
+        else if ((uint8_t)array[0] == (uint8_t)0xD8 && (uint8_t)array[1] == (uint8_t)0xE2 && (uint8_t)array[2] == (uint8_t)0x02) g = 21;
+        else if ((uint8_t)array[0] == (uint8_t)0x90 && (uint8_t)array[1] == (uint8_t)0xFA && (uint8_t)array[2] == (uint8_t)0x02) g = 22;
+        else if ((uint8_t)array[0] == (uint8_t)0xC8 && (uint8_t)array[1] == (uint8_t)0x91 && (uint8_t)array[2] == (uint8_t)0x03) g = 23;
+        else if ((uint8_t)array[0] == (uint8_t)0xF3 && (uint8_t)array[1] == (uint8_t)0xAC && (uint8_t)array[2] == (uint8_t)0x03) g = 24;
     }
 
     if (g < CurrentZwiftGear) {
