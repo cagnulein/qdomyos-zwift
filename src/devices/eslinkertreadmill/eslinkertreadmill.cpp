@@ -506,6 +506,12 @@ void eslinkertreadmill::btinit(bool startTape) {
         uint8_t initData5[] = {0xa9, 0x08, 0x01, 0xad, 0x0d};
         writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
 
+        QThread::msleep(400);
+
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+
+        QThread::msleep(400);
+
         uint8_t initData6[] = {0xa9, 0x08, 0x04, 0x0c, 0x06, 0x48, 0x12, 0xf5};
         writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
 

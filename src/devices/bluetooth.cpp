@@ -1174,6 +1174,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("KS-SC-BLR2C")) ||                        
                         !b.name().toUpper().compare(QStringLiteral("RE")) || // just "RE"
                         b.name().toUpper().startsWith(QStringLiteral("KS-H")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("KS-F0")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-BLC")) || // Walkingpad C2 #1672
                         b.name().toUpper().startsWith(
                             QStringLiteral("KS-BLR"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
@@ -1326,6 +1327,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("DOMYOS-TC")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && !settings.value(QZSettings::domyostreadmill_notfmts, QZSettings::default_domyostreadmill_notfmts).toBool()) ||
                         b.name().toUpper().startsWith(QStringLiteral("XT685")) ||
                         b.name().toUpper().startsWith(QStringLiteral("XT285")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("WELLFIT TM")) ||
                         b.name().toUpper().startsWith(QStringLiteral("XTERRA TR")) ||
                         b.name().toUpper().startsWith(QStringLiteral("T118_")) ||
                         b.name().toUpper().startsWith(QStringLiteral("RUNN ")) ||                        
@@ -2051,6 +2053,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 mcfBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(mcfBike);
             } else if ((b.name().startsWith(QStringLiteral("TRX ROUTE KEY")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("MASTERT40-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT TREAD")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BH-TR-"))) && !toorx && filter) {
                 this->setLastBluetoothDevice(b);

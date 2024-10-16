@@ -302,7 +302,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         lastRefreshCharacteristicChanged2A5B = now;
 
         emit debug(QStringLiteral("Current CrankRevsRead: ") + QString::number(CrankRevsRead));
-        emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
+        emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTimeRead));
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
