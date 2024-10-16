@@ -97,6 +97,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     private var PowerFeatureCharacteristic: CBMutableCharacteristic!
     private var PowerSensorLocationCharacteristic: CBMutableCharacteristic!
     private var PowerMeasurementCharacteristic: CBMutableCharacteristic!
+ 
+  private var SterzoService: CBMutableService!
+      private var SterzoWriteCharacteristic: CBMutableCharacteristic!
+      private var SterzoNotifyCharacteristic: CBMutableCharacteristic!
 
     
     public var LastFTMSMessageReceived: Data?
@@ -254,6 +258,26 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                         PowerMeasurementCharacteristic]
           self.peripheralManager.add(PowerService)
 
+        // Sterzo
+        self.SterzoService = CBMutableService(type: SterzoServiceUUID, primary: true)
+        
+        let SterzoWriteProperties: CBCharacteristicProperties = [.write]
+          let SterzoWritePermissions: CBAttributePermissions = [.writeable]
+          self.SterzoWriteCharacteristic = CBMutableCharacteristic(type: SterzoWriteUUID,
+                                                                   properties: SterzoWriteProperties, value: nil,
+                                                                                   permissions: SterzoWritePermissions)
+
+          let SterzoNotifyProperties: CBCharacteristicProperties = [.notify]
+        let SterzoNotifyPermissions: CBAttributePermissions = []
+          self.SterzoNotifyCharacteristic = CBMutableCharacteristic(type: SterzoNotifyUUID,
+                                                     properties: SterzoNotifyProperties,
+                                                                    value: nil,
+                                                                   permissions: SterzoNotifyPermissions)
+
+
+        SterzoService.characteristics = [SterzoWriteCharacteristic,
+                                        SterzoNotifyCharacteristic]
+          self.peripheralManager.add(SterzoService)
         
     default:
       print("Peripheral manager is down")
@@ -323,7 +347,11 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         let responseData = Data(bytes: &response, count: 3)
           
         self.peripheralManager.updateValue(responseData, for: self.FitnessMachineControlPointCharacteristic, onSubscribedCentrals: nil)
-        }
+    } else if requests.first!.characteristic == self.SterzoWriteCharacteristic {
+        self.peripheralManager.respond(to: requests.first!, withResult: .success)
+        print("Responded successfully to a write request")
+    }
+
     }
     
   func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
@@ -466,6 +494,12 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     let heartRateData = Data(bytes: &heartRateBPM, count: MemoryLayout.size(ofValue: heartRateBPM))
     return heartRateData
   }
+  
+    func float32ToUInt8Array(_ value: Float32) -> [UInt8] {
+        let bytes = withUnsafeBytes(of: value) { Array($0) }
+        return bytes.reversed()
+    }
+      
     
     func calculateIndoorBike() -> Data {
         let flags0:UInt8 = 0x64
@@ -477,13 +511,41 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       return indoorBikeData
     }
   
+    static var angle: Float32 = 10
+    static var angleCount: Int = 0
+    static var angleToogle: Bool = false
+    
   @objc func updateSubscribers() {
-    if(self.serviceToggle == 3 || garmin_bluetooth_compatibility)
+    if(self.serviceToggle == 4)
     {
+        BLEPeripheralManagerZwift.angleCount = BLEPeripheralManagerZwift.angleCount + 1
+        if(BLEPeripheralManagerZwift.angleCount > 10) {
+            BLEPeripheralManagerZwift.angleCount = 0
+            if(BLEPeripheralManagerZwift.angleToogle) {
+                BLEPeripheralManagerZwift.angle = 30
+                BLEPeripheralManagerZwift.angleToogle = false
+            } else {
+                BLEPeripheralManagerZwift.angle = -30;
+                BLEPeripheralManagerZwift.angleToogle = true
+            }
+        } else {
+            if(!BLEPeripheralManagerZwift.angleToogle) {
+                BLEPeripheralManagerZwift.angle = BLEPeripheralManagerZwift.angle - 3.3;
+            } else {
+                BLEPeripheralManagerZwift.angle = BLEPeripheralManagerZwift.angle + 3.3;
+            }
+        }
+        print("Angle \(BLEPeripheralManagerZwift.angle)")
+        let sterzoData = Data(bytes: float32ToUInt8Array(BLEPeripheralManagerZwift.angle), count: 4)
+        let ok = self.peripheralManager.updateValue(sterzoData, for: self.SterzoNotifyCharacteristic, onSubscribedCentrals: nil)
+      if(ok) {
+          self.serviceToggle = 0
+      }
+    } else if(self.serviceToggle == 3 || garmin_bluetooth_compatibility) {
         let powerData = self.calculatePower()
         let ok = self.peripheralManager.updateValue(powerData, for: self.PowerMeasurementCharacteristic, onSubscribedCentrals: nil)
         if(ok) {
-            self.serviceToggle = 0
+            self.serviceToggle = self.serviceToggle + 1
         }
     } else if(self.serviceToggle == 2) {
       let cadenceData = self.calculateCadence()
