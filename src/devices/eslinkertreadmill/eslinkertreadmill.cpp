@@ -348,6 +348,31 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     emit packetReceived();
 
+    if(treadmill_type == TYPE::ESANGLINKER) {
+        if((uint8_t)newValue.at(0) == 0xa9 && (uint8_t)newValue.at(1) == 0x08 && (uint8_t)newValue.at(0) == 0x04) { // pair request
+            lastPairFrame = newValue;
+            qDebug() << "lastPairFrame" << lastPairFrame;
+
+            uint8_t initData6[] = {0xa9, 0x08, 0x04, 0x0c, 0x06, 0x48, 0x12, 0xf5};
+
+            if(lastPairFrame.length() < 3) {
+                qDebug() << "ERROR! Pair code!";
+                return;
+            }
+            QByteArray crypto = cryptographicArray(lastPairFrame.at(3));
+            initData6[3] = crypto.at(0);
+            initData6[4] = crypto.at(1);
+            initData6[5] = crypto.at(2);
+            initData6[6] = crypto.at(3);
+            CRC8 crc8;
+            initData6[7] = crc8.calculate(QByteArray((const char*)&initData6[3], 4));
+
+            writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+
+            emit pairPacketReceived();
+        }
+    }
+
     if (treadmill_type == CADENZA_FITNESS_T45) {
         if (newValue.length() == 6 && newValue.at(0) == 8 && newValue.at(1) == 4 && newValue.at(2) == 1 &&
             newValue.at(3) == 0 && newValue.at(4) == 0 && newValue.at(5) == 1) {
@@ -468,28 +493,6 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         }
     } else if (treadmill_type == COSTAWAY || treadmill_type == TYPE::ESANGLINKER) {
         if(treadmill_type == TYPE::ESANGLINKER) {
-            if((uint8_t)newValue.at(0) == 0xa9 && (uint8_t)newValue.at(1) == 0x08 && (uint8_t)newValue.at(0) == 0x04) { // pair request
-                lastPairFrame = newValue;
-                qDebug() << "lastPairFrame" << lastPairFrame;
-
-                uint8_t initData6[] = {0xa9, 0x08, 0x04, 0x0c, 0x06, 0x48, 0x12, 0xf5};
-
-                if(lastPairFrame.length() < 3) {
-                    qDebug() << "ERROR! Pair code!";
-                    return;
-                }
-                QByteArray crypto = cryptographicArray(lastPairFrame.at(3));
-                initData6[3] = crypto.at(0);
-                initData6[4] = crypto.at(1);
-                initData6[5] = crypto.at(2);
-                initData6[6] = crypto.at(3);
-                CRC8 crc8;
-                initData6[7] = crc8.calculate(QByteArray((const char*)&initData6[3], 4));
-
-                writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-
-                emit pairPacketReceived();
-            }
             if((uint8_t)newValue.at(1) != 0xe0)
                 return;
         }
