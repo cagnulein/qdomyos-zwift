@@ -47,6 +47,7 @@ class eslinkertreadmill : public treadmill {
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void waitForPairPacket();
+    void waitForHandshakePacket();
     QByteArray cryptographicArray(quint8 b2);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
@@ -87,6 +88,7 @@ class eslinkertreadmill : public treadmill {
     void speedChanged(double speed);
     void packetReceived();
     void pairPacketReceived();
+    void handshakePacketReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
