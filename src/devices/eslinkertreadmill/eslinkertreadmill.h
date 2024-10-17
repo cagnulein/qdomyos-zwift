@@ -46,6 +46,8 @@ class eslinkertreadmill : public treadmill {
     void forceIncline(double requestIncline);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
+    void waitForPairPacket();
+    QByteArray cryptographicArray(quint8 b2);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
@@ -60,6 +62,7 @@ class eslinkertreadmill : public treadmill {
     uint8_t requestHandshake = 0;
     bool requestVar2 = false;
     bool toggleRequestSpeed = false;
+    QByteArray lastPairFrame;
 
     typedef enum TYPE {
         RHYTHM_FUN = 0,
@@ -83,6 +86,7 @@ class eslinkertreadmill : public treadmill {
     void debug(QString string);
     void speedChanged(double speed);
     void packetReceived();
+    void pairPacketReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
