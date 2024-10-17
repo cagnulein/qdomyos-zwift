@@ -2150,6 +2150,9 @@ class QZSettings {
     static const QString proform_treadmill_575i;
     static constexpr bool default_proform_treadmill_575i = false;
 
+    static const QString zwift_play_emulator;
+    static constexpr bool default_zwift_play_emulator = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

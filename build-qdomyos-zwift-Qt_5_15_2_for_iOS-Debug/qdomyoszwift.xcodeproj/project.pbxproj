@@ -1320,6 +1320,7 @@
 		87A0770E29B641D500A368BF /* wahookickrheadwind.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wahookickrheadwind.h; path = ../src/devices/wahookickrheadwind/wahookickrheadwind.h; sourceTree = "<group>"; };
 		87A0770F29B641D500A368BF /* wahookickrheadwind.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wahookickrheadwind.cpp; path = ../src/devices/wahookickrheadwind/wahookickrheadwind.cpp; sourceTree = "<group>"; };
 		87A0771129B6420200A368BF /* moc_wahookickrheadwind.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_wahookickrheadwind.cpp; sourceTree = "<group>"; };
+		87A083062C73361C00567A4E /* characteristicnotifier2ad9.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = characteristicnotifier2ad9.h; path = ../src/characteristics/characteristicnotifier2ad9.h; sourceTree = "<group>"; };
 		87A0C4B7262329A600121A76 /* npecablebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = npecablebike.cpp; path = ../src/devices/npecablebike/npecablebike.cpp; sourceTree = "<group>"; };
 		87A0C4B8262329A600121A76 /* cscbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cscbike.h; path = ../src/devices/cscbike/cscbike.h; sourceTree = "<group>"; };
 		87A0C4B9262329A600121A76 /* cscbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cscbike.cpp; path = ../src/devices/cscbike/cscbike.cpp; sourceTree = "<group>"; };
@@ -2078,6 +2079,7 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87A083062C73361C00567A4E /* characteristicnotifier2ad9.h */,
 				8772B7F92CB5603A004AB8E9 /* deerruntreadmill.h */,
 				8772B7F62CB55E98004AB8E9 /* deerruntreadmill.cpp */,
 				8772B7F32CB55E80004AB8E9 /* moc_deerruntreadmill.cpp */,
