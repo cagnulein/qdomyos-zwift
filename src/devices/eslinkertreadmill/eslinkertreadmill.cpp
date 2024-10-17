@@ -349,7 +349,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     emit packetReceived();
 
     if(treadmill_type == TYPE::ESANGLINKER) {
-        if((uint8_t)newValue.at(0) == 0xa9 && (uint8_t)newValue.at(1) == 0x08 && (uint8_t)newValue.at(0) == 0x04) { // pair request
+        if((uint8_t)newValue.at(0) == 0xa9 && (uint8_t)newValue.at(1) == 0x08 && (uint8_t)newValue.at(2) == 0x04) { // pair request
             lastPairFrame = newValue;
             qDebug() << "lastPairFrame" << lastPairFrame;
 
