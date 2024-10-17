@@ -2279,12 +2279,26 @@ void horizontreadmill::serviceScanDone(void) {
     firstStateChanged = 0;
     auto services_list = m_control->services();
 
+    QBluetoothUuid ftmsService((quint16)0x1826);
+    QBluetoothUuid RSCService((quint16)0x1814);
+    QBluetoothUuid CustomService((quint16)0xFFF0);
+
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
+#ifdef Q_OS_WIN
+        if (s == ftmsService || s == RSCService || s == CustomService)
+#endif
+        {
             qDebug() << s << "discovering...";
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
             connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                     &horizontreadmill::stateChanged);
             gattCommunicationChannelService.constLast()->discoverDetails();
+        }
+#ifdef Q_OS_WIN
+        else {
+            qDebug() << s << "NOT discovering!";
+        }
+#endif
     }
 }
 
@@ -2389,7 +2403,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
             emit debug(QStringLiteral("Controller connected. Search services..."));
+#ifndef Q_OS_WIN
             m_control->discoverServices();
+#endif            
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
@@ -2399,8 +2415,17 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         // Connect
         m_control->connectToDevice();
+#ifdef Q_OS_WIN
+        QThread::sleep(1);
+        m_control->discoverServices();
+#endif
         return;
     }
+}
+
+horizontreadmill::~horizontreadmill() {
+    if(connected())
+        m_control->disconnectFromDevice();
 }
 
 bool horizontreadmill::connected() {
@@ -2413,8 +2438,8 @@ bool horizontreadmill::connected() {
 
 void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
-    if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << QStringLiteral("trying to connect back again...");
+    if (state == QLowEnergyController::UnconnectedState && m_control && !closing) {
+        qDebug() << QStringLiteral("trying to connect back again...") << closing;
 
         initDone = false;
         m_control->connectToDevice();

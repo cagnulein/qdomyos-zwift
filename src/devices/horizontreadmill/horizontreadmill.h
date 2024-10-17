@@ -38,6 +38,7 @@ class horizontreadmill : public treadmill {
     Q_OBJECT
   public:
     horizontreadmill(bool noWriteResistance, bool noHeartService);
+    ~horizontreadmill();
     bool connected() override;
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
