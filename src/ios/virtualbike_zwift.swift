@@ -11,9 +11,9 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 @objc public class virtualbike_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerZwift!
     
-    @objc public init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool) {
+    @objc public init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, zwift_play_emulator: Bool) {
       super.init()
-      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr, garmin_bluetooth_compatibility: garmin_bluetooth_compatibility)
+      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr, garmin_bluetooth_compatibility: garmin_bluetooth_compatibility, zwift_play_emulator: zwift_play_emulator)
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -63,6 +63,7 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 
 class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var garmin_bluetooth_compatibility: Bool = false
+  private var zwift_play_emulator: Bool = false
     private var disable_hr: Bool = false
   private var peripheralManager: CBPeripheralManager!
 
@@ -122,10 +123,11 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   let SwiftDebug = swiftDebug()
   //var delegate: BLEPeripheralManagerDelegate?
 
-  init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool) {
+  init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, zwift_play_emulator: Bool) {
     super.init()
     self.disable_hr = disable_hr
     self.garmin_bluetooth_compatibility = garmin_bluetooth_compatibility
+    self.zwift_play_emulator = zwift_play_emulator
 
     peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
   }
@@ -267,33 +269,35 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
 
        
         // ZwiftPlay
-        self.ZwiftPlayService = CBMutableService(type: ZwiftPlayServiceUUID, primary: true)
-        
-        let ZwiftPlayReadProperties: CBCharacteristicProperties = [.notify, .read]
-          let ZwiftPlayReadPermissions: CBAttributePermissions = [.readable]
-          self.ZwiftPlayReadCharacteristic = CBMutableCharacteristic(type: ZwiftPlayReadUUID,
-                                                           properties: ZwiftPlayReadProperties,
+        if(self.zwift_play_emulator) {
+          self.ZwiftPlayService = CBMutableService(type: ZwiftPlayServiceUUID, primary: true)
+          
+          let ZwiftPlayReadProperties: CBCharacteristicProperties = [.notify, .read]
+            let ZwiftPlayReadPermissions: CBAttributePermissions = [.readable]
+            self.ZwiftPlayReadCharacteristic = CBMutableCharacteristic(type: ZwiftPlayReadUUID,
+                                                            properties: ZwiftPlayReadProperties,
+                                                                      value: nil,
+                                                                            permissions: ZwiftPlayReadPermissions)
+
+          let ZwiftPlayWriteProperties: CBCharacteristicProperties = [.write]
+            let ZwiftPlayWritePermissions: CBAttributePermissions = [.writeable]
+            self.ZwiftPlayWriteCharacteristic = CBMutableCharacteristic(type: ZwiftPlayWriteUUID,
+                                                      properties: ZwiftPlayWriteProperties,
                                                                     value: nil,
-                                                                           permissions: ZwiftPlayReadPermissions)
+                                                                    permissions: ZwiftPlayWritePermissions)
 
-        let ZwiftPlayWriteProperties: CBCharacteristicProperties = [.write]
-          let ZwiftPlayWritePermissions: CBAttributePermissions = [.writeable]
-          self.ZwiftPlayWriteCharacteristic = CBMutableCharacteristic(type: ZwiftPlayWriteUUID,
-                                                     properties: ZwiftPlayWriteProperties,
-                                                                   value: nil,
-                                                                   permissions: ZwiftPlayWritePermissions)
+          let ZwiftPlayIndicateProperties: CBCharacteristicProperties = [.indicate]
+          let ZwiftPlayIndicatePermissions: CBAttributePermissions = [.readable]
+            self.ZwiftPlayIndicateCharacteristic = CBMutableCharacteristic(type: ZwiftPlayIndicateUUID,
+                                                      properties: ZwiftPlayIndicateProperties,
+                                                                    value: nil,
+                                                                    permissions: ZwiftPlayIndicatePermissions)
 
-        let ZwiftPlayIndicateProperties: CBCharacteristicProperties = [.indicate]
-        let ZwiftPlayIndicatePermissions: CBAttributePermissions = [.readable]
-          self.ZwiftPlayIndicateCharacteristic = CBMutableCharacteristic(type: ZwiftPlayIndicateUUID,
-                                                     properties: ZwiftPlayIndicateProperties,
-                                                                   value: nil,
-                                                                   permissions: ZwiftPlayIndicatePermissions)
-
-        ZwiftPlayService.characteristics = [ZwiftPlayReadCharacteristic,
-                                           ZwiftPlayWriteCharacteristic,
-                                            ZwiftPlayIndicateCharacteristic]
-          self.peripheralManager.add(ZwiftPlayService)
+          ZwiftPlayService.characteristics = [ZwiftPlayReadCharacteristic,
+                                            ZwiftPlayWriteCharacteristic,
+                                              ZwiftPlayIndicateCharacteristic]
+            self.peripheralManager.add(ZwiftPlayService)
+        }
         
     default:
       print("Peripheral manager is down")
@@ -732,7 +736,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     }
   
   @objc func updateSubscribers() {
-      if(self.serviceToggle == 4 || garmin_bluetooth_compatibility)
+      if(self.serviceToggle == 4 || garmin_bluetooth_compatibility || (self.serviceToggle == 3 && zwift_play_emulator))
       {
           let powerData = self.calculatePower()
           let ok = self.peripheralManager.updateValue(powerData, for: self.PowerMeasurementCharacteristic, onSubscribedCentrals: nil)
