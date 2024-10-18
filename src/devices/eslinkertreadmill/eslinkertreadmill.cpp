@@ -349,7 +349,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     emit packetReceived();
 
     if(treadmill_type == TYPE::ESANGLINKER) {
-        if((uint8_t)newValue.at(0) == 0xa9 && (uint8_t)newValue.at(1) == 0x08 && (uint8_t)newValue.at(0) == 0x04) { // pair request
+        if((uint8_t)newValue.at(0) == 0xa9 && (uint8_t)newValue.at(1) == 0x08 && (uint8_t)newValue.at(2) == 0x04) { // pair request
             lastPairFrame = newValue;
             qDebug() << "lastPairFrame" << lastPairFrame;
 
@@ -370,6 +370,18 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
 
             emit pairPacketReceived();
+        } else if((uint8_t)newValue.at(0) == 0xa9 && (uint8_t)newValue.at(1) == 0x08 &&
+                   (uint8_t)newValue.at(2) == 0x01 && (uint8_t)newValue.at(3) == 0xff && (uint8_t)newValue.at(4) == 0x5f) { // handshake request
+            qDebug() << "handshake";
+
+            uint8_t initData5[] = {0xa9, 0x08, 0x01, 0xad, 0x0d};
+            initData5[3] = QRandomGenerator::global()->bounded(256);
+            CRC8 crc8;
+            initData5[4] = crc8.calculate(QByteArray((const char*)&initData5[3], 1));
+
+            writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+
+            emit handshakePacketReceived();
         }
     }
 
@@ -586,14 +598,9 @@ void eslinkertreadmill::btinit(bool startTape) {
         uint8_t initData4[] = {0xa9, 0xa0, 0x03, 0x00, 0x00, 0x00, 0x0a};
         writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
 
+        waitForHandshakePacket();
+
         QThread::sleep(2);
-
-        uint8_t initData5[] = {0xa9, 0x08, 0x01, 0xad, 0x0d};
-        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
-
-        QThread::msleep(400);
-
-        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
 
         waitForPairPacket();
 
@@ -623,11 +630,6 @@ void eslinkertreadmill::btinit(bool startTape) {
 
         uint8_t initData13[] = {0xa9, 0xae, 0x01, 0xfe, 0xf8};
         writeCharacteristic(initData13, sizeof(initData13), QStringLiteral("init"), false, true);
-
-        QThread::sleep(4);
-
-        uint8_t initData14[] = {0xa9, 0x08, 0x01, 0x76, 0xd6};
-        writeCharacteristic(initData14, sizeof(initData14), QStringLiteral("init"), false, true);
 
         if(homeform::singleton())
             homeform::singleton()->setToastRequested("Init completed, you can use the treadmill now!");
@@ -902,6 +904,14 @@ void eslinkertreadmill::waitForPairPacket() {
     QEventLoop loop;
     QTimer timeout;
     connect(this, &eslinkertreadmill::pairPacketReceived, &loop, &QEventLoop::quit);
+    timeout.singleShot(3000, &loop, SLOT(quit()));
+    loop.exec();
+}
+
+void eslinkertreadmill::waitForHandshakePacket() {
+    QEventLoop loop;
+    QTimer timeout;
+    connect(this, &eslinkertreadmill::handshakePacketReceived, &loop, &QEventLoop::quit);
     timeout.singleShot(3000, &loop, SLOT(quit()));
     loop.exec();
 }
