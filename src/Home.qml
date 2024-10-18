@@ -23,6 +23,13 @@ HomeForm {
     signal plus_clicked(string name)
     signal minus_clicked(string name)
     signal largeButton_clicked(string name)
+    signal keyPressed(int key)
+
+    Keys.onPressed: (event)=> {
+        console.log("Keys.onPressed " + event.key)
+        // Emit a signal with the pressed key
+        keyPressed(event.key)
+    }
 
     Settings {
         id: settings
