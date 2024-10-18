@@ -177,7 +177,7 @@ void eslinkertreadmill::forceSpeed(double requestSpeed) {
         writeCharacteristic(display, sizeof(display),
                             QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
     } else if(treadmill_type == ESANGLINKER) {
-        uint8_t display[] = {0xa9, 0x01, 0x01, 0x0b, 0xa2};
+        uint8_t display[] = {0xa9, 0x01, 0x01, 0x0b, 0x00};
         display[3] = (int)(requestSpeed * 10 * 0.621371);
         for (int i = 0; i < 4; i++) {
             display[4] = display[4] ^ display[i];
