@@ -167,14 +167,18 @@ void ftmsbike::zwiftPlayInit() {
 }
 
 void ftmsbike::forcePower(int16_t requestPower) {
-    uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
+    if(resistance_lvl_mode) { 
+        forceResistance(resistanceFromPowerRequest(requestPower));
+    } else {
+        uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
 
-    write[1] = ((uint16_t)requestPower) & 0xFF;
-    write[2] = ((uint16_t)requestPower) >> 8;
+        write[1] = ((uint16_t)requestPower) & 0xFF;
+        write[2] = ((uint16_t)requestPower) >> 8;
 
-    writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(requestPower));
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(requestPower));
 
-    powerForced = true;
+        powerForced = true;
+    }
 }
 
 uint16_t ftmsbike::wattsFromResistance(double resistance) {
