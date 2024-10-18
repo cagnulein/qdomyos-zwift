@@ -736,7 +736,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     }
   
   @objc func updateSubscribers() {
-      if(self.serviceToggle == 4 || garmin_bluetooth_compatibility || (self.serviceToggle == 3 && zwift_play_emulator))
+      if(self.serviceToggle == 4 || garmin_bluetooth_compatibility || (self.serviceToggle == 3 && !zwift_play_emulator))
       {
           let powerData = self.calculatePower()
           let ok = self.peripheralManager.updateValue(powerData, for: self.PowerMeasurementCharacteristic, onSubscribedCentrals: nil)
