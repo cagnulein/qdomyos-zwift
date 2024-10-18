@@ -42,7 +42,8 @@ jobs:
 
     - name: Build image
       run: |
-        cd poky/build
+        cd poky
+        source oe-init-build-env build
         bitbake core-image-sato
 
     - name: Archive artifacts
