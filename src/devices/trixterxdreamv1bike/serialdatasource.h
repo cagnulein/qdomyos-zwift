@@ -11,7 +11,7 @@ class serialdatasource
 {
   protected:
     serialdatasource() {}
-    serialdatasource(const serialdatasource& other) {}    
+    serialdatasource(const serialdatasource& other) { Q_UNUSED(other) }
   public:
     /**
      * @brief Gets a list of available port names.

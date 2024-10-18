@@ -5,6 +5,7 @@
 #include <cstdint>
 #include "qmutex.h"
 #include "qsettings.h"
+#include "qzsettings.h"
 
 
 

@@ -2150,6 +2150,37 @@ class QZSettings {
     static const QString proform_treadmill_575i;
     static constexpr bool default_proform_treadmill_575i = false;
 
+
+
+    // Trixter X-Dream V1 Bike Settings
+    static const QString trixter_xdream_v1_bike_enabled;
+    static constexpr bool default_trixter_xdream_v1_bike_enabled = false;
+
+    static const QString trixter_xdream_v1_bike_heartrate_enabled;
+    static constexpr bool default_trixter_xdream_v1_bike_heartrate_enabled = true;
+
+    static const QString trixter_xdream_v1_bike_steering_enabled;
+    static constexpr bool default_trixter_xdream_v1_bike_steering_enabled= true;
+
+    static const QString trixter_xdream_v1_bike_steeringcalibration_left;
+    static constexpr uint8_t default_trixter_xdream_v1_bike_steeringcalibration_left = 0;
+
+    static const QString trixter_xdream_v1_bike_steeringcalibration_centerLeft;
+    static constexpr uint8_t default_trixter_xdream_v1_bike_steeringcalibration_centerLeft=2;
+
+    static const QString trixter_xdream_v1_bike_steeringcalibration_centerRight;
+    static constexpr uint8_t default_trixter_xdream_v1_bike_steeringcalibration_centerRight= 2;
+
+    static const QString trixter_xdream_v1_bike_steeringcalibration_right;
+    static constexpr uint8_t default_trixter_xdream_v1_bike_steeringcalibration_right = 250;
+
+    static const QString trixter_xdream_v1_bike_steeringcalibration_max;
+    static constexpr uint8_t default_trixter_xdream_v1_bike_steeringcalibration_max= 250;
+
+    static const QString trixter_xdream_v1_bike_connectionTimeoutMilliseconds;
+    static constexpr uint32_t default_trixter_xdream_v1_bike_connectionTimeoutMilliseconds= 500;
+
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

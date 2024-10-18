@@ -1,14 +1,16 @@
 #include "trixterxdreamv1settings.h"
 
-const QString trixterxdreamv1settings::keys::Enabled = QStringLiteral("trixter_xdream_v1_bike");
-const QString trixterxdreamv1settings::keys::HeartRateEnabled = QStringLiteral("trixter_xdream_v1_bike_heartrate_enabled");
-const QString trixterxdreamv1settings::keys::SteeringEnabled = QStringLiteral("trixter_xdream_v1_bike_steering_enabled");
-const QString trixterxdreamv1settings::keys::SteeringCalibrationLeft = QStringLiteral("trixter_xdream_v1_bike_steering_L");
-const QString trixterxdreamv1settings::keys::SteeringCalibrationCenterLeft =QStringLiteral("trixter_xdream_v1_bike_steering_CL");
-const QString trixterxdreamv1settings::keys::SteeringCalibrationCenterRight = QStringLiteral("trixter_xdream_v1_bike_steering_CR");
-const QString trixterxdreamv1settings::keys::SteeringCalibrationRight = QStringLiteral("trixter_xdream_v1_bike_steering_R");
-const QString trixterxdreamv1settings::keys::SteeringCalibrationMAX = QStringLiteral("trixter_xdream_v1_bike_steering_MAX");
-const QString trixterxdreamv1settings::keys::ConnectionTimeoutMilliseconds = QStringLiteral("trixter_xdream_v1_bike_connection_timeout_ms");
+#include "qzsettings.h"
+
+const QString trixterxdreamv1settings::keys::Enabled = QZSettings::trixter_xdream_v1_bike_enabled;
+const QString trixterxdreamv1settings::keys::HeartRateEnabled = QZSettings::trixter_xdream_v1_bike_heartrate_enabled;
+const QString trixterxdreamv1settings::keys::SteeringEnabled = QZSettings::trixter_xdream_v1_bike_steering_enabled;
+const QString trixterxdreamv1settings::keys::SteeringCalibrationLeft = QZSettings::trixter_xdream_v1_bike_steeringcalibration_left;
+const QString trixterxdreamv1settings::keys::SteeringCalibrationCenterLeft =QZSettings::trixter_xdream_v1_bike_steeringcalibration_centerLeft;
+const QString trixterxdreamv1settings::keys::SteeringCalibrationCenterRight = QZSettings::trixter_xdream_v1_bike_steeringcalibration_centerRight;
+const QString trixterxdreamv1settings::keys::SteeringCalibrationRight = QZSettings::trixter_xdream_v1_bike_steeringcalibration_right;
+const QString trixterxdreamv1settings::keys::SteeringCalibrationMAX = QZSettings::trixter_xdream_v1_bike_steeringcalibration_max;
+const QString trixterxdreamv1settings::keys::ConnectionTimeoutMilliseconds = QZSettings::trixter_xdream_v1_bike_connectionTimeoutMilliseconds;
 
 
 template <typename T>
