@@ -976,7 +976,7 @@ import QtQuick.Dialogs 1.0
             property bool proform_treadmill_575i: false
 			
 			// from version ?
-            property bool trixter_xdream_v1_bike: false
+            property bool trixter_xdream_v1_bike_enabled: false
             property bool trixter_xdream_v1_bike_heartrate_enabled: true
             property bool trixter_xdream_v1_bike_steering_enabled: true
             property int trixter_xdream_v1_bike_steering_L : -45
@@ -3011,10 +3011,10 @@ import QtQuick.Dialogs 1.0
                         rightPadding: 0
                         leftPadding: 0
                         clip: false
-                        checked: settings.trixter_xdream_v1_bike
+                        checked: settings.trixter_xdream_v1_bike_enabled
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.trixter_xdream_v1_bike = checked
+                        onClicked: settings.trixter_xdream_v1_bike_enabled = checked
                     }
                     RowLayout {
                         id: trixterXDreamV1BikeConnection

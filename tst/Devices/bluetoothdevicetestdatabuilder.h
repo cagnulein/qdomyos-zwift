@@ -163,6 +163,6 @@ public:
      * @param use (Optional) indicates whether to use non-bluetooth discovery.
      * @return
      */
-    BluetoothDeviceTestDataBuilder * useNonBluetoothDiscovery(bool use=false);
+    BluetoothDeviceTestDataBuilder * useNonBluetoothDiscovery(bool use=true);
 
 };

@@ -5,11 +5,11 @@
 const QString trixterxdreamv1settings::keys::Enabled = QZSettings::trixter_xdream_v1_bike_enabled;
 const QString trixterxdreamv1settings::keys::HeartRateEnabled = QZSettings::trixter_xdream_v1_bike_heartrate_enabled;
 const QString trixterxdreamv1settings::keys::SteeringEnabled = QZSettings::trixter_xdream_v1_bike_steering_enabled;
-const QString trixterxdreamv1settings::keys::SteeringCalibrationLeft = QZSettings::trixter_xdream_v1_bike_steeringcalibration_left;
-const QString trixterxdreamv1settings::keys::SteeringCalibrationCenterLeft =QZSettings::trixter_xdream_v1_bike_steeringcalibration_centerLeft;
-const QString trixterxdreamv1settings::keys::SteeringCalibrationCenterRight = QZSettings::trixter_xdream_v1_bike_steeringcalibration_centerRight;
-const QString trixterxdreamv1settings::keys::SteeringCalibrationRight = QZSettings::trixter_xdream_v1_bike_steeringcalibration_right;
-const QString trixterxdreamv1settings::keys::SteeringCalibrationMAX = QZSettings::trixter_xdream_v1_bike_steeringcalibration_max;
+const QString trixterxdreamv1settings::keys::SteeringCalibrationLeft = QZSettings::trixter_xdream_v1_bike_steering_l;
+const QString trixterxdreamv1settings::keys::SteeringCalibrationCenterLeft =QZSettings::trixter_xdream_v1_bike_steering_cl;
+const QString trixterxdreamv1settings::keys::SteeringCalibrationCenterRight = QZSettings::trixter_xdream_v1_bike_steering_cr;
+const QString trixterxdreamv1settings::keys::SteeringCalibrationRight = QZSettings::trixter_xdream_v1_bike_steering_r;
+const QString trixterxdreamv1settings::keys::SteeringCalibrationMAX = QZSettings::trixter_xdream_v1_bike_steering_max;
 const QString trixterxdreamv1settings::keys::ConnectionTimeoutMilliseconds = QZSettings::trixter_xdream_v1_bike_connectionTimeoutMilliseconds;
 
 
@@ -104,10 +104,15 @@ void trixterxdreamv1settings::Load(const QSettings &settings) {
     this->set_heartRateEnabled(settings.value(keys::HeartRateEnabled, DefaultHeartRateEnabled).toBool());
     this->set_steeringEnabled(settings.value(keys::SteeringEnabled, DefaultSteeringEnabled).toBool());
     this->set_connectionTimeoutMilliseconds(settings.value(keys::ConnectionTimeoutMilliseconds, DefaultConnectionTimeoutMilliseconds).toUInt());
-    steeringCalibrationInfo sc(settings.value(keys::SteeringCalibrationLeft, DefaultSteeringCalibrationL).toInt(),
-                           settings.value(keys::SteeringCalibrationCenterLeft, DefaultSteeringCalibrationCL).toInt(),
-                           settings.value(keys::SteeringCalibrationCenterRight, DefaultSteeringCalibrationCR).toInt(),
-                settings.value(keys::SteeringCalibrationRight, DefaultSteeringCalibrationR).toInt());
+
+    int32_t l = settings.value(keys::SteeringCalibrationLeft, DefaultSteeringCalibrationL).toInt();
+    int32_t lc = settings.value(keys::SteeringCalibrationCenterLeft, DefaultSteeringCalibrationCL).toInt();
+    int32_t lr = settings.value(keys::SteeringCalibrationCenterRight, DefaultSteeringCalibrationCR).toInt();
+    int32_t r = settings.value(keys::SteeringCalibrationRight, DefaultSteeringCalibrationR).toInt();
+
+    int32_t xx  = settings.value(keys::SteeringCalibrationCenterLeft, 1).toInt();
+
+    steeringCalibrationInfo sc(l,lc,lr, r);
     this->set_steeringCalibration(sc);
 }
 
