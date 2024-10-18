@@ -306,10 +306,8 @@ void eslinkertreadmill::update() {
             if (lastSpeed == 0.0) {
                 lastSpeed = 0.5;
             }
-            if (treadmill_type == TYPE::RHYTHM_FUN || treadmill_type == TYPE::YPOO_MINI_CHANGE) {
-                uint8_t startTape[] = {0xa9, 0xa3, 0x01, 0x01, 0x0a};
-                writeCharacteristic(startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
-            }
+            uint8_t startTape[] = {0xa9, 0xa3, 0x01, 0x01, 0x0a};
+            writeCharacteristic(startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
             requestSpeed = 1.0;
             requestStart = -1;
             emit tapeStarted();
@@ -317,7 +315,8 @@ void eslinkertreadmill::update() {
         if (requestStop != -1) {
             requestSpeed = 0;
             emit debug(QStringLiteral("stopping..."));
-            // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape", false, true);
+            uint8_t startTape[] = {0xa9, 0xa3, 0x01, 0x00, 0x0b};
+            writeCharacteristic(startTape, sizeof(startTape), QStringLiteral("stopTape"), false, true);
             requestStop = -1;
         }
     }
