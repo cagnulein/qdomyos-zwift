@@ -2,9 +2,11 @@ name: Yocto Raspberry Pi Qt Build
 
 on:
   push:
-    branches: [ '*' ]
+    branches:
+      - '**'
   pull_request:
-    branches: [ '*' ]
+    branches:
+      - '**'
 
 jobs:
   build:
