@@ -1,0 +1,50 @@
+name: Yocto Raspberry Pi Qt Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gawk wget git diffstat unzip texinfo gcc build-essential chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint xterm python3-subunit mesa-common-dev zstd liblz4-tool
+
+    - name: Set up Yocto
+      run: |
+        git clone -b dunfell git://git.yoctoproject.org/poky
+        cd poky
+        git clone -b dunfell git://git.openembedded.org/meta-openembedded
+        git clone -b dunfell git://git.yoctoproject.org/meta-raspberrypi
+        git clone -b dunfell git://code.qt.io/yocto/meta-qt5.git
+
+    - name: Configure build
+      run: |
+        cd poky
+        source oe-init-build-env build
+        echo 'MACHINE = "raspberrypi4"' >> conf/local.conf
+        echo 'DISTRO_FEATURES_append = " wayland"' >> conf/local.conf
+        echo 'CORE_IMAGE_EXTRA_INSTALL += "qtbase qtwayland"' >> conf/local.conf
+        bitbake-layers add-layer ../meta-openembedded/meta-oe
+        bitbake-layers add-layer ../meta-openembedded/meta-python
+        bitbake-layers add-layer ../meta-openembedded/meta-multimedia
+        bitbake-layers add-layer ../meta-raspberrypi
+        bitbake-layers add-layer ../meta-qt5
+
+    - name: Build image
+      run: |
+        cd poky/build
+        bitbake core-image-sato
+
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: rpi-qt-image
+        path: poky/build/tmp/deploy/images/raspberrypi4/*.rpi-sdimg
