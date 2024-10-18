@@ -46,7 +46,7 @@ jobs:
         bitbake core-image-sato
 
     - name: Archive artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: rpi-qt-image
         path: poky/build/tmp/deploy/images/raspberrypi4/*.rpi-sdimg
