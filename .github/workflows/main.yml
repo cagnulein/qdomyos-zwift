@@ -73,7 +73,9 @@ jobs:
         source oe-init-build-env build
         echo 'MACHINE = "raspberrypi4"' >> conf/local.conf
         echo 'DISTRO_FEATURES:append = " wayland"' >> conf/local.conf
-        echo 'CORE_IMAGE_EXTRA_INSTALL += "qtbase qtwayland qdomyos-zwift"' >> conf/local.conf
+        echo 'CORE_IMAGE_EXTRA_INSTALL += "qtbase qtdeclarative qtquickcontrols2 qtconnectivity qtpositioning qtcharts qtnetworkauth qtwebsockets qtwayland qdomyos-zwift"' >> conf/local.conf
+        echo 'IMAGE_INSTALL:append = " qtbase qtdeclarative qtquickcontrols2 qtconnectivity qtpositioning qtcharts qtnetworkauth qtwebsockets qtwayland qdomyos-zwift"' >> conf/local.conf
+        echo 'PACKAGECONFIG:append:pn-qtbase = " accessibility dbus gles2 openssl tslib"' >> conf/local.conf
         bitbake-layers add-layer ../meta-openembedded/meta-oe
         bitbake-layers add-layer ../meta-openembedded/meta-python
         bitbake-layers add-layer ../meta-openembedded/meta-multimedia
