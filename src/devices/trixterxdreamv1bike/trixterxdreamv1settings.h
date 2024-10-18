@@ -8,7 +8,6 @@
 #include "qzsettings.h"
 
 
-
 /**
  * @brief The trixterxdreamv1bikesettings class encapsulates the application settings for the Trixter X-Dream V1 Bike.
  * Field accessors restrict values to defined limits.

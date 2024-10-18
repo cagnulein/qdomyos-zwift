@@ -773,11 +773,11 @@ const QString QZSettings::proform_treadmill_575i = QStringLiteral("proform_tread
 const QString QZSettings::trixter_xdream_v1_bike_enabled = QStringLiteral("trixter_xdream_v1_bike_enabled");
 const QString QZSettings::trixter_xdream_v1_bike_heartrate_enabled = QStringLiteral("trixter_xdream_v1_bike_heartrate_enabled");
 const QString QZSettings::trixter_xdream_v1_bike_steering_enabled = QStringLiteral("trixter_xdream_v1_bike_steering_enabled");
-const QString QZSettings::trixter_xdream_v1_bike_steeringcalibration_left = QStringLiteral("trixter_xdream_v1_bike_steeringcalibration_left");
-const QString QZSettings::trixter_xdream_v1_bike_steeringcalibration_centerLeft = QStringLiteral("trixter_xdream_v1_bike_steeringcalibration_centerLeft");
-const QString QZSettings::trixter_xdream_v1_bike_steeringcalibration_centerRight = QStringLiteral("trixter_xdream_v1_bike_steeringcalibration_centerRight");
-const QString QZSettings::trixter_xdream_v1_bike_steeringcalibration_right = QStringLiteral("trixter_xdream_v1_bike_steeringcalibration_right");
-const QString QZSettings::trixter_xdream_v1_bike_steeringcalibration_max = QStringLiteral("trixter_xdream_v1_bike_steeringcalibration_max");
+const QString QZSettings::trixter_xdream_v1_bike_steering_l = QStringLiteral("trixter_xdream_v1_bike_steering_l");
+const QString QZSettings::trixter_xdream_v1_bike_steering_cl = QStringLiteral("trixter_xdream_v1_bike_steering_cl");
+const QString QZSettings::trixter_xdream_v1_bike_steering_cr = QStringLiteral("trixter_xdream_v1_bike_steering_cr");
+const QString QZSettings::trixter_xdream_v1_bike_steering_r = QStringLiteral("trixter_xdream_v1_bike_steering_r");
+const QString QZSettings::trixter_xdream_v1_bike_steering_max = QStringLiteral("trixter_xdream_v1_bike_steering_max");
 const QString QZSettings::trixter_xdream_v1_bike_connectionTimeoutMilliseconds = QStringLiteral("trixter_xdream_v1_bike_connectionTimeoutMilliseconds");
 
 
@@ -1439,11 +1439,11 @@ QMap<QString, QVariant> allSettings{
     {QZSettings::trixter_xdream_v1_bike_enabled, QZSettings::default_trixter_xdream_v1_bike_enabled },
     {QZSettings::trixter_xdream_v1_bike_heartrate_enabled, QZSettings::default_trixter_xdream_v1_bike_heartrate_enabled },
     {QZSettings::trixter_xdream_v1_bike_steering_enabled, QZSettings::default_trixter_xdream_v1_bike_steering_enabled },
-    {QZSettings::trixter_xdream_v1_bike_steeringcalibration_left, QZSettings::default_trixter_xdream_v1_bike_steeringcalibration_left },
-    {QZSettings::trixter_xdream_v1_bike_steeringcalibration_centerLeft, QZSettings::default_trixter_xdream_v1_bike_steeringcalibration_centerLeft },
-    {QZSettings::trixter_xdream_v1_bike_steeringcalibration_centerRight, QZSettings::default_trixter_xdream_v1_bike_steeringcalibration_centerRight },
-    {QZSettings::trixter_xdream_v1_bike_steeringcalibration_right, QZSettings::default_trixter_xdream_v1_bike_steeringcalibration_right },
-    {QZSettings::trixter_xdream_v1_bike_steeringcalibration_max, QZSettings::default_trixter_xdream_v1_bike_steeringcalibration_max },
+    {QZSettings::trixter_xdream_v1_bike_steering_l, QZSettings::default_trixter_xdream_v1_bike_steering_l },
+    {QZSettings::trixter_xdream_v1_bike_steering_cl, QZSettings::default_trixter_xdream_v1_bike_steering_cl },
+    {QZSettings::trixter_xdream_v1_bike_steering_cr, QZSettings::default_trixter_xdream_v1_bike_steering_cr },
+    {QZSettings::trixter_xdream_v1_bike_steering_r, QZSettings::default_trixter_xdream_v1_bike_steering_r },
+    {QZSettings::trixter_xdream_v1_bike_steering_max, QZSettings::default_trixter_xdream_v1_bike_steering_max },
     {QZSettings::trixter_xdream_v1_bike_connectionTimeoutMilliseconds, QZSettings::default_trixter_xdream_v1_bike_connectionTimeoutMilliseconds }
 };
 
