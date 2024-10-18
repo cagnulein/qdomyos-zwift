@@ -106,10 +106,10 @@ void bike::setGears(double gears) {
         qDebug() << "new gear value ignored because of gears_zwift_ratio setting!";
         return;
     }
-    if(homeform::singleton()) {
-        homeform::singleton()->gears->setValue(QString::number(gears, 'f', 0));
-    }
     m_gears = gears;
+    if(homeform::singleton()) {
+        homeform::singleton()->updateGearsValue();
+    }
     settings.setValue(QZSettings::gears_current_value, m_gears);
     if (lastRawRequestedResistanceValue != -1) {
         changeResistance(lastRawRequestedResistanceValue);

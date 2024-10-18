@@ -604,6 +604,7 @@ class homeform : public QObject {
     QString getStravaAuthUrl() { return stravaAuthUrl; }
     bool stravaWebVisible() { return stravaAuthWebVisible; }
     trainprogram *trainingProgram() { return trainProgram; }
+    void updateGearsValue();
     
     DataObject *speed;
     DataObject *inclination;
