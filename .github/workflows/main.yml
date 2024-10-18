@@ -21,18 +21,18 @@ jobs:
 
     - name: Set up Yocto
       run: |
-        git clone -b dunfell git://git.yoctoproject.org/poky
+        git clone -b kirkstone git://git.yoctoproject.org/poky
         cd poky
-        git clone -b dunfell git://git.openembedded.org/meta-openembedded
-        git clone -b dunfell git://git.yoctoproject.org/meta-raspberrypi
-        git clone -b dunfell git://code.qt.io/yocto/meta-qt5.git
+        git clone -b kirkstone git://git.openembedded.org/meta-openembedded
+        git clone -b kirkstone git://git.yoctoproject.org/meta-raspberrypi
+        git clone -b kirkstone https://github.com/meta-qt5/meta-qt5.git
 
     - name: Configure build
       run: |
         cd poky
         source oe-init-build-env build
         echo 'MACHINE = "raspberrypi4"' >> conf/local.conf
-        echo 'DISTRO_FEATURES_append = " wayland"' >> conf/local.conf
+        echo 'DISTRO_FEATURES:append = " wayland"' >> conf/local.conf
         echo 'CORE_IMAGE_EXTRA_INSTALL += "qtbase qtwayland"' >> conf/local.conf
         bitbake-layers add-layer ../meta-openembedded/meta-oe
         bitbake-layers add-layer ../meta-openembedded/meta-python
