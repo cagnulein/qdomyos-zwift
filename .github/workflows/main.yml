@@ -1,4 +1,4 @@
-name: Yocto Raspberry Pi Qt Build
+name: Yocto Build with Custom Application
 
 on:
   push:
@@ -9,12 +9,12 @@ on:
       - '**'
 
 jobs:
-  build:
+  yocto-build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install dependencies
+    - name: Install Yocto dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y gawk wget git diffstat unzip texinfo gcc build-essential chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint xterm python3-subunit mesa-common-dev zstd liblz4-tool
@@ -27,27 +27,100 @@ jobs:
         git clone -b kirkstone git://git.yoctoproject.org/meta-raspberrypi
         git clone -b kirkstone https://github.com/meta-qt5/meta-qt5.git
 
-    - name: Configure build
+    - name: Create custom layer for your application
+      run: |
+        cd poky
+        source oe-init-build-env build
+        bitbake-layers create-layer ../meta-qdomyos-zwift
+        bitbake-layers add-layer ../meta-qdomyos-zwift
+
+    - name: Set up custom recipe
+      run: |
+        mkdir -p poky/meta-qdomyos-zwift/recipes-qdomyos-zwift/qdomyos-zwift
+        cat <<EOT > poky/meta-qdomyos-zwift/recipes-qdomyos-zwift/qdomyos-zwift/qdomyos-zwift.bb
+        SUMMARY = "QDomyos-Zwift Application"
+        LICENSE = "MIT"
+        LIC_FILES_CHKSUM = "file://LICENSE;md5=your_license_md5"
+
+        SRC_URI = "git://github.com/your_username/qdomyos-zwift.git;branch=main;protocol=https \
+                   git://github.com/bluetiger9/SmtpClient-for-Qt.git;destsuffix=git/src/smtpclient;name=smtpclient;branch=master \
+                   git://github.com/cagnulein/qmdnsengine.git;destsuffix=git/src/qmdnsengine;name=qmdnsengine;branch=zwift \
+                   git://github.com/google/googletest.git;destsuffix=git/tst/googletest;name=googletest;branch=main \
+                   git://github.com/qt-labs/qthttpserver.git;destsuffix=git/src/qthttpserver;name=qthttpserver;branch=dev"
+
+        SRCREV_FORMAT = "main_smtpclient_qmdnsengine_googletest_qthttpserver"
+        SRCREV_main = "${AUTOREV}"
+        SRCREV_smtpclient = "3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c"
+        SRCREV_qmdnsengine = "${AUTOREV}"
+        SRCREV_googletest = "release-1.12.1"
+        SRCREV_qthttpserver = "${AUTOREV}"
+
+        S = "${WORKDIR}/git"
+
+        DEPENDS += "qtbase qtdeclarative qtquickcontrols2 qtconnectivity qtpositioning qtcharts qtnetworkauth qtwebsockets"
+
+        inherit qmake5
+
+        do_install() {
+            install -d ${D}${bindir}
+            install -m 0755 src/qdomyos-zwift ${D}${bindir}
+        }
+        EOT
+
+    - name: Configure Yocto build
       run: |
         cd poky
         source oe-init-build-env build
         echo 'MACHINE = "raspberrypi4"' >> conf/local.conf
         echo 'DISTRO_FEATURES:append = " wayland"' >> conf/local.conf
-        echo 'CORE_IMAGE_EXTRA_INSTALL += "qtbase qtwayland"' >> conf/local.conf
+        echo 'CORE_IMAGE_EXTRA_INSTALL += "qtbase qtwayland qdomyos-zwift"' >> conf/local.conf
         bitbake-layers add-layer ../meta-openembedded/meta-oe
         bitbake-layers add-layer ../meta-openembedded/meta-python
         bitbake-layers add-layer ../meta-openembedded/meta-multimedia
         bitbake-layers add-layer ../meta-raspberrypi
         bitbake-layers add-layer ../meta-qt5
 
-    - name: Build image
+    - name: Build Yocto image
       run: |
         cd poky
         source oe-init-build-env build
         bitbake core-image-sato
 
-    - name: Archive artifacts
+    - name: Archive Yocto artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: rpi-qt-image
+        name: rpi-qt-image-with-qdomyos-zwift
         path: poky/build/tmp/deploy/images/raspberrypi4/*.rpi-sdimg
+
+  create-release:
+    needs: [yocto-build]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+          body_path: CHANGELOG.md
+
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Upload Release Asset (Yocto image with qdomyos-zwift)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./rpi-qt-image-with-qdomyos-zwift/*.rpi-sdimg
+          asset_name: rpi-qt-image-with-qdomyos-zwift.rpi-sdimg
+          asset_content_type: application/octet-stream
