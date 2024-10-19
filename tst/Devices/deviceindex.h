@@ -150,8 +150,9 @@ public:
     DEFINE_DEVICE(ToorxAppGateUSBBike_EnabledInSettings, "Toorx AppGate USB Bike (Enabled in settings)");
     DEFINE_DEVICE(ToorxAppGateUSBBike, "Toorx AppGate USB Bike");
     DEFINE_DEVICE(ToorxAppGateUSBTreadmill, "Toorx AppGate USB Treadmill");
-    DEFINE_DEVICE(TrxAppGateUSBEllipticalIConsole, "Toorx AppGate USB Elliptical IConsole+");
     DEFINE_DEVICE(ToorxTreadmill, "Toorx Treadmill");
+    DEFINE_DEVICE(TrixterXDreamV1Bike, "Trixter X-Dream V1 Bike");
+    DEFINE_DEVICE(TrxAppGateUSBEllipticalIConsole, "Toorx AppGate USB Elliptical IConsole+");
     DEFINE_DEVICE(TrueTreadmill, "True Treadmill");
     DEFINE_DEVICE(TrueTreadmill2, "True Treadmill 2");
     DEFINE_DEVICE(TrxAppGateUSBElliptical, "TrxAppGateUSB Elliptical");
