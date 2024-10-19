@@ -104,7 +104,7 @@ class gpiotreadmill : public treadmill {
     const uint8_t OUTPUT_START = 4;
     const uint8_t OUTPUT_STOP = 5;
 
-    const uint16_t GPIO_KEEP_MS = = 50;
+    const uint16_t GPIO_KEEP_MS = = 100;
     //const uint16_t GPIO_REBOUND_MS = 400;
     
     const double SPEED_STEP = 0.1;
