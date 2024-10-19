@@ -954,12 +954,12 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(QZSettings::proformtdf4ip, testIP, "");
 
-    // ProForm Wifi Bike
+    // ProForm Telnet Bike
     RegisterNewDeviceTestData(DeviceIndex::ProFormTelnetBike)
         ->expectDevice<proformtelnetbike>()
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(QZSettings::proformtdf1ip, testIP, "")
-        ->disable("Locks up");
+        ->skip("Can take over 60s and device isn't faked.");
 
     // ProForm Wifi Treadmill
     RegisterNewDeviceTestData(DeviceIndex::ProFormWifiTreadmill)
@@ -1234,8 +1234,8 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::TacxNeoBike)
         ->expectDevice<tacxneo2>()        
         ->acceptDeviceNames({"TACX ", "TACX SMART BIKE","THINK X"}, DeviceNameComparison::StartsWithIgnoreCase)
-        ->rejectDeviceName("TACX SATORI", DeviceNameComparison::StartsWithIgnoreCase)
-        ->disable();
+        ->rejectDeviceName("TACX SATORI", DeviceNameComparison::StartsWithIgnoreCase);
+
 
     // Tacx Neo 2 Bike
     RegisterNewDeviceTestData(DeviceIndex::TacxNeo2Bike)
@@ -1247,8 +1247,7 @@ void DeviceTestDataIndex::Initialize() {
             auto newDevice = QBluetoothDeviceInfo(address, info.DeviceName(), 0);
             auto config = DeviceDiscoveryInfo(info, newDevice);
             configurations.push_back(config);
-
-        })->disable();
+        });
 
     // TechnoGym MyRun Treadmill
     RegisterNewDeviceTestData(DeviceIndex::TechnoGymMyRunTreadmill)
@@ -1527,7 +1526,7 @@ void DeviceTestDataIndex::Initialize() {
 
         try {
             auto exclusions = deviceTestData->Exclusions();
-        } catch(std::domain_error) {
+        } catch(const std::domain_error&) {
             qDebug() << "Device: " << deviceTestData->Name() << " specifies at least 1 exclusion for which no test data was found.";
         }
 
