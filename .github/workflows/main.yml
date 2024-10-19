@@ -16,32 +16,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Checkout submodule repo (SmtpClient-for-Qt)
+      - name: Checkout submodule repos
         uses: actions/checkout@v2
         with:
-          repository: bluetiger9/SmtpClient-for-Qt
-          path: "src/smtpclient/"
-          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-
-      - name: Checkout submodule repo (qmdnsengine)
-        uses: actions/checkout@v2
-        with:
-          repository: cagnulein/qmdnsengine
-          path: "src/qmdnsengine/"
-          ref: "zwift"
-
-      - name: Checkout submodule repo (googletest)
-        uses: actions/checkout@v2
-        with:
-          repository: google/googletest
-          path: "tst/googletest/"
-          ref: "release-1.12.1"
-
-      - name: Checkout qHttpServer
-        uses: actions/checkout@v2
-        with:
-          repository: qt-labs/qthttpserver
-          path: "src/qthttpserver"
+          submodules: recursive
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -56,6 +34,8 @@ jobs:
             bash -c "
             apt-get update && 
             apt-get install -y build-essential git cmake qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* &&
+            export QT_SELECT=qt5 &&
+            export PATH=/usr/lib/qt5/bin:$PATH &&
             cd /github/workspace &&
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/ &&
             cd src/qthttpserver &&
