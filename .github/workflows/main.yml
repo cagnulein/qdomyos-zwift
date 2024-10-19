@@ -40,6 +40,7 @@ jobs:
         with:
           args: >
             bash -c "
+            set -x &&
             apt-get update && 
             apt-get install -y build-essential git cmake qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5-dev &&
             export QT_SELECT=qt5 &&
@@ -47,12 +48,16 @@ jobs:
             cd /github/workspace &&
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/ &&
             cd src/qthttpserver &&
-            sed -i 's/QT += network websockets-private/QT += network websockets/' src/httpserver/httpserver.pro &&
+            find . -type f -name '*.pro' -exec sed -i 's/websockets-private/websockets/g' {} + &&
+            find . -type f -name '*.h' -exec sed -i 's/include <private\/qwebsocket/include <QWebSocket/g' {} + &&
+            find . -type f -name '*.cpp' -exec sed -i 's/include <private\/qwebsocket/include <QWebSocket/g' {} + &&
+            cat src/httpserver/httpserver.pro &&
             qmake &&
             make -j$(nproc) &&
             make install &&
             cd ../.. &&
-            sed -i 's/QT += websockets-private/QT += websockets/' qdomyos-zwift.pro &&
+            sed -i 's/websockets-private/websockets/g' qdomyos-zwift.pro &&
+            cat qdomyos-zwift.pro &&
             qmake &&
             make -j$(nproc)
             "
