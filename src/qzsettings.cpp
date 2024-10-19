@@ -769,6 +769,7 @@ const QString QZSettings::peloton_date_format = QStringLiteral("peloton_date_for
 const QString QZSettings::default_peloton_date_format = QStringLiteral("MM/dd/yy");
 const QString QZSettings::force_resistance_instead_inclination = QStringLiteral("force_resistance_instead_inclination");
 const QString QZSettings::proform_treadmill_575i = QStringLiteral("proform_treadmill_575i");
+const QString QZSettings::zwift_play_emulator = QStringLiteral("zwift_play_emulator");
 
 const QString QZSettings::trixter_xdream_v1_bike_enabled = QStringLiteral("trixter_xdream_v1_bike_enabled");
 const QString QZSettings::trixter_xdream_v1_bike_heartrate_enabled = QStringLiteral("trixter_xdream_v1_bike_heartrate_enabled");
@@ -1436,6 +1437,7 @@ QMap<QString, QVariant> allSettings{
     {QZSettings::peloton_date_format, QZSettings::default_peloton_date_format},
     {QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination},
     {QZSettings::proform_treadmill_575i, QZSettings::default_proform_treadmill_575i},
+    {QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator},
     {QZSettings::trixter_xdream_v1_bike_enabled, QZSettings::default_trixter_xdream_v1_bike_enabled },
     {QZSettings::trixter_xdream_v1_bike_heartrate_enabled, QZSettings::default_trixter_xdream_v1_bike_heartrate_enabled },
     {QZSettings::trixter_xdream_v1_bike_steering_enabled, QZSettings::default_trixter_xdream_v1_bike_steering_enabled },
