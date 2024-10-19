@@ -1053,7 +1053,7 @@ jobs:
           name: windows-msvc2019-ai-server-binary
           path: windows-msvc2019-ai-server-binary.zip
 
-raspberry-pi-build:
+  raspberry-pi-build:
     runs-on: ubuntu-latest
     
     steps:
