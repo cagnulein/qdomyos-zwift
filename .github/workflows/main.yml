@@ -49,6 +49,8 @@ jobs:
             sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
             find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
             find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QRecursiveMutex/QMutex/g' {} + &&
+            sed -i 's/QRecursiveMutex/QMutex/g' src/trainprogram.h &&
             cat qdomyos-zwift.pro &&
             qmake &&
             make -j$(nproc)
