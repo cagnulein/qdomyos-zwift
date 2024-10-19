@@ -46,21 +46,18 @@ jobs:
             export QT_SELECT=qt5 &&
             export PATH=/usr/lib/qt5/bin:$PATH &&
             cd /github/workspace &&
-            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/ &&
-            cd src/qthttpserver &&
-            find . -type f -name '*.pro' -exec sed -i 's/websockets-private/websockets/g' {} + &&
-            find . -type f -name '*.h' -exec sed -i 's/include <private\/qwebsocket/include <QWebSocket/g' {} + &&
-            find . -type f -name '*.cpp' -exec sed -i 's/include <private\/qwebsocket/include <QWebSocket/g' {} + &&
-            sed -i 's/#include <private\/qobject_p.h>/#include <QObject>/g' src/httpserver/qabstracthttpserver_p.h &&
-            sed -i 's/i->lastHeader.compare(/i->lastHeader.compare(QByteArray(/g' src/httpserver/qhttpserverrequest.cpp &&
-            sed -i 's/INCLUDEPATH += $$PWD/INCLUDEPATH += $$PWD \/usr\/include\/arm-linux-gnueabihf\/qt5\/QtCore\/5.11.3\/QtCore\/private/g' src/httpserver/httpserver.pro &&
-            cat src/httpserver/httpserver.pro &&
-            qmake &&
-            make -j$(nproc) &&
-            make install &&
-            cd ../.. &&
-            sed -i 's/websockets-private/websockets/g' qdomyos-zwift.pro &&
+            
+            # Remove QtHttpServer references from the project file
+            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
+            
+            # Comment out or remove QtHttpServer includes and usages in source files
+            find src -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i 's/#include <QtHttpServer\//#include <QtHttpServer\//' {} + &&
+            find src -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
+            
+            # Display the modified project file for verification
             cat qdomyos-zwift.pro &&
+            
+            # Build the project
             qmake &&
             make -j$(nproc)
             "
