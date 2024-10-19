@@ -83,6 +83,8 @@ class kingsmithr1protreadmill : public treadmill {
     bool initDone = false;
     bool initRequest = false;
     bool requestUnlock = false;
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
     double lastTargetSpeed = -1;
     bool targetSpeedMatchesSpeed = false;
     double lastTargetSpeedMatchesSpeed = -1;

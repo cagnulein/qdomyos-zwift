@@ -5,7 +5,6 @@
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
 #include <unistd.h> // getuid
-#include "EventHandler.h"
 #endif
 #endif
 #include <QQmlContext>
@@ -69,7 +68,6 @@ bool run_cadence_sensor = false;
 bool nordictrack_10_treadmill = false;
 bool gpiotreadmill = true;
 bool reebok_fr30_treadmill = false;
-QString eventGearDevice = QStringLiteral("");
 QString trainProgram;
 QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
@@ -152,10 +150,6 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-name")) {
 
             deviceName = argv[++i];
-        }
-        if (!qstrcmp(argv[i], "-bluetooth-event-gear-device")) {
-
-            eventGearDevice = argv[++i];
         }
         if (!qstrcmp(argv[i], "-peloton-username")) {
 
@@ -370,6 +364,11 @@ int main(int argc, char *argv[]) {
     {
         bool defaultNoHeartService = !noHeartService;
 
+        // Android 10 doesn't support multiple services for peripheral mode
+        if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 10)) {
+            settings.setValue(QZSettings::bike_heartrate_service, true);
+        }
+
         // some Android 6 doesn't support wake lock
         if (QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 7) &&
             !settings.value(QZSettings::android_wakelock).isValid()) {
@@ -410,7 +409,7 @@ int main(int argc, char *argv[]) {
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username")) {
+        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email")) {
 
             qDebug() << s << settings.value(s);
         }
@@ -565,7 +564,7 @@ int main(int argc, char *argv[]) {
             QtAndroid::requestPermissionsSync(QStringList({"android.permission.POST_NOTIFICATIONS"}));
         if (resultHash["android.permission.POST_NOTIFICATIONS"] == QtAndroid::PermissionResult::Denied)
             qDebug() << "POST_NOTIFICATIONS denied!";
-    }    
+    }
 #endif
 
     /* test virtual echelon
@@ -653,13 +652,6 @@ int main(int argc, char *argv[]) {
     } else {
         // start non-GUI version...
     }
-
-#ifdef Q_OS_LINUX
-#ifndef Q_OS_ANDROID
-    if(eventGearDevice.length())
-        new BluetoothHandler(&bl, eventGearDevice);
-#endif
-#endif
     return app->exec();
 #endif
 }

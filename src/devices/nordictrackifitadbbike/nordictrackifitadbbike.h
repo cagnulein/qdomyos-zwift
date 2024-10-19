@@ -65,8 +65,7 @@ class nordictrackifitadbbike : public bike {
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool inclinationAvailableByHardware() override;
-    resistance_t resistanceFromPowerRequest(uint16_t power) override;
-    bool ifitCompatible() override;
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;    
 
   private:
     const resistance_t max_resistance = 17; // max inclination for s22i

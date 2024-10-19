@@ -747,24 +747,8 @@ const QString QZSettings::toorx_bike_srx_500 = QStringLiteral("toorx_bike_srx_50
 const QString QZSettings::atletica_lightspeed_treadmill = QStringLiteral("atletica_lightspeed_treadmill");
 const QString QZSettings::peloton_treadmill_level = QStringLiteral("peloton_treadmill_level");
 const QString QZSettings::nordictrackadbbike_resistance = QStringLiteral("nordictrackadbbike_resistance");
-const QString QZSettings::proform_treadmill_carbon_t7 = QStringLiteral("proform_treadmill_carbon_t7");
-const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordictrack_treadmill_exp_5i");
-const QString QZSettings::dircon_id = QStringLiteral("dircon_id");
-const QString QZSettings::proform_elliptical_ip = QStringLiteral("proform_elliptical_ip");
-const QString QZSettings::default_proform_elliptical_ip = QStringLiteral("");
-const QString QZSettings::antbike = QStringLiteral("antbike");
-const QString QZSettings::domyosbike_notfmts = QStringLiteral("domyosbike_notfmts");
-const QString QZSettings::gears_volume_debouncing = QStringLiteral("gears_volume_debouncing");
-const QString QZSettings::tile_biggears_enabled = QStringLiteral("tile_biggears_enabled");
-const QString QZSettings::tile_biggears_order = QStringLiteral("tile_biggears_order");
-const QString QZSettings::domyostreadmill_notfmts = QStringLiteral("domyostreadmill_notfmts");
-const QString QZSettings::zwiftplay_swap = QStringLiteral("zwiftplay_swap");
-const QString QZSettings::gears_zwift_ratio = QStringLiteral("gears_zwift_ratio");
-const QString QZSettings::domyos_bike_500_profile_v2 = QStringLiteral("domyos_bike_500_profile_v2");
-const QString QZSettings::gears_offset = QStringLiteral("gears_offset");
-const QString QZSettings::proform_carbon_tl_PFTL59720 = QStringLiteral("proform_carbon_tl_PFTL59720");
 
-const uint32_t allSettingsCount = 646;
+const uint32_t allSettingsCount = 631;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1402,21 +1386,6 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::atletica_lightspeed_treadmill, QZSettings::default_atletica_lightspeed_treadmill},
     {QZSettings::peloton_treadmill_level, QZSettings::default_peloton_treadmill_level},
     {QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance},
-    {QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7},
-    {QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i},
-    {QZSettings::dircon_id, QZSettings::default_dircon_id},
-    {QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip},
-    {QZSettings::antbike, QZSettings::default_antbike},
-    {QZSettings::domyosbike_notfmts, QZSettings::default_domyosbike_notfmts},
-    {QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing},
-    {QZSettings::tile_biggears_enabled, QZSettings::default_tile_biggears_enabled},
-    {QZSettings::tile_biggears_order, QZSettings::default_tile_biggears_order},
-    {QZSettings::domyostreadmill_notfmts, QZSettings::default_domyostreadmill_notfmts},
-    {QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap},
-    {QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio},
-    {QZSettings::domyos_bike_500_profile_v2, QZSettings::default_domyos_bike_500_profile_v2},
-    {QZSettings::gears_offset, QZSettings::default_gears_offset},
-    {QZSettings::proform_carbon_tl_PFTL59720, QZSettings::default_proform_carbon_tl_PFTL59720},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

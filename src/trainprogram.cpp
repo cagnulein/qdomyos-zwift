@@ -963,12 +963,6 @@ void trainprogram::scheduler() {
 
         currentStepDistance += (odometerFromTheDevice - lastOdometer);
         lastOdometer = odometerFromTheDevice;
-
-        if(currentStep >= rows.length()) {
-            qDebug() << "currentStep greater than row.length" << currentStep << rows.length();
-            end();
-            return;
-        }
         bool distanceStep = (rows.at(currentStep).distance > 0);
         distanceEvaluation = (distanceStep && currentStepDistance >= rows.at(currentStep).distance);
         qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("currentStepDistance") << currentStepDistance
@@ -988,12 +982,6 @@ void trainprogram::scheduler() {
                     currentStep = calculatedLine;
                 else
                     currentStep++;
-
-                if(currentStep >= rows.length()) {
-                    qDebug() << "currentStep greater than row.length" << currentStep << rows.length();
-                    end();
-                    return;
-                }
 
                 calculatedLine = currentStep;
 
@@ -1139,8 +1127,23 @@ void trainprogram::scheduler() {
                     emit changeGeoPosition(p, rows.at(currentStep).azimuth, avgAzimuthNext300Meters());
                 }
             } else {
-                end();
-                distanceEvaluation = false;
+                qDebug() << QStringLiteral("trainprogram ends!");
+
+                // circuit?
+                if (!isnan(rows.first().latitude) && !isnan(rows.first().longitude) &&
+                    QGeoCoordinate(rows.first().latitude, rows.first().longitude)
+                            .distanceTo(bluetoothManager->device()->currentCordinate()) < 50) {
+                    emit lap();
+                    restart();
+                    distanceEvaluation = false;
+                } else {
+                    started = false;
+                    if (settings
+                            .value(QZSettings::trainprogram_stop_at_end, QZSettings::default_trainprogram_stop_at_end)
+                            .toBool())
+                        emit stop(false);
+                    distanceEvaluation = false;
+                }
             }
         } else {
             if (rows.length() > currentStep && rows.at(currentStep).power != -1) {
@@ -1205,25 +1208,6 @@ void trainprogram::scheduler() {
         }
         sameIteration++;
     } while (distanceEvaluation);
-}
-
-void trainprogram::end() {
-    QSettings settings;
-    qDebug() << QStringLiteral("trainprogram ends!");
-
-           // circuit?
-    if (!isnan(rows.first().latitude) && !isnan(rows.first().longitude) &&
-        QGeoCoordinate(rows.first().latitude, rows.first().longitude)
-                .distanceTo(bluetoothManager->device()->currentCordinate()) < 50) {
-        emit lap();
-        restart();
-    } else {
-        started = false;
-        if (settings
-                .value(QZSettings::trainprogram_stop_at_end, QZSettings::default_trainprogram_stop_at_end)
-                .toBool())
-            emit stop(false);
-    }
 }
 
 bool trainprogram::overridePowerForCurrentRow(double power) {

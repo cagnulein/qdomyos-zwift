@@ -21,7 +21,7 @@ bluetoothdevice::~bluetoothdevice() {
 }
 
 bluetoothdevice::BLUETOOTH_TYPE bluetoothdevice::deviceType() { return bluetoothdevice::UNKNOWN; }
-void bluetoothdevice::start() { requestStart = 1; lastStart = QDateTime::currentMSecsSinceEpoch(); }
+void bluetoothdevice::start() { requestStart = 1; }
 void bluetoothdevice::stop(bool pause) {
     requestStop = 1;
     if (pause)

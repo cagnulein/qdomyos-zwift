@@ -53,9 +53,7 @@ class zwiftclickremote : public bluetoothdevice {
     bool initRequest = false;
     AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap = AbstractZapDevice::NONE;
 
-    QTimer *refresh;
-
-    uint32_t countRxTimeout = 0;
+    QTimer *refresh;    
 
   signals:
     void disconnected();

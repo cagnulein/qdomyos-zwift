@@ -59,6 +59,9 @@ class focustreadmill : public treadmill {
     bool firstCharacteristicChanged = true;
     bool searchStopped = false;
 
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
+
     QTimer *refresh;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;

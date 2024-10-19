@@ -18,6 +18,7 @@ repositories {
     google()
     jcenter()
     maven { url 'https://jitpack.io' }
+	 maven { url 'https://dl.bintray.com/rvalerio/maven' }
 }
 
 apply plugin: 'com.android.application'
@@ -27,6 +28,7 @@ def amazon = System.getenv('AMAZON')
 println(amazon)
 
 dependencies {
+    compile 'com.rvalerio:fgchecker:1.1.0'
     implementation "androidx.core:core:1.12.0"
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"

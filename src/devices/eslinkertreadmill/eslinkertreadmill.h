@@ -66,9 +66,11 @@ class eslinkertreadmill : public treadmill {
         CADENZA_FITNESS_T45 = 1, // it has the same protocol of RHYTHM_FUN but without the header and the footer
         YPOO_MINI_CHANGE = 2,    // Similar to RHYTHM_FUN but has no ascension
         COSTAWAY = 3,
-        ESANGLINKER = 4,
     } TYPE;
     volatile TYPE treadmill_type = RHYTHM_FUN;
+
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
 
     QTimer *refresh;
     QLowEnergyService *gattCommunicationChannelService = nullptr;

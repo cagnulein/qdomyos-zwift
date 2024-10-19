@@ -34,7 +34,6 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, in
     ok = connect(&websocket, &QWebSocket::connected, [&]() { qDebug() << "connected!"; });
     ok = connect(&websocket, &QWebSocket::disconnected, [&]() {
         qDebug() << "disconnected!";
-        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
         connectToDevice();
     });
 

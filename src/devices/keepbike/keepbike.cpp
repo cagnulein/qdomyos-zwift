@@ -355,9 +355,7 @@ void keepbike::stateChanged(QLowEnergyService::ServiceState state) {
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
-        if(!gattWriteCharacteristic.isValid()) {
-            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
-        }
+        Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotifyCharacteristic.isValid());
 
         // establish hook into notifications

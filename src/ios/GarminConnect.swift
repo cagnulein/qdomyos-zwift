@@ -26,14 +26,6 @@ extension ConnectIQ {
         return v.FootCad;
     }
     
-    @objc public func getPower() -> Int {
-        return v.Power;
-    }
-    
-    @objc public func getSpeed() -> Double {
-        return v.Speed;
-    }
-
     @objc public func urlParser(_ url: URL) {
         v.urlParser(url)
     }
@@ -53,8 +45,6 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
     
     public var HR: Int = 0
     public var FootCad: Int = 0
-    public var Power: Int = 0
-    public var Speed: Double = 0
     
     let SwiftDebug = swiftDebug()
 
@@ -136,12 +126,8 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
             print(dictionary)
             HR = dictionary[0] as? Int ?? 0
             FootCad = dictionary[1] as? Int ?? 0
-            Power = dictionary[2] as? Int ?? 0
-            Speed = dictionary[3] as? Double ?? 0
-            SwiftDebug.qtDebug("Garmin HR: \(HR)")
-            SwiftDebug.qtDebug("Garmin Foot Cadence: \(FootCad)")
-            SwiftDebug.qtDebug("Garmin Power: \(Power)")
-            SwiftDebug.qtDebug("Garmin Speed: \(Speed)")
+            print("Garmin HR: \(HR)")
+            print("Garmin Foot Cadence: \(FootCad)")
         }
     }
 

@@ -71,6 +71,8 @@ class horizontreadmill : public treadmill {
     uint8_t firstStateChanged = 0;
     double lastSpeed = 0.0;
     double lastInclination = 0;
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
     bool horizonPaused = false;
     double lastHorizonForceSpeed = 0;
     double minInclination = 0.0;
@@ -96,9 +98,6 @@ class horizontreadmill : public treadmill {
     bool schwinn_810_treadmill = false;
     bool technogymrun = false;
     bool disableAutoPause = false;
-    bool HORIZON_78AT_treadmill = false;
-    bool ICONCEPT_FTMS_treadmill = false;
-    bool DOMYOS = false;
 
     void testProfileCRC();
     void updateProfileCRC();

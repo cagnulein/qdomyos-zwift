@@ -1,5 +1,5 @@
 #include "horizontreadmill.h"
-#include "homeform.h"
+
 #include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
 #include "virtualdevices/virtualtreadmill.h"
@@ -897,7 +897,6 @@ void horizontreadmill::update() {
 
             if (requestInclination != currentInclination().value() && requestInclination >= minInclination &&
                 requestInclination <= 15) {
-               
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
             }
@@ -1302,59 +1301,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
 
             writeS[1] = conversion[r];
             writeS[2] = conversion1[r];
-        } else if(ICONCEPT_FTMS_treadmill) {
-            if(requestInclination > 0 && requestInclination < 1) {
-                writeS[1] = 0x3C;
-                writeS[2] = 0x00;
-            } else if(requestInclination > 1 && requestInclination < 2) {
-                writeS[1] = 0x82;
-                writeS[2] = 0x00;
-            } else if(requestInclination > 2 && requestInclination < 3) {
-                writeS[1] = 0xC8;
-                writeS[2] = 0x00;
-            } else if(requestInclination > 3 && requestInclination < 4) {
-                writeS[1] = 0x04;
-                writeS[2] = 0x01;
-            } else if(requestInclination > 4 && requestInclination < 5) {
-                writeS[1] = 0x4A;
-                writeS[2] = 0x01;
-            } else if(requestInclination > 5 && requestInclination < 6) {
-                writeS[1] = 0x90;
-                writeS[2] = 0x01;
-            } else if(requestInclination > 6 && requestInclination < 7) {
-                writeS[1] = 0xCC;
-                writeS[2] = 0x01;
-            } else if(requestInclination > 7 && requestInclination < 8) {
-                writeS[1] = 0x12;
-                writeS[2] = 0x02;
-            } else if(requestInclination > 8 && requestInclination < 9) {
-                writeS[1] = 0x58;
-                writeS[2] = 0x02;
-            } else if(requestInclination > 9 && requestInclination < 10) {
-                writeS[1] = 0x94;
-                writeS[2] = 0x02;
-            } else if(requestInclination > 10 && requestInclination < 11) {
-                writeS[1] = 0xDA;
-                writeS[2] = 0x02;
-            } else if(requestInclination > 11 && requestInclination < 12) {
-                writeS[1] = 0x20;
-                writeS[2] = 0x03;
-            } else if(requestInclination > 12 && requestInclination < 13) {
-                writeS[1] = 0x5C;
-                writeS[2] = 0x03;
-            } else if(requestInclination > 13 && requestInclination < 14) {
-                writeS[1] = 0xA2;
-                writeS[2] = 0x03;
-            } else if(requestInclination > 14 && requestInclination < 15) {
-                writeS[1] = 0xE8;
-                writeS[2] = 0x03;
-            } else {
-                writeS[1] = 0x00;
-                writeS[2] = 0x00;
-            }
         } else {
-            if(HORIZON_78AT_treadmill)
-                requestIncline = requestIncline / 2.0;
             writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
             writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
         }
@@ -1726,7 +1673,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.inclination) {
-            if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill)
+            if(!tunturi_t60_treadmill)
                 Inclination = treadmillInclinationOverride((double)(
                                   (int16_t)(
                                       ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
@@ -1734,43 +1681,6 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                                       )
                                   ) /
                               10.0);
-            else if(ICONCEPT_FTMS_treadmill) {
-                uint8_t val1 = (uint8_t)newValue.at(index);
-                uint8_t val2 = (uint8_t)newValue.at(index + 1);
-                if(val1 == 0x3C && val2 == 0x00) {
-                    Inclination = 1;
-                } else if(val1 == 0x82 && val2 == 0x00) {
-                    Inclination = 2;
-                } else if(val1 == 0xC8 && val2 == 0x00) {
-                    Inclination = 3;
-                } else if(val1 == 0x04 && val2 == 0x01) {
-                    Inclination = 4;
-                } else if(val1 == 0x4A && val2 == 0x01) {
-                    Inclination = 5;
-                } else if(val1 == 0x90 && val2 == 0x01) {
-                    Inclination = 6;
-                } else if(val1 == 0xCC && val2 == 0x01) {
-                    Inclination = 7;
-                } else if(val1 == 0x12 && val2 == 0x02) {
-                    Inclination = 8;
-                } else if(val1 == 0x58 && val2 == 0x02) {
-                    Inclination = 9;
-                } else if(val1 == 0x94 && val2 == 0x02) {
-                    Inclination = 10;
-                } else if(val1 == 0xDA && val2 == 0x02) {
-                    Inclination = 11;
-                } else if(val1 == 0x20 && val2 == 0x03) {
-                    Inclination = 12;
-                } else if(val1 == 0x5C && val2 == 0x03) {
-                    Inclination = 13;
-                } else if(val1 == 0xA2 && val2 == 0x03) {
-                    Inclination = 14;
-                } else if(val1 == 0xE8 && val2 == 0x03) {
-                    Inclination = 15;                    
-                } else {
-                    Inclination = 0;
-                }
-            }
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         }
@@ -2087,21 +1997,10 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
-    QBluetoothUuid _gattInclinationSupported((quint16)0x2AD5);
-    QBluetoothUuid _DomyosServiceId(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-
-        if(s->serviceUuid() == _DomyosServiceId && DOMYOS) {
-            settings.setValue(QZSettings::domyostreadmill_notfmts, true);
-            settings.sync();
-            if(homeform::singleton())
-                homeform::singleton()->setToastRequested("Domyos Treadmill presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
-            return;
-        }
-
         if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
@@ -2141,9 +2040,6 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     // some treadmills doesn't have the control point and also are Cross Trainer devices so i need
                     // anyway to get the FTMS Service at least
                     gattFTMSService = s;
-                } else if (c.uuid() == _gattInclinationSupported) {
-                    s->readCharacteristic(c);
-                    qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }
 
                 if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService &&
@@ -2259,17 +2155,6 @@ void horizontreadmill::characteristicWritten(const QLowEnergyCharacteristic &cha
 
 void horizontreadmill::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
-    QBluetoothUuid _gattInclinationSupported((quint16)0x2AD5);
-    if(characteristic.uuid() == _gattInclinationSupported && newValue.length() > 2) {
-        minInclination = ((double)(
-             (int16_t)(
-                 ((int16_t)(int8_t)newValue.at(1) << 8) |
-                 (uint8_t)newValue.at(0)
-                 )
-             ) /
-         10.0);
-        qDebug() << "new minInclination is " << minInclination;
-    }
 }
 
 void horizontreadmill::serviceScanDone(void) {
@@ -2347,15 +2232,6 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith(QStringLiteral("SW"))) {
             qDebug() << QStringLiteral("SW TREADMILL workaround ON!");
             disableAutoPause = true;
-        } else if(device.name().toUpper().startsWith("HORIZON_7.8AT")) {
-            HORIZON_78AT_treadmill = true;
-            qDebug() << QStringLiteral("HORIZON_7.8AT workaround ON!");
-        } else if(device.name().toUpper().startsWith("T01_")) {
-            ICONCEPT_FTMS_treadmill = true;
-            qDebug() << QStringLiteral("ICONCEPT_FTMS_treadmill workaround ON!");
-        } else if ((device.name().toUpper().startsWith("DOMYOS"))) {
-            qDebug() << QStringLiteral("DOMYOS found");
-            DOMYOS = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
@@ -3075,7 +2951,7 @@ void horizontreadmill::testProfileCRC() {
 double horizontreadmill::minStepInclination() {
     QSettings settings;
     bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
-    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill)
+    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill)
         return 1.0;
     else
         return 0.5;

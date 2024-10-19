@@ -144,7 +144,6 @@ private slots:
     void zwiftLoginState(bool ok);
 
   private:
-    void end();
     mutable QRecursiveMutex schedulerMutex;
     double avgAzimuthNext300Meters();
     QList<MetersByInclination> inclinationNext300Meters();

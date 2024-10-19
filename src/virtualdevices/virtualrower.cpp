@@ -7,7 +7,6 @@
 #include <QSettings>
 #include <QtMath>
 #include <chrono>
-#include <QThread>
 
 #ifdef Q_OS_ANDROID
 #include "androidactivityresultreceiver.h"
@@ -161,7 +160,6 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         Q_ASSERT(leController);
 
         serviceFIT = leController->addService(serviceDataFIT);
-        QThread::msleep(100); // give time to Android to add the service async.ly
 
         if (!this->noHeartService || heart_only) {
             serviceHR = leController->addService(serviceDataHR);
@@ -312,7 +310,6 @@ void virtualrower::reconnect() {
     leController->disconnectFromDevice();
 
     serviceFIT = leController->addService(serviceDataFIT);
-    QThread::msleep(100); // give time to Android to add the service async.ly
     if (!this->noHeartService || heart_only)
         serviceHR = leController->addService(serviceDataHR);
 

@@ -189,9 +189,7 @@ bool nordictrackifitadbbike::inclinationAvailableByHardware() {
     bool proform_studio_NTEX71021 =
     settings.value(QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021)
         .toBool();
-    bool nordictrackadbbike_resistance = settings.value(QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance).toBool();
-
-    if(proform_studio_NTEX71021 || nordictrackadbbike_resistance)
+    if(proform_studio_NTEX71021)
         return false;   
     else
         return true; 
@@ -224,7 +222,6 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         QString heartRateBeltName =
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
-        bool nordictrackadbbike_resistance = settings.value(QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance).toBool();
 
         double speed = 0;
         double cadence = 0;
@@ -252,8 +249,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     gear = getDouble(aValues.last());
-                    if(!nordictrackadbbike_resistance)
-                        Resistance = gear;
+                    Resistance = gear;
                     emit resistanceRead(Resistance.value());
                     gearsAvailable = true;
                 }
@@ -267,7 +263,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                         m_pelotonResistance = (100 / 32) * resistance;
                     qDebug() << QStringLiteral("Current Peloton Resistance: ") << m_pelotonResistance.value()
                              << resistance;
-                    if(!gearsAvailable && !nordictrackadbbike_resistance) {
+                    if(!gearsAvailable) {
                         Resistance = resistance;
                         emit resistanceRead(Resistance.value());
                     }
@@ -298,13 +294,14 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         bool nordictrack_ifit_adb_remote =
             settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
                 .toBool();
+        bool nordictrackadbbike_resistance= settings.value(QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance).toBool();
         double inclination_delay_seconds = settings.value(QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds).toDouble();
 
         // only resistance
         if(proform_studio_NTEX71021 || nordictrackadbbike_resistance) {
             if (nordictrack_ifit_adb_remote) {
                 if (requestResistance != -1) {
-                    if (requestResistance != currentResistance().value()) {
+                    if (requestResistance != currentResistance().value()) {                        
                         int x1 = 950;
                         int y2 = (int)(493 - (13.57 * (requestResistance - 1)));
                         int y1Resistance = (int)(493 - (13.57 * currentResistance().value()));
@@ -313,8 +310,6 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                             x1 = 1920 - 75;
                             y2 = (int)(803 - (23.777 * requestResistance));
                             y1Resistance = (int)(803 - (23.777 * currentResistance().value()));
-                            Resistance = requestResistance;
-                            emit resistanceRead(Resistance.value());
                         }
 
                         lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
@@ -729,5 +724,3 @@ uint16_t nordictrackifitadbbike::wattsFromResistance(double inclination, double 
 
     return power;
 }
-
-bool nordictrackifitadbbike::ifitCompatible() {return true;}

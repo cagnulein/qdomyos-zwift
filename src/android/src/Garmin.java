@@ -49,22 +49,10 @@ public class Garmin {
 
     private static Integer HR = 0;
     private static Integer FootCad = 0;
-    private static Double Speed = 0.0;
-    private static Integer Power = 0;
 
     public static int getHR() {
         Log.d(TAG, "getHR " + HR);
         return HR;
-    }
-
-    public static int getPower() {
-        Log.d(TAG, "getPower " + Power);
-        return Power;
-    }
-
-    public static double getSpeed() {
-        Log.d(TAG, "getSpeed " + Speed);
-        return Speed;
     }
 
     public static int getFootCad() {
@@ -244,10 +232,6 @@ public class Garmin {
                                 HR = Integer.parseInt(var[0].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
                                 if(var.length > 1) {
                                     FootCad = Integer.parseInt(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
-                                    if(var.length > 2) {
-                                        Power = Integer.parseInt(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
-                                        Speed = Double.parseDouble(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
-                                    }
                                 }
                                 Log.d(TAG, "HR " + HR);
                                 Log.d(TAG, "FootCad " + FootCad);
