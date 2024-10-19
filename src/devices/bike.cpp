@@ -1,6 +1,7 @@
 
 #include "devices/bike.h"
 #include "qdebugfixup.h"
+#include "homeform.h"
 #include <QSettings>
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
@@ -121,6 +122,9 @@ void bike::setGears(double gears) {
         return;
     }
     m_gears = gears;
+    if(homeform::singleton()) {
+        homeform::singleton()->updateGearsValue();
+    }
     settings.setValue(QZSettings::gears_current_value, m_gears);
     if (lastRawRequestedResistanceValue != -1) {
         changeResistance(lastRawRequestedResistanceValue);
