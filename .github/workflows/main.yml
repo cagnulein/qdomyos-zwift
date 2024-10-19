@@ -42,7 +42,7 @@ jobs:
             bash -c "
             set -x &&
             apt-get update && 
-            apt-get install -y build-essential git cmake qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5-dev &&
+            apt-get install -y build-essential git cmake qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5-dev qt5-default &&
             export QT_SELECT=qt5 &&
             export PATH=/usr/lib/qt5/bin:$PATH &&
             cd /github/workspace &&
@@ -51,6 +51,9 @@ jobs:
             find . -type f -name '*.pro' -exec sed -i 's/websockets-private/websockets/g' {} + &&
             find . -type f -name '*.h' -exec sed -i 's/include <private\/qwebsocket/include <QWebSocket/g' {} + &&
             find . -type f -name '*.cpp' -exec sed -i 's/include <private\/qwebsocket/include <QWebSocket/g' {} + &&
+            sed -i 's/#include <private\/qobject_p.h>/#include <QObject>/g' src/httpserver/qabstracthttpserver_p.h &&
+            sed -i 's/i->lastHeader.compare(/i->lastHeader.compare(QByteArray(/g' src/httpserver/qhttpserverrequest.cpp &&
+            sed -i 's/INCLUDEPATH += $$PWD/INCLUDEPATH += $$PWD \/usr\/include\/arm-linux-gnueabihf\/qt5\/QtCore\/5.11.3\/QtCore\/private/g' src/httpserver/httpserver.pro &&
             cat src/httpserver/httpserver.pro &&
             qmake &&
             make -j$(nproc) &&
