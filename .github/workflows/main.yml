@@ -36,21 +36,19 @@ jobs:
           cd ..
 
       - name: Build for Raspberry Pi
-        uses: docker://arm32v7/debian:buster
+        uses: docker://arm32v7/debian:bullseye
         with:
           args: >
             bash -c "
             set -ex &&
             apt-get update && 
-            apt-get install -y build-essential git cmake qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5-dev qt5-default libqt5texttospeech5-dev qtlocation5-dev qtmultimedia5-dev &&
+            apt-get install -y build-essential git cmake qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev qtwebsockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev libqt5websockets5-dev &&
             export QT_SELECT=qt5 &&
             export PATH=/usr/lib/qt5/bin:$PATH &&
             cd /github/workspace &&
             sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
             find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
             find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QRecursiveMutex/QMutex/g' {} + &&
-            sed -i 's/QRecursiveMutex/QMutex/g' src/trainprogram.h &&
             cat qdomyos-zwift.pro &&
             qmake &&
             make -j$(nproc)
