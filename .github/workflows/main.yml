@@ -1104,7 +1104,7 @@ jobs:
           name: raspberry-pi-binary
           path: src/qdomyos-zwift
 
-  raspberry-pi-build-64bit:
+  raspberry-pi-build-and-image-64bit:
     runs-on: ubuntu-latest
     
     steps:
@@ -1149,12 +1149,6 @@ jobs:
             make -j$(nproc)
             "
 
-      - name: Archive Raspberry Pi 64-bit binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: raspberry-pi-64bit-binary
-          path: src/qdomyos-zwift
-
       - name: Download Raspberry Pi OS image
         run: |
           wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-05-03/2023-05-03-raspios-bullseye-arm64-lite.img.xz
@@ -1163,10 +1157,15 @@ jobs:
       - name: Mount Raspberry Pi image
         run: |
           sudo apt-get update
-          sudo apt-get install -y kpartx qemu-user-static
-          sudo kpartx -av 2023-05-03-raspios-bullseye-arm64-lite.img
+          sudo apt-get install -y kpartx qemu-user-static fdisk
+          LOOP_DEVICE=$(sudo losetup -f --show 2023-05-03-raspios-bullseye-arm64-lite.img)
+          echo "Loop device is $LOOP_DEVICE"
+          sudo fdisk -l $LOOP_DEVICE
+          PART_OFFSET=$(sudo fdisk -l $LOOP_DEVICE | awk '/Linux/ {print $2}')
+          echo "Partition offset is $PART_OFFSET"
           sudo mkdir -p /mnt/raspbian
-          sudo mount /dev/mapper/loop0p2 /mnt/raspbian
+          sudo mount ${LOOP_DEVICE}p2 /mnt/raspbian
+          echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
           sudo cp /usr/bin/qemu-aarch64-static /mnt/raspbian/usr/bin/
 
       - name: Install Qt and dependencies on Raspberry Pi image
@@ -1199,7 +1198,7 @@ jobs:
       - name: Unmount Raspberry Pi image
         run: |
           sudo umount /mnt/raspbian
-          sudo kpartx -d 2023-05-03-raspios-bullseye-arm64-lite.img
+          sudo losetup -d ${{ env.LOOP_DEVICE }}
 
       - name: Compress modified Raspberry Pi image
         run: |
@@ -1210,6 +1209,7 @@ jobs:
         with:
           name: raspberry-pi-64bit-image
           path: 2023-05-03-raspios-bullseye-arm64-lite.img.xz
+          
 
   upload_to_release:
     permissions: write-all
