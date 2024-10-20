@@ -1149,6 +1149,12 @@ jobs:
             make -j$(nproc)
             "
 
+      - name: Archive Raspberry Pi binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberry-pi-64bit-binary
+          path: src/qdomyos-zwift
+
       - name: Download and expand Raspberry Pi OS image
         run: |
           wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-05-03/2023-05-03-raspios-bullseye-arm64-lite.img.xz
@@ -1214,7 +1220,6 @@ jobs:
         with:
           name: raspberry-pi-64bit-image
           path: 2023-05-03-raspios-bullseye-arm64-lite.img.xz
-          retention-days: 5  # Adjust this value as needed
   
   upload_to_release:
     permissions: write-all
