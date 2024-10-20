@@ -1155,6 +1155,62 @@ jobs:
           name: raspberry-pi-64bit-binary
           path: src/qdomyos-zwift
 
+      - name: Download Raspberry Pi OS image
+        run: |
+          wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-05-03/2023-05-03-raspios-bullseye-arm64-lite.img.xz
+          xz -d 2023-05-03-raspios-bullseye-arm64-lite.img.xz
+
+      - name: Mount Raspberry Pi image
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y kpartx qemu-user-static
+          sudo kpartx -av 2023-05-03-raspios-bullseye-arm64-lite.img
+          sudo mkdir -p /mnt/raspbian
+          sudo mount /dev/mapper/loop0p2 /mnt/raspbian
+          sudo cp /usr/bin/qemu-aarch64-static /mnt/raspbian/usr/bin/
+
+      - name: Install Qt and dependencies on Raspberry Pi image
+        run: |
+          sudo chroot /mnt/raspbian qemu-aarch64-static /bin/bash << EOF
+          apt-get update
+          apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2
+          EOF
+
+      - name: Copy binary to Raspberry Pi image
+        run: |
+          sudo cp src/qdomyos-zwift /mnt/raspbian/home/pi/
+          sudo chown 1000:1000 /mnt/raspbian/home/pi/qdomyos-zwift
+
+      - name: Setup auto-start for qdomyos-zwift
+        run: |
+          echo '[Unit]
+          Description=QDomyos-Zwift
+          After=multi-user.target
+
+          [Service]
+          ExecStart=/home/pi/qdomyos-zwift
+          User=pi
+          Environment=DISPLAY=:0
+
+          [Install]
+          WantedBy=multi-user.target' | sudo tee /mnt/raspbian/etc/systemd/system/qdomyos-zwift.service
+          sudo chroot /mnt/raspbian systemctl enable qdomyos-zwift.service
+
+      - name: Unmount Raspberry Pi image
+        run: |
+          sudo umount /mnt/raspbian
+          sudo kpartx -d 2023-05-03-raspios-bullseye-arm64-lite.img
+
+      - name: Compress modified Raspberry Pi image
+        run: |
+          xz -z 2023-05-03-raspios-bullseye-arm64-lite.img
+
+      - name: Upload Raspberry Pi image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberry-pi-64bit-image
+          path: 2023-05-03-raspios-bullseye-arm64-lite.img.xz
+
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-20.04 
@@ -1190,6 +1246,7 @@ jobs:
             fdroid-android-trial/*
             raspberry-pi-binary/*
             raspberry-pi-64bit-binary/*
+            2023-05-03-raspios-bullseye-arm64-lite.img.xz
 
 
   
