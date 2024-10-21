@@ -982,11 +982,11 @@ import QtQuick.Dialogs 1.0
             property bool trixter_xdream_v1_bike_enabled: false
             property bool trixter_xdream_v1_bike_heartrate_enabled: true
             property bool trixter_xdream_v1_bike_steering_enabled: true
-            property int trixter_xdream_v1_bike_steering_L : -45
-            property int trixter_xdream_v1_bike_steering_CL : -2
-            property int trixter_xdream_v1_bike_steering_CR : 2
-            property int trixter_xdream_v1_bike_steering_R : 45
-            property int trixter_xdream_v1_bike_steering_MAX : 45
+            property int trixter_xdream_v1_bike_steering_l : -45
+            property int trixter_xdream_v1_bike_steering_cl : -2
+            property int trixter_xdream_v1_bike_steering_cr : 2
+            property int trixter_xdream_v1_bike_steering_r : 45
+            property int trixter_xdream_v1_bike_steering_max : 45
             property int trixter_xdream_v1_bike_connection_timeout_ms : 500
         }
 
