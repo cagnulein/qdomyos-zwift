@@ -199,6 +199,11 @@
       <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
           onclick="GearsPlus()">+</button></td>
     </tr>    
+    <tr class="nextrow" sort-order="17">
+      <td class="icon">🕶</td>
+      <td style="text-align: left">NEXT</td>
+      <td class="nextrow-value values" colspan="5"><b></b></td>
+    </tr>        
     <tr sort-order="255">
       <td colspan=2 style="text-align:left"><button style="font-size: 16px; color: white; background-color:#4C70BF"
           onclick="Lap()">CLEAR</button></td>
@@ -413,7 +418,7 @@
         'tile_heart_order', 'tile_elapsed_order', 'tile_peloton_resistance_order', 'floating_transparency', 'tile_target_resistance_order', 'tile_target_peloton_resistance_order',
 		  'tile_target_cadence_order', 'tile_target_power_order', 'tile_peloton_offset_order', 'tile_target_speed_order', 'tile_target_pace_order', 'tile_inclination_order',
         'tile_target_incline_order', 'tile_target_zone_order', 'tile_ftp_order', 'tile_jouls_order', 'tile_remainingtimetrainprogramrow_order', 'tile_gears_order', 
-        'tile_elevation_order', 'tile_pace_order', 'theme_tile_icon_enabled']
+        'tile_elevation_order', 'tile_pace_order', 'theme_tile_icon_enabled', 'tile_nextrowstrainprogram_enabled', 'tile_nextrowstrainprogram_order']
       let el = new MainWSQueueElement({
         msg: 'getsettings',
         content: {
@@ -480,6 +485,10 @@
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".rowremainingtime").hide();
               }
+            } else if (key === 'tile_nextrowstrainprogram_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".nextrow").hide();
+              }              
             } else if (key === 'tile_peloton_resistance_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".pelotonresistance").hide();
@@ -544,6 +553,8 @@
               $(".pelotonoffset").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_remainingtimetrainprogramrow_order') {
               $(".rowremainingtime").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_nextrowstrainprogram_order') {
+              $(".nextrow").attr('sort-order', msg.content[key]);              
             } else if(key === 'tile_inclination_order') {
               $(".inclination").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_jouls_order') {
@@ -603,7 +614,7 @@
         'inclination', 'inclination_lapavg',
         'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
         'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears', 'elevation', 'pace_s' , 'pace_m', 
-        'avgpace_s', 'avgpace_m', 'maxpace_s' , 'maxpace_m', 'remaining_time_s', 'remaining_time_m', 'remaining_time_h']
+        'avgpace_s', 'avgpace_m', 'maxpace_s' , 'maxpace_m', 'remaining_time_s', 'remaining_time_m', 'remaining_time_h', 'nextrow']
       let ell = new MainWSQueueElement(null, function (msg) {
         if (msg.msg === 'workout') {
           var speed = 0;
@@ -661,6 +672,7 @@
           var target_power = 0;
           var peloton_offset = 0;
           var gears = 0;          
+          var nextrow = "";
 
           for (let key of keys_arr) {
             if (msg.content[key] === undefined || msg.content[key] === null)
@@ -739,6 +751,8 @@
               remaining_time_m = msg.content[key];
             } else if (key === 'remaining_time_s') {
               remaining_time_s = msg.content[key];              
+            } else if (key === 'nextrow') {
+              nextrow = msg.content[key];                        
 				} else if (key === 'target_pace_h') {
 				  target_pace_h = msg.content[key];
 				} else if (key === 'target_pace_m') {
@@ -866,6 +880,7 @@
           $('.pelotonresistance-max').html(peloton_resistance_lapmax.toFixed(0));
           $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
           $('.rowremainingtime-value').html("<b>" + row_remaining_time_h.toString().padStart(2, "0") + ":" + row_remaining_time_m.toString().padStart(2, "0") + ":" + row_remaining_time_s.toString().padStart(2, "0") + "</b>");
+          $('.nextrow-value').html("<b>" + nextrow + "</b>");
           $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0") + "</b>" + (remaining_time_h > 0 || remaining_time_m > 0 || remaining_time_s > 0 ? " / " + "<b>" + remaining_time_h.toString().padStart(2, "0") + ":" + remaining_time_m.toString().padStart(2, "0") + ":" + remaining_time_s.toString().padStart(2, "0") + "</b>" : ""));
           $('.gears-value').html("<b>" + gears.toFixed(0) + "</b>");
           if(pace_s.toString() === "-1" || (pace_s.toString() === "0" && pace_m.toString() === "0"))

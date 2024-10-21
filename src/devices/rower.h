@@ -59,7 +59,6 @@ class rower : public bluetoothdevice {
     metric RequestedPelotonResistance;
     double requestInclination = -100;
     metric RequestedCadence;
-    metric RequestedPower;
     metric RequestedSpeed;
     volatile double requestSpeed = -1;
     metric StrokesLength;

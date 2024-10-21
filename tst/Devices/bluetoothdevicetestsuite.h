@@ -1,26 +1,19 @@
 #pragma once
+#include <vector>
 
 #include "gtest/gtest.h"
-#include "devices.h"
 #include "bluetooth.h"
 
 #include "Tools/testsettings.h"
+#include "deviceindex.h"
+#include "bluetoothdevicetestdata.h"
+#include "devicetestdataindex.h"
 
-template <typename T>
-class BluetoothDeviceTestSuite : public testing::Test {
+
+class BluetoothDeviceTestSuite : public testing::Test, public testing::WithParamInterface<QString> {
 
 protected:
-    T typeParam;
-
-    /**
-     * @brief Configurations that enable, or at least not prevent, the device from be detected.
-     */
-    std::vector<DeviceDiscoveryInfo> enablingConfigurations;
-
-    /**
-     * @brief Configurations that should prevent the device from being detected.
-     */
-    std::vector<DeviceDiscoveryInfo> disablingConfigurations;
+    const BluetoothDeviceTestData *testParam;
 
     /**
      * @brief A sample of valid bluetooth names for the device.
@@ -55,7 +48,7 @@ protected:
      * @param restart Indicates if the bluetooth (bt) object should be restarted.
      * @param failMessage The failure message if the device is not detected when expected to be, or detected when not expected to be.
      */
-    void testDeviceDetection(BluetoothDeviceTestData * testData, bluetooth& bt, const QBluetoothDeviceInfo& deviceInfo, bool expectMatch, bool restart, const QString& failMessage) const;
+    void testDeviceDetection(const BluetoothDeviceTestData * testData, bluetooth& bt, const QBluetoothDeviceInfo& deviceInfo, bool expectMatch, bool restart, const QString& failMessage) const;
 
     /**
      * @brief Tests device detection.
@@ -66,7 +59,7 @@ protected:
      * @param restart Indicates if the bluetooth (bt) object should be restarted.
      * @param failMessage The failure message if the device is not detected when expected to be, or detected when not expected to be.
      */
-    void testDeviceDetection(BluetoothDeviceTestData * testData, bluetooth& bt, const QBluetoothDeviceInfo& deviceInfo, bool expectMatch, bool restart, const std::string& failMessage) const;
+    void testDeviceDetection(const BluetoothDeviceTestData * testData, bluetooth& bt, const QBluetoothDeviceInfo& deviceInfo, bool expectMatch, bool restart, const std::string& failMessage) const;
 
 
     /**
@@ -83,6 +76,22 @@ protected:
      * @return
      */
     std::string formatString(std::string format, bluetoothdevice *b) const;
+
+    /**
+     * @brief Generic method for testing device detection.
+     * @param validNames Indicates if valid names should be used.
+     * @param enablingConfigs Indicates if enabling configurations should be used.
+     */
+    void test_deviceDetection(const bool validNames, const bool enablingConfigs);
+
+    /**
+     * @brief getConfigurations Gets the configurations of settings and bluetooth device information, for the specified device name.
+     * @param testData
+     * @param deviceName The bluetooth device name to be configured in the bluetooth device information object.
+     * @param enabled Indicates if it is enabling configurations being requested.
+     * @return
+     */
+    std::vector<DeviceDiscoveryInfo> getConfigurations(const BluetoothDeviceTestData* testData, const QString& deviceName, bool enabled) const;
 public:
     BluetoothDeviceTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {}
 
@@ -111,12 +120,6 @@ public:
     void test_deviceDetection_validNames_disabled();
 
     /**
-     * @brief Test that for devices whose detected depends on valid bluetooth device info data,
-     * invalid bluetooth device info prevents detection.
-     */
-    void test_deviceDetection_validNames_invalidBluetoothDeviceInfo();
-
-    /**
      * @brief Test that if a device is enabled in the settings, and no excluding devices have already been detected,
      * the device under test will NOT be created if an invalid name is provided.
      * e.g.starts with correct text, but not the right length and/or wrong case.
@@ -125,25 +128,35 @@ public:
 
 };
 
+#define ALLDEVICES
 
-TYPED_TEST_SUITE(BluetoothDeviceTestSuite, BluetoothDeviceTestDataTypes);
+#ifdef ALLDEVICES
 
-TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedDueToExclusions) {
+INSTANTIATE_TEST_SUITE_P(AllDevicesDetection, BluetoothDeviceTestSuite,
+                         testing::ValuesIn(DeviceTestDataIndex::Names()),
+                         [](const testing::TestParamInfo<QString>& item) {return DeviceIndex::Identifier(item.param).toStdString(); });
+#else
+
+// Use this for debugging a single test data set.
+
+INSTANTIATE_TEST_SUITE_P(SelectedDevicesDetection, BluetoothDeviceTestSuite,
+                         testing::Values(DeviceIndex::TacxNeo2Bike),
+                         [](const testing::TestParamInfo<QString>& item) {return DeviceIndex::Identifier(item.param).toStdString(); });
+#endif
+
+TEST_P(BluetoothDeviceTestSuite, TestDeviceNotDetectedDueToExclusions) {
     this->test_deviceDetection_exclusions();
 }
 
-TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceDetectedValidNamesSettingsEnabled) {
+TEST_P(BluetoothDeviceTestSuite, TestDeviceDetectedValidNamesSettingsEnabled) {
     this->test_deviceDetection_validNames_enabled();
 }
 
-TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedValidNamesSettingsDisabled) {
+TEST_P(BluetoothDeviceTestSuite, TestDeviceNotDetectedValidNamesSettingsDisabled) {
     this->test_deviceDetection_validNames_disabled();
 }
 
-TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedInvalidNamesSettingsEnabled) {
+TEST_P(BluetoothDeviceTestSuite, TestDeviceNotDetectedInvalidNamesSettingsEnabled) {
     this->test_deviceDetection_invalidNames_enabled();
 }
 
-TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedValidNamesInvalidBluetoothDeviceInfo) {
-    this->test_deviceDetection_validNames_invalidBluetoothDeviceInfo();
-}

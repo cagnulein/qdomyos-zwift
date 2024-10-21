@@ -654,7 +654,7 @@ void trxappgateusbtreadmill::characteristicWritten(const QLowEnergyCharacteristi
 }
 
 void trxappgateusbtreadmill::serviceScanDone(void) {
-    emit debug(QStringLiteral("serviceScanDone"));
+    qDebug() << QStringLiteral("serviceScanDone") << treadmill_type;
 
     QString uuid = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
     if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::DKN_2) {
