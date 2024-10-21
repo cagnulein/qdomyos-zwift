@@ -192,10 +192,16 @@ void wahookickrsnapbike::update() {
         }
         QThread::msleep(700);
 
+        QByteArray d = setWheelCircumference(gearsToWheelDiameter(gears()));
+        uint8_t e[20];
+        setGears(1);
+        memcpy(e, d.constData(), d.length());
+        writeCharacteristic(e, d.length(), "setWheelCircumference", false, true);
+
         // required to the SS2K only one time
         Resistance = 0;
         emit resistanceRead(Resistance.value());
-        initRequest = false;
+        initRequest = false;               
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
@@ -259,7 +265,10 @@ void wahookickrsnapbike::update() {
                memcpy(b, a.constData(), a.length());
                writeCharacteristic(b, a.length(), "setResistance", false, true);
             } else if (virtualBike && virtualBike->ftmsDeviceConnected() && lastGearValue != gears()) {
-                inclinationChanged(lastGrade, lastGrade);
+               QByteArray a = setWheelCircumference(gearsToWheelDiameter(gears()));
+               uint8_t b[20];
+               memcpy(b, a.constData(), a.length());
+               writeCharacteristic(b, a.length(), "setWheelCircumference", false, true);
             }
             lastGearValue = gears();
             requestResistance = -1;
@@ -278,6 +287,16 @@ void wahookickrsnapbike::update() {
             requestStop = -1;
         }
     }
+}
+
+double wahookickrsnapbike::gearsToWheelDiameter(double gear) {
+    GearTable table;
+    if(gear < 1) gear = 1;
+    else if(gear > 12) gear = 12;
+    double original_ratio = crankset / rear_cog_size;
+    GearTable::GearInfo g = table.getGear((int)gear);
+    double current_ratio =  g.crankset / g.rearCog;
+    return (wheel_size / current_ratio) * original_ratio;
 }
 
 void wahookickrsnapbike::serviceDiscovered(const QBluetoothUuid &gatt) {
@@ -823,7 +842,6 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
     QSettings settings;
     double g = grade;
-    g += gears();
     QByteArray a = setSimGrade(g);
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());
