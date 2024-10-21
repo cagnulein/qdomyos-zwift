@@ -93,8 +93,6 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             if (!this->noHeartService || heart_only) {
                 services << QBluetoothUuid::HeartRate;
             }
-
-            services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
         } else if (ifit) {
             services << (QBluetoothUuid(QStringLiteral("00001533-1412-efde-1523-785feabcd123")));
 
