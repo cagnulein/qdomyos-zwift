@@ -1,3 +1,4 @@
+
 # This is a basic workflow to help you get started with Actions
 
 name: CI
@@ -1052,6 +1053,174 @@ jobs:
           name: windows-msvc2019-ai-server-binary
           path: windows-msvc2019-ai-server-binary.zip
 
+  raspberry-pi-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Secrets
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          echo "#define LICENSE" >> secret.h
+          cd ..
+
+      - name: Build for Raspberry Pi
+        uses: docker://arm32v7/debian:bullseye
+        with:
+          args: >
+            bash -c "
+            set -ex &&
+            apt-get update && 
+            apt-get install -y build-essential git cmake qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 &&
+            export QT_SELECT=qt5 &&
+            export PATH=/usr/lib/qt5/bin:$PATH &&
+            cd /github/workspace &&
+            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
+            cat qdomyos-zwift.pro &&
+            qmake &&
+            make -j$(nproc)
+            "
+
+      - name: Archive Raspberry Pi binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberry-pi-binary
+          path: src/qdomyos-zwift
+
+  raspberry-pi-build-and-image-64bit:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Secrets
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          echo "#define LICENSE" >> secret.h
+          cd ..
+
+      - name: Build for Raspberry Pi 64-bit
+        uses: docker://arm64v8/debian:bullseye
+        with:
+          args: >
+            bash -c "
+            set -ex &&
+            apt-get update && 
+            apt-get install -y build-essential git cmake qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 &&
+            export QT_SELECT=qt5 &&
+            export PATH=/usr/lib/qt5/bin:$PATH &&
+            cd /github/workspace &&
+            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
+            cat qdomyos-zwift.pro &&
+            qmake &&
+            make -j$(nproc)
+            "
+
+      - name: Archive Raspberry Pi binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberry-pi-64bit-binary
+          path: src/qdomyos-zwift
+
+      - name: Download and expand Raspberry Pi OS image
+        run: |
+          wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-05-03/2023-05-03-raspios-bullseye-arm64-lite.img.xz
+          xz -d 2023-05-03-raspios-bullseye-arm64-lite.img.xz
+          ORIGINAL_SIZE=$(stat -c %s 2023-05-03-raspios-bullseye-arm64-lite.img)
+          NEW_SIZE=$((ORIGINAL_SIZE + 2*1024*1024*1024))  # Add 2GB
+          truncate -s $NEW_SIZE 2023-05-03-raspios-bullseye-arm64-lite.img
+          sudo apt-get update
+          sudo apt-get install -y parted
+          sudo parted 2023-05-03-raspios-bullseye-arm64-lite.img resizepart 2 100%
+
+      - name: Mount Raspberry Pi image
+        run: |
+          sudo apt-get install -y kpartx qemu-user-static
+          LOOP_DEVICE=$(sudo losetup -f --show 2023-05-03-raspios-bullseye-arm64-lite.img)
+          echo "Loop device is $LOOP_DEVICE"
+          sudo kpartx -av $LOOP_DEVICE
+          sudo mkdir -p /mnt/raspbian
+          sudo mount /dev/mapper/$(basename $LOOP_DEVICE)p2 /mnt/raspbian
+          sudo resize2fs /dev/mapper/$(basename $LOOP_DEVICE)p2
+          echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
+          sudo cp /usr/bin/qemu-aarch64-static /mnt/raspbian/usr/bin/
+
+      - name: Install Qt and dependencies on Raspberry Pi image
+        run: |
+          sudo chroot /mnt/raspbian qemu-aarch64-static /bin/bash << EOF
+          apt-get update
+          apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2
+          EOF
+
+      - name: Copy binary to Raspberry Pi image
+        run: |
+          sudo cp src/qdomyos-zwift /mnt/raspbian/home/pi/
+          sudo chown 1000:1000 /mnt/raspbian/home/pi/qdomyos-zwift
+
+      - name: Setup auto-start for qdomyos-zwift
+        run: |
+          echo '[Unit]
+          Description=QDomyos-Zwift
+          After=multi-user.target
+
+          [Service]
+          ExecStart=/home/pi/qdomyos-zwift
+          User=pi
+          Environment=DISPLAY=:0
+
+          [Install]
+          WantedBy=multi-user.target' | sudo tee /mnt/raspbian/etc/systemd/system/qdomyos-zwift.service
+          sudo chroot /mnt/raspbian systemctl enable qdomyos-zwift.service
+
+      - name: Unmount Raspberry Pi image
+        run: |
+          sudo umount /mnt/raspbian
+          sudo kpartx -d ${{ env.LOOP_DEVICE }}
+          sudo losetup -d ${{ env.LOOP_DEVICE }}
+
+      - name: Compress modified Raspberry Pi image
+        run: |
+          xz -z 2023-05-03-raspios-bullseye-arm64-lite.img
+
+      - name: Upload Raspberry Pi image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberry-pi-64bit-image
+          path: 2023-05-03-raspios-bullseye-arm64-lite.img.xz
+  
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-20.04 
@@ -1085,3 +1254,9 @@ jobs:
             windows-binary-no-python/*
             windows-binary/*
             fdroid-android-trial/*
+            raspberry-pi-binary/*
+            raspberry-pi-64bit-binary/*
+            2023-05-03-raspios-bullseye-arm64-lite.img.xz
+
+
+  
