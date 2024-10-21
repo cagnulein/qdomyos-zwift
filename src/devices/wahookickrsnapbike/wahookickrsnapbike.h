@@ -56,7 +56,7 @@ class wahookickrsnapbike : public bike {
         _setWheelCircumference = 72,
     };
 
-  private:
+  private:    
     QByteArray unlockCommand();
     QByteArray setResistanceMode(double resistance);
     QByteArray setStandardMode(uint8_t level);
@@ -108,6 +108,71 @@ class wahookickrsnapbike : public bike {
     volatile int notificationSubscribed = 0;
 
     resistance_t lastForcedResistance = -1;
+
+    // cranks & co.
+    double crankset = 40;
+    double rear_cog_size = 14;
+    double wheel_size = 2230; // mm 700x44
+    double gearsToWheelDiameter(double gear);
+
+    class GearTable {
+      public:
+        struct GearInfo {
+            int gear;
+            int crankset;
+            int rearCog;
+        };
+
+        GearTable() {
+            gears = {
+                {1, 38, 44},
+                {2, 38, 38},
+                {3, 38, 32},
+                {4, 38, 28},
+                {5, 38, 24},
+                {6, 38, 21},
+                {7, 38, 19},
+                {8, 38, 17},
+                {9, 38, 15},
+                {10, 38, 13},
+                {11, 38, 11},
+                {12, 38, 10}
+            };
+        }
+
+        void addGear(int gear, int crankset, int rearCog) {
+            gears.push_back({gear, crankset, rearCog});
+        }
+
+        void removeGear(int gear) {
+            gears.erase(std::remove_if(gears.begin(), gears.end(),
+                                       [gear](const GearInfo& info) { return info.gear == gear; }),
+                        gears.end());
+        }
+
+        void printTable() const {
+            qDebug() << "| Gear | Crankset | Rear Cog |\n";
+            qDebug() << "|------|----------|----------|\n";
+            for (const auto& gear : gears) {
+                qDebug()  << "| " << gear.gear << " | " << gear.crankset
+                          << " | " << gear.rearCog << " |\n";
+            }
+        }
+
+        GearInfo getGear(int gearNumber) const {
+            auto it = std::find_if(gears.begin(), gears.end(),
+                                   [gearNumber](const GearInfo& info) { return info.gear == gearNumber; });
+
+            if (it != gears.end()) {
+                return *it;
+            }
+            return GearInfo();
+        }
+
+      private:
+        std::vector<GearInfo> gears;
+    };
+
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
