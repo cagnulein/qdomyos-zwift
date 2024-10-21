@@ -914,3 +914,10 @@ void eslinkertreadmill::waitForHandshakePacket() {
     timeout.singleShot(3000, &loop, SLOT(quit()));
     loop.exec();
 }
+
+double eslinkertreadmill::minStepSpeed() {
+    if(treadmill_type == ESANGLINKER)
+        return 0.160934;  // 0.1 mi
+    else
+        return 0.5;
+}
