@@ -783,7 +783,9 @@ const QString QZSettings::trixter_xdream_v1_bike_connection_timeout_ms = QString
 
 
 
-QMap<QString, QVariant> allSettings{
+const uint32_t allSettingsCount = 663;
+
+QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
     {QZSettings::bike_wheel_revs, QZSettings::default_bike_wheel_revs},
@@ -1453,12 +1455,18 @@ void QZSettings::qDebugAllSettings(bool showDefaults) {
     QSettings settings;
     // make a copy of the settings for sorting
     std::vector<QVariant *> sorted;
-
-    auto keys = allSettings.keys();
-    keys.sort(Qt::CaseSensitivity::CaseSensitive);
-
-    for(auto key : keys) {
-        QVariant defaultValue = allSettings[key];
+    for (uint32_t i = 0; i < allSettingsCount; i++) {
+        sorted.push_back(allSettings[i]);
+    }
+    // sort the settings alphabetically
+    struct {
+        bool operator()(QVariant *a, QVariant *b) { return a[0].toString() < b[0].toString(); }
+    } comparer;
+    std::sort(sorted.begin(), sorted.end(), comparer);
+    for (uint32_t i = 0; i < sorted.size(); i++) {
+        QVariant *item = sorted[i];
+        QString key = item[0].toString();
+        QVariant defaultValue = item[1];
         if (!showDefaults) {
             qDebug() << key << settings.value(key, defaultValue);
         } else {
@@ -1470,7 +1478,7 @@ void QZSettings::qDebugAllSettings(bool showDefaults) {
 void QZSettings::restoreAll() {
     qDebug() << QStringLiteral("RESTORING SETTINGS!");
     QSettings settings;
-
-    for(auto setting=allSettings.keyValueBegin(); setting!=allSettings.keyValueEnd(); setting++)
-        settings.setValue(setting->first, setting->second);
+    for (uint32_t i = 0; i < allSettingsCount; i++) {
+        settings.setValue(allSettings[i][0].toString(), allSettings[i][1]);
+    }
 }
