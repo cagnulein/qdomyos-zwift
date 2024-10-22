@@ -803,6 +803,15 @@ void horizontreadmill::btinit() {
         messageID = 0x10;
     }
 
+    if(wellfit_treadmill) {
+        uint8_t write[] = {FTMS_REQUEST_CONTROL};
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                            false);
+        QThread::msleep(500);
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                            false);
+    }
+
     initDone = true;
 }
 
@@ -1140,7 +1149,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -2188,6 +2197,24 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     }
 
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
+                } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
+                                                                                                                      // if it's a FTMS treadmill and has FTMS and/or RSC service too
+                           ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid()))
+                             && !gattCustomService))) {
+                    QByteArray descriptor;
+                    descriptor.append((char)0x02);
+                    descriptor.append((char)0x00);
+                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                        notificationSubscribed++;
+                    } else {
+                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << QStringLiteral(" is not valid");
+                    }
+
+                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
                 }
             }
         }
@@ -2320,6 +2347,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL"))) {
             kettler_treadmill = true;
             qDebug() << QStringLiteral("KETTLER TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("WELLFIT TM"))) {
+            wellfit_treadmill = true;
+            qDebug() << QStringLiteral("WELLFIT TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) {
             anplus_treadmill = true;
             qDebug() << QStringLiteral("ANPLUS TREADMILL workaround ON!");
