@@ -10,7 +10,7 @@ const QString trixterxdreamv1settings::keys::SteeringCalibrationCenterLeft =QZSe
 const QString trixterxdreamv1settings::keys::SteeringCalibrationCenterRight = QZSettings::trixter_xdream_v1_bike_steering_cr;
 const QString trixterxdreamv1settings::keys::SteeringCalibrationRight = QZSettings::trixter_xdream_v1_bike_steering_r;
 const QString trixterxdreamv1settings::keys::SteeringCalibrationMAX = QZSettings::trixter_xdream_v1_bike_steering_max;
-const QString trixterxdreamv1settings::keys::ConnectionTimeoutMilliseconds = QZSettings::trixter_xdream_v1_bike_connectionTimeoutMilliseconds;
+const QString trixterxdreamv1settings::keys::ConnectionTimeoutMilliseconds = QZSettings::trixter_xdream_v1_bike_connection_timeout_ms;
 
 
 template <typename T>

@@ -2180,8 +2180,8 @@ class QZSettings {
     static const QString trixter_xdream_v1_bike_steering_r;
     static constexpr int8_t default_trixter_xdream_v1_bike_steering_r = default_trixter_xdream_v1_bike_steering_max;
 
-    static const QString trixter_xdream_v1_bike_connectionTimeoutMilliseconds;
-    static constexpr uint32_t default_trixter_xdream_v1_bike_connectionTimeoutMilliseconds= 500;
+    static const QString trixter_xdream_v1_bike_connection_timeout_ms;
+    static constexpr uint32_t default_trixter_xdream_v1_bike_connection_timeout_ms= 500;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

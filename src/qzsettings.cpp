@@ -779,7 +779,7 @@ const QString QZSettings::trixter_xdream_v1_bike_steering_cl = QStringLiteral("t
 const QString QZSettings::trixter_xdream_v1_bike_steering_cr = QStringLiteral("trixter_xdream_v1_bike_steering_cr");
 const QString QZSettings::trixter_xdream_v1_bike_steering_r = QStringLiteral("trixter_xdream_v1_bike_steering_r");
 const QString QZSettings::trixter_xdream_v1_bike_steering_max = QStringLiteral("trixter_xdream_v1_bike_steering_max");
-const QString QZSettings::trixter_xdream_v1_bike_connectionTimeoutMilliseconds = QStringLiteral("trixter_xdream_v1_bike_connectionTimeoutMilliseconds");
+const QString QZSettings::trixter_xdream_v1_bike_connection_timeout_ms = QStringLiteral("trixter_xdream_v1_bike_connection_timeout_ms");
 
 
 
@@ -1446,7 +1446,7 @@ QMap<QString, QVariant> allSettings{
     {QZSettings::trixter_xdream_v1_bike_steering_cr, QZSettings::default_trixter_xdream_v1_bike_steering_cr },
     {QZSettings::trixter_xdream_v1_bike_steering_r, QZSettings::default_trixter_xdream_v1_bike_steering_r },
     {QZSettings::trixter_xdream_v1_bike_steering_max, QZSettings::default_trixter_xdream_v1_bike_steering_max },
-    {QZSettings::trixter_xdream_v1_bike_connectionTimeoutMilliseconds, QZSettings::default_trixter_xdream_v1_bike_connectionTimeoutMilliseconds }
+    {QZSettings::trixter_xdream_v1_bike_connection_timeout_ms, QZSettings::default_trixter_xdream_v1_bike_connection_timeout_ms }
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

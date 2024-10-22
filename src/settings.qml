@@ -3091,7 +3091,7 @@ import QtQuick.Dialogs 1.0
                             }
                             SpinBox {
                                 id: trixterXDreamV1BikeSteeringAngleLeftSpinBox
-                                value: settings.trixter_xdream_v1_bike_steering_L
+                                value: settings.trixter_xdream_v1_bike_steering_l
                                 hoverEnabled: true
                                 ToolTip.visible: hovered
                                 ToolTip.text: qsTr("Unadjusted steering angle that is 100% left.")
@@ -3099,9 +3099,9 @@ import QtQuick.Dialogs 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 inputMethodHints: Qt.ImhDigitsOnly
 
-                                from: -settings.trixter_xdream_v1_bike_steering_MAX
+                                from: -settings.trixter_xdream_v1_bike_steering_max
                                 to: trixterXDreamV1BikeSteeringAngleCenterLeftSpinBox.value
-                                onValueChanged: settings.trixter_xdream_v1_bike_steering_L = value
+                                onValueChanged: settings.trixter_xdream_v1_bike_steering_l = value
                             }
                         }
                         RowLayout {
@@ -3111,7 +3111,7 @@ import QtQuick.Dialogs 1.0
                             }
                             SpinBox {
                                 id: trixterXDreamV1BikeSteeringAngleCenterLeftSpinBox
-                                value: settings.trixter_xdream_v1_bike_steering_CL
+                                value: settings.trixter_xdream_v1_bike_steering_cl
                                 hoverEnabled: true
                                 ToolTip.visible: hovered
                                 ToolTip.text: qsTr("Leftmost unadjusted steering angle to be mapped to 0 degrees.")
@@ -3122,7 +3122,7 @@ import QtQuick.Dialogs 1.0
 
                                 from: trixterXDreamV1BikeSteeringAngleLeftSpinBox.value
                                 to: trixterXDreamV1BikeSteeringAngleCenterRightSpinBox.value
-                                onValueChanged: settings.trixter_xdream_v1_bike_steering_CL = value
+                                onValueChanged: settings.trixter_xdream_v1_bike_steering_cl = value
                             }
                         }
                         RowLayout {
@@ -3132,7 +3132,7 @@ import QtQuick.Dialogs 1.0
                             }
                             SpinBox {
                                 id: trixterXDreamV1BikeSteeringAngleCenterRightSpinBox
-                                value: settings.trixter_xdream_v1_bike_steering_CR
+                                value: settings.trixter_xdream_v1_bike_steering_cr
                                 hoverEnabled: true
                                 ToolTip.visible: hovered
                                 ToolTip.text: qsTr("Rightmost unadjusted steering angle to be mapped to 0 degrees.")
@@ -3141,7 +3141,7 @@ import QtQuick.Dialogs 1.0
                                 inputMethodHints: Qt.ImhDigitsOnly
                                 from: trixterXDreamV1BikeSteeringAngleCenterLeftSpinBox.value
                                 to: trixterXDreamV1BikeSteeringAngleRightSpinBox.value
-                                onValueChanged: settings.trixter_xdream_v1_bike_steering_CR = value
+                                onValueChanged: settings.trixter_xdream_v1_bike_steering_cr = value
                             }}
                         RowLayout {
                             Label {
@@ -3150,7 +3150,7 @@ import QtQuick.Dialogs 1.0
                             }
                             SpinBox {
                                 id: trixterXDreamV1BikeSteeringAngleRightSpinBox
-                                value: settings.trixter_xdream_v1_bike_steering_R
+                                value: settings.trixter_xdream_v1_bike_steering_r
                                 hoverEnabled: true
                                 ToolTip.visible: hovered
                                 ToolTip.text: qsTr("Unadjusted steering angle that is 100% right.")
@@ -3159,17 +3159,17 @@ import QtQuick.Dialogs 1.0
                                 inputMethodHints: Qt.ImhDigitsOnly
                                 from: trixterXDreamV1BikeSteeringAngleCenterRightSpinBox.value
                                 to: 45
-                                onValueChanged: settings.trixter_xdream_v1_bike_steering_R = value
+                                onValueChanged: settings.trixter_xdream_v1_bike_steering_r = value
                             }}
                         Button {
                             id: resetTrixterXDreamV1BikeSteeringAnglesReset
                             text: "RESET"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
-                                settings.trixter_xdream_v1_bike_steering_L = -settings.trixter_xdream_v1_bike_steering_MAX
-                                settings.trixter_xdream_v1_bike_steering_CL = -2
-                                settings.trixter_xdream_v1_bike_steering_CR = 2
-                                settings.trixter_xdream_v1_bike_steering_R = settings.trixter_xdream_v1_bike_steering_MAX
+                                settings.trixter_xdream_v1_bike_steering_l = -settings.trixter_xdream_v1_bike_steering_max
+                                settings.trixter_xdream_v1_bike_steering_cl = -2
+                                settings.trixter_xdream_v1_bike_steering_cr = 2
+                                settings.trixter_xdream_v1_bike_steering_r = settings.trixter_xdream_v1_bike_steering_max
                                 trixterXDreamV1Calibration.update()
                             }
                         }

@@ -59,7 +59,7 @@ void InitializeTrackedSettings()
     trackedSettings.insert(QZSettings::trixter_xdream_v1_bike_steering_cr, QZSettings::default_trixter_xdream_v1_bike_steering_cr);
     trackedSettings.insert(QZSettings::trixter_xdream_v1_bike_steering_r, QZSettings::default_trixter_xdream_v1_bike_steering_r);
     trackedSettings.insert(QZSettings::trixter_xdream_v1_bike_steering_max, QZSettings::default_trixter_xdream_v1_bike_steering_max);
-    trackedSettings.insert(QZSettings::trixter_xdream_v1_bike_connectionTimeoutMilliseconds, QZSettings::default_trixter_xdream_v1_bike_connectionTimeoutMilliseconds);
+    trackedSettings.insert(QZSettings::trixter_xdream_v1_bike_connection_timeout_ms, QZSettings::default_trixter_xdream_v1_bike_connection_timeout_ms);
 
 
 };
