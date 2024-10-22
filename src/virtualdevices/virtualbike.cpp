@@ -916,7 +916,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             }
 
             if (targetCharacteristic.isValid()) {
-                characteristicChanged(targetCharacteristic, QByteArray::fromHex("110000") + slope + QByteArray::fromHex("0000"));
+                characteristicChanged(targetCharacteristic, QByteArray::fromHex("116901") + slope + QByteArray::fromHex("3228"));
 
                 QByteArray response = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
                 writeCharacteristic(serviceZwiftPlayBike, zwiftPlayIndicate, response);
