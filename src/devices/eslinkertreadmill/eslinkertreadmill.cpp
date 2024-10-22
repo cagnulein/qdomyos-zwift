@@ -461,12 +461,11 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         }
     }
 
-    if ((newValue.length() != 17 && (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE)))
-        return;
-    else if (newValue.length() != 5 && (treadmill_type == COSTAWAY || treadmill_type == TYPE::ESANGLINKER))
-        return;
+    if ((newValue.length() != 17 && (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE))) {
 
-    if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
+    } else if (newValue.length() != 5 && (treadmill_type == COSTAWAY || treadmill_type == TYPE::ESANGLINKER)) {
+
+    } else if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
         double speed = GetSpeedFromPacket(value);
         double incline = GetInclinationFromPacket(value);
         double kcal = GetKcalFromPacket(value);
