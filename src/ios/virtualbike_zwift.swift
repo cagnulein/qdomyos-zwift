@@ -392,6 +392,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       let expectedHexArray5: [UInt8] = [0x04, 0x22]
       let expectedHexArray6: [UInt8] = [0x04, 0x2a, 0x04, 0x10]
       let expectedHexArray7: [UInt8] = [0x04, 0x2a, 0x03, 0x10]
+      let expectedHexArray8: [UInt8] = [0x04, 0x18]
 
       let receivedBytes = [UInt8](receivedData.prefix(expectedHexArray.count))
       
@@ -515,6 +516,25 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           updateQueue.append((ZwiftPlayIndicateCharacteristic, responseData))
 
     }
+
+      let receivedBytes8 = [UInt8](receivedData.prefix(expectedHexArray8.count))
+      
+      if receivedBytes8 == expectedHexArray8 {
+        SwiftDebug.qtDebug("Zwift Play Ask 8")
+        peripheral.respond(to: requests.first!, withResult: .success)
+        
+        var power: [UInt8] = [ receivedBytes[2], 0x00 ]
+        var high : UInt16 = (((UInt16)(power[1])) << 8);
+        self.PowerRequested = (Double)((UInt16)(power[0]) + high);
+        LastFTMSMessageReceived = Data([0x05, power[0], power[1]])
+          
+        var response: [UInt8] = [ 0x03, 0x08, 0x82, 0x01, 0x10, 0x22, 0x18, 0x10, 0x20, 0x00, 0x28, 0x98, 0x52, 0x30, 0x86, 0xed, 0x01 ]
+        response[2] = self.CurrentWatt
+        var responseData = Data(bytes: &response, count: 17)
+
+          updateQueue.append((ZwiftPlayReadUUID, responseData))
+      }
+
     }
     }
     

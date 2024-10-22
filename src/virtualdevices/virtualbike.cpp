@@ -845,6 +845,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         static const QByteArray expectedHexArray5 = QByteArray::fromHex("0422");
         static const QByteArray expectedHexArray6 = QByteArray::fromHex("042A0410");
         static const QByteArray expectedHexArray7 = QByteArray::fromHex("042A0310");
+        static const QByteArray expectedHexArray8 = QByteArray::fromHex("0418");
 
         QByteArray receivedData = newValue;
 
@@ -910,7 +911,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             for (const QLowEnergyCharacteristic &characteristic : serviceFIT->characteristics()) {
                 if (characteristic.uuid() == targetUuid) {
                     targetCharacteristic = characteristic;
-                    break;  // Abbiamo trovato la caratteristica, usciamo dal ciclo
+                    break; 
                 }
             }
 
@@ -947,6 +948,35 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             response[10] = receivedData[5];
             handleZwiftGear(receivedData.mid(4));
             writeCharacteristic(serviceZwiftPlayBike, zwiftPlayIndicate, response);
+        }
+        else if (receivedData.startsWith(expectedHexArray8)) {
+            qDebug() << "Zwift Play Ask 8";
+
+            QByteArray power(2, 0);
+            power[0] = receivedData[1];
+            double Power = (qint16(power[0]) + ((qint16(power[1]) << 8) & 0xFF00));
+            power[0] = quint8(qint16(Power) & 0xFF);
+            power[1] = quint8((qint16(Power) >> 8) & 0x00FF);
+
+            QBluetoothUuid targetUuid = QBluetoothUuid(quint16(0x2ad9));
+            QLowEnergyCharacteristic targetCharacteristic;
+
+            for (const QLowEnergyCharacteristic &characteristic : serviceFIT->characteristics()) {
+                if (characteristic.uuid() == targetUuid) {
+                    targetCharacteristic = characteristic;
+                    break; 
+                }
+            }
+
+            if (targetCharacteristic.isValid()) {
+                characteristicChanged(targetCharacteristic, QByteArray::fromHex("05") + power);
+
+                QByteArray response = QByteArray::fromHex("030882011022181020002898523086ed01");
+                response[2] = (uint8_t)Bike->wattsMetric().value();
+                writeCharacteristic(serviceZwiftPlayBike, zwiftPlayRead, response);
+            } else {
+                qDebug() << "ERROR! Zwift Play Ask 8 without answer!";
+            }
         }
     }
 

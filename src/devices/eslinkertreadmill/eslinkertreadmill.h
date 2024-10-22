@@ -36,6 +36,7 @@ class eslinkertreadmill : public treadmill {
     double minStepInclination() override;
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
+    double minStepSpeed() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
