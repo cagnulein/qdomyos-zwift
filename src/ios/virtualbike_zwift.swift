@@ -529,10 +529,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         LastFTMSMessageReceived = Data([0x05, power[0], power[1]])
           
         var response: [UInt8] = [ 0x03, 0x08, 0x82, 0x01, 0x10, 0x22, 0x18, 0x10, 0x20, 0x00, 0x28, 0x98, 0x52, 0x30, 0x86, 0xed, 0x01 ]
-        response[2] = self.CurrentWatt
+        response[2] = UInt8(self.CurrentWatt)
         var responseData = Data(bytes: &response, count: 17)
 
-          updateQueue.append((ZwiftPlayReadUUID, responseData))
+          updateQueue.append((ZwiftPlayReadCharacteristic, responseData))
       }
 
     }
