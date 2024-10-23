@@ -92,11 +92,19 @@ class virtualbike : public virtualdevice {
 
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
-
+    
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
-
+    
+    // Struct to hold varint decoding result
+    struct VarintResult {
+       qint64 value;
+       int bytesRead;
+    };
+    VarintResult decodeVarint(const QByteArray& bytes, int startIndex);
+    qint32 decodeSInt(const QByteArray& bytes);
+    
   signals:
     void changeInclination(double grade, double percentage);
 

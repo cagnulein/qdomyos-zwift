@@ -494,6 +494,55 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         &virtualbike::error);
 }
 
+// zwift play emulator protobuf
+
+// Decode a protobuf varint starting from startIndex
+// Returns the decoded value and number of bytes read
+virtualbike::VarintResult virtualbike::decodeVarint(const QByteArray& bytes, int startIndex) {
+   qint64 result = 0;
+   int shift = 0;
+   int bytesRead = 0;
+   
+   for (int i = startIndex; i < bytes.size(); i++) {
+       quint8 byte = static_cast<quint8>(bytes.at(i));
+       result |= static_cast<qint64>(byte & 0x7F) << shift;
+       bytesRead++;
+       
+       // If the most significant bit is 0, we're done
+       if ((byte & 0x80) == 0) {
+           break;
+       }
+       shift += 7;
+   }
+   
+   return {result, bytesRead};
+}
+
+// Decode a protobuf sint value from a byte array
+// Expects a field header (0x22), length byte, inner header (0x10) and varint value
+qint32 virtualbike::decodeSInt(const QByteArray& bytes) {
+   // Check field header (0x22 = field number 4, wire type 2)
+   if (static_cast<quint8>(bytes.at(0)) != 0x22) {
+       qFatal("Invalid field header");
+   }
+   
+   // Get content length
+   int length = static_cast<quint8>(bytes.at(1));
+   
+   // Check inner header (0x10 = field number 2, wire type 0)
+   if (static_cast<quint8>(bytes.at(2)) != 0x10) {
+       qFatal("Invalid inner header");
+   }
+   
+   // Decode the varint value
+   VarintResult varint = decodeVarint(bytes, 3);
+   
+   // Apply ZigZag decoding to get the original signed value
+   qint32 decoded = (varint.value >> 1) ^ -(varint.value & 1);
+   
+   return decoded;
+}
+
 void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QByteArray reply;
     QSettings settings;
@@ -896,14 +945,10 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         else if (receivedData.startsWith(expectedHexArray5)) {
             qDebug() << "Zwift Play Ask 5";
 
+            double slopefloat = decodeSInt(receivedData.mid(1));
             QByteArray slope(2, 0);
-            slope[0] = receivedData[4];
-            if (receivedData.at(2) == (uint8_t)0x03) {
-                slope[1] = receivedData[5];
-            }
-            double CurrentSlope = (qint16(slope[0]) + ((qint16(slope[1]) << 8) & 0xFF00)) / 4.0;
-            slope[0] = quint8(qint16(CurrentSlope) & 0xFF);
-            slope[1] = quint8((qint16(CurrentSlope) >> 8) & 0x00FF);
+            slope[0] = quint8(qint16(slopefloat) & 0xFF);
+            slope[1] = quint8((qint16(slopefloat) >> 8) & 0x00FF);
 
             QBluetoothUuid targetUuid = QBluetoothUuid(quint16(0x2ad9));
             QLowEnergyCharacteristic targetCharacteristic;
@@ -953,10 +998,9 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             qDebug() << "Zwift Play Ask 8";
 
             QByteArray power(2, 0);
-            power[0] = receivedData[1];
-            double Power = (qint16(power[0]) + ((qint16(power[1]) << 8) & 0xFF00));
-            power[0] = quint8(qint16(Power) & 0xFF);
-            power[1] = quint8((qint16(Power) >> 8) & 0x00FF);
+            VarintResult Power = decodeVarint(receivedData, 2);
+            power[0] = quint8(qint16(Power.value) & 0xFF);
+            power[1] = quint8((qint16(Power.value) >> 8) & 0x00FF);
 
             QBluetoothUuid targetUuid = QBluetoothUuid(quint16(0x2ad9));
             QLowEnergyCharacteristic targetCharacteristic;

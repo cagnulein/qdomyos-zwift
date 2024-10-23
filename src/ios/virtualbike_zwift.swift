@@ -471,7 +471,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           self.CurrentSlope = Double(slopefloat)
           slope[0] = UInt8(Int16(self.CurrentSlope) & 0xFF)
           slope[1] = UInt8((Int16(self.CurrentSlope) >> 8) & 0x00FF)
-          LastFTMSMessageReceived = Data([0x11, 0x00, 0x00, slope[0], slope[1], 0x00, 0x00])
+          LastFTMSMessageReceived = Data([0x11, 0x69, 0x01, slope[0], slope[1], 0x32, 0x28])
           
         var response: [UInt8] = [ 0x3c, 0x08, 0x88, 0x04, 0x12, 0x06, 0x0a, 0x04, 0x40, 0xc0, 0xbb, 0x01 ]
         var responseData = Data(bytes: &response, count: 12)
