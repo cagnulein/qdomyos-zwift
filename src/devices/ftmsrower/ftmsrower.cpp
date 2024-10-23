@@ -78,8 +78,13 @@ void ftmsrower::update() {
     }
 
     if (initRequest) {
-        uint8_t write[] = {FTMS_START_RESUME};
-        writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+        if(I_ROWER) {
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(write, sizeof(write), "start", false, true);
+        } else {
+            uint8_t write[] = {FTMS_START_RESUME};
+            writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+        }
 
         initRequest = false;
     } else if (bluetoothDevice.isValid() &&
@@ -583,6 +588,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("DFIT-L-R"))) {
             DFIT_L_R = true;
             qDebug() << "DFIT_L_R found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("I-ROWER"))) {
+            I_ROWER = true;
+            qDebug() << "I_ROWER found!";            
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";
