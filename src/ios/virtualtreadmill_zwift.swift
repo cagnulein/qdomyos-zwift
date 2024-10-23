@@ -337,7 +337,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     
     // Distance in meters (assuming you have a totalDistance property)
     // Using UInt32 as per BLE specification for distance
-    let distance: UInt32 = UInt32(self.CurrentDistance)
+    let distance: UInt32 = UInt32(self.CurrentDistance) * 10
     
     // Create measurement array with distance
     var rscMeasurement: [UInt8] = [
