@@ -501,12 +501,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             lastSpeed = speed;
             lastInclination = incline;
         }
-    } else if (treadmill_type == COSTAWAY || treadmill_type == TYPE::ESANGLINKER) {
-        if(treadmill_type == TYPE::ESANGLINKER) {
-            if((uint8_t)newValue.at(1) != 0xe0)
-                return;
-        }
-
+    } else if (treadmill_type == COSTAWAY || (treadmill_type == TYPE::ESANGLINKER && (uint8_t)newValue.at(1) == 0xe0)) {
         const double miles = 1.60934;
         if(((uint8_t)newValue.at(3)) == 0xFF && treadmill_type == COSTAWAY)
             Speed = 0;
