@@ -463,13 +463,14 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         peripheral.respond(to: requests.first!, withResult: .success)
         
         // 04 22 02 10 1a TODO
-          var slope: [UInt8] = [ receivedBytes[4], 0x00 ]
-          if receivedBytes[2] == 0x03 {
-              slope[1] = receivedBytes[5]
-          }
-          self.CurrentSlope = Double(UInt16(slope[0]) + ((UInt16(slope[1]) << 8) & 0xFF00)) / 4.0
-          slope[0] = UInt8(UInt16(self.CurrentSlope) & 0xFF)
-          slope[1] = UInt8((UInt16(self.CurrentSlope) >> 8) & 0x00FF)
+          var r = receivedBytes
+          r.remove(at: 0)
+          var slopefloat = decodeSInt(r)
+          print("slopefloat \(slopefloat)")
+          var slope: [UInt8] = [ 0x00, 0x00 ]
+          self.CurrentSlope = Double(slopefloat)
+          slope[0] = UInt8(Int16(self.CurrentSlope) & 0xFF)
+          slope[1] = UInt8((Int16(self.CurrentSlope) >> 8) & 0x00FF)
           LastFTMSMessageReceived = Data([0x11, 0x00, 0x00, slope[0], slope[1], 0x00, 0x00])
           
         var response: [UInt8] = [ 0x3c, 0x08, 0x88, 0x04, 0x12, 0x06, 0x0a, 0x04, 0x40, 0xc0, 0xbb, 0x01 ]
@@ -523,16 +524,23 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         SwiftDebug.qtDebug("Zwift Play Ask 8")
         peripheral.respond(to: requests.first!, withResult: .success)
         
-        var power: [UInt8] = [ receivedBytes[2], 0x00 ]
-        var high : UInt16 = (((UInt16)(power[1])) << 8);
-        self.PowerRequested = (Double)((UInt16)(power[0]) + high);
-        LastFTMSMessageReceived = Data([0x05, power[0], power[1]])
+        var protobuf: [UInt8] = [receivedData[2], 0x00]
+          if(receivedData.count == 4) {
+              protobuf[1] = receivedData[3]
+          }
+                
+        let (power, _)  = decodeVarint(protobuf, startIndex: 0)
+        self.PowerRequested = (Double)(power);
+        LastFTMSMessageReceived = Data([0x05, UInt8(UInt16(power) & 0xff), UInt8(((UInt16(power) & 0xff00) >> 8) & 0x00ff)])
           
         var response: [UInt8] = [ 0x03, 0x08, 0x82, 0x01, 0x10, 0x22, 0x18, 0x10, 0x20, 0x00, 0x28, 0x98, 0x52, 0x30, 0x86, 0xed, 0x01 ]
-        response[2] = self.CurrentWatt
-        var responseData = Data(bytes: &response, count: 17)
+        response[2] = receivedData[2]
+        if(receivedData.count == 4) {
+          response[3] = receivedData[3]
+        }
+        let  responseData = Data(bytes: &response, count: 17)
 
-          updateQueue.append((ZwiftPlayReadUUID, responseData))
+          updateQueue.append((ZwiftPlayReadCharacteristic, responseData))
       }
 
     }
@@ -601,6 +609,48 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
             }
         }
         self.CurrentZwiftGear = g
+    }
+    
+    func decodeVarint(_ bytes: [UInt8], startIndex: Int) -> (value: Int, bytesRead: Int) {
+        var result = 0
+        var shift = 0
+        var bytesRead = 0
+        
+        for i in startIndex..<bytes.count {
+            let byte = bytes[i]
+            result |= Int(byte & 0x7F) << shift
+            bytesRead += 1
+            
+            if (byte & 0x80) == 0 {
+                break
+            }
+            shift += 7
+        }
+        
+        return (result, bytesRead)
+    }
+    
+    func decodeSInt(_ bytes: [UInt8]) -> Int {
+        // Verifica header del campo (0x22)
+        guard bytes[0] == 0x22 else {
+            fatalError("Invalid field header")
+        }
+        
+        // Lunghezza del contenuto
+        let length = Int(bytes[1])
+        
+        // Verifica header interno (0x10)
+        guard bytes[2] == 0x10 else {
+            fatalError("Invalid inner header")
+        }
+        
+        // Decodifica il varint
+        let (value, _) = decodeVarint(bytes, startIndex: 3)
+        
+        // Applica la decodifica ZigZag
+        let decoded = (value >> 1) ^ -(value & 1)
+        
+        return decoded
     }
     
   func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
