@@ -7,6 +7,7 @@
 #include "bluetoothdevicetestdatabuilder.h"
 #include "devicediscoveryinfo.h"
 #include "qzsettings.h"
+#include "TrixterXDreamBike/trixterxdreamv1bikestub.h"
 
 
 
@@ -953,12 +954,12 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(QZSettings::proformtdf4ip, testIP, "");
 
-    // ProForm Wifi Bike
+    // ProForm Telnet Bike
     RegisterNewDeviceTestData(DeviceIndex::ProFormTelnetBike)
         ->expectDevice<proformtelnetbike>()
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(QZSettings::proformtdf1ip, testIP, "")
-        ->disable("Locks up");
+        ->skip("Can take over 60s and device isn't faked.");
 
     // ProForm Wifi Treadmill
     RegisterNewDeviceTestData(DeviceIndex::ProFormWifiTreadmill)
@@ -1235,6 +1236,7 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceNames({"TACX ", "TACX SMART BIKE","THINK X"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->rejectDeviceName("TACX SATORI", DeviceNameComparison::StartsWithIgnoreCase);
 
+
     // Tacx Neo 2 Bike
     RegisterNewDeviceTestData(DeviceIndex::TacxNeo2Bike)
         ->expectDevice<tacxneo2>()
@@ -1245,7 +1247,6 @@ void DeviceTestDataIndex::Initialize() {
             auto newDevice = QBluetoothDeviceInfo(address, info.DeviceName(), 0);
             auto config = DeviceDiscoveryInfo(info, newDevice);
             configurations.push_back(config);
-
         });
 
     // TechnoGym MyRun Treadmill
@@ -1265,6 +1266,17 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<toorxtreadmill>()        
         ->acceptDeviceName("TRX ROUTE KEY", DeviceNameComparison::StartsWith)
         ->acceptDeviceNames({"BH DUALKIT TREAD", "BH-TR-", "MASTERT40-"}, DeviceNameComparison::StartsWithIgnoreCase);
+
+    // Trixter X-Dream V1 Bike
+    RegisterNewDeviceTestData(DeviceIndex::TrixterXDreamV1Bike)
+        ->expectDevice<trixterxdreamv1bike>()
+        ->initializeWith([]() -> void {
+            // use the test serial data source because the bike won't be there usually, during test runs.
+            trixterxdreamv1serial::serialDataSourceFactory = TrixterXDreamV1BikeStub::create;
+        })
+        ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith(trixterxdreamv1settings::keys::Enabled)
+        ->useNonBluetoothDiscovery();
 
     // True Treadmill
     RegisterNewDeviceTestData(DeviceIndex::TrueTreadmill)
@@ -1514,7 +1526,7 @@ void DeviceTestDataIndex::Initialize() {
 
         try {
             auto exclusions = deviceTestData->Exclusions();
-        } catch(std::domain_error) {
+        } catch(const std::domain_error&) {
             qDebug() << "Device: " << deviceTestData->Name() << " specifies at least 1 exclusion for which no test data was found.";
         }
 

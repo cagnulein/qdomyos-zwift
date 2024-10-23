@@ -1325,7 +1325,7 @@ class QZSettings {
     static const QString default_horizon_treadmill_profile_user5;
 
     static const QString nordictrack_gx_2_7;
-    static const bool default_nordictrack_gx_2_7 = false;
+    static constexpr bool default_nordictrack_gx_2_7 = false;
 
     static const QString rolling_resistance;
     static constexpr double default_rolling_resistance = 0.005;
@@ -2152,6 +2152,36 @@ class QZSettings {
 
     static const QString zwift_play_emulator;
     static constexpr bool default_zwift_play_emulator = false;
+
+
+
+    // Trixter X-Dream V1 Bike Settings
+    static const QString trixter_xdream_v1_bike_enabled;
+    static constexpr bool default_trixter_xdream_v1_bike_enabled = false;
+
+    static const QString trixter_xdream_v1_bike_heartrate_enabled;
+    static constexpr bool default_trixter_xdream_v1_bike_heartrate_enabled = true;
+
+    static const QString trixter_xdream_v1_bike_steering_enabled;
+    static constexpr bool default_trixter_xdream_v1_bike_steering_enabled= true;
+
+    static const QString trixter_xdream_v1_bike_steering_max;
+    static constexpr int8_t default_trixter_xdream_v1_bike_steering_max= 45;
+
+    static const QString trixter_xdream_v1_bike_steering_l;
+    static constexpr int8_t default_trixter_xdream_v1_bike_steering_l = -default_trixter_xdream_v1_bike_steering_max;
+
+    static const QString trixter_xdream_v1_bike_steering_cl;
+    static constexpr int8_t default_trixter_xdream_v1_bike_steering_cl=-2;
+
+    static const QString trixter_xdream_v1_bike_steering_cr;
+    static constexpr int8_t default_trixter_xdream_v1_bike_steering_cr= 2;
+
+    static const QString trixter_xdream_v1_bike_steering_r;
+    static constexpr int8_t default_trixter_xdream_v1_bike_steering_r = default_trixter_xdream_v1_bike_steering_max;
+
+    static const QString trixter_xdream_v1_bike_connection_timeout_ms;
+    static constexpr uint32_t default_trixter_xdream_v1_bike_connection_timeout_ms= 500;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

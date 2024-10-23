@@ -1,6 +1,7 @@
 #include "qzsettings.h"
 #include <QDebug>
 #include <QSettings>
+
 const QString QZSettings::cryptoKeySettingsProfiles = QStringLiteral("cryptoKeySettingsProfiles");
 const QString QZSettings::bluetooth_no_reconnection = QStringLiteral("bluetooth_no_reconnection");
 const QString QZSettings::bike_wheel_revs = QStringLiteral("bike_wheel_revs");
@@ -770,7 +771,19 @@ const QString QZSettings::force_resistance_instead_inclination = QStringLiteral(
 const QString QZSettings::proform_treadmill_575i = QStringLiteral("proform_treadmill_575i");
 const QString QZSettings::zwift_play_emulator = QStringLiteral("zwift_play_emulator");
 
-const uint32_t allSettingsCount = 651;
+const QString QZSettings::trixter_xdream_v1_bike_enabled = QStringLiteral("trixter_xdream_v1_bike_enabled");
+const QString QZSettings::trixter_xdream_v1_bike_heartrate_enabled = QStringLiteral("trixter_xdream_v1_bike_heartrate_enabled");
+const QString QZSettings::trixter_xdream_v1_bike_steering_enabled = QStringLiteral("trixter_xdream_v1_bike_steering_enabled");
+const QString QZSettings::trixter_xdream_v1_bike_steering_l = QStringLiteral("trixter_xdream_v1_bike_steering_l");
+const QString QZSettings::trixter_xdream_v1_bike_steering_cl = QStringLiteral("trixter_xdream_v1_bike_steering_cl");
+const QString QZSettings::trixter_xdream_v1_bike_steering_cr = QStringLiteral("trixter_xdream_v1_bike_steering_cr");
+const QString QZSettings::trixter_xdream_v1_bike_steering_r = QStringLiteral("trixter_xdream_v1_bike_steering_r");
+const QString QZSettings::trixter_xdream_v1_bike_steering_max = QStringLiteral("trixter_xdream_v1_bike_steering_max");
+const QString QZSettings::trixter_xdream_v1_bike_connection_timeout_ms = QStringLiteral("trixter_xdream_v1_bike_connection_timeout_ms");
+
+
+
+const uint32_t allSettingsCount = 663;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1312,8 +1325,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwift_ocr, QZSettings::default_zwift_ocr},
     {QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit},
     {QZSettings::gem_module_inclination, QZSettings::default_gem_module_inclination},
-    {QZSettings::treadmill_simulate_inclination_with_speed,
-     QZSettings::default_treadmill_simulate_inclination_with_speed},
+    {QZSettings::treadmill_simulate_inclination_with_speed, QZSettings::default_treadmill_simulate_inclination_with_speed},
     {QZSettings::garmin_companion, QZSettings::default_garmin_companion},
     {QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr},
     {QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical},
@@ -1428,6 +1440,15 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination},
     {QZSettings::proform_treadmill_575i, QZSettings::default_proform_treadmill_575i},
     {QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator},
+    {QZSettings::trixter_xdream_v1_bike_enabled, QZSettings::default_trixter_xdream_v1_bike_enabled },
+    {QZSettings::trixter_xdream_v1_bike_heartrate_enabled, QZSettings::default_trixter_xdream_v1_bike_heartrate_enabled },
+    {QZSettings::trixter_xdream_v1_bike_steering_enabled, QZSettings::default_trixter_xdream_v1_bike_steering_enabled },
+    {QZSettings::trixter_xdream_v1_bike_steering_l, QZSettings::default_trixter_xdream_v1_bike_steering_l },
+    {QZSettings::trixter_xdream_v1_bike_steering_cl, QZSettings::default_trixter_xdream_v1_bike_steering_cl },
+    {QZSettings::trixter_xdream_v1_bike_steering_cr, QZSettings::default_trixter_xdream_v1_bike_steering_cr },
+    {QZSettings::trixter_xdream_v1_bike_steering_r, QZSettings::default_trixter_xdream_v1_bike_steering_r },
+    {QZSettings::trixter_xdream_v1_bike_steering_max, QZSettings::default_trixter_xdream_v1_bike_steering_max },
+    {QZSettings::trixter_xdream_v1_bike_connection_timeout_ms, QZSettings::default_trixter_xdream_v1_bike_connection_timeout_ms }
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
