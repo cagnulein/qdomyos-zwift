@@ -11,7 +11,7 @@ ScrollView {
     anchors.fill: parent
     //anchors.bottom: footerSettings.top
     //anchors.bottomMargin: footerSettings.height + 10
-    id: settingsTTLPane
+    id: settingsInclinationPane
 
     Settings {
         id: settings

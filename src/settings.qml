@@ -2493,6 +2493,14 @@ import QtQuick.Dialogs 1.0
                     color: Material.color(Material.Lime)
                 }
 
+                NewPageElement {
+                    title: qsTr("Wahoo Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: "gears.qml"
+                }
+
                 AccordionElement {
                     id: schwinnBikeAccordion
                     title: qsTr("Schwinn Bike Options")
@@ -9800,7 +9808,7 @@ import QtQuick.Dialogs 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
-                            }                            
+                            }
                         }
                     }
 
