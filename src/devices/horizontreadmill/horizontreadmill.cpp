@@ -1149,7 +1149,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1215,7 +1215,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -2341,7 +2341,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         bluetoothDevice = device;
 
-        if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
+        if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
+            mobvoi_tmp_treadmill = true;
+            qDebug() << QStringLiteral("MOBVOI TMP workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
             mobvoi_treadmill = true;
             qDebug() << QStringLiteral("MOBVOI TM workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL"))) {
