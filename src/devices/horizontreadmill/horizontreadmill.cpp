@@ -828,6 +828,8 @@ void horizontreadmill::update() {
         return;
     }
 
+    qDebug() << initRequest << firstStateChanged << bluetoothDevice.isValid();
+
     if (initRequest && firstStateChanged) {
         btinit();
         initRequest = false;
