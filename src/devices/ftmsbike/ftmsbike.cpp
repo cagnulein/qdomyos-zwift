@@ -74,14 +74,14 @@ void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, con
     loop.exec();
 }
 
-void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
     if(!gattFTMSService) {
         qDebug() << QStringLiteral("gattFTMSService is null!");
-        return;
+        return false;
     }
 
     if (wait_for_response) {
@@ -109,6 +109,8 @@ void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
     }
 
     loop.exec();
+
+    return true;
 }
 
 void ftmsbike::init() {
@@ -116,12 +118,14 @@ void ftmsbike::init() {
         return;
 
     uint8_t write[] = {FTMS_REQUEST_CONTROL};
-    writeCharacteristic(write, sizeof(write), "requestControl", false, true);
+    bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
     write[0] = {FTMS_START_RESUME};
-    writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+    ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
 
-    initDone = true;
-    initRequest = false;
+    if(ret) {
+        initDone = true;
+        initRequest = false;
+    }
 }
 
 void ftmsbike::zwiftPlayInit() {
