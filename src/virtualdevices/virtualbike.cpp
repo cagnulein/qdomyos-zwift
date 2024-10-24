@@ -70,7 +70,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
         if (!echelon && !ifit) {
-            advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
+            advertisingData.setLocalName(QStringLiteral("QZ"));
         } else if (ifit) {
             advertisingData.setLocalName(QStringLiteral("I_EB"));
         } else {
@@ -93,8 +93,6 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             if (!this->noHeartService || heart_only) {
                 services << QBluetoothUuid::HeartRate;
             }
-
-            services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
         } else if (ifit) {
             services << (QBluetoothUuid(QStringLiteral("00001533-1412-efde-1523-785feabcd123")));
 
@@ -151,8 +149,11 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
                     charDataFIT3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate |
                                                QLowEnergyCharacteristic::Notify);
+                    QByteArray descriptor9;
+                    descriptor9.append((char)0x03);
+                    descriptor9.append((char)0x00);
                     const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                                                  QByteArray(3, 0));
+                                                                  descriptor9);
                     charDataFIT3.addDescriptor(cpClientConfig);
 
                     QLowEnergyCharacteristicData charDataFIT4;

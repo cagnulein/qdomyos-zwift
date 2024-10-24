@@ -68,6 +68,9 @@ bool bike_wheel_revs = false;
 bool run_cadence_sensor = false;
 bool nordictrack_10_treadmill = false;
 bool reebok_fr30_treadmill = false;
+bool zwift_play = false;
+bool zwift_click = false;
+bool zwift_play_emulator = false;
 QString eventGearDevice = QStringLiteral("");
 QString trainProgram;
 QString deviceName = QLatin1String("");
@@ -136,6 +139,12 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             nordictrack_10_treadmill = true;
         if (!qstrcmp(argv[i], "-reebok_fr30_treadmill"))
             reebok_fr30_treadmill = true;
+        if (!qstrcmp(argv[i], "-zwift_play"))
+            zwift_play = true;
+        if (!qstrcmp(argv[i], "-zwift_click"))
+            zwift_click = true;
+        if (!qstrcmp(argv[i], "-zwift_play_emulator"))
+            zwift_play_emulator = true;
         if (!qstrcmp(argv[i], "-test-peloton"))
             testPeloton = true;
         if (!qstrcmp(argv[i], "-test-hfb"))
@@ -392,6 +401,9 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::run_cadence_sensor, run_cadence_sensor);
         settings.setValue(QZSettings::nordictrack_10_treadmill, nordictrack_10_treadmill);
         settings.setValue(QZSettings::reebok_fr30_treadmill, reebok_fr30_treadmill);
+        settings.setValue(QZSettings::zwift_click, zwift_click);
+        settings.setValue(QZSettings::zwift_play, zwift_play);
+        settings.setValue(QZSettings::zwift_play_emulator, zwift_play_emulator);
     }
 #endif
 
