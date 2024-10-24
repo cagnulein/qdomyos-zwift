@@ -61,7 +61,11 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    service->writeCharacteristic(characteristic, *writeBuffer);
+    if (characteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        service->writeCharacteristic(characteristic, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
+    } else {
+        service->writeCharacteristic(characteristic, *writeBuffer);
+    }
 
     if (!disable_log)
         qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
