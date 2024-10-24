@@ -780,7 +780,7 @@ const QString QZSettings::force_resistance_instead_inclination = QStringLiteral(
 const QString QZSettings::proform_treadmill_575i = QStringLiteral("proform_treadmill_575i");
 const QString QZSettings::zwift_play_emulator = QStringLiteral("zwift_play_emulator");
 
-const uint32_t allSettingsCount = 651;
+const uint32_t allSettingsCount = 656;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
