@@ -303,6 +303,7 @@ INCLUDEPATH += fit-sdk/ devices/
 HEADERS += \
     $$PWD/CRC16IBM.h \
     $$PWD/EventHandler.h \
+    $$PWD/OAuth2.h \
     $$PWD/devices/antbike/antbike.h \
     $$PWD/devices/crossrope/crossrope.h \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.h \

@@ -2,6 +2,7 @@
 #define PELOTON_H
 
 #include "bluetooth.h"
+#include "OAuth2.h"
 #include "powerzonepack.h"
 #include "trainprogram.h"
 #include <QAbstractOAuth2>
@@ -23,6 +24,14 @@
 
 #include "filedownloader.h"
 #include "homefitnessbuddy.h"
+
+#if defined(WIN32)
+#pragma message("DEFINE PELOTON_SECRET_KEY!!!")
+#else
+#warning "DEFINE PELOTON_SECRET_KEY!!!"
+#endif
+
+#define PELOTON_CLIENT_ID_S STRINGIFY(PELOTON_SECRET_KEY)
 
 class peloton : public QObject {
 
@@ -83,6 +92,19 @@ class peloton : public QObject {
 
     bool testMode = false;
 
+    //OAuth
+    QOAuth2AuthorizationCodeFlow *pelotonOAuth = nullptr;
+    QNetworkAccessManager *manager = nullptr;
+    QOAuthHttpServerReplyHandler *pelotonReplyHandler = nullptr;
+    QString peloton_code;
+    bool pelotonAuthWebVisible;
+    QOAuth2AuthorizationCodeFlow *peloton_connect();
+    void peloton_refreshtoken();
+    QString pelotonAuthUrl;
+    QNetworkReply *replyPeloton;
+    QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
+                                                                           const QUrl &clientIdentifierSharedKey);
+
     // rowers
     double rowerpaceToSpeed(double pace);
     typedef struct _peloton_rower_pace_intensities_level {
@@ -127,6 +149,15 @@ class peloton : public QObject {
     void hfb_trainrows(QList<trainrow> *list);
     void pzp_loginState(bool ok);
 
+    // OAuth
+    void peloton_connect_clicked();
+    void onPelotonGranted();
+    void onPelotonAuthorizeWithBrowser(const QUrl &url);
+    void replyDataReceived(const QByteArray &v);
+    void onSslErrors(QNetworkReply *reply, const QList<QSslError> &error);
+    void networkRequestFinished(QNetworkReply *reply);
+    void callbackReceived(const QVariantMap &values);
+
     void startEngine();
 
   signals:
@@ -134,6 +165,8 @@ class peloton : public QObject {
     void pzpLoginState(bool ok);
     void workoutStarted(QString name, QString instructor);
     void workoutChanged(QString name, QString instructor);
+    void pelotonAuthUrlChanged(QString value);
+    void pelotonWebVisibleChanged(bool value);
 };
 
 #endif // PELOTON_H

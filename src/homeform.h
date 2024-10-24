@@ -5,6 +5,7 @@
 #include "bluetooth.h"
 #include "fit_profile.hpp"
 #include "gpx.h"
+#include "OAuth2.h"
 #include "peloton.h"
 #include "qmdnsengine/browser.h"
 #include "qmdnsengine/cache.h"
