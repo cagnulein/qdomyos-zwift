@@ -293,10 +293,10 @@ double wahookickrsnapbike::gearsToWheelDiameter(double gear) {
     GearTable table;
     if(gear < 1) gear = 1;
     else if(gear > 12) gear = 12;
-    double original_ratio = crankset / rear_cog_size;
+    double original_ratio = ((double)crankset) / ((double)rear_cog_size);
     GearTable::GearInfo g = table.getGear((int)gear);
-    double current_ratio =  g.crankset / g.rearCog;
-    return (wheel_size / original_ratio) * current_ratio;
+    double current_ratio =  ((double)g.crankset / (double)g.rearCog);
+    return (((double)wheel_size) / original_ratio) * ((double)current_ratio);
 }
 
 void wahookickrsnapbike::serviceDiscovered(const QBluetoothUuid &gatt) {
