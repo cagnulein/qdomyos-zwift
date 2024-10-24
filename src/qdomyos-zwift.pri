@@ -301,6 +301,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/ devices/
 
 HEADERS += \
+    $$PWD/CRC16IBM.h \
     $$PWD/EventHandler.h \
     $$PWD/OAuth2.h \
     $$PWD/devices/antbike/antbike.h \
@@ -868,4 +869,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.17.0
+VERSION = 2.18.1

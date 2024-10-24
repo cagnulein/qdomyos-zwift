@@ -8,8 +8,66 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <chrono>
+#include <QRandomGenerator>
 
 using namespace std::chrono_literals;
+
+class CRC8
+{
+  public:
+    CRC8(quint8 polynomial = 0x07, quint8 init = 0x00, bool refIn = false, bool refOut = false, quint8 xorOut = 0x00)
+        : m_polynomial(polynomial), m_init(init), m_refIn(refIn), m_refOut(refOut), m_xorOut(xorOut)
+    {
+        generateTable();
+    }
+
+    quint8 calculate(const QByteArray &data)
+    {
+        quint8 crc = m_init;
+        for (char c : data) {
+            if (m_refIn)
+                c = reflect8(c);
+            crc = m_table[crc ^ static_cast<quint8>(c)];
+        }
+        if (m_refOut)
+            crc = reflect8(crc);
+        return crc ^ m_xorOut;
+    }
+
+  private:
+    quint8 m_polynomial;
+    quint8 m_init;
+    bool m_refIn;
+    bool m_refOut;
+    quint8 m_xorOut;
+    quint8 m_table[256];
+
+    void generateTable()
+    {
+        for (int i = 0; i < 256; ++i) {
+            quint8 crc = static_cast<quint8>(i);
+            for (int j = 0; j < 8; ++j) {
+                if (crc & 0x80)
+                    crc = (crc << 1) ^ m_polynomial;
+                else
+                    crc <<= 1;
+            }
+            m_table[i] = crc;
+        }
+    }
+
+    quint8 reflect8(quint8 value)
+    {
+        quint8 reflected = 0;
+        for (int i = 0; i < 8; ++i) {
+            if (value & 0x01)
+                reflected |= (1 << (7 - i));
+            value >>= 1;
+        }
+        return reflected;
+    }
+};
+
 
 eslinkertreadmill::eslinkertreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService,
                                      double forceInitSpeed, double forceInitInclination) {
@@ -49,7 +107,7 @@ void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, con
     writeBuffer = new QByteArray((const char *)data, data_len);
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
-                                                         QLowEnergyService::WriteWithoutResponse);
+                                            QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
@@ -119,8 +177,8 @@ void eslinkertreadmill::forceSpeed(double requestSpeed) {
         writeCharacteristic(display, sizeof(display),
                             QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
     } else if(treadmill_type == ESANGLINKER) {
-        uint8_t display[] = {0xa9, 0x01, 0x01, 0x0b, 0xa2};
-        display[3] = (int)(requestSpeed * 10 * 0.621371);
+        uint8_t display[] = {0xa9, 0x01, 0x01, 0x0b, 0x00};
+        display[3] = (int)qRound(requestSpeed * 10 * 0.621371);
         for (int i = 0; i < 4; i++) {
             display[4] = display[4] ^ display[i];
         }
@@ -248,10 +306,8 @@ void eslinkertreadmill::update() {
             if (lastSpeed == 0.0) {
                 lastSpeed = 0.5;
             }
-            if (treadmill_type == TYPE::RHYTHM_FUN || treadmill_type == TYPE::YPOO_MINI_CHANGE) {
-                uint8_t startTape[] = {0xa9, 0xa3, 0x01, 0x01, 0x0a};
-                writeCharacteristic(startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
-            }
+            uint8_t startTape[] = {0xa9, 0xa3, 0x01, 0x01, 0x0a};
+            writeCharacteristic(startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
             requestSpeed = 1.0;
             requestStart = -1;
             emit tapeStarted();
@@ -259,7 +315,8 @@ void eslinkertreadmill::update() {
         if (requestStop != -1) {
             requestSpeed = 0;
             emit debug(QStringLiteral("stopping..."));
-            // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape", false, true);
+            uint8_t startTape[] = {0xa9, 0xa3, 0x01, 0x00, 0x0b};
+            writeCharacteristic(startTape, sizeof(startTape), QStringLiteral("stopTape"), false, true);
             requestStop = -1;
         }
     }
@@ -289,6 +346,43 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
 
     emit packetReceived();
+
+    if(treadmill_type == TYPE::ESANGLINKER) {
+        if((uint8_t)newValue.at(0) == 0xa9 && (uint8_t)newValue.at(1) == 0x08 && (uint8_t)newValue.at(2) == 0x04) { // pair request
+            lastPairFrame = newValue;
+            qDebug() << "lastPairFrame" << lastPairFrame;
+
+            uint8_t initData6[] = {0xa9, 0x08, 0x04, 0x0c, 0x06, 0x48, 0x12, 0xf5};
+
+            if(lastPairFrame.length() < 3) {
+                qDebug() << "ERROR! Pair code!";
+                return;
+            }
+            QByteArray crypto = cryptographicArray(lastPairFrame.at(3));
+            initData6[3] = crypto.at(0);
+            initData6[4] = crypto.at(1);
+            initData6[5] = crypto.at(2);
+            initData6[6] = crypto.at(3);
+            CRC8 crc8;
+            initData6[7] = crc8.calculate(QByteArray((const char*)&initData6[3], 4));
+
+            writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+
+            emit pairPacketReceived();
+        } else if((uint8_t)newValue.at(0) == 0xa9 && (uint8_t)newValue.at(1) == 0x08 &&
+                   (uint8_t)newValue.at(2) == 0x01 && (uint8_t)newValue.at(3) == 0xff && (uint8_t)newValue.at(4) == 0x5f) { // handshake request
+            qDebug() << "handshake";
+
+            uint8_t initData5[] = {0xa9, 0x08, 0x01, 0xad, 0x0d};
+            initData5[3] = QRandomGenerator::global()->bounded(256);
+            CRC8 crc8;
+            initData5[4] = crc8.calculate(QByteArray((const char*)&initData5[3], 1));
+
+            writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+
+            emit handshakePacketReceived();
+        }
+    }
 
     if (treadmill_type == CADENZA_FITNESS_T45) {
         if (newValue.length() == 6 && newValue.at(0) == 8 && newValue.at(1) == 4 && newValue.at(2) == 1 &&
@@ -367,12 +461,11 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         }
     }
 
-    if ((newValue.length() != 17 && (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE)))
-        return;
-    else if (newValue.length() != 5 && (treadmill_type == COSTAWAY || treadmill_type == TYPE::ESANGLINKER))
-        return;
+    if ((newValue.length() != 17 && (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE))) {
 
-    if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
+    } else if (newValue.length() != 5 && (treadmill_type == COSTAWAY || treadmill_type == TYPE::ESANGLINKER)) {
+
+    } else if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
         double speed = GetSpeedFromPacket(value);
         double incline = GetInclinationFromPacket(value);
         double kcal = GetKcalFromPacket(value);
@@ -408,10 +501,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             lastSpeed = speed;
             lastInclination = incline;
         }
-    } else if (treadmill_type == COSTAWAY || treadmill_type == TYPE::ESANGLINKER) {
-        if(newValue.at(1) != 0x09 && treadmill_type == TYPE::ESANGLINKER)
-            return;
-
+    } else if (treadmill_type == COSTAWAY || (treadmill_type == TYPE::ESANGLINKER && (uint8_t)newValue.at(1) == 0xe0)) {
         const double miles = 1.60934;
         if(((uint8_t)newValue.at(3)) == 0xFF && treadmill_type == COSTAWAY)
             Speed = 0;
@@ -490,7 +580,7 @@ void eslinkertreadmill::btinit(bool startTape) {
 
     if (treadmill_type == ESANGLINKER) {
         uint8_t initData1[] = {0xa9, 0xf2, 0x01, 0x2f, 0x75};
-        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
 
         uint8_t initData2[] = {0xa9, 0x0a, 0x01, 0xc6, 0x64};
         writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
@@ -501,11 +591,13 @@ void eslinkertreadmill::btinit(bool startTape) {
         uint8_t initData4[] = {0xa9, 0xa0, 0x03, 0x00, 0x00, 0x00, 0x0a};
         writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
 
-        uint8_t initData5[] = {0xa9, 0x08, 0x01, 0xad, 0x0d};
-        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        waitForHandshakePacket();
 
-        uint8_t initData6[] = {0xa9, 0x08, 0x04, 0x0c, 0x06, 0x48, 0x12, 0xf5};
-        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        QThread::sleep(2);
+
+        waitForPairPacket();
+
+        QThread::sleep(1);
 
         uint8_t initData7[] = {0xa9, 0x1e, 0x01, 0xfe, 0x48};
         writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
@@ -513,32 +605,28 @@ void eslinkertreadmill::btinit(bool startTape) {
         uint8_t initData8[] = {0xa9, 0xae, 0x01, 0xfe, 0xf8};
         writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
 
+        QThread::sleep(2);
+
         uint8_t initData9[] = {0xa9, 0xa3, 0x01, 0x01, 0x0a};
         writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
 
         uint8_t initData10[] = {0xa9, 0x8e, 0x01, 0x09, 0x2f};
-        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
 
         uint8_t initData11[] = {0xa9, 0xb2, 0x01, 0xfe, 0xe4};
         writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, true);
 
+        QThread::sleep(3);
+
         uint8_t initData12[] = {0xa9, 0x8e, 0x01, 0x09, 0x2f};
-        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
 
         uint8_t initData13[] = {0xa9, 0xae, 0x01, 0xfe, 0xf8};
         writeCharacteristic(initData13, sizeof(initData13), QStringLiteral("init"), false, true);
 
-        uint8_t initData14[] = {0xa9, 0x08, 0x01, 0x76, 0xd6};
-        writeCharacteristic(initData14, sizeof(initData14), QStringLiteral("init"), false, true);
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Init completed, you can use the treadmill now!");
 
-        uint8_t initData15[] = {0xa9, 0x08, 0x04, 0x0a, 0x04, 0x28, 0x0e, 0x8d};
-        writeCharacteristic(initData15, sizeof(initData15), QStringLiteral("init"), false, true);
-
-        uint8_t initData16[] = {0xa9, 0x08, 0x01, 0x72, 0xd2};
-        writeCharacteristic(initData16, sizeof(initData16), QStringLiteral("init"), false, true);
-
-        uint8_t initData17[] = {0xa9, 0x08, 0x04, 0x70, 0x16, 0x0e, 0x08, 0xc5};
-        writeCharacteristic(initData17, sizeof(initData17), QStringLiteral("init"), false, true);
     } else if (treadmill_type == COSTAWAY) {
         uint8_t initData1[] = {0xa9, 0xf2, 0x01, 0x2f, 0x75};
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
@@ -753,4 +841,77 @@ bool eslinkertreadmill::autoStartWhenSpeedIsGreaterThenZero() {
         return true;
     else
         return false;
+}
+
+QByteArray eslinkertreadmill::cryptographicArray(quint8 b2) {
+    int i = b2 % 6;
+    QRandomGenerator *random = QRandomGenerator::global();
+    int nextInt = random->bounded(1, 16);  // 1 to 15
+    int nextInt2 = random->bounded(1, 16); // 1 to 15
+
+    QByteArray bArr(4, 0);
+
+    switch (i) {
+    case 0:
+        bArr[0] = static_cast<char>(nextInt);
+        bArr[1] = static_cast<char>(nextInt2);
+        bArr[2] = static_cast<char>(nextInt + nextInt2);
+        bArr[3] = static_cast<char>(nextInt * nextInt2);
+        break;
+    case 1:
+        bArr[0] = static_cast<char>(nextInt);
+        bArr[1] = static_cast<char>(nextInt2);
+        bArr[2] = static_cast<char>(nextInt * nextInt2);
+        bArr[3] = static_cast<char>(nextInt + nextInt2);
+        break;
+    case 2:
+        bArr[0] = static_cast<char>(nextInt + nextInt2);
+        bArr[1] = static_cast<char>(nextInt);
+        bArr[2] = static_cast<char>(nextInt2);
+        bArr[3] = static_cast<char>(nextInt * nextInt2);
+        break;
+    case 3:
+        bArr[0] = static_cast<char>(nextInt * nextInt2);
+        bArr[1] = static_cast<char>(nextInt);
+        bArr[2] = static_cast<char>(nextInt2);
+        bArr[3] = static_cast<char>(nextInt + nextInt2);
+        break;
+    case 4:
+        bArr[0] = static_cast<char>(nextInt + nextInt2);
+        bArr[1] = static_cast<char>(nextInt * nextInt2);
+        bArr[2] = static_cast<char>(nextInt);
+        bArr[3] = static_cast<char>(nextInt2);
+        break;
+    case 5:
+        bArr[0] = static_cast<char>(nextInt * nextInt2);
+        bArr[1] = static_cast<char>(nextInt + nextInt2);
+        bArr[2] = static_cast<char>(nextInt);
+        bArr[3] = static_cast<char>(nextInt2);
+        break;
+    }
+
+    return bArr;
+}
+
+void eslinkertreadmill::waitForPairPacket() {
+    QEventLoop loop;
+    QTimer timeout;
+    connect(this, &eslinkertreadmill::pairPacketReceived, &loop, &QEventLoop::quit);
+    timeout.singleShot(3000, &loop, SLOT(quit()));
+    loop.exec();
+}
+
+void eslinkertreadmill::waitForHandshakePacket() {
+    QEventLoop loop;
+    QTimer timeout;
+    connect(this, &eslinkertreadmill::handshakePacketReceived, &loop, &QEventLoop::quit);
+    timeout.singleShot(3000, &loop, SLOT(quit()));
+    loop.exec();
+}
+
+double eslinkertreadmill::minStepSpeed() {
+    if(treadmill_type == ESANGLINKER)
+        return 0.160934;  // 0.1 mi
+    else
+        return 0.5;
 }

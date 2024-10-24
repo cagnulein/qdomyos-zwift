@@ -329,14 +329,31 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     }
 
     func calculateRSCMeasurement() -> Data {
-        let flags0:UInt8 = 0x00
-        let speed:UInt16 = UInt16(((Double(self.NormalizeSpeed) / 100.0) / 3.6) * 256.0)
-      
-        var rscMeasurement: [UInt8] = [flags0, (UInt8)(speed & 0xFF), (UInt8)((speed >> 8) & 0xFF),
-                                       (UInt8)(self.CurrentCadence & 0xFF)]
-      let rscMeasurementData = Data(bytes: &rscMeasurement, count: 4)
-      return rscMeasurementData
-    }
+    // Set flags to indicate distance is present (bit 1)
+    let flags0: UInt8 = 0x02
+    
+    // Calculate speed (existing logic)
+    let speed: UInt16 = UInt16(((Double(self.NormalizeSpeed) / 100.0) / 3.6) * 256.0)
+    
+    // Distance in meters (assuming you have a totalDistance property)
+    // Using UInt32 as per BLE specification for distance
+    let distance: UInt32 = UInt32(self.CurrentDistance) * 10
+    
+    // Create measurement array with distance
+    var rscMeasurement: [UInt8] = [
+        flags0,                              // Flags
+        UInt8(speed & 0xFF),                // Speed LSB
+        UInt8((speed >> 8) & 0xFF),         // Speed MSB
+        UInt8(self.CurrentCadence & 0xFF),  // Cadence
+        UInt8(distance & 0xFF),             // Distance LSB
+        UInt8((distance >> 8) & 0xFF),      // Distance byte 2
+        UInt8((distance >> 16) & 0xFF),     // Distance byte 3
+        UInt8((distance >> 24) & 0xFF)      // Distance MSB
+    ]
+    
+    let rscMeasurementData = Data(bytes: &rscMeasurement, count: 8)
+    return rscMeasurementData
+}
     
   @objc func updateSubscribers() {
     let heartRateData = self.calculateHeartRate()
