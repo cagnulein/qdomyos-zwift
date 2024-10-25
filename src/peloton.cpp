@@ -547,7 +547,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
     current_workout = QJsonDocument::fromJson(payload, &parseError);
     QJsonObject json = current_workout.object();
     QJsonArray data = json[QStringLiteral("data")].toArray();
-    qDebug() << QStringLiteral("peloton::workoutlist_onfinish data") << data;
+    qDebug() << QStringLiteral("peloton::workoutlist_onfinish data") << payload << data;
 
     if (data.isEmpty()) {
         qDebug() << QStringLiteral(
