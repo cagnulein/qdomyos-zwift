@@ -126,10 +126,7 @@ void bluetooth::finished() {
         settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     // wifi devices on windows
 
-    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || gpio_treadmill) {
-
-    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || antbike) {
-
+    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || gpio_treadmill || !proform_elliptical_ip.isEmpty() || antbike) {
         // faking a bluetooth device
         qDebug() << "faking a bluetooth device for nordictrack_2950_ip";
         deviceDiscovered(QBluetoothDeviceInfo());
