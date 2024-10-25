@@ -490,22 +490,28 @@ void peloton::startEngine() {
 
     QSettings settings;
     timer->stop();
-    connect(mgr, &QNetworkAccessManager::finished, this, &peloton::login_onfinish);
-    QUrl url(QStringLiteral("https://api.onepeloton.com/auth/login"));
-    QNetworkRequest request(url);
+    uint64_t diff = qAbs(lastLoginSuccesful.secsTo(QDateTime::currentDateTime()));
+    qDebug() << lastLoginSuccesful << diff;
+    if(!lastLoginSuccesful.isValid() || diff > (60 * 60 * 2) ) {
+        connect(mgr, &QNetworkAccessManager::finished, this, &peloton::login_onfinish);
+        QUrl url(QStringLiteral("https://api.onepeloton.com/auth/login"));
+        QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+        request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
+        request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
 
-    QJsonObject obj;
-    obj[QStringLiteral("username_or_email")] =
-        settings.value(QZSettings::peloton_username, QZSettings::default_peloton_username).toString();
-    obj[QStringLiteral("password")] =
-        settings.value(QZSettings::peloton_password, QZSettings::default_peloton_password).toString();
-    QJsonDocument doc(obj);
-    QByteArray data = doc.toJson();
+        QJsonObject obj;
+        obj[QStringLiteral("username_or_email")] =
+            settings.value(QZSettings::peloton_username, QZSettings::default_peloton_username).toString();
+        obj[QStringLiteral("password")] =
+            settings.value(QZSettings::peloton_password, QZSettings::default_peloton_password).toString();
+        QJsonDocument doc(obj);
+        QByteArray data = doc.toJson();
 
-    mgr->post(request, data);
+        mgr->post(request, data);
+    } else {
+        getWorkoutList(1);
+    }
 }
 
 void peloton::login_onfinish(QNetworkReply *reply) {
@@ -530,6 +536,8 @@ void peloton::login_onfinish(QNetworkReply *reply) {
         emit loginState(false);
         return;
     }
+    
+    lastLoginSuccesful = QDateTime::currentDateTime();
 
     user_id = document[QStringLiteral("user_id")].toString();
     total_workout = document[QStringLiteral("user_data")][QStringLiteral("total_workouts")].toInt();
