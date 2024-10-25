@@ -18,9 +18,8 @@ ScrollView {
     property int selectedCogSize: 44
     property string selectedWheelSize: "700 x 18C"
     property real selectedCircumference: 2070
-    property int initialWheelSizeIndex: 0  // indice per "700 x 18C"
+    property int initialWheelSizeIndex: 0
 
-    // Add these connections to your root item (ScrollView)
     Connections {
         target: gearSettingsWindow
         function onGearConfigurationChanged() {
@@ -44,20 +43,18 @@ ScrollView {
         { gear: 12, crankset: 38, cog: 10, active: true }
     ]
 
-    // Initialize components
     Component.onCompleted: {
         wheelSizeCombo.currentIndex = initialWheelSizeIndex
     }
 
     function clearGearsFromIndex(startIndex) {
-            for (let i = startIndex; i < gearRows.length; i++) {
-                gearRows[i].active = false
-            }
-            // Force update
-            var temp = gearRows
-            gearRows = []
-            gearRows = temp
-            gearConfigurationChanged(gearRows)
+        for (let i = startIndex; i < gearRows.length; i++) {
+            gearRows[i].active = false
+        }
+        var temp = gearRows
+        gearRows = []
+        gearRows = temp
+        gearConfigurationChanged(gearRows)
     }
 
     function initializeGearRows() {
@@ -75,13 +72,11 @@ ScrollView {
             { gear: 11, crankset: 38, cog: 11, active: true },
             { gear: 12, crankset: 38, cog: 10, active: true }
         ]
-        // Force update
         var temp = gearRows
         gearRows = []
         gearRows = temp
     }
 
-    // Signals to notify when values change
     signal settingsChanged(int crankset, int cog, string wheelSize, real circumference)
     signal gearConfigurationChanged(var gearRows)
 
@@ -95,14 +90,19 @@ ScrollView {
             title: "Crankset Size (tooth count)"
             Layout.fillWidth: true
 
-            SpinBox {
-                from: 1
-                to: 60
-                value: selectedCranksetSize
-                onValueChanged: {
-                    selectedCranksetSize = value
-                    gearSettingsWindow.settingsChanged(selectedCranksetSize, selectedCogSize,
-                        selectedWheelSize, selectedCircumference)
+            TextEdit {
+                text: selectedCranksetSize.toString()
+                width: parent.width
+                height: 30
+                verticalAlignment: TextEdit.AlignVCenter
+                selectByMouse: true
+                onTextChanged: {
+                    var value = parseInt(text)
+                    if (!isNaN(value) && value >= 1 && value <= 60) {
+                        selectedCranksetSize = value
+                        gearSettingsWindow.settingsChanged(selectedCranksetSize, selectedCogSize,
+                            selectedWheelSize, selectedCircumference)
+                    }
                 }
             }
         }
@@ -112,14 +112,19 @@ ScrollView {
             title: "Cog Size (tooth count)"
             Layout.fillWidth: true
 
-            SpinBox {
-                from: 1
-                to: 50
-                value: selectedCogSize
-                onValueChanged: {
-                    selectedCogSize = value
-                    gearSettingsWindow.settingsChanged(selectedCranksetSize, selectedCogSize,
-                        selectedWheelSize, selectedCircumference)
+            TextEdit {
+                text: selectedCogSize.toString()
+                width: parent.width
+                height: 30
+                verticalAlignment: TextEdit.AlignVCenter
+                selectByMouse: true
+                onTextChanged: {
+                    var value = parseInt(text)
+                    if (!isNaN(value) && value >= 1 && value <= 50) {
+                        selectedCogSize = value
+                        gearSettingsWindow.settingsChanged(selectedCranksetSize, selectedCogSize,
+                            selectedWheelSize, selectedCircumference)
+                    }
                 }
             }
         }
@@ -221,6 +226,7 @@ ScrollView {
                     ListElement { text: "29\" x 2.4\""; circumference: 2333 }
                     ListElement { text: "29\" x 2.5\""; circumference: 2350 }
                     ListElement { text: "29\" x 2.6\""; circumference: 2366 }
+
                 }
                 onCurrentIndexChanged: {
                     if (currentIndex >= 0) {
@@ -244,7 +250,7 @@ ScrollView {
                 anchors.fill: parent
                 spacing: 10
 
-                // Buttons (same as before)
+                // Buttons
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 40
@@ -269,7 +275,7 @@ ScrollView {
                     }
                 }
 
-                // Table Header (same as before)
+                // Table Header
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 40
@@ -387,64 +393,20 @@ ScrollView {
                                 border.color: "#cccccc"
                                 color: "transparent"
 
-                                SpinBox {
-                                    id: cranksetSpinBox
+                                TextEdit {
                                     anchors.centerIn: parent
                                     width: parent.width * 0.8
                                     height: 30
-                                    from: 1
-                                    to: 60
-                                    value: crankset
-                                    onValueModified: {
-                                        gearRows[index].crankset = value
-                                        gearConfigurationChanged(gearRows)
-                                    }
-
-                                    // Style the SpinBox
-                                    contentItem: TextInput {
-                                        z: 2
-                                        text: cranksetSpinBox.textFromValue(cranksetSpinBox.value, cranksetSpinBox.locale)
-                                        font: cranksetSpinBox.font
-                                        color: "black"
-                                        selectionColor: "#21be2b"
-                                        selectedTextColor: "#ffffff"
-                                        horizontalAlignment: Qt.AlignHCenter
-                                        verticalAlignment: Qt.AlignVCenter
-                                    }
-
-                                    up.indicator: Rectangle {
-                                        x: parent.width - width
-                                        height: parent.height
-                                        width: height
-                                        color: parent.up.pressed ? "#e4e4e4" : "#f6f6f6"
-                                        border.color: "#cccccc"
-
-                                        Text {
-                                            text: "+"
-                                            color: "black"
-                                            anchors.centerIn: parent
-                                            font.pixelSize: 12
+                                    text: crankset.toString()
+                                    verticalAlignment: TextEdit.AlignVCenter
+                                    horizontalAlignment: TextEdit.AlignHCenter
+                                    selectByMouse: true
+                                    onTextChanged: {
+                                        var value = parseInt(text)
+                                        if (!isNaN(value) && value >= 1 && value <= 60) {
+                                            gearRows[index].crankset = value
+                                            gearConfigurationChanged(gearRows)
                                         }
-                                    }
-
-                                    down.indicator: Rectangle {
-                                        x: 0
-                                        height: parent.height
-                                        width: height
-                                        color: parent.down.pressed ? "#e4e4e4" : "#f6f6f6"
-                                        border.color: "#cccccc"
-
-                                        Text {
-                                            text: "-"
-                                            color: "black"
-                                            anchors.centerIn: parent
-                                            font.pixelSize: 12
-                                        }
-                                    }
-
-                                    background: Rectangle {
-                                        color: "white"
-                                        border.color: "#cccccc"
                                     }
                                 }
                             }
@@ -457,64 +419,20 @@ ScrollView {
                                 border.color: "#cccccc"
                                 color: "transparent"
 
-                                SpinBox {
-                                    id: cogSpinBox
+                                TextEdit {
                                     anchors.centerIn: parent
                                     width: parent.width * 0.8
                                     height: 30
-                                    from: 1
-                                    to: 50
-                                    value: cog
-                                    onValueModified: {
-                                        gearRows[index].cog = value
-                                        gearConfigurationChanged(gearRows)
-                                    }
-
-                                    // Style the SpinBox (same as cranksetSpinBox)
-                                    contentItem: TextInput {
-                                        z: 2
-                                        text: cogSpinBox.textFromValue(cogSpinBox.value, cogSpinBox.locale)
-                                        font: cogSpinBox.font
-                                        color: "black"
-                                        selectionColor: "#21be2b"
-                                        selectedTextColor: "#ffffff"
-                                        horizontalAlignment: Qt.AlignHCenter
-                                        verticalAlignment: Qt.AlignVCenter
-                                    }
-
-                                    up.indicator: Rectangle {
-                                        x: parent.width - width
-                                        height: parent.height
-                                        width: height
-                                        color: parent.up.pressed ? "#e4e4e4" : "#f6f6f6"
-                                        border.color: "#cccccc"
-
-                                        Text {
-                                            text: "+"
-                                            color: "black"
-                                            anchors.centerIn: parent
-                                            font.pixelSize: 12
+                                    text: cog.toString()
+                                    verticalAlignment: TextEdit.AlignVCenter
+                                    horizontalAlignment: TextEdit.AlignHCenter
+                                    selectByMouse: true
+                                    onTextChanged: {
+                                        var value = parseInt(text)
+                                        if (!isNaN(value) && value >= 1 && value <= 50) {
+                                            gearRows[index].cog = value
+                                            gearConfigurationChanged(gearRows)
                                         }
-                                    }
-
-                                    down.indicator: Rectangle {
-                                        x: 0
-                                        height: parent.height
-                                        width: height
-                                        color: parent.down.pressed ? "#e4e4e4" : "#f6f6f6"
-                                        border.color: "#cccccc"
-
-                                        Text {
-                                            text: "-"
-                                            color: "black"
-                                            anchors.centerIn: parent
-                                            font.pixelSize: 12
-                                        }
-                                    }
-
-                                    background: Rectangle {
-                                        color: "white"
-                                        border.color: "#cccccc"
                                     }
                                 }
                             }
