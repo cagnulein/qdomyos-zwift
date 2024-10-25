@@ -35,6 +35,7 @@ class peloton : public QObject {
 
     _PELOTON_API currentApi() { return current_api; }
 
+    QString session_id = QLatin1String("");
     QString user_id = QLatin1String("");
     QDateTime lastLoginSuccesful = QDateTime();
     QString current_workout_id = QLatin1String("");

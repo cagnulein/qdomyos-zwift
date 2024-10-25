@@ -539,8 +539,11 @@ void peloton::login_onfinish(QNetworkReply *reply) {
     
     lastLoginSuccesful = QDateTime::currentDateTime();
 
+    session_id = document[QStringLiteral("session_id")].toString();
     user_id = document[QStringLiteral("user_id")].toString();
     total_workout = document[QStringLiteral("user_data")][QStringLiteral("total_workouts")].toInt();
+    
+    qDebug() << session_id << user_id;
 
     emit loginState(!user_id.isEmpty());
 
@@ -1461,9 +1464,11 @@ void peloton::getWorkoutList(int num) {
              QStringLiteral("&limit=") + QString::number(limit));
     qDebug() << "peloton::getWorkoutList" << url;
     QNetworkRequest request(url);
-
+   
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
     request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+    request.setRawHeader(QByteArray("peloton_session_id"), session_id.toUtf8());
+    qDebug() << request.rawHeader("peloton_session_id");
 
     mgr->get(request);
 }
