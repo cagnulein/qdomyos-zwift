@@ -112,14 +112,18 @@ void stagesbike::update() {
             if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 if(eliteService != nullptr) {
-                    uint8_t* write = (uint8_t*)setBrakeLevel((lastRawRequestedResistanceValue + gears()) / 100.0).constData();
-                    writeCharacteristic(eliteService, eliteWriteCharacteristic, write, sizeof(write), "forceResistance", false, false);
+                    QByteArray a = setBrakeLevel((lastRawRequestedResistanceValue + gears()) / 100.0);
+                    uint8_t b[20];
+                    memcpy(b, a.constData(), a.length());
+                    writeCharacteristic(eliteService, eliteWriteCharacteristic, b, a.length(), "forceResistance", false, false);
                 }
             }
             requestResistance = -1;
         } else if(requestPower != -1) {
-            uint8_t* write = (uint8_t*)setTargetPower(requestPower).constData();
-            writeCharacteristic(eliteService, eliteWriteCharacteristic, write, sizeof(write), "forcePower", false, false);
+            QByteArray a = setTargetPower(requestPower);
+            uint8_t b[20];
+            memcpy(b, a.constData(), a.length());
+            writeCharacteristic(eliteService, eliteWriteCharacteristic, b, a.length(), "forcePower", false, false);
             requestPower = -1;
         }
 
