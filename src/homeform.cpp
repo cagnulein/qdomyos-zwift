@@ -3987,7 +3987,7 @@ void homeform::update() {
                 .toString();
         if (!treadmill_pid_heart_zone_string.compare(QStringLiteral("Disabled")))
             treadmill_pid_heart_zone = 0;
-        if (trainProgram && trainProgram->currentRow().zoneHR > 0)
+        if (trainProgram && trainProgram->currentRow().zoneHR >= 0)
             treadmill_pid_heart_zone = trainProgram->currentRow().zoneHR;
 
         if (miles) {
@@ -5239,14 +5239,14 @@ void homeform::update() {
         } else if (!settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone)
                         .toString()
                         .contains(QStringLiteral("Disabled")) ||
-                   (trainProgram && trainProgram->currentRow().zoneHR > 0)) {
+                   (trainProgram && trainProgram->currentRow().zoneHR >= 0)) {
             static uint32_t last_seconds_pid_heart_zone = 0;
             static uint32_t pid_heart_zone_small_inc_counter = 0;
             uint32_t seconds = bluetoothManager->device()->elapsedTime().second() +
                                (bluetoothManager->device()->elapsedTime().minute() * 60) +
                                (bluetoothManager->device()->elapsedTime().hour() * 3600);
             uint8_t delta = 10;
-            bool fromTrainProgram = trainProgram && trainProgram->currentRow().zoneHR > 0;
+            bool fromTrainProgram = trainProgram && trainProgram->currentRow().zoneHR >= 0;
             double maxSpeed = 30;
             double minSpeed = 0;
             int8_t maxResistance = 100;
