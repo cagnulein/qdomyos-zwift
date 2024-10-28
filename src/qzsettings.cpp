@@ -769,8 +769,9 @@ const QString QZSettings::default_peloton_date_format = QStringLiteral("MM/dd/yy
 const QString QZSettings::force_resistance_instead_inclination = QStringLiteral("force_resistance_instead_inclination");
 const QString QZSettings::proform_treadmill_575i = QStringLiteral("proform_treadmill_575i");
 const QString QZSettings::zwift_play_emulator = QStringLiteral("zwift_play_emulator");
+const QString QZSettings::watt_bike_emulator = QStringLiteral("watt_bike_emulator");
 
-const uint32_t allSettingsCount = 651;
+const uint32_t allSettingsCount = 652;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1428,6 +1429,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination},
     {QZSettings::proform_treadmill_575i, QZSettings::default_proform_treadmill_575i},
     {QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator},
+    {QZSettings::watt_bike_emulator, QZSettings::default_watt_bike_emulator},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
