@@ -107,37 +107,51 @@ class wahookickrsnapbike : public bike {
 
     volatile int notificationSubscribed = 0;
 
-    resistance_t lastForcedResistance = -1;
+    resistance_t lastForcedResistance = -1;    
 
-    // cranks & co.
-    double crankset = 40;
-    double rear_cog_size = 14;
-    double wheel_size = 2230; // mm 700x44
     double gearsToWheelDiameter(double gear);
 
     class GearTable {
       public:
+
+        int maxGears = 12;
+
         struct GearInfo {
             int gear;
             int crankset;
             int rearCog;
         };
 
-        GearTable() {
-            gears = {
-                {1, 38, 44},
-                {2, 38, 38},
-                {3, 38, 32},
-                {4, 38, 28},
-                {5, 38, 24},
-                {6, 38, 21},
-                {7, 38, 19},
-                {8, 38, 17},
-                {9, 38, 15},
-                {10, 38, 13},
-                {11, 38, 11},
-                {12, 38, 10}
-            };
+        void loadGearSettings() {
+            QSettings settings;
+
+            QString gearConfig = settings.value("gear_configuration").toString();
+            if (gearConfig.isEmpty()) {
+
+                gearConfig = "1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n"
+                             "5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n"
+                             "9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true";
+            }
+
+            gears.clear();
+            maxGears = 0;
+
+                   // Parsa la configurazione
+            QStringList rows = gearConfig.split('\n');
+            for (const QString& row : rows) {
+                QStringList parts = row.split('|');
+                if (parts.size() >= 4 && (parts[3] == "true")) {
+                    GearInfo config;
+                    config.gear = parts[0].toInt();
+                    config.crankset = parts[1].toInt();
+                    config.rearCog = parts[2].toInt();
+
+                    gears.push_back(config);
+                    maxGears = qMax(maxGears, config.gear);
+                }
+            }
+
+            printTable();
         }
 
         void addGear(int gear, int crankset, int rearCog) {
@@ -169,9 +183,13 @@ class wahookickrsnapbike : public bike {
             return GearInfo();
         }
 
+        GearTable() {
+            loadGearSettings();
+        }
+
       private:
         std::vector<GearInfo> gears;
-    };
+    };    
 
 
 #ifdef Q_OS_IOS

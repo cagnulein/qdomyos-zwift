@@ -2153,6 +2153,21 @@ class QZSettings {
     static const QString zwift_play_emulator;
     static constexpr bool default_zwift_play_emulator = false;
 
+    static const QString gear_configuration;
+    static const QString default_gear_configuration;
+
+    static const QString gear_crankset_size;
+    static constexpr int default_gear_crankset_size = 38;
+
+    static const QString gear_cog_size;
+    static constexpr int default_gear_cog_size = 44;
+
+    static const QString gear_wheel_size;
+    static const QString default_gear_wheel_size;
+
+    static const QString gear_circumference;
+    static constexpr double default_gear_circumference = 2070.0;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
