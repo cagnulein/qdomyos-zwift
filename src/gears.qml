@@ -27,15 +27,38 @@ ScrollView {
     property int selectedCogSize: settings.gear_cog_size
     property string selectedWheelSize: settings.gear_wheel_size
     property real selectedCircumference: settings.gear_circumference
-    property int initialWheelSizeIndex: 0
+    property bool inited: false
+
+    property int initialWheelSizeIndex: {
+          // Trova l'indice corretto basato sul valore salvato
+          for (let i = 0; i < wheelSizes.count; i++) {
+              if (wheelSizes.get(i).text === settings.gear_wheel_size) {
+                  return i;
+              }
+          }
+          return 0; // default se non trovato
+      }
 
     Component.onCompleted: {
         if (settings.gear_configuration) {
             gearRows = stringToGearRows(settings.gear_configuration)
         }
+        console.log("Component.onCompleted " + settings.gear_crankset_size + " " + settings.gear_cog_size + " " + settings.gear_wheel_size + " " + settings.gear_circumference)
+        wheelSizeCombo.currentIndex = initialWheelSizeIndex
+        selectedCranksetSize = settings.gear_crankset_size
+        selectedCogSize = settings.gear_cog_size
+        inited = true
     }
 
-    // Funzioni helper per la conversione delle gear
+    function updateSettings() {
+        if(!inited)
+            return;
+        settings.gear_crankset_size = selectedCranksetSize
+        settings.gear_cog_size = selectedCogSize
+        settings.gear_wheel_size = selectedWheelSize
+        settings.gear_circumference = selectedCircumference
+    }
+
     function stringToGearRows(gearString) {
         if (!gearString) return []
 
@@ -62,16 +85,158 @@ ScrollView {
     }
 
     onSettingsChanged: {
-        settings.gear_crankset_size = crankset
-        settings.gear_cog_size = cog
-        settings.gear_wheel_size = wheelSize
-        settings.gear_circumference = circumference
+        console.log("onSettingsChanged")
+        updateSettings()
     }
 
     Connections {
         target: gearSettingsWindow
         function onGearConfigurationChanged() {
             gearTable.updateGearListModel()
+        }
+    }
+
+    function loadGearProfile(profileName) {
+        if (profileName in gearProfiles) {
+            const profile = gearProfiles[profileName]
+
+            // Create new array with copied objects
+            var newGears = []
+            for (var i = 0; i < profile.gears.length; i++) {
+                newGears.push({
+                    gear: profile.gears[i].gear,
+                    crankset: profile.gears[i].crankset,
+                    cog: profile.gears[i].cog,
+                    active: profile.gears[i].active
+                })
+            }
+
+            gearRows = newGears
+
+            // Update the first crankset size
+            if (gearRows.length > 0) {
+                selectedCranksetSize = gearRows[0].crankset
+                selectedCogSize = gearRows[0].cog
+            }
+
+            // Force update
+            var temp = gearRows
+            gearRows = []
+            gearRows = temp
+            gearConfigurationChanged(gearRows)
+        }
+    }
+
+    property var gearProfiles: {
+        "Time Trial": {
+            name: "Time Trial (52/36, 10 - 28)",
+            gears: [
+                { gear: 1, crankset: 36, cog: 28, active: true },
+                { gear: 2, crankset: 36, cog: 24, active: true },
+                { gear: 3, crankset: 36, cog: 21, active: true },
+                { gear: 4, crankset: 36, cog: 19, active: true },
+                { gear: 5, crankset: 36, cog: 18, active: true },
+                { gear: 6, crankset: 36, cog: 17, active: true },
+                { gear: 7, crankset: 36, cog: 16, active: true },
+                { gear: 8, crankset: 36, cog: 15, active: true },
+                { gear: 9, crankset: 36, cog: 14, active: true },
+                { gear: 10, crankset: 52, cog: 19, active: true },
+                { gear: 11, crankset: 52, cog: 18, active: true },
+                { gear: 12, crankset: 52, cog: 17, active: true },
+                { gear: 13, crankset: 52, cog: 16, active: true },
+                { gear: 14, crankset: 52, cog: 15, active: true },
+                { gear: 15, crankset: 52, cog: 14, active: true },
+                { gear: 16, crankset: 52, cog: 13, active: true },
+                { gear: 17, crankset: 52, cog: 12, active: true },
+                { gear: 18, crankset: 52, cog: 11, active: true },
+                { gear: 19, crankset: 52, cog: 10, active: true }
+            ]
+        },
+        "Rolling Hills": {
+            name: "Rolling Hills (46/33, 10 - 33)",
+            gears: [
+                { gear: 1, crankset: 33, cog: 33, active: true },
+                { gear: 2, crankset: 33, cog: 28, active: true },
+                { gear: 3, crankset: 33, cog: 24, active: true },
+                { gear: 4, crankset: 33, cog: 21, active: true },
+                { gear: 5, crankset: 33, cog: 19, active: true },
+                { gear: 6, crankset: 33, cog: 17, active: true },
+                { gear: 7, crankset: 33, cog: 15, active: true },
+                { gear: 8, crankset: 46, cog: 19, active: true },
+                { gear: 9, crankset: 46, cog: 17, active: true },
+                { gear: 10, crankset: 46, cog: 15, active: true },
+                { gear: 11, crankset: 46, cog: 14, active: true },
+                { gear: 12, crankset: 46, cog: 13, active: true },
+                { gear: 13, crankset: 46, cog: 12, active: true },
+                { gear: 14, crankset: 46, cog: 11, active: true },
+                { gear: 15, crankset: 46, cog: 10, active: true }
+            ]
+        },
+        "Alpine": {
+            name: "Alpine (43/30, 10 - 36)",
+            gears: [
+                { gear: 1, crankset: 30, cog: 36, active: true },
+                { gear: 2, crankset: 30, cog: 32, active: true },
+                { gear: 3, crankset: 30, cog: 28, active: true },
+                { gear: 4, crankset: 30, cog: 24, active: true },
+                { gear: 5, crankset: 30, cog: 21, active: true },
+                { gear: 6, crankset: 30, cog: 19, active: true },
+                { gear: 7, crankset: 30, cog: 17, active: true },
+                { gear: 8, crankset: 30, cog: 15, active: true },
+                { gear: 9, crankset: 43, cog: 19, active: true },
+                { gear: 10, crankset: 43, cog: 17, active: true },
+                { gear: 11, crankset: 43, cog: 15, active: true },
+                { gear: 12, crankset: 43, cog: 13, active: true },
+                { gear: 13, crankset: 43, cog: 12, active: true },
+                { gear: 14, crankset: 43, cog: 11, active: true },
+                { gear: 15, crankset: 43, cog: 10, active: true }
+            ]
+        },
+        "Reality Bender": {
+            name: "Reality Bender (24 even spaced)",
+            gears: [
+                { gear: 1, crankset: 30, cog: 40, active: true },
+                { gear: 2, crankset: 30, cog: 36, active: true },
+                { gear: 3, crankset: 30, cog: 33, active: true },
+                { gear: 4, crankset: 30, cog: 30, active: true },
+                { gear: 5, crankset: 30, cog: 27, active: true },
+                { gear: 6, crankset: 34, cog: 28, active: true },
+                { gear: 7, crankset: 34, cog: 26, active: true },
+                { gear: 8, crankset: 34, cog: 24, active: true },
+                { gear: 9, crankset: 34, cog: 22, active: true },
+                { gear: 10, crankset: 44, cog: 26, active: true },
+                { gear: 11, crankset: 44, cog: 24, active: true },
+                { gear: 12, crankset: 44, cog: 22, active: true },
+                { gear: 13, crankset: 44, cog: 20, active: true },
+                { gear: 14, crankset: 44, cog: 18, active: true },
+                { gear: 15, crankset: 56, cog: 21, active: true },
+                { gear: 16, crankset: 56, cog: 19, active: true },
+                { gear: 17, crankset: 58, cog: 18, active: true },
+                { gear: 18, crankset: 60, cog: 17, active: true },
+                { gear: 19, crankset: 62, cog: 16, active: true },
+                { gear: 20, crankset: 63, cog: 15, active: true },
+                { gear: 21, crankset: 64, cog: 14, active: true },
+                { gear: 22, crankset: 66, cog: 13, active: true },
+                { gear: 23, crankset: 67, cog: 12, active: true }
+            ]
+        },
+        "Explorer": {
+            name: "Explorer (40, 10 - 46)",
+            gears: [
+                { gear: 1, crankset: 40, cog: 46, active: true },
+                { gear: 2, crankset: 40, cog: 38, active: true },
+                { gear: 3, crankset: 40, cog: 32, active: true },
+                { gear: 4, crankset: 40, cog: 28, active: true },
+                { gear: 5, crankset: 40, cog: 24, active: true },
+                { gear: 6, crankset: 40, cog: 21, active: true },
+                { gear: 7, crankset: 40, cog: 19, active: true },
+                { gear: 8, crankset: 40, cog: 17, active: true },
+                { gear: 9, crankset: 40, cog: 15, active: true },
+                { gear: 10, crankset: 40, cog: 13, active: true },
+                { gear: 11, crankset: 40, cog: 12, active: true },
+                { gear: 12, crankset: 40, cog: 11, active: true },
+                { gear: 13, crankset: 40, cog: 10, active: true }
+            ]
         }
     }
 
@@ -152,13 +317,43 @@ ScrollView {
     }
 
     // Signals to notify when values change
-    signal settingsChanged(int crankset, int cog, string wheelSize, real circumference)
+    signal settingsChanged()
     signal gearConfigurationChanged(var gearRows)
 
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 20
         spacing: 20
+
+        GroupBox {
+        title: "Preset Gear Profiles"
+        Layout.fillWidth: true
+
+            ComboBox {
+                id: profileCombo
+                width: parent.width
+                textRole: "text"
+                displayText: currentIndex < 0 ? "Select a profile..." : model.get(currentIndex).text
+                model: ListModel {
+                 id: profileModel
+                }
+
+                Component.onCompleted: {
+                 for (var key in gearProfiles) {
+                     profileModel.append({
+                         text: gearProfiles[key].name,
+                         value: key
+                     })
+                 }
+                }
+
+                onCurrentIndexChanged: {
+                 if (currentIndex >= 0) {
+                     loadGearProfile(profileModel.get(currentIndex).value)
+                 }
+                }
+                }
+        }
 
         // Crankset Size
         GroupBox {
@@ -171,8 +366,8 @@ ScrollView {
                 value: selectedCranksetSize
                 onValueChanged: {
                     selectedCranksetSize = value                    
-                    settingsChanged(selectedCranksetSize, selectedCogSize,
-                        selectedWheelSize, selectedCircumference)
+                    console.log("Crankset Size changed");
+                    settingsChanged()
                 }
             }
         }
@@ -188,8 +383,8 @@ ScrollView {
                 value: selectedCogSize
                 onValueChanged: {
                     selectedCogSize = value
-                    settingsChanged(selectedCranksetSize, selectedCogSize,
-                        selectedWheelSize, selectedCircumference)
+                    console.log("Cog Size changed");
+                    settingsChanged()
                 }
             }
         }
@@ -200,12 +395,12 @@ ScrollView {
             Layout.fillWidth: true
 
             ComboBox {
-                id: wheelSizeCombo
-                width: parent.width
-                currentIndex: initialWheelSizeIndex
-                textRole: "text"
-                model: ListModel {
-                    id: wheelSizes
+                   id: wheelSizeCombo
+                   width: parent.width
+                   currentIndex: initialWheelSizeIndex
+                   textRole: "text"
+                   model: ListModel {
+                   id: wheelSizes
                     ListElement { text: "700 x 18C"; circumference: 2070 }
                     ListElement { text: "700 x 19C"; circumference: 2080 }
                     ListElement { text: "700 x 20C"; circumference: 2086 }
@@ -294,12 +489,12 @@ ScrollView {
                 }
                 onCurrentIndexChanged: {
                     if (currentIndex >= 0) {
-                        selectedWheelSize = model.get(currentIndex).text
-                        selectedCircumference = model.get(currentIndex).circumference
-                        settingsChanged(selectedCranksetSize, selectedCogSize,
-                            selectedWheelSize, selectedCircumference)
-                    }
-                }
+                      selectedWheelSize = model.get(currentIndex).text
+                      selectedCircumference = model.get(currentIndex).circumference
+                      console.log("wheelSizeCombo changed");
+                      settingsChanged()
+                  }
+              }
             }
         }
 
