@@ -1093,6 +1093,9 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             b[1] = power & 0xFF;
             b[2] = power >> 8;
             qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << power;
+        } else {
+            qDebug() << "ignoring this";
+            return;
         }
 
         writeCharacteristic((uint8_t*)b.data(), b.length(), "injectWrite ", false, true);
