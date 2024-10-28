@@ -13,14 +13,61 @@ ScrollView {
     visible: true
     clip: true
 
-    // Properties to store the selected values
-    property int selectedCranksetSize: 38
-    property int selectedCogSize: 44
-    property string selectedWheelSize: "700 x 18C"
-    property real selectedCircumference: 2070
-    property int initialWheelSizeIndex: 0  // indice per "700 x 18C"
+    // Properties
+    Settings {
+        id: settings
+        property string gear_configuration: "1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true"
+        property int gear_crankset_size: 38
+        property int gear_cog_size: 44
+        property string gear_wheel_size: "700 x 18C"
+        property real gear_circumference: 2070
+    }
 
-    // Add these connections to your root item (ScrollView)
+    property int selectedCranksetSize: settings.gear_crankset_size
+    property int selectedCogSize: settings.gear_cog_size
+    property string selectedWheelSize: settings.gear_wheel_size
+    property real selectedCircumference: settings.gear_circumference
+    property int initialWheelSizeIndex: 0
+
+    Component.onCompleted: {
+        if (settings.gear_configuration) {
+            gearRows = stringToGearRows(settings.gear_configuration)
+        }
+    }
+
+    // Funzioni helper per la conversione delle gear
+    function stringToGearRows(gearString) {
+        if (!gearString) return []
+
+        return gearString.split("\n").map(function(row) {
+            const parts = row.split("|")
+            return {
+                gear: parseInt(parts[0]),
+                crankset: parseInt(parts[1]),
+                cog: parseInt(parts[2]),
+                active: parts[3] === "true"
+            }
+        })
+    }
+
+    function gearRowsToString(gearRows) {
+        return gearRows.map(function(row) {
+            return row.gear + "|" + row.crankset + "|" + row.cog + "|" + row.active
+        }).join("\n")
+    }
+
+    // Monitora i cambiamenti nelle gear e salva automaticamente
+    onGearConfigurationChanged: {
+        settings.gear_configuration = gearRowsToString(gearRows)
+    }
+
+    onSettingsChanged: {
+        settings.gear_crankset_size = crankset
+        settings.gear_cog_size = cog
+        settings.gear_wheel_size = wheelSize
+        settings.gear_circumference = circumference
+    }
+
     Connections {
         target: gearSettingsWindow
         function onGearConfigurationChanged() {
@@ -43,11 +90,6 @@ ScrollView {
         { gear: 11, crankset: 38, cog: 11, active: true },
         { gear: 12, crankset: 38, cog: 10, active: true }
     ]
-
-    // Initialize components
-    Component.onCompleted: {
-        wheelSizeCombo.currentIndex = initialWheelSizeIndex
-    }
 
     function addNewGear() {
         // Find the first inactive gear or add at the end
@@ -128,8 +170,8 @@ ScrollView {
                 to: 60
                 value: selectedCranksetSize
                 onValueChanged: {
-                    selectedCranksetSize = value
-                    gearSettingsWindow.settingsChanged(selectedCranksetSize, selectedCogSize,
+                    selectedCranksetSize = value                    
+                    settingsChanged(selectedCranksetSize, selectedCogSize,
                         selectedWheelSize, selectedCircumference)
                 }
             }
@@ -146,7 +188,7 @@ ScrollView {
                 value: selectedCogSize
                 onValueChanged: {
                     selectedCogSize = value
-                    gearSettingsWindow.settingsChanged(selectedCranksetSize, selectedCogSize,
+                    settingsChanged(selectedCranksetSize, selectedCogSize,
                         selectedWheelSize, selectedCircumference)
                 }
             }
@@ -254,7 +296,7 @@ ScrollView {
                     if (currentIndex >= 0) {
                         selectedWheelSize = model.get(currentIndex).text
                         selectedCircumference = model.get(currentIndex).circumference
-                        gearSettingsWindow.settingsChanged(selectedCranksetSize, selectedCogSize,
+                        settingsChanged(selectedCranksetSize, selectedCogSize,
                             selectedWheelSize, selectedCircumference)
                     }
                 }
