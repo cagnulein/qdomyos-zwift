@@ -61,7 +61,11 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    service->writeCharacteristic(characteristic, *writeBuffer);
+    if (characteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        service->writeCharacteristic(characteristic, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
+    } else {
+        service->writeCharacteristic(characteristic, *writeBuffer);
+    }
 
     if (!disable_log)
         qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
@@ -803,6 +807,15 @@ void horizontreadmill::btinit() {
         messageID = 0x10;
     }
 
+    if(wellfit_treadmill) {
+        uint8_t write[] = {FTMS_REQUEST_CONTROL};
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                            false);
+        QThread::msleep(500);
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                            false);
+    }
+
     initDone = true;
 }
 
@@ -814,6 +827,8 @@ void horizontreadmill::update() {
         emit disconnected();
         return;
     }
+
+    qDebug() << initRequest << firstStateChanged << bluetoothDevice.isValid();
 
     if (initRequest && firstStateChanged) {
         btinit();
@@ -1140,7 +1155,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1206,7 +1221,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -2097,7 +2112,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         if(s->serviceUuid() == _DomyosServiceId && DOMYOS) {
             settings.setValue(QZSettings::domyostreadmill_notfmts, true);
             settings.sync();
-            homeform::singleton()->setToastRequested("Domyos Treadmill presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("Domyos Treadmill presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
             return;
         }
 
@@ -2127,9 +2143,9 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
 
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
+                if (c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
@@ -2140,10 +2156,10 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     // some treadmills doesn't have the control point and also are Cross Trainer devices so i need
                     // anyway to get the FTMS Service at least
                     gattFTMSService = s;
-                } else if (c.uuid() == _gattInclinationSupported) {
+                }/* else if (c.uuid() == _gattInclinationSupported) {
                     s->readCharacteristic(c);
                     qDebug() << s->serviceUuid() << c.uuid() << "reading!";
-                }
+                }*/
 
                 if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService &&
                     !settings
@@ -2187,6 +2203,24 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     }
 
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
+                } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
+                                                                                                                      // if it's a FTMS treadmill and has FTMS and/or RSC service too
+                           ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid()))
+                             && !gattCustomService))) {
+                    QByteArray descriptor;
+                    descriptor.append((char)0x02);
+                    descriptor.append((char)0x00);
+                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                        notificationSubscribed++;
+                    } else {
+                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << QStringLiteral(" is not valid");
+                    }
+
+                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
                 }
             }
         }
@@ -2313,12 +2347,18 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         bluetoothDevice = device;
 
-        if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
+        if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
+            mobvoi_tmp_treadmill = true;
+            qDebug() << QStringLiteral("MOBVOI TMP workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
             mobvoi_treadmill = true;
             qDebug() << QStringLiteral("MOBVOI TM workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL"))) {
             kettler_treadmill = true;
             qDebug() << QStringLiteral("KETTLER TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("WELLFIT TM"))) {
+            wellfit_treadmill = true;
+            qDebug() << QStringLiteral("WELLFIT TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) {
             anplus_treadmill = true;
             qDebug() << QStringLiteral("ANPLUS TREADMILL workaround ON!");
@@ -2363,6 +2403,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #ifdef Q_OS_IOS            
             QZ_EnableDiscoveryCharsAndDescripttors = false;
 #endif            
+        } else if(device.name().toUpper().startsWith(QStringLiteral("TRX4500"))) {
+            qDebug() << QStringLiteral("TRX4500 TREADMILL workaround ON!");
+#ifdef Q_OS_IOS
+            QZ_EnableDiscoveryCharsAndDescripttors = false;
+#endif
         } else {
 #ifdef Q_OS_IOS            
             QZ_EnableDiscoveryCharsAndDescripttors = true;

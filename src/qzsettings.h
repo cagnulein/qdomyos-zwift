@@ -2129,6 +2129,29 @@ class QZSettings {
     static const QString gears_zwift_ratio;
     static constexpr bool default_gears_zwift_ratio = false;
 
+    static const QString domyos_bike_500_profile_v2;
+    static constexpr bool default_domyos_bike_500_profile_v2 = false;
+
+    static const QString gears_offset;
+    static constexpr double default_gears_offset = 0.0;
+
+    static const QString proform_carbon_tl_PFTL59720;
+    static constexpr bool default_proform_carbon_tl_PFTL59720 = false;    
+
+    static const QString proform_treadmill_sport_70;
+    static constexpr bool default_proform_treadmill_sport_70 = false;
+
+    static const QString peloton_date_format;
+    static const QString default_peloton_date_format;
+
+    static const QString force_resistance_instead_inclination;
+    static constexpr bool default_force_resistance_instead_inclination = false;
+
+    static const QString proform_treadmill_575i;
+    static constexpr bool default_proform_treadmill_575i = false;
+
+    static const QString zwift_play_emulator;
+    static constexpr bool default_zwift_play_emulator = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

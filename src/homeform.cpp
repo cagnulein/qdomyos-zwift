@@ -5,6 +5,7 @@
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include <jni.h>
 #include <QAndroidJniObject>
 #endif
 #include "material.h"
@@ -564,6 +565,14 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     }    
 #ifdef Q_OS_ANDROID
+
+    QString bluetoothName = getBluetoothName();
+    qDebug() << "getBluetoothName()" << bluetoothName;
+
+    if(bluetoothName.length() > 4) {
+        setToastRequested("Bluetooth name too long, change it to a 4 letters one in the android settings");
+    }
+    
     // Android 14 restrics access to /Android/data folder
     bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
     if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
@@ -685,10 +694,44 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QAndroidJniObject javaPath = QAndroidJniObject::fromString(getWritableAppDir());
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
                                                 "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
+
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
+                                              "registerReceiver",
+                                              "(Landroid/content/Context;)V",
+                                              QtAndroid::androidContext().object());
 #endif
 
     bluetoothManager->homeformLoaded = true;
 }
+
+#ifdef Q_OS_ANDROID
+extern "C" {
+JNIEXPORT void JNICALL
+  Java_org_cagnulen_qdomyoszwift_MediaButtonReceiver_nativeOnMediaButtonEvent(JNIEnv *env, jobject obj, jint prev, jint current, jint max) {
+    qDebug() << "Media button event: current =" << current << "max =" << max << "prev =" << prev;
+    static QDateTime volumeLastChange = QDateTime::currentDateTime();
+    QSettings settings;
+    bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
+
+    if (!settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
+      qDebug() << "volume_change_gears disabled!"; 
+      return;
+    }
+  
+    if(gears_volume_debouncing && volumeLastChange.msecsTo(QDateTime::currentDateTime()) < 500) {
+      qDebug() << "volume debouncing"; 
+      return;
+    }
+  
+    if(prev > current)
+      homeform::singleton()->Minus(QStringLiteral("gears"));
+    else
+      homeform::singleton()->Plus(QStringLiteral("gears"));      
+
+    volumeLastChange = QDateTime::currentDateTime();
+  }
+}
+#endif
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
 
@@ -733,15 +776,21 @@ void homeform::keyMediaNext() {
 void homeform::volumeUp() {
     qDebug() << QStringLiteral("volumeUp");
     QSettings settings;
-    if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool())
+    if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        Plus(QStringLiteral("speed"));
+    } else if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
         Plus(QStringLiteral("gears"));
+    }
 }
 
 void homeform::volumeDown() {
     qDebug() << QStringLiteral("volumeDown");
     QSettings settings;
-    if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool())
+    if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        Minus(QStringLiteral("speed"));
+    } else if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
         Minus(QStringLiteral("gears"));
+    }
 }
 
 void homeform::floatingOpen() {
@@ -3857,6 +3906,15 @@ QString homeform::startIcon() {
     return QLatin1String("");
 }
 
+void homeform::updateGearsValue() {
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0 || gears_zwift_ratio)
+        this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears()));
+    else
+        this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears(), 'f', 1));
+}
+
 QString homeform::signal() {
     if (!bluetoothManager) {
         return QStringLiteral("icons/icons/signal-1.png");
@@ -3929,7 +3987,7 @@ void homeform::update() {
                 .toString();
         if (!treadmill_pid_heart_zone_string.compare(QStringLiteral("Disabled")))
             treadmill_pid_heart_zone = 0;
-        if (trainProgram && trainProgram->currentRow().zoneHR > 0)
+        if (trainProgram && trainProgram->currentRow().zoneHR >= 0)
             treadmill_pid_heart_zone = trainProgram->currentRow().zoneHR;
 
         if (miles) {
@@ -4349,10 +4407,7 @@ void homeform::update() {
             this->target_power->setValue(
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
-            if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0)
-                this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears()));
-            else
-                this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears(), 'f', 1));
+            updateGearsValue();
 
             this->resistance->setSecondLine(
                 QStringLiteral("AVG: ") +
@@ -5184,14 +5239,14 @@ void homeform::update() {
         } else if (!settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone)
                         .toString()
                         .contains(QStringLiteral("Disabled")) ||
-                   (trainProgram && trainProgram->currentRow().zoneHR > 0)) {
+                   (trainProgram && trainProgram->currentRow().zoneHR >= 0)) {
             static uint32_t last_seconds_pid_heart_zone = 0;
             static uint32_t pid_heart_zone_small_inc_counter = 0;
             uint32_t seconds = bluetoothManager->device()->elapsedTime().second() +
                                (bluetoothManager->device()->elapsedTime().minute() * 60) +
                                (bluetoothManager->device()->elapsedTime().hour() * 3600);
             uint8_t delta = 10;
-            bool fromTrainProgram = trainProgram && trainProgram->currentRow().zoneHR > 0;
+            bool fromTrainProgram = trainProgram && trainProgram->currentRow().zoneHR >= 0;
             double maxSpeed = 30;
             double minSpeed = 0;
             int8_t maxResistance = 100;
@@ -6961,6 +7016,27 @@ void homeform::sendMail() {
 }
 
 #if defined(Q_OS_ANDROID)
+
+QString homeform::getBluetoothName()
+{
+    QAndroidJniObject bluetoothAdapter = QAndroidJniObject::callStaticObjectMethod(
+        "android/bluetooth/BluetoothAdapter",
+        "getDefaultAdapter",
+        "()Landroid/bluetooth/BluetoothAdapter;");
+    
+    if (bluetoothAdapter.isValid()) {
+        QAndroidJniObject name = bluetoothAdapter.callObjectMethod(
+            "getName",
+            "()Ljava/lang/String;");
+        
+        if (name.isValid()) {
+            return name.toString();
+        }
+    }
+    
+    return QString();
+}
+
 QString homeform::getAndroidDataAppDir() {
     static QString path = "";
 

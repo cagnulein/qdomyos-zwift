@@ -51,6 +51,7 @@ class virtualbike : public virtualdevice {
     QLowEnergyService *service = nullptr;
     QLowEnergyService *serviceChanged = nullptr;
     QLowEnergyService *serviceWattAtomBike = nullptr;
+    QLowEnergyService *serviceZwiftPlayBike = nullptr;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataBattery;
@@ -59,6 +60,7 @@ class virtualbike : public virtualdevice {
     QLowEnergyServiceData serviceDataChanged;
     QLowEnergyServiceData serviceEchelon;
     QLowEnergyServiceData serviceDataWattAtomBike;
+    QLowEnergyServiceData serviceDataZwiftPlayBike;
     QTimer bikeTimer;
     bluetoothdevice *Bike;
     CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
@@ -76,6 +78,7 @@ class virtualbike : public virtualdevice {
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     DirconManager *dirconManager = 0;
+    uint8_t CurrentZwiftGear = 8;
     int iFit_pelotonToBikeResistance(int pelotonResistance);
     int iFit_resistanceToIfit(int ifitResistance);
     qint64 iFit_timer = 0;
@@ -84,17 +87,27 @@ class virtualbike : public virtualdevice {
     resistance_t iFit_LastResistanceRequested = 0;
     bool iFit_Stop = false;
 
+    void handleZwiftGear(const QByteArray &array);
+
     bool echelonInitDone = false;
     void echelonWriteResistance();
     void echelonWriteStatus();
 
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
-
+    
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
-
+    
+    // Struct to hold varint decoding result
+    struct VarintResult {
+       qint64 value;
+       int bytesRead;
+    };
+    VarintResult decodeVarint(const QByteArray& bytes, int startIndex);
+    qint32 decodeSInt(const QByteArray& bytes);
+    
   signals:
     void changeInclination(double grade, double percentage);
 

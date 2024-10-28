@@ -196,11 +196,21 @@ void echelonstride::update() {
             uint8_t initData3[] = {0xf0, 0xb0, 0x01, 0x01, 0xa2};
             writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("start"), false, true);
 
+            if(stride4) {
+                uint8_t initData0[] = {0xf0, 0xa5, 0x00, 0x95};
+                writeCharacteristic(initData0, sizeof(initData0), QStringLiteral("start"), false, false);
+            }
+
             uint8_t initData4[] = {0xf0, 0xd0, 0x01, 0x00, 0xc1};
             writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("start"), false, false);
 
             uint8_t initData5[] = {0xf0, 0xd0, 0x01, 0x11, 0xd2};
             writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("start"), false, false);
+
+            if(stride4) {
+                uint8_t initData0[] = {0xf0, 0xd3, 0x02, 0x01, 0xf4, 0xba};
+                writeCharacteristic(initData0, sizeof(initData0), QStringLiteral("start"), false, false);
+            }
 
             lastStart = QDateTime::currentMSecsSinceEpoch();
             requestStart = -1;
@@ -285,6 +295,32 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
     } else if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd0) {
         writeCharacteristic((uint8_t *)newValue.constData(), newValue.length(), "reply to d0", false, false);
         return;
+    } else if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd1 && stride4) {
+
+        double miles = 1;
+        if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
+            miles = 1.60934;
+
+        // this line on iOS sometimes gives strange overflow values
+        // uint16_t convertedData = (((uint16_t)newValue.at(3)) << 8) | (uint16_t)newValue.at(4);
+        qDebug() << "speed1" << newValue.at(7);
+        uint16_t convertedData = (uint8_t)newValue.at(7);
+        qDebug() << "speed2" << convertedData;
+        convertedData = convertedData << 8;
+        qDebug() << "speed3" << convertedData;
+        convertedData = convertedData & 0xFF00;
+        qDebug() << "speed4" << convertedData;
+        convertedData = convertedData + (uint8_t)newValue.at(8);
+        qDebug() << "speed5" << convertedData;
+        Speed = (((double)convertedData) / 100.0) * miles;
+
+        if (Speed.value() > 0)
+            lastStart = 0;
+        else
+            lastStop = 0;
+
+        qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
+        return;
     }
 
     /*if (newValue.length() != 21)
@@ -344,7 +380,17 @@ void echelonstride::btinit() {
     uint8_t initData1[] = {0xf0, 0xa1, 0x00, 0x91};
     uint8_t initData2[] = {0xf0, 0xa3, 0x00, 0x93};
 
-    writeCharacteristic(initData0, sizeof(initData0), QStringLiteral("init"), false, true);
+    // stride4
+    uint8_t initDataStride4_0[] = {0xf0, 0xe0, 0xfd, 0x3e, 0x65, 0x48, 0xd5, 0x8d};
+
+    if(stride4) {
+        writeCharacteristic(initData0, sizeof(initData0), QStringLiteral("init"), false, true); // send a frame to wait the Value: f0e0728518586198
+        writeCharacteristic(initData0, sizeof(initData0), QStringLiteral("init"), false, false);
+        writeCharacteristic(initDataStride4_0, sizeof(initDataStride4_0), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData0, sizeof(initData0), QStringLiteral("init"), false, false);
+    } else {
+        writeCharacteristic(initData0, sizeof(initData0), QStringLiteral("init"), false, true);
+    }
 
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
@@ -352,7 +398,9 @@ void echelonstride::btinit() {
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
 
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+
+    if(!stride4)
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
 
     initDone = true;
 }
@@ -432,6 +480,12 @@ void echelonstride::error(QLowEnergyController::Error err) {
 void echelonstride::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         bluetoothDevice = device;
+
+        if(bluetoothDevice.name().toUpper().startsWith("STRIDE4")) {
+            stride4 = true;
+            qDebug() << "STRIDE4 workaround enabled!";
+        }
+
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &echelonstride::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &echelonstride::serviceScanDone);

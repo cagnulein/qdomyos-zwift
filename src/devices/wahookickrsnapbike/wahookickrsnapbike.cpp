@@ -1,5 +1,5 @@
 #include "wahookickrsnapbike.h"
-
+#include "homeform.h"
 #include "virtualdevices/virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -721,6 +721,11 @@ void wahookickrsnapbike::serviceScanDone(void) {
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &wahookickrsnapbike::stateChanged);
         gattCommunicationChannelService.constLast()->discoverDetails();
+        if(s == QBluetoothUuid((quint16)0x1826)) {
+            qDebug() << "if it doesn't change the inclination, set the bike in the FTMS bike setting under the Bike settings.";
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("if it doesn't change the inclination, set the bike in the FTMS bike setting under the Bike settings.");
+        }
     }
 }
 
@@ -817,12 +822,8 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     lastGrade = grade;
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
     QSettings settings;
-    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
     double g = grade;
-    if(!gears_zwift_ratio)
-        g += gears();
-    else
-        g *= gearsZwiftRatio();
+    g += gears();
     QByteArray a = setSimGrade(g);
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());

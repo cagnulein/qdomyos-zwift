@@ -14,6 +14,8 @@ using namespace std::chrono_literals;
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
 
+volatile int8_t AbstractZapDevice::risingEdge = 0;
+
 zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap) {
 #ifdef Q_OS_IOS
     QZ_EnableDiscoveryCharsAndDescripttors = true;
@@ -35,8 +37,9 @@ void zwiftclickremote::update() {
         writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
     } else if(initDone) {
         countRxTimeout++;
-        if(countRxTimeout == 5) {
-            homeform::singleton()->setToastRequested("Zwift device: UPGRADE THE FIRMWARE!");
+        if(countRxTimeout == 10) {
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("Zwift device: UPGRADE THE FIRMWARE!");
         }
     }
 }

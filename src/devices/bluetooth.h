@@ -36,6 +36,7 @@
 #include "devices/concept2skierg/concept2skierg.h"
 #include "devices/crossrope/crossrope.h"
 #include "devices/cscbike/cscbike.h"
+#include "devices/deeruntreadmill/deerruntreadmill.h"
 #include "devices/domyosbike/domyosbike.h"
 #include "devices/domyoselliptical/domyoselliptical.h"
 #include "devices/domyosrower/domyosrower.h"
@@ -110,6 +111,7 @@
 #include "devices/spirittreadmill/spirittreadmill.h"
 #include "devices/sportsplusbike/sportsplusbike.h"
 #include "devices/sportstechbike/sportstechbike.h"
+#include "devices/sportstechelliptical/sportstechelliptical.h"
 #include "devices/stagesbike/stagesbike.h"
 
 #include "devices/renphobike/renphobike.h"
@@ -175,6 +177,7 @@ class bluetooth : public QObject, public SignalHandler {
     csaferower *csafeRower = nullptr;
 #endif
     concept2skierg *concept2Skierg = nullptr;
+    deerruntreadmill *deerrunTreadmill = nullptr;
     domyostreadmill *domyos = nullptr;
     domyosbike *domyosBike = nullptr;
     domyosrower *domyosRower = nullptr;
@@ -217,6 +220,7 @@ class bluetooth : public QObject, public SignalHandler {
     horizongr7bike *horizonGr7Bike = nullptr;
     schwinnic4bike *schwinnIC4Bike = nullptr;
     sportstechbike *sportsTechBike = nullptr;
+    sportstechelliptical *sportsTechElliptical = nullptr;
     sportsplusbike *sportsPlusBike = nullptr;
     inspirebike *inspireBike = nullptr;
     snodebike *snodeBike = nullptr;

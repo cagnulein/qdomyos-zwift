@@ -41,7 +41,7 @@ void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse && (treadmill_type != TYPE::ADIDAS)) {
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
                                                              QLowEnergyService::WriteWithoutResponse);
     } else {

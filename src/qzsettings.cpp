@@ -760,8 +760,17 @@ const QString QZSettings::tile_biggears_order = QStringLiteral("tile_biggears_or
 const QString QZSettings::domyostreadmill_notfmts = QStringLiteral("domyostreadmill_notfmts");
 const QString QZSettings::zwiftplay_swap = QStringLiteral("zwiftplay_swap");
 const QString QZSettings::gears_zwift_ratio = QStringLiteral("gears_zwift_ratio");
+const QString QZSettings::domyos_bike_500_profile_v2 = QStringLiteral("domyos_bike_500_profile_v2");
+const QString QZSettings::gears_offset = QStringLiteral("gears_offset");
+const QString QZSettings::proform_carbon_tl_PFTL59720 = QStringLiteral("proform_carbon_tl_PFTL59720");
+const QString QZSettings::proform_treadmill_sport_70 = QStringLiteral("proform_treadmill_sport_70");
+const QString QZSettings::peloton_date_format = QStringLiteral("peloton_date_format");
+const QString QZSettings::default_peloton_date_format = QStringLiteral("MM/dd/yy");
+const QString QZSettings::force_resistance_instead_inclination = QStringLiteral("force_resistance_instead_inclination");
+const QString QZSettings::proform_treadmill_575i = QStringLiteral("proform_treadmill_575i");
+const QString QZSettings::zwift_play_emulator = QStringLiteral("zwift_play_emulator");
 
-const uint32_t allSettingsCount = 643;
+const uint32_t allSettingsCount = 651;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1411,6 +1420,14 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::domyostreadmill_notfmts, QZSettings::default_domyostreadmill_notfmts},
     {QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap},
     {QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio},
+    {QZSettings::domyos_bike_500_profile_v2, QZSettings::default_domyos_bike_500_profile_v2},
+    {QZSettings::gears_offset, QZSettings::default_gears_offset},
+    {QZSettings::proform_carbon_tl_PFTL59720, QZSettings::default_proform_carbon_tl_PFTL59720},
+    {QZSettings::proform_treadmill_sport_70, QZSettings::default_proform_treadmill_sport_70},
+    {QZSettings::peloton_date_format, QZSettings::default_peloton_date_format},
+    {QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination},
+    {QZSettings::proform_treadmill_575i, QZSettings::default_proform_treadmill_575i},
+    {QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
