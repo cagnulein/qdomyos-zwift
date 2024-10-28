@@ -10,7 +10,6 @@ using namespace std::chrono_literals;
 
 #define DM_SERV_OP(OP, P1, P2, P3)                                                                                     \
     OP(FITNESS_MACHINE_CYCLE, 0x1826, WAHOO_KICKR, P1, P2, P3)                                                         \
-    OP(WATTBIKEATOM, 0x1223, WAHOO_KICKR, P1, P2, P3)                                                         \
     OP(FITNESS_MACHINE_TREADMILL, 0x1826, WAHOO_TREADMILL, P1, P2, P3)                                                 \
     OP(CYCLING_POWER, 0x1818, WAHOO_KICKR, P1, P2, P3)                                                                 \
     OP(CYCLING_SPEED_AND_CADENCE, 0x1816, WAHOO_KICKR, P1, P2, P3)                                                     \
