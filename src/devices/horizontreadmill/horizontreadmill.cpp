@@ -828,6 +828,8 @@ void horizontreadmill::update() {
         return;
     }
 
+    qDebug() << initRequest << firstStateChanged << bluetoothDevice.isValid();
+
     if (initRequest && firstStateChanged) {
         btinit();
         initRequest = false;
@@ -2401,6 +2403,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #ifdef Q_OS_IOS            
             QZ_EnableDiscoveryCharsAndDescripttors = false;
 #endif            
+        } else if(device.name().toUpper().startsWith(QStringLiteral("TRX4500"))) {
+            qDebug() << QStringLiteral("TRX4500 TREADMILL workaround ON!");
+#ifdef Q_OS_IOS
+            QZ_EnableDiscoveryCharsAndDescripttors = false;
+#endif
         } else {
 #ifdef Q_OS_IOS            
             QZ_EnableDiscoveryCharsAndDescripttors = true;

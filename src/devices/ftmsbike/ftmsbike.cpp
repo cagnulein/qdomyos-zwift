@@ -74,14 +74,14 @@ void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, con
     loop.exec();
 }
 
-void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
     if(!gattFTMSService) {
         qDebug() << QStringLiteral("gattFTMSService is null!");
-        return;
+        return false;
     }
 
     if (wait_for_response) {
@@ -109,6 +109,8 @@ void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
     }
 
     loop.exec();
+
+    return true;
 }
 
 void ftmsbike::init() {
@@ -116,12 +118,14 @@ void ftmsbike::init() {
         return;
 
     uint8_t write[] = {FTMS_REQUEST_CONTROL};
-    writeCharacteristic(write, sizeof(write), "requestControl", false, true);
+    bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
     write[0] = {FTMS_START_RESUME};
-    writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+    ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
 
-    initDone = true;
-    initRequest = false;
+    if(ret) {
+        initDone = true;
+        initRequest = false;
+    }
 }
 
 void ftmsbike::zwiftPlayInit() {
@@ -921,7 +925,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
-            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || ICSE) {
+            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || ICSE || SCH_190U) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
                     qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
@@ -1181,6 +1185,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("3G Cardio RB"))) {
             qDebug() << QStringLiteral("_3G_Cardio_RB found");
             _3G_Cardio_RB = true;
+        } else if((bluetoothDevice.name().toUpper().startsWith("SCH_190U"))) {
+            qDebug() << QStringLiteral("SCH_190U found");
+            SCH_190U = true;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
