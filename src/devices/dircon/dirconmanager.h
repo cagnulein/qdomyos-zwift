@@ -10,7 +10,6 @@
 #include "characteristics/characteristicnotifier2acd.h"
 #include "characteristics/characteristicnotifier2ad2.h"
 #include "characteristics/characteristicnotifier2ad9.h"
-#include "characteristics/characteristicnotifier1224.h"
 #include "characteristics/characteristicwriteprocessor2ad9.h"
 #include "characteristics/characteristicwriteprocessore005.h"
 #include "devices/dircon/dirconpacket.h"
@@ -21,7 +20,7 @@
     OP(2AD2, P1, P2, P3)                                                                                               \
     OP(2A63, P1, P2, P3)                                                                                               \
     OP(2A37, P1, P2, P3) OP(2A5B, P1, P2, P3) OP(2A53, P1, P2, P3) OP(2ACD, P1, P2, P3) OP(2ACC, P1, P2, P3)           \
-        OP(2AD9, P1, P2, P3) OP(1224, P1, P2, P3)
+        OP(2AD9, P1, P2, P3)
 
 #define DM_CHAR_NOTIF_DEFINE_OP(UUID, P1, P2, P3) CharacteristicNotifier##UUID *notif##UUID = 0;
 
