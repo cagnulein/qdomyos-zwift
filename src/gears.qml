@@ -49,6 +49,34 @@ ScrollView {
         wheelSizeCombo.currentIndex = initialWheelSizeIndex
     }
 
+    function addNewGear() {
+        // Find the first inactive gear or add at the end
+        let newGearIndex = gearRows.findIndex(row => !row.active);
+        if (newGearIndex === -1) {
+            newGearIndex = gearRows.length;
+        }
+
+        // Create new gear with default values
+        const newGear = {
+            gear: newGearIndex + 1,
+            crankset: selectedCranksetSize,
+            cog: selectedCogSize,
+            active: true
+        };
+
+        if (newGearIndex < gearRows.length) {
+            gearRows[newGearIndex] = newGear;
+        } else {
+            gearRows.push(newGear);
+        }
+
+        // Force update
+        var temp = gearRows;
+        gearRows = [];
+        gearRows = temp;
+        gearConfigurationChanged(gearRows);
+    }
+
     function clearGearsFromIndex(startIndex) {
             for (let i = startIndex; i < gearRows.length; i++) {
                 gearRows[i].active = false
@@ -244,11 +272,18 @@ ScrollView {
                 anchors.fill: parent
                 spacing: 10
 
-                // Buttons (same as before)
+                // Updated Buttons Row
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 40
                     spacing: 10
+
+                    Button {
+                        text: "Add Gear"
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 40
+                        onClicked: addNewGear()
+                    }
 
                     Button {
                         text: "Clear Selected Gear and Following"
