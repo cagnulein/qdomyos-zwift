@@ -5308,7 +5308,7 @@ void homeform::update() {
                     }
                 }
 
-                if (!stopped && !paused && bluetoothManager->device()->currentHeart().value() &&
+                if (!stopped && !paused && bluetoothManager->device()->currentHeart().value() && zone > 0 &&
                     bluetoothManager->device()->currentSpeed().value() > 0.0f) {
                     if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
 
