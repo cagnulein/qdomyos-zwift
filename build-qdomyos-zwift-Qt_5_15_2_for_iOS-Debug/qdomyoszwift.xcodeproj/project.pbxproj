@@ -414,7 +414,6 @@
 		879F74152893D732009A64C8 /* CoreMedia.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F74142893D732009A64C8 /* CoreMedia.framework */; };
 		87A0771029B641D600A368BF /* wahookickrheadwind.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0770F29B641D500A368BF /* wahookickrheadwind.cpp */; };
 		87A0771229B6420200A368BF /* moc_wahookickrheadwind.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0771129B6420200A368BF /* moc_wahookickrheadwind.cpp */; };
-		87A083082C73361C00567A4E /* characteristicnotifier1224.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A083052C73361B00567A4E /* characteristicnotifier1224.cpp */; };
 		87A0C4BB262329A600121A76 /* npecablebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B7262329A600121A76 /* npecablebike.cpp */; };
 		87A0C4BC262329A600121A76 /* cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B9262329A600121A76 /* cscbike.cpp */; };
 		87A0C4BF262329B500121A76 /* moc_cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4BD262329B500121A76 /* moc_cscbike.cpp */; };
@@ -3609,7 +3608,6 @@
 				87D2699F25F535200076AA48 /* m3ibike.cpp in Compile Sources */,
 				87917A7528E768D200F8D9AC /* Connection.swift in Compile Sources */,
 				87FFA13727BBE3FF00924E4E /* solebike.cpp in Compile Sources */,
-				87A083082C73361C00567A4E /* characteristicnotifier1224.cpp in Compile Sources */,
 				87F4FB5A29D550C00061BB4A /* schwinn170bike.cpp in Compile Sources */,
 				7352E0F0EE5366AC809B9D64 /* qrc_qml.cpp in Compile Sources */,
 				873824E727E647A8004F1B46 /* record.cpp in Compile Sources */,
