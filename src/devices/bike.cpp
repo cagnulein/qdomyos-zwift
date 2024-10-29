@@ -106,6 +106,14 @@ void bike::setGears(double gears) {
         qDebug() << "new gear value ignored because of gears_zwift_ratio setting!";
         return;
     }
+    if(gears > maxGears()) {
+        qDebug() << "new gear value ignored because of maxGears" << maxGears();
+        return;
+    }
+    if(gears < minGears()) {
+        qDebug() << "new gear value ignored because of minGears" << minGears();
+        return;
+    }
     m_gears = gears;
     if(homeform::singleton()) {
         homeform::singleton()->updateGearsValue();

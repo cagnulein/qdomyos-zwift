@@ -854,3 +854,12 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
 bool wahookickrsnapbike::inclinationAvailableByHardware() {
     return KICKR_BIKE;
 }
+
+double wahookickrsnapbike::maxGears() {
+    GearTable g;
+    return g.maxGears;
+}
+
+double wahookickrsnapbike::minGears() {
+    return 1;
+}
