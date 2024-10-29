@@ -150,8 +150,6 @@ class wahookickrsnapbike : public bike {
                     maxGears = qMax(maxGears, config.gear);
                 }
             }
-
-            printTable();
         }
 
         void addGear(int gear, int crankset, int rearCog) {

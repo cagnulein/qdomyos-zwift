@@ -31,6 +31,8 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &wahookickrsnapbike::update);
     refresh->start(200ms);
+    GearTable g;
+    g.printTable();
 }
 
 bool wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
@@ -297,7 +299,7 @@ double wahookickrsnapbike::gearsToWheelDiameter(double gear) {
     double original_ratio = ((double)settings.value(QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size).toDouble()) / ((double)settings.value(QZSettings::gear_cog_size, QZSettings::default_gear_cog_size).toDouble());
     GearTable::GearInfo g = table.getGear((int)gear);
     double current_ratio =  ((double)g.crankset / (double)g.rearCog);
-    return (((double)settings.value(QZSettings::gear_wheel_size, QZSettings::default_gear_wheel_size).toDouble()) / original_ratio) * ((double)current_ratio);
+    return (((double)settings.value(QZSettings::gear_circumference, QZSettings::default_gear_circumference).toDouble()) / original_ratio) * ((double)current_ratio);
 }
 
 void wahookickrsnapbike::serviceDiscovered(const QBluetoothUuid &gatt) {
