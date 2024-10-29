@@ -2157,10 +2157,10 @@ class QZSettings {
     static const QString default_gear_configuration;
 
     static const QString gear_crankset_size;
-    static constexpr int default_gear_crankset_size = 38;
+    static constexpr int default_gear_crankset_size = 42;
 
     static const QString gear_cog_size;
-    static constexpr int default_gear_cog_size = 44;
+    static constexpr int default_gear_cog_size = 14;
 
     static const QString gear_wheel_size;
     static const QString default_gear_wheel_size;

@@ -990,8 +990,8 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.2
             property string gear_configuration: "1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true"
-            property int gear_crankset_size: 38
-            property int gear_cog_size: 44
+            property int gear_crankset_size: 42
+            property int gear_cog_size: 14
             property string gear_wheel_size: "700 x 18C"
             property real gear_circumference: 2070
         }

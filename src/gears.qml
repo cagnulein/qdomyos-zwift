@@ -17,8 +17,8 @@ ScrollView {
     Settings {
         id: settings
         property string gear_configuration: "1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true"
-        property int gear_crankset_size: 38
-        property int gear_cog_size: 44
+        property int gear_crankset_size: 42
+        property int gear_cog_size: 14
         property string gear_wheel_size: "700 x 18C"
         property real gear_circumference: 2070
     }
@@ -112,12 +112,6 @@ ScrollView {
             }
 
             gearRows = newGears
-
-            // Update the first crankset size
-            if (gearRows.length > 0) {
-                selectedCranksetSize = gearRows[0].crankset
-                selectedCogSize = gearRows[0].cog
-            }
 
             // Force update
             var temp = gearRows
@@ -324,74 +318,62 @@ ScrollView {
         anchors.fill: parent
         anchors.margins: 20
         spacing: 20
-
-        GroupBox {
-        title: "Preset Gear Profiles"
-        Layout.fillWidth: true
-
-            ComboBox {
-                id: profileCombo
-                width: parent.width
-                textRole: "text"
-                displayText: currentIndex < 0 ? "Select a profile..." : model.get(currentIndex).text
-                model: ListModel {
-                 id: profileModel
-                }
-
-                Component.onCompleted: {
-                 for (var key in gearProfiles) {
-                     profileModel.append({
-                         text: gearProfiles[key].name,
-                         value: key
-                     })
-                 }
-                }
-
-                onCurrentIndexChanged: {
-                 if (currentIndex >= 0) {
-                     loadGearProfile(profileModel.get(currentIndex).value)
-                 }
-                }
-                }
-        }
+        id: chainringColumn
 
         // Crankset Size
         GroupBox {
-            title: "Crankset Size (tooth count)"
+            title: "Chainring Size"
             Layout.fillWidth: true
 
-            SpinBox {
-                from: 1
-                to: 60
-                value: selectedCranksetSize
-                onValueChanged: {
-                    selectedCranksetSize = value                    
-                    console.log("Crankset Size changed");
-                    settingsChanged()
+            ColumnLayout {
+                Label {
+                    text: "Tooth count of your chainring on the bike you are currently riding on your trainer - enter 42 for Zwift Ride"
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: chainringColumn.width - 20
+                }
+
+                SpinBox {
+                    from: 1
+                    to: 60
+                    value: selectedCranksetSize
+                    onValueChanged: {
+                        selectedCranksetSize = value
+                        console.log("Crankset Size changed");
+                        settingsChanged()
+                    }
                 }
             }
         }
 
         // Cog Size
         GroupBox {
-            title: "Cog Size (tooth count)"
+            title: "Cog Size"
             Layout.fillWidth: true
 
-            SpinBox {
-                from: 1
-                to: 50
-                value: selectedCogSize
-                onValueChanged: {
-                    selectedCogSize = value
-                    console.log("Cog Size changed");
-                    settingsChanged()
+            ColumnLayout {
+                Label {
+                    text: "Tooth count of your rear cog on your trainer - enter 14 if you have the Zwift Cog"
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: chainringColumn.width - 20
+                }
+                SpinBox {
+                    from: 1
+                    to: 50
+                    value: selectedCogSize
+                    onValueChanged: {
+                        selectedCogSize = value
+                        console.log("Cog Size changed");
+                        settingsChanged()
+                    }
                 }
             }
         }
 
         // Wheel Size
         GroupBox {
-            title: "Wheel Size"
+            title: "Virtual Wheel Size"
             Layout.fillWidth: true
 
             ComboBox {
@@ -498,9 +480,40 @@ ScrollView {
             }
         }
 
+        GroupBox {
+        title: "Preset Gear Profiles"
+        Layout.fillWidth: true
+
+            ComboBox {
+                id: profileCombo
+                width: parent.width
+                textRole: "text"
+                displayText: currentIndex < 0 ? "Select a profile..." : model.get(currentIndex).text
+                model: ListModel {
+                 id: profileModel
+                }
+
+                Component.onCompleted: {
+                 for (var key in gearProfiles) {
+                     profileModel.append({
+                         text: gearProfiles[key].name,
+                         value: key
+                     })
+                 }
+                }
+
+                onCurrentIndexChanged: {
+                 if (currentIndex >= 0) {
+                     loadGearProfile(profileModel.get(currentIndex).value)
+                 }
+                }
+                }
+        }
+
+
         // Gear Table GroupBox
         GroupBox {
-            title: "Gear Table"
+            title: "Virtual Gear Table"
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.preferredHeight: parent.height
@@ -576,7 +589,7 @@ ScrollView {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: "Crankset"
+                                text: "Chainring"
                                 font.bold: true
                                 color: "black"
                             }
@@ -609,6 +622,11 @@ ScrollView {
                     model: ListModel {
                         id: gearListModel
                     }
+
+                    ScrollBar.vertical: ScrollBar {
+                        policy: ScrollBar.AlwaysOff
+                    }
+
 
                     Component.onCompleted: {
                         updateGearListModel()
