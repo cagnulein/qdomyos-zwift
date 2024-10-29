@@ -1093,7 +1093,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             b[1] = power & 0xFF;
             b[2] = power >> 8;
             qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << power;
-        } else if(b.at(0) != FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && b.at(0) != FTMS_SET_TARGET_POWER) {
+        } else if(b.at(0) != FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && b.at(0) != FTMS_SET_TARGET_POWER && gears_zwift_ratio) {
             qDebug() << "ignoring this";
             return;
         }
