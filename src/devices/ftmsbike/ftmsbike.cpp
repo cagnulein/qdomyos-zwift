@@ -282,7 +282,7 @@ void ftmsbike::update() {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
                 // FTMS bike. This condition handles the peloton requests                
-                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
+                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike || resistance_lvl_mode) &&
                     (requestPower == 0 || requestPower == -1)) {
                     init();
                     forceResistance(requestResistance + (gears() * 5));
@@ -1045,8 +1045,8 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
 void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
 
-    if (!autoResistance()) {
-        qDebug() << "ignoring routing FTMS packet to the bike from virtualbike because of auto resistance OFF"
+    if (!autoResistance() || resistance_lvl_mode) {
+        qDebug() << "ignoring routing FTMS packet to the bike from virtualbike because of auto resistance OFF or resistance lvl mode is on"
                  << characteristic.uuid() << newValue.toHex(' ');
         return;
     }
