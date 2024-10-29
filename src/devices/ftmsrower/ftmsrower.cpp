@@ -408,6 +408,15 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::descriptorWritten, this, &ftmsrower::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &ftmsrower::descriptorRead);
 
+            if (I_ROWER) {
+                QBluetoothUuid ftmsService((quint16)0x1826);
+                if (s->serviceUuid() != ftmsService) {
+                    qDebug() << QStringLiteral("I-ROWER wants to be subscribed only to FTMS service in order to send metrics")
+                             << s->serviceUuid();
+                    continue;
+                }
+            }
+
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
             auto characteristics_list = s->characteristics();
