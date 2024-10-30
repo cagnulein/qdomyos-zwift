@@ -1070,6 +1070,8 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             }
             b[3] = slope & 0xFF;
             b[4] = slope >> 8;
+            b[5] = 0;
+            b[6] = 0;
             
             qDebug() << "applying gears mod" << gears() << slope;
         /*} else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
