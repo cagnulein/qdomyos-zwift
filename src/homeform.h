@@ -198,6 +198,7 @@ class homeform : public QObject {
 
   public:
     static homeform *singleton() { return m_singleton; }
+    bluetooth *bluetoothManager;
 
     QByteArray currentPelotonImage();
     Q_INVOKABLE void save_screenshot() {
@@ -605,6 +606,7 @@ class homeform : public QObject {
     QString getStravaAuthUrl() { return stravaAuthUrl; }
     bool stravaWebVisible() { return stravaAuthWebVisible; }
     trainprogram *trainingProgram() { return trainProgram; }
+    void updateGearsValue();
     
     DataObject *speed;
     DataObject *inclination;
@@ -679,7 +681,6 @@ class homeform : public QObject {
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QList<QObject *> dataList;
     QList<SessionLine> Session;
-    bluetooth *bluetoothManager;
     QQmlApplicationEngine *engine;
     trainprogram *trainProgram = nullptr;
     trainprogram *previewTrainProgram = nullptr;

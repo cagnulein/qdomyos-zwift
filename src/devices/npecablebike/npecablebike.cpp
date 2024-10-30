@@ -187,7 +187,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+                     ((double)lastRefreshCharacteristicChanged2A5B.msecsTo(now)));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         // Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
@@ -200,10 +200,12 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
                 ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
                    3.5) /
                   200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged2A5B.msecsTo(
                                 now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+
+        lastRefreshCharacteristicChanged2A5B = now;
     } else if (characteristic.uuid() == QBluetoothUuid::HeartRateMeasurement) {
         if (newValue.length() > 1) {
             Heart = newValue[1];
@@ -295,7 +297,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
             index += 3;
         } else {
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+                         ((double)lastRefreshCharacteristicChanged2AD2.msecsTo(now)));
         }
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -362,7 +364,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
                     ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
                        3.5) /
                       200.0) /
-                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged2AD2.msecsTo(
                                     now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                       // kg * 3.5) / 200 ) / 60
         }
@@ -395,6 +397,8 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
         if (Flags.remainingTime) {
             // todo
         }
+
+        lastRefreshCharacteristicChanged2AD2 = now;
     }
 
 #ifdef Q_OS_ANDROID
@@ -410,9 +414,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
     if (Cadence.value() > 0) {
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-    }
-
-    lastRefreshCharacteristicChanged = now;
+    }    
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT

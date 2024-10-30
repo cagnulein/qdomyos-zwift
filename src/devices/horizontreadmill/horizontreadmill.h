@@ -86,7 +86,9 @@ class horizontreadmill : public treadmill {
     int32_t messageID = 0;
 
     bool mobvoi_treadmill = false;
+    bool mobvoi_tmp_treadmill = false;
     bool kettler_treadmill = false;
+    bool wellfit_treadmill = false;
     bool sole_tt8_treadmill = false;
     bool anplus_treadmill = false;
     bool tunturi_t60_treadmill = false;

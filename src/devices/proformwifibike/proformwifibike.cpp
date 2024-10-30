@@ -34,6 +34,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, in
     ok = connect(&websocket, &QWebSocket::connected, [&]() { qDebug() << "connected!"; });
     ok = connect(&websocket, &QWebSocket::disconnected, [&]() {
         qDebug() << "disconnected!";
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
         connectToDevice();
     });
 
@@ -557,8 +558,8 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
                         value = 5.0;
                     }
                     if (value != 0.0) {
-                        forceResistance(currentInclination().value() + value); // to force an immediate change
                         setGears(gears() + value);
+                        forceResistance(lastRawRequestedInclinationValue + gears()); // to force an immediate change
                     }
                 } else {
                     double value = 0;

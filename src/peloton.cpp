@@ -547,7 +547,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
     current_workout = QJsonDocument::fromJson(payload, &parseError);
     QJsonObject json = current_workout.object();
     QJsonArray data = json[QStringLiteral("data")].toArray();
-    qDebug() << QStringLiteral("peloton::workoutlist_onfinish data") << data;
+    qDebug() << QStringLiteral("peloton::workoutlist_onfinish data") << payload << data;
 
     if (data.isEmpty()) {
         qDebug() << QStringLiteral(
@@ -626,7 +626,7 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
         qDebug() << QStringLiteral("instructor_onfinish");
     }
 
-    QString air_time = current_original_air_time.toString(QStringLiteral("MM/dd/yy"));
+    QString air_time = current_original_air_time.toString(settings.value(QZSettings::peloton_date_format, QZSettings::default_peloton_date_format).toString());
     qDebug() << QStringLiteral("air_time ") + air_time;
     if (settings.value(QZSettings::peloton_date, QZSettings::default_peloton_date)
             .toString()

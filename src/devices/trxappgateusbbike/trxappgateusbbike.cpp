@@ -1127,7 +1127,7 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("TUN "))) {
             bike_type = TYPE::TUNTURI;
             qDebug() << QStringLiteral("TUNTURI bike found");
-        } else if (device.name().toUpper().startsWith(QStringLiteral("VIFHTR"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("VIFHTR")) || device.name().toUpper().startsWith(QStringLiteral("VIRTUFIT"))) {
 
             bike_type = TYPE::VIRTUFIT;
             qDebug() << QStringLiteral("VIRTUFIT bike found");
