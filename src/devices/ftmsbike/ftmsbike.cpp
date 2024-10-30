@@ -35,6 +35,8 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &ftmsbike::update);
     refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
+    wheelCircumference::GearTable g;
+    g.printTable();
 }
 
 void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -170,6 +172,18 @@ void ftmsbike::zwiftPlayInit() {
     }
 }
 
+void ftmsbike::setWheelDiameter(double diameter) {
+    uint8_t write[] = {FTMS_SET_WHEEL_CIRCUMFERENCE, 0x00, 0x00};
+
+    diameter = diameter * 10.0;
+
+    write[1] = ((uint16_t)diameter) & 0xFF;
+    write[2] = ((uint16_t)diameter) >> 8;
+
+    writeCharacteristic(write, sizeof(write), QStringLiteral("setWheelCircumference ") + QString::number(diameter));
+}
+
+
 void ftmsbike::forcePower(int16_t requestPower) {
     if(resistance_lvl_mode) { 
         forceResistance(resistanceFromPowerRequest(requestPower));
@@ -285,14 +299,16 @@ void ftmsbike::update() {
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                     (requestPower == 0 || requestPower == -1)) {
                     init();
-                    forceResistance(requestResistance + (gears() * 5));
+                    if(requestResistance != - 1)
+                        forceResistance(requestResistance + (gears() * 5));
+                    else
+                        setWheelDiameter(wheelCircumference::gearsToWheelDiameter(gears()));
                 }
             }
             requestResistance = -1;
         }
         if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
-            qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP" << lastPacketFromFTMS.toHex(' ');
-            ftmsCharacteristicChanged(QLowEnergyCharacteristic(), lastPacketFromFTMS);
+            setWheelDiameter(wheelCircumference::gearsToWheelDiameter(gears()));
         }
 
         QSettings settings;
@@ -1065,13 +1081,8 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
                 lastPacketFromFTMS.append(b.at(i));
             qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
-            if (gears() != 0) {
-                slope += (gears() * 50);
-            }
             b[3] = slope & 0xFF;
-            b[4] = slope >> 8;
-            
-            qDebug() << "applying gears mod" << gears() << slope;
+            b[4] = slope >> 8;            
         /*} else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             uint8_t gear2[] = {0x04, 0x22, 0x02, 0x10, 0x00};
