@@ -33,6 +33,7 @@ HomeForm {
         property bool theme_tile_shadow_enabled: true
         property string theme_tile_shadow_color: "#9C27B0"
         property int theme_tile_secondline_textsize: 12
+        property bool skipLocationServicesDialog: false
     }
 
     MessageDialog {
@@ -87,12 +88,43 @@ HomeForm {
     }
 
     property var locationServiceRequsted: false
-    MessageDialog {
-        text: "Permissions Required"
-        informativeText: "QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?"
-        buttons: (MessageDialog.Yes | MessageDialog.No)
-        onYesClicked: {locationServiceRequsted = true; rootItem.enableLocationServices()}
-        visible: !rootItem.locationServices() && !locationServiceRequsted
+
+    Dialog {
+        id: locationServicesDialog
+        title: "Permissions Required"
+
+        Column {
+            spacing: 10
+
+            Label {
+                text: "QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?"
+                wrapMode: Text.WordWrap
+                width: parent.width
+            }
+
+            CheckBox {
+                text: "Don't ask me again"
+                onCheckedChanged: settings.skipLocationServicesDialog = checked
+            }
+
+            Row {
+                spacing: 10
+                Button {
+                    text: "Yes"
+                    onClicked: {
+                        locationServiceRequsted = true
+                        rootItem.enableLocationServices()
+                        locationServicesDialog.close()
+                    }
+                }
+                Button {
+                    text: "No"
+                    onClicked: locationServicesDialog.close()
+                }
+            }
+        }
+
+        visible: !rootItem.locationServices() && !locationServiceRequsted && !settings.skipLocationServicesDialog
     }
     MessageDialog {
         text: "Restart the app"

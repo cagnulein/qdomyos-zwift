@@ -987,6 +987,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.1
             property bool zwift_play_emulator: false
+
+            // from version 2.18.2
+            property bool skipLocationServicesDialog: false
         }
 
         function paddingZeros(text, limit) {
