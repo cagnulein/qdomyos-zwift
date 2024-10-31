@@ -11,9 +11,9 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 @objc public class virtualbike_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerZwift!
     
-    @objc public init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, zwift_play_emulator: Bool) {
+    @objc public init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, zwift_play_emulator: Bool, watt_bike_emulator: Bool) {
       super.init()
-      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr, garmin_bluetooth_compatibility: garmin_bluetooth_compatibility, zwift_play_emulator: zwift_play_emulator)
+      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr, garmin_bluetooth_compatibility: garmin_bluetooth_compatibility, zwift_play_emulator: zwift_play_emulator, watt_bike_emulator: watt_bike_emulator)
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -64,6 +64,7 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var garmin_bluetooth_compatibility: Bool = false
   private var zwift_play_emulator: Bool = false
+  private var watt_bike_emulator: Bool = false
     private var disable_hr: Bool = false
   private var peripheralManager: CBPeripheralManager!
 
@@ -101,6 +102,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     private var PowerSensorLocationCharacteristic: CBMutableCharacteristic!
     private var PowerMeasurementCharacteristic: CBMutableCharacteristic!
 
+  private var WattBikeService: CBMutableService!
+    private var WattBikeReadCharacteristic: CBMutableCharacteristic!
+    private var WattBikeWriteCharacteristic: CBMutableCharacteristic!
+
   private var ZwiftPlayService: CBMutableService!
     private var ZwiftPlayReadCharacteristic: CBMutableCharacteristic!
     private var ZwiftPlayWriteCharacteristic: CBMutableCharacteristic!
@@ -123,11 +128,12 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   let SwiftDebug = swiftDebug()
   //var delegate: BLEPeripheralManagerDelegate?
 
-  init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, zwift_play_emulator: Bool) {
+  init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, zwift_play_emulator: Bool, watt_bike_emulator: Bool) {
     super.init()
     self.disable_hr = disable_hr
     self.garmin_bluetooth_compatibility = garmin_bluetooth_compatibility
     self.zwift_play_emulator = zwift_play_emulator
+    self.watt_bike_emulator = watt_bike_emulator
 
     peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
   }
@@ -297,6 +303,28 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                             ZwiftPlayWriteCharacteristic,
                                               ZwiftPlayIndicateCharacteristic]
             self.peripheralManager.add(ZwiftPlayService)
+        } else if(watt_bike_emulator) {
+          // WATT BIKE
+          self.WattBikeService = CBMutableService(type: WattBikeServiceUUID, primary: true)
+          
+          let WattBikeReadProperties: CBCharacteristicProperties = [.notify, .read]
+            let WattBikeReadPermissions: CBAttributePermissions = [.readable]
+            self.WattBikeReadCharacteristic = CBMutableCharacteristic(type: WattBikeReadUUID,
+                                                            properties: WattBikeReadProperties,
+                                                                      value: nil,
+                                                                            permissions: WattBikeReadPermissions)
+
+          let WattBikeWriteProperties: CBCharacteristicProperties = [.write]
+            let WattBikeWritePermissions: CBAttributePermissions = [.writeable]
+            self.WattBikeWriteCharacteristic = CBMutableCharacteristic(type: WattBikeWriteUUID,
+                                                      properties: WattBikeWriteProperties,
+                                                                    value: nil,
+                                                                    permissions: WattBikeWritePermissions)
+
+
+          WattBikeService.characteristics = [WattBikeReadCharacteristic,
+                                            WattBikeWriteCharacteristic]
+            self.peripheralManager.add(WattBikeService)          
         }
         
     default:
@@ -805,8 +833,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       return indoorBikeData
     }
   
+    var WattBikeSequence: UInt8 = 0
+    
   @objc func updateSubscribers() {
-      if(self.serviceToggle == 4 || garmin_bluetooth_compatibility || (self.serviceToggle == 3 && !zwift_play_emulator))
+      if(self.serviceToggle == 4 || garmin_bluetooth_compatibility || (self.serviceToggle == 3 && !zwift_play_emulator && !watt_bike_emulator))
       {
           let powerData = self.calculatePower()
           let ok = self.peripheralManager.updateValue(powerData, for: self.PowerMeasurementCharacteristic, onSubscribedCentrals: nil)
@@ -814,15 +844,25 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
               self.serviceToggle = 0
           }
       } else if(self.serviceToggle == 3) {
-          if(!sendUpdates()) {
-              let ZwiftPlayArray : [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01 ]
-              let ZwiftPlayData = Data(bytes: ZwiftPlayArray, count: 16)
-              let ok = self.peripheralManager.updateValue(ZwiftPlayData, for: self.ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
-              if(ok) {
-                  self.serviceToggle = self.serviceToggle + 1
-              }
-          } else {
-              self.serviceToggle = self.serviceToggle + 1
+          if(watt_bike_emulator) {
+            WattBikeSequence = WattBikeSequence + 1
+                let WattBikeArray : [UInt8] = [ WattBikeSequence, 0x03, 0xB6, (UInt8)(self.CurrentGears) ]
+            let WattBikeData = Data(bytes: WattBikeArray, count: 4)
+            let ok = self.peripheralManager.updateValue(WattBikeData, for: self.WattBikeReadCharacteristic, onSubscribedCentrals: nil)
+            if(ok) {
+                self.serviceToggle = self.serviceToggle + 1
+            }
+          } else if(zwift_play_emulator) {
+            if(!sendUpdates()) {
+                let ZwiftPlayArray : [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01 ]
+                let ZwiftPlayData = Data(bytes: ZwiftPlayArray, count: 16)
+                let ok = self.peripheralManager.updateValue(ZwiftPlayData, for: self.ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
+                if(ok) {
+                    self.serviceToggle = self.serviceToggle + 1
+                }
+            } else {
+                self.serviceToggle = self.serviceToggle + 1
+            }
           }
     } else if(self.serviceToggle == 2) {
       let cadenceData = self.calculateCadence()

@@ -989,6 +989,13 @@ import QtQuick.Dialogs 1.0
             property bool zwift_play_emulator: false
 
             // from version 2.18.2
+            property string gear_configuration: "1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true"
+            property int gear_crankset_size: 42
+            property int gear_cog_size: 14
+            property string gear_wheel_size: "700 x 18C"
+            property real gear_circumference: 2070
+
+            property bool watt_bike_emulator: false
             property bool skipLocationServicesDialog: false
         }
 
@@ -2494,6 +2501,14 @@ import QtQuick.Dialogs 1.0
                     Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
                     color: Material.color(Material.Lime)
+                }
+
+                NewPageElement {
+                    title: qsTr("Wahoo Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: "gears.qml"
                 }
 
                 AccordionElement {
@@ -4860,11 +4875,38 @@ import QtQuick.Dialogs 1.0
                         checked: settings.zwift_play_emulator
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_play_emulator = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_play_emulator = checked; if(checked) { settings.watt_bike_emulator = false; } window.settings_restart_to_apply = true; }
                     }
 
                     Label {
                         text: qsTr("This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Show Gears to Zwift Only")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.watt_bike_emulator
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.watt_bike_emulator = checked; if(checked) { settings.zwift_play_emulator = false; } window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("This setting shows the actual gear from qz to Zwift. Negative values are not displayed on zwift and it could have also limitation to higher gain value. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9803,7 +9845,7 @@ import QtQuick.Dialogs 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
-                            }                            
+                            }
                         }
                     }
 

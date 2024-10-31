@@ -30,6 +30,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
+    bool watt_bike_emulator = settings.value(QZSettings::watt_bike_emulator, QZSettings::default_watt_bike_emulator).toBool();
 
     if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
         dirconManager = new DirconManager(Bike, bikeResistanceOffset, bikeResistanceGain, this);
@@ -60,7 +61,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
         h->virtualbike_zwift_ios(
-            settings.value(QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service).toBool(), garmin_bluetooth_compatibility, zwift_play_emulator);
+                                 settings.value(QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service).toBool(), garmin_bluetooth_compatibility, zwift_play_emulator, watt_bike_emulator);
     } else
 
 #endif
@@ -224,6 +225,22 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                         serviceDataZwiftPlayBike.addCharacteristic(charData);
                         serviceDataZwiftPlayBike.addCharacteristic(charData2);
                         serviceDataZwiftPlayBike.addCharacteristic(charData3);
+                    } else if(watt_bike_emulator) {
+                        QLowEnergyCharacteristicData charData;
+                        charData.setUuid(QBluetoothUuid(QStringLiteral("b4cc1225-bc02-4cae-adb9-1217ad2860d1")));
+                        charData.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::WriteNoResponse);
+
+                        QLowEnergyCharacteristicData charData2;
+                        charData2.setUuid(QBluetoothUuid(QStringLiteral("b4cc1224-bc02-4cae-adb9-1217ad2860d1")));
+                        charData2.setProperties(QLowEnergyCharacteristic::Notify);
+                        const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
+
+                        charData2.addDescriptor(clientConfig2);
+
+                        serviceDataWattAtomBike.setType(QLowEnergyServiceData::ServiceTypePrimary);
+                        serviceDataWattAtomBike.setUuid(QBluetoothUuid(QStringLiteral("b4cc1223-bc02-4cae-adb9-1217ad2860d1")));
+                        serviceDataWattAtomBike.addCharacteristic(charData);
+                        serviceDataWattAtomBike.addCharacteristic(charData2);                                           
                     }
                 } else if (power) {
 
@@ -422,9 +439,13 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                 if (!cadence && !power) {
 
                     serviceFIT = leController->addService(serviceDataFIT);
+
                     if(zwift_play_emulator) {
                         QThread::msleep(100); // give time to Android to add the service async.ly
                         serviceZwiftPlayBike = leController->addService(serviceDataZwiftPlayBike);
+                    } else if(watt_bike_emulator) {
+                        QThread::msleep(100); // give time to Android to add the service async.ly
+                        serviceWattAtomBike = leController->addService(serviceDataWattAtomBike);
                     }
                 } else {
                     service = leController->addService(serviceData);
@@ -452,6 +473,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             if (!heart_only) {
                 if (!cadence && !power) {
                     QObject::connect(serviceFIT, &QLowEnergyService::characteristicChanged, this,
+                                     &virtualbike::characteristicChanged);
+                    QObject::connect(serviceWattAtomBike, &QLowEnergyService::characteristicChanged, this,
                                      &virtualbike::characteristicChanged);
                     QObject::connect(serviceZwiftPlayBike, &QLowEnergyService::characteristicChanged, this,
                                      &virtualbike::characteristicChanged);
@@ -1267,6 +1290,7 @@ void virtualbike::reconnect() {
     }
 
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
+    bool watt_bike_emulator = settings.value(QZSettings::watt_bike_emulator, QZSettings::default_watt_bike_emulator).toBool();
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     bool battery = settings.value(QZSettings::battery_service, QZSettings::default_battery_service).toBool();
     bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
@@ -1290,9 +1314,13 @@ void virtualbike::reconnect() {
             if (!cadence && !power) {
 
                 serviceFIT = leController->addService(serviceDataFIT);
+
                 if(zwift_play_emulator) {
                     QThread::msleep(100); // give time to Android to add the service async.ly
                     serviceZwiftPlayBike = leController->addService(serviceDataZwiftPlayBike);
+                } else if(watt_bike_emulator) {
+                    QThread::msleep(100); // give time to Android to add the service async.ly
+                    serviceWattAtomBike = leController->addService(serviceDataWattAtomBike);
                 }
             } else {
                 service = leController->addService(serviceData);
@@ -1324,6 +1352,7 @@ void virtualbike::bikeProvider() {
 
     QSettings settings;
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
+    bool watt_bike_emulator = settings.value(QZSettings::watt_bike_emulator, QZSettings::default_watt_bike_emulator).toBool();
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     bool battery = settings.value(QZSettings::battery_service, QZSettings::default_battery_service).toBool();
     bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
@@ -1440,6 +1469,20 @@ void virtualbike::bikeProvider() {
                         const uint8_t v[] = {0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01};
                         value = QByteArray::fromRawData((char*)v, 16);
                         writeCharacteristic(serviceZwiftPlayBike, characteristic1, value);
+                    } else if (watt_bike_emulator) {
+                        QLowEnergyCharacteristic characteristic1 =
+                            serviceWattAtomBike->characteristic(QBluetoothUuid(QStringLiteral("b4cc1224-bc02-4cae-adb9-1217ad2860d1")));
+                        value.clear();
+                        static uint8_t seq = 0;
+                        ++seq;
+                        value.append(seq);
+                        value.append(0x03);
+                        value.append(0xB6);
+                        int8_t g = ((bike*)Bike)->gears();
+                        if(g < 1)
+                            g = 1;
+                        value.append(g);
+                        writeCharacteristic(serviceWattAtomBike, characteristic1, value);
                     }
                 }
             } else if (power) {

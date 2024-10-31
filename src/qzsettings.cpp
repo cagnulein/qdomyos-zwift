@@ -769,9 +769,17 @@ const QString QZSettings::default_peloton_date_format = QStringLiteral("MM/dd/yy
 const QString QZSettings::force_resistance_instead_inclination = QStringLiteral("force_resistance_instead_inclination");
 const QString QZSettings::proform_treadmill_575i = QStringLiteral("proform_treadmill_575i");
 const QString QZSettings::zwift_play_emulator = QStringLiteral("zwift_play_emulator");
+const QString QZSettings::gear_configuration = QStringLiteral("gear_configuration");
+const QString QZSettings::default_gear_configuration = QStringLiteral("1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true");
+const QString QZSettings::gear_crankset_size = QStringLiteral("gear_crankset_size");
+const QString QZSettings::gear_cog_size = QStringLiteral("gear_cog_size");
+const QString QZSettings::gear_wheel_size = QStringLiteral("gear_wheel_size");
+const QString QZSettings::default_gear_wheel_size = QStringLiteral("700 x 18C");
+const QString QZSettings::gear_circumference = QStringLiteral("gear_circumference");
+const QString QZSettings::watt_bike_emulator = QStringLiteral("watt_bike_emulator");
 const QString QZSettings::skipLocationServicesDialog = QStringLiteral("skipLocationServicesDialog");
 
-const uint32_t allSettingsCount = 652;
+const uint32_t allSettingsCount = 658;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1429,6 +1437,12 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination},
     {QZSettings::proform_treadmill_575i, QZSettings::default_proform_treadmill_575i},
     {QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator},
+    {QZSettings::gear_configuration, QZSettings::default_gear_configuration},
+    {QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size},
+    {QZSettings::gear_cog_size, QZSettings::default_gear_cog_size},
+    {QZSettings::gear_wheel_size, QZSettings::default_gear_wheel_size},
+    {QZSettings::gear_circumference, QZSettings::default_gear_circumference},
+    {QZSettings::watt_bike_emulator, QZSettings::default_watt_bike_emulator},
     {QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog},
 };
 

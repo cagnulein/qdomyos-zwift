@@ -595,14 +595,6 @@ void DeviceTestDataIndex::Initialize() {
             configurations.push_back(config);
         });
 
-
-    // FTMS KICKR CORE
-    RegisterNewDeviceTestData(DeviceIndex::FTMSKICKRCORE)
-        ->expectDevice<ftmsbike>()        
-        ->acceptDeviceName("KICKR CORE", DeviceNameComparison::StartsWithIgnoreCase)
-        ->excluding(ftmsBikeConfigureExclusions)
-        ->configureSettingsWith(QBluetoothUuid((quint16)0x1826));
-
     // FTMS Bike 2
     RegisterNewDeviceTestData(DeviceIndex::FTMSBike2)
         ->expectDevice<ftmsbike>()
@@ -1128,9 +1120,9 @@ void DeviceTestDataIndex::Initialize() {
         ->configureSettingsWith(QZSettings::power_sensor_name, "DisabledX", "XDisabled")
         ->excluding( stagesBikeExclusions);
 
-    // Stages Bike (KICKR CORE)
-    RegisterNewDeviceTestData(DeviceIndex::StagesBike_KICKRCORE)
-        ->expectDevice<stagesbike>()        
+    // Wahoo KICKR CORE
+    RegisterNewDeviceTestData(DeviceIndex::WahooKickrSnapBike_KICKRCORE)
+        ->expectDevice<wahookickrsnapbike>()        
         ->acceptDeviceName("KICKR CORE", DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding(stagesBikeExclusions)
         ->configureSettingsWith(
