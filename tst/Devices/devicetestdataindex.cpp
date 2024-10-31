@@ -595,14 +595,6 @@ void DeviceTestDataIndex::Initialize() {
             configurations.push_back(config);
         });
 
-
-    // FTMS KICKR CORE
-    RegisterNewDeviceTestData(DeviceIndex::FTMSKICKRCORE)
-        ->expectDevice<ftmsbike>()        
-        ->acceptDeviceName("KICKR CORE", DeviceNameComparison::StartsWithIgnoreCase)
-        ->excluding(ftmsBikeConfigureExclusions)
-        ->configureSettingsWith(QBluetoothUuid((quint16)0x1826));
-
     // FTMS Bike 2
     RegisterNewDeviceTestData(DeviceIndex::FTMSBike2)
         ->expectDevice<ftmsbike>()
