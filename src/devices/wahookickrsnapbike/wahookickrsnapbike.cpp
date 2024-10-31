@@ -31,6 +31,8 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &wahookickrsnapbike::update);
     refresh->start(200ms);
+    GearTable g;
+    g.printTable();
 }
 
 bool wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
@@ -192,10 +194,16 @@ void wahookickrsnapbike::update() {
         }
         QThread::msleep(700);
 
+        QByteArray d = setWheelCircumference(gearsToWheelDiameter(gears()));
+        uint8_t e[20];
+        setGears(1);
+        memcpy(e, d.constData(), d.length());
+        writeCharacteristic(e, d.length(), "setWheelCircumference", false, true);
+
         // required to the SS2K only one time
         Resistance = 0;
         emit resistanceRead(Resistance.value());
-        initRequest = false;
+        initRequest = false;               
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
@@ -259,7 +267,10 @@ void wahookickrsnapbike::update() {
                memcpy(b, a.constData(), a.length());
                writeCharacteristic(b, a.length(), "setResistance", false, true);
             } else if (virtualBike && virtualBike->ftmsDeviceConnected() && lastGearValue != gears()) {
-                inclinationChanged(lastGrade, lastGrade);
+               QByteArray a = setWheelCircumference(gearsToWheelDiameter(gears()));
+               uint8_t b[20];
+               memcpy(b, a.constData(), a.length());
+               writeCharacteristic(b, a.length(), "setWheelCircumference", false, true);
             }
             lastGearValue = gears();
             requestResistance = -1;
@@ -278,6 +289,17 @@ void wahookickrsnapbike::update() {
             requestStop = -1;
         }
     }
+}
+
+double wahookickrsnapbike::gearsToWheelDiameter(double gear) {
+    QSettings settings;
+    GearTable table;
+    if(gear < 1) gear = 1;
+    else if(gear > table.maxGears) gear = table.maxGears;
+    double original_ratio = ((double)settings.value(QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size).toDouble()) / ((double)settings.value(QZSettings::gear_cog_size, QZSettings::default_gear_cog_size).toDouble());
+    GearTable::GearInfo g = table.getGear((int)gear);
+    double current_ratio =  ((double)g.crankset / (double)g.rearCog);
+    return (((double)settings.value(QZSettings::gear_circumference, QZSettings::default_gear_circumference).toDouble()) / original_ratio) * ((double)current_ratio);
 }
 
 void wahookickrsnapbike::serviceDiscovered(const QBluetoothUuid &gatt) {
@@ -824,7 +846,6 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
     QSettings settings;
     double g = grade;
-    g += gears();
     QByteArray a = setSimGrade(g);
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());
@@ -833,4 +854,13 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
 
 bool wahookickrsnapbike::inclinationAvailableByHardware() {
     return KICKR_BIKE;
+}
+
+double wahookickrsnapbike::maxGears() {
+    GearTable g;
+    return g.maxGears;
+}
+
+double wahookickrsnapbike::minGears() {
+    return 1;
 }
