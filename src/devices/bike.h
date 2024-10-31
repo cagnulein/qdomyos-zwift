@@ -23,6 +23,8 @@ class bike : public bluetoothdevice {
     double currentCrankRevolutions() override;
     uint16_t lastCrankEventTime() override;
     bool connected() override;
+    virtual double maxGears() { return 9999.0; }
+    virtual double minGears() { return -9999.0; }
     virtual uint16_t watts();
     virtual resistance_t pelotonToBikeResistance(int pelotonResistance);
     virtual resistance_t resistanceFromPowerRequest(uint16_t power);
