@@ -81,6 +81,9 @@ void ftmsrower::update() {
         if(I_ROWER) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(write, sizeof(write), "start", false, true);
+
+            uint8_t write1[] = {FTMS_START_RESUME};
+            writeCharacteristic(write1, sizeof(write1), "start simulation", false, true);
         } else {
             uint8_t write[] = {FTMS_START_RESUME};
             writeCharacteristic(write, sizeof(write), "start simulation", false, true);
