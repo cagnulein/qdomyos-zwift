@@ -975,3 +975,43 @@ double tacxneo2::bikeResistanceToPeloton(double resistance) {
         return resistance;
     }
 }
+
+// reference https://github.com/zacharyedwardbull/pycycling/blob/3e3ce2df386139a0c9ec9b8fc88c9546593bc66d/pycycling/tacx_trainer_control.py#L270
+void tacxneo2::setUserConfiguration(double wheelDiameter, double gearRatio) {
+    QSettings settings;
+    float userWeight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+
+    // Prepare the command bytes according to FE-C protocol
+    uint8_t config[] = {0xA4, 0x09, 0x4E, 0x05, 0x37, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    // Convert user weight to protocol format (2 bytes, weight/0.01)
+    uint16_t weightValue = static_cast<uint16_t>(userWeight / 0.01);
+    config[5] = weightValue & 0xFF;
+    config[6] = (weightValue >> 8) & 0xFF;
+
+    // Calculate wheel diameter components
+    uint8_t wheelDiameterMain = static_cast<uint8_t>(wheelDiameter / 0.01);
+    uint8_t wheelDiameterOffset = static_cast<uint8_t>((wheelDiameter - static_cast<double>(static_cast<int>(wheelDiameter * 100) / 100.0)) / 0.001);
+
+    // Set wheel diameter offset in bits 0-3, bicycle weight (0 for now) in bits 4-7
+    config[8] = wheelDiameterOffset;
+
+    // Set bicycle weight upper bits (0 for now)
+    config[9] = 0;
+
+    // Set main wheel diameter value
+    config[10] = wheelDiameterMain;
+
+    // Set gear ratio (value/0.03)
+    config[11] = static_cast<uint8_t>(gearRatio / 0.03);
+
+    // Calculate checksum (XOR of all bytes after the first)
+    uint8_t checksum = 0;
+    for (uint8_t i = 1; i < sizeof(config) - 1; i++) {
+        checksum ^= config[i];
+    }
+    config[12] = checksum;
+
+    // Write the configuration to the device
+    writeCharacteristic(config, sizeof(config), QStringLiteral("setUserConfiguration"), false, false);
+}
