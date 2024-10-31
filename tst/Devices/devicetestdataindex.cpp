@@ -1121,7 +1121,7 @@ void DeviceTestDataIndex::Initialize() {
         ->excluding( stagesBikeExclusions);
 
     // Wahoo KICKR CORE
-    RegisterNewDeviceTestData(WahooKickrSnapBike_KICKRCORE)
+    RegisterNewDeviceTestData(DeviceIndex::WahooKickrSnapBike_KICKRCORE)
         ->expectDevice<wahookickrsnapbike>()        
         ->acceptDeviceName("KICKR CORE", DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding(stagesBikeExclusions)
