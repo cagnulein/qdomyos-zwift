@@ -8,6 +8,10 @@ let RSCControlPointUuid = CBUUID(string: "0x2a55");
 
 let treadmilldataUuid = CBUUID(string: "0x2ACD");
 
+let WahooRunServiceUuid = CBUUID(string: "A026EE0E-0A7D-4AB3-97FA-F1500F9FEB8B")
+let WahooRunNotifyUuid = CBUUID(string: "A026E03D-0A7D-4AB3-97FA-F1500F9FEB8B")
+let WahooRunWriteUuid = CBUUID(string: "A026E03E-0A7D-4AB3-97FA-F1500F9FEB8B")
+
 @objc public class virtualtreadmill_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerTreadmillZwift!
     
@@ -82,10 +86,16 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   private var rscMeasurementCharacteristic: CBMutableCharacteristic!
   private var rscControlPointCharacteristic: CBMutableCharacteristic!
     
+  private var WahooRunService: CBMutableService!
+    private var WahooRunReadCharacteristic: CBMutableCharacteristic!
+    private var WahooRunWriteCharacteristic: CBMutableCharacteristic!
+    
   public var connected: Bool = false
 
   private var notificationTimer: Timer! = nil
   //var delegate: BLEPeripheralManagerDelegate?
+    
+    let SwiftDebug = swiftDebug()
 
   override init() {
     super.init()
@@ -131,6 +141,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                                                    properties: FitnessMachineControlPointProperties,
                                                                  value: nil,
                                                                  permissions: FitnessMachineControlPointPermissions)
+
 
       let indoorbikeProperties: CBCharacteristicProperties = [.notify, .read]
         let indoorbikePermissions: CBAttributePermissions = [.readable]
@@ -203,6 +214,26 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
         rscService.characteristics = [rscFeatureCharacteristic, rscSensorLocationCharacteristic,
                                       rscMeasurementCharacteristic, rscControlPointCharacteristic ]
         self.peripheralManager.add(rscService)
+        
+        self.WahooRunService = CBMutableService(type: WahooRunServiceUuid, primary: true)
+        
+        let WahooRunReadProperties: CBCharacteristicProperties = [.notify, .read]
+          let WahooRunReadPermissions: CBAttributePermissions = [.readable]
+        self.WahooRunReadCharacteristic = CBMutableCharacteristic(type: WahooRunWriteUuid,
+                                                          properties: WahooRunReadProperties,
+                                                                    value: nil,
+                                                                          permissions: WahooRunReadPermissions)
+
+        let WahooRunWriteProperties: CBCharacteristicProperties = [.write]
+          let WahooRunWritePermissions: CBAttributePermissions = [.writeable]
+        self.WahooRunWriteCharacteristic = CBMutableCharacteristic(type: WahooRunNotifyUuid,
+                                                    properties: WahooRunWriteProperties,
+                                                                  value: nil,
+                                                                  permissions: WahooRunWritePermissions)
+
+        WahooRunService.characteristics = [WahooRunReadCharacteristic,
+                                           WahooRunWriteCharacteristic]
+          self.peripheralManager.add(WahooRunService)
 
     default:
       print("Peripheral manager is down")
@@ -215,8 +246,8 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
       return
     }
     
-    let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                              CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, RSCServiceUuid]] as [String : Any]
+    let advertisementData = [CBAdvertisementDataLocalNameKey: "KICKR RUN",
+                          CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, RSCServiceUuid, WahooRunServiceUuid]] as [String : Any]
     peripheralManager.startAdvertising(advertisementData)
     print("Successfully added service")
   }
@@ -233,6 +264,12 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   }
   
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
+        if let value = requests.first?.value {
+              let hexString = value.map { String(format: "%02x", $0) }.joined(separator: " ")
+              let debugMessage = "virtualtreadmill_zwift didReceiveWrite: " + String(describing: requests.first!.characteristic) + " " + hexString
+              SwiftDebug.qtDebug(debugMessage)
+        }
+        
         if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
           if(requests.first!.value?.first == 0x11)
           {
@@ -266,10 +303,20 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     }
     
   func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
+    let debugMessage = "virtualtreadmill_zwift didReceiveRead: " + String(describing: request.characteristic)
+    SwiftDebug.qtDebug(debugMessage)
+
     if request.characteristic == self.heartRateCharacteristic {
       request.value = self.calculateHeartRate()
       self.peripheralManager.respond(to: request, withResult: .success)
       print("Responded successfully to a read request")
+    }
+      else if request.characteristic == self.WahooRunReadCharacteristic {
+          var response: [UInt8] = [0x2a, 0x08, 0x03, 0x12, 0x11, 0x22, 0x0f, 0x41, 0x54, 0x58, 0x20, 0x30, 0x34, 0x2c, 0x20, 0x53, 0x54, 0x58, 0x20, 0x30, 0x34, 0x00]
+          var responseData = Data(bytes: &response, count: 22)
+          request.value = responseData
+        self.peripheralManager.respond(to: request, withResult: .success)
+        print("Responded successfully to a read request Wahoo Run")
     }
   }
   
