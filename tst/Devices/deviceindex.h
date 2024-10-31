@@ -138,7 +138,7 @@ public:
     DEFINE_DEVICE(SportsPlusBike, "Sports Plus Bike");
     DEFINE_DEVICE(SportsTechBike, "Sports Tech Bike");
     DEFINE_DEVICE(StagesBike_Assioma_PowerSensorDisabled, "Stages Bike (Assioma / Power Sensor disabled)");
-        DEFINE_DEVICE(StagesBike, "Stages Bike");
+    DEFINE_DEVICE(StagesBike, "Stages Bike");
     DEFINE_DEVICE(StagesPowerBike, "Stages Power Bike");
     DEFINE_DEVICE(StrydeRunTreadmill_PowerSensor, "StrydeRun Treadmill / Power Sensor");
     DEFINE_DEVICE(StrydeRunTreadmill_PowerSensor2, "StrydeRun Treadmill / Power Sensor 2");
