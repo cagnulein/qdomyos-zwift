@@ -211,7 +211,8 @@ ScrollView {
                 { gear: 20, crankset: 63, cog: 15, active: true },
                 { gear: 21, crankset: 64, cog: 14, active: true },
                 { gear: 22, crankset: 66, cog: 13, active: true },
-                { gear: 23, crankset: 67, cog: 12, active: true }
+                { gear: 23, crankset: 67, cog: 12, active: true },
+                { gear: 24, crankset: 67, cog: 11, active: true }
             ]
         },
         "Explorer": {
