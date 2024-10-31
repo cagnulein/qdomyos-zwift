@@ -125,15 +125,15 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             DispatchQueue.main.async {
                 HKHealthStore().requestAuthorization(toShare: infoToShare, read: infoToRead) { (success, error) in
                     if success {
-                        SwiftDebug.qtDebug("Authorization healthkit success")
+                        SwiftDebug.qtDebug("WorkoutTracking: Authorization healthkit success")
                     } else if let error = error {
-                        SwiftDebug.qtDebug(error)
+                        SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                     }
                 }
             }
             
         } else {
-            SwiftDebug.qtDebug("HealthKit not avaiable")            
+            SwiftDebug.qtDebug("WorkoutTracking: HealthKit not avaiable")            
         }
     }
     
@@ -144,19 +144,19 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WorkoutTracking.authorizeHealthKit()
         workoutInProgress = true;
         WorkoutTracking.lastDateMetric = Date()
-        SwiftDebug.qtDebug("Start workout")
+        SwiftDebug.qtDebug("WorkoutTracking: Start workout")
         setSport(Int(deviceType))
         configWorkout()
         workoutBuilder.beginCollection(withStart: Date()) { (success, error) in
-            SwiftDebug.qtDebug(success)
+            SwiftDebug.qtDebug(success.description)
             if let error = error {
-                SwiftDebug.qtDebug(error)
+                SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
             }
         }
     }
     
     @objc func stopWorkOut() {
-        SwiftDebug.qtDebug("Stop workout")
+        SwiftDebug.qtDebug("WorkoutTracking: Stop workout")
         
         guard let quantityType = HKQuantityType.quantityType(
           forIdentifier: .activeEnergyBurned) else {
@@ -195,16 +195,16 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             
             workoutBuilder.add([sampleDistance]) {(success, error) in
                 if let error = error {
-                    SwiftDebug.qtDebug(error)
+                    SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                 }
             }
                 self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                     if let error = error {
-                        SwiftDebug.qtDebug(error)
+                        SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                     }
                     self.workoutBuilder.finishWorkout{ (workout, error) in
                         if let error = error {
-                            SwiftDebug.qtDebug(error)
+                            SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                         }
                         workout?.setValue(quantityMiles, forKey: "totalDistance")
                     }
@@ -223,15 +223,15 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             
             workoutBuilder.add([sampleDistance]) {(success, error) in
                 if let error = error {
-                    SwiftDebug.qtDebug(error)
+                    SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                 }
                 self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                     if let error = error {
-                        SwiftDebug.qtDebug(error)
+                        SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                     }
                     self.workoutBuilder.finishWorkout{ (workout, error) in
                         if let error = error {
-                            SwiftDebug.qtDebug(error)
+                            SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                         }
                         workout?.setValue(quantityMiles, forKey: "totalDistance")
                     }
@@ -243,7 +243,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     }
     
     @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double) {
-        SwiftDebug.qtDebug("GET DATA: \(Date())")
+        SwiftDebug.qtDebug("WorkoutTracking: GET DATA: \(Date())")
         
         if(workoutInProgress == false && power > 0) {
             startWorkOut(deviceType: 2) // FORCING BIKE!!!!!
@@ -274,7 +274,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                                                             end: Date())
                 workoutBuilder.add([wattPerIntervalSample]) {(success, error) in
                     if let error = error {
-                        SwiftDebug.qtDebug(error)
+                        SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                     }
                 }
 
@@ -291,10 +291,10 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                                                             end: Date())
                 workoutBuilder.add([cadencePerIntervalSample]) {(success, error) in
                     if success {
-                        SwiftDebug.qtDebug("OK")
+                        SwiftDebug.qtDebug("WorkoutTracking: OK")
                     }
                     if let error = error {
-                        SwiftDebug.qtDebug(error)
+                        SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                     }
                 }
                 
@@ -311,7 +311,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                                                             end: Date())
                 workoutBuilder.add([speedPerIntervalSample]) {(success, error) in
                     if let error = error {
-                        SwiftDebug.qtDebug(error)
+                        SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                     }
                 }
 
@@ -337,7 +337,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                                                             end: Date())
                 workoutBuilder.add([wattPerIntervalSample]) {(success, error) in
                     if let error = error {
-                        SwiftDebug.qtDebug(error)
+                        SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                     }
                 }
             
@@ -354,7 +354,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                                                             end: Date())
                 workoutBuilder.add([speedPerIntervalSample]) {(success, error) in
                     if let error = error {
-                        SwiftDebug.qtDebug(error)
+                        SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                     }
                 }
 
@@ -376,7 +376,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                                                             end: Date())
                 workoutBuilder.add([speedPerIntervalSample]) {(success, error) in
                     if let error = error {
-                        SwiftDebug.qtDebug(error)
+                        SwiftDebug.qtDebug("WorkoutTracking: " + error)
                     }
                 }
 
