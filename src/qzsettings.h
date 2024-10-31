@@ -2171,6 +2171,9 @@ class QZSettings {
     static const QString watt_bike_emulator;
     static constexpr bool default_watt_bike_emulator = false;
 
+    static const QString restore_specific_gear;
+    static constexpr bool default_restore_specific_gear = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

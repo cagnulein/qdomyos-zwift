@@ -996,6 +996,7 @@ import QtQuick.Dialogs 1.0
             property real gear_circumference: 2070
 
             property bool watt_bike_emulator: false
+            property bool restore_specific_gear: false
         }
 
         function paddingZeros(text, limit) {
@@ -1939,6 +1940,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
                     SwitchDelegate {
                         id: gearsRestoreDelegate
                         text: qsTr("Restore Gears on Startup")
@@ -1949,12 +1951,78 @@ import QtQuick.Dialogs 1.0
                         leftPadding: 0
                         clip: false
                         checked: settings.gears_restore_value
+                        enabled: !gearsRestoreValueDelegate.checked
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.gears_restore_value = checked
                     }
+
                     Label {
                         text: qsTr("QZ will remember the last Gears value and it will restore on startup")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    // Add the new specific gear value restore setting
+                    SwitchDelegate {
+                        id: gearsRestoreValueDelegate
+                        text: qsTr("Restore Specific Gear Value")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.restore_specific_gear
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: {
+                            settings.restore_specific_gear = checked
+                            if (checked) {
+                                settings.gears_restore_value = false
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        enabled: gearsRestoreValueDelegate.checked
+                        opacity: enabled ? 1.0 : 0.5
+
+                        Label {
+                            text: qsTr("Gear Value:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: specificGearValueField
+                            text: settings.gears_current_value
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            enabled: gearsRestoreValueDelegate.checked
+                            onAccepted: settings.gears_current_value = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            enabled: gearsRestoreValueDelegate.checked
+                            onClicked: {
+                                settings.gears_current_value = specificGearValueField.text
+                                toast.show("Setting saved!")
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Specify a particular gear value to be restored at startup. This will override the 'Restore Gears on Startup' setting.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
