@@ -87,45 +87,31 @@ HomeForm {
         onTriggered: {if(rootItem.stopRequested) {rootItem.stopRequested = false; inner_stop(); }}
     }
 
-    property var locationServiceRequsted: false
+    property bool locationServiceRequsted: false
 
-    Dialog {
+    MessageDialog {
         id: locationServicesDialog
-        title: "Permissions Required"
-
-        Column {
-            spacing: 10
-
-            Label {
-                text: "QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?"
-                wrapMode: Text.WordWrap
-                width: parent.width
-            }
-
-            CheckBox {
-                text: "Don't ask me again"
-                onCheckedChanged: settings.skipLocationServicesDialog = checked
-            }
-
-            Row {
-                spacing: 10
-                Button {
-                    text: "Yes"
-                    onClicked: {
-                        locationServiceRequsted = true
-                        rootItem.enableLocationServices()
-                        locationServicesDialog.close()
-                    }
-                }
-                Button {
-                    text: "No"
-                    onClicked: locationServicesDialog.close()
-                }
-            }
+        text: "Permissions Required"
+        informativeText: "QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            locationServiceRequsted = true
+            rootItem.enableLocationServices()
         }
-
+        onNoClicked: remindLocationServicesDialog.visible = true
         visible: !rootItem.locationServices() && !locationServiceRequsted && !settings.skipLocationServicesDialog
     }
+
+    MessageDialog {
+        id: remindLocationServicesDialog
+        text: "Reminder Preference"
+        informativeText: "Would you like to be reminded about enabling Location Services next time?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: settings.skipLocationServicesDialog = false
+        onNoClicked: settings.skipLocationServicesDialog = true
+        visible: false
+    }
+
     MessageDialog {
         text: "Restart the app"
         informativeText: "To apply the changes, you need to restart the app.\nWould you like to do that now?"
