@@ -776,8 +776,9 @@ const QString QZSettings::gear_cog_size = QStringLiteral("gear_cog_size");
 const QString QZSettings::gear_wheel_size = QStringLiteral("gear_wheel_size");
 const QString QZSettings::default_gear_wheel_size = QStringLiteral("700 x 18C");
 const QString QZSettings::gear_circumference = QStringLiteral("gear_circumference");
+const QString QZSettings::watt_bike_emulator = QStringLiteral("watt_bike_emulator");
 
-const uint32_t allSettingsCount = 656;
+const uint32_t allSettingsCount = 657;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1440,6 +1441,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::gear_cog_size, QZSettings::default_gear_cog_size},
     {QZSettings::gear_wheel_size, QZSettings::default_gear_wheel_size},
     {QZSettings::gear_circumference, QZSettings::default_gear_circumference},
+    {QZSettings::watt_bike_emulator, QZSettings::default_watt_bike_emulator},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

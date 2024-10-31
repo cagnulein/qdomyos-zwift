@@ -2168,6 +2168,9 @@ class QZSettings {
     static const QString gear_circumference;
     static constexpr double default_gear_circumference = 2070.0;
 
+    static const QString watt_bike_emulator;
+    static constexpr bool default_watt_bike_emulator = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
