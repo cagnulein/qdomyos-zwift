@@ -335,7 +335,8 @@ void proformtreadmill::update() {
             if (counterPoll > 5) {
                 counterPoll = 0;
             }
-        } else if (proform_2000_treadmill || proform_treadmill_705_cst || proform_treadmill_705_cst_V78_239) {
+ //       } else if (proform_2000_treadmill || proform_treadmill_705_cst || proform_treadmill_705_cst_V78_239) {
+        } else if (proform_2000_treadmill || proform_treadmill_705_cst_V78_239) {																				 																									  
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
             uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00, 0x0d, 0x1b, 0x94, 0x31, 0x00, 0x00, 0x40, 0x50, 0x00, 0x80};
             uint8_t noOpData3[] = {0xff, 0x05, 0x18, 0x00, 0x00, 0x01, 0x2f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -378,7 +379,7 @@ void proformtreadmill::update() {
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), true);
                 break;
             case 4:
-                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
                 break;
             case 5:
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
@@ -820,6 +821,99 @@ void proformtreadmill::update() {
 
                     requestStart = -1;
                     emit tapeStarted();
+                }
+                if (requestStop != -1 || requestPause != -1) {
+                    forceSpeed(0);
+
+                    emit debug(QStringLiteral("stopping..."));
+                    requestStop = -1;
+                    requestPause = -1;
+                }
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
+            }
+        } else if (proform_treadmill_705_cst) {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00, 0x0d, 0x1b, 0x94, 0x31, 0x00, 0x00, 0x40, 0x50, 0x00, 0x80};
+            uint8_t noOpData3[] = {0xff, 0x05, 0x18, 0x00, 0x00, 0x01, 0x2f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00, 0x0d, 0x80, 0x0a, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData6[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x84, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"), false, true);
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
+
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline = ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+
+//              Request start does not seem to get initiated automatically.
+//              Instead, trigger it when the treadmill is stopped and a new speed is set via the application.
+//              Note: Setting a speed directly on the treadmill will not work until the initiate commands are sent.
+                if (Distance.value() == 0 && currentSpeed().value() == 0 && requestSpeed > 0) {
+                    requestStart = 1;
+                    emit debug(QStringLiteral("Request start = ") + QString::number(requestSpeed) + QStringLiteral("kph"));
+                }
+
+//				Initiate treadmill to start
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+
+//                  Define treadmill settings
+                    uint8_t start1[] = {0xfe, 0x02, 0x20, 0x03};
+                    uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x04, 0x1c, 0x02, 0x09,
+                                        0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0x30};
+                    uint8_t start3[] = {0xff, 0x0e, 0x2a, 0x00, 0x00, 0xc7, 0x20, 0x58, 0x02, 0x01,
+                                        0xb4, 0x00, 0x58, 0x02, 0x00, 0xef, 0x00, 0x00, 0x00, 0x00};
+
+//		    		Start treadmill session (speed=2kph 00c8  incline=1 0064)
+                    uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
+                    uint8_t start5[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
+                                        0x03, 0x10, 0xc8, 0x00, 0x64, 0x00, 0x02, 0x00, 0x8e, 0x00};
+
+                    writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
+                    writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"));
+                    writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"), false, true);
+                    writeCharacteristic(start4, sizeof(start4), QStringLiteral("start4"));
+                    writeCharacteristic(start5, sizeof(start5), QStringLiteral("start5"), false, true);
+
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+
+//				Set treadmill speed
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        emit debug(QStringLiteral("writing speed = ") + QString::number(requestSpeed) + QStringLiteral("kph"));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
                 }
                 if (requestStop != -1 || requestPause != -1) {
                     forceSpeed(0);
@@ -2062,6 +2156,18 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     lastPacket = newValue;
 
+    if (proform_treadmill_705_cst && currentSpeed().value() == 0)
+    {
+        QString hexString = newValue.toHex(' ');
+        if (hexString.startsWith("fe 02 25 04 00 00") && newValue.at(17) == 0x01)
+        {
+            emit debug(QStringLiteral("start button pressed on console!"));
+            Distance = 0;
+            requestStart = 1;
+            return;
+        }
+    }
+	
     if (newValue.length() != 20 || newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
         newValue.at(3) != 0x04 ||
 
