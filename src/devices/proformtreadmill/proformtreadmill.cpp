@@ -335,7 +335,6 @@ void proformtreadmill::update() {
             if (counterPoll > 5) {
                 counterPoll = 0;
             }
- //       } else if (proform_2000_treadmill || proform_treadmill_705_cst || proform_treadmill_705_cst_V78_239) {
         } else if (proform_2000_treadmill || proform_treadmill_705_cst_V78_239) {																				 																									  
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
             uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00, 0x0d, 0x1b, 0x94, 0x31, 0x00, 0x00, 0x40, 0x50, 0x00, 0x80};
