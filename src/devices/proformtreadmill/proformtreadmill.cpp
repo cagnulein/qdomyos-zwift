@@ -378,7 +378,7 @@ void proformtreadmill::update() {
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), true);
                 break;
             case 4:
-                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
                 break;
             case 5:
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
