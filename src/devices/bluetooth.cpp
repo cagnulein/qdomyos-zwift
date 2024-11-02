@@ -1066,7 +1066,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(proformRower);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("B01_"))) && !bhFitnessElliptical && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("B01_"))) && ftms_bike.contains(QZSettings::default_ftms_bike) && !bhFitnessElliptical && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 bhFitnessElliptical = new bhfitnesselliptical(noWriteResistance, noHeartService, bikeResistanceOffset,
