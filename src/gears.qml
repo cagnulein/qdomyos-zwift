@@ -336,7 +336,7 @@ ScrollView {
 
                 SpinBox {
                     from: 1
-                    to: 60
+                    to: 999
                     value: selectedCranksetSize
                     onValueChanged: {
                         selectedCranksetSize = value
@@ -361,7 +361,7 @@ ScrollView {
                 }
                 SpinBox {
                     from: 1
-                    to: 50
+                    to: 999
                     value: selectedCogSize
                     onValueChanged: {
                         selectedCogSize = value
@@ -684,7 +684,7 @@ ScrollView {
                                     width: parent.width * 0.8
                                     height: 30
                                     from: 1
-                                    to: 60
+                                    to: 999
                                     value: crankset
                                     onValueModified: {
                                         gearRows[index].crankset = value
@@ -754,7 +754,7 @@ ScrollView {
                                     width: parent.width * 0.8
                                     height: 30
                                     from: 1
-                                    to: 50
+                                    to: 999
                                     value: cog
                                     onValueModified: {
                                         gearRows[index].cog = value
