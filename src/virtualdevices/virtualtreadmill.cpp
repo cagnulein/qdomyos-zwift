@@ -394,7 +394,12 @@ void virtualtreadmill::wahooCharacteristicChanged(const QLowEnergyCharacteristic
     if (characteristic.uuid() == QBluetoothUuid(QString("A026E03D-0A7D-4AB3-97FA-F1500F9FEB8B"))) {
         // Handle notify characteristic
     } else if (characteristic.uuid() == QBluetoothUuid(QString("A026E03E-0A7D-4AB3-97FA-F1500F9FEB8B"))) {
-        // Handle write characteristic
+        if(newValue.length() >= 3) {
+              if(newValue.at(0) == 0x11) {
+                  int16_t slope = (((uint8_t)newValue.at(1)) + (newValue.at(2) << 8));
+                  writeP2AD9->changeSlope(slope, 0, 0);
+              }
+          }
     }
 }
 
