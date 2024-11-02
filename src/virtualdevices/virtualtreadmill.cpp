@@ -81,6 +81,29 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         advertisingData.setServices(services);
         //! [Advertising Data]
 
+        // Add Device Information Service
+        QLowEnergyCharacteristicData manufacturerNameChar;
+        manufacturerNameChar.setUuid(QBluetoothUuid::CharacteristicType::ManufacturerNameString);
+        manufacturerNameChar.setProperties(QLowEnergyCharacteristic::Read);
+        manufacturerNameChar.setValue(QByteArray("Wahoo Fitness")); // Changed to Wahoo Fitness
+
+        QLowEnergyCharacteristicData firmwareRevChar;
+        firmwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::FirmwareRevisionString);
+        firmwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
+        firmwareRevChar.setValue(QByteArray("1.0.11"));
+
+        QLowEnergyCharacteristicData hardwareRevChar;
+        hardwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::HardwareRevisionString);
+        hardwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
+        hardwareRevChar.setValue(QByteArray("1"));
+
+        // Create Device Information Service        
+        serviceDataDIS.setType(QLowEnergyServiceData::ServiceTypePrimary);
+        serviceDataDIS.setUuid(QBluetoothUuid::DeviceInformation);
+        serviceDataDIS.addCharacteristic(manufacturerNameChar);
+        serviceDataDIS.addCharacteristic(firmwareRevChar);
+        serviceDataDIS.addCharacteristic(hardwareRevChar);
+
         // Create Wahoo Run Service        
         serviceDataWahoo.setType(QLowEnergyServiceData::ServiceTypePrimary);
         serviceDataWahoo.setUuid(QBluetoothUuid(QString("A026EE0E-0A7D-4AB3-97FA-F1500F9FEB8B")));
@@ -276,7 +299,10 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         if (RSCEnable())
             serviceRSC = leController->addService(serviceDataRSC);
         QThread::msleep(100);
-                
+        
+        serviceDIS = leController->addService(serviceDataDIS);
+        QThread::msleep(100);
+        
         serviceWahoo = leController->addService(serviceDataWahoo);
         QThread::msleep(100);
         
@@ -368,12 +394,7 @@ void virtualtreadmill::wahooCharacteristicChanged(const QLowEnergyCharacteristic
     if (characteristic.uuid() == QBluetoothUuid(QString("A026E03D-0A7D-4AB3-97FA-F1500F9FEB8B"))) {
         // Handle notify characteristic
     } else if (characteristic.uuid() == QBluetoothUuid(QString("A026E03E-0A7D-4AB3-97FA-F1500F9FEB8B"))) {
-        if(newValue.length() >= 3) {
-            if(newValue.at(0) == 0x11) {
-                int16_t slope = (((uint8_t)newValue.at(1)) + (newValue.at(2) << 8));
-                writeP2AD9->changeSlope(slope, 0, 0);
-            }
-        }
+        // Handle write characteristic
     }
 }
 
@@ -395,7 +416,10 @@ void virtualtreadmill::reconnect() {
     if (RSCEnable())
         serviceRSC = leController->addService(serviceDataRSC);
     QThread::msleep(100);
-        
+    
+    serviceDIS = leController->addService(serviceDataDIS);
+    QThread::msleep(100);
+    
     serviceWahoo = leController->addService(serviceDataWahoo);
     QThread::msleep(100);
     

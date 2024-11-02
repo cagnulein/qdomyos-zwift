@@ -41,6 +41,7 @@ class virtualtreadmill : public virtualdevice {
     QLowEnergyService *serviceFTMS = nullptr;
     QLowEnergyService *serviceRSC = nullptr;
     QLowEnergyService *serviceHR = nullptr;
+    QLowEnergyService *serviceDIS = nullptr;
     QLowEnergyService *serviceWahoo = nullptr;
 
     QLowEnergyAdvertisingData advertisingData;
@@ -48,6 +49,7 @@ class virtualtreadmill : public virtualdevice {
     QLowEnergyServiceData serviceDataFTMS;
     QLowEnergyServiceData serviceDataRSC;
     QLowEnergyServiceData serviceDataHR;
+    QLowEnergyServiceData serviceDataDIS;
     QLowEnergyServiceData serviceDataWahoo;
     
     QTimer treadmillTimer;
