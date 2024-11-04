@@ -2093,6 +2093,87 @@ class QZSettings {
     static const QString nordictrackadbbike_resistance;
     static constexpr bool default_nordictrackadbbike_resistance = false;
 
+    static const QString proform_treadmill_carbon_t7;
+    static constexpr bool default_proform_treadmill_carbon_t7 = false;
+
+    static const QString nordictrack_treadmill_exp_5i;
+    static constexpr bool default_nordictrack_treadmill_exp_5i = false;
+
+    static const QString dircon_id;
+    static constexpr int default_dircon_id = 0;
+
+    static const QString proform_elliptical_ip;
+    static const QString default_proform_elliptical_ip;
+
+    static const QString antbike;
+    static constexpr bool default_antbike = false;
+
+    static const QString domyosbike_notfmts;
+    static constexpr bool default_domyosbike_notfmts = false;
+
+    static const QString gears_volume_debouncing;
+    static constexpr bool default_gears_volume_debouncing = false;
+
+    static const QString tile_biggears_enabled;
+    static constexpr bool default_tile_biggears_enabled = false;
+
+    static const QString tile_biggears_order;
+    static constexpr int default_tile_biggears_order = 54;
+
+    static const QString domyostreadmill_notfmts;
+    static constexpr bool default_domyostreadmill_notfmts = false;
+
+    static const QString zwiftplay_swap;
+    static constexpr bool default_zwiftplay_swap = false;
+
+    static const QString gears_zwift_ratio;
+    static constexpr bool default_gears_zwift_ratio = false;
+
+    static const QString domyos_bike_500_profile_v2;
+    static constexpr bool default_domyos_bike_500_profile_v2 = false;
+
+    static const QString gears_offset;
+    static constexpr double default_gears_offset = 0.0;
+
+    static const QString proform_carbon_tl_PFTL59720;
+    static constexpr bool default_proform_carbon_tl_PFTL59720 = false;    
+
+    static const QString proform_treadmill_sport_70;
+    static constexpr bool default_proform_treadmill_sport_70 = false;
+
+    static const QString peloton_date_format;
+    static const QString default_peloton_date_format;
+
+    static const QString force_resistance_instead_inclination;
+    static constexpr bool default_force_resistance_instead_inclination = false;
+
+    static const QString proform_treadmill_575i;
+    static constexpr bool default_proform_treadmill_575i = false;
+
+    static const QString zwift_play_emulator;
+    static constexpr bool default_zwift_play_emulator = false;
+
+    static const QString gear_configuration;
+    static const QString default_gear_configuration;
+
+    static const QString gear_crankset_size;
+    static constexpr int default_gear_crankset_size = 42;
+
+    static const QString gear_cog_size;
+    static constexpr int default_gear_cog_size = 14;
+
+    static const QString gear_wheel_size;
+    static const QString default_gear_wheel_size;
+
+    static const QString gear_circumference;
+    static constexpr double default_gear_circumference = 2070.0;
+
+    static const QString watt_bike_emulator;
+    static constexpr bool default_watt_bike_emulator = false;
+
+    static const QString restore_specific_gear;
+    static constexpr bool default_restore_specific_gear = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

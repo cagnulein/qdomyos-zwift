@@ -747,8 +747,39 @@ const QString QZSettings::toorx_bike_srx_500 = QStringLiteral("toorx_bike_srx_50
 const QString QZSettings::atletica_lightspeed_treadmill = QStringLiteral("atletica_lightspeed_treadmill");
 const QString QZSettings::peloton_treadmill_level = QStringLiteral("peloton_treadmill_level");
 const QString QZSettings::nordictrackadbbike_resistance = QStringLiteral("nordictrackadbbike_resistance");
+const QString QZSettings::proform_treadmill_carbon_t7 = QStringLiteral("proform_treadmill_carbon_t7");
+const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordictrack_treadmill_exp_5i");
+const QString QZSettings::dircon_id = QStringLiteral("dircon_id");
+const QString QZSettings::proform_elliptical_ip = QStringLiteral("proform_elliptical_ip");
+const QString QZSettings::default_proform_elliptical_ip = QStringLiteral("");
+const QString QZSettings::antbike = QStringLiteral("antbike");
+const QString QZSettings::domyosbike_notfmts = QStringLiteral("domyosbike_notfmts");
+const QString QZSettings::gears_volume_debouncing = QStringLiteral("gears_volume_debouncing");
+const QString QZSettings::tile_biggears_enabled = QStringLiteral("tile_biggears_enabled");
+const QString QZSettings::tile_biggears_order = QStringLiteral("tile_biggears_order");
+const QString QZSettings::domyostreadmill_notfmts = QStringLiteral("domyostreadmill_notfmts");
+const QString QZSettings::zwiftplay_swap = QStringLiteral("zwiftplay_swap");
+const QString QZSettings::gears_zwift_ratio = QStringLiteral("gears_zwift_ratio");
+const QString QZSettings::domyos_bike_500_profile_v2 = QStringLiteral("domyos_bike_500_profile_v2");
+const QString QZSettings::gears_offset = QStringLiteral("gears_offset");
+const QString QZSettings::proform_carbon_tl_PFTL59720 = QStringLiteral("proform_carbon_tl_PFTL59720");
+const QString QZSettings::proform_treadmill_sport_70 = QStringLiteral("proform_treadmill_sport_70");
+const QString QZSettings::peloton_date_format = QStringLiteral("peloton_date_format");
+const QString QZSettings::default_peloton_date_format = QStringLiteral("MM/dd/yy");
+const QString QZSettings::force_resistance_instead_inclination = QStringLiteral("force_resistance_instead_inclination");
+const QString QZSettings::proform_treadmill_575i = QStringLiteral("proform_treadmill_575i");
+const QString QZSettings::zwift_play_emulator = QStringLiteral("zwift_play_emulator");
+const QString QZSettings::gear_configuration = QStringLiteral("gear_configuration");
+const QString QZSettings::default_gear_configuration = QStringLiteral("1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true");
+const QString QZSettings::gear_crankset_size = QStringLiteral("gear_crankset_size");
+const QString QZSettings::gear_cog_size = QStringLiteral("gear_cog_size");
+const QString QZSettings::gear_wheel_size = QStringLiteral("gear_wheel_size");
+const QString QZSettings::default_gear_wheel_size = QStringLiteral("700 x 18C");
+const QString QZSettings::gear_circumference = QStringLiteral("gear_circumference");
+const QString QZSettings::watt_bike_emulator = QStringLiteral("watt_bike_emulator");
+const QString QZSettings::restore_specific_gear = QStringLiteral("restore_specific_gear");
 
-const uint32_t allSettingsCount = 631;
+const uint32_t allSettingsCount = 658;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1386,6 +1417,33 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::atletica_lightspeed_treadmill, QZSettings::default_atletica_lightspeed_treadmill},
     {QZSettings::peloton_treadmill_level, QZSettings::default_peloton_treadmill_level},
     {QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance},
+    {QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7},
+    {QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i},
+    {QZSettings::dircon_id, QZSettings::default_dircon_id},
+    {QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip},
+    {QZSettings::antbike, QZSettings::default_antbike},
+    {QZSettings::domyosbike_notfmts, QZSettings::default_domyosbike_notfmts},
+    {QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing},
+    {QZSettings::tile_biggears_enabled, QZSettings::default_tile_biggears_enabled},
+    {QZSettings::tile_biggears_order, QZSettings::default_tile_biggears_order},
+    {QZSettings::domyostreadmill_notfmts, QZSettings::default_domyostreadmill_notfmts},
+    {QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap},
+    {QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio},
+    {QZSettings::domyos_bike_500_profile_v2, QZSettings::default_domyos_bike_500_profile_v2},
+    {QZSettings::gears_offset, QZSettings::default_gears_offset},
+    {QZSettings::proform_carbon_tl_PFTL59720, QZSettings::default_proform_carbon_tl_PFTL59720},
+    {QZSettings::proform_treadmill_sport_70, QZSettings::default_proform_treadmill_sport_70},
+    {QZSettings::peloton_date_format, QZSettings::default_peloton_date_format},
+    {QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination},
+    {QZSettings::proform_treadmill_575i, QZSettings::default_proform_treadmill_575i},
+    {QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator},
+    {QZSettings::gear_configuration, QZSettings::default_gear_configuration},
+    {QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size},
+    {QZSettings::gear_cog_size, QZSettings::default_gear_cog_size},
+    {QZSettings::gear_wheel_size, QZSettings::default_gear_wheel_size},
+    {QZSettings::gear_circumference, QZSettings::default_gear_circumference},
+    {QZSettings::watt_bike_emulator, QZSettings::default_watt_bike_emulator},
+    {QZSettings::restore_specific_gear, QZSettings::default_restore_specific_gear},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

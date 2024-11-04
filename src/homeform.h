@@ -24,6 +24,12 @@
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
 
+#ifdef Q_OS_ANDROID
+
+#include <QAndroidJniEnvironment>
+#include <QtAndroid>
+#endif
+
 #if __has_include("secret.h")
 #include "secret.h"
 #else
@@ -187,8 +193,10 @@ class homeform : public QObject {
     Q_PROPERTY(QString getStravaAuthUrl READ getStravaAuthUrl NOTIFY stravaAuthUrlChanged)
     Q_PROPERTY(bool stravaWebVisible READ stravaWebVisible NOTIFY stravaWebVisibleChanged)
 
+
   public:
     static homeform *singleton() { return m_singleton; }
+    bluetooth *bluetoothManager;
 
     QByteArray currentPelotonImage();
     Q_INVOKABLE void save_screenshot() {
@@ -341,6 +349,27 @@ class homeform : public QObject {
         }
     }
 
+    Q_INVOKABLE bool firstRun() {
+        QSettings settings;
+        QString nordictrack_2950_ip =
+            settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+        QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+        QString proform_elliptical_ip = settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
+        bool fake_bike =
+            settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
+        bool fakedevice_elliptical =
+            settings.value(QZSettings::fakedevice_elliptical, QZSettings::default_fakedevice_elliptical).toBool();
+        bool fakedevice_rower = settings.value(QZSettings::fakedevice_rower, QZSettings::default_fakedevice_rower).toBool();
+        bool fakedevice_treadmill =
+            settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
+        bool antbike =
+            settings.value(QZSettings::antbike, QZSettings::default_antbike).toBool();
+
+        return settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString().isEmpty() && 
+                nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical && !fakedevice_rower && !fakedevice_treadmill && !antbike && proform_elliptical_ip.isEmpty();
+    }
+
+
     Q_INVOKABLE bool autoInclinationEnabled() {
         QSettings settings;
         bool virtual_bike =
@@ -350,6 +379,17 @@ class homeform : public QObject {
                bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL && !virtual_bike &&
                bluetoothManager->device()->VirtualDevice() &&
                ((virtualtreadmill *)bluetoothManager->device()->VirtualDevice())->autoInclinationEnabled();
+    }
+
+    Q_INVOKABLE bool locationServices() {
+        return m_locationServices;
+    }
+
+    Q_INVOKABLE void enableLocationServices() {
+#ifdef Q_OS_ANDROID
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/LocationHelper", "requestPermissions",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#endif
     }
 
     homeform(QQmlApplicationEngine *engine, bluetooth *bl);
@@ -450,7 +490,7 @@ class homeform : public QObject {
     void videoSeekPosition(int ms);      // in realtime
     void setVideoRate(double rate);
     void setMapsVisible(bool value);
-    void setToastRequested(QString value) { m_toastRequested = value; }
+    void setToastRequested(QString value) { m_toastRequested = value; emit toastRequestedChanged(value); }
     void setStravaUploadRequested(bool value) {
         m_stravaUploadRequested = value;
     }
@@ -459,6 +499,7 @@ class homeform : public QObject {
     int preview_workout_points();
 
 #if defined(Q_OS_ANDROID)
+    QString getBluetoothName();
     static QString getAndroidDataAppDir();
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
@@ -563,6 +604,7 @@ class homeform : public QObject {
     QString getStravaAuthUrl() { return stravaAuthUrl; }
     bool stravaWebVisible() { return stravaAuthWebVisible; }
     trainprogram *trainingProgram() { return trainProgram; }
+    void updateGearsValue();
     
     DataObject *speed;
     DataObject *inclination;
@@ -599,6 +641,8 @@ class homeform : public QObject {
     DataObject *strokesCount;
     DataObject *wattKg;
     DataObject *gears;
+    DataObject *biggearsPlus;
+    DataObject *biggearsMinus;
     DataObject *remaningTimeTrainingProgramCurrentRow;
     DataObject *nextRows;
     DataObject *mets;
@@ -635,7 +679,6 @@ class homeform : public QObject {
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QList<QObject *> dataList;
     QList<SessionLine> Session;
-    bluetooth *bluetoothManager;
     QQmlApplicationEngine *engine;
     trainprogram *trainProgram = nullptr;
     trainprogram *previewTrainProgram = nullptr;
@@ -734,8 +777,10 @@ class homeform : public QObject {
     bool videoMustBeReset = true;
 
 #ifdef Q_OS_ANDROID
-    bool floating_open = false;
+    bool floating_open = false;    
 #endif
+
+    bool m_locationServices = true;
 
 #ifndef Q_OS_IOS
     QMdnsEngine::Browser *iphone_browser = nullptr;
@@ -756,15 +801,16 @@ class homeform : public QObject {
     void saveProfile(QString profilename);
     void restart();
     bool pelotonAskStart() { return m_pelotonAskStart; }
+    void Minus(const QString &);
+    void Plus(const QString &);
 
   private slots:
     void Start();
     void Stop();
+    void StopFromTrainProgram(bool paused);
     void StartRequested();
     void StopRequested();
     void Lap();
-    void Minus(const QString &);
-    void Plus(const QString &);
     void LargeButton(const QString &);
     void keyPressed(int key);
     void volumeDown();

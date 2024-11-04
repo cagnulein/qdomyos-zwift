@@ -732,6 +732,15 @@ ApplicationWindow {
                     }
                 }
                 ItemDelegate {
+                    id: wizardItem
+                    text: qsTr("Wizard")
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("Wizard.qml")
+                        drawer.close()
+                    }
+                }
+                ItemDelegate {
                     id: help
                     text: qsTr("Help")
                     width: parent.width
@@ -768,7 +777,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.16.66"
+                    text: "version 2.18.1"
                     width: parent.width
                 }
 
