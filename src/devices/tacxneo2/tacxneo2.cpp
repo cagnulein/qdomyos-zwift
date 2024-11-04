@@ -7,6 +7,7 @@
 #include <QSettings>
 #include <QThread>
 #include <math.h>
+#include "wheelcircumference.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
@@ -123,7 +124,7 @@ void tacxneo2::update() {
         auto virtualBike = this->VirtualBike();
 
         if (requestResistance != -1) {
-            if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
+            if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                     (requestPower == 0 || requestPower == -1)) {
@@ -135,14 +136,17 @@ void tacxneo2::update() {
         }
         if (requestInclination != -100) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-            forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+            forceInclination(requestInclination); // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
             requestInclination = -100;            
-        } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
+        } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastRawRequestedInclinationValue != -100) {
             // in order to send the new gear value ASAP
-            forceInclination(lastRawRequestedInclinationValue + gears());   // since this bike doesn't have the concept of resistance,
+            forceInclination(lastRawRequestedInclinationValue);   // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
         }
+
+        if(lastGearValue != gears())
+            setUserConfiguration(wheelCircumference::gearsToWheelDiameter(gears()), 1);
 
         lastGearValue = gears();
 
