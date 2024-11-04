@@ -996,7 +996,9 @@ import QtQuick.Dialogs 1.0
             property real gear_circumference: 2070
 
             property bool watt_bike_emulator: false
+
             property bool restore_specific_gear: false
+            property bool skipLocationServicesDialog: false
         }
 
         function paddingZeros(text, limit) {

@@ -2174,6 +2174,8 @@ class QZSettings {
     static const QString restore_specific_gear;
     static constexpr bool default_restore_specific_gear = false;
 
+    static const QString skipLocationServicesDialog;
+    static constexpr bool default_skipLocationServicesDialog = false;
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
