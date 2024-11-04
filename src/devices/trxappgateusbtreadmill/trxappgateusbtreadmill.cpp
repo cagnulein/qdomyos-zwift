@@ -41,7 +41,7 @@ void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse && (treadmill_type != TYPE::ADIDAS)) {
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
                                                              QLowEnergyService::WriteWithoutResponse);
     } else {
@@ -654,7 +654,7 @@ void trxappgateusbtreadmill::characteristicWritten(const QLowEnergyCharacteristi
 }
 
 void trxappgateusbtreadmill::serviceScanDone(void) {
-    emit debug(QStringLiteral("serviceScanDone"));
+    qDebug() << QStringLiteral("serviceScanDone") << treadmill_type;
 
     QString uuid = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
     if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::DKN_2) {

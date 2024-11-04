@@ -32,7 +32,7 @@ class soleelliptical : public elliptical {
     Q_OBJECT
   public:
     soleelliptical(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
-                   uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
+                   int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~soleelliptical();
     bool connected() override;
     double minStepInclination() override { return 1; }
@@ -63,7 +63,7 @@ class soleelliptical : public elliptical {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool testResistance = false;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bool searchStopped = false;
     uint8_t sec1Update = 0;

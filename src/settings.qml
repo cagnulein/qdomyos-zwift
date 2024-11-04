@@ -914,7 +914,7 @@ import QtQuick.Dialogs 1.0
             property int  tile_erg_mode_order: 52
 
             // from version 2.16.45
-            property bool toorx_srx_3500: false
+            property bool toorx_srx_3500: false  
             property real inclination_delay_seconds: 0.0
 
             // from version 2.16.47
@@ -923,6 +923,84 @@ import QtQuick.Dialogs 1.0
             property bool proform_carbon_tl: false
             property bool proform_proshox2: false            
 
+            // from version 2.16.51
+            property bool nordictrack_GX4_5_bike: false            
+
+            // from version 2.16.52
+            property real ftp_run: 200.0
+            property bool tile_rss_enabled: false
+            property int  tile_rss_order: 53
+            property string treadmillDataPoints: ""
+
+            // from version 2.16.54
+            property bool nordictrack_s20i_treadmill: false
+            property bool stryd_speed_instead_treadmill: false
+            property bool proform_595i_proshox2: false
+
+            // from version 2.16.55
+            property bool proform_treadmill_8_7: false
+
+            // from version 2.16.56
+            property bool proform_bike_325_csx: false
+
+            // from version 2.16.58
+            property string strava_upload_mode: "Always"
+
+            // from version 2.16.59
+            property bool proform_treadmill_705_cst_V78_239: false
+
+            // from version 2.16.62
+            property bool stryd_add_inclination_gain: false
+            property bool toorx_bike_srx_500: false
+
+            // from version 2.16.66
+            property bool atletica_lightspeed_treadmill: false
+
+            // from version 2.16.68
+            property int peloton_treadmill_level: 1
+            property bool nordictrackadbbike_resistance: false
+            property bool proform_treadmill_carbon_t7: false
+            property bool nordictrack_treadmill_exp_5i: false
+            property int dircon_id: 0
+            property string proform_elliptical_ip: ""
+
+            // from version 2.16.69
+            property bool antbike: false
+            property bool domyosbike_notfmts: false
+
+            // from version 2.16.70
+            property bool gears_volume_debouncing: false
+            property bool tile_biggears_enabled: false
+            property int  tile_biggears_order: 54
+            property bool domyostreadmill_notfmts: false
+            property bool zwiftplay_swap: false
+            property bool gears_zwift_ratio: false
+            property bool domyos_bike_500_profile_v2: false
+            property double gears_offset: 0.0
+            property bool proform_carbon_tl_PFTL59720: false
+
+            // from version 2.16.71
+            property bool proform_treadmill_sport_70: false
+            property string peloton_date_format: "MM/dd/yy"
+            property bool force_resistance_instead_inclination: false
+            property bool proform_treadmill_575i: false
+
+            // from version 2.18.1
+            property bool zwift_play_emulator: false
+
+            // from version 2.18.2
+            property string gear_configuration: "1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true"
+            property int gear_crankset_size: 42
+            property int gear_cog_size: 14
+            property string gear_wheel_size: "700 x 18C"
+            property real gear_circumference: 2070
+
+            property bool watt_bike_emulator: false
+
+            property bool restore_specific_gear: false
+            property bool skipLocationServicesDialog: false
+            property bool trainprogram_pid_pushy: true
+            property real min_inclination: -999
         }
 
         function paddingZeros(text, limit) {
@@ -994,11 +1072,12 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        width: column1.width * 0.8
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
@@ -1031,7 +1110,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs).")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1069,7 +1148,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Enter your age so that calories burned can be more accurately calculated.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1109,7 +1188,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Select your gender so that calories burned can be more accurately calculated.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1148,7 +1227,43 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Critical Power Run value:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: ftpRunTextField
+                            text: settings.ftp_run
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.ftp_run = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ftp_run = ftpRunTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("If you train to specific output (or watts) levels, for example with Stryd,and have taken an CP test (Critical Power Test), enter your CP here. This number is used to calculate your RSS.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1185,7 +1300,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("No need to enter data here. It is for a possible future QZ feature.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1222,7 +1337,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Enter your email address to receive an automated email with stats and charts when you hit STOP at the end of each workout. Make sure there are no spaces before or after the email address; this is the most common reason the automated email is not sent. Privacy Note: Email addresses are not collected by the developer and are only saved locally on your device.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1250,7 +1365,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Turn on if you want QZ to display distance traveled in miles. Default is off and set to kilometers.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1278,7 +1393,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Turn on to set QZ to always open in PAUSE mode. This is important for Peloton classes so that you can sync the start of your QZ workout with the start of the Peloton class. Turn off to have QZ start tracking and timing your workout as soon as it opens.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1306,7 +1421,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Turn this on for: - Peloton Bootcamp classes or other workouts that are on and off the bike or treadmill. QZ will continue to track your workout even when you step away from your equipment. - Capturing non-equipment-based workouts, such as yoga or strength training. NOTE: All such workouts are labeled as “Rides” in Strava, but you can edit the label in Strava.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1322,7 +1437,7 @@ import QtQuick.Dialogs 1.0
                 text: qsTr("Zwift users: keep this setting off")
                 font.bold: yes
                 font.italic: yes
-                font.pixelSize: 9
+                font.pixelSize: Qt.application.font.pixelSize - 2
                 textFormat: Text.PlainText
                 wrapMode: Text.WordWrap
                 verticalAlignment: Text.AlignVCenter
@@ -1336,7 +1451,7 @@ import QtQuick.Dialogs 1.0
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
-                    spacing: 10
+                    spacing: 0
                     SwitchDelegate {
                         id: switchDelegate
                         text: qsTr("Heart Rate service outside FTMS")
@@ -1356,7 +1471,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("(For Android Version 10 and above, this setting cannot be changed. This setting can be changed for Android Version 9 and below and for iOS.) When this setting is turned off, QZ sends heart rate data in a format designed to improve compatibility with third-party apps, such as Zwift and Peloton. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1384,7 +1499,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Turn this on to prevent a built-in heart rate monitor (HRM) on your exercise equipment from sending that data to QZ. This allows QZ to connect to your external HRM, such as a chest band or Apple Watch.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1412,7 +1527,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ’s more accurate calculation.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1454,10 +1569,11 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Apple Watch users: leave it disabled! Just open the app on your watch")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
+                        Layout.fillWidth: true
                         color: Material.color(Material.Red)
                     }
 
@@ -1576,6 +1692,19 @@ import QtQuick.Dialogs 1.0
                                 }
                             }
 
+                            Label {
+                                text: qsTr("Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
                             AccordionElement {
                                 id: heartRatemaxOverrideAccordion
                                 title: qsTr("Heart Rate Max Override")
@@ -1630,7 +1759,7 @@ import QtQuick.Dialogs 1.0
                                 text: qsTr("QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: 9
+                                font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -1645,7 +1774,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Choose the percentages for where you want your zones 1-4 to end and click OK.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1767,7 +1896,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1807,7 +1936,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("QZ calculates speed based on your pedal cadence (RPMs). Enable this setting if you want your speed to be calculated based on your power output (watts), as Zwift and some other apps do. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1815,6 +1944,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
                     SwitchDelegate {
                         id: gearsRestoreDelegate
                         text: qsTr("Restore Gears on Startup")
@@ -1825,15 +1955,81 @@ import QtQuick.Dialogs 1.0
                         leftPadding: 0
                         clip: false
                         checked: settings.gears_restore_value
+                        enabled: !gearsRestoreValueDelegate.checked
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.gears_restore_value = checked
                     }
+
                     Label {
                         text: qsTr("QZ will remember the last Gears value and it will restore on startup")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    // Add the new specific gear value restore setting
+                    SwitchDelegate {
+                        id: gearsRestoreValueDelegate
+                        text: qsTr("Restore Specific Gear Value")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.restore_specific_gear
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: {
+                            settings.restore_specific_gear = checked
+                            if (checked) {
+                                settings.gears_restore_value = false
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        enabled: gearsRestoreValueDelegate.checked
+                        opacity: enabled ? 1.0 : 0.5
+
+                        Label {
+                            text: qsTr("Gear Value:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: specificGearValueField
+                            text: settings.gears_current_value
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            enabled: gearsRestoreValueDelegate.checked
+                            onAccepted: settings.gears_current_value = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            enabled: gearsRestoreValueDelegate.checked
+                            onClicked: {
+                                settings.gears_current_value = specificGearValueField.text
+                                toast.show("Setting saved!")
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Specify a particular gear value to be restored at startup. This will override the 'Restore Gears on Startup' setting.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1870,7 +2066,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("0.005 = Clinchers\n0.004 = Tubulars\n0.012 = MTB")
                         font.italic: true
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         color: "steelblue"
                     }
                     RowLayout {
@@ -1902,7 +2098,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will “level the playing field” against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs). Default unit is kilograms (kgs).")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -1978,7 +2174,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Enable this setting ONLY when using Zwift in ERG (workout) Mode. QZ will communicate the target resistance (or automatically adjust your resistance if your bike has this capability) to match the target watts based on your cadence (RPM). In ERG Mode, the changes in road slope will not affect target resistance, as is the case in Simulation Mode. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2016,7 +2212,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2054,7 +2250,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2092,7 +2288,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 Watts or more than 110 Watts. Default is 10.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2130,7 +2326,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("See above. Default is 10.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2168,7 +2364,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Use this setting to set a minimum target resistance. For example, if you do not want to ride at a resistance below 25, enter a value of 25 and QZ will not set a target resistance below 25. Default is 0.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2206,7 +2402,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Similar to the above, but sets a maximum target resistance. Default is 999.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2244,7 +2440,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2277,10 +2473,46 @@ import QtQuick.Dialogs 1.0
                     }
 
                     Label {
-                        text: qsTr("Applies a multiplier to the gears tile. Default is 1.")
+                        text: qsTr("Applies a multiplier to the gears. Default is 1.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Gears Offset:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: gearsOffsetTextField
+                            text: settings.gears_offset
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.gears_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.gears_offset = gearsOffsetTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Applies an offset to the gears. Default is 0.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2319,7 +2551,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the bluetooth name of your bike.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2333,13 +2565,21 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about the QZ settings for your equipment, open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
                     Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
                     color: Material.color(Material.Lime)
+                }
+
+                NewPageElement {
+                    title: qsTr("Wahoo Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: "gears.qml"
                 }
 
                 AccordionElement {
@@ -2419,7 +2659,7 @@ import QtQuick.Dialogs 1.0
                             text: qsTr("Since this bike doesn't send resistance over bluetooth, QZ is calculating it using cadence and wattage. The result could be a little 'jumpy' and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.")
                             font.bold: true
                             font.italic: true
-                            font.pixelSize: 9
+                            font.pixelSize: Qt.application.font.pixelSize - 2
                             textFormat: Text.PlainText
                             wrapMode: Text.WordWrap
                             verticalAlignment: Text.AlignVCenter
@@ -2874,7 +3114,6 @@ import QtQuick.Dialogs 1.0
                         }
                     }
                     SwitchDelegate {
-                        id: domyosBikeCaloriesDisplayDelegate
                         text: qsTr("Fix Calories/Km to Console")
                         spacing: 0
                         bottomPadding: 0
@@ -2888,7 +3127,6 @@ import QtQuick.Dialogs 1.0
                         onClicked: settings.domyos_bike_display_calories = checked
                     }
                     SwitchDelegate {
-                        id: domyosBike500ProfileV1Delegate
                         text: qsTr("Bike 500 wattage profile")
                         spacing: 0
                         bottomPadding: 0
@@ -2899,8 +3137,21 @@ import QtQuick.Dialogs 1.0
                         checked: settings.domyos_bike_500_profile_v1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.domyos_bike_500_profile_v1 = checked
+                        onClicked: { settings.domyos_bike_500_profile_v1 = checked; settings.domyos_bike_500_profile_v2 = false; }
                     }
+                    SwitchDelegate {
+                        text: qsTr("Bike 500 wattage profile v2")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.domyos_bike_500_profile_v2
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.domyos_bike_500_profile_v2 = checked; settings.domyos_bike_500_profile_v1 = false; }
+                    }                    
                 }                
                 AccordionElement {
                     title: qsTr("Tacx Neo Options")
@@ -3063,6 +3314,20 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.nordictrack_gx_2_7 = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
+                        text: qsTr("NordicTrack GX 4.5")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.nordictrack_GX4_5_bike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.nordictrack_GX4_5_bike = checked; window.settings_restart_to_apply = true; }
+                    }
+                    
+                    SwitchDelegate {
                         id: proformTdfJonseedWattdelegate
                         text: qsTr("TDF CBC Jonseed Watt table")
                         spacing: 0
@@ -3116,6 +3381,19 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.proform_bike_225_csx = checked; window.settings_restart_to_apply = true; }
                     }
+                    SwitchDelegate {
+                        text: qsTr("Proform 325 CSX / Healthrider H30X")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_bike_325_csx
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.proform_bike_325_csx = checked; window.settings_restart_to_apply = true; }
+                    }                    
                     SwitchDelegate {
                         text: qsTr("Proform SB")
                         spacing: 0
@@ -3214,6 +3492,19 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.nordictrack_ifit_adb_remote = checked; window.settings_restart_to_apply = true; }
+                    }
+                    SwitchDelegate {
+                        text: qsTr("Use Resistance instead of Inc.")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.nordictrackadbbike_resistance
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.nordictrackadbbike_resistance = checked; }
                     }
                 }
 
@@ -3361,11 +3652,12 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Set 100mm as wheel circumference in settings of ant+ speed sensor")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
                         color: Material.color(Material.Red)
+                        Layout.fillWidth: true
                     }
 
                     SwitchDelegate {
@@ -3387,7 +3679,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Turn this on if you need to use ANT+ along with Bluetooth. Power is also sent.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3423,7 +3715,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("You can increase/decrease your speed sent over ANT+. The number you enter as an Offset adds that amount to your speed.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3460,7 +3752,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("You can increase/decrease your speed output sent over ANT+. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3488,7 +3780,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("This setting enables receiving the heart rate from an external HRM over ANT+ instead of from QZ.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3553,7 +3845,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Allows continuous display of the Start/Pause and Stop buttons across the top of the screen during your workouts. Default is on.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3590,7 +3882,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Android Only: width of the floating window.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3627,7 +3919,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Android Only: height of the floating window.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3664,7 +3956,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Android Only: transparency percentage of the floating window.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3692,7 +3984,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Android Only: if enabled the floating window will start as soon as the fitness devices is connected.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3714,7 +4006,7 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
-                            spacing: 10
+                            spacing: 0
                             SwitchDelegate {
                                 id: tilesIconsDelegate
                                 text: qsTr("Tiles Icons")
@@ -3941,7 +4233,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Enter the email address you use to login to Peloton (NOT your leaderboard name). Ensure there are no spaces before or after your email. Click OK.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3980,7 +4272,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Enter the password you use to login to Peloton. Click OK. If you have entered the correct login credentials and the QZ is able to access your account, you will see a when you reopen QZ. This is a secure login, not accessible by anyone but you.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4020,7 +4312,45 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average. Click OK.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Treadmill Level:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonTreadmillLevelTextField
+                            model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
+                            displayText: settings.peloton_treadmill_level
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonTreadmillLevelTextField.currentIndex)
+                                displayText = pelotonTreadmillLevelTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_treadmill_level = parseInt(pelotonTreadmillLevelTextField.displayText); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Difficulty level for peloton treadmill classes. 1 is easy 10 is hard.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4055,10 +4385,10 @@ import QtQuick.Dialogs 1.0
                     }
 
                     Label {
-                        text: qsTr("Difficulty level for peloton rower classes. 1 is easy 6 is hard.")
+                        text: qsTr("Difficulty level for peloton rower classes. 1 is easy 10 is hard.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4095,7 +4425,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4134,7 +4464,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave this setting blank until further notice.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4172,7 +4502,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Conversion gain is a multiplier. Use this setting to align the Peloton resistance calculated by QZ with the relative effort required by your bike. In most cases the default values will be correct.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4210,7 +4540,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton Resistance of 30 and you enter 5, QZ will display 35.)")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4238,7 +4568,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Turn this on to send cadence to Peloton over Bluetooth. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4306,7 +4636,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("By default, QZ communicates heart rate to Peloton. Use this setting to change the metric that appears on the Peloton screen.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4346,13 +4676,38 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Allows you to choose whether you would like the Peloton class air date to display before or after the class title on Strava.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Date Format:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonDateFormatTextField
+                            model: [ "MM/dd/yy", "yy/MM/dd" ]
+                            displayText: settings.peloton_date_format
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonDateFormatTextField.currentIndex)
+                                displayText = pelotonDateFormatTextField.currentValue
+                            }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_date_format = pelotonDateFormatTextField.displayText; toast.show("Setting saved!"); }
+                        }
                     }
 
                     SwitchDelegate {
@@ -4374,7 +4729,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Turn this on if you want QZ to capture a link to the Peloton class and display it in Strava.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4401,7 +4756,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("By default, QZ treats Spin-UPS in Power Zone rides as an increasing ramp to warm you up. You can disable this, to leave the resistance up to you.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4429,7 +4784,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the peloton workout screen and will adjust the peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4456,7 +4811,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("This setting enables the AI (Artificial Intelligence) on the QZ Companion AI app that will read the peloton workout screen and will adjust the peloton offset in order to stay in sync in realtime with your Peloton workout.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4484,7 +4839,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Only if you are on a real Peloton Bike/Bike+! This will allow QZ to collect metrics from your Bike/Bike+ and send it to Zwift. Peloton Free ride must running.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4531,7 +4886,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Enter the email address you use to login to Zwift. Ensure there are no spaces before or after your email. Click OK.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4571,7 +4926,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Enter the password you use to login to Zwift. Click OK.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4579,6 +4934,61 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }              
+
+                    SwitchDelegate {
+                        text: qsTr("Get Gears from Zwift")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_play_emulator
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.zwift_play_emulator = checked; if(checked) { settings.watt_bike_emulator = false; } window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Show Gears to Zwift Only")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.watt_bike_emulator
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.watt_bike_emulator = checked; if(checked) { settings.zwift_play_emulator = false; } window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("This setting shows the actual gear from qz to Zwift. Negative values are not displayed on zwift and it could have also limitation to higher gain value. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
 
                     RowLayout {
                         spacing: 10
@@ -4607,7 +5017,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Define the number of delay seconds between each inclination change from Zwift. This value can't be less than 5. Default: 5")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4634,7 +5044,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Only for Android and iOS: QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn't work on workout")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4661,7 +5071,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4702,7 +5112,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination and speed from the Zwift app during a workout and will adjust the inclination and the speed on your treadmill. A popup about screen recording will appear in order to notify this.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4739,7 +5149,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4766,7 +5176,34 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("You have to install the QZ Companion App on your Garmin Watch/Computer first.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Ant+ Bike Over Garmin Watch")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.antbike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.antbike = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Use your garmin watch to get the ANT+ metrics from a bike")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4806,7 +5243,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("Treadmill only: enabling this if you want that QZ will stop the tape at the end of the current train program.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -4849,7 +5286,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -4906,7 +5343,34 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("Alternatively to 'PID on Heart Zone' setting you can use this couple of settings in order to specify a HR range.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
+                SwitchDelegate {
+                    text: qsTr("PID 'Pushy'")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.trainprogram_pid_pushy
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.trainprogram_pid_pushy = checked
+                }
+
+                Label {
+                    text: qsTr("Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -4943,7 +5407,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("Enter your 1 mile time goal, click OK. This setting will be used when you’re following a training program with the speed control. These settings should also match the Zwift app settings. More info: https://github.com/cagnulein/qdomyos-zwift/issues/609.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -4980,7 +5444,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("See 1 Mile Pace above; same except 5 km instead of 1 mile.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5017,7 +5481,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("See 1 Mile Pace above; same except 10 km instead of 1 mile.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5054,7 +5518,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("See 1 Mile Pace above; same except half marathon distance instead of 1 mile.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5091,7 +5555,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("See 1 Mile Pace above; same except marathon distance instead of 1 mile.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5131,7 +5595,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("Select the default Pace to be used when the ZWO file does not indicate a precise pace.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5353,7 +5817,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("Turn on and enter your choices for workout time (in minutes and seconds) and the maximum and minimum speed, incline (treadmill), and resistance (bike) and QZ will randomly change your speed and resistance or incline accordingly for the period of time you have selected.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5392,7 +5856,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("Turn on to convert your treadmill output to bike output when riding on Zwift. QZ sends your treadmill metrics to Zwift over Bluetooth so that you can participate as a bike rider. Default is off.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5420,7 +5884,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("Turn this on to have QZ control the speed of your treadmill during, for example, Peloton classes based on the coach’s speed callouts. Your speed will be in the low, upper or average range based on your Peloton Options > Difficulty setting. Default is off.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5448,7 +5912,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("Turn this on to have QZ go into Pause mode upon opening when using a treadmill. This is for treadmills only. Default is off.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5476,7 +5940,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("Target Speed and Target Incline tile offer a way to increase/decrease the current difficulty with the plus/minus buttons. By default, with this setting disabled, the speed and the inclination change with a 3% gain for every pressure. Switching this ON, QZ will add a 0.1 speed offset or a 0.5 incline offset instead.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5514,7 +5978,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("(Speed Tile) This controls the amount of the increase or decrease in the speed (in kph/mph) when you press the plus or minus button in the Speed Tile. Default is 0.5 kph.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5552,7 +6016,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("(Incline Tile) This controls the amount of the increase or decrease in the inclination when you press the plus or minus button in the Incline Tile. Default is 0.5.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5588,7 +6052,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("This overrides the minimum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5624,7 +6088,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("This overrides the maximum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5645,7 +6109,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("Overrides the default inclination values sent from the treadmill")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5672,7 +6136,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("For treadmills without inclination: turning this on and QZ will transform inclination requests into speed changes.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5711,7 +6175,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the bluetooth name of your bike.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5724,7 +6188,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about settings for your specific equipment with QZ, click here to open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: 9
+                    font.pixelSize: Qt.application.font.pixelSize - 2
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -5757,7 +6221,9 @@ import QtQuick.Dialogs 1.0
                                 "Nordictrack S20", "Nordictrack S30", "Proform 1800i",
                                 "Proform/NordicTrack z1300i", "Proform SE", "Proform Cadence LT",
                                 "Proform 8.0", "Proform 9.0", "Proform 705 CST", "Nordictrack x14i", 
-                                "Proform Carbon TL", "Proform Proshox 2"
+                                "Proform Carbon TL", "Proform Proshox 2", "Nordictrack S20i", "Proform 595i",
+                                "Proform 8.7", "Proform 705 CST V78.239", "Proform Carbon T7",
+                                "Nordictrack EXP 5i", "Proform Carbon TL PFTL59720", "Proform Sport 7.0", "Proform 575i"
                             ]
 
                             onCurrentIndexChanged: {
@@ -5791,6 +6257,15 @@ import QtQuick.Dialogs 1.0
                                 settings.nordictrack_treadmill_x14i = false;
                                 settings.proform_carbon_tl = false;
                                 settings.proform_proshox2 = false;
+                                settings.nordictrack_s20i_treadmill = false;
+                                settings.proform_595i_proshox2 = false;
+                                settings.proform_treadmill_8_7 = false;
+                                settings.proform_treadmill_705_cst_V78_239 = false;
+                                settings.proform_treadmill_carbon_t7 = false;
+                                settings.nordictrack_treadmill_exp_5i = false;
+                                settings.proform_carbon_tl_PFTL59720 = false;
+                                settings.proform_treadmill_sport_70 = false;
+                                settings.proform_treadmill_575i = false;
 
                                 // Imposta il setting corrispondente al modello selezionato
                                 switch (currentIndex) {
@@ -5821,6 +6296,15 @@ import QtQuick.Dialogs 1.0
                                     case 24: settings.nordictrack_treadmill_x14i = true; break;
                                     case 25: settings.proform_carbon_tl = true; break;
                                     case 26: settings.proform_proshox2 = true; break;
+                                    case 27: settings.nordictrack_s20i_treadmill = true; break;
+                                    case 28: settings.proform_595i_proshox2 = true; break;
+                                    case 29: settings.proform_treadmill_8_7 = true; break;
+                                    case 30: settings.proform_treadmill_705_cst_V78_239 = true; break;
+                                    case 31: settings.proform_treadmill_carbon_t7 = true; break;
+                                    case 32: settings.nordictrack_treadmill_exp_5i = true; break;
+                                    case 33: settings.proform_carbon_tl_PFTL59720 = true; break;
+                                    case 34: settings.proform_treadmill_sport_70 = true; break;
+                                    case 35: settings.proform_treadmill_575i = true; break;
                                 }
                             }
 
@@ -5852,7 +6336,16 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_treadmill_705_cst ? 23 :
                                                     settings.nordictrack_treadmill_x14i ? 24 :
                                                     settings.proform_carbon_tl ? 25 :
-                                                    settings.proform_proshox2 ? 26 : -1;
+                                                    settings.proform_proshox2 ? 26 :
+                                                    settings.nordictrack_s20i_treadmill ? 27 :
+                                                    settings.proform_595i_proshox2 ? 28 :
+                                                    settings.proform_treadmill_8_7 ? 29 :
+                                                    settings.proform_treadmill_705_cst_V78_239 ? 30 :
+                                                    settings.proform_treadmill_carbon_t7 ? 31 :
+                                                    settings.nordictrack_treadmill_exp_5i ? 32 :
+                                                    settings.proform_carbon_tl_PFTL59720 ? 33 :
+                                                    settings.proform_treadmill_sport_70 ? 34 :
+                                                    settings.proform_treadmill_575i ? 35 : -1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 
@@ -6317,7 +6810,7 @@ import QtQuick.Dialogs 1.0
                             text: qsTr("Default: 200. Change this only if you have random issues with speed or inclination (try to put 300)")
                             font.bold: true
                             font.italic: true
-                            font.pixelSize: 9
+                            font.pixelSize: Qt.application.font.pixelSize - 2
                             textFormat: Text.PlainText
                             wrapMode: Text.WordWrap
                             verticalAlignment: Text.AlignVCenter
@@ -6467,6 +6960,19 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.fitshow_anyrun = checked; window.settings_restart_to_apply = true; }
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Atletica Lightspeed")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.atletica_lightspeed_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.atletica_lightspeed_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: fitshowTruetimerDelegate
@@ -6861,7 +7367,22 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.bh_spada_2_watt = checked; window.settings_restart_to_apply = true; }
+                    }                    
+
+                    SwitchDelegate {
+                        text: qsTr("Toorx SRX 500")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.toorx_bike_srx_500
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.toorx_bike_srx_500 = checked; window.settings_restart_to_apply = true; }
                     }
+
 
                     SwitchDelegate {
                         text: qsTr("Toorx SRX 3500")
@@ -7154,7 +7675,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Allows you to force QZ to connect to your FTMS Rower. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is “Disabled.”")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7288,6 +7809,41 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.nordictrack_elliptical_c7_5 = checked; window.settings_restart_to_apply = true; }
                         }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Companion IP:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: proformEllipticalCompanionIPTextField
+                                text: settings.proform_elliptical_ip
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.proform_elliptical_ip = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.proform_elliptical_ip = proformEllipticalCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            }
+                        }
+                        SwitchDelegate {
+                            text: qsTr("ADB Remote")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_ifit_adb_remote
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.nordictrack_ifit_adb_remote = checked; window.settings_restart_to_apply = true; }
+                        }
                     }                    
 
                     AccordionElement {
@@ -7400,7 +7956,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Allows you to force QZ to connect to your equipment (see “Bluetooth Troubleshooting” below). Default is “Disabled.”")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7430,7 +7986,7 @@ import QtQuick.Dialogs 1.0
                             id: okwattOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.watt_offset = wattOffsetTextField.text; ergDataPoints = ""; toast.show("Setting saved!"); }
+                            onClicked: { settings.watt_offset = wattOffsetTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -7438,7 +7994,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. The number you enter as an Offset adds that amount to your watts.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7468,7 +8024,7 @@ import QtQuick.Dialogs 1.0
                             id: okWattGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.watt_gain = wattGainTextField.text; ergDataPoints = ""; toast.show("Setting saved!"); }
+                            onClicked: { settings.watt_gain = wattGainTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -7476,7 +8032,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. For example, to use a rower to cycle in Zwift, you could double your watt output to better match your cycling speed by entering 2. The number you enter is a multiplier applied to your actual watts.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7514,7 +8070,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("You can increase/decrease your speed for moving your avatar faster/slower in Zwift if your equipment outputs speed but not watts. The number you enter as an Offset adds that amount to your speed.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7553,7 +8109,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("You can increase/decrease your speed output for moving your avatar faster/slower in Zwift or other apps as a way of calibrating your equipment if your equipment outputs speed but not watts. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7591,7 +8147,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("You can increase/decrease your cadence output. The number you enter as an Offset adds that amount to your cadence.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7629,14 +8185,14 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("You can increase/decrease your cadence output as a way of calibrating your equipment if your equipment outputs cadence but not watts. The number you enter is a multiplier applied to your actual cadence.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
+                    }                   
 
                     Label {
                         id: stravaLabel
@@ -7644,6 +8200,31 @@ import QtQuick.Dialogs 1.0
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Strava Upload:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: stravaUploadMode
+                            model: [ "Always", "Request", "Disabled" ]
+                            displayText: settings.strava_upload_mode
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + stravaUploadMode.currentIndex)
+                                displayText = stravaUploadMode.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.strava_upload_mode = stravaUploadMode.displayText; toast.show("Setting saved!"); }
+                        }
                     }
 
                     RowLayout {
@@ -7674,7 +8255,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7701,7 +8282,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("QZ can open a external browser in order to auth strava to QZ. Default: disabled.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7729,7 +8310,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Append the Virtual Tag to the Strava Activity")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7756,7 +8337,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Append the Date to the Strava Activity as a prefix only for non-peloton workout")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7767,7 +8348,7 @@ import QtQuick.Dialogs 1.0
 
                     SwitchDelegate {
                         id: volumeChangeGearsDelegate
-                        text: qsTr("Volumes buttons change gears")
+                        text: qsTr("Volume buttons change gears")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -7784,7 +8365,34 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Allows you to change resistance during auto-follow mode using the volume buttons of the device running QZ, Bluetooth headphones or a Bluetooth remote. Changes made using these external controls will be visible in the Gears tile. This is a VERY USEFUL feature! Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Volume buttons debouncing")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.gears_volume_debouncing
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.gears_volume_debouncing = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("Debounce the volume buttons, so you will only see 1 gear step if there are 2 or more volume near steps.  Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7812,7 +8420,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7840,7 +8448,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Enables the calculation of watts, even while in Pause mode. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7868,7 +8476,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Turn this on if you have a bike with inclination capabilities to fix Zwift’s bug that sends half-negative downhill inclination")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7906,7 +8514,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Inclination Offset and Gain are used to adjust the incline set by Zwift instead of, or in addition to, using the QZ Zwift Gain setting. For example, when Zwift changes the incline to 1%, you can have your treadmill change to 2%. The number you enter as an offset adds to the inclination sent from Zwift or any other 3rd party app. Default is 0.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7944,7 +8552,43 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("The number you enter as a Gain is a multiplier applied to the inclination sent from Zwift or any other 3rd party app. Default is 1.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Minimum Inclination:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: minInclinationTextField
+                            text: settings.min_inclination
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.min_inclination = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.min_inclination = minInclinationTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("If you don't want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7971,7 +8615,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("This prevents your fitness device from sending its wattage calculation to QZ and defaults to QZ’s more accurate calculation.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7979,6 +8623,33 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+                    SwitchDelegate {
+                        text: qsTr("Use Resistance instead of Inclination")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.force_resistance_instead_inclination
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.force_resistance_instead_inclination = checked
+                    }
+
+                    Label {
+                        text: qsTr("For the smart trainers, use resistance instead of inclination. This should help if you don't want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }                    
 
                     RowLayout {
                         spacing: 10
@@ -8007,7 +8678,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("You can trigger auto laps in the FIT file based on distance. Unit: "+ (settings.miles_unit?"Mi":"KM") +" Default: 0 (disabled).")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8043,7 +8714,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("This slow down the inclination changes adding a delay between each change. This is not applied to all the model of treadmill/bike. Default is 0.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8061,7 +8732,7 @@ import QtQuick.Dialogs 1.0
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
-                    spacing: 10
+                    spacing: 0
 
                     AccordionElement {
                         id: cadenceSensorOptionsAccordion
@@ -8070,18 +8741,19 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
-                            spacing: 10
+                            spacing: 0
 
                             Label {
                                 id: cadenceSensorLabel
                                 text: qsTr("Don't touch these settings if your bike works properly!")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: 9
+                                font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
                                 color: Material.color(Material.Red)
+                                Layout.fillWidth: true
                             }
 
                             SwitchDelegate {
@@ -8103,7 +8775,7 @@ import QtQuick.Dialogs 1.0
                                 text: qsTr("If your bike doesn’t have Bluetooth, this setting allows you to use a cadence sensor so your bike will work with QZ. Default is off.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: 9
+                                font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -8151,7 +8823,7 @@ import QtQuick.Dialogs 1.0
                                 text: qsTr("Use this setting to connect QZ to your cadence sensor. Default is Disabled.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: 9
+                                font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -8189,7 +8861,7 @@ import QtQuick.Dialogs 1.0
                                 text: qsTr("Wheel ratio is the multiplier used by QZ to calculate your speed based on your cadence. For example, if you enter 1 for your wheel ratio and you are riding at a cadence of 30, QZ will display your speed as 30 km/h. The default of 0.33 is correct for most bikes.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: 9
+                                font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -8207,7 +8879,7 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
-                            spacing: 10
+                            spacing: 0
                             SwitchDelegate {
                                 id: powerSensorAsBikeDelegate
                                 text: qsTr("Power Sensor as a Bike")
@@ -8227,7 +8899,7 @@ import QtQuick.Dialogs 1.0
                                 text: qsTr("If your bike doesn’t have Bluetooth, this setting allows you to use a power meter pedal sensor so your bike will work with QZ. Default is off.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: 9
+                                font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -8255,7 +8927,7 @@ import QtQuick.Dialogs 1.0
                                 text: qsTr("If your treadmill doesn’t have Bluetooth, this setting allows you to use a Stryde sensor (or similar) so your treadmill will work with QZ. Default is off.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: 9
+                                font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -8283,7 +8955,7 @@ import QtQuick.Dialogs 1.0
                                 text: qsTr("Some power sensors send cadence divided by 2. This setting will fix this behavior.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: 9
+                                font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -8311,7 +8983,7 @@ import QtQuick.Dialogs 1.0
                                 text: qsTr("Divide the cadence sent to Strava by 2.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: 9
+                                font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -8319,6 +8991,60 @@ import QtQuick.Dialogs 1.0
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
                             }
+
+                            SwitchDelegate {
+                                text: qsTr("Use speed from the power sensor")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.stryd_speed_instead_treadmill
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.stryd_speed_instead_treadmill = checked
+                            }
+
+                            Label {
+                                text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            SwitchDelegate {
+                                text: qsTr("Add inclination gain factor to the power")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.stryd_add_inclination_gain
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.stryd_add_inclination_gain = checked
+                            }
+
+                            Label {
+                                text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can't get the inclination from the treadmill. Enabling this and QZ will add a inclination gain to the power read from the Stryd. Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }                            
 
                             Label {
                                 id: labelPowerSensorName
@@ -8344,7 +9070,7 @@ import QtQuick.Dialogs 1.0
                                     id: okPowerSensorNameButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_name = powerSensorNameTextField.displayText; ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_name = powerSensorNameTextField.displayText; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -8359,7 +9085,7 @@ import QtQuick.Dialogs 1.0
                                 text: qsTr("Leave on Disabled or select from list of found Bluetooth devices.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: 9
+                                font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -8377,7 +9103,7 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
-                            spacing: 10
+                            spacing: 0
                             AccordionElement {
                                 id: eliteRizerOptionsAccordion
                                 title: qsTr("Elite Rizer Options")
@@ -8385,7 +9111,7 @@ import QtQuick.Dialogs 1.0
                                 textColor: Material.color(Material.Blue)
                                 color: Material.backgroundColor
                                 accordionContent: ColumnLayout {
-                                    spacing: 10
+                                    spacing: 0
                                     Label {
                                         id: labelEliteRizerName
                                         text: qsTr("Elite Rizer:")
@@ -8453,7 +9179,7 @@ import QtQuick.Dialogs 1.0
                                 textColor: Material.color(Material.Blue)
                                 color: Material.backgroundColor
                                 accordionContent: ColumnLayout {
-                                    spacing: 10
+                                    spacing: 0
                                     Label {
                                         id: labelEliteSterzoSmartName
                                         text: qsTr("Elite Sterzo Smart:")
@@ -8500,7 +9226,7 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
-                            spacing: 10
+                            spacing: 0
                             Label {
                                 id: labelFTMSAccessoryName
                                 text: qsTr("SmartSpin2k device:")
@@ -9138,7 +9864,7 @@ import QtQuick.Dialogs 1.0
                                 text: qsTr("Use it to change the gears on QZ!")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: 9
+                                font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -9165,7 +9891,88 @@ import QtQuick.Dialogs 1.0
                                 text: qsTr("Use it to change the gears on QZ!")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: 9
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            SwitchDelegate {
+                                text: qsTr("Buttons debouncing")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.gears_volume_debouncing
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.gears_volume_debouncing = checked; }
+                            }
+
+                            Label {
+                                text: qsTr("Debounce the buttons, so you will only see 1 gear step even if you are keep pressing the buttons.  Default is off.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            SwitchDelegate {
+                                text: qsTr("Swap sides")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.zwiftplay_swap
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.zwiftplay_swap = checked; }
+                            }
+
+                            Label {
+                                text: qsTr("You can swap the left to the right controller and viceversa.  Default is off.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            SwitchDelegate {
+                                text: qsTr("Use Zwift app ratio for gears (Experimental)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.gears_zwift_ratio
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.gears_zwift_ratio = checked; }
+                            }
+
+                            Label {
+                                text: qsTr("Use the zwift gears table instead of the QZ classic gears algorithm.  Default is off.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -9310,7 +10117,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Leave this setting off unless the Support staff asks you to turn it on during troubleshooting. Can improve the Android Bluetooth connection to Zwift. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9338,7 +10145,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Same as “Relaxed Bluetooth for mad devices”. Leave off unless the Support staff asks you to turn it on. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9366,7 +10173,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Leave this off unless the Support staff asks you to turn it on. Enables a new Bluetooth service, indicating the battery level of your device. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9421,7 +10228,7 @@ import QtQuick.Dialogs 1.0
                                         text: qsTr("Forces QZ to communicate ONLY the Heart Rate metric to third-party apps. Default is off.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: 9
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -9449,7 +10256,7 @@ import QtQuick.Dialogs 1.0
                                         text: qsTr("Enables QZ to communicate with the Echelon app. This setting can only be used with iOS running QZ and iOS running the Echelon app. Default is off.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: 9
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -9477,7 +10284,7 @@ import QtQuick.Dialogs 1.0
                                         text: qsTr("Enables QZ to send a rower Bluetooth profile instead of a bike profile to third party apps that support rowing (examples: Kinomap and BitGym). This should be off for Zwift. Default is off.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: 9
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -9505,7 +10312,7 @@ import QtQuick.Dialogs 1.0
                                         text: qsTr("Enables third-party apps to change the resistance of your equipment. Default is on.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: 9
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -9534,7 +10341,7 @@ import QtQuick.Dialogs 1.0
                                         text: qsTr("This changes the virtual Bluetooth bridge from the standard FMTS to the Power Sensor interface. Default is off.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: 9
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -9562,7 +10369,7 @@ import QtQuick.Dialogs 1.0
                                         text: qsTr("Enables a virtual bluetooth bridge to the iFit App. This setting requires that at least one device be Android. For example, this setting does NOT work with QZ on iOS and iFit to iOS, but DOES work with QZ on iOS and iFit to Android. On Android remember to rename your device into I_EL into the android settings and reboot your device.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: 9
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -9598,7 +10405,43 @@ import QtQuick.Dialogs 1.0
                                         text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to Wahoo RGT app. Leave the RGT compatibility disabled in order to use Zwift.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: 9
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            text: qsTr("ID:")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: dirconIdTextField
+                                            text: settings.dircon_id
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                            onAccepted: settings.dircon_id = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: { settings.dircon_id = dirconIdTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true; }
+                                        }
+                                    }
+
+                                    Label {
+                                        text: qsTr("If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -9653,7 +10496,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("By default QZ sends the info to Zwift or any other 3rd party apps with a 1000ms interval rate. Enabling the Race Mode setting will cause QZ to send them to 100ms (10hz). Of course the bottleneck will be always your bike/treadmill.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9681,7 +10524,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Forces the virtual Bluetooth bridge to send only the cadence information instead of the full FTMS metrics. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9754,7 +10597,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Forces Android devices to remain awake while QZ is running. Default is on.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9782,7 +10625,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("This MUST be always ON on an iOS device. Turning it OFF will lead to unexpected crashes of QZ. Default is on.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9810,7 +10653,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Simulates QZ being connected to a bike. When this is turned on QZ will calculate KCal based on your heart rate. Examples of when to use this setting: ○ To capture Peloton class data for classes without connected equipment (e.g., a strength or yoga workout).. ○ To arrange tiles on the QZ dashboard without connecting to your equipment. ○ To use the QZ Apple Watch app without connecting to your equipment.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9838,7 +10681,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Same as Fake Device but instead of simulating a bike it simulates a treadmill.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9866,7 +10709,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Same as Fake Device but instead of simulating a bike it simulates an elliptical.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9893,7 +10736,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Same as Fake Device but instead of simulating a bike it simulates a rower.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9921,7 +10764,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Leave this on unless you have issues connecting your Bluetooth HRM to QZ. If turning this off does not solve the connection issue, open a support ticket on GitHub. Default is on.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9949,7 +10792,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Android Only: enable this to force Android to don't kill QZ when it's running on background")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9976,7 +10819,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Android Only: force QZ to use the /Documents/QZ folder for debug log and fit files")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10004,7 +10847,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Turn this on to save a debug log to your device for use when requesting help with a bug.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10024,7 +10867,7 @@ import QtQuick.Dialogs 1.0
                         text: qsTr("Clears all the QZ logs, QZ .fit files and QZ images (these files are saved by QZ for every session) from your device while maintaining your saved Profiles and Settings.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: 9
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter

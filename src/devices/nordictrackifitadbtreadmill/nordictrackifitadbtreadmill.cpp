@@ -226,7 +226,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     speed = getDouble(aValues.last());
-                    Speed = speed;
+                    parseSpeed(speed);
                 }
             } else if (line.contains(QStringLiteral("Changed Grade"))) {
                 QStringList aValues = line.split(" ");
@@ -278,6 +278,8 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 settings.value(QZSettings::nordictrack_x22i, QZSettings::default_nordictrack_x22i).toBool();
             bool nordictrack_treadmill_t8_5s = settings.value(QZSettings::nordictrack_treadmill_t8_5s, QZSettings::default_nordictrack_treadmill_t8_5s).toBool();
             bool nordictrack_treadmill_x14i = settings.value(QZSettings::nordictrack_treadmill_x14i, QZSettings::nordictrack_treadmill_x14i).toBool();
+            bool proform_treadmill_carbon_t7 = settings.value(QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7).toBool();
+
             if (requestSpeed != -1) {
                 int x1 = 1845;
                 int y1Speed = 807 - (int)((Speed.value() - 1) * 31);
@@ -291,6 +293,11 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                     x1 = 1206;
                     y1Speed = (int) (620 - (35.9 * ((Speed.value() * 0.621371) - 1)));
                     y2 = y1Speed - (int)(((requestSpeed - Speed.value()) * 0.621371) * 35.9);
+                } else if(proform_treadmill_carbon_t7) {
+                    x1 = 940;
+                    // 458 0 183 10 mph
+                    y1Speed = (int) (458 - (27.5 * ((Speed.value() * 0.621371) - 1)));
+                    y2 = y1Speed - (int)(((requestSpeed - Speed.value()) * 0.621371) * 27.5);
                 }
 
                 lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Speed) + " " +
@@ -328,6 +335,11 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                     x1 = 75;
                     y1Inclination = x14i_inclination_lookuptable(currentInclination().value());
                     y2 = x14i_inclination_lookuptable(requestInclination);
+                } else if(proform_treadmill_carbon_t7) {
+                    x1 = 75;
+                    // 458 0 183 10%
+                    y1Inclination = (int) (458 - (27.5 * (currentInclination().value())));
+                    y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 27.5);
                 }
 
                 lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Inclination) + " " +
@@ -425,7 +437,7 @@ void nordictrackifitadbtreadmill::onWatt(double watt) {
 
 void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclination) {
 
-    Speed = speed;
+    parseSpeed(speed);
     Inclination = inclination;
 
     QSettings settings;
@@ -509,22 +521,24 @@ bool nordictrackifitadbtreadmill::connected() { return true; }
 void nordictrackifitadbtreadmill::stopLogcatAdbThread() {
     qDebug() << "stopLogcatAdbThread()";
     
+#ifdef Q_OS_WIN32
     initiateThreadStop();
     logcatAdbThread->quit();
     logcatAdbThread->terminate();
     
-#ifdef Q_OS_WIN32
     QProcess process;
     QString command = "/c wmic process where name='adb.exe' delete";
     process.start("cmd.exe", QStringList(command.split(' ')));
     process.waitForFinished(-1); // will wait forever until finished
-#endif
     
     logcatAdbThread->wait();
+#endif
 }
 
 void nordictrackifitadbtreadmill::initiateThreadStop() {
+#ifdef Q_OS_WIN32
     logcatAdbThread->stop = true;
+#endif
 }
 
 int nordictrackifitadbtreadmill::x14i_inclination_lookuptable(double reqInclination) {

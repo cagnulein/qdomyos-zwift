@@ -27,6 +27,17 @@ let PowerFeatureCharacteristicUUID = CBUUID(string: "0x2A65")
 let PowerSensorLocationCharacteristicUUID = CBUUID(string: "0x2A5D")
 let PowerMeasurementCharacteristicUUID = CBUUID(string: "0x2A63")
 
+//WATTBIKE
+let WattBikeServiceUUID = CBUUID(string: "b4cc1223-bc02-4cae-adb9-1217ad2860d1")
+let WattBikeReadUUID = CBUUID(string: "b4cc1224-bc02-4cae-adb9-1217ad2860d1")
+let WattBikeWriteUUID = CBUUID(string: "b4cc1225-bc02-4cae-adb9-1217ad2860d1")
+
+// Zwift Play
+let ZwiftPlayServiceUUID = CBUUID(string: "00000001-19ca-4651-86e5-fa29dcdd09d1")
+let ZwiftPlayWriteUUID = CBUUID(string:    "00000003-19ca-4651-86e5-fa29dcdd09d1")
+let ZwiftPlayReadUUID = CBUUID(string:   "00000002-19ca-4651-86e5-fa29dcdd09d1")
+let ZwiftPlayIndicateUUID = CBUUID(string:"00000004-19ca-4651-86e5-fa29dcdd09d1")
+
 @objc public class virtualbike_ios_swift: NSObject {
     private var peripheralManager: BLEPeripheralManager!
     

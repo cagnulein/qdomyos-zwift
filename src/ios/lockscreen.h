@@ -18,14 +18,14 @@ class lockscreen {
     void virtualbike_setHeartRate(unsigned char heartRate);
     void virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime);
 
-    void virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility);
+    void virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator);
     double virtualbike_getCurrentSlope();
     double virtualbike_getCurrentCRR();
     double virtualbike_getCurrentCW();
     double virtualbike_getPowerRequested();
     bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                 unsigned short currentCadence, unsigned short currentWatt,
-                                unsigned short CrankRevolutions, unsigned short LastCrankEventTime);
+                                unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears);
     int virtualbike_getLastFTMSMessage(unsigned char *message);
 
     // virtualrower
@@ -56,9 +56,12 @@ class lockscreen {
     void garminconnect_init();
     int getHR();
     int getFootCad();
+    int getPower();
+    double getSpeed();
     
     // debug
     static void debug(const char* debugstring);
+    static void nslog(const char* log);
     
     //adb
     void adb_connect(const char* IP);
@@ -74,6 +77,11 @@ class lockscreen {
     int zwift_api_getdistance();
     float zwift_api_getlatitude();
     float zwift_api_getlongitude();
+    
+    // quick actions    
+    static void set_action_profile(const char* profile);
+    static const char* get_action_profile();
+
 };
 
 #endif // LOCKSCREEN_H

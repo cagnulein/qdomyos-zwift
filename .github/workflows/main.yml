@@ -1,3 +1,4 @@
+
 # This is a basic workflow to help you get started with Actions
 
 name: CI
@@ -195,14 +196,14 @@ jobs:
         if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-binary
           path: windows-binary.zip
         if: matrix.config.python
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-binary-no-python
           path: windows-binary-no-python.zip
@@ -337,7 +338,7 @@ jobs:
   # This workflow contains a single job called "build"
   linux-x86-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -433,7 +434,7 @@ jobs:
         run: qmake; make -j8
 
       - name: Archive linux-desktop binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: linux-desktop-binary
           path: src/qdomyos-zwift         
@@ -442,7 +443,7 @@ jobs:
         run: cd tst; GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests; cd ..
 
       - name: Upload test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: test_results_xml
@@ -507,7 +508,7 @@ jobs:
   # This workflow contains a single job called "build"
   android-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -585,21 +586,13 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11'
+          java-version: '11.0.23+9'
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
-
-      - name: Build qthttpserver
-        run: |
-            cd src/qthttpserver 
-            qmake
-            make -j8
-            make install
-            cd ../..
 
       - name: Set Android NDK 21 && build
         run: |
@@ -622,6 +615,14 @@ jobs:
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+
+          # QTHTTPSERVER must use the same NDK
+          cd src/qthttpserver 
+          qmake
+          make -j8
+          make install
+          cd ../..          
+          
           qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
@@ -630,7 +631,7 @@ jobs:
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
 
       - name: Archive apk binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: fdroid-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
@@ -824,8 +825,24 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..        
 
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg.git
+        working-directory: ${{ runner.workspace }}
+  
+      - name: Bootstrap vcpkg
+        run: .\vcpkg\bootstrap-vcpkg.bat
+        working-directory: ${{ runner.workspace }}
+        
+      - name: Install dependencies
+        run: |
+          .\vcpkg\vcpkg install protobuf protobuf-c abseil
+        working-directory: ${{ runner.workspace }}
+  
       - name: Build
         run: |
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             qmake            
             nmake
             cd src/debug
@@ -839,6 +856,7 @@ jobs:
             cp ../../windows/*.py .
             cp ../../windows/*.bat .
             cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
             mkdir adb
             mkdir python
             Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
@@ -849,7 +867,10 @@ jobs:
         if: matrix.config.python
             
       - name: Build without python
-        run: |
+        run: |          
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             qmake           
             nmake
             cd src/debug
@@ -860,10 +881,11 @@ jobs:
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
-            cp "C:/mingw64/bin/libstdc++-6.dll" .
+            cp "C:/mingw64/bin/libstdc++-6.dll" .              
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
             mkdir adb
             cp ../../adb/* adb/
             cd ..
@@ -883,14 +905,14 @@ jobs:
         if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-msvc2019-binary
           path: windows-msvc2019-binary.zip
         if: matrix.config.python
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-msvc2019-binary-no-python
           path: windows-msvc2019-binary-no-python.zip
@@ -930,6 +952,9 @@ jobs:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"      
 
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+  
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
@@ -973,8 +998,24 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..                    
 
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg.git
+        working-directory: ${{ runner.workspace }}
+  
+      - name: Bootstrap vcpkg
+        run: .\vcpkg\bootstrap-vcpkg.bat
+        working-directory: ${{ runner.workspace }}
+        
+      - name: Install dependencies
+        run: |
+          .\vcpkg\vcpkg install protobuf protobuf-c abseil
+        working-directory: ${{ runner.workspace }}
+
       - name: Build
         run: |
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             cd src
             echo "#define AISERVER" >> aiserver.h
             cd ..
@@ -993,6 +1034,7 @@ jobs:
             cp ../../windows/zwift-workout-ai-server.py zwift-workout.py
             cp ../../windows/*.bat .
             cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
             mkdir adb
             cp ../../adb/* adb/
             cd ..
@@ -1006,19 +1048,187 @@ jobs:
         run: Compress-Archive src/debug/output windows-msvc2019-ai-server-binary.zip
 
       - name: Archive windows binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-msvc2019-ai-server-binary
           path: windows-msvc2019-ai-server-binary.zip
 
+  raspberry-pi-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Secrets
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          echo "#define LICENSE" >> secret.h
+          cd ..
+
+      - name: Build for Raspberry Pi
+        uses: docker://arm32v7/debian:bullseye
+        with:
+          args: >
+            bash -c "
+            set -ex &&
+            apt-get update && 
+            apt-get install -y build-essential git cmake qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 &&
+            export QT_SELECT=qt5 &&
+            export PATH=/usr/lib/qt5/bin:$PATH &&
+            cd /github/workspace &&
+            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
+            cat qdomyos-zwift.pro &&
+            qmake &&
+            make -j$(nproc)
+            "
+
+      - name: Archive Raspberry Pi binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberry-pi-binary
+          path: src/qdomyos-zwift
+
+  raspberry-pi-build-and-image-64bit:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Secrets
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          echo "#define LICENSE" >> secret.h
+          cd ..
+
+      - name: Build for Raspberry Pi 64-bit
+        uses: docker://arm64v8/debian:bullseye
+        with:
+          args: >
+            bash -c "
+            set -ex &&
+            apt-get update && 
+            apt-get install -y build-essential git cmake qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 &&
+            export QT_SELECT=qt5 &&
+            export PATH=/usr/lib/qt5/bin:$PATH &&
+            cd /github/workspace &&
+            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
+            cat qdomyos-zwift.pro &&
+            qmake &&
+            make -j$(nproc)
+            "
+
+      - name: Archive Raspberry Pi binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberry-pi-64bit-binary
+          path: src/qdomyos-zwift
+
+      - name: Download and expand Raspberry Pi OS image
+        run: |
+          wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-05-03/2023-05-03-raspios-bullseye-arm64-lite.img.xz
+          xz -d 2023-05-03-raspios-bullseye-arm64-lite.img.xz
+          ORIGINAL_SIZE=$(stat -c %s 2023-05-03-raspios-bullseye-arm64-lite.img)
+          NEW_SIZE=$((ORIGINAL_SIZE + 2*1024*1024*1024))  # Add 2GB
+          truncate -s $NEW_SIZE 2023-05-03-raspios-bullseye-arm64-lite.img
+          sudo apt-get update
+          sudo apt-get install -y parted
+          sudo parted 2023-05-03-raspios-bullseye-arm64-lite.img resizepart 2 100%
+
+      - name: Mount Raspberry Pi image
+        run: |
+          sudo apt-get install -y kpartx qemu-user-static
+          LOOP_DEVICE=$(sudo losetup -f --show 2023-05-03-raspios-bullseye-arm64-lite.img)
+          echo "Loop device is $LOOP_DEVICE"
+          sudo kpartx -av $LOOP_DEVICE
+          sudo mkdir -p /mnt/raspbian
+          sudo mount /dev/mapper/$(basename $LOOP_DEVICE)p2 /mnt/raspbian
+          sudo resize2fs /dev/mapper/$(basename $LOOP_DEVICE)p2
+          echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
+          sudo cp /usr/bin/qemu-aarch64-static /mnt/raspbian/usr/bin/
+
+      - name: Install Qt and dependencies on Raspberry Pi image
+        run: |
+          sudo chroot /mnt/raspbian qemu-aarch64-static /bin/bash << EOF
+          apt-get update
+          apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2
+          EOF
+
+      - name: Copy binary to Raspberry Pi image
+        run: |
+          sudo cp src/qdomyos-zwift /mnt/raspbian/home/pi/
+          sudo chown 1000:1000 /mnt/raspbian/home/pi/qdomyos-zwift
+
+      - name: Setup auto-start for qdomyos-zwift
+        run: |
+          echo '[Unit]
+          Description=QDomyos-Zwift
+          After=multi-user.target
+
+          [Service]
+          ExecStart=/home/pi/qdomyos-zwift
+          User=pi
+          Environment=DISPLAY=:0
+
+          [Install]
+          WantedBy=multi-user.target' | sudo tee /mnt/raspbian/etc/systemd/system/qdomyos-zwift.service
+          sudo chroot /mnt/raspbian systemctl enable qdomyos-zwift.service
+
+      - name: Unmount Raspberry Pi image
+        run: |
+          sudo umount /mnt/raspbian
+          sudo kpartx -d ${{ env.LOOP_DEVICE }}
+          sudo losetup -d ${{ env.LOOP_DEVICE }}
+
+      - name: Compress modified Raspberry Pi image
+        run: |
+          xz -z 2023-05-03-raspios-bullseye-arm64-lite.img
+
+      - name: Upload Raspberry Pi image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberry-pi-64bit-image
+          path: 2023-05-03-raspios-bullseye-arm64-lite.img.xz
+  
   upload_to_release:
     permissions: write-all
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04 
     if: github.event_name == 'schedule'
     needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build]  # Specify the job dependencies
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       - name: Update nightly release
         uses: andelf/nightly-release@main
         env:
@@ -1044,3 +1254,9 @@ jobs:
             windows-binary-no-python/*
             windows-binary/*
             fdroid-android-trial/*
+            raspberry-pi-binary/*
+            raspberry-pi-64bit-binary/*
+            2023-05-03-raspios-bullseye-arm64-lite.img.xz
+
+
+  

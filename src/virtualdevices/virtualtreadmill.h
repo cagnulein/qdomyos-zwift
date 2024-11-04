@@ -41,10 +41,17 @@ class virtualtreadmill : public virtualdevice {
     QLowEnergyService *serviceFTMS = nullptr;
     QLowEnergyService *serviceRSC = nullptr;
     QLowEnergyService *serviceHR = nullptr;
+    QLowEnergyService *serviceDIS = nullptr;
+    QLowEnergyService *serviceWahoo = nullptr;
+
     QLowEnergyAdvertisingData advertisingData;
+    
     QLowEnergyServiceData serviceDataFTMS;
     QLowEnergyServiceData serviceDataRSC;
     QLowEnergyServiceData serviceDataHR;
+    QLowEnergyServiceData serviceDataDIS;
+    QLowEnergyServiceData serviceDataWahoo;
+    
     QTimer treadmillTimer;
     bluetoothdevice *treadMill;
 
@@ -76,6 +83,7 @@ class virtualtreadmill : public virtualdevice {
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 
   private slots:
+    void wahooCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void treadmillProvider();
     void reconnect();

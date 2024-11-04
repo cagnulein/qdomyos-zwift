@@ -35,7 +35,7 @@
 class trxappgateusbbike : public bike {
     Q_OBJECT
   public:
-    trxappgateusbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    trxappgateusbbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                       double bikeResistanceGain);
     bool connected() override;
     resistance_t maxResistance() override { return 32; }
@@ -61,13 +61,11 @@ class trxappgateusbbike : public bike {
 
     QTimer *refresh;
 
-    ergTable _ergTable;
-
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
 
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -112,8 +110,15 @@ class trxappgateusbbike : public bike {
         ENERFIT_SPX_9500_2 = 21,
         REEBOK = 22,
         REEBOK_2 = 23,
+        BIKZU = 24,
+        TOORX_SRX_500 = 25,
+        IRUNNING_2 = 26,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
+
+    // SmartSpin2k
+    metric ResistanceFromFTMSAccessory;
+    uint64_t ResistanceFromFTMSAccessoryLastTime = 0;
 
   signals:
     void disconnected();
@@ -122,6 +127,7 @@ class trxappgateusbbike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void resistanceFromFTMSAccessory(resistance_t res) override;
 
   private slots:
 

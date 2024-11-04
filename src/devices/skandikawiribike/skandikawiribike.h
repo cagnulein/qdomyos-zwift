@@ -35,7 +35,7 @@
 class skandikawiribike : public bike {
     Q_OBJECT
   public:
-    skandikawiribike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    skandikawiribike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                      double bikeResistanceGain);
     ~skandikawiribike();
     bool connected() override;
@@ -63,7 +63,7 @@ class skandikawiribike : public bike {
 
     bool initDone = false;
     bool initRequest = false;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -75,6 +75,7 @@ class skandikawiribike : public bike {
     bool noHeartService = false;
 
     bool X2000 = false;
+    bool delightechBike = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
