@@ -217,15 +217,15 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
         
         self.WahooRunService = CBMutableService(type: WahooRunServiceUuid, primary: true)
         
-        let WahooRunReadProperties: CBCharacteristicProperties = [.indicate, .writeWithoutResponse]
-        let WahooRunReadPermissions: CBAttributePermissions = [.readable,.writeable]
+        let WahooRunReadProperties: CBCharacteristicProperties = [.notify, .read]
+          let WahooRunReadPermissions: CBAttributePermissions = [.readable]
         self.WahooRunReadCharacteristic = CBMutableCharacteristic(type: WahooRunWriteUuid,
                                                           properties: WahooRunReadProperties,
                                                                     value: nil,
                                                                           permissions: WahooRunReadPermissions)
 
-        let WahooRunWriteProperties: CBCharacteristicProperties = [.read, .write, .notify]
-        let WahooRunWritePermissions: CBAttributePermissions = [.readable, .writeable]
+        let WahooRunWriteProperties: CBCharacteristicProperties = [.write]
+          let WahooRunWritePermissions: CBAttributePermissions = [.writeable]
         self.WahooRunWriteCharacteristic = CBMutableCharacteristic(type: WahooRunNotifyUuid,
                                                     properties: WahooRunWriteProperties,
                                                                   value: nil,
