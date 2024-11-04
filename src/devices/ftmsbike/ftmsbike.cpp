@@ -296,7 +296,7 @@ void ftmsbike::update() {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
                 // FTMS bike. This condition handles the peloton requests                
-                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
+                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike || resistance_lvl_mode) &&
                     (requestPower == 0 || requestPower == -1)) {
                     init();
                     if(requestResistance != - 1)
@@ -1061,8 +1061,8 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
 void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
 
-    if (!autoResistance()) {
-        qDebug() << "ignoring routing FTMS packet to the bike from virtualbike because of auto resistance OFF"
+    if (!autoResistance() || resistance_lvl_mode) {
+        qDebug() << "ignoring routing FTMS packet to the bike from virtualbike because of auto resistance OFF or resistance lvl mode is on"
                  << characteristic.uuid() << newValue.toHex(' ');
         return;
     }
@@ -1076,11 +1076,21 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
         // handling gears
         if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && ((zwiftPlayService == nullptr && gears_zwift_ratio) || !gears_zwift_ratio)) {
+            double min_inclination = settings.value(QZSettings::min_inclination, QZSettings::default_min_inclination).toDouble();
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
                 lastPacketFromFTMS.append(b.at(i));
             qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
+            if (gears() != 0) {
+                slope += (gears() * 50);
+            }
+
+            if(min_inclination > (((double)slope) / 100.0)) {
+                slope = min_inclination * 100;
+                qDebug() << "grade override due to min_inclination " << min_inclination;
+            }
+
             b[3] = slope & 0xFF;
             b[4] = slope >> 8;            
         /*} else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {

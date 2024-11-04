@@ -81,6 +81,9 @@ void ftmsrower::update() {
         if(I_ROWER) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(write, sizeof(write), "start", false, true);
+
+            uint8_t write1[] = {FTMS_START_RESUME};
+            writeCharacteristic(write1, sizeof(write1), "start simulation", false, true);
         } else {
             uint8_t write[] = {FTMS_START_RESUME};
             writeCharacteristic(write, sizeof(write), "start simulation", false, true);
@@ -407,6 +410,15 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
                 this, &ftmsrower::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &ftmsrower::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &ftmsrower::descriptorRead);
+
+            if (I_ROWER) {
+                QBluetoothUuid ftmsService((quint16)0x1826);
+                if (s->serviceUuid() != ftmsService) {
+                    qDebug() << QStringLiteral("I-ROWER wants to be subscribed only to FTMS service in order to send metrics")
+                             << s->serviceUuid();
+                    continue;
+                }
+            }
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 

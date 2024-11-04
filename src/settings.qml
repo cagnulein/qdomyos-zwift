@@ -994,6 +994,13 @@ import QtQuick.Dialogs 1.0
             property int gear_cog_size: 14
             property string gear_wheel_size: "700 x 18C"
             property real gear_circumference: 2070
+
+            property bool watt_bike_emulator: false
+
+            property bool restore_specific_gear: false
+            property bool skipLocationServicesDialog: false
+            property bool trainprogram_pid_pushy: true
+            property real min_inclination: -999
         }
 
         function paddingZeros(text, limit) {
@@ -1937,6 +1944,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
                     SwitchDelegate {
                         id: gearsRestoreDelegate
                         text: qsTr("Restore Gears on Startup")
@@ -1947,12 +1955,78 @@ import QtQuick.Dialogs 1.0
                         leftPadding: 0
                         clip: false
                         checked: settings.gears_restore_value
+                        enabled: !gearsRestoreValueDelegate.checked
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.gears_restore_value = checked
                     }
+
                     Label {
                         text: qsTr("QZ will remember the last Gears value and it will restore on startup")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    // Add the new specific gear value restore setting
+                    SwitchDelegate {
+                        id: gearsRestoreValueDelegate
+                        text: qsTr("Restore Specific Gear Value")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.restore_specific_gear
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: {
+                            settings.restore_specific_gear = checked
+                            if (checked) {
+                                settings.gears_restore_value = false
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        enabled: gearsRestoreValueDelegate.checked
+                        opacity: enabled ? 1.0 : 0.5
+
+                        Label {
+                            text: qsTr("Gear Value:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: specificGearValueField
+                            text: settings.gears_current_value
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            enabled: gearsRestoreValueDelegate.checked
+                            onAccepted: settings.gears_current_value = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            enabled: gearsRestoreValueDelegate.checked
+                            onClicked: {
+                                settings.gears_current_value = specificGearValueField.text
+                                toast.show("Setting saved!")
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Specify a particular gear value to be restored at startup. This will override the 'Restore Gears on Startup' setting.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -4872,11 +4946,38 @@ import QtQuick.Dialogs 1.0
                         checked: settings.zwift_play_emulator
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_play_emulator = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_play_emulator = checked; if(checked) { settings.watt_bike_emulator = false; } window.settings_restart_to_apply = true; }
                     }
 
                     Label {
                         text: qsTr("This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Show Gears to Zwift Only")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.watt_bike_emulator
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.watt_bike_emulator = checked; if(checked) { settings.zwift_play_emulator = false; } window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("This setting shows the actual gear from qz to Zwift. Negative values are not displayed on zwift and it could have also limitation to higher gain value. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5240,6 +5341,33 @@ import QtQuick.Dialogs 1.0
 
                 Label {
                     text: qsTr("Alternatively to 'PID on Heart Zone' setting you can use this couple of settings in order to specify a HR range.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: Qt.application.font.pixelSize - 2
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
+                SwitchDelegate {
+                    text: qsTr("PID 'Pushy'")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.trainprogram_pid_pushy
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.trainprogram_pid_pushy = checked
+                }
+
+                Label {
+                    text: qsTr("Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.")
                     font.bold: true
                     font.italic: true
                     font.pixelSize: Qt.application.font.pixelSize - 2
@@ -8422,6 +8550,42 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("The number you enter as a Gain is a multiplier applied to the inclination sent from Zwift or any other 3rd party app. Default is 1.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Minimum Inclination:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: minInclinationTextField
+                            text: settings.min_inclination
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.min_inclination = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.min_inclination = minInclinationTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("If you don't want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

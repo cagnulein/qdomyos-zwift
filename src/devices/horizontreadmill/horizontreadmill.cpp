@@ -48,12 +48,18 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
         return;
     }
 
+    int timeA = 8000;
+    int timeB = 3000;
+    if (!gattCustomService) {
+        timeA = timeB = 300; // for the normal treadmills, the timeout must be small, otherwise we are blocking the update timer on iOS
+    }
+
     if (wait_for_response) {
         connect(this, &horizontreadmill::packetReceived, &loop, &QEventLoop::quit);
-        timeout.singleShot(8000, &loop, SLOT(quit())); // 6 seconds are important
+        timeout.singleShot(timeA, &loop, SLOT(quit())); // 6 seconds are important
     } else {
         connect(service, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop, SLOT(quit()));
-        timeout.singleShot(3000, &loop, SLOT(quit()));
+        timeout.singleShot(timeB, &loop, SLOT(quit()));
     }
 
     if (writeBuffer) {

@@ -239,10 +239,7 @@ void wahookickrsnapbike::update() {
                 inclinationChanged(requestInclination, requestInclination);
                 Inclination = requestInclination; // the bike is not sending back the inclination?
                 requestInclination = -100;
-            } else if (lastGearValue != gears()) {
-                inclinationChanged(lastGrade, lastGrade);
             }
-            lastGearValue = gears();
         } else if (requestResistance != -1 && KICKR_BIKE == false) {
             if (requestResistance > 100) {
                 requestResistance = 100;
@@ -260,21 +257,25 @@ void wahookickrsnapbike::update() {
                 memcpy(b, a.constData(), a.length());
                 writeCharacteristic(b, a.length(), "setResistance", false, true);
             } else if (requestResistance != currentResistance().value() &&
-               ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) && lastGearValue != gears()) {
-               emit debug(QStringLiteral("writing resistance due to gears changed ") + QString::number(lastForcedResistance));
-               QByteArray a = setResistanceMode(((double)lastForcedResistance + (gears() - lastGearValue)) / 100.0);
+               ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
+               emit debug(QStringLiteral("writing resistance ") + QString::number(lastForcedResistance));
+               QByteArray a = setResistanceMode(((double)lastForcedResistance) / 100.0);
                uint8_t b[20];
                memcpy(b, a.constData(), a.length());
                writeCharacteristic(b, a.length(), "setResistance", false, true);
-            } else if (virtualBike && virtualBike->ftmsDeviceConnected() && lastGearValue != gears()) {
-               QByteArray a = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
-               uint8_t b[20];
-               memcpy(b, a.constData(), a.length());
-               writeCharacteristic(b, a.length(), "setWheelCircumference", false, true);
-            }
-            lastGearValue = gears();
+            }            
             requestResistance = -1;
         }
+
+        if (lastGearValue != gears()) {
+            QByteArray a = setWheelCircumference(gearsToWheelDiameter(gears()));
+            uint8_t b[20];
+            memcpy(b, a.constData(), a.length());
+            writeCharacteristic(b, a.length(), "setWheelCircumference", false, true);
+        }            
+
+        lastGearValue = gears();
+
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
