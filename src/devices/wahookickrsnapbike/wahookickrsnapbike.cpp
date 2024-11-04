@@ -268,7 +268,7 @@ void wahookickrsnapbike::update() {
         }
 
         if (lastGearValue != gears()) {
-            QByteArray a = setWheelCircumference(gearsToWheelDiameter(gears()));
+            QByteArray a = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
             uint8_t b[20];
             memcpy(b, a.constData(), a.length());
             writeCharacteristic(b, a.length(), "setWheelCircumference", false, true);
