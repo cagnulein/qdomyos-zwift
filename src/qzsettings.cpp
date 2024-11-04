@@ -779,8 +779,9 @@ const QString QZSettings::gear_circumference = QStringLiteral("gear_circumferenc
 const QString QZSettings::watt_bike_emulator = QStringLiteral("watt_bike_emulator");
 const QString QZSettings::restore_specific_gear = QStringLiteral("restore_specific_gear");
 const QString QZSettings::skipLocationServicesDialog = QStringLiteral("skipLocationServicesDialog");
+const QString QZSettings::trainprogram_pid_pushy = QStringLiteral("trainprogram_pid_pushy");
 
-const uint32_t allSettingsCount = 659;
+const uint32_t allSettingsCount = 660;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1446,6 +1447,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::watt_bike_emulator, QZSettings::default_watt_bike_emulator},
     {QZSettings::restore_specific_gear, QZSettings::default_restore_specific_gear},
     {QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog},
+    {QZSettings::trainprogram_pid_pushy, QZSettings::default_trainprogram_pid_pushy},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

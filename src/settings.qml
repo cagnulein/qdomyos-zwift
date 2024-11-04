@@ -999,6 +999,7 @@ import QtQuick.Dialogs 1.0
 
             property bool restore_specific_gear: false
             property bool skipLocationServicesDialog: false
+            property bool trainprogram_pid_pushy: true
         }
 
         function paddingZeros(text, limit) {
@@ -5339,6 +5340,33 @@ import QtQuick.Dialogs 1.0
 
                 Label {
                     text: qsTr("Alternatively to 'PID on Heart Zone' setting you can use this couple of settings in order to specify a HR range.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: Qt.application.font.pixelSize - 2
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
+                SwitchDelegate {
+                    text: qsTr("PID 'Pushy'")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.trainprogram_pid_pushy
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.trainprogram_pid_pushy = checked
+                }
+
+                Label {
+                    text: qsTr("Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.")
                     font.bold: true
                     font.italic: true
                     font.pixelSize: Qt.application.font.pixelSize - 2
