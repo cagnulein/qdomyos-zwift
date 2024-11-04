@@ -28,6 +28,10 @@ void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         discoveryAgent = new QBluetoothServiceDiscoveryAgent(this);
         connect(discoveryAgent, &QBluetoothServiceDiscoveryAgent::serviceDiscovered, this,
                 &toorxtreadmill::serviceDiscovered);
+        connect(discoveryAgent, &QBluetoothServiceDiscoveryAgent::canceled, this,
+                &toorxtreadmill::serviceCanceled);
+        connect(discoveryAgent, &QBluetoothServiceDiscoveryAgent::finished, this,
+                &toorxtreadmill::serviceFinished);
 
         // Start a discovery
         qDebug() << QStringLiteral("toorxtreadmill::deviceDiscovered");
@@ -36,44 +40,57 @@ void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 }
 
+void toorxtreadmill::serviceFinished(void) {
+    qDebug() << QStringLiteral("technogymmyruntreadmillrfcomm::serviceFinished") << socket;
+    if (!socket) {
+        socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
+
+        connect(socket, &QBluetoothSocket::readyRead, this, &toorxtreadmill::readSocket);
+        connect(socket, &QBluetoothSocket::connected, this,
+                QOverload<>::of(&toorxtreadmill::rfCommConnected));
+        connect(socket, &QBluetoothSocket::disconnected, this, &toorxtreadmill::disconnected);
+        connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
+                &toorxtreadmill::onSocketErrorOccurred);
+
+#ifdef Q_OS_ANDROID
+        socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
+#endif
+
+        emit debug(QStringLiteral("Create socket"));
+        if(!found) {
+            qDebug() << QStringLiteral("toorxtreadmill::serviceFinished, no service found, trying workaround");
+            socket->connectToService(bluetoothDevice.address(), QBluetoothUuid(QBluetoothUuid::SerialPort));
+        } else {
+            socket->connectToService(serialPortService);
+        }
+        emit debug(QStringLiteral("ConnectToService done"));
+    }
+}
+
+void toorxtreadmill::serviceCanceled(void) {
+    qDebug() << QStringLiteral("toorxtreadmill::serviceCanceled");
+}
+
 // In your local slot, read information about the found devices
 void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service) {
-    // this treadmill has more serial port, just the first one is the right one.
-    if (socket != nullptr) {
+    qDebug() << QStringLiteral("Found new service: ") << service.serviceName() << '(' << service.serviceUuid().toString() << ") " << service.device().address() << bluetoothDevice.address();
+
+    if (found == true) {
         qDebug() << QStringLiteral("toorxtreadmill::serviceDiscovered socket already initialized");
-        return;
+        //return;
     }
 
     qDebug() << QStringLiteral("toorxtreadmill::serviceDiscovered") << service;
     if (service.device().address() == bluetoothDevice.address()) {
-        emit debug(QStringLiteral("Found new service: ") + service.serviceName() + '(' +
-                   service.serviceUuid().toString() + ')');
-
         if (service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
             service.serviceName().startsWith(QStringLiteral("Serial Port"))) {
-            emit debug(QStringLiteral("Serial port service found"));
-            discoveryAgent->stop();
-
             serialPortService = service;
-            socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
-
-            connect(socket, &QBluetoothSocket::readyRead, this, &toorxtreadmill::readSocket);
-            connect(socket, &QBluetoothSocket::connected, this, QOverload<>::of(&toorxtreadmill::rfCommConnected));
-            connect(socket, &QBluetoothSocket::disconnected, this, &toorxtreadmill::disconnected);
-            connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
-                    &toorxtreadmill::onSocketErrorOccurred);
-
-#ifdef Q_OS_ANDROID
-            socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
-#endif
-
-            emit debug(QStringLiteral("Create socket"));
-            socket->connectToService(serialPortService);
-            emit debug(QStringLiteral("ConnectToService done"));
+            found = true;
+            emit debug(QStringLiteral("Serial port service found"));
+            //discoveryAgent->stop();
         }
     }
 }
-
 void toorxtreadmill::send(char * buffer, int size) {
     QByteArray byteArray(buffer, size);
     qDebug() << ">>" << byteArray.toHex(' ');    
