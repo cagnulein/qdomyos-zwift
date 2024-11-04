@@ -168,6 +168,9 @@ void technogymmyruntreadmillrfcomm::rfCommConnected() {
     socket->write(QStringLiteral("@FWVER#").toLocal8Bit());
     qDebug() << QStringLiteral(" init1 write");
     waitForAPacket();
+    socket->write(QStringLiteral("@FWVER#").toLocal8Bit());
+    qDebug() << QStringLiteral(" init1 write");
+    waitForAPacket();    
     socket->write(QStringLiteral("!DEV,027#").toLocal8Bit());
     qDebug() << QStringLiteral(" init2 write");
     waitForAPacket();
