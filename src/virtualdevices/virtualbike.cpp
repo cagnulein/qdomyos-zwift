@@ -71,7 +71,11 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
         if (!echelon && !ifit) {
-            advertisingData.setLocalName(QStringLiteral("QZ"));
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+        advertisingData.setLocalName(QStringLiteral("QZPI"));
+#else            
+        advertisingData.setLocalName(QStringLiteral("QZ"));
+#endif
         } else if (ifit) {
             advertisingData.setLocalName(QStringLiteral("I_EB"));
         } else {
