@@ -189,30 +189,30 @@ ScrollView {
         "Reality Bender": {
             name: "Reality Bender (24 even spaced)",
             gears: [
-                { gear: 1, crankset: 30, cog: 40, active: true },
-                { gear: 2, crankset: 30, cog: 36, active: true },
-                { gear: 3, crankset: 30, cog: 33, active: true },
-                { gear: 4, crankset: 30, cog: 30, active: true },
-                { gear: 5, crankset: 30, cog: 27, active: true },
-                { gear: 6, crankset: 34, cog: 28, active: true },
-                { gear: 7, crankset: 34, cog: 26, active: true },
-                { gear: 8, crankset: 34, cog: 24, active: true },
-                { gear: 9, crankset: 34, cog: 22, active: true },
-                { gear: 10, crankset: 44, cog: 26, active: true },
-                { gear: 11, crankset: 44, cog: 24, active: true },
-                { gear: 12, crankset: 44, cog: 22, active: true },
-                { gear: 13, crankset: 44, cog: 20, active: true },
-                { gear: 14, crankset: 44, cog: 18, active: true },
-                { gear: 15, crankset: 56, cog: 21, active: true },
-                { gear: 16, crankset: 56, cog: 19, active: true },
-                { gear: 17, crankset: 58, cog: 18, active: true },
-                { gear: 18, crankset: 60, cog: 17, active: true },
-                { gear: 19, crankset: 62, cog: 16, active: true },
-                { gear: 20, crankset: 63, cog: 15, active: true },
-                { gear: 21, crankset: 64, cog: 14, active: true },
-                { gear: 22, crankset: 66, cog: 13, active: true },
-                { gear: 23, crankset: 67, cog: 12, active: true },
-                { gear: 24, crankset: 67, cog: 11, active: true }
+                { gear: 1, crankset: 75, cog: 100, active: true },
+                { gear: 2, crankset: 87, cog: 100, active: true },
+                { gear: 3, crankset: 99, cog: 100, active: true },
+                { gear: 4, crankset: 111, cog: 100, active: true },
+                { gear: 5, crankset: 123, cog: 100, active: true },
+                { gear: 6, crankset: 138, cog: 100, active: true },
+                { gear: 7, crankset: 153, cog: 100, active: true },
+                { gear: 8, crankset: 168, cog: 100, active: true },
+                { gear: 9, crankset: 186, cog: 100, active: true },
+                { gear: 10, crankset: 204, cog: 100, active: true },
+                { gear: 11, crankset: 222, cog: 100, active: true },
+                { gear: 12, crankset: 240, cog: 100, active: true },
+                { gear: 13, crankset: 261, cog: 100, active: true },
+                { gear: 14, crankset: 282, cog: 100, active: true },
+                { gear: 15, crankset: 303, cog: 100, active: true },
+                { gear: 16, crankset: 324, cog: 100, active: true },
+                { gear: 17, crankset: 349, cog: 100, active: true },
+                { gear: 18, crankset: 374, cog: 100, active: true },
+                { gear: 19, crankset: 399, cog: 100, active: true },
+                { gear: 20, crankset: 424, cog: 100, active: true },
+                { gear: 21, crankset: 454, cog: 100, active: true },
+                { gear: 22, crankset: 484, cog: 100, active: true },
+                { gear: 23, crankset: 514, cog: 100, active: true },
+                { gear: 24, crankset: 549, cog: 100, active: true }
             ]
         },
         "Explorer": {
@@ -336,7 +336,7 @@ ScrollView {
 
                 SpinBox {
                     from: 1
-                    to: 60
+                    to: 999
                     value: selectedCranksetSize
                     onValueChanged: {
                         selectedCranksetSize = value
@@ -361,7 +361,7 @@ ScrollView {
                 }
                 SpinBox {
                     from: 1
-                    to: 50
+                    to: 999
                     value: selectedCogSize
                     onValueChanged: {
                         selectedCogSize = value
@@ -684,7 +684,7 @@ ScrollView {
                                     width: parent.width * 0.8
                                     height: 30
                                     from: 1
-                                    to: 60
+                                    to: 999
                                     value: crankset
                                     onValueModified: {
                                         gearRows[index].crankset = value
@@ -754,7 +754,7 @@ ScrollView {
                                     width: parent.width * 0.8
                                     height: 30
                                     from: 1
-                                    to: 50
+                                    to: 999
                                     value: cog
                                     onValueModified: {
                                         gearRows[index].cog = value

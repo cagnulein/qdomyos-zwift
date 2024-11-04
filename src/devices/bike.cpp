@@ -118,7 +118,8 @@ void bike::setGears(double gears) {
     if(homeform::singleton()) {
         homeform::singleton()->updateGearsValue();
     }
-    settings.setValue(QZSettings::gears_current_value, m_gears);
+    if (settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool())
+        settings.setValue(QZSettings::gears_current_value, m_gears);
     if (lastRawRequestedResistanceValue != -1) {
         changeResistance(lastRawRequestedResistanceValue);
     }

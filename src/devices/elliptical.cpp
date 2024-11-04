@@ -118,7 +118,8 @@ void elliptical::setGears(double gears) {
     QSettings settings;
     qDebug() << "setGears" << gears;
     m_gears = gears;
-    settings.setValue(QZSettings::gears_current_value, m_gears);
+    if (settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool())
+        settings.setValue(QZSettings::gears_current_value, m_gears);
     if (lastRawRequestedResistanceValue != -1) {
         changeResistance(lastRawRequestedResistanceValue);
     }
