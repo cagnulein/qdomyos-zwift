@@ -1060,6 +1060,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
         // handling gears
         if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && ((zwiftPlayService == nullptr && gears_zwift_ratio) || !gears_zwift_ratio)) {
+            double min_inclination = settings.value(QZSettings::min_inclination, QZSettings::default_min_inclination).toDouble();
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
                 lastPacketFromFTMS.append(b.at(i));
@@ -1068,6 +1069,12 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             if (gears() != 0) {
                 slope += (gears() * 50);
             }
+
+            if(min_inclination > (((double)slope) / 100.0)) {
+                slope = min_inclination * 100;
+                qDebug() << "grade override due to min_inclination " << min_inclination;
+            }
+
             b[3] = slope & 0xFF;
             b[4] = slope >> 8;
             

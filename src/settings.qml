@@ -1000,6 +1000,7 @@ import QtQuick.Dialogs 1.0
             property bool restore_specific_gear: false
             property bool skipLocationServicesDialog: false
             property bool trainprogram_pid_pushy: true
+            property real min_inclination: -999
         }
 
         function paddingZeros(text, limit) {
@@ -8549,6 +8550,42 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("The number you enter as a Gain is a multiplier applied to the inclination sent from Zwift or any other 3rd party app. Default is 1.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Minimum Inclination:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: minInclinationTextField
+                            text: settings.min_inclination
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.min_inclination = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.min_inclination = minInclinationTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("If you don't want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
