@@ -2174,6 +2174,15 @@ class QZSettings {
     static const QString restore_specific_gear;
     static constexpr bool default_restore_specific_gear = false;
 
+    static const QString skipLocationServicesDialog;
+    static constexpr bool default_skipLocationServicesDialog = false;
+
+    static const QString trainprogram_pid_pushy;
+    static constexpr bool default_trainprogram_pid_pushy = true;
+
+    static const QString min_inclination;
+    static constexpr double default_min_inclination = -999.0;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

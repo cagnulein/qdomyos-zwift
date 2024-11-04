@@ -135,6 +135,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 #ifdef Q_OS_ANDROID
     m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
                                               "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
+    if(m_locationServices) {
+        QSettings settings;
+        // so if someone pressed the skip message but now he forgot to enable GPS it will prompt out
+        settings.setValue(QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog);
+    }
 #endif
 
 #ifdef Q_OS_IOS
@@ -5247,6 +5252,7 @@ void homeform::update() {
                                (bluetoothManager->device()->elapsedTime().minute() * 60) +
                                (bluetoothManager->device()->elapsedTime().hour() * 3600);
             uint8_t delta = 10;
+            bool trainprogram_pid_pushy = settings.value(QZSettings::trainprogram_pid_pushy, QZSettings::default_trainprogram_pid_pushy).toBool();
             bool fromTrainProgram = trainProgram && trainProgram->currentRow().zoneHR >= 0;
             double maxSpeed = 30;
             double minSpeed = 0;
@@ -5328,7 +5334,7 @@ void homeform::update() {
                                     currentSpeed + step,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (maxSpeed >= currentSpeed + step) {
+                        } else if (maxSpeed >= currentSpeed + step && trainprogram_pid_pushy) {
                             pid_heart_zone_small_inc_counter++;
                             if (fabs(((float)zone) - currentHRZone) < 0.5 && pid_heart_zone_small_inc_counter > (10 * fabs(((float)zone) - currentHRZone))) {
                                 ((treadmill *)bluetoothManager->device())
@@ -5359,7 +5365,7 @@ void homeform::update() {
                             else
                                 ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
                             pid_heart_zone_small_inc_counter = 0;
-                        } else {
+                        } else if(trainprogram_pid_pushy) {
                             pid_heart_zone_small_inc_counter++;
                             if (pid_heart_zone_small_inc_counter > (5 * fabs(((float)zone) - currentHRZone))) {
                                 if(ergMode)
@@ -5391,6 +5397,7 @@ void homeform::update() {
                    (trainProgram && trainProgram->currentRow().HRmin > 0 && trainProgram->currentRow().HRmax > 0)) {
             static uint32_t last_seconds_pid_heart_zone = 0;
             static uint32_t pid_heart_zone_small_inc_counter = 0;
+            bool trainprogram_pid_pushy = settings.value(QZSettings::trainprogram_pid_pushy, QZSettings::default_trainprogram_pid_pushy).toBool();
             uint32_t seconds = bluetoothManager->device()->elapsedTime().second() +
                                (bluetoothManager->device()->elapsedTime().minute() * 60) +
                                (bluetoothManager->device()->elapsedTime().hour() * 3600);
@@ -5454,7 +5461,7 @@ void homeform::update() {
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
                         } else if (maxSpeed >= currentSpeed + step &&
-                                   hrmax < bluetoothManager->device()->currentHeart().average20s()) {
+                                   hrmax < bluetoothManager->device()->currentHeart().average20s() && trainprogram_pid_pushy) {
                             pid_heart_zone_small_inc_counter++;
                             if (pid_heart_zone_small_inc_counter > (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()))) {
                                 ((treadmill *)bluetoothManager->device())
