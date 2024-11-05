@@ -1001,6 +1001,9 @@ import QtQuick.Dialogs 1.0
             property bool skipLocationServicesDialog: false
             property bool trainprogram_pid_pushy: true
             property real min_inclination: -999
+
+            // from version 2.18.3
+            property bool proform_performance_400i: false
         }
 
         function paddingZeros(text, limit) {
@@ -6266,6 +6269,7 @@ import QtQuick.Dialogs 1.0
                                 settings.proform_carbon_tl_PFTL59720 = false;
                                 settings.proform_treadmill_sport_70 = false;
                                 settings.proform_treadmill_575i = false;
+                                settings.proform_performance_400i = false;
 
                                 // Imposta il setting corrispondente al modello selezionato
                                 switch (currentIndex) {
@@ -6305,6 +6309,7 @@ import QtQuick.Dialogs 1.0
                                     case 33: settings.proform_carbon_tl_PFTL59720 = true; break;
                                     case 34: settings.proform_treadmill_sport_70 = true; break;
                                     case 35: settings.proform_treadmill_575i = true; break;
+                                    case 36: settings.proform_performance_400i = true; break;
                                 }
                             }
 
@@ -6345,7 +6350,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.nordictrack_treadmill_exp_5i ? 32 :
                                                     settings.proform_carbon_tl_PFTL59720 ? 33 :
                                                     settings.proform_treadmill_sport_70 ? 34 :
-                                                    settings.proform_treadmill_575i ? 35 : -1;
+                                                    settings.proform_treadmill_575i ? 35 :
+                                                    settings.proform_performance_400i ? 36 : -1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 

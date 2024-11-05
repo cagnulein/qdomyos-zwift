@@ -781,8 +781,9 @@ const QString QZSettings::restore_specific_gear = QStringLiteral("restore_specif
 const QString QZSettings::skipLocationServicesDialog = QStringLiteral("skipLocationServicesDialog");
 const QString QZSettings::trainprogram_pid_pushy = QStringLiteral("trainprogram_pid_pushy");
 const QString QZSettings::min_inclination = QStringLiteral("min_inclination");
+const QString QZSettings::proform_performance_400i = QStringLiteral("proform_performance_400i");
 
-const uint32_t allSettingsCount = 661;
+const uint32_t allSettingsCount = 662;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1450,6 +1451,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog},
     {QZSettings::trainprogram_pid_pushy, QZSettings::default_trainprogram_pid_pushy},
     {QZSettings::min_inclination, QZSettings::default_min_inclination},
+    {QZSettings::proform_performance_400i, QZSettings::default_proform_performance_400i},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
