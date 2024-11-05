@@ -106,7 +106,8 @@ Zwift bridge for Treadmills and Bike!
 
 ### Tested on
 
-  The QDomyos-Zwift application can run on [Macintosh or Linux devices](docs/10_Installation.md) iOS, and Android. It supports any [FTMS-compatible application](docs/20_supported_devices_and_applications.md) software and most [bluetooth enabled device](docs/20_supported_devices_and_applications.md).
+  The QDomyos-Zwift application can run on [Macintosh or Linux devices](docs/10_Installation.md) iOS, and Android. 
+  It supports any [FTMS-compatible application](docs/20_supported_devices_and_applications.md) software and most [bluetooth enabled device](docs/20_supported_devices_and_applications.md).
 
 ### No GUI version
 
