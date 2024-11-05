@@ -100,28 +100,28 @@ Zwift bridge for Treadmills and Bike!
 
 ### Installation 
 
-You can install it on multiple platforms.
-Read the [installation procedure](docs/10_Installation.md)
+  You can install it on multiple platforms.
+  Read the [installation procedure](docs/10_Installation.md)
 
 
 ### Tested on
 
-The QDomyos-Zwift application can run on [Macintosh or Linux devices](docs/10_Installation.md) iOS, and Android. It supports any [FTMS-compatible application](docs/20_supported_devices_and_applications.md) software and most [bluetooth enabled device](docs/20_supported_devices_and_applications.md).
+  The QDomyos-Zwift application can run on [Macintosh or Linux devices](docs/10_Installation.md) iOS, and Android. It supports any [FTMS-compatible application](docs/20_supported_devices_and_applications.md) software and most [bluetooth enabled device](docs/20_supported_devices_and_applications.md).
 
 ### No GUI version
 
 run as
 
-$ sudo ./qdomyos-zwift -no-gui
+  $ sudo ./qdomyos-zwift -no-gui
 
 ### Reference
 
-GitHub Repository: [QDomyos-Zwift on GitHub](https://github.com/ProH4Ck/treadmill-bridge)
+  => GitHub Repository: [QDomyos-Zwift on GitHub](https://github.com/ProH4Ck/treadmill-bridge)
 
-Treadmill Incline Reference: [What Is 10 Degrees in Incline on a Treadmill?](https://www.livestrong.com/article/422012-what-is-10-degrees-in-incline-on-a-treadmill/)
+  => Treadmill Incline Reference: [What Is 10 Degrees in Incline on a Treadmill?](https://www.livestrong.com/article/422012-what-is-10-degrees-in-incline-on-a-treadmill/)
 
-Icon Attribution: Icons used in this documentation are from [Flaticon.com](https://www.flaticon.com)
+  => Icon Attribution: Icons used in this documentation are from [Flaticon.com](https://www.flaticon.com)
 
 ### Blog
 
-Related Blog: [Roberto Viola's Blog](https://robertoviola.cloud)
+  => Related Blog: [Roberto Viola's Blog](https://robertoviola.cloud)
