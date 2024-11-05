@@ -1514,6 +1514,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("MERACH-MR667-")) ||
                         (b.name().toUpper().startsWith("DS60-")) ||
                         (b.name().toUpper().startsWith("BIKE-")) ||
+                        (b.name().toUpper().startsWith("M9-")) ||
                         (b.name().toUpper().startsWith("SPAX-BK-")) ||
                         (b.name().toUpper().startsWith("YSV1")) ||
                         (b.name().toUpper().startsWith("VOLT") && b.name().length() == 4) ||
