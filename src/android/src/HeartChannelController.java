@@ -2,6 +2,7 @@ package org.cagnulen.qdomyoszwift;
 
 import android.content.Context;
 import android.util.Log;
+import android.app.Activity;
 
 // ANT+ Plugin imports
 import com.dsi.ant.plugins.antplus.pcc.AntPlusHeartRatePcc;
