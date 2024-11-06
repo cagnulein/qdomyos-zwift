@@ -100,6 +100,7 @@ QByteArray wahookickrsnapbike::setErgMode(uint16_t watts) {
     r.append(_setErgMode);
     r.append((uint8_t)(watts & 0xFF));
     r.append((uint8_t)(watts >> 8 & 0xFF));
+    lastCommandErgMode = true;
     return r;
     // response: 0x01 0x42 0x01 0x00 watts1 watts2
 }
@@ -178,6 +179,7 @@ void wahookickrsnapbike::update() {
     }
 
     if (initRequest) {
+        lastCommandErgMode = false;
         QSettings settings;
         QByteArray a = unlockCommand();
         uint8_t b[20];
@@ -843,6 +845,11 @@ void wahookickrsnapbike::controllerStateChanged(QLowEnergyController::Controller
 
 void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     Q_UNUSED(percentage);
+    if(lastCommandErgMode) {
+        initRequest = true;
+        qDebug() << "avoid sending this command, since I have first to restore the setSimGrade";
+        return;
+    }
     lastGrade = grade;
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
     QSettings settings;
@@ -851,6 +858,7 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());
     writeCharacteristic(b, a.length(), "setSimGrade", false, false);
+    lastCommandErgMode = false;
 }
 
 bool wahookickrsnapbike::inclinationAvailableByHardware() {
