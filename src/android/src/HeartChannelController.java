@@ -41,14 +41,14 @@ public class HeartChannelController {
     private boolean isConnected = false;
     public int heart = 0; // Public to be accessible from ChannelService
 
-    public HeartChannelController(Context context) {
-        this.context = context;
+    public HeartChannelController() {
+        this.context = Ant.activity;
         openChannel();
     }
 
     public boolean openChannel() {
         // Request access to first available heart rate device
-        releaseHandle = AntPlusHeartRatePcc.requestAccess(context, 0, // 0 means first available device
+        releaseHandle = AntPlusHeartRatePcc.requestAccess((Activity)context, 0, // 0 means first available device
             new IPluginAccessResultReceiver<AntPlusHeartRatePcc>() {
                 @Override
                 public void onResultReceived(AntPlusHeartRatePcc result, RequestAccessResult resultCode, DeviceState initialDeviceState) {
