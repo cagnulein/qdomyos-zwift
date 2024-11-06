@@ -31,6 +31,7 @@ dependencies {
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
     implementation 'com.google.protobuf:protobuf-javalite:3.25.1'
+		implementation 'com.dsi.ant:antplus-plugins-library:3.+'
 
     if(amazon == "1") {
         // amazon app store
