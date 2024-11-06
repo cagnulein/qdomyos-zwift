@@ -574,8 +574,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QString bluetoothName = getBluetoothName();
     qDebug() << "getBluetoothName()" << bluetoothName;
 
-    if(bluetoothName.length() > 4) {
-        setToastRequested("Bluetooth name too long, change it to a 4 letters one in the android settings");
+    if(bluetoothName.length() > 9 || !bluetoothName.matches("[A-Za-z0-9]+")) {
+        setToastRequested("Bluetooth name too long, change it to a 4 letters one in the android settings and use only A-Z or 0-9 characters");
     }
     
     // Android 14 restrics access to /Android/data folder
