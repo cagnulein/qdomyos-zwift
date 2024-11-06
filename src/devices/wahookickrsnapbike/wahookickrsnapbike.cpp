@@ -30,7 +30,8 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &wahookickrsnapbike::update);
-    refresh->start(200ms);
+    QSettings settings;
+    refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
     GearTable g;
     g.printTable();
 }
@@ -228,7 +229,7 @@ void wahookickrsnapbike::update() {
             QByteArray a = setErgMode(requestPower);
             uint8_t b[20];
             memcpy(b, a.constData(), a.length());
-            writeCharacteristic(b, a.length(), "setErgMode", false, true);
+            writeCharacteristic(b, a.length(), "setErgMode", false, false);
             requestPower = -1;
             requestResistance = -1;
         }
@@ -255,15 +256,15 @@ void wahookickrsnapbike::update() {
                 QByteArray a = setResistanceMode(((double)requestResistance) / 100.0);
                 uint8_t b[20];
                 memcpy(b, a.constData(), a.length());
-                writeCharacteristic(b, a.length(), "setResistance", false, true);
+                writeCharacteristic(b, a.length(), "setResistance", false, false);
             } else if (requestResistance != currentResistance().value() &&
                ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
                emit debug(QStringLiteral("writing resistance ") + QString::number(lastForcedResistance));
                QByteArray a = setResistanceMode(((double)lastForcedResistance) / 100.0);
                uint8_t b[20];
                memcpy(b, a.constData(), a.length());
-               writeCharacteristic(b, a.length(), "setResistance", false, true);
-            }            
+               writeCharacteristic(b, a.length(), "setResistance", false, false);
+            }
             requestResistance = -1;
         }
 
@@ -271,8 +272,8 @@ void wahookickrsnapbike::update() {
             QByteArray a = setWheelCircumference(gearsToWheelDiameter(gears()));
             uint8_t b[20];
             memcpy(b, a.constData(), a.length());
-            writeCharacteristic(b, a.length(), "setWheelCircumference", false, true);
-        }            
+            writeCharacteristic(b, a.length(), "setWheelCircumference", false, false);
+        }
 
         lastGearValue = gears();
 
@@ -849,7 +850,7 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     QByteArray a = setSimGrade(g);
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());
-    writeCharacteristic(b, a.length(), "setSimGrade", false, true);
+    writeCharacteristic(b, a.length(), "setSimGrade", false, false);
 }
 
 bool wahookickrsnapbike::inclinationAvailableByHardware() {
