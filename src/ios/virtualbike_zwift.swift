@@ -582,7 +582,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
             g = 2;
         } else if(array[4] == 0xac && array[5] == 0x4d) {
             g = 3;
-        } else if(array[4] == 0xd5 && array[5] == 0x56) {
+        } else if(array[4] == 0xdc && array[5] == 0x56) {
             g = 4;
         } else if(array[4] == 0x8c && array[5] == 0x60) {
             g = 5;
