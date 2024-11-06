@@ -3,6 +3,7 @@ package org.cagnulen.qdomyoszwift;
 import android.content.Context;
 import android.util.Log;
 
+// ANT+ Plugin imports
 import com.dsi.ant.plugins.antplus.pcc.AntPlusHeartRatePcc;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusHeartRatePcc.DataState;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusHeartRatePcc.IHeartRateDataReceiver;
@@ -13,8 +14,23 @@ import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc.IDeviceStateChangeReceiv
 import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc.IPluginAccessResultReceiver;
 import com.dsi.ant.plugins.antplus.pccbase.PccReleaseHandle;
 
+// Basic ANT imports for legacy support
+import com.dsi.ant.channel.AntChannel;
+import com.dsi.ant.channel.AntCommandFailedException;
+import com.dsi.ant.channel.IAntChannelEventHandler;
+import com.dsi.ant.message.ChannelId;
+import com.dsi.ant.message.ChannelType;
+import com.dsi.ant.message.EventCode;
+import com.dsi.ant.message.fromant.AcknowledgedDataMessage;
+import com.dsi.ant.message.fromant.BroadcastDataMessage;
+import com.dsi.ant.message.fromant.ChannelEventMessage;
+import com.dsi.ant.message.fromant.MessageFromAntType;
+import com.dsi.ant.message.ipc.AntMessageParcel;
+
+// Java imports
 import java.math.BigDecimal;
 import java.util.EnumSet;
+import java.util.Random;
 
 public class HeartChannelController {
     private static final String TAG = HeartChannelController.class.getSimpleName();
@@ -23,7 +39,7 @@ public class HeartChannelController {
     private AntPlusHeartRatePcc hrPcc = null;
     private PccReleaseHandle<AntPlusHeartRatePcc> releaseHandle = null;
     private boolean isConnected = false;
-    public int heart = 0; // Changed to public to be accessible from ChannelService
+    public int heart = 0; // Public to be accessible from ChannelService
 
     public HeartChannelController(Context context) {
         this.context = context;
