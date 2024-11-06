@@ -574,7 +574,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QString bluetoothName = getBluetoothName();
     qDebug() << "getBluetoothName()" << bluetoothName;
 
-    if(bluetoothName.length() > 9 || !bluetoothName.matches("[A-Za-z0-9]+")) {
+    QRegularExpression regex("^[A-Za-z0-9 ]+$");
+    if(bluetoothName.length() > 9 || !regex.match(bluetoothName).hasMatch()) {
         setToastRequested("Bluetooth name too long, change it to a 4 letters one in the android settings and use only A-Z or 0-9 characters");
     }
     
