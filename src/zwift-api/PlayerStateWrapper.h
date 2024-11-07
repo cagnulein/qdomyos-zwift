@@ -9,52 +9,19 @@
 #include <QNetworkReply>
 #include <QEventLoop>
 #include <QDebug>
+#include <QFile>
 
 class ZwiftRequest: public QObject {
     Q_OBJECT
 
 public:
-    ZwiftRequest(const QString& getAccessToken) : getAccessToken(getAccessToken) {}
-
-    QString json(const QString& url) {
-        QNetworkRequest request(QUrl(BASE_URL + url));
-        request.setRawHeader("Accept", "application/json");
-        request.setRawHeader("Authorization", "Bearer " + getAccessToken.toUtf8());
-
-        QNetworkReply* reply = manager.get(request);
-        QEventLoop loop;
-        connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-        loop.exec();
-
-        if (reply->error() != QNetworkReply::NoError) {
-            qDebug() << "Error: " << reply->errorString();
-            return "";
-        }
-
-        return reply->readAll();
-    }
-
-    QByteArray protobuf(const QString& url) {
-        QNetworkRequest request(QUrl(BASE_URL + url));
-        request.setRawHeader("Accept", "application/x-protobuf-lite");
-        request.setRawHeader("Authorization", "Bearer " + getAccessToken.toUtf8());
-
-        QNetworkReply* reply = manager.get(request);
-        QEventLoop loop;
-        connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-        loop.exec();
-
-        if (reply->error() != QNetworkReply::NoError) {
-            qDebug() << "Error: " << reply->errorString();
-            return QByteArray();
-        }
-
-        return reply->readAll();
-    }
+    ZwiftRequest(const QString& getAccessToken);
+    QString json(const QString& url);
+    QByteArray protobuf(const QString& url);
 
 private:
     QNetworkAccessManager manager;
-    const QString BASE_URL = "https://us-or-rly101.zwift.com";
+    const QString BASE_URL = "https://192.168.1.3";
     const QString getAccessToken;
 };
 
