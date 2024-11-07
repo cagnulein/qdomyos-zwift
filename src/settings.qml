@@ -2009,12 +2009,12 @@ import QtQuick.Dialogs 1.0
                         }
                         TextField {
                             id: specificGearValueField
-                            text: settings.gears_current_value
+                            text: settings.gears_current_value_f
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             enabled: gearsRestoreValueDelegate.checked
-                            onAccepted: settings.gears_current_value = text
+                            onAccepted: settings.gears_current_value_f = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -2022,7 +2022,7 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             enabled: gearsRestoreValueDelegate.checked
                             onClicked: {
-                                settings.gears_current_value = specificGearValueField.text
+                                settings.gears_current_value_f = specificGearValueField.text
                                 toast.show("Setting saved!")
                             }
                         }
