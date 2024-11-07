@@ -2902,15 +2902,15 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
         settings.value(QZSettings::restore_specific_gear, QZSettings::default_restore_specific_gear).toBool()) {
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
             ((bike *)bluetoothManager->device())
-                ->setGears(settings.value(QZSettings::gears_current_value_f, QZSettings::default_gears_current_value)
+                ->setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value)
                                .toDouble());
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
             ((elliptical *)bluetoothManager->device())
-                ->setGears(settings.value(QZSettings::gears_current_value_f, QZSettings::default_gears_current_value)
+                ->setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value)
                                .toDouble());
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
             ((rower *)bluetoothManager->device())
-                ->setGears(settings.value(QZSettings::gears_current_value_f, QZSettings::default_gears_current_value)
+                ->setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value)
                                .toDouble());
         }
 
