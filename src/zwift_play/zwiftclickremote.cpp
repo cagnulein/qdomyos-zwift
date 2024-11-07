@@ -25,6 +25,8 @@ zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDev
 
     refresh = new QTimer(this);
     connect(refresh, &QTimer::timeout, this, &zwiftclickremote::update);
+    connect(playDevice, &ZwiftPlayDevice::plus, this, &zwiftclickremote::plus);
+    connect(playDevice, &ZwiftPlayDevice::minus, this, &zwiftclickremote::minus);
     refresh->start(1000ms);
 }
 
@@ -309,4 +311,22 @@ void zwiftclickremote::controllerStateChanged(QLowEnergyController::ControllerSt
 
         m_control->connectToDevice();
     }
+}
+
+void zwiftclickremote::vibrate() {
+    static uint8_t haptic = 1;
+    static uint32_t counterVibrate = 1;
+    QByteArray s = QByteArray::fromHex("12080A060802100018");
+    s.append(haptic++);
+    if(haptic > 120) haptic = 1;
+    writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "vibrate");
+
+}
+
+void zwiftclickremote::plus() {
+    vibrate();
+}
+
+void zwiftclickremote::minus() {
+    vibrate();
 }

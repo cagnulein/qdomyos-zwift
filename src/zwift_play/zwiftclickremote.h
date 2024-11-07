@@ -46,6 +46,7 @@ class zwiftclickremote : public bluetoothdevice {
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic *writeChar, uint8_t *data,
                              uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    void vibrate();
 
     bluetoothdevice *parentDevice = nullptr;
 
@@ -65,6 +66,8 @@ class zwiftclickremote : public bluetoothdevice {
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void disconnectBluetooth();
+    void plus();
+    void minus();
 
   private slots:
 
