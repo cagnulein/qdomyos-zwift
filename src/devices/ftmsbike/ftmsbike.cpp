@@ -1054,7 +1054,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             
             // Wind (field 1) - fisso a 0
             message.append(0x08);  // tag
-            message.append((uint8_t)0x00);  // value = 0
+            message.append((char)0x00);  // value = 0
             
             // Incline (field 2)
             message.append(0x10);  // tag
