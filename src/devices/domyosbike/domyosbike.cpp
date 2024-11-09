@@ -368,6 +368,12 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
         else
             kcal = KCal.value();
     }
+
+    if(!firstCharacteristicChanged) {
+        Distance += ((speed / (double)3600.0) /
+                     ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(now))));
+    }
+
     double distance = GetDistanceFromPacket(value);
 
     double ucadence = ((uint8_t)value.at(9));
@@ -451,7 +457,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
             fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     KCal = kcal;
-    Distance = distance;
+    firstCharacteristicChanged = false;
 }
 
 double domyosbike::GetSpeedFromPacket(const QByteArray &packet) {

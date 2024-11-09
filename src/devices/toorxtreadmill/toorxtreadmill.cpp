@@ -23,6 +23,10 @@ void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     /*if (device.name().startsWith(QStringLiteral("TRX ROUTE KEY")) ||
         device.name().toUpper().startsWith(QStringLiteral("BH-TR-")))*/ {
         bluetoothDevice = device;
+        if (device.name().toUpper().startsWith(QStringLiteral("MASTERT40"))) {
+            MASTERT409 = true;
+            qDebug() << "MASTERT409 workarkound enabled";
+        }
 
         // Create a discovery agent and connect to its signals
         discoveryAgent = new QBluetoothServiceDiscoveryAgent(this);
@@ -100,6 +104,9 @@ void toorxtreadmill::update() {
                 speed[3] = (uint8_t)(requestSpeed);
                 speed[4] = (uint8_t)((requestSpeed - (double)((uint8_t)(requestSpeed))) * 100.0);
                 socket->write((char *)speed, sizeof(speed));
+                if(MASTERT409) {
+                    Speed = requestSpeed;
+                }
             }
             requestSpeed = -1;
         } else if (requestInclination != -100) {
@@ -111,6 +118,9 @@ void toorxtreadmill::update() {
                 uint8_t incline[] = {0x55, 0x0a, 0x01, 0x01};
                 incline[3] = requestInclination;
                 socket->write((char *)incline, sizeof(incline));
+                if(MASTERT409) {
+                    Inclination = requestInclination;
+                }
             }
             requestInclination = -100;
         } else if (requestStart != -1 && start_phase == -1) {
@@ -120,6 +130,10 @@ void toorxtreadmill::update() {
             start_phase = 0;
             requestStart = -1;
             emit tapeStarted();
+            if(MASTERT409) {
+                Speed = 1;
+                Inclination = 0;
+            }
         } else if (start_phase != -1) {
             requestStart = -1;
             if(toorx_65s_evo) {

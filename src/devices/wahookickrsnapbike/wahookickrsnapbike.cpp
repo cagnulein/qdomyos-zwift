@@ -30,7 +30,8 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &wahookickrsnapbike::update);
-    refresh->start(200ms);
+    QSettings settings;
+    refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
     wheelCircumference::GearTable g;
     g.printTable();
 }
@@ -99,6 +100,7 @@ QByteArray wahookickrsnapbike::setErgMode(uint16_t watts) {
     r.append(_setErgMode);
     r.append((uint8_t)(watts & 0xFF));
     r.append((uint8_t)(watts >> 8 & 0xFF));
+    lastCommandErgMode = true;
     return r;
     // response: 0x01 0x42 0x01 0x00 watts1 watts2
 }
@@ -143,6 +145,12 @@ QByteArray wahookickrsnapbike::setSimWindResistance(double windResistanceCoeffic
 }
 
 QByteArray wahookickrsnapbike::setSimGrade(double grade) {
+    static double oldGrade = 0;
+    if(oldGrade == grade) {
+        qDebug() << "grade is already set to " << grade << "skipping";
+        return;
+    }
+    oldGrade = grade;
     // TODO: Throw Error if grade is not between -1 and 1
     grade = grade / 100;
     QByteArray r;
@@ -177,6 +185,7 @@ void wahookickrsnapbike::update() {
     }
 
     if (initRequest) {
+        lastCommandErgMode = false;
         QSettings settings;
         QByteArray a = unlockCommand();
         uint8_t b[20];
@@ -196,7 +205,7 @@ void wahookickrsnapbike::update() {
 
         QByteArray d = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
         uint8_t e[20];
-        setGears(1);
+        setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value).toDouble());
         memcpy(e, d.constData(), d.length());
         writeCharacteristic(e, d.length(), "setWheelCircumference", false, true);
 
@@ -228,7 +237,7 @@ void wahookickrsnapbike::update() {
             QByteArray a = setErgMode(requestPower);
             uint8_t b[20];
             memcpy(b, a.constData(), a.length());
-            writeCharacteristic(b, a.length(), "setErgMode", false, true);
+            writeCharacteristic(b, a.length(), "setErgMode", false, false);
             requestPower = -1;
             requestResistance = -1;
         }
@@ -255,15 +264,15 @@ void wahookickrsnapbike::update() {
                 QByteArray a = setResistanceMode(((double)requestResistance) / 100.0);
                 uint8_t b[20];
                 memcpy(b, a.constData(), a.length());
-                writeCharacteristic(b, a.length(), "setResistance", false, true);
+                writeCharacteristic(b, a.length(), "setResistance", false, false);
             } else if (requestResistance != currentResistance().value() &&
                ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
                emit debug(QStringLiteral("writing resistance ") + QString::number(lastForcedResistance));
                QByteArray a = setResistanceMode(((double)lastForcedResistance) / 100.0);
                uint8_t b[20];
                memcpy(b, a.constData(), a.length());
-               writeCharacteristic(b, a.length(), "setResistance", false, true);
-            }            
+               writeCharacteristic(b, a.length(), "setResistance", false, false);
+            }
             requestResistance = -1;
         }
 
@@ -271,8 +280,8 @@ void wahookickrsnapbike::update() {
             QByteArray a = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
             uint8_t b[20];
             memcpy(b, a.constData(), a.length());
-            writeCharacteristic(b, a.length(), "setWheelCircumference", false, true);
-        }            
+            writeCharacteristic(b, a.length(), "setWheelCircumference", false, false);
+        }
 
         lastGearValue = gears();
 
@@ -831,6 +840,11 @@ void wahookickrsnapbike::controllerStateChanged(QLowEnergyController::Controller
 
 void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     Q_UNUSED(percentage);
+    if(lastCommandErgMode) {
+        initRequest = true;
+        qDebug() << "avoid sending this command, since I have first to restore the setSimGrade";
+        return;
+    }
     lastGrade = grade;
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
     QSettings settings;
@@ -838,7 +852,8 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     QByteArray a = setSimGrade(g);
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());
-    writeCharacteristic(b, a.length(), "setSimGrade", false, true);
+    writeCharacteristic(b, a.length(), "setSimGrade", false, false);
+    lastCommandErgMode = false;
 }
 
 bool wahookickrsnapbike::inclinationAvailableByHardware() {

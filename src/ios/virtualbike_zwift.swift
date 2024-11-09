@@ -382,7 +382,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {      
     if let value = requests.first?.value {
           let hexString = value.map { String(format: "%02x", $0) }.joined(separator: " ")
-          let debugMessage = "virtualbike_zwift didReceiveWrite: " + String(describing: requests.first!.characteristic) + " " + hexString
+        let debugMessage = "virtualbike_zwift didReceiveWrite: " + String(describing: requests.first!.characteristic) + " " + hexString + " " + ((requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic) ? "FTMS" : "NOFTMS") + " " + String(describing: self.FitnessMachineControlPointCharacteristic) + " " + self.FitnessMachineControlPointCharacteristic.uuid.uuidString + " " + requests.first!.characteristic.uuid.uuidString
           SwiftDebug.qtDebug(debugMessage)
     }      
 
@@ -404,7 +404,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         }
         self.connected = true;
         self.peripheralManager.respond(to: requests.first!, withResult: .success)
-        print("Responded successfully to a read request")
+        SwiftDebug.qtDebug("Responded successfully to a write request")
 
         let funcCode: UInt8 = requests.first!.value![0]
         var response: [UInt8] = [0x80, funcCode , 0x01]
@@ -582,7 +582,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
             g = 2;
         } else if(array[4] == 0xac && array[5] == 0x4d) {
             g = 3;
-        } else if(array[4] == 0xd5 && array[5] == 0x56) {
+        } else if(array[4] == 0xdc && array[5] == 0x56) {
             g = 4;
         } else if(array[4] == 0x8c && array[5] == 0x60) {
             g = 5;
