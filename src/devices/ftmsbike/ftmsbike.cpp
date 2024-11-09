@@ -323,6 +323,8 @@ void ftmsbike::update() {
             
             uint32_t gear_value = static_cast<uint32_t>(10000.0 * (current_ratio/original_ratio) * (42.0/14.0));
             
+            qDebug() << "zwift hub gear current ratio" << current_ratio << g.crankset << g.rearCog << "gear_value" << gear_value << "original_ratio" << original_ratio;
+ 
             QByteArray proto;
             proto.append(0x04);  // Length prefix
             proto.append(0x2a);  // Field number/wire type
@@ -333,6 +335,10 @@ void ftmsbike::update() {
             do {
                 size++;
                 temp >>= 7;
+                if(size > 3) {
+                    qDebug() << "ERROR! on while";
+                    break;
+                }
             } while (temp > 0);
             
             // Use 0x03 for 2-byte values, 0x04 for 3-byte values
