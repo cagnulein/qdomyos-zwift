@@ -145,12 +145,6 @@ QByteArray wahookickrsnapbike::setSimWindResistance(double windResistanceCoeffic
 }
 
 QByteArray wahookickrsnapbike::setSimGrade(double grade) {
-    static double oldGrade = 0;
-    if(oldGrade == grade) {
-        qDebug() << "grade is already set to " << grade << "skipping";
-        return;
-    }
-    oldGrade = grade;
     // TODO: Throw Error if grade is not between -1 and 1
     grade = grade / 100;
     QByteArray r;
@@ -852,8 +846,13 @@ void wahookickrsnapbike::controllerStateChanged(QLowEnergyController::Controller
 void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     Q_UNUSED(percentage);
     if(lastCommandErgMode) {
+        lastGrade = grade + 1; // to force a refresh
         initRequest = true;
         qDebug() << "avoid sending this command, since I have first to restore the setSimGrade";
+        return;
+    }
+    if(lastGrade == grade) {
+        qDebug() << "grade is already set to " << grade << "skipping";
         return;
     }
     lastGrade = grade;
