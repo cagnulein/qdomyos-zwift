@@ -1038,15 +1038,49 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
             b[3] = slope & 0xFF;
             b[4] = slope >> 8;            
-        /*} else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
+        } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr) {
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
-            uint8_t gear2[] = {0x04, 0x22, 0x02, 0x10, 0x00};
-            int g = (int)(((double)slope / 100.0) + settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble());
-            if(g < 0) {
-                g = 0;
+            
+            QByteArray message;
+            
+            // Command code 0x04
+            message.append(0x04);
+            
+            // SimulationParam tag (field 4 << 3 | wire_type 2 = 34)
+            message.append(0x22);
+            
+            // Lunghezza payload (11 bytes)
+            message.append(0x0b);
+            
+            // Wind (field 1) - fisso a 0
+            message.append(0x08);  // tag
+            message.append((uint8_t)0x00);  // value = 0
+            
+            // Incline (field 2)
+            message.append(0x10);  // tag
+            qint32 inclineX100 = static_cast<qint32>(slope);
+            // varint inclination
+            while (inclineX100 >= 0x80) {
+                message.append((inclineX100 & 0x7F) | 0x80);
+                inclineX100 >>= 7;
             }
-            gear2[4] = g;
-            writeCharacteristicZwiftPlay(gear2, sizeof(gear2), "gearInclination", false, false);*/
+            message.append(inclineX100 & 0x7F);
+            
+            // CWa (field 3) - fix a 10220 (1.022 / 2)
+            message.append(0x18);  // tag
+            message.append(0xec);  // 236
+            message.append(0x27);  // 39
+            
+            // Crr (field 4) - fix a 400 (0.004)
+            message.append(0x20);  // tag
+            message.append(0x90);  // 144
+            message.append(0x03);  // 3
+            
+            writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
+            return;
+        } else if(b.at(0) == FTMS_SET_TARGET_POWER && zwiftPlayService != nullptr) {
+            qDebug() << "discarding";
+            return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
