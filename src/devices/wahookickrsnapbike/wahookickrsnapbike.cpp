@@ -145,6 +145,12 @@ QByteArray wahookickrsnapbike::setSimWindResistance(double windResistanceCoeffic
 }
 
 QByteArray wahookickrsnapbike::setSimGrade(double grade) {
+    static double oldGrade = 0;
+    if(oldGrade == grade) {
+        qDebug() << "grade is already set to " << grade << "skipping";
+        return;
+    }
+    oldGrade = grade;
     // TODO: Throw Error if grade is not between -1 and 1
     grade = grade / 100;
     QByteArray r;
