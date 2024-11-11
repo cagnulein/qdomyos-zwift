@@ -1001,6 +1001,9 @@ import QtQuick.Dialogs 1.0
             property bool skipLocationServicesDialog: false
             property bool trainprogram_pid_pushy: true
             property real min_inclination: -999
+
+            // from version 2.18.3
+            property bool proform_performance_400i: false
         }
 
         function paddingZeros(text, limit) {
@@ -2006,12 +2009,12 @@ import QtQuick.Dialogs 1.0
                         }
                         TextField {
                             id: specificGearValueField
-                            text: settings.gears_current_value
+                            text: settings.gears_current_value_f
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             enabled: gearsRestoreValueDelegate.checked
-                            onAccepted: settings.gears_current_value = text
+                            onAccepted: settings.gears_current_value_f = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -2019,7 +2022,7 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             enabled: gearsRestoreValueDelegate.checked
                             onClicked: {
-                                settings.gears_current_value = specificGearValueField.text
+                                settings.gears_current_value_f = specificGearValueField.text
                                 toast.show("Setting saved!")
                             }
                         }
@@ -6223,7 +6226,8 @@ import QtQuick.Dialogs 1.0
                                 "Proform 8.0", "Proform 9.0", "Proform 705 CST", "Nordictrack x14i", 
                                 "Proform Carbon TL", "Proform Proshox 2", "Nordictrack S20i", "Proform 595i",
                                 "Proform 8.7", "Proform 705 CST V78.239", "Proform Carbon T7",
-                                "Nordictrack EXP 5i", "Proform Carbon TL PFTL59720", "Proform Sport 7.0", "Proform 575i"
+                                "Nordictrack EXP 5i", "Proform Carbon TL PFTL59720", "Proform Sport 7.0", "Proform 575i",
+                                "Proform Performance 400i"
                             ]
 
                             onCurrentIndexChanged: {
@@ -6266,6 +6270,7 @@ import QtQuick.Dialogs 1.0
                                 settings.proform_carbon_tl_PFTL59720 = false;
                                 settings.proform_treadmill_sport_70 = false;
                                 settings.proform_treadmill_575i = false;
+                                settings.proform_performance_400i = false;
 
                                 // Imposta il setting corrispondente al modello selezionato
                                 switch (currentIndex) {
@@ -6305,6 +6310,7 @@ import QtQuick.Dialogs 1.0
                                     case 33: settings.proform_carbon_tl_PFTL59720 = true; break;
                                     case 34: settings.proform_treadmill_sport_70 = true; break;
                                     case 35: settings.proform_treadmill_575i = true; break;
+                                    case 36: settings.proform_performance_400i = true; break;
                                 }
                             }
 
@@ -6345,7 +6351,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.nordictrack_treadmill_exp_5i ? 32 :
                                                     settings.proform_carbon_tl_PFTL59720 ? 33 :
                                                     settings.proform_treadmill_sport_70 ? 34 :
-                                                    settings.proform_treadmill_575i ? 35 : -1;
+                                                    settings.proform_treadmill_575i ? 35 :
+                                                    settings.proform_performance_400i ? 36 : -1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 
