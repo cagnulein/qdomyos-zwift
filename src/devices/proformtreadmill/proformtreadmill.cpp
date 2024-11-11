@@ -76,7 +76,7 @@ void proformtreadmill::forceIncline(double incline) {
     } else if (proform_treadmill_8_0 || proform_treadmill_705_cst || proform_treadmill_705_cst_V78_239 || proform_treadmill_9_0 || proform_treadmill_se ||
                 proform_treadmill_z1300i || proform_treadmill_l6_0s || norditrack_s25_treadmill || proform_8_5_treadmill || nordictrack_treadmill_exp_5i || proform_2000_treadmill ||
                 proform_treadmill_sport_8_5 || proform_treadmill_505_cst || proform_carbon_tl || proform_proshox2 || nordictrack_s20i_treadmill || proform_595i_proshox2 ||
-               proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_
+               proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_400i
                ) {
         write[14] = write[11] + write[12] + 0x12;
     } else if (!nordictrack_t65s_treadmill && !nordictrack_s30_treadmill && !nordictrack_s20_treadmill && !nordictrack_t65s_83_treadmill) {
