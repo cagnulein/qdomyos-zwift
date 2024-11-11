@@ -341,4 +341,18 @@ float lockscreen::zwift_api_getlatitude() {
 float lockscreen::zwift_api_getlongitude() {
     return [zwiftProtobufLayer getLongitude];
 }
+
+QByteArray lockscreen::zwift_hub_inclinationCommand(double inclination) {
+    NSError *error = nil;
+    NSData *command = [ZwiftHubBike inclinationCommandWithInclination:inclination error:&error];
+
+    if (error) {
+        qDebug() << "Errore nella generazione del comando: " << error;
+        return QByteArray();
+    } else {
+        const char* bytes = static_cast<const char*>([command bytes]);
+        NSUInteger length = [command length];
+        return QByteArray(bytes, length);
+    }
+}
 #endif

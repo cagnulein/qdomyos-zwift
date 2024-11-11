@@ -86,6 +86,11 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
         qDebug() << QStringLiteral("gattFTMSService is null!");
         return false;
     }
+    
+    if(zwiftPlayService) {
+        qDebug() << QStringLiteral("zwiftPlayService is present!");
+        return false;
+    }
 
     if (wait_for_response) {
         connect(gattFTMSService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
@@ -1041,41 +1046,11 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr) {
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             
-            QByteArray message;
-            
-            // Command code 0x04
-            message.append(0x04);
-            
-            // SimulationParam tag (field 4 << 3 | wire_type 2 = 34)
-            message.append(0x22);
-            
-            // Lunghezza payload (11 bytes)
-            message.append(0x0b);
-            
-            // Wind (field 1) - fisso a 0
-            message.append(0x08);  // tag
-            message.append((char)0x00);  // value = 0
-            
-            // Incline (field 2)
-            message.append(0x10);  // tag
-            qint32 inclineX100 = static_cast<qint32>(slope);
-            // varint inclination
-            while (inclineX100 >= 0x80) {
-                message.append((inclineX100 & 0x7F) | 0x80);
-                inclineX100 >>= 7;
-            }
-            message.append(inclineX100 & 0x7F);
-            
-            // CWa (field 3) - fix a 10220 (1.022 / 2)
-            message.append(0x18);  // tag
-            message.append(0xec);  // 236
-            message.append(0x27);  // 39
-            
-            // Crr (field 4) - fix a 400 (0.004)
-            message.append(0x20);  // tag
-            message.append(0x90);  // 144
-            message.append(0x03);  // 3
-            
+#ifdef Q_OS_IOS
+            QByteArray message = lockscreen::zwift_hub_inclinationCommand(((double)slope) / 100.0);
+#else
+            qDebug() << "implement zwift hub protobuf!";
+#endif
             writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
             return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && zwiftPlayService != nullptr) {
