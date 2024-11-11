@@ -76,7 +76,8 @@ void proformtreadmill::forceIncline(double incline) {
     } else if (proform_treadmill_8_0 || proform_treadmill_705_cst || proform_treadmill_705_cst_V78_239 || proform_treadmill_9_0 || proform_treadmill_se ||
                 proform_treadmill_z1300i || proform_treadmill_l6_0s || norditrack_s25_treadmill || proform_8_5_treadmill || nordictrack_treadmill_exp_5i || proform_2000_treadmill ||
                 proform_treadmill_sport_8_5 || proform_treadmill_505_cst || proform_carbon_tl || proform_proshox2 || nordictrack_s20i_treadmill || proform_595i_proshox2 ||
-               proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_400i) {
+               proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_
+               ) {
         write[14] = write[11] + write[12] + 0x12;
     } else if (!nordictrack_t65s_treadmill && !nordictrack_s30_treadmill && !nordictrack_s20_treadmill && !nordictrack_t65s_83_treadmill) {
         for (uint8_t i = 0; i < 7; i++) {
@@ -2018,6 +2019,17 @@ void proformtreadmill::update() {
 
             switch (counterPoll) {
             case 0:
+                if (requestStop != -1 || requestPause != -1) {
+                    uint8_t stop1[] = {0xfe, 0x02, 0x0f, 0x02};
+                    uint8_t stop2[] = {0xff, 0x0f, 0x02, 0x04, 0x02, 0x0b, 0x04, 0x0b, 0x02, 0x02,
+                                       0x02, 0x10, 0x00, 0x00, 0x01, 0x00, 0x26, 0x00, 0x00, 0x00};
+                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop1"));
+                    writeCharacteristic(stop2, sizeof(stop2), QStringLiteral("stop2"), false, true);
+
+                    emit debug(QStringLiteral("stopping..."));
+                    requestStop = -1;
+                    requestPause = -1;
+                }
                 writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
                 break;
             case 1:
@@ -2070,17 +2082,6 @@ void proformtreadmill::update() {
 
                     requestStart = -1;
                     emit tapeStarted();
-                }
-                if (requestStop != -1 || requestPause != -1) {
-                    uint8_t stop1[] = {0xfe, 0x02, 0x0f, 0x02};
-                    uint8_t stop2[] = {0xff, 0x0f, 0x02, 0x04, 0x02, 0x0b, 0x04, 0x0b, 0x02, 0x02,
-                                       0x02, 0x10, 0x00, 0x00, 0x01, 0x00, 0x26, 0x00, 0x00, 0x00};
-                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop1"));
-                    writeCharacteristic(stop2, sizeof(stop2), QStringLiteral("stop2"));
-
-                    emit debug(QStringLiteral("stopping..."));
-                    requestStop = -1;
-                    requestPause = -1;
                 }
                 break;
             }
