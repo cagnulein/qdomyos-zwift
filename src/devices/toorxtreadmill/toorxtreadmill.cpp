@@ -23,6 +23,10 @@ void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     /*if (device.name().startsWith(QStringLiteral("TRX ROUTE KEY")) ||
         device.name().toUpper().startsWith(QStringLiteral("BH-TR-")))*/ {
         bluetoothDevice = device;
+        if (device.name().toUpper().startsWith(QStringLiteral("MASTERT40"))) {
+            MASTERT409 = true;
+            qDebug() << "MASTERT409 workarkound enabled";
+        }
 
         // Create a discovery agent and connect to its signals
         discoveryAgent = new QBluetoothServiceDiscoveryAgent(this);
@@ -134,7 +138,10 @@ void toorxtreadmill::update() {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 uint8_t incline[] = {0x55, 0x0a, 0x01, 0x01};
                 incline[3] = requestInclination;
-                send((char *)incline, sizeof(incline));
+                socket->write((char *)incline, sizeof(incline));
+                if(MASTERT409) {
+                    Inclination = requestInclination;
+                }
             }
             requestInclination = -100;
         } else if (requestStart != -1 && start_phase == -1) {
@@ -144,6 +151,10 @@ void toorxtreadmill::update() {
             start_phase = 0;
             requestStart = -1;
             emit tapeStarted();
+            if(MASTERT409) {
+                Speed = 1;
+                Inclination = 0;
+            }
         } else if (start_phase != -1) {
             requestStart = -1;
             if(toorx_65s_evo) {
@@ -221,6 +232,63 @@ void toorxtreadmill::update() {
                     case 15: {
                         const uint8_t start6[] = {0x55, 0x07, 0x01, 0xff};
                         send((char *)start6, sizeof(start6));
+                        start_phase = -1;
+                        break;
+                    }
+                }
+            } else if(MASTERT409) {
+                switch (start_phase) {
+                    case 0: {
+                        const uint8_t start0[] = {0x55, 0x01, 0x06, 0x2b, 0x00, 0x61, 0x00, 0xb0, 0x00, 0x55, 0xb9, 0x01, 0xff, 0x55, 0xb5, 0x01, 0xff};
+                        socket->write((char *)start0, sizeof(start0));
+                        start_phase++;
+                        break;
+                    }
+                    case 1: {
+                        const uint8_t start[] = {0x55, 0x17, 0x01, 0x01};
+                        socket->write((char *)start, sizeof(start));
+                        start_phase++;
+                        break;
+                    }
+                    case 2: {
+                        const uint8_t start1[] = {0x55, 0x0a, 0x01, 0x02};
+                        socket->write((char *)start1, sizeof(start1));
+                        start_phase++;
+                        break;
+                    }
+                    case 3: {
+                        const uint8_t start2[] = {0x55, 0x01, 0x06, 0x2b, 0x00, 0x61, 0x00, 0xb0, 0x00};
+                        socket->write((char *)start2, sizeof(start2));
+                        start_phase++;
+                        break;
+                    }
+                    case 4: {
+                        const uint8_t start3[] = {0x55, 0x15, 0x01, 0x00};
+                        socket->write((char *)start3, sizeof(start3));
+                        start_phase++;
+                        break;
+                    }
+                    case 5: {
+                        const uint8_t start4[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
+                        socket->write((char *)start4, sizeof(start4));
+                        start_phase++;
+                        break;
+                    }
+                    case 6: {
+                        const uint8_t start[] = {0x55, 0x17, 0x01, 0x01};
+                        socket->write((char *)start, sizeof(start));
+                        start_phase++;
+                        break;
+                    }
+                    case 7: {
+                        const uint8_t start[] = {0x55, 0x11, 0x01, 0x00};
+                        socket->write((char *)start, sizeof(start));
+                        start_phase++;
+                        break;
+                    }
+                    case 8: {
+                        const uint8_t start[] = {0x55, 0x08, 0x01, 0x01};
+                        socket->write((char *)start, sizeof(start));
                         start_phase = -1;
                         break;
                     }

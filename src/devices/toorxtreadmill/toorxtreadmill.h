@@ -55,7 +55,8 @@ class toorxtreadmill : public treadmill {
     bool initDone = false;
     bool found = false;
 
-    void send(char * buffer, int size);
+    bool MASTERT409 = false;
+
     uint16_t GetElapsedTimeFromPacket(const QByteArray &packet);
     uint16_t GetDistanceFromPacket(const QByteArray &packet);
     uint16_t GetCaloriesFromPacket(const QByteArray &packet);

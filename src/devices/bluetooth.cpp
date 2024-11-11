@@ -1514,6 +1514,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("MERACH-MR667-")) ||
                         (b.name().toUpper().startsWith("DS60-")) ||
                         (b.name().toUpper().startsWith("BIKE-")) ||
+                        (b.name().toUpper().startsWith("M9-")) ||
                         (b.name().toUpper().startsWith("SPAX-BK-")) ||
                         (b.name().toUpper().startsWith("YSV1")) ||
                         (b.name().toUpper().startsWith("VOLT") && b.name().length() == 4) ||
@@ -1530,6 +1531,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().startsWith(QStringLiteral("Domyos-Bike")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && !settings.value(QZSettings::domyosbike_notfmts, QZSettings::default_domyosbike_notfmts).toBool()) ||
                         (b.name().toUpper().startsWith("F") && b.name().toUpper().endsWith("ARROW")) || // FI9110 Arrow, https://www.fitnessdigital.it/bicicletta-smart-bike-ion-fitness-arrow-connect/p/10022863/ IO Fitness Arrow
                         (b.name().toUpper().startsWith("ICSE") && b.name().length() == 4) ||
+                        (b.name().toUpper().startsWith("TUO") && b.name().length() == 3) ||
                         (b.name().toUpper().startsWith("FLX") && b.name().length() == 10) ||
                         (b.name().toUpper().startsWith("CSRB") && b.name().length() == 11) ||
                         (b.name().toUpper().startsWith("DU30-")) ||                          // BodyTone du30
@@ -1734,7 +1736,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 ziproTreadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(ziproTreadmill);
             } else if ((b.name().startsWith(QStringLiteral("ECH-ROW")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("ROWSPORT-")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("ROWSPORT")) ||
                         b.name().startsWith(QStringLiteral("ROW-S"))) &&
                        !echelonRower && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2295,6 +2297,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14 &&
                          !b.name().contains('(') && !b.name().contains(')') && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("WINFITA"))) || //  also FTMS
+                        (b.name().toUpper().startsWith(QStringLiteral("SW-BLE"))) ||       // FTMS
                         (b.name().startsWith(QStringLiteral("BF70")))) &&
                        !fitshowTreadmill && !iconsole_elliptical && !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);

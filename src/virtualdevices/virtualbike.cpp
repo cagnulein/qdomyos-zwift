@@ -1142,7 +1142,7 @@ void virtualbike::handleZwiftGear(const QByteArray &array)
         if ((uint8_t)array[0] == (uint8_t)0xCC && (uint8_t)array[1] == (uint8_t)0x3A) g = 1;
         else if ((uint8_t)array[0] == (uint8_t)0xFC && (uint8_t)array[1] == (uint8_t)0x43) g = 2;
         else if ((uint8_t)array[0] == (uint8_t)0xAC && (uint8_t)array[1] == (uint8_t)0x4D) g = 3;
-        else if ((uint8_t)array[0] == (uint8_t)0xD5 && (uint8_t)array[1] == (uint8_t)0x56) g = 4;
+        else if ((uint8_t)array[0] == (uint8_t)0xDC && (uint8_t)array[1] == (uint8_t)0x56) g = 4;
         else if ((uint8_t)array[0] == (uint8_t)0x8C && (uint8_t)array[1] == (uint8_t)0x60) g = 5;
         else if ((uint8_t)array[0] == (uint8_t)0xE8 && (uint8_t)array[1] == (uint8_t)0x6B) g = 6;
         else if ((uint8_t)array[0] == (uint8_t)0xC4 && (uint8_t)array[1] == (uint8_t)0x77) g = 7;

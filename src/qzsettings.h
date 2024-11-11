@@ -2183,6 +2183,9 @@ class QZSettings {
     static const QString min_inclination;
     static constexpr double default_min_inclination = -999.0;
 
+    static const QString proform_performance_400i;
+    static constexpr bool default_proform_performance_400i = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
