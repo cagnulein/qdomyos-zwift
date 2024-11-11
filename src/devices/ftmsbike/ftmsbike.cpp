@@ -331,7 +331,7 @@ void ftmsbike::update() {
             qDebug() << "zwift hub gear current ratio" << current_ratio << g.crankset << g.rearCog << "gear_value" << gear_value << "original_ratio" << original_ratio;
  
             QByteArray proto = lockscreen::zwift_hub_setGearsCommand(gear_value);
-            writeCharacteristicZwiftPlay((uint8_t*)proto.data(), sizeof(proto), "gear", false, true);
+            writeCharacteristicZwiftPlay((uint8_t*)proto.data(), proto.length(), "gear", false, true);
 
             uint8_t gearApply[] = {0x00, 0x08, 0x88, 0x04};
             writeCharacteristicZwiftPlay(gearApply, sizeof(gearApply), "gearApply", false, true);
