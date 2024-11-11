@@ -81,9 +81,10 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service) {
     }
 
     qDebug() << QStringLiteral("toorxtreadmill::serviceDiscovered") << service;
-    if (service.device().address() == bluetoothDevice.address()) {
-        if (service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
-            service.serviceName().startsWith(QStringLiteral("Serial Port"))) {
+    if ((service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
+         service.serviceName().startsWith(QStringLiteral("Serial Port"))) &&
+        // android 13 workaround
+        service.serviceUuid() == QBluetoothUuid(QStringLiteral("00001101-0000-1000-8000-00805f9b34fb"))) {
             serialPortService = service;
             found = true;
             emit debug(QStringLiteral("Serial port service found"));
@@ -306,8 +307,11 @@ void toorxtreadmill::rfCommConnected() {
     qDebug() << QStringLiteral(" init2 write");
     QTimer::singleShot(2000, [this]() {
         const uint8_t init3[] = {0x55, 0x01, 0x06, 0x2f, 0x00, 0x56, 0x00, 0xb7, 0x00, 0x55, 0xb9, 0x01, 0xff, 0x55, 0xb5, 0x01, 0xff};
-        this->send((char *)init3, sizeof(init3)); // Usa this per chiamare send
-        this->initDone = true; // Usa this per accedere a initDone
+        this->send((char *)init3, sizeof(init3));
+        QThread::msleep(200);
+        const uint8_t init4[] = {0x55, 0x17, 0x01, 0x01};
+        this->send((char *)init4, sizeof(init4));
+        this->initDone = true;
         // this->requestStart = 1; // Commentato, ma ecco come si farebbe
         emit this->connectedAndDiscovered(); // Usa this per emettere segnali
     });
