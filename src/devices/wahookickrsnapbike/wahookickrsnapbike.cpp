@@ -856,6 +856,7 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
         return;
     }
     lastGrade = grade;
+    Inclination = grade;
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
     QSettings settings;
     double g = grade;
