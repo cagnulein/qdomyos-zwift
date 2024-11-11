@@ -330,34 +330,7 @@ void ftmsbike::update() {
             
             qDebug() << "zwift hub gear current ratio" << current_ratio << g.crankset << g.rearCog << "gear_value" << gear_value << "original_ratio" << original_ratio;
  
-            QByteArray proto;
-            proto.append(0x04);  // Length prefix
-            proto.append(0x2a);  // Field number/wire type
-            
-            // Calculate varint size inline
-            uint32_t temp = gear_value;
-            int size = 0;
-            do {
-                size++;
-                temp >>= 7;
-                if(size > 3) {
-                    qDebug() << "ERROR! on while";
-                    break;
-                }
-            } while (temp > 0);
-            
-            // Use 0x03 for 2-byte values, 0x04 for 3-byte values
-            proto.append(size <= 2 ? 0x03 : 0x04);
-            
-            proto.append(0x10);  // Field marker
-            
-            // Encode value as varint
-            temp = gear_value;
-            while (temp > 0x7F) {
-                proto.append((temp & 0x7F) | 0x80);
-                temp >>= 7;
-            }
-            proto.append(temp & 0x7F);
+            QByteArray proto = lockscreen::zwift_hub_setGearsCommand(gear_value);
             writeCharacteristicZwiftPlay((uint8_t*)proto.data(), sizeof(proto), "gear", false, true);
 
             uint8_t gearApply[] = {0x00, 0x08, 0x88, 0x04};

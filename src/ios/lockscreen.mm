@@ -347,7 +347,21 @@ QByteArray lockscreen::zwift_hub_inclinationCommand(double inclination) {
     NSData *command = [ZwiftHubBike inclinationCommandWithInclination:inclination error:&error];
 
     if (error) {
-        qDebug() << "Errore nella generazione del comando: " << error;
+        qDebug() << "error zwift_hub_inclinationCommand: " << error;
+        return QByteArray();
+    } else {
+        const char* bytes = static_cast<const char*>([command bytes]);
+        NSUInteger length = [command length];
+        return QByteArray(bytes, length);
+    }
+}
+
+QByteArray lockscreen::zwift_hub_setGearsCommand(unsigned int gears) {
+    NSError *error = nil;
+    NSData *command = [ZwiftHubBike setGearCommandWithGears:gears error:&error];
+
+    if (error) {
+        qDebug() << "error zwift_hub_setGearsCommand: " << error;
         return QByteArray();
     } else {
         const char* bytes = static_cast<const char*>([command bytes]);

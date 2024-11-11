@@ -82,6 +82,7 @@ class lockscreen {
     
     // Zwift Hub Protobuf
     static QByteArray zwift_hub_inclinationCommand(double inclination);
+    static QByteArray zwift_hub_setGearsCommand(unsigned int gears);
     
     // quick actions    
     static void set_action_profile(const char* profile);
