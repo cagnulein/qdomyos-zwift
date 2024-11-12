@@ -333,6 +333,7 @@ int main(int argc, char *argv[]) {
 
     /* TEST ZWIFT HUB */
 #ifdef Q_OS_ANDROID
+{
             QAndroidJniObject rrr = QAndroidJniObject::callStaticObjectMethod(
                 "org/cagnulen/qdomyoszwift/ZwiftHub",
                 "inclinationCommand",
@@ -364,15 +365,15 @@ int main(int argc, char *argv[]) {
                 return;
             }
 
-            jbyteArray array = rr.object<jbyteArray>();
-            QAndroidJniEnvironment env;
-            jbyte* bytes = env->GetByteArrayElements(array, nullptr);
-            jsize length = env->GetArrayLength(array);
+            array = rr.object<jbyteArray>();
+            bytes = env->GetByteArrayElements(array, nullptr);
+            length = env->GetArrayLength(array);
 
             QByteArray proto((char*)bytes, length);
 
             env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
             qDebug() << "gear command" << proto.toHex(' ');
+}
 #endif
 
     QSettings settings;
