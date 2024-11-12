@@ -86,7 +86,6 @@ class ftmsbike : public bike {
     void init();
     void forceResistance(resistance_t requestResistance);
     void forcePower(int16_t requestPower);
-    void setWheelDiameter(double diameter);
     uint16_t wattsFromResistance(double resistance);
 
     QTimer *refresh;
