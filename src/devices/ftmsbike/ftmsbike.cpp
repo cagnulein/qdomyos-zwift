@@ -1186,3 +1186,19 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
         m_control->connectToDevice();
     }
 }
+
+double ftmsbike::maxGears() {
+    if(zwiftPlayService != nullptr) {
+        wheelCircumference::GearTable g;
+        return g.maxGears;
+    } else {
+        return 9999.0;
+    }
+}
+
+double ftmsbike::minGears() {
+    if(zwiftPlayService != nullptr)
+        return 1;
+    else
+        return -9999.0;
+}
