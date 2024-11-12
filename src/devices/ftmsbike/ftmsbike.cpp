@@ -1064,6 +1064,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
             env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
 #else
+            QByteArray message;
             qDebug() << "implement zwift hub protobuf!";
             return;
 #endif
