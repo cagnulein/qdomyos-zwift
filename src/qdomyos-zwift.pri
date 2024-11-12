@@ -82,6 +82,7 @@ SOURCES += \
     $$PWD/devices/jumprope.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
+    $$PWD/devices/sramAXSController/sramAXSController.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
@@ -309,6 +310,7 @@ HEADERS += \
     $$PWD/devices/jumprope.h \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
+    $$PWD/devices/sramAXSController/sramAXSController.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/ergtable.h \
     $$PWD/treadmillErgTable.h \
