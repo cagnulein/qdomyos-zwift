@@ -83,6 +83,18 @@ SOURCES += \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
+    $$PWD/mqtt/qmqttauthenticationproperties.cpp \
+    $$PWD/mqtt/qmqttclient.cpp \
+    $$PWD/mqtt/qmqttconnection.cpp \
+    $$PWD/mqtt/qmqttconnectionproperties.cpp \
+    $$PWD/mqtt/qmqttcontrolpacket.cpp \
+    $$PWD/mqtt/qmqttmessage.cpp \
+    $$PWD/mqtt/qmqttpublishproperties.cpp \
+    $$PWD/mqtt/qmqttsubscription.cpp \
+    $$PWD/mqtt/qmqttsubscriptionproperties.cpp \
+    $$PWD/mqtt/qmqtttopicfilter.cpp \
+    $$PWD/mqtt/qmqtttopicname.cpp \
+    $$PWD/mqtt/qmqtttype.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
 devices/csaferower/csafe.cpp \
@@ -311,6 +323,24 @@ HEADERS += \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/ergtable.h \
+    $$PWD/mqtt/qmqttauthenticationproperties.h \
+    $$PWD/mqtt/qmqttclient.h \
+    $$PWD/mqtt/qmqttclient_p.h \
+    $$PWD/mqtt/qmqttconnection_p.h \
+    $$PWD/mqtt/qmqttconnectionproperties.h \
+    $$PWD/mqtt/qmqttconnectionproperties_p.h \
+    $$PWD/mqtt/qmqttcontrolpacket_p.h \
+    $$PWD/mqtt/qmqttglobal.h \
+    $$PWD/mqtt/qmqttmessage.h \
+    $$PWD/mqtt/qmqttmessage_p.h \
+    $$PWD/mqtt/qmqttpublishproperties.h \
+    $$PWD/mqtt/qmqttpublishproperties_p.h \
+    $$PWD/mqtt/qmqttsubscription.h \
+    $$PWD/mqtt/qmqttsubscription_p.h \
+    $$PWD/mqtt/qmqttsubscriptionproperties.h \
+    $$PWD/mqtt/qmqtttopicfilter.h \
+    $$PWD/mqtt/qmqtttopicname.h \
+    $$PWD/mqtt/qmqtttype.h \
     $$PWD/treadmillErgTable.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \

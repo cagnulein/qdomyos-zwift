@@ -40,6 +40,8 @@
 #include <QUrlQuery>
 #include <chrono>
 
+#include "mqtt/qmqttclient.h"
+
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
@@ -706,6 +708,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                               "(Landroid/content/Context;)V",
                                               QtAndroid::androidContext().object());
 #endif
+
+    QMqttClient* m_client = new QMqttClient();
+    m_client->setHostname("192.168.0.113");
+    m_client->setPort(8000);
 
     bluetoothManager->homeformLoaded = true;
 }
