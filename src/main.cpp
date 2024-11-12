@@ -333,17 +333,17 @@ int main(int argc, char *argv[]) {
 
     /* TEST ZWIFT HUB */
 #ifdef Q_OS_ANDROID
-            QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod(
+            QAndroidJniObject rrr = QAndroidJniObject::callStaticObjectMethod(
                 "org/cagnulen/qdomyoszwift/ZwiftHub",
                 "inclinationCommand",
                 "(D)[B",
                 8.0);
 
-            if(!r.isValid()) {
+            if(!rrr.isValid()) {
                 qDebug() << "inclinationCommand returned invalid value";
             }
 
-            jbyteArray array = r.object<jbyteArray>();
+            jbyteArray array = rrr.object<jbyteArray>();
             QAndroidJniEnvironment env;
             jbyte* bytes = env->GetByteArrayElements(array, nullptr);
             jsize length = env->GetArrayLength(array);
