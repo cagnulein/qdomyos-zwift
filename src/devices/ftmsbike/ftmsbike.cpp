@@ -324,7 +324,7 @@ void ftmsbike::update() {
 #endif
 #elif defined Q_OS_ANDROID
             QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
-                "org/cagnulen/qdomyoszwift/ZwiftHub",
+                "org/cagnulen/qdomyoszwift/ZwiftHubBike",
                 "setGearCommand",
                 "(I)[B",
                 gear_value);
@@ -1045,7 +1045,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 #endif
 #elif defined(Q_OS_ANDROID)
             QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
-                "org/cagnulen/qdomyoszwift/ZwiftHub",
+                "org/cagnulen/qdomyoszwift/ZwiftHubBike",
                 "inclinationCommand",
                 "(D)[B",
                 slope);

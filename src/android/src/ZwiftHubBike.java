@@ -36,17 +36,17 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.HashMap;
 import java.util.List;
 
-public class ZwiftHub {
+public class ZwiftHubBike {
 
     private static Context context;
 
-    private static final String TAG = "ZwiftHub: ";
+    private static final String TAG = "ZwiftHubBike: ";
 
     public static byte[] inclinationCommand(double inclination) throws InvalidProtocolBufferException {
-        SimulationParam.Builder simulation = SimulationParam.newBuilder();
+        ZwiftHub.SimulationParam.Builder simulation = ZwiftHub.SimulationParam.newBuilder();
         simulation.setInclineX100((int)(inclination * 100.0));
 
-        HubCommand.Builder command = HubCommand.newBuilder();
+        ZwiftHub.HubCommand.Builder command = ZwiftHub.HubCommand.newBuilder();
         command.setSimulation(simulation.build());
 
         byte[] data = command.build().toByteArray();
@@ -58,10 +58,10 @@ public class ZwiftHub {
     }
 
     public static byte[] setGearCommand(int gears) throws InvalidProtocolBufferException {
-        PhysicalParam.Builder physical = PhysicalParam.newBuilder();
+        ZwiftHub.PhysicalParam.Builder physical = ZwiftHub.PhysicalParam.newBuilder();
         physical.setGearRatioX10000(gears);
 
-        HubCommand.Builder command = HubCommand.newBuilder();
+        ZwiftHub.HubCommand.Builder command = ZwiftHub.HubCommand.newBuilder();
         command.setPhysical(physical.build());
 
         byte[] data = command.build().toByteArray();

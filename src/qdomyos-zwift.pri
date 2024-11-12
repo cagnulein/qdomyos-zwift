@@ -773,7 +773,7 @@ DISTFILES += \
     $$PWD/android/src/WearableMessageListenerService.java \
     $$PWD/android/src/ZapClickLayer.java \
     $$PWD/android/src/ZwiftAPI.java \
-    $$PWD/android/src/ZwiftHub.java \
+    $$PWD/android/src/ZwiftHubBike.java \
     $$PWD/android/src/main/proto/zwift_hub.proto \
     $$PWD/android/src/main/proto/zwift_messages.proto \
     .clang-format \

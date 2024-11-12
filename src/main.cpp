@@ -335,7 +335,7 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_ANDROID
 {
             QAndroidJniObject rrr = QAndroidJniObject::callStaticObjectMethod(
-                "org/cagnulen/qdomyoszwift/ZwiftHub",
+                "org/cagnulen/qdomyoszwift/ZwiftHubBike",
                 "inclinationCommand",
                 "(D)[B",
                 8.0);
@@ -355,7 +355,7 @@ int main(int argc, char *argv[]) {
             qDebug() << "inclination command" << message.toHex(' ');
 
             QAndroidJniObject rr = QAndroidJniObject::callStaticObjectMethod(
-                "org/cagnulen/qdomyoszwift/ZwiftHub",
+                "org/cagnulen/qdomyoszwift/ZwiftHubBike",
                 "setGearCommand",
                 "(I)[B",
                 32608);
