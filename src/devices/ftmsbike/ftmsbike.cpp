@@ -1052,6 +1052,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
             if(!result.isValid()) {
                 qDebug() << "inclinationCommand returned invalid value";
+                return;
             }
 
             jbyteArray array = result.object<jbyteArray>();

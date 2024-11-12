@@ -362,7 +362,6 @@ int main(int argc, char *argv[]) {
 
             if (!rr.isValid()) {
                 qDebug() << "setGearCommand returned invalid value";
-                return;
             }
 
             array = rr.object<jbyteArray>();
