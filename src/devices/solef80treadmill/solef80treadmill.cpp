@@ -548,13 +548,13 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         lastRefreshCharacteristicChanged = now;
 
-    } else if ((characteristic.uuid() == _gattNotifyCharId && newValue.length() == 5 && newValue.at(0) == 0x5b &&
+/*    } else if ((characteristic.uuid() == _gattNotifyCharId && newValue.length() == 5 && newValue.at(0) == 0x5b &&
                 newValue.at(1) == 0x02 && newValue.at(2) == 0x03) &&
                !f63) {
         // stop event from the treadmill
         qDebug() << "stop/pause event detected from the treadmill";
         initRequest = true;
-
+*/
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
         lastPacket = newValue;
 
