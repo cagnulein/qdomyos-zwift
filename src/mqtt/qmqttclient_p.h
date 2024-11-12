@@ -46,13 +46,10 @@
 
 #include <QtNetwork/QAbstractSocket>
 
-#include <private/qobject_p.h>
-
 QT_BEGIN_NAMESPACE
 
-class QMqttClientPrivate : public QObjectPrivate
+class QMqttClientPrivate : public QObject
 {
-    Q_DECLARE_PUBLIC(QMqttClient)
 public:
     QMqttClientPrivate(QMqttClient *c);
     ~QMqttClientPrivate() override;
