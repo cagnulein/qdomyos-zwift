@@ -316,7 +316,37 @@ void ftmsbike::update() {
             
             qDebug() << "zwift hub gear current ratio" << current_ratio << g.crankset << g.rearCog << "gear_value" << gear_value << "original_ratio" << original_ratio;
  
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
             QByteArray proto = lockscreen::zwift_hub_setGearsCommand(gear_value);
+#else
+            QByteArray proto;
+#endif
+#elif defined Q_OS_ANDROID
+            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+                "org/cagnulen/qdomyoszwift/ZwiftHub",
+                "setGearCommand",
+                "(I)[B",
+                gear_value);
+
+            if (!result.isValid()) {
+                qDebug() << "setGearCommand returned invalid value";
+                return;
+            }
+
+            jbyteArray array = result.object<jbyteArray>();
+            QAndroidJniEnvironment env;
+            jbyte* bytes = env->GetByteArrayElements(array, nullptr);
+            jsize length = env->GetArrayLength(array);
+
+            QByteArray proto((char*)bytes, length);
+
+            env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
+#else
+            QByteArray proto;
+            qDebug() << "ERROR: gear message not handled!";
+            return;
+#endif
             writeCharacteristicZwiftPlay((uint8_t*)proto.data(), proto.length(), "gear", false, true);
 
             uint8_t gearApply[] = {0x00, 0x08, 0x88, 0x04};
@@ -1008,9 +1038,33 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             
 #ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
             QByteArray message = lockscreen::zwift_hub_inclinationCommand(((double)slope) / 100.0);
 #else
+            QByteArray message;
+#endif
+#elif defined(Q_OS_ANDROID)
+            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+                "org/cagnulen/qdomyoszwift/ZwiftHub",
+                "inclinationCommand",
+                "(D)[B",
+                slope);
+
+            if(!result.isValid()) {
+                qDebug() << "inclinationCommand returned invalid value";
+            }
+
+            jbyteArray array = result.object<jbyteArray>();
+            QAndroidJniEnvironment env;
+            jbyte* bytes = env->GetByteArrayElements(array, nullptr);
+            jsize length = env->GetArrayLength(array);
+
+            QByteArray message((char*)bytes, length);
+
+            env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
+#else
             qDebug() << "implement zwift hub protobuf!";
+            return;
 #endif
             writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
             return;

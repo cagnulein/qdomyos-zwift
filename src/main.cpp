@@ -331,6 +331,50 @@ int main(int argc, char *argv[]) {
     app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
     app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
 
+    /* TEST ZWIFT HUB */
+#ifdef Q_OS_ANDROID
+            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+                "org/cagnulen/qdomyoszwift/ZwiftHub",
+                "inclinationCommand",
+                "(D)[B",
+                8.0);
+
+            if(!result.isValid()) {
+                qDebug() << "inclinationCommand returned invalid value";
+            }
+
+            jbyteArray array = result.object<jbyteArray>();
+            QAndroidJniEnvironment env;
+            jbyte* bytes = env->GetByteArrayElements(array, nullptr);
+            jsize length = env->GetArrayLength(array);
+
+            QByteArray message((char*)bytes, length);
+
+            env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
+            qDebug() << "inclination command" << message.toHex(' ');
+
+            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+                "org/cagnulen/qdomyoszwift/ZwiftHub",
+                "setGearCommand",
+                "(I)[B",
+                32608);
+
+            if (!result.isValid()) {
+                qDebug() << "setGearCommand returned invalid value";
+                return;
+            }
+
+            jbyteArray array = result.object<jbyteArray>();
+            QAndroidJniEnvironment env;
+            jbyte* bytes = env->GetByteArrayElements(array, nullptr);
+            jsize length = env->GetArrayLength(array);
+
+            QByteArray proto((char*)bytes, length);
+
+            env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
+            qDebug() << "gear command" << proto.toHex(' ');
+#endif
+
     QSettings settings;
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
