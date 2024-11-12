@@ -1004,6 +1004,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.3
             property bool proform_performance_400i: false
+
+            // from version 2.18.5
+            property bool proform_treadmill_c700: false
         }
 
         function paddingZeros(text, limit) {
@@ -6227,7 +6230,7 @@ import QtQuick.Dialogs 1.0
                                 "Proform Carbon TL", "Proform Proshox 2", "Nordictrack S20i", "Proform 595i",
                                 "Proform 8.7", "Proform 705 CST V78.239", "Proform Carbon T7",
                                 "Nordictrack EXP 5i", "Proform Carbon TL PFTL59720", "Proform Sport 7.0", "Proform 575i",
-                                "Proform Performance 400i"
+                                "Proform Performance 400i", "Proform C700"
                             ]
 
                             onCurrentIndexChanged: {
@@ -6271,6 +6274,7 @@ import QtQuick.Dialogs 1.0
                                 settings.proform_treadmill_sport_70 = false;
                                 settings.proform_treadmill_575i = false;
                                 settings.proform_performance_400i = false;
+                                settings.proform_treadmill_c700 = false;
 
                                 // Imposta il setting corrispondente al modello selezionato
                                 switch (currentIndex) {
@@ -6311,6 +6315,7 @@ import QtQuick.Dialogs 1.0
                                     case 34: settings.proform_treadmill_sport_70 = true; break;
                                     case 35: settings.proform_treadmill_575i = true; break;
                                     case 36: settings.proform_performance_400i = true; break;
+                                    case 37: settings.proform_treadmill_c700 = true; break;
                                 }
                             }
 
@@ -6352,7 +6357,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_carbon_tl_PFTL59720 ? 33 :
                                                     settings.proform_treadmill_sport_70 ? 34 :
                                                     settings.proform_treadmill_575i ? 35 :
-                                                    settings.proform_performance_400i ? 36 : -1;
+                                                    settings.proform_performance_400i ? 36 :
+                                                    settings.proform_treadmill_c700 ? 37 : -1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 
