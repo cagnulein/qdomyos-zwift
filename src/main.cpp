@@ -333,17 +333,17 @@ int main(int argc, char *argv[]) {
 
     /* TEST ZWIFT HUB */
 #ifdef Q_OS_ANDROID
-            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+            QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod(
                 "org/cagnulen/qdomyoszwift/ZwiftHub",
                 "inclinationCommand",
                 "(D)[B",
                 8.0);
 
-            if(!result.isValid()) {
+            if(!r.isValid()) {
                 qDebug() << "inclinationCommand returned invalid value";
             }
 
-            jbyteArray array = result.object<jbyteArray>();
+            jbyteArray array = r.object<jbyteArray>();
             QAndroidJniEnvironment env;
             jbyte* bytes = env->GetByteArrayElements(array, nullptr);
             jsize length = env->GetArrayLength(array);
@@ -353,18 +353,18 @@ int main(int argc, char *argv[]) {
             env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
             qDebug() << "inclination command" << message.toHex(' ');
 
-            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+            QAndroidJniObject rr = QAndroidJniObject::callStaticObjectMethod(
                 "org/cagnulen/qdomyoszwift/ZwiftHub",
                 "setGearCommand",
                 "(I)[B",
                 32608);
 
-            if (!result.isValid()) {
+            if (!rr.isValid()) {
                 qDebug() << "setGearCommand returned invalid value";
                 return;
             }
 
-            jbyteArray array = result.object<jbyteArray>();
+            jbyteArray array = rr.object<jbyteArray>();
             QAndroidJniEnvironment env;
             jbyte* bytes = env->GetByteArrayElements(array, nullptr);
             jsize length = env->GetArrayLength(array);
