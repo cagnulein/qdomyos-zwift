@@ -15,6 +15,7 @@
 #include "keepawakehelper.h"
 #endif
 #include <chrono>
+#include "wheelcircumference.h"
 
 #ifdef Q_OS_IOS
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
@@ -35,6 +36,8 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &ftmsbike::update);
     refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
+    wheelCircumference::GearTable g;
+    g.printTable();
 }
 
 void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -81,6 +84,11 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
 
     if(!gattFTMSService) {
         qDebug() << QStringLiteral("gattFTMSService is null!");
+        return false;
+    }
+    
+    if(zwiftPlayService) {
+        qDebug() << QStringLiteral("zwiftPlayService is present!");
         return false;
     }
 
@@ -130,9 +138,8 @@ void ftmsbike::init() {
 
 void ftmsbike::zwiftPlayInit() {
     QSettings settings;
-    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
-    if(zwiftPlayService && gears_zwift_ratio) {
+    if(zwiftPlayService) {
         uint8_t rideOn[] = {0x52, 0x69, 0x64, 0x65, 0x4f, 0x6e, 0x02, 0x01};
         writeCharacteristicZwiftPlay(rideOn, sizeof(rideOn), "rideOn", false, true);
 
@@ -296,102 +303,51 @@ void ftmsbike::update() {
         }
 
         QSettings settings;
-        bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
-        if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
-            uint8_t gear1[] = {0x04, 0x2a, 0x03, 0x10, 0xdc, 0xec};
-            uint8_t gear2[] = {0x04, 0x2a, 0x04, 0x10, 0xdc, 0xec, 0x01};
-            uint32_t gear_value = 0;
+        if(zwiftPlayService && lastGearValue != gears()) {
+            QSettings settings;
+            wheelCircumference::GearTable table;
+            wheelCircumference::GearTable::GearInfo g = table.getGear((int)gears());
+            double original_ratio = ((double)settings.value(QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size).toDouble()) /
+            ((double)settings.value(QZSettings::gear_cog_size, QZSettings::default_gear_cog_size).toDouble());
+            
+            double current_ratio = ((double)g.crankset / (double)g.rearCog);
+            
+            uint32_t gear_value = static_cast<uint32_t>(10000.0 * (current_ratio/original_ratio) * (42.0/14.0));
+            
+            qDebug() << "zwift hub gear current ratio" << current_ratio << g.crankset << g.rearCog << "gear_value" << gear_value << "original_ratio" << original_ratio;
+ 
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            QByteArray proto = lockscreen::zwift_hub_setGearsCommand(gear_value);
+#else
+            QByteArray proto;
+#endif
+#elif defined Q_OS_ANDROID
+            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+                "org/cagnulen/qdomyoszwift/ZwiftHubBike",
+                "setGearCommand",
+                "(I)[B",
+                gear_value);
 
-            switch((int)gears()) {
-                case 1:
-                    gear_value = 0x3acc;
-                    break;
-                case 2:
-                    gear_value = 0x43fc;
-                    break;
-                case 3:
-                    gear_value = 0x4dac;
-                    break;
-                case 4:
-                    gear_value = 0x56d5;
-                    break;
-                case 5:
-                    gear_value = 0x608c;
-                    break;
-                case 6:
-                    gear_value = 0x6be8;
-                    break;
-                case 7:
-                    gear_value = 0x77c4;
-                    break;
-                case 8:
-                    gear_value = 0x183a0;
-                    break;
-                case 9:
-                    gear_value = 0x191a8;
-                    break;
-                case 10:
-                    gear_value = 0x19fb0;
-                    break;
-                case 11:
-                    gear_value = 0x1adb8;
-                    break;
-                case 12:
-                    gear_value = 0x1bbc0;
-                    break;
-                case 13:
-                    gear_value = 0x1cbf3;
-                    break;
-                case 14:
-                    gear_value = 0x1dca8;
-                    break;
-                case 15:
-                    gear_value = 0x1ecdc;
-                    break;
-                case 16:
-                    gear_value = 0x1fd90;
-                    break;
-                case 17:
-                    gear_value = 0x290d4;
-                    break;
-                case 18:
-                    gear_value = 0x2a498;
-                    break;
-                case 19:
-                    gear_value = 0x2b7dc;
-                    break;
-                case 20:
-                    gear_value = 0x2cb9f;
-                    break;
-                case 21:
-                    gear_value = 0x2e2d8;
-                    break;
-                case 22:
-                    gear_value = 0x2fa90;
-                    break;
-                case 23:
-                    gear_value = 0x391c8;
-                    break;
-                case 24:
-                    gear_value = 0x3acf3;
-                    break;
-                default:
-                    // Gestione del caso di default
-                    break;
+            if (!result.isValid()) {
+                qDebug() << "setGearCommand returned invalid value";
+                return;
             }
 
-            gear_value = gear_value * settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble();
+            jbyteArray array = result.object<jbyteArray>();
+            QAndroidJniEnvironment env;
+            jbyte* bytes = env->GetByteArrayElements(array, nullptr);
+            jsize length = env->GetArrayLength(array);
 
-            if(gear_value < 0x10000) {
-                gear1[4] = gear_value & 0xFF;
-                gear1[5] = ((gear_value & 0xFF00) >> 8) & 0xFF;
-                writeCharacteristicZwiftPlay(gear1, sizeof(gear1), "gear", false, true);
-            } else {
-                gear2[4] = gear_value & 0xFF;
-                gear2[5] = ((gear_value & 0xFF00) >> 8) & 0xFF;
-                gear2[6] = ((gear_value & 0xFF0000) >> 16) & 0xFF;
-                writeCharacteristicZwiftPlay(gear2, sizeof(gear2), "gear", false, true);
-            }
+            QByteArray proto((char*)bytes, length);
+
+            env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
+#else
+            QByteArray proto;
+            qDebug() << "ERROR: gear message not handled!";
+            return;
+#endif
+            writeCharacteristicZwiftPlay((uint8_t*)proto.data(), proto.length(), "gear", false, true);
 
             uint8_t gearApply[] = {0x00, 0x08, 0x88, 0x04};
             writeCharacteristicZwiftPlay(gearApply, sizeof(gearApply), "gearApply", false, true);
@@ -1053,13 +1009,12 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
     QByteArray b = newValue;
     QSettings settings;
-    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
         // handling gears
-        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && ((zwiftPlayService == nullptr && gears_zwift_ratio) || !gears_zwift_ratio)) {
+        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService == nullptr) {
             double min_inclination = settings.value(QZSettings::min_inclination, QZSettings::default_min_inclination).toDouble();
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
@@ -1076,18 +1031,48 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             }
 
             b[3] = slope & 0xFF;
-            b[4] = slope >> 8;
-            
+            b[4] = slope >> 8;            
+
             qDebug() << "applying gears mod" << gears() << slope;
-        /*} else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
+        } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr) {
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
-            uint8_t gear2[] = {0x04, 0x22, 0x02, 0x10, 0x00};
-            int g = (int)(((double)slope / 100.0) + settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble());
-            if(g < 0) {
-                g = 0;
+            
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            QByteArray message = lockscreen::zwift_hub_inclinationCommand(((double)slope) / 100.0);
+#else
+            QByteArray message;
+#endif
+#elif defined(Q_OS_ANDROID)
+            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+                "org/cagnulen/qdomyoszwift/ZwiftHubBike",
+                "inclinationCommand",
+                "(D)[B",
+                slope);
+
+            if(!result.isValid()) {
+                qDebug() << "inclinationCommand returned invalid value";
+                return;
             }
-            gear2[4] = g;
-            writeCharacteristicZwiftPlay(gear2, sizeof(gear2), "gearInclination", false, false);*/
+
+            jbyteArray array = result.object<jbyteArray>();
+            QAndroidJniEnvironment env;
+            jbyte* bytes = env->GetByteArrayElements(array, nullptr);
+            jsize length = env->GetArrayLength(array);
+
+            QByteArray message((char*)bytes, length);
+
+            env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
+#else
+            QByteArray message;
+            qDebug() << "implement zwift hub protobuf!";
+            return;
+#endif
+            writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
+            return;
+        } else if(b.at(0) == FTMS_SET_TARGET_POWER && zwiftPlayService != nullptr) {
+            qDebug() << "discarding";
+            return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
@@ -1256,4 +1241,20 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+double ftmsbike::maxGears() {
+    if(zwiftPlayService != nullptr) {
+        wheelCircumference::GearTable g;
+        return g.maxGears;
+    } else {
+        return 9999.0;
+    }
+}
+
+double ftmsbike::minGears() {
+    if(zwiftPlayService != nullptr)
+        return 1;
+    else
+        return -9999.0;
 }

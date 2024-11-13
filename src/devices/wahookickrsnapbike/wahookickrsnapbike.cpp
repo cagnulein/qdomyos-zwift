@@ -32,7 +32,7 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     connect(refresh, &QTimer::timeout, this, &wahookickrsnapbike::update);
     QSettings settings;
     refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
-    GearTable g;
+    wheelCircumference::GearTable g;
     g.printTable();
 }
 
@@ -197,7 +197,7 @@ void wahookickrsnapbike::update() {
         }
         QThread::msleep(700);
 
-        QByteArray d = setWheelCircumference(gearsToWheelDiameter(gears()));
+        QByteArray d = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
         uint8_t e[20];
         setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value).toDouble());
         memcpy(e, d.constData(), d.length());
@@ -271,7 +271,7 @@ void wahookickrsnapbike::update() {
         }
 
         if (lastGearValue != gears()) {
-            QByteArray a = setWheelCircumference(gearsToWheelDiameter(gears()));
+            QByteArray a = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
             uint8_t b[20];
             memcpy(b, a.constData(), a.length());
             writeCharacteristic(b, a.length(), "setWheelCircumference", false, false);
@@ -293,17 +293,6 @@ void wahookickrsnapbike::update() {
             requestStop = -1;
         }
     }
-}
-
-double wahookickrsnapbike::gearsToWheelDiameter(double gear) {
-    QSettings settings;
-    GearTable table;
-    if(gear < 1) gear = 1;
-    else if(gear > table.maxGears) gear = table.maxGears;
-    double original_ratio = ((double)settings.value(QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size).toDouble()) / ((double)settings.value(QZSettings::gear_cog_size, QZSettings::default_gear_cog_size).toDouble());
-    GearTable::GearInfo g = table.getGear((int)gear);
-    double current_ratio =  ((double)g.crankset / (double)g.rearCog);
-    return (((double)settings.value(QZSettings::gear_circumference, QZSettings::default_gear_circumference).toDouble()) / original_ratio) * ((double)current_ratio);
 }
 
 void wahookickrsnapbike::serviceDiscovered(const QBluetoothUuid &gatt) {
@@ -872,7 +861,7 @@ bool wahookickrsnapbike::inclinationAvailableByHardware() {
 }
 
 double wahookickrsnapbike::maxGears() {
-    GearTable g;
+    wheelCircumference::GearTable g;
     return g.maxGears;
 }
 
