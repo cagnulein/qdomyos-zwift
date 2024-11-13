@@ -736,10 +736,13 @@ void wahookickrsnapbike::serviceScanDone(void) {
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &wahookickrsnapbike::stateChanged);
         gattCommunicationChannelService.constLast()->discoverDetails();
-        if(s == QBluetoothUuid((quint16)0x1826)) {
-            qDebug() << "if it doesn't change the inclination, set the bike in the FTMS bike setting under the Bike settings.";
+        if(s == QBluetoothUuid(QStringLiteral("00000001-19ca-4651-86e5-fa29dcdd09d1"))) {
+            QSettings settings;
+            settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
+            settings.sync();
             if(homeform::singleton())
-                homeform::singleton()->setToastRequested("if it doesn't change the inclination, set the bike in the FTMS bike setting under the Bike settings.");
+                homeform::singleton()->setToastRequested("Zwift Hub device found, please restart the app to enjoy virtual gearing!");
+            return;
         }
     }
 }
