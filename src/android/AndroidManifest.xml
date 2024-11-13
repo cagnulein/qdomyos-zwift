@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.11.50" android:versionCode="387" android:installLocation="auto">
-    <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
-	      Remove the comment if you do not require these default permissions. -->
+<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" android:versionName="2.18.4" android:versionCode="934" android:installLocation="auto">
+<!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
+          Remove the comment if you do not require these default permissions. -->
 			<!-- %%INSERT_PERMISSIONS -->
 
     <!-- The following comment will be replaced upon deployment with default features based on the dependencies of the application.
@@ -10,11 +10,17 @@
 
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
 	 <application android:hardwareAccelerated="true" android:debuggable="false" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="qdomyos-zwift" android:extractNativeLibs="true" android:icon="@drawable/icon" android:usesCleartextTraffic="true">
-             <activity android:exported="true" android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.qtproject.qt5.android.bindings.QtActivity" android:label="qdomyos-zwift" android:launchMode="singleTop">
+             <activity android:theme="@style/Theme.AppCompat" android:exported="true" android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.qtproject.qt5.android.bindings.QtActivity" android:label="QZ" android:launchMode="singleTop">
 		      <intent-filter>
 				    <action android:name="android.intent.action.MAIN"/>
 					 <category android:name="android.intent.category.LAUNCHER"/>
 					</intent-filter>
+                                        <intent-filter>
+                                            <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+                                        </intent-filter>
+                                        <meta-data
+                                            android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                                            android:resource="@xml/device_filter" />
 					<!-- Application arguments -->
 				<!-- meta-data android:name="android.app.arguments" android:value="arg1 arg2 arg3"/ -->
 				<!-- Application arguments -->
@@ -67,19 +73,71 @@
 					 * none - useful for apps that don't use any of the above Qt modules
 					 -->
 					<meta-data android:name="android.app.extract_android_style" android:value="default"/>
-				<!-- extract android style -->
+                                <!-- extract android style -->
 				</activity>
+				<service
+				    android:name=".ForegroundService"
+					 android:enabled="true"
+                                         android:foregroundServiceType="connectedDevice"
+                                         android:exported="false"></service>
+                <service
+                    android:name=".WearableMessageListenerService"
+                    android:enabled="true"
+                    android:exported="true">
+                    <intent-filter>
+                        <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                        <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                        <data
+                            android:host="*"
+                            android:pathPrefix="/qz"
+                            android:scheme="wear" />
+                    </intent-filter>
+                </service>
 				<service android:name=".ChannelService"></service>
+				<service android:name=".FloatingWindowGFG" android:enabled="true" android:exported="true"/>
+
+            <service android:name="com.cgutman.androidremotedebugger.service.ShellService"
+				    android:enabled="true"
+                                    android:foregroundServiceType="connectedDevice"
+					 android:exported="false" >
+					</service>
+
+                                <service
+                                    android:name=".ScreenCaptureService"
+                                    android:foregroundServiceType="mediaProjection" />
+
+                                <meta-data
+                                    android:name="com.google.mlkit.vision.DEPENDENCIES"
+                                    android:value="ocr" />
+
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
+
+                                <receiver android:name=".MediaButtonReceiver" android:exported="true" android:permission="android.permission.MODIFY_AUDIO_SETTINGS">
+                                    <intent-filter>
+                                        <action android:name="android.media.VOLUME_CHANGED_ACTION" />
+                                    </intent-filter>
+                                </receiver>
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
 		</application>
 
 <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="33" />
 <uses-permission android:name="android.permission.WAKE_LOCK"/>
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+<uses-permission android:name="android.permission.RECEIVE_MEDIA_BUTTON" />
     <uses-permission android:name="android.permission.ACCESS_CHECKIN_PROPERTIES"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 	 <uses-permission android:name="com.android.vending.BILLING"/>
+	 <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+	 <uses-permission android:name="com.google.android.things.permission.USE_PERIPHERAL_IO" />
+         <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+	 <uses-permission android:name="android.permission.GET_TASKS" />
+	 <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+	     tools:ignore="ProtectedPermissions" />
 </manifest>

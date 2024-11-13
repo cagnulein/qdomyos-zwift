@@ -36,7 +36,7 @@ An android device is required for this operation.
 8. Disable the option Enable Bluetooth HCI snoop log
 9. in Developer Options: Bug report->Full report
 10. wait a random amount of time (10-20 seconds)
-11. A notification will appear at the top of the device. Click on it, share, email it to yourself
+11. A notification will appear at the top of the device. Click on it, share, email it to yourself. If it doesn't appear you need to use ADB to pull the file from the phone itself
 12. You'll get a zip file with the entire report. In the FS/Data/Log/bt directory of the zipfile is the file you want.
 13. attach the log file in a new issue with a short description of the steps you did in the app when you used it
 

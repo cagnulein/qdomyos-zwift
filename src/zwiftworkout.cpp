@@ -27,28 +27,28 @@ bool zwiftworkout::durationAsDistance(QString sportType, QString durationType) {
 double zwiftworkout::speedFromPace(int Pace) {
     QSettings settings;
     double speed = 0;
-    QString pace_default = settings.value(QStringLiteral("pace_default"), QStringLiteral("Half Marathon")).toString();
+    QString pace_default = settings.value(QZSettings::pace_default, QZSettings::default_pace_default).toString();
     if (Pace == 0) {
-        speed = settings.value(QStringLiteral("pacef_1mile"), 250.0).toDouble();
+        speed = settings.value(QZSettings::pacef_1mile, QZSettings::default_pacef_1mile).toDouble();
     } else if (Pace == 1) {
-        speed = settings.value(QStringLiteral("pacef_5km"), 300.0).toDouble();
+        speed = settings.value(QZSettings::pacef_5km, QZSettings::default_pacef_5km).toDouble();
     } else if (Pace == 2) {
-        speed = settings.value(QStringLiteral("pacef_10km"), 320.0).toDouble();
+        speed = settings.value(QZSettings::pacef_10km, QZSettings::default_pacef_10km).toDouble();
     } else if (Pace == 3) {
-        speed = settings.value(QStringLiteral("pacef_halfmarathon"), 340.0).toDouble();
+        speed = settings.value(QZSettings::pacef_halfmarathon, QZSettings::default_pacef_halfmarathon).toDouble();
     } else if (Pace == 4) {
-        speed = settings.value(QStringLiteral("pacef_marathon"), 360.0).toDouble();
+        speed = settings.value(QZSettings::pacef_marathon, QZSettings::default_pacef_marathon).toDouble();
     } else {
         if (!pace_default.compare(QStringLiteral("1 mile")))
-            speed = settings.value(QStringLiteral("pacef_1mile"), 250.0).toDouble();
+            speed = settings.value(QZSettings::pacef_1mile, QZSettings::default_pacef_1mile).toDouble();
         else if (!pace_default.compare(QStringLiteral("5 km")))
-            speed = settings.value(QStringLiteral("pacef_5km"), 300.0).toDouble();
+            speed = settings.value(QZSettings::pacef_5km, QZSettings::default_pacef_5km).toDouble();
         else if (!pace_default.compare(QStringLiteral("10 km")))
-            speed = settings.value(QStringLiteral("pacef_10km"), 320.0).toDouble();
+            speed = settings.value(QZSettings::pacef_10km, QZSettings::default_pacef_10km).toDouble();
         else if (!pace_default.compare(QStringLiteral("Half Marathon")))
-            speed = settings.value(QStringLiteral("pacef_halfmarathon"), 340.0).toDouble();
+            speed = settings.value(QZSettings::pacef_halfmarathon, QZSettings::default_pacef_halfmarathon).toDouble();
         else
-            speed = settings.value(QStringLiteral("pacef_marathon"), 360.0).toDouble();
+            speed = settings.value(QZSettings::pacef_marathon, QZSettings::default_pacef_marathon).toDouble();
     }
 
     return speed;
@@ -66,7 +66,9 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
         uint32_t OffDuration = 1;
         double OnPower = 1;
         double OffPower = 1;
+        double Incline = -100;
         int Pace = -1;
+        int Cadence = -1;
         repeat = va_arg(args, uint32_t);
         if (repeat <= 0)
             repeat = 1;
@@ -75,6 +77,8 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
         OnPower = va_arg(args, double);
         OffPower = va_arg(args, double);
         Pace = va_arg(args, int);
+        Cadence = va_arg(args, int);
+        Incline = va_arg(args, double);
         for (uint32_t i = 0; i < repeat; i++) {
             trainrow row;
             if (!durationAsDistance(sportType, durationType))
@@ -85,8 +89,10 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
                 row.forcespeed = 1;
                 double speed = speedFromPace(Pace);
                 row.speed = ((60.0 / speed) * 60.0) * OnPower;
+                if(Incline != -100)
+                    row.inclination = Incline * 100;
             } else {
-                row.power = OnPower * settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                row.power = OnPower * settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
             }
             list.append(row);
             if (!durationAsDistance(sportType, durationType))
@@ -97,9 +103,13 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
                 row.forcespeed = 1;
                 double speed = speedFromPace(Pace);
                 row.speed = ((60.0 / speed) * 60.0) * OffPower;
+                if(Incline != -100)
+                    row.inclination = Incline * 100;
             } else {
-                row.power = OffPower * settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                row.power = OffPower * settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
             }
+            if(Cadence != -1)
+                row.cadence = Cadence;
             qDebug() << "TrainRow" << row.toString();
             list.append(row);
         }
@@ -107,41 +117,78 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
         uint32_t Duration = 1;
         double PowerLow = 1;
         double PowerHigh = 1;
+        double Incline = -100;
         int Pace = -1;
+        int Cadence = -1;
         Duration = va_arg(args, uint32_t);
         PowerLow = va_arg(args, double);
         PowerHigh = va_arg(args, double);
         Pace = va_arg(args, int);
-        for (uint32_t i = 0; i < Duration; i++) {
-            trainrow row;
-            if (!durationAsDistance(sportType, durationType)) {
-                row.duration = QTime(0, 0, 1, 0);
-                row.rampDuration = QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
-                row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
-            } else {
-                row.distance = 0.001;
-            }
-            if (PowerHigh > PowerLow) {
-                if (sportType.toLower().contains(QStringLiteral("run"))) {
-                    row.forcespeed = 1;
-                    double speed = speedFromPace(Pace);
-                    row.speed = ((60.0 / speed) * 60.0) * (PowerLow + (((PowerHigh - PowerLow) / Duration) * i));
+        Cadence = va_arg(args, int);
+        Incline = va_arg(args, double);
+        if (sportType.toLower().contains(QStringLiteral("run")) && !durationAsDistance(sportType, durationType)) {
+            double speed = speedFromPace(Pace);
+            int speedDelta = qAbs(qCeil((((60.0 / speed) * 60.0) * (PowerHigh - PowerLow)) * 10)) + 1;
+            int durationStep = Duration / speedDelta;
+            int spareSeconds = Duration - (durationStep * speedDelta);
+            int spareSum = 0;
+            for (int i = 0; i < speedDelta; i++) {
+                trainrow row;
+                int spare = 0;
+                if (spareSeconds)
+                    spare = (i % spareSeconds == 0 && i > 0) ? 1 : 0;
+                spareSum += spare;
+                row.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
+                row.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
+                row.rampDuration = QTime(0, 0, 0, 0).addSecs(Duration - (durationStep * i) - spareSum);
+                row.forcespeed = 1;
+                if (!qstricmp(tag, "Ramp") || !qstricmp(tag, "Warmup")) {
+                    row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * (PowerLow)) + (0.1 * i)) * 10.0) / 10.0;
                 } else {
-                    row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
-                                settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                    row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * (PowerLow)) - (0.1 * i)) * 10.0) / 10.0;
                 }
-            } else {
-                if (sportType.toLower().contains(QStringLiteral("run"))) {
-                    row.forcespeed = 1;
-                    double speed = speedFromPace(Pace);
-                    row.speed = ((60.0 / speed) * 60.0) * (PowerLow + (((PowerHigh - PowerLow) / Duration) * i));
-                } else {
-                    row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
-                                settings.value(QStringLiteral("ftp"), 200.0).toDouble();
-                }
+                if(Incline != -100)
+                    row.inclination = Incline * 100;
+                qDebug() << "TrainRow" << row.toString();
+                list.append(row);
             }
-            qDebug() << "TrainRow" << row.toString();
-            list.append(row);
+
+        } else {
+            for (uint32_t i = 0; i < Duration; i++) {
+                trainrow row;
+                if (!durationAsDistance(sportType, durationType)) {
+                    row.duration = QTime(0, 0, 1, 0);
+                    row.rampDuration = QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
+                    row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
+                } else {
+                    row.distance = 0.001;
+                }
+                if(Cadence != -1)
+                    row.cadence = Cadence;
+                if (PowerHigh > PowerLow) {
+                    if (!sportType.toLower().contains(QStringLiteral("run"))) {
+                        row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
+                                    settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                    } else {
+                        double speed = speedFromPace(Pace);
+                        row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * (PowerLow + (((PowerHigh - PowerLow) / Duration) * i))) * 10.0)) / 10.0;
+                        row.forcespeed = 1;
+                    }
+                } else {
+                    if (!sportType.toLower().contains(QStringLiteral("run"))) {
+                        row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
+                                    settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                    } else {
+                        double speed = speedFromPace(Pace);
+                        row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * ((PowerLow - (((PowerLow - PowerHigh) / Duration) * i)))) * 10.0)) / 10.0;
+                        row.forcespeed = 1;
+                    }
+                }
+                if(Incline != -100)
+                    row.inclination = Incline * 100;
+                qDebug() << "TrainRow" << row.toString();
+                list.append(row);
+            }
         }
     } else if (!qstricmp(tag, "FreeRide")) {
         uint32_t Duration = 1;
@@ -158,12 +205,16 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
     } else if (!qstricmp(tag, "Steadystate")) {
         uint32_t Duration = 1;
         double Power = 1;
+        double Incline = -100;
         int Pace = -1;
+        int Cadence = -1;
         trainrow row;
 
         Duration = va_arg(args, uint32_t);
         Power = va_arg(args, double);
         Pace = va_arg(args, int);
+        Incline = va_arg(args, double);
+        Cadence = va_arg(args, int);
 
         if (sportType.toLower().contains(QStringLiteral("run")) && Duration != 1) {
             if (thresholdSecPerKm != 0) {
@@ -175,13 +226,22 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
                 row.speed = ((60.0 / speed) * 60.0) * Power;
             }
             Power = 1;
+        } else {
+            row.power = Power * settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
         }
 
-        row.power = Power * settings.value(QStringLiteral("ftp"), 200.0).toDouble();
         if (!durationAsDistance(sportType, durationType))
             row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
         else
             row.distance = Duration / 1000.0;
+
+        if(Incline != -100) {
+            row.inclination = Incline * 100;
+        }
+
+        if(Cadence != -1)
+            row.cadence = Cadence;
+
         qDebug() << "TrainRow" << row.toString();
         list.append(row);
     }
@@ -230,6 +290,7 @@ QList<trainrow> zwiftworkout::loadJSON(const QString &input, QString *descriptio
                     double OnPower = 1;
                     double OffPower = 1;
                     int Pace = -1;
+                    int Cadence = -1;
                     repeat = element[QStringLiteral("Repeat")].toInt();
                     if (!repeat)
                         repeat = 1;
@@ -240,8 +301,11 @@ QList<trainrow> zwiftworkout::loadJSON(const QString &input, QString *descriptio
                     if (element.contains(QStringLiteral("pace"))) {
                         Pace = element[QStringLiteral("pace")].toInt();
                     }
+                    if (element.contains(QStringLiteral("Cadence"))) {
+                        Cadence = element[QStringLiteral("Cadence")].toInt();
+                    }
                     convertTag(0.0, sportType, durationType, list, type.toUtf8().constData(), repeat, OnDuration,
-                               OffDuration, OnPower, OffPower, Pace);
+                               OffDuration, OnPower, OffPower, Pace, Cadence);
                 } else if (type == QStringLiteral("FreeRide")) {
                     uint32_t Duration = 1;
                     // double FlatRoad = 1;
@@ -254,18 +318,24 @@ QList<trainrow> zwiftworkout::loadJSON(const QString &input, QString *descriptio
                     double PowerLow = 1;
                     double PowerHigh = 1;
                     int Pace = -1;
+                    int Cadence = -1;
                     Duration = element[QStringLiteral("Duration")].toDouble();
                     PowerLow = element[QStringLiteral("PowerLow")].toDouble();
                     PowerHigh = element[QStringLiteral("PowerHigh")].toDouble();
                     if (element.contains(QStringLiteral("pace"))) {
                         Pace = element[QStringLiteral("pace")].toInt();
                     }
+                    if (element.contains(QStringLiteral("Cadence"))) {
+                        Cadence = element[QStringLiteral("Cadence")].toInt();
+                    }
                     convertTag(0.0, sportType, durationType, list, type.toUtf8().constData(), Duration, PowerLow,
-                               PowerHigh, Pace);
+                               PowerHigh, Pace, Cadence);
                 } else if (type == QStringLiteral("SteadyState")) {
                     uint32_t Duration = 1;
                     double Power = 1;
                     int Pace = -1;
+                    double Incline = -100;
+                    int Cadence = -1;
 
                     Duration = element[QStringLiteral("Duration")].toDouble();
                     if (element.contains(QStringLiteral("pace"))) {
@@ -275,7 +345,13 @@ QList<trainrow> zwiftworkout::loadJSON(const QString &input, QString *descriptio
                     if (Power == 1) {
                         Power = element[QStringLiteral("PowerLow")].toDouble();
                     }
-                    convertTag(0.0, sportType, durationType, list, type.toUtf8().constData(), Duration, Power, Pace);
+                    if (element.contains(QStringLiteral("Incline"))) {
+                        Incline = element[QStringLiteral("Incline")].toDouble();
+                    }
+                    if (element.contains(QStringLiteral("Cadence"))) {
+                        Cadence = element[QStringLiteral("Cadence")].toInt();
+                    }
+                    convertTag(0.0, sportType, durationType, list, type.toUtf8().constData(), Duration, Power, Pace, Incline, Cadence);
                 }
             }
         }
@@ -325,6 +401,9 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
                 double OnPower = 1;
                 double OffPower = 1;
                 int Pace = -1;
+                int Cadence = -1;
+                double Incline = -100;
+
                 if (atts.hasAttribute(QStringLiteral("Repeat"))) {
                     repeat = atts.value(QStringLiteral("Repeat")).toUInt();
                 }
@@ -343,9 +422,15 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
                 if (atts.hasAttribute(QStringLiteral("pace"))) {
                     Pace = atts.value(QStringLiteral("pace")).toUInt();
                 }
+                if (atts.hasAttribute(QStringLiteral("Cadence"))) {
+                    Cadence = atts.value(QStringLiteral("Cadence")).toUInt();
+                }
+                if (atts.hasAttribute(QStringLiteral("Incline"))) {
+                    Incline = atts.value(QStringLiteral("Incline")).toDouble();
+                }
 
                 convertTag(thresholdSecPerKm, sportType, durationType, list, name.toUtf8().constData(), repeat,
-                           OnDuration, OffDuration, OnPower, OffPower, Pace);
+                           OnDuration, OffDuration, OnPower, OffPower, Pace, Cadence, Incline);
             } else if (name.contains(QStringLiteral("FreeRide"))) {
                 uint32_t Duration = 1;
                 // double FlatRoad = 1;
@@ -365,6 +450,9 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
                 double PowerLow = 1;
                 double PowerHigh = 1;
                 int Pace = -1;
+                int Cadence = -1;
+                double Incline = -100;
+
                 if (atts.hasAttribute(QStringLiteral("Duration"))) {
                     Duration = atts.value(QStringLiteral("Duration")).toDouble();
                 }
@@ -377,13 +465,21 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
                 if (atts.hasAttribute(QStringLiteral("pace"))) {
                     Pace = atts.value(QStringLiteral("pace")).toUInt();
                 }
+                if (atts.hasAttribute(QStringLiteral("Cadence"))) {
+                    Cadence = atts.value(QStringLiteral("Cadence")).toUInt();
+                }
+                if (atts.hasAttribute(QStringLiteral("Incline"))) {
+                    Incline = atts.value(QStringLiteral("Incline")).toDouble();
+                }
 
                 convertTag(thresholdSecPerKm, sportType, durationType, list, name.toUtf8().constData(), Duration,
-                           PowerLow, PowerHigh, Pace);
+                           PowerLow, PowerHigh, Pace, Cadence, Incline);
             } else if (name.contains(QStringLiteral("SteadyState"))) {
                 uint32_t Duration = 1;
                 double Power = 1;
                 int Pace = -1;
+                double Incline = -100;
+                int Cadence = -1;
 
                 if (atts.hasAttribute(QStringLiteral("Duration"))) {
                     Duration = atts.value(QStringLiteral("Duration")).toDouble();
@@ -397,8 +493,14 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
                 if (Power == 1 && atts.hasAttribute(QStringLiteral("PowerLow"))) {
                     Power = atts.value(QStringLiteral("PowerLow")).toDouble();
                 }
+                if (atts.hasAttribute(QStringLiteral("Incline"))) {
+                    Incline = atts.value(QStringLiteral("Incline")).toDouble();
+                }
+                if (atts.hasAttribute(QStringLiteral("Cadence"))) {
+                    Cadence = atts.value(QStringLiteral("Cadence")).toUInt();
+                }
                 convertTag(thresholdSecPerKm, sportType, durationType, list, name.toUtf8().constData(), Duration, Power,
-                           Pace);
+                           Pace, Incline, Cadence);
             }
         }
     }

@@ -36,12 +36,14 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
         return peripheralManager.PowerRequested;
     }
     
-    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16) -> Bool
+    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16, currentInclination: UInt16, currentDistance: UInt64) -> Bool
     {
         peripheralManager.NormalizeSpeed = normalizeSpeed
         peripheralManager.CurrentCadence = currentCadence
         peripheralManager.CurrentResistance = currentResistance
         peripheralManager.CurrentWatt = currentWatt
+        peripheralManager.CurrentInclination = currentInclination
+        peripheralManager.CurrentDistance = currentDistance
 
         return peripheralManager.connected;
     }
@@ -68,6 +70,8 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     public var CurrentCadence: UInt16! = 0
     public var CurrentResistance: UInt8! = 0
     public var CurrentWatt: UInt16! = 0
+    public var CurrentInclination: UInt16! = 0
+    public var CurrentDistance: UInt64! = 0
     public var lastCurrentSlope: UInt64! = 0;
     
     public var serviceToggle: UInt8 = 0
@@ -230,12 +234,19 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
         if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
-            if(requests.first!.value?.first == 0x11)
+          if(requests.first!.value?.first == 0x11)
           {
                    var high : Int16 = ((Int16)(requests.first!.value![4])) << 8;
                      self.CurrentSlope = (Double)((Int16)(requests.first!.value![3]) + high);
                 
                 self.lastCurrentSlope = UInt64(Date().timeIntervalSince1970)
+          }
+          else if(requests.first!.value?.first == 0x03)
+          {
+              var high : Int16 = ((Int16)(requests.first!.value![2])) << 8;
+              self.CurrentSlope = ((Double)((Int16)(requests.first!.value![1]) + high)) * 10.0;
+                
+              self.lastCurrentSlope = UInt64(Date().timeIntervalSince1970)
           }
             else if(requests.first!.value?.first == 0x05)
           {
@@ -305,26 +316,44 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     }
 
     func calculateTreadmillData() -> Data {
-        let flags0:UInt8 = 0x08
+        let flags0:UInt8 = 0x0C
         let flags1:UInt8 = 0x01
       
         var treadmillData: [UInt8] = [flags0, flags1, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
-                                      // TODO: add the incline from C++
-                                      0x00, 0x00, 0x00, 0x00,
+                                      (UInt8)(self.CurrentDistance & 0xFF), (UInt8)((self.CurrentDistance >> 8) & 0xFF), (UInt8)((self.CurrentDistance >> 16) & 0xFF),
+                                      (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
+                                      (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
                                       self.heartRate]
-      let treadmillDataData = Data(bytes: &treadmillData, count: 10)
+      let treadmillDataData = Data(bytes: &treadmillData, count: 13)
       return treadmillDataData
     }
 
     func calculateRSCMeasurement() -> Data {
-        let flags0:UInt8 = 0x00
-        let speed:UInt16 = UInt16(((Double(self.NormalizeSpeed) / 100.0) / 3.6) * 256.0)
-      
-        var rscMeasurement: [UInt8] = [flags0, (UInt8)(speed & 0xFF), (UInt8)((speed >> 8) & 0xFF),
-                                       (UInt8)(self.CurrentCadence & 0xFF)]
-      let rscMeasurementData = Data(bytes: &rscMeasurement, count: 4)
-      return rscMeasurementData
-    }
+    // Set flags to indicate distance is present (bit 1)
+    let flags0: UInt8 = 0x02
+    
+    // Calculate speed (existing logic)
+    let speed: UInt16 = UInt16(((Double(self.NormalizeSpeed) / 100.0) / 3.6) * 256.0)
+    
+    // Distance in meters (assuming you have a totalDistance property)
+    // Using UInt32 as per BLE specification for distance
+    let distance: UInt32 = UInt32(self.CurrentDistance) * 10
+    
+    // Create measurement array with distance
+    var rscMeasurement: [UInt8] = [
+        flags0,                              // Flags
+        UInt8(speed & 0xFF),                // Speed LSB
+        UInt8((speed >> 8) & 0xFF),         // Speed MSB
+        UInt8(self.CurrentCadence & 0xFF),  // Cadence
+        UInt8(distance & 0xFF),             // Distance LSB
+        UInt8((distance >> 8) & 0xFF),      // Distance byte 2
+        UInt8((distance >> 16) & 0xFF),     // Distance byte 3
+        UInt8((distance >> 24) & 0xFF)      // Distance MSB
+    ]
+    
+    let rscMeasurementData = Data(bytes: &rscMeasurement, count: 8)
+    return rscMeasurementData
+}
     
   @objc func updateSubscribers() {
     let heartRateData = self.calculateHeartRate()

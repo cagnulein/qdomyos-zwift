@@ -541,6 +541,7 @@ typedef FIT_ENUM FIT_SPORT;
 #define FIT_SPORT_BOXING                                                         ((FIT_SPORT)47)
 #define FIT_SPORT_FLOOR_CLIMBING                                                 ((FIT_SPORT)48)
 #define FIT_SPORT_DIVING                                                         ((FIT_SPORT)53)
+#define FIT_SPORT_JUMPROPE                                                       ((FIT_SPORT)84)
 #define FIT_SPORT_ALL                                                            ((FIT_SPORT)254) // All is for goals only to include all sports.
 #define FIT_SPORT_COUNT                                                          51
 
@@ -1865,7 +1866,7 @@ typedef FIT_UINT32Z FIT_CONNECTIVITY_CAPABILITIES;
 #define FIT_CONNECTIVITY_CAPABILITIES_CONNECT_IQ_WIDGET_DOWNLOAD                 ((FIT_CONNECTIVITY_CAPABILITIES)0x00020000)
 #define FIT_CONNECTIVITY_CAPABILITIES_CONNECT_IQ_WATCH_FACE_DOWNLOAD             ((FIT_CONNECTIVITY_CAPABILITIES)0x00040000)
 #define FIT_CONNECTIVITY_CAPABILITIES_CONNECT_IQ_DATA_FIELD_DOWNLOAD             ((FIT_CONNECTIVITY_CAPABILITIES)0x00080000)
-#define FIT_CONNECTIVITY_CAPABILITIES_CONNECT_IQ_APP_MANAGMENT                   ((FIT_CONNECTIVITY_CAPABILITIES)0x00100000) // Device supports delete and reorder of apps via GCM
+#define FIT_CONNECTIVITY_CAPABILITIES_CONNECT_IQ_APP_MANAGEMENT                  ((FIT_CONNECTIVITY_CAPABILITIES)0x00100000) // Device supports delete and reorder of apps via GCM
 #define FIT_CONNECTIVITY_CAPABILITIES_SWING_SENSOR                               ((FIT_CONNECTIVITY_CAPABILITIES)0x00200000)
 #define FIT_CONNECTIVITY_CAPABILITIES_SWING_SENSOR_REMOTE                        ((FIT_CONNECTIVITY_CAPABILITIES)0x00400000)
 #define FIT_CONNECTIVITY_CAPABILITIES_INCIDENT_DETECTION                         ((FIT_CONNECTIVITY_CAPABILITIES)0x00800000) // Device supports incident detection
@@ -2297,7 +2298,7 @@ typedef FIT_ENUM FIT_EXD_DATA_UNITS;
 #define FIT_EXD_DATA_UNITS_FEET_PER_HOUR                                         ((FIT_EXD_DATA_UNITS)4)
 #define FIT_EXD_DATA_UNITS_METERS_PER_HOUR                                       ((FIT_EXD_DATA_UNITS)5)
 #define FIT_EXD_DATA_UNITS_DEGREES_CELSIUS                                       ((FIT_EXD_DATA_UNITS)6)
-#define FIT_EXD_DATA_UNITS_DEGREES_FARENHEIT                                     ((FIT_EXD_DATA_UNITS)7)
+#define FIT_EXD_DATA_UNITS_DEGREES_FAHRENHEIT                                    ((FIT_EXD_DATA_UNITS)7)
 #define FIT_EXD_DATA_UNITS_ZONE                                                  ((FIT_EXD_DATA_UNITS)8)
 #define FIT_EXD_DATA_UNITS_GEAR                                                  ((FIT_EXD_DATA_UNITS)9)
 #define FIT_EXD_DATA_UNITS_RPM                                                   ((FIT_EXD_DATA_UNITS)10)
@@ -2394,7 +2395,7 @@ typedef FIT_ENUM FIT_EXD_DESCRIPTORS;
 #define FIT_EXD_DESCRIPTORS_INVALID                                              FIT_ENUM_INVALID
 #define FIT_EXD_DESCRIPTORS_BIKE_LIGHT_BATTERY_STATUS                            ((FIT_EXD_DESCRIPTORS)0)
 #define FIT_EXD_DESCRIPTORS_BEAM_ANGLE_STATUS                                    ((FIT_EXD_DESCRIPTORS)1)
-#define FIT_EXD_DESCRIPTORS_BATERY_LEVEL                                         ((FIT_EXD_DESCRIPTORS)2)
+#define FIT_EXD_DESCRIPTORS_BATTERY_LEVEL                                        ((FIT_EXD_DESCRIPTORS)2)
 #define FIT_EXD_DESCRIPTORS_LIGHT_NETWORK_MODE                                   ((FIT_EXD_DESCRIPTORS)3)
 #define FIT_EXD_DESCRIPTORS_NUMBER_LIGHTS_CONNECTED                              ((FIT_EXD_DESCRIPTORS)4)
 #define FIT_EXD_DESCRIPTORS_CADENCE                                              ((FIT_EXD_DESCRIPTORS)5)

@@ -63,23 +63,37 @@ Item {
         color: "white"
         font.pointSize: 22
         wrapMode: TextArea.Wrap
-        text: qsTr("Hi! Do you know that QZ is just an Open Source Indie App?<br><br>No Big Companies are running this!<br>The \"Swag Bag\" is a way to support the ongoing development, maintenance and support of QZ Fitness!<br><br>Thanks to Rungap App for giving me the idea for the name!")
+        text: qsTr("Hi! Do you know that QZ is just an Open Source Indie App?<br><br>No Big Companies are running this!<br>The \"Swag Bag\" is a way to support the ongoing development, maintenance and support of QZ Fitness!")
     }
-
     Column {
         //anchors.top: description.bottom + 10
         anchors.top: description.bottom
         //anchors.bottom: restoreButton.top
         anchors.right: parent.right
         anchors.left: parent.left
+        id: itemSwagBag
 
         SwagBagItem {
             product: productUnlockVowels
             width: parent.width
         }
     }
+    Text {
+        anchors {
+            top: itemSwagBag.bottom
+            horizontalCenter: parent.horizontalCenter
+        }
+        padding: 5
+        id: appleDescription
+        width: parent.width
+        color: "white"
+        font.pointSize: 8
+        wrapMode: TextArea.Wrap
+        text: qsTr("<html><style type='text/css'></style>Swag bag feature:<br>• an auto-renewable subscription<br>• 1 month ($1.99)<br>• Your subscription will be charged to your iTunes account at confirmation of purchase and will automatically renew (at the duration selected) unless auto-renew is turned off at least 24 hours before the end of the current period.<br>• Current subscription may not be cancelled during the active subscription period; however, you can manage your subscription and/or turn off auto-renewal by visiting your iTunes Account Settings after purchase.<br>• Privacy policy: <a href='https://robertoviola.cloud/privacy-policy-qdomyos-zwift/'>https://robertoviola.cloud/privacy-policy-qdomyos-zwift/</a><br>• Licensed Application end user license agreement: <a href='https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'>https://www.apple.com/legal/internet-services/itunes/dev/stdeula/</a><br></html>")
+        onLinkActivated: Qt.openUrlExternally(link)
+    }
 
-    /*Button {
+    Button {
         id: restoreButton
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
@@ -87,7 +101,8 @@ Item {
         text: "Restore Purchases"
         onClicked: {
             console.log("restoring...");
+            toast.show("Restoring...");
             iapStore.restorePurchases();
         }
-    }*/
+    }
 }

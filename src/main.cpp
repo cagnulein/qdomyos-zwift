@@ -6,16 +6,17 @@
 #ifndef Q_OS_ANDROID
 #include "ConsoleReader.h"
 #include <unistd.h> // getuid
+#include "EventHandler.h"
 #endif
 #endif
 #include <QQmlContext>
 
 #include "bluetooth.h"
-#include "domyostreadmill.h"
+#include "devices/domyostreadmill/domyostreadmill.h"
 #include "homeform.h"
 #include "mainwindow.h"
 #include "qfit.h"
-#include "virtualtreadmill.h"
+#include "virtualdevices/virtualtreadmill.h"
 #include <QDir>
 #include <QGuiApplication>
 #include <QOperatingSystemVersion>
@@ -27,7 +28,6 @@
 #endif
 
 #ifdef Q_OS_ANDROID
-
 #include "keepawakehelper.h"
 #include <QtAndroid>
 #endif
@@ -39,6 +39,8 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
+
+#include "handleurl.h"
 
 bool logs = true;
 bool noWriteResistance = false;
@@ -53,6 +55,7 @@ QString peloton_username = "";
 QString peloton_password = "";
 QString pzp_username = "";
 QString pzp_password = "";
+bool fit_file_saved_on_quit = false;
 bool testResistance = false;
 bool forceQml = true;
 bool miles = false;
@@ -67,10 +70,14 @@ bool run_cadence_sensor = false;
 bool nordictrack_10_treadmill = false;
 bool gpiotreadmill = false;
 bool reebok_fr30_treadmill = false;
+bool zwift_play = false;
+bool zwift_click = false;
+bool zwift_play_emulator = false;
+QString eventGearDevice = QStringLiteral("");
 QString trainProgram;
 QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
-uint8_t bikeResistanceOffset = 4;
+int8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
 QString logfilename = QStringLiteral("debug-") +
                       QDateTime::currentDateTime()
@@ -79,6 +86,7 @@ QString logfilename = QStringLiteral("debug-") +
                           .replace(QStringLiteral(" "), QStringLiteral("_"))
                           .replace(QStringLiteral("."), QStringLiteral("_")) +
                       QStringLiteral(".log");
+QUrl profileToLoad;
 static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandler(0);
 
 QCoreApplication *createApplication(int &argc, char *argv[]) {
@@ -135,6 +143,12 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             gpiotreadmill = true;
         if (!qstrcmp(argv[i], "-reebok_fr30_treadmill"))
             reebok_fr30_treadmill = true;
+        if (!qstrcmp(argv[i], "-zwift_play"))
+            zwift_play = true;
+        if (!qstrcmp(argv[i], "-zwift_click"))
+            zwift_click = true;
+        if (!qstrcmp(argv[i], "-zwift_play_emulator"))
+            zwift_play_emulator = true;
         if (!qstrcmp(argv[i], "-test-peloton"))
             testPeloton = true;
         if (!qstrcmp(argv[i], "-test-hfb"))
@@ -148,6 +162,10 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-name")) {
 
             deviceName = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-bluetooth-event-gear-device")) {
+
+            eventGearDevice = argv[++i];
         }
         if (!qstrcmp(argv[i], "-peloton-username")) {
 
@@ -176,6 +194,17 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-bike-resistance-offset")) {
 
             bikeResistanceOffset = atoi(argv[++i]);
+        }
+        if (!qstrcmp(argv[i], "-fit-file-saved-on-quit")) {
+            fit_file_saved_on_quit = true;
+        }
+        if (!qstrcmp(argv[i], "-profile")) {
+            QString profileName = argv[++i];
+            if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
+                profileToLoad = QUrl::fromLocalFile(homeform::getProfileDir() + "/" + profileName + ".qzs");
+            } else {
+                qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
+            }
         }
     }
 
@@ -225,7 +254,7 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
 
     QSettings settings;
-    static bool logdebug = settings.value(QStringLiteral("log_debug"), false).toBool();
+    static bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
     if ((logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
@@ -266,18 +295,12 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         outFile.open(QIODevice::WriteOnly | QIODevice::Append);
         QTextStream ts(&outFile);
         ts << txt;
-
         fprintf(stderr, "%s", txt.toLocal8Bit().constData());
     }
-
     (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
 
 int main(int argc, char *argv[]) {
-
-#ifdef Q_OS_ANDROID
-    qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
-#endif
 #ifdef Q_OS_WIN32
     qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");
 #endif
@@ -285,6 +308,11 @@ int main(int argc, char *argv[]) {
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 #else
+#ifdef Q_OS_IOS
+    HandleURL *URLHandler = new HandleURL();
+    QDesktopServices::setUrlHandler("org.cagnulein.ConnectIQComms-ciq", URLHandler, "handleURL");
+#endif
+
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
@@ -308,53 +336,104 @@ int main(int argc, char *argv[]) {
     app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
 
     QSettings settings;
+
+#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
+    QString profileName = "";
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    profileName = lockscreen::get_action_profile();
+    lockscreen::nslog(QString("quick_action profile " + profileName).toLatin1());
+#endif
+#else
+    QAndroidJniObject javaPath = QAndroidJniObject::fromString(homeform::getWritableAppDir());
+    QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Shortcuts", "getProfileExtras",
+                                                "(Landroid/content/Context;)Ljava/lang/String;", QtAndroid::androidContext().object());
+    profileName = r.toString();
+#endif
+    
+    QFileInfo pp(profileName);
+    profileName = pp.baseName();
+    
+    if(profileName.count()) {
+        if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
+            profileToLoad = QUrl::fromLocalFile(homeform::getProfileDir() + "/" + profileName + ".qzs");
+        } else {
+            qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
+        }
+    }
+#endif
+
+    if (!profileToLoad.isEmpty()) {
+        homeform::loadSettings(profileToLoad);
+    }
+
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+
+    if (fit_file_saved_on_quit) {
+        settings.setValue(QZSettings::fit_file_saved_on_quit, true);
+        qDebug() << "fit_file_saved_on_quit"
+                 << settings.value(QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit);
+    }
+
     if (forceQml)
 #endif
     {
         bool defaultNoHeartService = !noHeartService;
 
-        // Android 10 doesn't support multiple services for peripheral mode
-        if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 10)) {
-            settings.setValue(QStringLiteral("bike_heartrate_service"), true);
-        }
-
         // some Android 6 doesn't support wake lock
         if (QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 7) &&
-            !settings.value(QStringLiteral("android_wakelock")).isValid()) {
-            settings.setValue(QStringLiteral("android_wakelock"), false);
+            !settings.value(QZSettings::android_wakelock).isValid()) {
+            settings.setValue(QZSettings::android_wakelock, false);
         }
 
-        noHeartService = settings.value(QStringLiteral("bike_heartrate_service"), defaultNoHeartService).toBool();
-        bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), bikeResistanceOffset).toInt();
-        bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), bikeResistanceGain).toDouble();
-        deviceName = settings.value(QStringLiteral("filter_device"), QStringLiteral("Disabled")).toString();
+        noHeartService = settings.value(QZSettings::bike_heartrate_service, defaultNoHeartService).toBool();
+        bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, bikeResistanceOffset).toInt();
+        bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, bikeResistanceGain).toDouble();
+        deviceName = settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString();
+        pollDeviceTime = settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt();
     }
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     else {
-        settings.setValue(QStringLiteral("miles_unit"), miles);
-        settings.setValue(QStringLiteral("bluetooth_no_reconnection"), bluetooth_no_reconnection);
-        settings.setValue(QStringLiteral("bluetooth_relaxed"), bluetooth_relaxed);
-        settings.setValue(QStringLiteral("bike_cadence_sensor"), bike_cadence_sensor);
-        settings.setValue(QStringLiteral("bike_power_sensor"), bike_power_sensor);
-        settings.setValue(QStringLiteral("battery_service"), battery_service);
-        settings.setValue(QStringLiteral("service_changed"), service_changed);
-        settings.setValue(QStringLiteral("bike_wheel_revs"), bike_wheel_revs);
-        settings.setValue(QStringLiteral("run_cadence_sensor"), run_cadence_sensor);
-        settings.setValue(QStringLiteral("nordictrack_10_treadmill"), nordictrack_10_treadmill);
         settings.setValue(QStringLiteral("gpio_treadmill"), gpiotreadmill);
-        settings.setValue(QStringLiteral("reebok_fr30_treadmill"), reebok_fr30_treadmill);
+        settings.setValue(QZSettings::miles_unit, miles);
+        settings.setValue(QZSettings::bluetooth_no_reconnection, bluetooth_no_reconnection);
+        settings.setValue(QZSettings::bluetooth_relaxed, bluetooth_relaxed);
+        settings.setValue(QZSettings::bike_cadence_sensor, bike_cadence_sensor);
+        settings.setValue(QZSettings::bike_power_sensor, bike_power_sensor);
+        settings.setValue(QZSettings::battery_service, battery_service);
+        settings.setValue(QZSettings::service_changed, service_changed);
+        settings.setValue(QZSettings::bike_wheel_revs, bike_wheel_revs);
+        settings.setValue(QZSettings::run_cadence_sensor, run_cadence_sensor);
+        settings.setValue(QZSettings::nordictrack_10_treadmill, nordictrack_10_treadmill);
+        settings.setValue(QZSettings::reebok_fr30_treadmill, reebok_fr30_treadmill);
+        settings.setValue(QZSettings::zwift_click, zwift_click);
+        settings.setValue(QZSettings::zwift_play, zwift_play);
+        settings.setValue(QZSettings::zwift_play_emulator, zwift_play_emulator);
     }
 #endif
 
+#ifdef Q_OS_ANDROID
+    if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
+        qDebug() << "handling volume keys";
+        qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
+    }
+#endif
+    
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password"))) {
+        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username")) {
 
             qDebug() << s << settings.value(s);
         }
     }
+
+#if 0
+    qDebug() << "-";
+    qDebug() << "Settings from QZSettings";
+    QZSettings::qDebugAllSettings();
+    qDebug() << "-";
+#endif
 
 #if 0 // test gpx or fit export
     QList<SessionLine> l;
@@ -383,8 +462,8 @@ int main(int argc, char *argv[]) {
             Q_UNUSED(V)
             return app->exec();
         } else if (testPeloton) {
-            settings.setValue("peloton_username", peloton_username);
-            settings.setValue("peloton_password", peloton_password);
+            settings.setValue(QZSettings::peloton_username, peloton_username);
+            settings.setValue(QZSettings::peloton_password, peloton_password);
             peloton *p = new peloton(0, 0);
             p->setTestMode(true);
             QObject::connect(p, &peloton::loginState, [&](bool ok) {
@@ -400,7 +479,7 @@ int main(int argc, char *argv[]) {
             homefitnessbuddy *h = new homefitnessbuddy(0, 0);
             QObject::connect(h, &homefitnessbuddy::loginState, [&](bool ok) {
                 if (ok) {
-                    h->searchWorkout(QDate(2021, 8, 21), "Matt Wilpers", 2700);
+                    h->searchWorkout(QDate(2021, 8, 21), "Matt Wilpers", 2700, "");
                     QObject::connect(h, &homefitnessbuddy::workoutStarted, [&](QList<trainrow> *list) {
                         if (list->length() > 0)
                             app->exit(0);
@@ -432,7 +511,8 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
-    settings.setValue(QStringLiteral("app_opening"), settings.value(QStringLiteral("app_opening"), 0).toInt() + 1);
+    settings.setValue(QZSettings::app_opening,
+                      settings.value(QZSettings::app_opening, QZSettings::default_app_opening).toInt() + 1);
 
 #if defined(Q_OS_ANDROID)
     auto result = QtAndroid::checkPermission(QString("android.permission.READ_EXTERNAL_STORAGE"));
@@ -490,10 +570,18 @@ int main(int argc, char *argv[]) {
         if (resultHash["android.permission.BLUETOOTH_CONNECT"] == QtAndroid::PermissionResult::Denied)
             qDebug() << "BLUETOOTH_CONNECT denied!";
     }
+
+    result = QtAndroid::checkPermission(QString("android.permission.POST_NOTIFICATIONS"));
+    if (result == QtAndroid::PermissionResult::Denied) {
+        QtAndroid::PermissionResultMap resultHash =
+            QtAndroid::requestPermissionsSync(QStringList({"android.permission.POST_NOTIFICATIONS"}));
+        if (resultHash["android.permission.POST_NOTIFICATIONS"] == QtAndroid::PermissionResult::Denied)
+            qDebug() << "POST_NOTIFICATIONS denied!";
+    }    
 #endif
 
     /* test virtual echelon
-     * settings.setValue("virtual_device_echelon", true);
+     * settings.setValue(QZSettings::virtual_device_echelon, true);
     virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);
     Q_UNUSED(V)
     return app->exec();*/
@@ -524,8 +612,10 @@ int main(int argc, char *argv[]) {
 
 #ifdef Q_OS_ANDROID
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Android"));
-#else
+#elif defined(Q_OS_IOS)
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("iOS"));
+#else
+        engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Other"));
 #endif
 #ifdef CHARTJS
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(true));
@@ -556,6 +646,11 @@ int main(int argc, char *argv[]) {
         unlockScreen();
 #endif
     }
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    else {
+        bl.homeformLoaded = true;
+    }
+#endif
 
 #ifdef Q_OS_LINUX
     ConsoleReader *consoleReader = new ConsoleReader(&bl);
@@ -575,6 +670,13 @@ int main(int argc, char *argv[]) {
     } else {
         // start non-GUI version...
     }
+
+#ifdef Q_OS_LINUX
+#ifndef Q_OS_ANDROID
+    if(eventGearDevice.length())
+        new BluetoothHandler(&bl, eventGearDevice);
+#endif
+#endif
     return app->exec();
 #endif
 }

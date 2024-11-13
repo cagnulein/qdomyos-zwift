@@ -385,11 +385,11 @@ QT_USE_NAMESPACE
     }
 
     [uuids addObject:nsUuid];
-    // With the latest CoreBluetooth, we can synchronously retrive peripherals:
+    // With the latest CoreBluetooth, we can synchronously retrieve peripherals:
     QT_BT_MAC_AUTORELEASEPOOL;
     NSArray *const peripherals = [manager retrievePeripheralsWithIdentifiers:uuids];
     if (!peripherals || peripherals.count != 1) {
-        qCWarning(QT_BT_OSX) << "failed to retrive a peripheral";
+        qCWarning(QT_BT_OSX) << "failed to retrieve a peripheral";
         if (notifier)
             emit notifier->CBManagerError(QLowEnergyController::UnknownRemoteDeviceError);
         return;
@@ -648,7 +648,7 @@ QT_USE_NAMESPACE
     servicesToDiscoverDetails.removeAll(serviceUuid);
 
     const NSUInteger nHandles = qt_countGATTEntries(service);
-    Q_ASSERT_X(nHandles, Q_FUNC_INFO, "unexpected number of GATT entires");
+    Q_ASSERT_X(nHandles, Q_FUNC_INFO, "unexpected number of GATT entries");
 
     const QLowEnergyHandle maxHandle = std::numeric_limits<QLowEnergyHandle>::max();
     if (nHandles >= maxHandle || lastValidHandle > maxHandle - nHandles) {
@@ -1058,7 +1058,7 @@ QT_USE_NAMESPACE
 
     // TODO: test that we NEVER have the same characteristic twice in array!
     // At the moment I just protect against this by iterating in a reverse
-    // order (at least avoiding a potential inifite loop with '-indexOfObject:').
+    // order (at least avoiding a potential infinite loop with '-indexOfObject:').
     NSArray *const cs = service.characteristics;
     if (cs.count == 1)
         return nil;
@@ -1091,7 +1091,7 @@ QT_USE_NAMESPACE
 
     // TODO: test that we NEVER have the same characteristic twice in array!
     // At the moment I just protect against this by iterating in a reverse
-    // order (at least avoiding a potential inifite loop with '-indexOfObject:').
+    // order (at least avoiding a potential infinite loop with '-indexOfObject:').
     NSArray *const cs = service.characteristics;
     if (cs.count == 1)
         return nil;
@@ -1597,8 +1597,8 @@ QT_USE_NAMESPACE
     } else {
         // This is (probably) the result of update notification.
         // It's very possible we can have an invalid handle here (0) -
-        // if something esle is wrong (we subscribed for a notification),
-        // disconnected (but other application is connected) and still receiveing
+        // if something else is wrong (we subscribed for a notification),
+        // disconnected (but other application is connected) and still receiving
         // updated values ...
         // TODO: this must be properly tested.
         if (!chHandle) {

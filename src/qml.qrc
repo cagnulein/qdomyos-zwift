@@ -85,5 +85,30 @@
         <file>gpx/St Andrews to Pittenweem.gpx</file>
         <file>GPXList.qml</file>
         <file>videoPlayback.qml</file>
+        <file>settings-tiles.qml</file>
+        <file>inner_templates/floating/floating.htm</file>
+        <file>inner_templates/floating/globals.js</file>
+        <file>inner_templates/floating/jquery-3.6.0.min.js</file>
+        <file>inner_templates/floating/main_ws_manager.js</file>
+        <file>inner_templates/floating/radikalmedium.otf</file>
+        <file>settings-treadmill-inclination-override.qml</file>
+        <file>WebStravaAuth.qml</file>
+        <file>Toast.qml</file>
+        <file>ToastManager.qml</file>
+        <file>inner_templates/chartjs/elliptical.png</file>
+        <file>inner_templates/chartjs/row.png</file>
+        <file>inner_templates/chartjs/run.png</file>
+        <file>inner_templates/chartjs/walk.png</file>
+        <file>inner_templates/chartjs/bike.png</file>
+        <file>inner_templates/chartjs/html2canvas.min.js</file>
+        <file>inner_templates/chartjs/qzlogo.png</file>
+        <file>inner_templates/chartjs/dochartlive.js</file>
+        <file>inner_templates/chartjs/chartlive.htm</file>
+        <file>ChartFooter.qml</file>
+        <file>ChartFooterInnerJS.qml</file>
+        <file>ChartFooterInnerNoJS.qml</file>
+        <file>inner_templates/chartjs/dochartliveheart.js</file>
+        <file>Wizard.qml</file>
+        <file>gears.qml</file>
     </qresource>
 </RCC>

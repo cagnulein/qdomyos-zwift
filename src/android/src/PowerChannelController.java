@@ -30,6 +30,11 @@ import com.dsi.ant.message.fromant.ChannelEventMessage;
 import com.dsi.ant.message.fromant.MessageFromAntType;
 import com.dsi.ant.message.ipc.AntMessageParcel;
 
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+
 import java.util.Random;
 
 public class PowerChannelController {
@@ -88,6 +93,7 @@ public class PowerChannelController {
                     mIsOpen = true;
 
                     Log.d(TAG, "Opened channel with device number: " + POWER_SENSOR_ID);
+
                 } catch (RemoteException e) {
                     channelError(e);
                 } catch (AntCommandFailedException e) {
@@ -164,6 +170,7 @@ public class PowerChannelController {
         int cnt = 0;
         int eventCount = 0;
         int cumulativePower = 0;
+        Timer carousalTimer = null;
 
         @Override
         public void onChannelDeath() {
@@ -176,6 +183,36 @@ public class PowerChannelController {
             Log.d(TAG, "Rx: " + antParcel);
             Log.d(TAG, "Message Type: " + messageType);
             byte[] payload = new byte[8];
+
+            if(carousalTimer == null) {
+               carousalTimer = new Timer(); // At this line a new Thread will be created
+               carousalTimer.scheduleAtFixedRate(new TimerTask() {
+                   @Override
+                   public void run() {
+                       Log.d(TAG, "Tx Unsollicited");
+                       byte[] payload = new byte[8];
+                       eventCount = (eventCount + 1) & 0xFF;
+                       cumulativePower = (cumulativePower + power) & 0xFFFF;
+                       payload[0] = (byte) 0x10;
+                       payload[1] = (byte) eventCount;
+                       payload[2] = (byte) 0xFF;
+                       payload[3] = (byte) cadence;
+                       payload[4] = (byte) ((cumulativePower) & 0xFF);
+                       payload[5] = (byte) ((cumulativePower >> 8) & 0xFF);
+                       payload[6] = (byte) ((power) & 0xFF);
+                       payload[7] = (byte) ((power >> 8) & 0xFF);
+
+                       if (mIsOpen) {
+                           try {
+                               // Setting the data to be broadcast on the next channel period
+                               mAntChannel.setBroadcastData(payload);
+                           } catch (RemoteException e) {
+                               channelError(e);
+                           }
+                       }
+                   }
+               }, 0, 1000); // delay
+           }
 
             // Switching on message type to handle different types of messages
             switch (messageType) {
@@ -204,6 +241,26 @@ public class PowerChannelController {
                             mAntChannel.setBroadcastData(payload);
                         } catch (RemoteException e) {
                             channelError(e);
+                        }
+                    } else {
+                        eventCount = (eventCount + 1) & 0xFF;
+                        cumulativePower = (cumulativePower + power) & 0xFFFF;
+                        payload[0] = (byte) 0x10;
+                        payload[1] = (byte) eventCount;
+                        payload[2] = (byte) 0xFF;
+                        payload[3] = (byte) cadence;
+                        payload[4] = (byte) ((cumulativePower) & 0xFF);
+                        payload[5] = (byte) ((cumulativePower >> 8) & 0xFF);
+                        payload[6] = (byte) ((power) & 0xFF);
+                        payload[7] = (byte) ((power >> 8) & 0xFF);
+
+                        if (mIsOpen) {
+                            try {
+                                // Setting the data to be broadcast on the next channel period
+                                mAntChannel.setBroadcastData(payload);
+                            } catch (RemoteException e) {
+                                channelError(e);
+                            }
                         }
                     }
                     break;
