@@ -428,6 +428,8 @@
 		87A3BC26265642A300D302E3 /* moc_rower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3BC24265642A200D302E3 /* moc_rower.cpp */; };
 		87A3BC27265642A300D302E3 /* moc_echelonrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3BC25265642A200D302E3 /* moc_echelonrower.cpp */; };
 		87A4B76125AF27CB0027EF3C /* metric.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A4B75F25AF27CB0027EF3C /* metric.cpp */; };
+		87A6825A2CE3AB3100586A2A /* moc_sramAXSController.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A682592CE3AB3100586A2A /* moc_sramAXSController.cpp */; };
+		87A6825D2CE3AB4000586A2A /* sramAXSController.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A6825C2CE3AB4000586A2A /* sramAXSController.cpp */; };
 		87ADD2BB27634C1500B7A0AB /* technogymmyruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87ADD2B927634C1400B7A0AB /* technogymmyruntreadmill.cpp */; };
 		87ADD2BD27634C2100B7A0AB /* moc_technogymmyruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87ADD2BC27634C2100B7A0AB /* moc_technogymmyruntreadmill.cpp */; };
 		87AE0CB227760DCB00E547E9 /* virtualtreadmill_zwift.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87AE0CB127760DCB00E547E9 /* virtualtreadmill_zwift.swift */; };
@@ -1348,6 +1350,9 @@
 		87A4B75F25AF27CB0027EF3C /* metric.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = metric.cpp; path = ../src/metric.cpp; sourceTree = "<group>"; };
 		87A4B76025AF27CB0027EF3C /* metric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = metric.h; path = ../src/metric.h; sourceTree = "<group>"; };
 		87A659DB8BE7DBAA7B395EF4 /* fit_monitoring_info_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_monitoring_info_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_monitoring_info_mesg_listener.hpp"; sourceTree = "<absolute>"; };
+		87A682592CE3AB3100586A2A /* moc_sramAXSController.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sramAXSController.cpp; sourceTree = "<group>"; };
+		87A6825B2CE3AB4000586A2A /* sramAXSController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sramAXSController.h; path = ../src/devices/sramAXSController/sramAXSController.h; sourceTree = SOURCE_ROOT; };
+		87A6825C2CE3AB4000586A2A /* sramAXSController.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sramAXSController.cpp; path = ../src/devices/sramAXSController/sramAXSController.cpp; sourceTree = SOURCE_ROOT; };
 		87ADD2B927634C1400B7A0AB /* technogymmyruntreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = technogymmyruntreadmill.cpp; path = ../src/devices/technogymmyruntreadmill/technogymmyruntreadmill.cpp; sourceTree = "<group>"; };
 		87ADD2BA27634C1400B7A0AB /* technogymmyruntreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = technogymmyruntreadmill.h; path = ../src/devices/technogymmyruntreadmill/technogymmyruntreadmill.h; sourceTree = "<group>"; };
 		87ADD2BC27634C2100B7A0AB /* moc_technogymmyruntreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_technogymmyruntreadmill.cpp; sourceTree = "<group>"; };
@@ -2084,6 +2089,9 @@
 			isa = PBXGroup;
 			children = (
 				87B8718F2CE1E837009B06CA /* Zwift hub.pb.swift */,
+				87A6825B2CE3AB4000586A2A /* sramAXSController.h */,
+				87A6825C2CE3AB4000586A2A /* sramAXSController.cpp */,
+				87A682592CE3AB3100586A2A /* moc_sramAXSController.cpp */,
 				87A083062C73361C00567A4E /* characteristicnotifier2ad9.h */,
 				8772B7F92CB5603A004AB8E9 /* deerruntreadmill.h */,
 				8772B7F62CB55E98004AB8E9 /* deerruntreadmill.cpp */,
@@ -3478,6 +3486,7 @@
 				DD2E0091F3318F053D2995AA /* fit_mesg_broadcaster.cpp in Compile Sources */,
 				FE77C778768741F1A161682E /* fit_mesg_definition.cpp in Compile Sources */,
 				875F69B926342E8D0009FD78 /* spirittreadmill.cpp in Compile Sources */,
+				87A6825D2CE3AB4000586A2A /* sramAXSController.cpp in Compile Sources */,
 				87DF68B825E2673B00FCDA46 /* eslinkertreadmill.cpp in Compile Sources */,
 				87BCE6BD29F28F72001F70EB /* ypooelliptical.cpp in Compile Sources */,
 				87C7074327E4CF5900E79C46 /* keepbike.cpp in Compile Sources */,
@@ -3683,6 +3692,7 @@
 				877FBA2B276E684E00F6C0C9 /* moc_bowflextreadmill.cpp in Compile Sources */,
 				874D272229AFA13B0007C079 /* moc_apexbike.cpp in Compile Sources */,
 				8738248127E646C1004F1B46 /* characteristicnotifier2ad2.cpp in Compile Sources */,
+				87A6825A2CE3AB3100586A2A /* moc_sramAXSController.cpp in Compile Sources */,
 				87A0771029B641D600A368BF /* wahookickrheadwind.cpp in Compile Sources */,
 				8791A8AB25C861BD003B50B2 /* inspirebike.cpp in Compile Sources */,
 				876BFC9D27BE35C5001D7645 /* bowflext216treadmill.cpp in Compile Sources */,
@@ -4076,7 +4086,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 939;
+				CURRENT_PROJECT_VERSION = 941;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = "ADB_HOST=1";
@@ -4267,7 +4277,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 939;
+				CURRENT_PROJECT_VERSION = 941;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -4494,7 +4504,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 939;
+				CURRENT_PROJECT_VERSION = 941;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -4590,7 +4600,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 939;
+				CURRENT_PROJECT_VERSION = 941;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -4682,7 +4692,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 939;
+				CURRENT_PROJECT_VERSION = 941;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -4796,7 +4806,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 939;
+				CURRENT_PROJECT_VERSION = 941;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;

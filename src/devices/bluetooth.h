@@ -112,6 +112,7 @@
 #include "devices/sportsplusbike/sportsplusbike.h"
 #include "devices/sportstechbike/sportstechbike.h"
 #include "devices/sportstechelliptical/sportstechelliptical.h"
+#include "devices/sramAXSController/sramAXSController.h"
 #include "devices/stagesbike/stagesbike.h"
 
 #include "devices/renphobike/renphobike.h"
@@ -274,6 +275,7 @@ class bluetooth : public QObject, public SignalHandler {
     QList<eliteariafan *> eliteAriaFan;
     QList<zwiftclickremote* > zwiftPlayDevice;
     zwiftclickremote* zwiftClickRemote = nullptr;
+    sramaxscontroller* sramAXSController = nullptr;
     QString filterDevice = QLatin1String("");
 
     bool testResistance = false;
@@ -308,6 +310,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool eliteSterzoSmartAvaiable();
     bool fitmetriaFanfitAvaiable();
     bool zwiftDeviceAvaiable();
+    bool sramDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
 #ifdef Q_OS_WIN

@@ -2189,6 +2189,11 @@ class QZSettings {
     static const QString proform_treadmill_c700;
     static constexpr bool default_proform_treadmill_c700 = false;
 
+    static const QString sram_axs_controller;
+    static constexpr bool default_sram_axs_controller = false;
+
+    static const QString proform_treadmill_c960i;
+    static constexpr bool default_proform_treadmill_c960i = false;
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

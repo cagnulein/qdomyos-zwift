@@ -170,11 +170,14 @@ void bluetooth::finished() {
     bool zwiftDeviceFound =
         !settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool() && !settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool();
 
+    bool sramDeviceFound = !settings.value(QZSettings::sram_axs_controller, QZSettings::default_sram_axs_controller).toBool();
+
     if ((!heartRateBeltFound && !heartRateBeltAvaiable()) || (!ftmsAccessoryFound && !ftmsAccessoryAvaiable()) ||
         (!cscFound && !cscSensorAvaiable()) || (!powerSensorFound && !powerSensorAvaiable()) ||
         (!eliteRizerFound && !eliteRizerAvaiable()) || (!eliteSterzoSmartFound && !eliteSterzoSmartAvaiable()) ||
         (!fitmetriaFanfitFound && !fitmetriaFanfitAvaiable()) ||
-        (!zwiftDeviceFound && !zwiftDeviceAvaiable())) {
+        (!zwiftDeviceFound && !zwiftDeviceAvaiable()) ||
+        (!sramDeviceFound && !sramDeviceAvaiable())) {
 
         // force heartRateBelt off
         forceHeartBeltOffForTimeout = true;
@@ -294,6 +297,16 @@ bool bluetooth::zwiftDeviceAvaiable() {
     return false;
 }
 
+bool bluetooth::sramDeviceAvaiable() {
+
+    Q_FOREACH (QBluetoothDeviceInfo b, devices) {
+        if (b.name().toUpper().startsWith("SRAM ")) {
+           return true;
+        }
+    }
+    return false;
+}
+
 
 bool bluetooth::powerSensorAvaiable() {
 
@@ -392,6 +405,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name).toString();
     bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
+    bool sramDeviceFound = !settings.value(QZSettings::sram_axs_controller, QZSettings::default_sram_axs_controller).toBool();
     bool zwiftDeviceFound =
         !settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool() && !settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool();
     bool fitmetriaFanfitFound =
@@ -487,6 +501,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if (!zwiftDeviceFound) {
 
         zwiftDeviceFound = zwiftDeviceAvaiable();
+    }
+    if(!sramDeviceFound) {
+
+        sramDeviceFound = sramDeviceAvaiable();
     }
     if (!ftmsAccessoryFound) {
 
@@ -2639,6 +2657,25 @@ void bluetooth::connectedAndDiscovered() {
                     &bike::changeSteeringAngle);
             eliteSterzoSmart->deviceDiscovered(b);
             break;
+        }
+    }
+
+    if(settings.value(QZSettings::sram_axs_controller, QZSettings::default_sram_axs_controller).toBool()) {
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (((b.name().toUpper().startsWith("SRAM "))) && !sramAXSController && this->device() &&
+                    this->device()->deviceType() == bluetoothdevice::BIKE) {
+
+                sramAXSController = new sramaxscontroller();
+                // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+                connect(sramAXSController, &sramaxscontroller::debug, this, &bluetooth::debug);
+                connect(sramAXSController, &sramaxscontroller::plus, (bike*)this->device(), &bike::gearUp);
+                connect(sramAXSController, &sramaxscontroller::minus, (bike*)this->device(), &bike::gearDown);
+                sramAXSController->deviceDiscovered(b);
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested("SRAM Connected!");
+                break;
+            }
         }
     }
 
