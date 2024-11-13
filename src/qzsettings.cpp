@@ -783,8 +783,9 @@ const QString QZSettings::trainprogram_pid_pushy = QStringLiteral("trainprogram_
 const QString QZSettings::min_inclination = QStringLiteral("min_inclination");
 const QString QZSettings::proform_performance_400i = QStringLiteral("proform_performance_400i");
 const QString QZSettings::proform_treadmill_c700 = QStringLiteral("proform_treadmill_c700");
+const QString QZSettings::sram_axs_controller = QStringLiteral("sram_axs_controller");
 
-const uint32_t allSettingsCount = 663;
+const uint32_t allSettingsCount = 664;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1454,6 +1455,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::min_inclination, QZSettings::default_min_inclination},
     {QZSettings::proform_performance_400i, QZSettings::default_proform_performance_400i},
     {QZSettings::proform_treadmill_c700, QZSettings::default_proform_treadmill_c700},
+    {QZSettings::sram_axs_controller, QZSettings::default_sram_axs_controller},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
