@@ -517,8 +517,10 @@ double trainprogram::avgAzimuthNext300Meters() {
 }
 
 void trainprogram::clearRows() {
+    qDebug() << "clearRows"; 
     QMutexLocker(&this->schedulerMutex);
     rows.clear();
+    qDebug() << "clearRows end";
 }
 
 void trainprogram::pelotonOCRprocessPendingDatagrams() {
@@ -584,7 +586,9 @@ void trainprogram::pelotonOCRcomputeTime(QString t) {
 
 void trainprogram::scheduler() {
 
+    qDebug() << "before mutex";
     QMutexLocker(&this->schedulerMutex);
+    qDebug() << "after mutex";
     QSettings settings;
     // outside the if case about a valid train program because the information for the floating window url should be
     // sent anyway
@@ -1205,6 +1209,8 @@ void trainprogram::scheduler() {
         }
         sameIteration++;
     } while (distanceEvaluation);
+
+    qDebug() << "scheduler ends";
 }
 
 void trainprogram::end() {
