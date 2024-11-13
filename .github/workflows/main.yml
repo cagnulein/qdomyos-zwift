@@ -1094,8 +1094,11 @@ jobs:
             qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5
             qtquickcontrols2-5-dev qml-module-qtquick-controls2 &&
             cd /tmp &&
-            wget https://github.com/WiringPi/WiringPi/releases/download/3.10/wiringpi_3.10_armhf.deb &&
-            dpkg -i wiringpi_3.10_armhf.deb &&
+            git clone https://github.com/WiringPi/WiringPi.git &&
+            cd WiringPi &&
+            ./build debian &&
+            mv debian-template/wiringpi-3.0-1.deb . &&
+            apt install -y ./wiringpi-3.0-1.deb &&
             export QT_SELECT=qt5 &&
             export PATH=/usr/lib/qt5/bin:$PATH &&
             cd /github/workspace &&
@@ -1143,7 +1146,32 @@ jobs:
         uses: docker://arm64v8/debian:bullseye-20241016
         with:
           args: >
-            bash -c " set -ex && apt-get update && apt-get install -y build-essential git cmake wget qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 && cd /tmp && wget https://github.com/WiringPi/WiringPi/releases/download/3.10/wiringpi_3.10_arm64.deb && dpkg -i wiringpi_3.10_arm64.deb && export QT_SELECT=qt5 && export PATH=/usr/lib/qt5/bin:$PATH && cd /github/workspace && sed -i '/QtHttpServer/d' qdomyos-zwift.pro && find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + && find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + && cat qdomyos-zwift.pro && qmake && make -j$(nproc) "
+            bash -c "
+            set -ex &&
+            apt-get update &&
+            apt-get install -y build-essential git cmake wget
+            qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools
+            libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev
+            qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev
+            libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation
+            qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5
+            qtquickcontrols2-5-dev qml-module-qtquick-controls2 &&
+            cd /tmp &&
+            git clone https://github.com/WiringPi/WiringPi.git &&
+            cd WiringPi &&
+            ./build debian &&
+            mv debian-template/wiringpi-3.0-1.deb . &&
+            apt install -y ./wiringpi-3.0-1.deb &&
+            export QT_SELECT=qt5 &&
+            export PATH=/usr/lib/qt5/bin:$PATH &&
+            cd /github/workspace &&
+            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
+            cat qdomyos-zwift.pro &&
+            qmake &&
+            make -j$(nproc)
+            "
 
       - name: Archive Raspberry Pi binary
         uses: actions/upload-artifact@v4
