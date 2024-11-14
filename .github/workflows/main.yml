@@ -834,6 +834,7 @@ jobs:
         working-directory: ${{ runner.workspace }}
         
       - name: Create vcpkg.json
+        working-directory: ${{ runner.workspace }}
         run: |
           echo '{
             "name": "qdomyos-zwift",
@@ -1027,6 +1028,7 @@ jobs:
         working-directory: ${{ runner.workspace }}
         
       - name: Create vcpkg.json
+        working-directory: ${{ runner.workspace }}
         run: |
           echo '{
             "name": "qdomyos-zwift",
