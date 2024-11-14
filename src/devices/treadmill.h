@@ -80,8 +80,6 @@ class treadmill : public bluetoothdevice {
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
-    metric RequestedPower;
-    int16_t requestPower = -1;
     treadmillErgTable _ergTable;
 
     void parseSpeed(double speed);

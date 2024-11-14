@@ -30,6 +30,9 @@ CONFIG += qmltypes
 #win32: CONFIG += webengine
 #unix:!android: CONFIG += webengine
 
+win32:DEFINES += _ITERATOR_DEBUG_LEVEL=0
+win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -L$$PWD
+
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
 # Additional import path used to resolve QML modules in Qt Creator's code model
@@ -72,9 +75,14 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    $$PWD/devices/antbike/antbike.cpp \
     $$PWD/devices/crossrope/crossrope.cpp \
+    $$PWD/devices/deeruntreadmill/deerruntreadmill.cpp \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
     $$PWD/devices/jumprope.cpp \
+    $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
+    $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
+    $$PWD/devices/sramAXSController/sramAXSController.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
@@ -281,6 +289,11 @@ zwiftworkout.cpp
 macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
 
+#zwift api
+msvc {
+    SOURCES += zwift-api/zwift_messages.pb.cc
+}
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
@@ -289,12 +302,19 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/ devices/
 
 HEADERS += \
+    $$PWD/EventHandler.h \
+    $$PWD/devices/antbike/antbike.h \
     $$PWD/devices/crossrope/crossrope.h \
+    $$PWD/devices/deeruntreadmill/deerruntreadmill.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/jumprope.h \
+    $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
+    $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
+    $$PWD/devices/sramAXSController/sramAXSController.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/ergtable.h \
     $$PWD/treadmillErgTable.h \
+    $$PWD/wheelcircumference.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
 devices/csaferower/csafe.h \
@@ -736,7 +756,7 @@ RESOURCES += \
 
 DISTFILES += \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
-    $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
+    $$PWD/android/libs/ciq-companion-app-sdk-2.0.3.aar \
     $$PWD/android/libs/zaplibrary-debug.aar \
     $$PWD/android/res/xml/device_filter.xml \
     $$PWD/android/src/BleAdvertiser.java \
@@ -745,6 +765,8 @@ DISTFILES += \
     $$PWD/android/src/Garmin.java \
    $$PWD/android/src/HidBridge.java \
     $$PWD/android/src/IQMessageReceiverWrapper.java \
+    $$PWD/android/src/LocationHelper.java \
+    $$PWD/android/src/MediaButtonReceiver.java \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/ScreenCaptureService.java \
@@ -753,6 +775,8 @@ DISTFILES += \
     $$PWD/android/src/WearableMessageListenerService.java \
     $$PWD/android/src/ZapClickLayer.java \
     $$PWD/android/src/ZwiftAPI.java \
+    $$PWD/android/src/ZwiftHubBike.java \
+    $$PWD/android/src/main/proto/zwift_hub.proto \
     $$PWD/android/src/main/proto/zwift_messages.proto \
     .clang-format \
    AppxManifest.xml \
@@ -848,4 +872,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.16.58
+VERSION = 2.18.5

@@ -13,6 +13,9 @@
 #include "windows_zwift_incline_paddleocr_thread.h"
 #include "windows_zwift_workout_paddleocr_thread.h"
 #endif
+#ifdef Q_CC_MSVC
+#include "zwift-api/zwift_messages.pb.h"
+#endif
 #include "localipaddress.h"
 
 using namespace std::chrono_literals;
@@ -631,6 +634,7 @@ void trainprogram::scheduler() {
                     if(zwift_counter++ >= (timeout - 1)) {
                         zwift_counter = 0;
                         QByteArray bb = zwift_world->playerStatus(zwift_player_id);
+                        qDebug() << " ZWIFT API PROTOBUF << " + bb.toHex(' ');
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
                         h->zwift_api_decodemessage_player(bb.data(), bb.length());
@@ -654,6 +658,18 @@ void trainprogram::scheduler() {
 
                         float alt = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
                         float distance = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
+#elif defined Q_CC_MSVC
+                        PlayerState state;
+                        float alt = 0;
+                        float distance = 0;
+                        if (state.ParseFromArray(bb.constData(), bb.size())) {
+                            // Parsing riuscito, ora puoi accedere ai dati in `state`
+                            alt = state.altitude();
+                            distance = state.distance();
+                        } else {
+                            // Errore durante il parsing
+                            qDebug() << "Error parsing PlayerState";
+                        }
 #else
                         float alt = 0;
                         float distance = 0;
@@ -947,6 +963,12 @@ void trainprogram::scheduler() {
 
         currentStepDistance += (odometerFromTheDevice - lastOdometer);
         lastOdometer = odometerFromTheDevice;
+
+        if(currentStep >= rows.length()) {
+            qDebug() << "currentStep greater than row.length" << currentStep << rows.length();
+            end();
+            return;
+        }
         bool distanceStep = (rows.at(currentStep).distance > 0);
         distanceEvaluation = (distanceStep && currentStepDistance >= rows.at(currentStep).distance);
         qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("currentStepDistance") << currentStepDistance
@@ -966,6 +988,12 @@ void trainprogram::scheduler() {
                     currentStep = calculatedLine;
                 else
                     currentStep++;
+
+                if(currentStep >= rows.length()) {
+                    qDebug() << "currentStep greater than row.length" << currentStep << rows.length();
+                    end();
+                    return;
+                }
 
                 calculatedLine = currentStep;
 
@@ -1111,23 +1139,8 @@ void trainprogram::scheduler() {
                     emit changeGeoPosition(p, rows.at(currentStep).azimuth, avgAzimuthNext300Meters());
                 }
             } else {
-                qDebug() << QStringLiteral("trainprogram ends!");
-
-                // circuit?
-                if (!isnan(rows.first().latitude) && !isnan(rows.first().longitude) &&
-                    QGeoCoordinate(rows.first().latitude, rows.first().longitude)
-                            .distanceTo(bluetoothManager->device()->currentCordinate()) < 50) {
-                    emit lap();
-                    restart();
-                    distanceEvaluation = false;
-                } else {
-                    started = false;
-                    if (settings
-                            .value(QZSettings::trainprogram_stop_at_end, QZSettings::default_trainprogram_stop_at_end)
-                            .toBool())
-                        emit stop(false);
-                    distanceEvaluation = false;
-                }
+                end();
+                distanceEvaluation = false;
             }
         } else {
             if (rows.length() > currentStep && rows.at(currentStep).power != -1) {
@@ -1192,6 +1205,25 @@ void trainprogram::scheduler() {
         }
         sameIteration++;
     } while (distanceEvaluation);
+}
+
+void trainprogram::end() {
+    QSettings settings;
+    qDebug() << QStringLiteral("trainprogram ends!");
+
+           // circuit?
+    if (!isnan(rows.first().latitude) && !isnan(rows.first().longitude) &&
+        QGeoCoordinate(rows.first().latitude, rows.first().longitude)
+                .distanceTo(bluetoothManager->device()->currentCordinate()) < 50) {
+        emit lap();
+        restart();
+    } else {
+        started = false;
+        if (settings
+                .value(QZSettings::trainprogram_stop_at_end, QZSettings::default_trainprogram_stop_at_end)
+                .toBool())
+            emit stop(false);
+    }
 }
 
 bool trainprogram::overridePowerForCurrentRow(double power) {
@@ -1336,7 +1368,11 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
 void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
 
 trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString Extension) {
-    if (!Extension.toUpper().compare(QStringLiteral("ZWO"))) {
+    if (!Extension.toUpper().compare(QStringLiteral("ZWO"))
+#ifdef Q_OS_ANDROID
+            || filename.toUpper().contains(".ZWO")
+#endif
+            ) {
 
         QString description = "";
         QString tags = "";

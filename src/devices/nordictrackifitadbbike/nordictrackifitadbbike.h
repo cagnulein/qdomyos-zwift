@@ -60,12 +60,13 @@ class nordictrackifitadbbikeLogcatAdbThread : public QThread {
 class nordictrackifitadbbike : public bike {
     Q_OBJECT
   public:
-    nordictrackifitadbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    nordictrackifitadbbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                            double bikeResistanceGain);
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool inclinationAvailableByHardware() override;
-    resistance_t resistanceFromPowerRequest(uint16_t power) override;    
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    bool ifitCompatible() override;
 
   private:
     const resistance_t max_resistance = 17; // max inclination for s22i

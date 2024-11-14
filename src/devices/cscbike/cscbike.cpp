@@ -87,7 +87,9 @@ void cscbike::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(true, watts());
+        bool cadence_sensor_as_bike =
+            settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
+        update_metrics(true, watts(), !cadence_sensor_as_bike);
 
         if(lastGoodCadence.secsTo(QDateTime::currentDateTime()) > 5 && !charNotified) {
             readMethod = true;
@@ -139,7 +141,7 @@ void cscbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
-    qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
+    qDebug() << "characteristicChanged << " << characteristic.uuid() << newValue.toHex(' ') << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     // QString heartRateBeltName = //unused QString
@@ -208,7 +210,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
     if (CrankRevs != oldCrankRevs && deltaT) {
         double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
-        if (cadence >= 0 && cadence < 256)
+        if ((cadence >= 0 && cadence < 256 && CrankPresent) || (!CrankPresent && WheelPresent))
             Cadence = cadence;
         lastGoodCadence = now;
     } else if (lastGoodCadence.msecsTo(now) > 2000) {

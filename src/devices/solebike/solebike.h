@@ -35,7 +35,7 @@
 class solebike : public bike {
     Q_OBJECT
   public:
-    solebike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
+    solebike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
     bool connected() override;
@@ -62,7 +62,7 @@ class solebike : public bike {
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     uint8_t counterPoll = 1;
     uint8_t sec1Update = 0;

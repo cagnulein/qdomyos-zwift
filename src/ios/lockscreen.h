@@ -1,6 +1,8 @@
 #ifndef LOCKSCREEN_H
 #define LOCKSCREEN_H
 
+#include <QByteArray>
+
 class lockscreen {
   public:
     void setTimerDisabled();
@@ -18,14 +20,15 @@ class lockscreen {
     void virtualbike_setHeartRate(unsigned char heartRate);
     void virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime);
 
-    void virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool tacx);
+    void virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator, bool tacx);
+
     double virtualbike_getCurrentSlope();
     double virtualbike_getCurrentCRR();
     double virtualbike_getCurrentCW();
     double virtualbike_getPowerRequested();
     bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                 unsigned short currentCadence, unsigned short currentWatt,
-                                unsigned short CrankRevolutions, unsigned short LastCrankEventTime);
+                                unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears);
     int virtualbike_getLastFTMSMessage(unsigned char *message);
 
     // virtualrower
@@ -56,6 +59,8 @@ class lockscreen {
     void garminconnect_init();
     int getHR();
     int getFootCad();
+    int getPower();
+    double getSpeed();
     
     // debug
     static void debug(const char* debugstring);
@@ -75,6 +80,10 @@ class lockscreen {
     int zwift_api_getdistance();
     float zwift_api_getlatitude();
     float zwift_api_getlongitude();
+    
+    // Zwift Hub Protobuf
+    static QByteArray zwift_hub_inclinationCommand(double inclination);
+    static QByteArray zwift_hub_setGearsCommand(unsigned int gears);
     
     // quick actions    
     static void set_action_profile(const char* profile);

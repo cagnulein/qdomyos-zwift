@@ -442,7 +442,7 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
 
-            uint8_t bikeResistanceOffset =
+            int8_t bikeResistanceOffset =
                 settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
             double bikeResistanceGain =
                 settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
