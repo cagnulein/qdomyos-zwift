@@ -40,8 +40,6 @@
 #include <QUrlQuery>
 #include <chrono>
 
-#include "mqttpublisher.h"
-
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
@@ -707,9 +705,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                               "registerReceiver",
                                               "(Landroid/content/Context;)V",
                                               QtAndroid::androidContext().object());
-#endif
-
-    MQTTPublisher* mqtt = new MQTTPublisher("192.168.0.83");
+#endif    
 
     bluetoothManager->homeformLoaded = true;
 }

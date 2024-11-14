@@ -3,7 +3,7 @@
 #include "homeform.h"
 #include <QDebug>
 
-MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QObject *parent)
+MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, bluetooth* manager, QObject *parent)
     : QObject(parent)
     , m_host(host)
     , m_port(port)
@@ -11,6 +11,7 @@ MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QObject *parent)
 {
     m_client = new QMqttClient();
     m_timer = new QTimer();
+    m_manager = manager;
     m_userNickname = getUserNickname();
 
     // Setup timer for periodic publishing
@@ -127,7 +128,9 @@ void MQTTPublisher::publishToTopic(const QString& topic, const QVariant& value) 
 
 void MQTTPublisher::publishWorkoutData() {
 
-    m_device = homeform::singleton()->bluetoothManager->device();
+    if(!m_device && m_manager && m_manager->device()) {
+        m_device = m_manager->device();
+    }
 
     if (!isConnected() || !m_device) return;
 

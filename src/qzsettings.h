@@ -2194,6 +2194,12 @@ class QZSettings {
 
     static const QString proform_treadmill_c960i;
     static constexpr bool default_proform_treadmill_c960i = false;
+
+    static const QString mqtt_host;
+    static const QString default_mqtt_host;
+
+    static const QString mqtt_port;
+    static constexpr int default_mqtt_port = 1883;
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

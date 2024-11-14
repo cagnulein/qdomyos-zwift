@@ -1009,6 +1009,10 @@ import QtQuick.Dialogs 1.0
             property bool proform_treadmill_c700: false
             property bool sram_axs_controller: false
             property bool proform_treadmill_c960i: false
+
+            // from version 2.18.6
+            property string mqtt_host: ""
+            property int mqtt_port: 1883
         }
 
         function paddingZeros(text, limit) {
@@ -10533,6 +10537,88 @@ import QtQuick.Dialogs 1.0
                             }
                         }
                     }
+
+                    AccordionElement {
+                        id: mqttAccordion
+                        title: qsTr("MQTT Settings")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("MQTT Host:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: mqttHostTextField
+                                    text: settings.mqtt_host
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: settings.mqtt_host = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.mqtt_host = mqttHostTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Enter the MQTT broker hostname or IP address")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("MQTT Port:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: mqttPortTextField
+                                    text: settings.mqtt_port
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.mqtt_port = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.mqtt_port = mqttPortTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Enter the MQTT broker port (default: 1883)")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }                    
 
                     SwitchDelegate {
                         text: qsTr("Race Mode")

@@ -12,12 +12,13 @@
 #include "devices/treadmill.h"
 #include "devices/rower.h"
 #include "homeform.h"
+#include "bluetooth.h"
 
 class MQTTPublisher : public QObject {
     Q_OBJECT
 
 public:
-    explicit MQTTPublisher(const QString& host = "localhost", quint16 port = 1883, QObject *parent = nullptr);
+    explicit MQTTPublisher(const QString& host = "localhost", quint16 port = 1883, bluetooth* manager = nullptr, QObject *parent = nullptr);
     ~MQTTPublisher();
 
     void start();
@@ -46,6 +47,7 @@ private:
     quint16 m_port;
     QString m_userNickname;
     bluetoothdevice* m_device;
+    bluetooth* m_manager;
 };
 
 #endif // MQTTPUBLISHER_H
