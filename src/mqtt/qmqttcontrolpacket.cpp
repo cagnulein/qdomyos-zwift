@@ -26,13 +26,11 @@
 ** $QT_END_LICENSE$
 **
 ******************************************************************************/
-
+#include <limits>
 #include "qmqttcontrolpacket_p.h"
 
 #include <QtCore/QtEndian>
 #include <QtCore/QLoggingCategory>
-
-QT_BEGIN_NAMESPACE
 
 Q_DECLARE_LOGGING_CATEGORY(lcMqttClient)
 
@@ -143,6 +141,4 @@ QByteArray QMqttControlPacket::serializePayload() const
     data.append(m_payload);
     return data;
 }
-
-QT_END_NAMESPACE
 
