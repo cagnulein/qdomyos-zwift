@@ -1738,7 +1738,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
         // else
         {
-            if (firstDistanceCalculated)
+            if (firstDistanceCalculated && !isPaused())
                 Distance += ((Speed.value() / 3600000.0) *
                              ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
             distanceEval = true;
