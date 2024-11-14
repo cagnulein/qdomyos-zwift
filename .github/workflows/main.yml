@@ -838,20 +838,13 @@ jobs:
         run: |
           echo '{
             "name": "qdomyos-zwift",
+            "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
             "dependencies": [
-              {
-                "name": "protobuf",
-                "version-string": "4.25.1#1"
-              },
-              {
-                "name": "protobuf-c", 
-                "version-string": "1.5.0"
-              },
-              {
-                "name": "abseil",
-                "version-string": "20240722.0"
-              }
-            ]
+              "protobuf",
+              "protobuf-c",
+              "abseil"
+            ],
+            "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
           }' > vcpkg.json
       
       - name: Install dependencies
@@ -1032,20 +1025,13 @@ jobs:
         run: |
           echo '{
             "name": "qdomyos-zwift",
+            "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
             "dependencies": [
-              {
-                "name": "protobuf",
-                "version-string": "4.25.1#1"
-              },
-              {
-                "name": "protobuf-c", 
-                "version-string": "1.5.0"
-              },
-              {
-                "name": "abseil",
-                "version-string": "20240722.0"
-              }
-            ]
+              "protobuf",
+              "protobuf-c",
+              "abseil"
+            ],
+            "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
           }' > vcpkg.json
       
       - name: Install dependencies
