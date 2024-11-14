@@ -82,6 +82,7 @@ SOURCES += \
     $$PWD/devices/jumprope.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
+    $$PWD/devices/sramAXSController/sramAXSController.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
     $$PWD/mqtt/qmqttauthenticationproperties.cpp \
     $$PWD/mqtt/qmqttclient.cpp \
@@ -321,6 +322,7 @@ HEADERS += \
     $$PWD/devices/jumprope.h \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
+    $$PWD/devices/sramAXSController/sramAXSController.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/ergtable.h \
     $$PWD/mqtt/qmqttauthenticationproperties.h \
@@ -342,6 +344,7 @@ HEADERS += \
     $$PWD/mqtt/qmqtttopicname.h \
     $$PWD/mqtt/qmqtttype.h \
     $$PWD/treadmillErgTable.h \
+    $$PWD/wheelcircumference.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
 devices/csaferower/csafe.h \
@@ -802,6 +805,8 @@ DISTFILES += \
     $$PWD/android/src/WearableMessageListenerService.java \
     $$PWD/android/src/ZapClickLayer.java \
     $$PWD/android/src/ZwiftAPI.java \
+    $$PWD/android/src/ZwiftHubBike.java \
+    $$PWD/android/src/main/proto/zwift_hub.proto \
     $$PWD/android/src/main/proto/zwift_messages.proto \
     .clang-format \
    AppxManifest.xml \
@@ -897,4 +902,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.18.4
+VERSION = 2.18.5

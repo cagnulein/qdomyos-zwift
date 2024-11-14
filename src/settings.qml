@@ -1007,6 +1007,8 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.5
             property bool proform_treadmill_c700: false
+            property bool sram_axs_controller: false
+            property bool proform_treadmill_c960i: false
         }
 
         function paddingZeros(text, limit) {
@@ -6230,7 +6232,7 @@ import QtQuick.Dialogs 1.0
                                 "Proform Carbon TL", "Proform Proshox 2", "Nordictrack S20i", "Proform 595i",
                                 "Proform 8.7", "Proform 705 CST V78.239", "Proform Carbon T7",
                                 "Nordictrack EXP 5i", "Proform Carbon TL PFTL59720", "Proform Sport 7.0", "Proform 575i",
-                                "Proform Performance 400i", "Proform C700"
+                                "Proform Performance 400i", "Proform C700", "Proform C960i"
                             ]
 
                             onCurrentIndexChanged: {
@@ -6275,6 +6277,7 @@ import QtQuick.Dialogs 1.0
                                 settings.proform_treadmill_575i = false;
                                 settings.proform_performance_400i = false;
                                 settings.proform_treadmill_c700 = false;
+                                settings.proform_treadmill_c960i = false;
 
                                 // Imposta il setting corrispondente al modello selezionato
                                 switch (currentIndex) {
@@ -6316,6 +6319,7 @@ import QtQuick.Dialogs 1.0
                                     case 35: settings.proform_treadmill_575i = true; break;
                                     case 36: settings.proform_performance_400i = true; break;
                                     case 37: settings.proform_treadmill_c700 = true; break;
+                                    case 38: settings.proform_treadmill_c960i = true; break;
                                 }
                             }
 
@@ -6358,7 +6362,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_treadmill_sport_70 ? 34 :
                                                     settings.proform_treadmill_575i ? 35 :
                                                     settings.proform_performance_400i ? 36 :
-                                                    settings.proform_treadmill_c700 ? 37 : -1;
+                                                    settings.proform_treadmill_c700 ? 37 :
+                                                    settings.proform_treadmill_c960i ? 38 : -1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 
@@ -9851,6 +9856,44 @@ import QtQuick.Dialogs 1.0
                         }
                     }
                 }
+
+                AccordionElement {
+                        title: qsTr("SRAM Devices Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            SwitchDelegate {
+                                text: qsTr("SRAM AXS")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.sram_axs_controller
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.sram_axs_controller = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Use it to change the gears on QZ!")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }
+
                 AccordionElement {
                         title: qsTr("Zwift Devices Options")
                         indicatRectColor: Material.color(Material.Grey)
