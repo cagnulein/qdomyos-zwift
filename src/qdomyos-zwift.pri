@@ -896,6 +896,12 @@ ios {
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
+HEADERS += \
+    mqttpublisher.h
+
+SOURCES += \
+    mqttpublisher.cpp
+
 include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
 INCLUDEPATH += purchasing/inapp
