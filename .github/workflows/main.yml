@@ -849,7 +849,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          .\vcpkg\vcpkg install --triplet x64-windows --install-root D:\a\qdomyos-zwift\vcpkg\installed
+          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=D:\a\qdomyos-zwift\vcpkg\installed
         working-directory: ${{ runner.workspace }}
   
       - name: Build
@@ -1036,7 +1036,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          .\vcpkg\vcpkg install --triplet x64-windows --install-root D:\a\qdomyos-zwift\vcpkg\installed
+          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=D:\a\qdomyos-zwift\vcpkg\installed
         working-directory: ${{ runner.workspace }}
 
       - name: Build
