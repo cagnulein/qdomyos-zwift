@@ -134,6 +134,43 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         advertisingData.setServices(services);
         //! [Advertising Data]
 
+        if(virtual_device_tacx) {
+            // Add Device Information Service
+            QLowEnergyCharacteristicData manufacturerNameChar;
+            manufacturerNameChar.setUuid(QBluetoothUuid::CharacteristicType::ManufacturerNameString);
+            manufacturerNameChar.setProperties(QLowEnergyCharacteristic::Read);
+            manufacturerNameChar.setValue(QByteArray("Tacx"));
+        
+            QLowEnergyCharacteristicData modelNumberChar;
+            modelNumberChar.setUuid(QBluetoothUuid::CharacteristicType::ModelNumberString);
+            modelNumberChar.setProperties(QLowEnergyCharacteristic::Read);
+            modelNumberChar.setValue(QByteArray("Neo"));
+        
+            QLowEnergyCharacteristicData serialNumberChar;
+            serialNumberChar.setUuid(QBluetoothUuid::CharacteristicType::SerialNumberString);
+            serialNumberChar.setProperties(QLowEnergyCharacteristic::Read);
+            serialNumberChar.setValue(QByteArray("17867"));
+        
+            QLowEnergyCharacteristicData hardwareRevChar;
+            hardwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::HardwareRevisionString);
+            hardwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
+            hardwareRevChar.setValue(QByteArray("0"));
+        
+            QLowEnergyCharacteristicData firmwareRevChar;
+            firmwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::FirmwareRevisionString);
+            firmwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
+            firmwareRevChar.setValue(QByteArray("0.7.4"));
+        
+            // Create Device Information Service        
+            serviceDataDIS.setType(QLowEnergyServiceData::ServiceTypePrimary);
+            serviceDataDIS.setUuid(QBluetoothUuid::DeviceInformation);
+            serviceDataDIS.addCharacteristic(manufacturerNameChar);
+            serviceDataDIS.addCharacteristic(modelNumberChar);
+            serviceDataDIS.addCharacteristic(serialNumberChar);
+            serviceDataDIS.addCharacteristic(hardwareRevChar);
+            serviceDataDIS.addCharacteristic(firmwareRevChar);
+        }
+      
         if (!echelon && !ifit) {
             if (!heart_only) {
                 if (!cadence && !power) {
@@ -483,6 +520,11 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         }
         QThread::msleep(100); // give time to Android to add the service async.ly
 
+        if(virtual_device_tacx) {
+          serviceDIS = leController->addService(serviceDataDIS);
+          QThread::msleep(100); // give time to Android to add the service async.ly
+        }
+      
         if (battery) {
             serviceBattery = leController->addService(serviceDataBattery);
         }
@@ -1363,6 +1405,11 @@ void virtualbike::reconnect() {
     }
     QThread::msleep(100); // give time to Android to add the service async.ly
 
+    if(virtual_device_tacx) {
+      serviceDIS = leController->addService(serviceDataDIS);
+      QThread::msleep(100); // give time to Android to add the service async.ly
+    }
+  
     if (battery)
         serviceBattery = leController->addService(serviceDataBattery);
 
