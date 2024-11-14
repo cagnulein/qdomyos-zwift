@@ -22,6 +22,7 @@ MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QObject *parent)
     connect(m_client, &QMqttClient::errorChanged, this, &MQTTPublisher::onError);
 
     setupMQTTClient();
+    start();
 }
 
 MQTTPublisher::~MQTTPublisher() {
