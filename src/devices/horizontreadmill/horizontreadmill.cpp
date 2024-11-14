@@ -2329,9 +2329,7 @@ void horizontreadmill::serviceScanDone(void) {
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
             connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                     &horizontreadmill::stateChanged);
-            QTimer::singleShot(0, [=] () {
-                gattCommunicationChannelService.constLast()->discoverDetails();
-            });
+            gattCommunicationChannelService.constLast()->discoverDetails();
         }
 #ifdef Q_OS_WIN
         else {
