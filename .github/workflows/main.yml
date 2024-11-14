@@ -835,7 +835,7 @@ jobs:
         
       - name: Install dependencies
         run: |
-          .\vcpkg\vcpkg install protobuf protobuf-c abseil
+          .\vcpkg\vcpkg install protobuf:x64-windows@4.25.1#1 protobuf-c:x64-windows@1.5.0 abseil:x64-windows@20240722.0
         working-directory: ${{ runner.workspace }}
   
       - name: Build
@@ -1008,7 +1008,7 @@ jobs:
         
       - name: Install dependencies
         run: |
-          .\vcpkg\vcpkg install protobuf protobuf-c abseil
+          .\vcpkg\vcpkg install protobuf:x64-windows@4.25.1#1 protobuf-c:x64-windows@1.5.0 abseil:x64-windows@20240722.0
         working-directory: ${{ runner.workspace }}
 
       - name: Build
