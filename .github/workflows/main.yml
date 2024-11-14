@@ -841,15 +841,15 @@ jobs:
             "dependencies": [
               {
                 "name": "protobuf",
-                "version=": "4.25.1#1"
+                "version-string": "4.25.1#1"
               },
               {
-                "name": "protobuf-c",
-                "version=": "1.5.0"
+                "name": "protobuf-c", 
+                "version-string": "1.5.0"
               },
               {
                 "name": "abseil",
-                "version=": "20240722.0"
+                "version-string": "20240722.0"
               }
             ]
           }' > vcpkg.json
@@ -1035,15 +1035,15 @@ jobs:
             "dependencies": [
               {
                 "name": "protobuf",
-                "version=": "4.25.1#1"
+                "version-string": "4.25.1#1"
               },
               {
-                "name": "protobuf-c",
-                "version=": "1.5.0"
+                "name": "protobuf-c", 
+                "version-string": "1.5.0"
               },
               {
                 "name": "abseil",
-                "version=": "20240722.0"
+                "version-string": "20240722.0"
               }
             ]
           }' > vcpkg.json
