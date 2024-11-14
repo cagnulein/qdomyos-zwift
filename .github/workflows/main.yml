@@ -833,9 +833,29 @@ jobs:
         run: .\vcpkg\bootstrap-vcpkg.bat
         working-directory: ${{ runner.workspace }}
         
+      - name: Create vcpkg.json
+        run: |
+          echo '{
+            "name": "qdomyos-zwift",
+            "dependencies": [
+              {
+                "name": "protobuf",
+                "version=": "4.25.1#1"
+              },
+              {
+                "name": "protobuf-c",
+                "version=": "1.5.0"
+              },
+              {
+                "name": "abseil",
+                "version=": "20240722.0"
+              }
+            ]
+          }' > vcpkg.json
+      
       - name: Install dependencies
         run: |
-          .\vcpkg\vcpkg install protobuf:x64-windows@4.25.1#1 protobuf-c:x64-windows@1.5.0 abseil:x64-windows@20240722.0
+          .\vcpkg\vcpkg install --triplet x64-windows
         working-directory: ${{ runner.workspace }}
   
       - name: Build
@@ -1006,9 +1026,29 @@ jobs:
         run: .\vcpkg\bootstrap-vcpkg.bat
         working-directory: ${{ runner.workspace }}
         
+      - name: Create vcpkg.json
+        run: |
+          echo '{
+            "name": "qdomyos-zwift",
+            "dependencies": [
+              {
+                "name": "protobuf",
+                "version=": "4.25.1#1"
+              },
+              {
+                "name": "protobuf-c",
+                "version=": "1.5.0"
+              },
+              {
+                "name": "abseil",
+                "version=": "20240722.0"
+              }
+            ]
+          }' > vcpkg.json
+      
       - name: Install dependencies
         run: |
-          .\vcpkg\vcpkg install protobuf:x64-windows@4.25.1#1 protobuf-c:x64-windows@1.5.0 abseil:x64-windows@20240722.0
+          .\vcpkg\vcpkg install --triplet x64-windows
         working-directory: ${{ runner.workspace }}
 
       - name: Build
