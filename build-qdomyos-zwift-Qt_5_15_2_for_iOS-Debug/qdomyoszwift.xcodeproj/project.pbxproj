@@ -168,6 +168,24 @@
 		871B9FD2265E6A8800DB41F4 /* powerzonepack.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871B9FD1265E6A8800DB41F4 /* powerzonepack.cpp */; };
 		871B9FD4265E6A9A00DB41F4 /* moc_powerzonepack.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871B9FD3265E6A9A00DB41F4 /* moc_powerzonepack.cpp */; };
 		871E4CD125A6FB5A00E18D6D /* BLEPeripheralManager.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871E4CD025A6FB5A00E18D6D /* BLEPeripheralManager.swift */; };
+		872088EB2CE6543C008C2C17 /* moc_mqttpublisher.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872088E62CE6543C008C2C17 /* moc_mqttpublisher.cpp */; };
+		872088EC2CE6543C008C2C17 /* moc_qmqttclient.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872088E72CE6543C008C2C17 /* moc_qmqttclient.cpp */; };
+		872088ED2CE6543C008C2C17 /* moc_qmqttmessage.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872088E92CE6543C008C2C17 /* moc_qmqttmessage.cpp */; };
+		872088EE2CE6543C008C2C17 /* moc_qmqttsubscription.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872088EA2CE6543C008C2C17 /* moc_qmqttsubscription.cpp */; };
+		872088EF2CE6543C008C2C17 /* moc_qmqttconnection_p.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872088E82CE6543C008C2C17 /* moc_qmqttconnection_p.cpp */; };
+		8720890E2CE65451008C2C17 /* qmqttsubscriptionproperties.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872089072CE65451008C2C17 /* qmqttsubscriptionproperties.cpp */; };
+		8720890F2CE65451008C2C17 /* qmqttconnectionproperties.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872088F82CE65451008C2C17 /* qmqttconnectionproperties.cpp */; };
+		872089102CE65451008C2C17 /* qmqttconnection.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872088F52CE65451008C2C17 /* qmqttconnection.cpp */; };
+		872089112CE65451008C2C17 /* qmqttsubscription.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872089042CE65451008C2C17 /* qmqttsubscription.cpp */; };
+		872089122CE65451008C2C17 /* qmqttclient.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872088F32CE65451008C2C17 /* qmqttclient.cpp */; };
+		872089132CE65451008C2C17 /* qmqtttopicfilter.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872089092CE65451008C2C17 /* qmqtttopicfilter.cpp */; };
+		872089142CE65451008C2C17 /* qmqtttype.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8720890D2CE65451008C2C17 /* qmqtttype.cpp */; };
+		872089152CE65451008C2C17 /* qmqttcontrolpacket.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872088FA2CE65451008C2C17 /* qmqttcontrolpacket.cpp */; };
+		872089162CE65451008C2C17 /* qmqttmessage.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872088FE2CE65451008C2C17 /* qmqttmessage.cpp */; };
+		872089172CE65451008C2C17 /* qmqtttopicname.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8720890B2CE65451008C2C17 /* qmqtttopicname.cpp */; };
+		872089182CE65451008C2C17 /* qmqttpublishproperties.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872089012CE65451008C2C17 /* qmqttpublishproperties.cpp */; };
+		872089192CE65451008C2C17 /* qmqttauthenticationproperties.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872088F12CE65451008C2C17 /* qmqttauthenticationproperties.cpp */; };
+		8720891B2CE6567D008C2C17 /* mqttpublisher.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8720891A2CE6567D008C2C17 /* mqttpublisher.cpp */; };
 		872261EE289EA873006A6F75 /* nordictrackelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872261EC289EA873006A6F75 /* nordictrackelliptical.cpp */; };
 		872261F0289EA887006A6F75 /* moc_nordictrackelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872261EF289EA887006A6F75 /* moc_nordictrackelliptical.cpp */; };
 		8727A47727849EA600019B5D /* paferstreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8727A47627849EA600019B5D /* paferstreadmill.cpp */; };
@@ -953,6 +971,42 @@
 		871B9FD1265E6A8800DB41F4 /* powerzonepack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = powerzonepack.cpp; path = ../src/powerzonepack.cpp; sourceTree = "<group>"; };
 		871B9FD3265E6A9A00DB41F4 /* moc_powerzonepack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_powerzonepack.cpp; sourceTree = "<group>"; };
 		871E4CD025A6FB5A00E18D6D /* BLEPeripheralManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BLEPeripheralManager.swift; path = ../src/ios/BLEPeripheralManager.swift; sourceTree = "<group>"; };
+		872088E62CE6543C008C2C17 /* moc_mqttpublisher.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_mqttpublisher.cpp; sourceTree = "<group>"; };
+		872088E72CE6543C008C2C17 /* moc_qmqttclient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_qmqttclient.cpp; sourceTree = "<group>"; };
+		872088E82CE6543C008C2C17 /* moc_qmqttconnection_p.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_qmqttconnection_p.cpp; sourceTree = "<group>"; };
+		872088E92CE6543C008C2C17 /* moc_qmqttmessage.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_qmqttmessage.cpp; sourceTree = "<group>"; };
+		872088EA2CE6543C008C2C17 /* moc_qmqttsubscription.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_qmqttsubscription.cpp; sourceTree = "<group>"; };
+		872088F02CE65451008C2C17 /* qmqttauthenticationproperties.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttauthenticationproperties.h; path = ../src/mqtt/qmqttauthenticationproperties.h; sourceTree = SOURCE_ROOT; };
+		872088F12CE65451008C2C17 /* qmqttauthenticationproperties.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qmqttauthenticationproperties.cpp; path = ../src/mqtt/qmqttauthenticationproperties.cpp; sourceTree = SOURCE_ROOT; };
+		872088F22CE65451008C2C17 /* qmqttclient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttclient.h; path = ../src/mqtt/qmqttclient.h; sourceTree = SOURCE_ROOT; };
+		872088F32CE65451008C2C17 /* qmqttclient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qmqttclient.cpp; path = ../src/mqtt/qmqttclient.cpp; sourceTree = SOURCE_ROOT; };
+		872088F42CE65451008C2C17 /* qmqttclient_p.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttclient_p.h; path = ../src/mqtt/qmqttclient_p.h; sourceTree = SOURCE_ROOT; };
+		872088F52CE65451008C2C17 /* qmqttconnection.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qmqttconnection.cpp; path = ../src/mqtt/qmqttconnection.cpp; sourceTree = SOURCE_ROOT; };
+		872088F62CE65451008C2C17 /* qmqttconnection_p.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttconnection_p.h; path = ../src/mqtt/qmqttconnection_p.h; sourceTree = SOURCE_ROOT; };
+		872088F72CE65451008C2C17 /* qmqttconnectionproperties.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttconnectionproperties.h; path = ../src/mqtt/qmqttconnectionproperties.h; sourceTree = SOURCE_ROOT; };
+		872088F82CE65451008C2C17 /* qmqttconnectionproperties.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qmqttconnectionproperties.cpp; path = ../src/mqtt/qmqttconnectionproperties.cpp; sourceTree = SOURCE_ROOT; };
+		872088F92CE65451008C2C17 /* qmqttconnectionproperties_p.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttconnectionproperties_p.h; path = ../src/mqtt/qmqttconnectionproperties_p.h; sourceTree = SOURCE_ROOT; };
+		872088FA2CE65451008C2C17 /* qmqttcontrolpacket.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qmqttcontrolpacket.cpp; path = ../src/mqtt/qmqttcontrolpacket.cpp; sourceTree = SOURCE_ROOT; };
+		872088FB2CE65451008C2C17 /* qmqttcontrolpacket_p.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttcontrolpacket_p.h; path = ../src/mqtt/qmqttcontrolpacket_p.h; sourceTree = SOURCE_ROOT; };
+		872088FC2CE65451008C2C17 /* qmqttglobal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttglobal.h; path = ../src/mqtt/qmqttglobal.h; sourceTree = SOURCE_ROOT; };
+		872088FD2CE65451008C2C17 /* qmqttmessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttmessage.h; path = ../src/mqtt/qmqttmessage.h; sourceTree = SOURCE_ROOT; };
+		872088FE2CE65451008C2C17 /* qmqttmessage.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qmqttmessage.cpp; path = ../src/mqtt/qmqttmessage.cpp; sourceTree = SOURCE_ROOT; };
+		872088FF2CE65451008C2C17 /* qmqttmessage_p.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttmessage_p.h; path = ../src/mqtt/qmqttmessage_p.h; sourceTree = SOURCE_ROOT; };
+		872089002CE65451008C2C17 /* qmqttpublishproperties.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttpublishproperties.h; path = ../src/mqtt/qmqttpublishproperties.h; sourceTree = SOURCE_ROOT; };
+		872089012CE65451008C2C17 /* qmqttpublishproperties.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qmqttpublishproperties.cpp; path = ../src/mqtt/qmqttpublishproperties.cpp; sourceTree = SOURCE_ROOT; };
+		872089022CE65451008C2C17 /* qmqttpublishproperties_p.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttpublishproperties_p.h; path = ../src/mqtt/qmqttpublishproperties_p.h; sourceTree = SOURCE_ROOT; };
+		872089032CE65451008C2C17 /* qmqttsubscription.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttsubscription.h; path = ../src/mqtt/qmqttsubscription.h; sourceTree = SOURCE_ROOT; };
+		872089042CE65451008C2C17 /* qmqttsubscription.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qmqttsubscription.cpp; path = ../src/mqtt/qmqttsubscription.cpp; sourceTree = SOURCE_ROOT; };
+		872089052CE65451008C2C17 /* qmqttsubscription_p.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttsubscription_p.h; path = ../src/mqtt/qmqttsubscription_p.h; sourceTree = SOURCE_ROOT; };
+		872089062CE65451008C2C17 /* qmqttsubscriptionproperties.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqttsubscriptionproperties.h; path = ../src/mqtt/qmqttsubscriptionproperties.h; sourceTree = SOURCE_ROOT; };
+		872089072CE65451008C2C17 /* qmqttsubscriptionproperties.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qmqttsubscriptionproperties.cpp; path = ../src/mqtt/qmqttsubscriptionproperties.cpp; sourceTree = SOURCE_ROOT; };
+		872089082CE65451008C2C17 /* qmqtttopicfilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqtttopicfilter.h; path = ../src/mqtt/qmqtttopicfilter.h; sourceTree = SOURCE_ROOT; };
+		872089092CE65451008C2C17 /* qmqtttopicfilter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qmqtttopicfilter.cpp; path = ../src/mqtt/qmqtttopicfilter.cpp; sourceTree = SOURCE_ROOT; };
+		8720890A2CE65451008C2C17 /* qmqtttopicname.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqtttopicname.h; path = ../src/mqtt/qmqtttopicname.h; sourceTree = SOURCE_ROOT; };
+		8720890B2CE65451008C2C17 /* qmqtttopicname.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qmqtttopicname.cpp; path = ../src/mqtt/qmqtttopicname.cpp; sourceTree = SOURCE_ROOT; };
+		8720890C2CE65451008C2C17 /* qmqtttype.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qmqtttype.h; path = ../src/mqtt/qmqtttype.h; sourceTree = SOURCE_ROOT; };
+		8720890D2CE65451008C2C17 /* qmqtttype.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qmqtttype.cpp; path = ../src/mqtt/qmqtttype.cpp; sourceTree = SOURCE_ROOT; };
+		8720891A2CE6567D008C2C17 /* mqttpublisher.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = mqttpublisher.cpp; path = ../src/mqttpublisher.cpp; sourceTree = SOURCE_ROOT; };
 		872261EC289EA873006A6F75 /* nordictrackelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = nordictrackelliptical.cpp; path = ../src/devices/nordictrackelliptical/nordictrackelliptical.cpp; sourceTree = "<group>"; };
 		872261ED289EA873006A6F75 /* nordictrackelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nordictrackelliptical.h; path = ../src/devices/nordictrackelliptical/nordictrackelliptical.h; sourceTree = "<group>"; };
 		872261EF289EA887006A6F75 /* moc_nordictrackelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_nordictrackelliptical.cpp; sourceTree = "<group>"; };
@@ -2088,6 +2142,42 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				8720891A2CE6567D008C2C17 /* mqttpublisher.cpp */,
+				872088F02CE65451008C2C17 /* qmqttauthenticationproperties.h */,
+				872088F12CE65451008C2C17 /* qmqttauthenticationproperties.cpp */,
+				872088F22CE65451008C2C17 /* qmqttclient.h */,
+				872088F32CE65451008C2C17 /* qmqttclient.cpp */,
+				872088F42CE65451008C2C17 /* qmqttclient_p.h */,
+				872088F52CE65451008C2C17 /* qmqttconnection.cpp */,
+				872088F62CE65451008C2C17 /* qmqttconnection_p.h */,
+				872088F72CE65451008C2C17 /* qmqttconnectionproperties.h */,
+				872088F82CE65451008C2C17 /* qmqttconnectionproperties.cpp */,
+				872088F92CE65451008C2C17 /* qmqttconnectionproperties_p.h */,
+				872088FA2CE65451008C2C17 /* qmqttcontrolpacket.cpp */,
+				872088FB2CE65451008C2C17 /* qmqttcontrolpacket_p.h */,
+				872088FC2CE65451008C2C17 /* qmqttglobal.h */,
+				872088FD2CE65451008C2C17 /* qmqttmessage.h */,
+				872088FE2CE65451008C2C17 /* qmqttmessage.cpp */,
+				872088FF2CE65451008C2C17 /* qmqttmessage_p.h */,
+				872089002CE65451008C2C17 /* qmqttpublishproperties.h */,
+				872089012CE65451008C2C17 /* qmqttpublishproperties.cpp */,
+				872089022CE65451008C2C17 /* qmqttpublishproperties_p.h */,
+				872089032CE65451008C2C17 /* qmqttsubscription.h */,
+				872089042CE65451008C2C17 /* qmqttsubscription.cpp */,
+				872089052CE65451008C2C17 /* qmqttsubscription_p.h */,
+				872089062CE65451008C2C17 /* qmqttsubscriptionproperties.h */,
+				872089072CE65451008C2C17 /* qmqttsubscriptionproperties.cpp */,
+				872089082CE65451008C2C17 /* qmqtttopicfilter.h */,
+				872089092CE65451008C2C17 /* qmqtttopicfilter.cpp */,
+				8720890A2CE65451008C2C17 /* qmqtttopicname.h */,
+				8720890B2CE65451008C2C17 /* qmqtttopicname.cpp */,
+				8720890C2CE65451008C2C17 /* qmqtttype.h */,
+				8720890D2CE65451008C2C17 /* qmqtttype.cpp */,
+				872088E62CE6543C008C2C17 /* moc_mqttpublisher.cpp */,
+				872088E72CE6543C008C2C17 /* moc_qmqttclient.cpp */,
+				872088E82CE6543C008C2C17 /* moc_qmqttconnection_p.cpp */,
+				872088E92CE6543C008C2C17 /* moc_qmqttmessage.cpp */,
+				872088EA2CE6543C008C2C17 /* moc_qmqttsubscription.cpp */,
 				87B8718F2CE1E837009B06CA /* Zwift hub.pb.swift */,
 				87A6825B2CE3AB4000586A2A /* sramAXSController.h */,
 				87A6825C2CE3AB4000586A2A /* sramAXSController.cpp */,
@@ -3488,6 +3578,18 @@
 				875F69B926342E8D0009FD78 /* spirittreadmill.cpp in Compile Sources */,
 				87A6825D2CE3AB4000586A2A /* sramAXSController.cpp in Compile Sources */,
 				87DF68B825E2673B00FCDA46 /* eslinkertreadmill.cpp in Compile Sources */,
+				8720890E2CE65451008C2C17 /* qmqttsubscriptionproperties.cpp in Compile Sources */,
+				8720890F2CE65451008C2C17 /* qmqttconnectionproperties.cpp in Compile Sources */,
+				872089102CE65451008C2C17 /* qmqttconnection.cpp in Compile Sources */,
+				872089112CE65451008C2C17 /* qmqttsubscription.cpp in Compile Sources */,
+				872089122CE65451008C2C17 /* qmqttclient.cpp in Compile Sources */,
+				872089132CE65451008C2C17 /* qmqtttopicfilter.cpp in Compile Sources */,
+				872089142CE65451008C2C17 /* qmqtttype.cpp in Compile Sources */,
+				872089152CE65451008C2C17 /* qmqttcontrolpacket.cpp in Compile Sources */,
+				872089162CE65451008C2C17 /* qmqttmessage.cpp in Compile Sources */,
+				872089172CE65451008C2C17 /* qmqtttopicname.cpp in Compile Sources */,
+				872089182CE65451008C2C17 /* qmqttpublishproperties.cpp in Compile Sources */,
+				872089192CE65451008C2C17 /* qmqttauthenticationproperties.cpp in Compile Sources */,
 				87BCE6BD29F28F72001F70EB /* ypooelliptical.cpp in Compile Sources */,
 				87C7074327E4CF5900E79C46 /* keepbike.cpp in Compile Sources */,
 				87B871932CE1E94D009B06CA /* zwifthubbike.swift in Compile Sources */,
@@ -3579,6 +3681,11 @@
 				87A0C4BB262329A600121A76 /* npecablebike.cpp in Compile Sources */,
 				873CD22D27EF8E4B000131BC /* iosinapppurchaseproduct.mm in Compile Sources */,
 				873CD20727EF8D8A000131BC /* inappproduct.cpp in Compile Sources */,
+				872088EB2CE6543C008C2C17 /* moc_mqttpublisher.cpp in Compile Sources */,
+				872088EC2CE6543C008C2C17 /* moc_qmqttclient.cpp in Compile Sources */,
+				872088ED2CE6543C008C2C17 /* moc_qmqttmessage.cpp in Compile Sources */,
+				872088EE2CE6543C008C2C17 /* moc_qmqttsubscription.cpp in Compile Sources */,
+				872088EF2CE6543C008C2C17 /* moc_qmqttconnection_p.cpp in Compile Sources */,
 				87A3BC26265642A300D302E3 /* moc_rower.cpp in Compile Sources */,
 				87EFE45B27A51901006EA1C3 /* moc_nautiluselliptical.cpp in Compile Sources */,
 				872DCC392A18D4A800EC9F68 /* virtualdevice.cpp in Compile Sources */,
@@ -3633,6 +3740,7 @@
 				8768C9062BBC12B80099DBE1 /* socket_local_client.c in Compile Sources */,
 				8727C7D42B3BF1E4005429EB /* moc_QTelnet.cpp in Compile Sources */,
 				C3D1FD2587BF6F15B58BA675 /* moc_bluetooth.cpp in Compile Sources */,
+				8720891B2CE6567D008C2C17 /* mqttpublisher.cpp in Compile Sources */,
 				87062648259480B700D06586 /* WorkoutTracking.swift in Compile Sources */,
 				8C3422A825EF7ECD78951307 /* moc_bluetoothdevice.cpp in Compile Sources */,
 				8785D5432B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp in Compile Sources */,
@@ -4119,6 +4227,9 @@
 					../../Qt/5.15.2/ios/include/QtMultimedia,
 					../src/devices,
 					../src/ios/adb/include,
+					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/private,
+					../../Qt/5.15.2/ios/include/QtCore/5.15.2,
+					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
@@ -4312,6 +4423,9 @@
 					../../Qt/5.15.2/ios/include/QtMultimedia,
 					../src/devices,
 					../src/ios/adb/include,
+					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/private,
+					../../Qt/5.15.2/ios/include/QtCore/5.15.2,
+					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
