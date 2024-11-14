@@ -1157,19 +1157,19 @@ jobs:
 
       - name: Download and expand Raspberry Pi OS image
         run: |
-          wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-05-03/2023-05-03-raspios-bullseye-arm64-lite.img.xz
-          xz -d 2023-05-03-raspios-bullseye-arm64-lite.img.xz
-          ORIGINAL_SIZE=$(stat -c %s 2023-05-03-raspios-bullseye-arm64-lite.img)
+          wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2024-10-28/2024-10-22-raspios-bookworm-arm64-lite.img.xz
+          xz -d 2024-10-22-raspios-bookworm-arm64-lite.img.xz
+          ORIGINAL_SIZE=$(stat -c %s 2024-10-22-raspios-bookworm-arm64-lite.img)
           NEW_SIZE=$((ORIGINAL_SIZE + 2*1024*1024*1024))  # Add 2GB
-          truncate -s $NEW_SIZE 2023-05-03-raspios-bullseye-arm64-lite.img
+          truncate -s $NEW_SIZE 2024-10-22-raspios-bookworm-arm64-lite.img
           sudo apt-get update
           sudo apt-get install -y parted
-          sudo parted 2023-05-03-raspios-bullseye-arm64-lite.img resizepart 2 100%
+          sudo parted 2024-10-22-raspios-bookworm-arm64-lite.img resizepart 2 100%
 
       - name: Mount Raspberry Pi image
         run: |
           sudo apt-get install -y kpartx qemu-user-static
-          LOOP_DEVICE=$(sudo losetup -f --show 2023-05-03-raspios-bullseye-arm64-lite.img)
+          LOOP_DEVICE=$(sudo losetup -f --show 2024-10-22-raspios-bookworm-arm64-lite.img)
           echo "Loop device is $LOOP_DEVICE"
           sudo kpartx -av $LOOP_DEVICE
           sudo mkdir -p /mnt/raspbian
@@ -1177,6 +1177,8 @@ jobs:
           sudo resize2fs /dev/mapper/$(basename $LOOP_DEVICE)p2
           echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
           sudo cp /usr/bin/qemu-aarch64-static /mnt/raspbian/usr/bin/
+          sudo mkdir -p /mnt/raspbian_p1
+          sudo mount /dev/mapper/$(basename $LOOP_DEVICE)p1 /mnt/raspbian_p1
 
       - name: Install Qt and dependencies on Raspberry Pi image
         run: |
@@ -1205,21 +1207,29 @@ jobs:
           WantedBy=multi-user.target' | sudo tee /mnt/raspbian/etc/systemd/system/qdomyos-zwift.service
           sudo chroot /mnt/raspbian systemctl enable qdomyos-zwift.service
 
+      - name: Modify boot config to enable bluetooth
+        run: |
+          # The following line makes it specific for Raspberry Pi Zero 2W. 
+          # though I expect it is needed for Raspberry Pi 3B and maybe others as well
+          echo "[pi02]" | sudo tee -a /mnt/raspbian_p1/config.txt
+          echo "dtoverlay=miniuart-bt" | sudo tee -a /mnt/raspbian_p1/config.txt
+
       - name: Unmount Raspberry Pi image
         run: |
           sudo umount /mnt/raspbian
+          sudo umount /mnt/raspbian_p1
           sudo kpartx -d ${{ env.LOOP_DEVICE }}
           sudo losetup -d ${{ env.LOOP_DEVICE }}
 
       - name: Compress modified Raspberry Pi image
         run: |
-          xz -z 2023-05-03-raspios-bullseye-arm64-lite.img
+          xz -z 2024-10-22-raspios-bookworm-arm64-lite.img
 
       - name: Upload Raspberry Pi image as artifact
         uses: actions/upload-artifact@v4
         with:
           name: raspberry-pi-64bit-image
-          path: 2023-05-03-raspios-bullseye-arm64-lite.img.xz
+          path: 2024-10-22-raspios-bookworm-arm64-lite.img.xz
   
   upload_to_release:
     permissions: write-all
@@ -1256,7 +1266,4 @@ jobs:
             fdroid-android-trial/*
             raspberry-pi-binary/*
             raspberry-pi-64bit-binary/*
-            2023-05-03-raspios-bullseye-arm64-lite.img.xz
-
-
-  
+            2024-10-22-raspios-bookworm-arm64-lite.img.xz
