@@ -1,5 +1,6 @@
 #include "mqttpublisher.h"
 #include "qzsettings.h"
+#include "homeform.h"
 #include <QDebug>
 
 MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QObject *parent)
@@ -125,6 +126,9 @@ void MQTTPublisher::publishToTopic(const QString& topic, const QVariant& value) 
 }
 
 void MQTTPublisher::publishWorkoutData() {
+
+    m_device = homeform::singleton()->bluetoothManager->device();
+
     if (!isConnected() || !m_device) return;
 
     // Device Information
