@@ -26,6 +26,8 @@
 #include <QtWebView/QtWebView>
 #endif
 
+#include "mqttpublisher.h"
+
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QtAndroid>
@@ -583,6 +585,14 @@ int main(int argc, char *argv[]) {
     bluetooth bl(logs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance,
                  bikeResistanceOffset,
                  bikeResistanceGain); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
+
+    QString mqtt_host = settings.value(QZSettings::mqtt_host, QZSettings::default_mqtt_host).toString();
+    int mqtt_port = settings.value(QZSettings::mqtt_port, QZSettings::default_mqtt_port).toInt();
+    QString mqtt_username = settings.value(QZSettings::mqtt_username, QZSettings::default_mqtt_username).toString();
+    QString mqtt_password = settings.value(QZSettings::mqtt_password, QZSettings::default_mqtt_password).toString();
+    if(mqtt_host.length() > 0) {
+        MQTTPublisher* mqtt = new MQTTPublisher(mqtt_host, mqtt_port, mqtt_password, mqtt_password, &bl);
+    }
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT

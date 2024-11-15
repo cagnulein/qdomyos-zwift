@@ -705,7 +705,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                               "registerReceiver",
                                               "(Landroid/content/Context;)V",
                                               QtAndroid::androidContext().object());
-#endif
+#endif    
 
     bluetoothManager->homeformLoaded = true;
 }

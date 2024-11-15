@@ -1,7 +1,7 @@
 include(../defaults.pri)
 QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia
 QTPLUGIN += qavfmediaplayer
-QT+= charts
+QT+= charts core-private
 
 qtHaveModule(httpserver) {
     QT += httpserver
@@ -84,6 +84,18 @@ SOURCES += \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
+    $$PWD/mqtt/qmqttauthenticationproperties.cpp \
+    $$PWD/mqtt/qmqttclient.cpp \
+    $$PWD/mqtt/qmqttconnection.cpp \
+    $$PWD/mqtt/qmqttconnectionproperties.cpp \
+    $$PWD/mqtt/qmqttcontrolpacket.cpp \
+    $$PWD/mqtt/qmqttmessage.cpp \
+    $$PWD/mqtt/qmqttpublishproperties.cpp \
+    $$PWD/mqtt/qmqttsubscription.cpp \
+    $$PWD/mqtt/qmqttsubscriptionproperties.cpp \
+    $$PWD/mqtt/qmqtttopicfilter.cpp \
+    $$PWD/mqtt/qmqtttopicname.cpp \
+    $$PWD/mqtt/qmqtttype.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
 devices/csaferower/csafe.cpp \
@@ -313,6 +325,24 @@ HEADERS += \
     $$PWD/devices/sramAXSController/sramAXSController.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/ergtable.h \
+    $$PWD/mqtt/qmqttauthenticationproperties.h \
+    $$PWD/mqtt/qmqttclient.h \
+    $$PWD/mqtt/qmqttclient_p.h \
+    $$PWD/mqtt/qmqttconnection_p.h \
+    $$PWD/mqtt/qmqttconnectionproperties.h \
+    $$PWD/mqtt/qmqttconnectionproperties_p.h \
+    $$PWD/mqtt/qmqttcontrolpacket_p.h \
+    $$PWD/mqtt/qmqttglobal.h \
+    $$PWD/mqtt/qmqttmessage.h \
+    $$PWD/mqtt/qmqttmessage_p.h \
+    $$PWD/mqtt/qmqttpublishproperties.h \
+    $$PWD/mqtt/qmqttpublishproperties_p.h \
+    $$PWD/mqtt/qmqttsubscription.h \
+    $$PWD/mqtt/qmqttsubscription_p.h \
+    $$PWD/mqtt/qmqttsubscriptionproperties.h \
+    $$PWD/mqtt/qmqtttopicfilter.h \
+    $$PWD/mqtt/qmqtttopicname.h \
+    $$PWD/mqtt/qmqtttype.h \
     $$PWD/treadmillErgTable.h \
     $$PWD/wheelcircumference.h \
 QTelnet.h \
@@ -865,6 +895,12 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
+
+HEADERS += \
+    mqttpublisher.h
+
+SOURCES += \
+    mqttpublisher.cpp
 
 include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
