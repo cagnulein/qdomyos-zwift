@@ -2210,6 +2210,12 @@ class QZSettings {
     static const QString mqtt_deviceid;
     static const QString default_mqtt_deviceid;
 
+    static const QString peloton_auto_start_with_intro;
+    static constexpr bool default_peloton_auto_start_with_intro = false;
+
+    static const QString peloton_auto_start_without_intro;
+    static constexpr bool default_peloton_auto_start_without_intro = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

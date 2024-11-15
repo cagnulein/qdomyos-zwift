@@ -958,11 +958,18 @@ void homeform::pelotonWorkoutStarted(const QString &name, const QString &instruc
     }
     emit changePelotonProvider(pelotonProvider());
     qDebug() << "peloton_start_time" << pelotonHandler->start_time << "current epoch" << QDateTime::currentSecsSinceEpoch() << qAbs(pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch());
-    if(qAbs(pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) < 180) {
+    QSettings settings;
+    bool peloton_auto_start_with_intro = settings.value(QZSettings::peloton_auto_start_with_intro, QZSettings::default_peloton_auto_start_with_intro).toBool();
+    bool peloton_auto_start_without_intro = settings.value(QZSettings::peloton_auto_start_without_intro, QZSettings::default_peloton_auto_start_without_intro).toBool();
+    if(qAbs(pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) < 180 && (peloton_auto_start_with_intro || peloton_auto_start_without_intro)) {
         // auto start is possible!
         setToastRequested(QStringLiteral("Peloton workout auto started skipping the intro! ") + name + QStringLiteral(" - ") + instructor);
         peloton_start_workout();
-        trainProgram->decreaseElapsedTime((pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + 6); // 8 average time to push skip intro and wait the 3 seconds of the intro
+
+        if(peloton_auto_start_with_intro)
+            trainProgram->decreaseElapsedTime((pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + 64); // 4 average time to buffer
+        else
+            trainProgram->decreaseElapsedTime((pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + 6); // 8 average time to push skip intro and wait the 3 seconds of the intro
     } else {
         m_pelotonAskStart = true;
         emit changePelotonAskStart(pelotonAskStart());
