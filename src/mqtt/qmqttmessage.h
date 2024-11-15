@@ -43,7 +43,7 @@ class QMqttMessagePrivate;
 
 class Q_MQTT_EXPORT QMqttMessage
 {
-    Q_GADGET
+    //Q_GADGET
     Q_PROPERTY(QMqttTopicName topic READ topic CONSTANT)
     Q_PROPERTY(QByteArray payload READ payload CONSTANT)
     Q_PROPERTY(quint16 id READ id CONSTANT)
