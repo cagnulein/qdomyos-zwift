@@ -52,7 +52,7 @@ void MQTTPublisher::setupMQTTClient() {
     if(m_username.length())
         m_client->setUsername(m_username);
     if(m_password.length())
-        m_client->setUsername(m_password);
+        m_client->setPassword(m_password);
 }
 
 void MQTTPublisher::start() {
