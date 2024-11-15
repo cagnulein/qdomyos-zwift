@@ -558,6 +558,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
 
     QString id = data.at(0)[QStringLiteral("id")].toString();
     QString status = data.at(0)[QStringLiteral("status")].toString();
+    start_time = data.at(0)[QStringLiteral("start_time")].toInt();
 
     if ((status.contains(QStringLiteral("IN_PROGRESS"),
                          Qt::CaseInsensitive) && // NOTE: removed toUpper because of qstring-insensitive-allocation

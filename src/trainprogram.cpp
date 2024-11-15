@@ -835,6 +835,11 @@ void trainprogram::scheduler() {
 
     double odometerFromTheDevice = bluetoothManager->device()->odometer();
 
+    if(ticks < 0) {
+        qDebug() << "waiting for the start...";
+        return;
+    }
+    
     // entry point
     if (ticks == 1 && currentStep == 0) {
         rows[currentStep].started = QDateTime::currentDateTime();
@@ -1235,13 +1240,13 @@ bool trainprogram::overridePowerForCurrentRow(double power) {
     return false;
 }
 
-void trainprogram::increaseElapsedTime(uint32_t i) {
+void trainprogram::increaseElapsedTime(int32_t i) {
 
     offset += i;
     ticks += i;
 }
 
-void trainprogram::decreaseElapsedTime(uint32_t i) {
+void trainprogram::decreaseElapsedTime(int32_t i) {
 
     offset -= i;
     ticks -= i;
