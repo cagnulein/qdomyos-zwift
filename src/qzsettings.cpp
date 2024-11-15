@@ -785,8 +785,17 @@ const QString QZSettings::proform_performance_400i = QStringLiteral("proform_per
 const QString QZSettings::proform_treadmill_c700 = QStringLiteral("proform_treadmill_c700");
 const QString QZSettings::sram_axs_controller = QStringLiteral("sram_axs_controller");
 const QString QZSettings::proform_treadmill_c960i = QStringLiteral("proform_treadmill_c960i");
+const QString QZSettings::mqtt_host = QStringLiteral("mqtt_host");
+const QString QZSettings::default_mqtt_host = QStringLiteral("");
+const QString QZSettings::mqtt_port = QStringLiteral("mqtt_port");
+const QString QZSettings::mqtt_username = QStringLiteral("mqtt_username");
+const QString QZSettings::mqtt_password = QStringLiteral("mqtt_password");
+const QString QZSettings::mqtt_deviceid = QStringLiteral("mqtt_deviceid");
+const QString QZSettings::default_mqtt_username = QStringLiteral("");
+const QString QZSettings::default_mqtt_password = QStringLiteral("");
+const QString QZSettings::default_mqtt_deviceid = QStringLiteral("default");
 
-const uint32_t allSettingsCount = 665;
+const uint32_t allSettingsCount = 670;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1458,6 +1467,11 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_c700, QZSettings::default_proform_treadmill_c700},
     {QZSettings::sram_axs_controller, QZSettings::default_sram_axs_controller},
     {QZSettings::proform_treadmill_c960i, QZSettings::default_proform_treadmill_c960i},
+    {QZSettings::mqtt_host, QZSettings::default_mqtt_host},
+    {QZSettings::mqtt_port, QZSettings::default_mqtt_port},
+    {QZSettings::mqtt_username, QZSettings::default_mqtt_username},
+    {QZSettings::mqtt_password, QZSettings::default_mqtt_password},
+    {QZSettings::mqtt_deviceid, QZSettings::default_mqtt_deviceid},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
