@@ -29,6 +29,29 @@ MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QString username
     start();
 }
 
+void MQTTPublisher::setupLastWillMessage() {
+    QString statusTopic = getBaseTopic() + STATUS_TOPIC;
+    
+    // Set up Last Will and Testament message
+    m_client->setWillTopic(statusTopic);
+    m_client->setWillMessage(STATUS_OFFLINE.toUtf8());
+    m_client->setWillQoS(1);
+    m_client->setWillRetain(true);
+}
+
+void MQTTPublisher::publishOnlineStatus() {
+    QString statusTopic = getBaseTopic() + STATUS_TOPIC;
+    
+    // Publish online status with retain flag
+    m_client->publish(
+        QMqttTopicName(statusTopic),
+        STATUS_ONLINE.toUtf8(),
+        1,  // QoS 1
+        true  // retain flag
+    );
+}
+
+
 MQTTPublisher::~MQTTPublisher() {
     stop();
 }
@@ -53,6 +76,8 @@ void MQTTPublisher::setupMQTTClient() {
         m_client->setUsername(m_username);
     if(m_password.length())
         m_client->setPassword(m_password);
+    
+    setupLastWillMessage();
 }
 
 void MQTTPublisher::start() {
@@ -89,6 +114,7 @@ void MQTTPublisher::connectToHost() {
 
 void MQTTPublisher::onConnected() {
     qDebug() << "MQTT Client Connected";
+    publishOnlineStatus();
 }
 
 void MQTTPublisher::onDisconnected() {

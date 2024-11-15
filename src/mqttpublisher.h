@@ -35,6 +35,11 @@ private slots:
     void publishWorkoutData();
 
 private:
+    const QString STATUS_TOPIC = "status";
+    const QString STATUS_ONLINE = "online";
+    const QString STATUS_OFFLINE = "offline";
+    void setupLastWillMessage();
+    void publishOnlineStatus();
     void setupMQTTClient();
     void publishToTopic(const QString& topic, const QVariant& value);
     void connectToHost();
