@@ -9919,7 +9919,7 @@ import QtQuick.Dialogs 1.0
                         }
                     }
                 }
-
+/*
                 AccordionElement {
                         title: qsTr("SRAM Devices Options")
                         indicatRectColor: Material.color(Material.Grey)
@@ -9955,7 +9955,7 @@ import QtQuick.Dialogs 1.0
                                 color: Material.color(Material.Lime)
                             }
                         }
-                    }
+                    }*/
 
                 AccordionElement {
                         title: qsTr("Zwift Devices Options")
