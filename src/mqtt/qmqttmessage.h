@@ -41,9 +41,9 @@ QT_BEGIN_NAMESPACE
 
 class QMqttMessagePrivate;
 
-class Q_MQTT_EXPORT QMqttMessage
+class /*Q_MQTT_EXPORT*/ QMqttMessage : public QObject
 {
-    Q_GADGET
+    Q_OBJECT
     Q_PROPERTY(QMqttTopicName topic READ topic CONSTANT)
     Q_PROPERTY(QByteArray payload READ payload CONSTANT)
     Q_PROPERTY(quint16 id READ id CONSTANT)
@@ -55,11 +55,6 @@ public:
     QMqttMessage();
     QMqttMessage(const QMqttMessage& other);
     ~QMqttMessage();
-
-#ifdef Q_OS_WIN
-    // Workaround for WIN: Force inline static member initialization for imported class
-    static const QMetaObject staticMetaObject;
-#endif
 
     QMqttMessage& operator=(const QMqttMessage &other);
     bool operator==(const QMqttMessage &other) const;
