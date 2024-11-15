@@ -18,7 +18,7 @@ class MQTTPublisher : public QObject {
     Q_OBJECT
 
 public:
-    explicit MQTTPublisher(const QString& host = "localhost", quint16 port = 1883, bluetooth* manager = nullptr, QObject *parent = nullptr);
+    explicit MQTTPublisher(const QString& host = "localhost", quint16 port = 1883, QString username = "", QString password = "", bluetooth* manager = nullptr, QObject *parent = nullptr);
     ~MQTTPublisher();
 
     void start();
@@ -45,6 +45,8 @@ private:
     QTimer* m_timer;
     QString m_host;
     quint16 m_port;
+    QString m_username;
+    QString m_password;
     QString m_userNickname;
     bluetoothdevice* m_device;
     bluetooth* m_manager;

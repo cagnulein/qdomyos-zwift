@@ -1013,6 +1013,9 @@ import QtQuick.Dialogs 1.0
             // from version 2.18.6
             property string mqtt_host: ""
             property int mqtt_port: 1883
+            property string mqtt_username: ""
+            property string mqtt_password: ""
+            property string mqtt_deviceid: "default"
         }
 
         function paddingZeros(text, limit) {
@@ -10617,8 +10620,117 @@ import QtQuick.Dialogs 1.0
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
                             }
+
+                            // Username field
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Username:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: mqttUsernameTextField
+                                    text: settings.mqtt_username
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: settings.mqtt_username = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.mqtt_username = mqttUsernameTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Enter the MQTT broker username (if required)")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            // Password field
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Password:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: mqttPasswordTextField
+                                    text: settings.mqtt_password
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    echoMode: TextInput.Password
+                                    onAccepted: settings.mqtt_password = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.mqtt_password = mqttPasswordTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Enter the MQTT broker password (if required)")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            // Device ID field
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Device ID:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: mqttDeviceIdTextField
+                                    text: settings.mqtt_deviceid
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: settings.mqtt_deviceid = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.mqtt_deviceid = mqttDeviceIdTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Enter a unique device identifier for MQTT client")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
                         }
-                    }                    
+                    }               
 
                     SwitchDelegate {
                         text: qsTr("Race Mode")

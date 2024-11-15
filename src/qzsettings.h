@@ -2200,6 +2200,16 @@ class QZSettings {
 
     static const QString mqtt_port;
     static constexpr int default_mqtt_port = 1883;
+
+    static const QString mqtt_username;
+    static const QString default_mqtt_username;
+
+    static const QString mqtt_password;
+    static const QString default_mqtt_password;
+
+    static const QString mqtt_deviceid;
+    static const QString default_mqtt_deviceid;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

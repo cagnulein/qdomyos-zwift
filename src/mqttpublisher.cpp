@@ -3,7 +3,7 @@
 #include "homeform.h"
 #include <QDebug>
 
-MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, bluetooth* manager, QObject *parent)
+MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QString username, QString password, bluetooth* manager, QObject *parent)
     : QObject(parent)
     , m_host(host)
     , m_port(port)
@@ -12,6 +12,8 @@ MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, bluetooth* manag
     m_client = new QMqttClient();
     m_timer = new QTimer();
     m_manager = manager;
+    m_username = username;
+    m_password = password;
     m_userNickname = getUserNickname();
 
     // Setup timer for periodic publishing
@@ -37,7 +39,7 @@ void MQTTPublisher::setDevice(bluetoothdevice* device) {
 
 QString MQTTPublisher::getUserNickname() const {
     QSettings settings;
-    return settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString();
+    return settings.value(QZSettings::mqtt_deviceid, QZSettings::default_mqtt_deviceid).toString();
 }
 
 QString MQTTPublisher::getBaseTopic() const {
@@ -47,6 +49,10 @@ QString MQTTPublisher::getBaseTopic() const {
 void MQTTPublisher::setupMQTTClient() {
     m_client->setHostname(m_host);
     m_client->setPort(m_port);
+    if(m_username.length())
+        m_client->setUsername(m_username);
+    if(m_password.length())
+        m_client->setUsername(m_password);
 }
 
 void MQTTPublisher::start() {
