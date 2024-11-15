@@ -48,6 +48,7 @@ class peloton : public QObject {
     void downloadImage();
     QDateTime current_original_air_time;
     int current_pedaling_duration = 0;
+    qint64 start_time = 0;
 
     void setTestMode(bool test);
 
