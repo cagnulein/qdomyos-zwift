@@ -448,7 +448,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         powerSensorName.startsWith(QStringLiteral("Disabled")) || power_as_bike || power_as_treadmill;
     bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
     bool eliteSterzoSmartFound = eliteSterzoSmartName.startsWith(QStringLiteral("Disabled"));
-    bool gpio_treadmill = settings.value(QStringLiteral("gpio_treadmill"), false).toBool();
+    bool gpio_treadmill = true; // TO FIX!! settings.value(QStringLiteral("gpio_treadmill"), false).toBool();
     bool fake_bike =
         settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
     bool fakedevice_elliptical =
