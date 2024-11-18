@@ -7,6 +7,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSettings>
+#include <QHash>
+#include <QVariant>
 #include "bluetoothdevice.h"
 #include "devices/bike.h"
 #include "devices/treadmill.h"
@@ -45,6 +47,15 @@ private:
     void connectToHost();
     QString getUserNickname() const;
     QString getBaseTopic() const;
+
+    // Hash map to store last published values
+    QHash<QString, QVariant> m_lastPublishedValues;
+
+    // Helper method to check if value has changed
+    bool hasValueChanged(const QString& topic, const QVariant& newValue);
+
+    // Helper method to store last published value
+    void updateLastPublishedValue(const QString& topic, const QVariant& value);
 
     QMqttClient* m_client;
     QTimer* m_timer;

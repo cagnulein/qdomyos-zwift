@@ -112,11 +112,6 @@ void MQTTPublisher::connectToHost() {
     }
 }
 
-void MQTTPublisher::onConnected() {
-    qDebug() << "MQTT Client Connected";
-    publishOnlineStatus();
-}
-
 void MQTTPublisher::onDisconnected() {
     qDebug() << "MQTT Client Disconnected";
 }
@@ -125,37 +120,70 @@ void MQTTPublisher::onError(QMqttClient::ClientError error) {
     qDebug() << "MQTT Client Error:" << error;
 }
 
+bool MQTTPublisher::hasValueChanged(const QString& topic, const QVariant& newValue) {
+    if (!m_lastPublishedValues.contains(topic)) {
+        return true;
+    }
+
+    const QVariant& oldValue = m_lastPublishedValues[topic];
+
+    // Handle floating point comparison with small epsilon
+    if (newValue.userType() == QMetaType::Float || newValue.userType() == QMetaType::Double) {
+        const double epsilon = 0.0001;
+        return qAbs(newValue.toDouble() - oldValue.toDouble()) > epsilon;
+    }
+
+    return oldValue != newValue;
+}
+
+void MQTTPublisher::updateLastPublishedValue(const QString& topic, const QVariant& value) {
+    m_lastPublishedValues[topic] = value;
+}
+
 void MQTTPublisher::publishToTopic(const QString& topic, const QVariant& value) {
     if (!isConnected()) return;
+
+    QString fullTopic = getBaseTopic() + topic;
+
+    // Only publish if value has changed
+    if (!hasValueChanged(fullTopic, value)) {
+        return;
+    }
 
     QString payload;
     if (value.userType() == QMetaType::QJsonObject || value.userType() == QMetaType::QJsonArray) {
         payload = QJsonDocument::fromVariant(value).toJson(QJsonDocument::Compact);
     } else {
         switch (value.userType()) {
-            case QMetaType::Bool:
-                payload = value.toBool() ? "true" : "false";
-                break;
-            case QMetaType::Int:
-            case QMetaType::UInt:
-            case QMetaType::Long:
-            case QMetaType::LongLong:
-            case QMetaType::ULong:
-            case QMetaType::ULongLong:
-                payload = QString::number(value.toLongLong());
-                break;
-            case QMetaType::Float:
-            case QMetaType::Double:
-                payload = QString::number(value.toDouble(), 'f', 2);
-                break;
-            default:
-                payload = value.toString();
-                break;
+        case QMetaType::Bool:
+            payload = value.toBool() ? "true" : "false";
+            break;
+        case QMetaType::Int:
+        case QMetaType::UInt:
+        case QMetaType::Long:
+        case QMetaType::LongLong:
+        case QMetaType::ULong:
+        case QMetaType::ULongLong:
+            payload = QString::number(value.toLongLong());
+            break;
+        case QMetaType::Float:
+        case QMetaType::Double:
+            payload = QString::number(value.toDouble(), 'f', 2);
+            break;
+        default:
+            payload = value.toString();
+            break;
         }
     }
 
-    QString fullTopic = getBaseTopic() + topic;
     m_client->publish(QMqttTopicName(fullTopic), payload.toUtf8());
+    updateLastPublishedValue(fullTopic, value);
+}
+
+void MQTTPublisher::onConnected() {
+    qDebug() << "MQTT Client Connected";
+    m_lastPublishedValues.clear();  // Reset stored values
+    publishOnlineStatus();
 }
 
 void MQTTPublisher::publishWorkoutData() {
