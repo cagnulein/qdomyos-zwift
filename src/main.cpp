@@ -591,7 +591,7 @@ int main(int argc, char *argv[]) {
     QString mqtt_username = settings.value(QZSettings::mqtt_username, QZSettings::default_mqtt_username).toString();
     QString mqtt_password = settings.value(QZSettings::mqtt_password, QZSettings::default_mqtt_password).toString();
     if(mqtt_host.length() > 0) {
-        MQTTPublisher* mqtt = new MQTTPublisher(mqtt_host, mqtt_port, mqtt_password, mqtt_password, &bl);
+        MQTTPublisher* mqtt = new MQTTPublisher(mqtt_host, mqtt_port, mqtt_username, mqtt_password, &bl);
     }
 
 #ifdef Q_OS_IOS
