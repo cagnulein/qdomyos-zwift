@@ -268,6 +268,36 @@ void toorxtreadmill::update() {
                     case 8: {
                         const uint8_t start[] = {0x55, 0x08, 0x01, 0x01};
                         socket->write((char *)start, sizeof(start));
+                        start_phase++;
+                        break;
+                    }
+                    case 9: {
+                        const uint8_t start[] = {0x55, 0x0a, 0x01, 0x01};
+                        socket->write((char *)start, sizeof(start));
+                        start_phase++;
+                        break;
+                    }                    
+                    case 10: {
+                        const uint8_t start[] = {0x55, 0x07, 0x01, 0xff};
+                        socket->write((char *)start, sizeof(start));
+                        start_phase++;
+                        break;
+                    }                    
+                    case 11: {
+                        const uint8_t start[] = {0x55, 0x11, 0x01, 0x00};
+                        socket->write((char *)start, sizeof(start));
+                        start_phase++;
+                        break;
+                    }
+                    case 12: {
+                        const uint8_t start[] = {0x55, 0x0f, 0x02, 0x06, 0x00};
+                        socket->write((char *)start, sizeof(start));
+                        start_phase++;
+                        break;
+                    }
+                    case 13: {
+                        const uint8_t start[] = {0x55, 0x0f, 0x02, 0x06, 0x00};
+                        socket->write((char *)start, sizeof(start));
                         start_phase = -1;
                         break;
                     }
