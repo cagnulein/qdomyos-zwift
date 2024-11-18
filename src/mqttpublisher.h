@@ -47,6 +47,7 @@ private:
     void connectToHost();
     QString getUserNickname() const;
     QString getBaseTopic() const;
+    QString getStatusTopic() const;
 
     // Hash map to store last published values
     QHash<QString, QVariant> m_lastPublishedValues;

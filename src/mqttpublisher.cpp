@@ -30,7 +30,7 @@ MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QString username
 }
 
 void MQTTPublisher::setupLastWillMessage() {
-    QString statusTopic = getBaseTopic() + STATUS_TOPIC;
+    QString statusTopic = getStatusTopic() + STATUS_TOPIC;
     
     // Set up Last Will and Testament message
     m_client->setWillTopic(statusTopic);
@@ -40,7 +40,7 @@ void MQTTPublisher::setupLastWillMessage() {
 }
 
 void MQTTPublisher::publishOnlineStatus() {
-    QString statusTopic = getBaseTopic() + STATUS_TOPIC;
+    QString statusTopic = getStatusTopic() + STATUS_TOPIC;
     
     // Publish online status with retain flag
     m_client->publish(
@@ -63,6 +63,10 @@ void MQTTPublisher::setDevice(bluetoothdevice* device) {
 QString MQTTPublisher::getUserNickname() const {
     QSettings settings;
     return settings.value(QZSettings::mqtt_deviceid, QZSettings::default_mqtt_deviceid).toString();
+}
+
+QString MQTTPublisher::getStatusTopic() const {
+    return QString("QZ/%1").arg(m_userNickname);
 }
 
 QString MQTTPublisher::getBaseTopic() const {
