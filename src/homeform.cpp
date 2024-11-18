@@ -962,19 +962,20 @@ void homeform::pelotonWorkoutStarted(const QString &name, const QString &instruc
     bool peloton_auto_start_with_intro = settings.value(QZSettings::peloton_auto_start_with_intro, QZSettings::default_peloton_auto_start_with_intro).toBool();
     bool peloton_auto_start_without_intro = settings.value(QZSettings::peloton_auto_start_without_intro, QZSettings::default_peloton_auto_start_without_intro).toBool();
     if(qAbs(pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) < 180 && (peloton_auto_start_with_intro || peloton_auto_start_without_intro)) {
-        // auto start is possible!
-        setToastRequested(QStringLiteral("Peloton workout auto started skipping the intro! ") + name + QStringLiteral(" - ") + instructor);
+        // auto start is possible!        
         int timer = 0;
 
         if(peloton_auto_start_with_intro) {
-            timer = (pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + 64;
+            setToastRequested(QStringLiteral("Peloton workout auto started! It will start automatically after the intro") + name + QStringLiteral(" - ") + instructor);
+            timer = (pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + 64; // // 4 average time to buffer and 60 to the intro
         } else {
-            timer = (pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + 6;
+            setToastRequested(QStringLiteral("Peloton workout auto started skipping the intro! ") + name + QStringLiteral(" - ") + instructor);
+            timer = (pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + 6;  // 6 average time to push skip intro and wait the 3 seconds of the intro
         }
         if(timer <= 0)
             peloton_start_workout();
         else {
-            QTimer::singleShot(timer * 1000, this, [this]() { // 8 average time to push skip intro and wait the 3 seconds of the intro
+            QTimer::singleShot(timer * 1000, this, [this]() {
                 peloton_start_workout();
             });
         }
