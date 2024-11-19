@@ -28,12 +28,6 @@ crossrope::crossrope(uint32_t pollDeviceTime, bool noConsole, bool noHeartServic
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;
 
-    if (forceInitSpeed > 0)
-        lastSpeed = forceInitSpeed;
-
-    if (forceInitInclination > 0)
-        lastInclination = forceInitInclination;
-
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &crossrope::update);
@@ -82,17 +76,17 @@ void crossrope::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
 void crossrope::updateDisplay(uint16_t elapsed) {}
 
 void crossrope::update() {
-    if (m_control->state() == QLowEnergyController::UnconnectedState) {
+    if (m_control == nullptr || m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
     }
 
     qDebug() << m_control->state() << bluetoothDevice.isValid() << gattCommunicationChannelService
-             << gattWriteCharacteristic.isValid() << initDone << requestSpeed << requestInclination;
+             << gattWriteCharacteristic.isValid() << initDone;
 
     if (initRequest) {
         initRequest = false;
-        btinit((lastSpeed > 0 ? true : false));
+        btinit((false));
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
@@ -107,11 +101,7 @@ void crossrope::update() {
 
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
-            if (lastSpeed == 0.0) {
-                lastSpeed = 0.5;
-            }
             requestStart = -1;
-            emit tapeStarted();
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
@@ -133,6 +123,8 @@ void crossrope::characteristicChanged(const QLowEnergyCharacteristic &characteri
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
+    QDateTime now = QDateTime::currentDateTime();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
 
@@ -142,11 +134,29 @@ void crossrope::characteristicChanged(const QLowEnergyCharacteristic &characteri
         return;
 
     double steps = (double)(uint16_t)((newValue.at(1) << 8) | ((uint8_t)newValue.at(2)));
-    if(steps != StepCount.value()) {
-        Cadence = (steps - StepCount.value()) / fabs(StepCount.valueChanged().msecsTo(QDateTime::currentDateTime())) * 60000.0;
-        StepCount = steps;
+    if(steps != JumpsCount.value()) {
+        CadenceRaw = (steps - JumpsCount.value()) / fabs(JumpsCount.valueChanged().msecsTo(now)) * 60000.0;
+        JumpsSequence = JumpsSequence.value() + 1;
+        Cadence = CadenceRaw.average20s();
+        JumpsCount = steps;
+        Speed = Cadence.value() * 0.15; // (speed emulated)
+        Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastTimeCharacteristicChanged.msecsTo(now)));
+    } else if(abs(Cadence.lastChanged().secsTo(now)) > 2) {
+        CadenceRaw = 0;
+        Cadence = 0;
+        JumpsSequence = 0;
+        Speed = 0;
     }
-    Speed = (newValue.at(5) << 8) | ((uint8_t)newValue.at(6));
+
+    if (watts(weight))
+        KCal +=
+            ((((0.048 * ((double)watts(weight)) + 1.19) *
+               weight * 3.5) /
+              200.0) /
+             (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                                     //* 3.5) / 200 ) / 60
 
 
 #ifdef Q_OS_ANDROID
@@ -160,7 +170,7 @@ void crossrope::characteristicChanged(const QLowEnergyCharacteristic &characteri
         }
     }
     emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
-    emit debug(QStringLiteral("Current Step Count: ") + QString::number(StepCount.value()));
+    emit debug(QStringLiteral("Current Jumps Count: ") + QString::number(JumpsCount.value()));
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     // debug("Current Distance: " + QString::number(distance));
 
@@ -306,3 +316,12 @@ bool crossrope::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
+uint16_t crossrope::watts(double weight) {
+    QSettings settings;
+    double power_per_kg = 1.5;
+    double cadence_efficiency = 0.1;
+
+           // Power calculation
+    double power = (power_per_kg * weight) + (cadence_efficiency * Cadence.value());
+    return power;
+}

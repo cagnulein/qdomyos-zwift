@@ -26,18 +26,17 @@
 #include <QDateTime>
 #include <QObject>
 
-#include "treadmill.h"
+#include "jumprope.h"
 
-class crossrope : public treadmill {
+class crossrope : public jumprope {
     Q_OBJECT
   public:
     crossrope(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
-    bool canHandleSpeedChange() override { return false; }
-    bool canHandleInclineChange() override { return false; }
 
   private:
+    uint16_t watts(double weight) override;
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -52,9 +51,6 @@ class crossrope : public treadmill {
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
 
-    int64_t lastStart = 0;
-    int64_t lastStop = 0;
-
     QTimer *refresh;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
@@ -63,6 +59,8 @@ class crossrope : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+
+    metric CadenceRaw;
 
   Q_SIGNALS:
     void disconnected();

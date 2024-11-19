@@ -16,7 +16,7 @@
 using namespace std::chrono_literals;
 
 soleelliptical::soleelliptical(bool noWriteResistance, bool noHeartService, bool testResistance,
-                               uint8_t bikeResistanceOffset, double bikeResistanceGain) {
+                               int8_t bikeResistanceOffset, double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);

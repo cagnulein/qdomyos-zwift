@@ -4,9 +4,11 @@
 #include <QByteArray>
 #include <QString>
 #include <QDebug>
+#include <QSettings>
 //#include "localKeyProvider.h"
 //#include "zapCrypto.h"
 #include "zapConstants.h"
+#include "qzsettings.h"
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniObject>
 #include <QAndroidJniEnvironment>
@@ -14,7 +16,7 @@
 
 class AbstractZapDevice: public QObject {
     Q_OBJECT
-public:
+  public:
     enum ZWIFT_PLAY_TYPE {
         NONE,
         LEFT,
@@ -25,7 +27,7 @@ public:
     QByteArray REQUEST_START;
     QByteArray RESPONSE_START;
 
-    //ZapCrypto zapEncryption;
+           //ZapCrypto zapEncryption;
     AbstractZapDevice() /*: localKeyProvider(), zapEncryption(localKeyProvider)*/ {
         RIDE_ON = QByteArray::fromRawData("\x52\x69\x64\x65\x4F\x6E", 6);  // "RideOn"
         REQUEST_START = QByteArray::fromRawData("\x00\x09", 2);  // {0, 9}
@@ -35,7 +37,13 @@ public:
     int processCharacteristic(const QString& characteristicName, const QByteArray& bytes, ZWIFT_PLAY_TYPE zapType) {
         if (bytes.isEmpty()) return 0;
 
-        qDebug() << zapType << characteristicName << bytes.toHex() ;
+        QSettings settings;
+        bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
+        bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
+
+        qDebug() << zapType << characteristicName << bytes.toHex() << zwiftplay_swap << gears_volume_debouncing << risingEdge;
+
+#define DEBOUNCE (!gears_volume_debouncing || risingEdge <= 0)
 
 #ifdef Q_OS_ANDROID_ENCRYPTION
         QAndroidJniEnvironment env;
@@ -55,27 +63,147 @@ public:
         return button;
 #else
         switch(bytes[0]) {
-            case 0x37:
-                if(bytes.length() == 5) {
-                    if(bytes[2] == 0) {
-                        emit plus();
-                    } else if(bytes[4] == 0) {
-                        emit minus();
+        case 0x37:
+            if(bytes.length() == 5) {
+                if(bytes[2] == 0) {
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap)
+                            emit plus();
+                        else
+                            emit minus();
+                    }
+                } else if(bytes[4] == 0) {
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap)
+                            emit minus();
+                        else
+                            emit plus();
+                    }
+                } else {
+                    risingEdge--;
+                    if(risingEdge < 0)
+                        risingEdge = 0;
+                }
+            }
+            break;
+        case 0x07: // zwift play
+            if(bytes.length() > 5 && bytes[bytes.length() - 5] == 0x40 && (
+                                                                               (((uint8_t)bytes[bytes.length() - 4]) == 0xc7 && zapType == RIGHT) ||
+                                                                               (((uint8_t)bytes[bytes.length() - 4]) == 0xc8 && zapType == LEFT)
+                                                                               ) && bytes[bytes.length() - 3] == 0x01) {
+                if(zapType == LEFT) {
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap)
+                            emit plus();
+                        else
+                            emit minus();
+                    }
+                } else {
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap)
+                            emit minus();
+                        else
+                            emit plus();
                     }
                 }
-                break;
-            case 0x07:
-                if(bytes.length() > 3 && bytes[bytes.length() - 5] == 0x40 && (
-                        (((uint8_t)bytes[bytes.length() - 4]) == 0xc7 && zapType == RIGHT) ||
-                        (((uint8_t)bytes[bytes.length() - 4]) == 0xc8 && zapType == LEFT)
-                    ) && bytes[bytes.length() - 3] == 0x01) {
-                    if(zapType == LEFT) {
-                        emit plus();
-                    } else {
-                        emit minus();
+            } else if(bytes.length() > 14 && bytes[11] == 0x30 && bytes[12] == 0x00) {
+                if(zapType == LEFT) {
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap)
+                            emit plus();
+                        else
+                            emit minus();
+                    }
+                } else {
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap)
+                            emit minus();
+                        else
+                            emit plus();
                     }
                 }
-                break;
+            } else {
+                risingEdge--;
+                if(risingEdge < 0)
+                    risingEdge = 0;
+            }
+            break;
+        case 0x15: // empty data
+            qDebug() << "ignoring this frame";
+            return 1;
+        case 0x23: // zwift ride
+            if(bytes.length() > 12 &&
+                ((((uint8_t)bytes[12]) == 0xc7 && zapType == RIGHT) ||
+                 (((uint8_t)bytes[12]) == 0xc8 && zapType == LEFT))
+                ) {
+                if(zapType == LEFT) {
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap)
+                            emit plus();
+                        else
+                            emit minus();
+                    }
+                } else {
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap)
+                            emit minus();
+                        else
+                            emit plus();
+                    }
+                }
+            } else if(bytes.length() > 19 && ((uint8_t)bytes[18]) == 0xc8) {
+                if(DEBOUNCE) {
+                    risingEdge = 2;
+                    if(!zwiftplay_swap)
+                        emit plus();
+                    else
+                        emit minus();
+                }
+            } else if(bytes.length() > 3 &&
+                       ((((uint8_t)bytes[3]) == 0xdf) || // right top button
+                        (((uint8_t)bytes[3]) == 0xbf))) { // right bottom button
+                if(DEBOUNCE) {
+                    risingEdge = 2;
+                    if(!zwiftplay_swap)
+                        emit plus();
+                    else
+                        emit minus();
+                }
+            } else if(bytes.length() > 3 &&
+                       ((((uint8_t)bytes[3]) == 0xfd) || // left top button
+                        (((uint8_t)bytes[3]) == 0xfb))) { // left bottom button
+                if(DEBOUNCE) {
+                    risingEdge = 2;
+                    if(!zwiftplay_swap)
+                        emit minus();
+                    else
+                        emit plus();
+                }
+            } else if(bytes.length() > 5 &&
+                       ((((uint8_t)bytes[4]) == 0xfd) || // left top button
+                        (((uint8_t)bytes[4]) == 0xfb))) { // left bottom button
+                if(DEBOUNCE) {
+                    risingEdge = 2;
+                    if(!zwiftplay_swap)
+                        emit minus();
+                    else
+                        emit plus();
+                }
+            } else {
+                risingEdge--;
+                if(risingEdge < 0)
+                    risingEdge = 0;
+            }
+            break;
+
         }
         return 1;
 #endif
@@ -90,20 +218,20 @@ public:
             // Ottiene la lunghezza dell'array di byte
             jsize length = QAndroidJniEnvironment()->GetArrayLength(result.object<jbyteArray>());
 
-            // Allocare memoria per i byte nativi
+                   // Allocare memoria per i byte nativi
             jbyte* bytes = QAndroidJniEnvironment()->GetByteArrayElements(result.object<jbyteArray>(), nullptr);
 
-            // Costruire un QByteArray dal buffer di byte nativi
+                   // Costruire un QByteArray dal buffer di byte nativi
             QByteArray byteArray(reinterpret_cast<char*>(bytes), length);
 
-            // Rilasciare la memoria dell'array di byte JNI
+                   // Rilasciare la memoria dell'array di byte JNI
             QAndroidJniEnvironment()->ReleaseByteArrayElements(result.object<jbyteArray>(), bytes, JNI_ABORT);
 
-            // Ora puoi usare byteArray come necessario
+                   // Ora puoi usare byteArray come necessario
             return byteArray;
         }
 #endif
-        //return RIDE_ON + REQUEST_START + localKeyProvider.getPublicKeyBytes();
+       //return RIDE_ON + REQUEST_START + localKeyProvider.getPublicKeyBytes();
         QByteArray a;
         a.append(0x52);
         a.append(0x69);
@@ -114,13 +242,14 @@ public:
         return a;
     }
 
-protected:
+  protected:
     virtual void processEncryptedData(const QByteArray& bytes) = 0;
 
-private:
+  private:
     QByteArray devicePublicKeyBytes;
+    static volatile int8_t risingEdge;
 
-signals:
+  signals:
     void plus();
     void minus();
 };

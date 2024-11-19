@@ -106,11 +106,12 @@ enum { DM_SERV_OP(DM_SERV_ENUMI_OP, 0, 0, 0) DM_SERV_I_NUM };
             }                                                                                                          \
         }                                                                                                              \
         if (P2.size()) {                                                                                               \
+            QString dircon_id = QString("%1").arg(settings.value(QZSettings::dircon_id,                                \
+            QZSettings::default_dircon_id).toInt(), 4, 10, QChar('0'));                                                \
             DirconProcessor *processor = new DirconProcessor(                                                          \
                 P2,                                                                                                    \
                 QString(QStringLiteral(NAME))                                                                          \
-                    .replace(QStringLiteral("$uuid_hex$"),                                                             \
-                             QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC, 4, 10, QLatin1Char('0'))),           \
+                    .replace(QStringLiteral("$uuid_hex$"), dircon_id),                                                 \
                 server_base_port + DM_MACHINE_##DESC, QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC), mac,       \
                 this);                                                                                                 \
             QString servdesc;                                                                                          \
@@ -143,13 +144,13 @@ QString DirconManager::getMacAddress() {
 
 #define DM_CHAR_NOTIF_BUILD_OP(UUID, P1, P2, P3) notif##UUID = new CharacteristicNotifier##UUID(P1, this);
 
-DirconManager::DirconManager(bluetoothdevice *Bike, uint8_t bikeResistanceOffset, double bikeResistanceGain,
+DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset, double bikeResistanceGain,
                              QObject *parent)
     : QObject(parent) {
     QSettings settings;
     DirconProcessorService *service;
     QList<DirconProcessorService *> services, proc_services;
-    bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
+    bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();    
     uint8_t type = dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL ? DM_MACHINE_TYPE_TREADMILL
                                                                                          : DM_MACHINE_TYPE_BIKE;
     qDebug() << "Building Dircom Manager";

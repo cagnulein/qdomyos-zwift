@@ -1,4 +1,5 @@
 #include "echelonconnectsport.h"
+#include "homeform.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -17,7 +18,7 @@ using namespace std::chrono_literals;
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
 
-echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                          double bikeResistanceGain) {
 #ifdef Q_OS_IOS
     QZ_EnableDiscoveryCharsAndDescripttors = true;
@@ -489,8 +490,13 @@ void echelonconnectsport::serviceScanDone(void) {
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
             &echelonconnectsport::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
-#endif
+    if(gattCommunicationChannelService != nullptr) {
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Bluetooth Service Error! Restart the bike!");
+        m_control->disconnectFromDevice();
+    }
 }
 
 void echelonconnectsport::errorService(QLowEnergyService::ServiceError err) {

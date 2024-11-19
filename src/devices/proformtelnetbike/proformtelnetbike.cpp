@@ -14,7 +14,7 @@
 
 using namespace std::chrono_literals;
 
-proformtelnetbike::proformtelnetbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+proformtelnetbike::proformtelnetbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                  double bikeResistanceGain) {
     QSettings settings;
     m_watt.setType(metric::METRIC_WATT);

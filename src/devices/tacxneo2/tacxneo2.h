@@ -47,6 +47,7 @@ class tacxneo2 : public bike {
     void forceInclination(double inclination);
     uint16_t watts() override;
     double bikeResistanceToPeloton(double resistance);
+    void setUserConfiguration(double wheelDiameter, double gearRatio);
 
     QTimer *refresh;
 
@@ -61,7 +62,9 @@ class tacxneo2 : public bike {
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
-    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastRefreshCharacteristicChanged2A5B = QDateTime::currentDateTime();
+    QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
+    QDateTime lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
 
@@ -76,6 +79,9 @@ class tacxneo2 : public bike {
     uint16_t CrankRevsRead = 0;
 
     double lastGearValue = -1;
+    bool resistance_received = false;
+
+    bool THINK_X = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

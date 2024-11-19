@@ -33,6 +33,9 @@ var maxHeartRate = 190;
 var heartZones = [];
 var miles = 1;
 var powerChart = null;
+var watts_max = 0;
+
+var firstElapsedTargetPower = 0;
 
 function process_trainprogram(arr) {
     let powerWorkout = false;
@@ -40,10 +43,12 @@ function process_trainprogram(arr) {
 
     for (let el of arr.list) {
         // if the power is ok or it was a power zone workout but this segment is a freeride tag...
-        if(el.power != -1 || powerWorkout) {
+        if(el.power !== -1 || powerWorkout) {
             powerWorkout = true;
             for (i=0; i<el.duration_s; i++) {
-                powerChart.data.datasets[1].data.push({x: elapsed++, y: el.power});                                            
+                powerChart.data.datasets[1].data.push({x: elapsed++, y: el.power});
+                if(watts_max < el.power)
+                    watts_max = el.power;
             }
         }
     }
@@ -72,8 +77,7 @@ function process_arr(arr) {
     let workoutName = '';
     let workoutStartDate = '';
     let instructorName = '';
-    let watts_avg = 0;
-    let watts_max = 0;
+    let watts_avg = 0;    
     let heart_avg = 0;
     let heart_max = 0;
     let jouls = 0;
@@ -115,7 +119,8 @@ function process_arr(arr) {
         workoutStartDate = el.workoutStartDate;
         instructorName = el.instructorName;
         watts_avg = el.watts_avg;
-        watts_max = el.watts_max;
+        if(watts_max < el.watts)
+            watts_max = el.watts;
         heart_avg = el.heart_avg;
         heart_max = el.heart_max;
         jouls = el.jouls;
@@ -346,20 +351,20 @@ function process_arr(arr) {
                         text: 'Watt'
                     },
                     min: 0,
-                    max: (watts_max > ftpZones[4] + 10 ? watts_max + 10 : ftpZones[4] + 10),
+                    suggestedMax: (watts_max > ftpZones[4] + 10 ? watts_max + 10 : ftpZones[4] + 10),
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
                         callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5]].includes(value) ?
-                            value === ftpZones[0] * 0.8 ? 'zone 1' :
-                            value === ftpZones[0] ? 'zone 2' :
-                            value === ftpZones[1] ? 'zone 3' :
-                            value === ftpZones[2] ? 'zone 4' :
-                            value === ftpZones[3] ? 'zone 5' :
-                            value === ftpZones[4] ? 'zone 6' :
-                            value === ftpZones[5] ? 'zone 7' : undefined : undefined,
+                            value === ftpZones[0] * 0.8 ? 'power z1' :
+                            value === ftpZones[0] ? 'power z2' :
+                            value === ftpZones[1] ? 'power z3' :
+                            value === ftpZones[2] ? 'power z4' :
+                            value === ftpZones[3] ? 'power z5' :
+                            value === ftpZones[4] ? 'power z6' :
+                            value === ftpZones[5] ? 'power z7' : undefined : undefined,
                         color: 'black',
-                        padding: -50,
+                        padding: -70,
                         align: 'end',
                         z: 1,
                     }
@@ -388,7 +393,16 @@ function refresh() {
 }
 
 function process_workout(arr) {    
-    powerChart.data.datasets[0].data.push({x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600), y: arr.watts});
+    if(arr.target_power > 0) { // in order to add only metrics of the training program
+        if(firstElapsedTargetPower === 0) {
+            firstElapsedTargetPower = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
+            powerChart.data.datasets[0].data = [];
+        }
+    }
+
+    powerChart.data.datasets[0].data.push({x: (arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600)) - firstElapsedTargetPower, y: arr.watts});
+    if(watts_max < arr.watts)
+        watts_max = arr.watts;
     powerChart.update();
     refresh();
 }

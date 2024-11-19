@@ -14,7 +14,7 @@
 
 using namespace std::chrono_literals;
 
-proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                  double bikeResistanceGain) {
     QSettings settings;
     m_watt.setType(metric::METRIC_WATT);
@@ -34,6 +34,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
     ok = connect(&websocket, &QWebSocket::connected, [&]() { qDebug() << "connected!"; });
     ok = connect(&websocket, &QWebSocket::disconnected, [&]() {
         qDebug() << "disconnected!";
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
         connectToDevice();
     });
 
@@ -218,9 +219,14 @@ void proformwifibike::forceResistance(double requestResistance) {
     }
 
     double inc = qRound(requestResistance / 0.5) * 0.5;
-    QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(inc) + "\"}}";
-    if (!inclinationAvailableByHardware())
+    QString send;
+    if (inclinationAvailableByHardware()) {
+        if(max_incline_supported > 0 && inc > max_incline_supported)
+            inc = max_incline_supported;
+        send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(inc) + "\"}}";
+    } else {
         send = "{\"type\":\"set\",\"values\":{\"Resistance\":\"" + QString::number(requestResistance) + "\"}}";
+    }
 
     qDebug() << "forceResistance" << send;
     websocket.sendTextMessage(send);
@@ -500,6 +506,16 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
             incline = incline - gears();
         Inclination = incline;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+    } else if (!values[QStringLiteral("Incline")].isUndefined()) {
+        bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+        double incline = values[QStringLiteral("Incline")].toString().toDouble();
+        // if the bike has the inclination, QZ is using it to change the resistance when it's not in ERG mode.
+        // so I would like to keep the real inclination value instead of showing to the user the modified inclination + gears.
+        // this is very helpful when you're following a GPX for example
+        if(inclinationAvailableByHardware() && !erg_mode)
+            incline = incline - gears();
+        Inclination = incline;
+        emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
     }
 
     if (!values[QStringLiteral("Target Watts")].isUndefined()) {
@@ -542,8 +558,8 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
                         value = 5.0;
                     }
                     if (value != 0.0) {
-                        forceResistance(currentInclination().value() + value); // to force an immediate change
                         setGears(gears() + value);
+                        forceResistance(lastRawRequestedInclinationValue + gears()); // to force an immediate change
                     }
                 } else {
                     double value = 0;
