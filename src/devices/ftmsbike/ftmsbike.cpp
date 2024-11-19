@@ -63,12 +63,7 @@ void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, con
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (zwiftPlayWriteChar.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        zwiftPlayService->writeCharacteristic(zwiftPlayWriteChar, *writeBuffer,
-                                             QLowEnergyService::WriteWithoutResponse);
-    } else {
-        zwiftPlayService->writeCharacteristic(zwiftPlayWriteChar, *writeBuffer);
-    }
+    zwiftPlayService->writeCharacteristic(zwiftPlayWriteChar, *writeBuffer);
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
