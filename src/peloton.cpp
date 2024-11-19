@@ -1075,6 +1075,15 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                 qDebug() << r.duration << "power" << r.power;
             }        
         }
+        QTime duration(0,0,0,0);
+        foreach(trainrow r, trainrows) {
+            duration = duration.addSecs(QTime(0,0,0,0).secsTo(r.duration));
+            qDebug() << duration << r.duration;
+        }
+        if(QTime(0,0,0,0).secsTo(duration) < current_pedaling_duration) {
+            qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << QTime(0,0,0,0).secsTo(duration) << current_pedaling_duration;
+            trainrows.clear();
+        }
         // this list doesn't have nothing useful for this session
         if (!atLeastOnePower) {
             trainrows.clear();
