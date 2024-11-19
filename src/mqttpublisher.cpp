@@ -66,7 +66,7 @@ QString MQTTPublisher::getUserNickname() const {
 }
 
 QString MQTTPublisher::getStatusTopic() const {
-    return QString("QZ/%1").arg(m_userNickname);
+    return QString("QZ/%1/").arg(m_userNickname);
 }
 
 QString MQTTPublisher::getBaseTopic() const {
