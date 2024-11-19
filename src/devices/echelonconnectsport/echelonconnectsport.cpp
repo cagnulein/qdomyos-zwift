@@ -497,6 +497,7 @@ void echelonconnectsport::serviceScanDone(void) {
             homeform::singleton()->setToastRequested("Bluetooth Service Error! Restart the bike!");
         m_control->disconnectFromDevice();
     }
+#endif
 }
 
 void echelonconnectsport::errorService(QLowEnergyService::ServiceError err) {
