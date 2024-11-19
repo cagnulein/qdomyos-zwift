@@ -35,6 +35,8 @@ var miles = 1;
 var powerChart = null;
 var watts_max = 0;
 
+var firstElapsedTargetPower = 0;
+
 function process_trainprogram(arr) {
     let powerWorkout = false;
     let elapsed = 0;
@@ -391,7 +393,14 @@ function refresh() {
 }
 
 function process_workout(arr) {    
-    powerChart.data.datasets[0].data.push({x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600), y: arr.watts});
+    if(arr.target_power > 0) { // in order to add only metrics of the training program
+        if(firstElapsedTargetPower === 0) {
+            firstElapsedTargetPower = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
+            powerChart.data.datasets[0].data = [];
+        }
+    }
+
+    powerChart.data.datasets[0].data.push({x: (arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600)) - firstElapsedTargetPower, y: arr.watts});
     if(watts_max < arr.watts)
         watts_max = arr.watts;
     powerChart.update();

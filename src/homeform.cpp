@@ -966,7 +966,7 @@ void homeform::pelotonWorkoutStarted(const QString &name, const QString &instruc
         int timer = 0;
 
         if(peloton_auto_start_with_intro) {
-            setToastRequested(QStringLiteral("Peloton workout auto started! It will start automatically after the intro") + name + QStringLiteral(" - ") + instructor);
+            setToastRequested(QStringLiteral("Peloton workout auto started! It will start automatically after the intro! ") + name + QStringLiteral(" - ") + instructor);
             timer = (pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + 64; // // 4 average time to buffer and 60 to the intro
         } else {
             setToastRequested(QStringLiteral("Peloton workout auto started skipping the intro! ") + name + QStringLiteral(" - ") + instructor);
