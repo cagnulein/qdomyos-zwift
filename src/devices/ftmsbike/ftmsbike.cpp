@@ -44,8 +44,10 @@ void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, con
                                    bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
-    if(!zwiftPlayService) {
+    if(!zwiftPlayService || !gears_zwift_ratio) {
         qDebug() << QStringLiteral("zwiftPlayService is null!");
         return;
     }
@@ -81,13 +83,15 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
                                    bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
     if(!gattFTMSService) {
         qDebug() << QStringLiteral("gattFTMSService is null!");
         return false;
     }
     
-    if(zwiftPlayService) {
+    if(zwiftPlayService && gears_zwift_ratio) {
         qDebug() << QStringLiteral("zwiftPlayService is present!");
         return false;
     }
@@ -138,8 +142,9 @@ void ftmsbike::init() {
 
 void ftmsbike::zwiftPlayInit() {
     QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
-    if(zwiftPlayService) {
+    if(zwiftPlayService && gears_zwift_ratio) {
         uint8_t rideOn[] = {0x52, 0x69, 0x64, 0x65, 0x4f, 0x6e, 0x02, 0x01};
         writeCharacteristicZwiftPlay(rideOn, sizeof(rideOn), "rideOn", false, true);
 
@@ -303,7 +308,8 @@ void ftmsbike::update() {
         }
 
         QSettings settings;
-        if(zwiftPlayService && lastGearValue != gears()) {
+        bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+        if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
             QSettings settings;
             wheelCircumference::GearTable table;
             wheelCircumference::GearTable::GearInfo g = table.getGear((int)gears());
@@ -1009,12 +1015,13 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
     QByteArray b = newValue;
     QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
         // handling gears
-        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService == nullptr) {
+        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && (zwiftPlayService == nullptr || !gears_zwift_ratio)) {
             double min_inclination = settings.value(QZSettings::min_inclination, QZSettings::default_min_inclination).toDouble();
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
@@ -1034,7 +1041,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             b[4] = slope >> 8;            
 
             qDebug() << "applying gears mod" << gears() << slope;
-        } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr) {
+        } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             
 #ifdef Q_OS_IOS
@@ -1070,7 +1077,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 #endif
             writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
             return;
-        } else if(b.at(0) == FTMS_SET_TARGET_POWER && zwiftPlayService != nullptr) {
+        } else if(b.at(0) == FTMS_SET_TARGET_POWER && zwiftPlayService != nullptr && gears_zwift_ratio) {
             qDebug() << "discarding";
             return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
@@ -1244,7 +1251,10 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
 }
 
 double ftmsbike::maxGears() {
-    if(zwiftPlayService != nullptr) {
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+
+    if(zwiftPlayService != nullptr && gears_zwift_ratio) {
         wheelCircumference::GearTable g;
         return g.maxGears;
     } else {
@@ -1253,7 +1263,10 @@ double ftmsbike::maxGears() {
 }
 
 double ftmsbike::minGears() {
-    if(zwiftPlayService != nullptr)
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+
+    if(zwiftPlayService != nullptr && gears_zwift_ratio)
         return 1;
     else
         return -9999.0;
