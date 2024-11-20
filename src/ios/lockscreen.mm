@@ -332,6 +332,8 @@ void lockscreen::echelonConnectSport_WriteCharacteristic(unsigned char* qdata, u
     if(ios_echelonConnectSport) {
         [ios_echelonConnectSport writeCharacteristc:qdata length:length ];
     }
+}
+
 void lockscreen::zwift_api_decodemessage_player(const char* data, int len) {
     NSData *d = [NSData dataWithBytes:data length:len];
     [zwiftProtobufLayer getPlayerStateWithValue:d];
