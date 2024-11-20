@@ -72,6 +72,10 @@ class lockscreen {
     // Elite Aria Fan
     void eliteAriaFan();
     void eliteAriaFan_fanSpeedRequest(unsigned char speed);
+
+    // Echelon Connect Sport
+    void echelonConnectSport(const char*  Name, void* deviceClass);
+    void echelonConnectSport_WriteCharacteristic(unsigned char* qdata, unsigned char length);
     
     // Zwift API
     void zwift_api_decodemessage_player(const char* data, int len);

@@ -10,17 +10,18 @@
 #include <QDebug>
 #include "ios/AdbClient.h"
 #include "ios/ios_eliteariafan.h"
+#include "ios/ios_echelonconnectsport.h"
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
-@class virtualrower;
+@class virtualrower_zwift;
 @class virtualtreadmill_zwift;
 @class healthkit;
 
 static healthkit* h = 0;
 static virtualbike_ios_swift* _virtualbike = nil;
 static virtualbike_zwift* _virtualbike_zwift = nil;
-static virtualrower* _virtualrower = nil;
+static virtualrower_zwift* _virtualrower = nil;
 static virtualtreadmill_zwift* _virtualtreadmill_zwift = nil;
 
 static GarminConnect* Garmin = 0;
@@ -28,6 +29,7 @@ static GarminConnect* Garmin = 0;
 static AdbClient *_adb = 0;
 
 static ios_eliteariafan* ios_eliteAriaFan = nil;
+static ios_echelonconnectsport* ios_echelonConnectSport = nil;
 
 static zwift_protobuf_layer* zwiftProtobufLayer = nil;
 
@@ -108,7 +110,7 @@ void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_co
 
 void lockscreen::virtualrower_ios()
 {
-    _virtualrower = [[virtualrower alloc] init];
+    _virtualrower = [[virtualrower_zwift alloc] init];
 }
 
 double lockscreen::virtualbike_getCurrentSlope()
@@ -318,6 +320,17 @@ void lockscreen::eliteAriaFan() {
 void lockscreen::eliteAriaFan_fanSpeedRequest(unsigned char speed) {
     if(ios_eliteAriaFan) {
         [ios_eliteAriaFan fanSpeedRequest:speed];
+    }
+}
+
+void lockscreen::echelonConnectSport(const char*  Name, void* deviceClass) {
+    NSString *deviceName = [NSString stringWithCString:Name encoding:NSASCIIStringEncoding];
+    ios_echelonConnectSport = [[ios_echelonconnectsport alloc] init:deviceName qtDevice:deviceClass];
+}
+
+void lockscreen::echelonConnectSport_WriteCharacteristic(unsigned char* qdata, unsigned char length) {
+    if(ios_echelonConnectSport) {
+        [ios_echelonConnectSport writeCharacteristc:qdata length:length ];
     }
 }
 

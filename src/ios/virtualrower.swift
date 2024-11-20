@@ -2,7 +2,7 @@ import CoreBluetooth
 
 let rowerUuid = CBUUID(string: "0x2AD1");
 
-@objc public class virtualrower: NSObject {
+@objc public class virtualrower_zwift: NSObject {
     private var peripheralManager: rowerBLEPeripheralManagerZwift!
     
     @objc public override init() {

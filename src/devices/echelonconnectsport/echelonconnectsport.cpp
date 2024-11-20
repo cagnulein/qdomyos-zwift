@@ -37,6 +37,7 @@ echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartSer
 
 void echelonconnectsport::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                               bool wait_for_response) {
+#ifndef Q_OS_IOS
     QEventLoop loop;
     QTimer timeout;
 
@@ -60,20 +61,29 @@ void echelonconnectsport::writeCharacteristic(uint8_t *data, uint8_t data_len, c
         qDebug() << QStringLiteral("gattWriteCharacteristic is invalid");
         return;
     }
-
+#endif
+    
     if (writeBuffer) {
         delete writeBuffer;
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    iOS_echelonConnectSport->echelonConnectSport_WriteCharacteristic((unsigned char*)writeBuffer->data(), data_len);
+#endif
+#else
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+#endif
 
     if (!disable_log) {
         qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                         QStringLiteral(" // ") + info;
     }
 
+#ifndef Q_OS_IOS
     loop.exec();
+#endif
 }
 
 void echelonconnectsport::forceResistance(resistance_t requestResistance) {
@@ -105,17 +115,23 @@ void echelonconnectsport::sendPoll() {
 }
 
 void echelonconnectsport::update() {
+#ifndef Q_OS_IOS
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
     }
+#endif
 
     if (initRequest) {
         initRequest = false;
         btinit();
-    } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
+    } else if (
+#ifndef Q_OS_IOS
+               bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
-               gattNotify1Characteristic.isValid() && gattNotify2Characteristic.isValid() && initDone) {
+               gattNotify1Characteristic.isValid() && gattNotify2Characteristic.isValid() && 
+#endif
+               initDone) {
         update_metrics(true, watts());
 
         // sending poll every 2 seconds
@@ -318,9 +334,11 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     qDebug() << QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime);
     qDebug() << QStringLiteral("Current Watt: ") + QString::number(watts());
 
+#ifndef Q_OS_IOS
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
+#endif
 }
 
 QTime echelonconnectsport::GetElapsedFromPacket(const QByteArray &packet) {
@@ -366,6 +384,7 @@ void echelonconnectsport::btinit() {
 }
 
 void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
+#ifndef Q_OS_IOS
     QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("0bf669f2-45f2-11e7-9598-0800200c9a66"));
     QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66"));
     QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66"));
@@ -393,7 +412,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
                 this, &echelonconnectsport::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &echelonconnectsport::descriptorWritten);
-
+#endif
         // ******************************************* virtual bike init *************************************
         if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
@@ -438,7 +457,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
         }
         firstStateChanged = 1;
         // ********************************************************************************************************
-
+#ifndef Q_OS_IOS
         QByteArray descriptor;
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
@@ -447,6 +466,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
         gattCommunicationChannelService->writeDescriptor(
             gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
     }
+#endif
 }
 
 void echelonconnectsport::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -464,7 +484,7 @@ void echelonconnectsport::characteristicWritten(const QLowEnergyCharacteristic &
 
 void echelonconnectsport::serviceScanDone(void) {
     qDebug() << QStringLiteral("serviceScanDone");
-
+#ifndef Q_OS_IOS
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("0bf669f1-45f2-11e7-9598-0800200c9a66"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
@@ -477,6 +497,7 @@ void echelonconnectsport::serviceScanDone(void) {
             homeform::singleton()->setToastRequested("Bluetooth Service Error! Restart the bike!");
         m_control->disconnectFromDevice();
     }
+#endif
 }
 
 void echelonconnectsport::errorService(QLowEnergyService::ServiceError err) {
@@ -494,6 +515,14 @@ void echelonconnectsport::error(QLowEnergyController::Error err) {
 void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                     device.address().toString() + ')';
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    iOS_echelonConnectSport = new lockscreen();
+    iOS_echelonConnectSport->echelonConnectSport(device.name().toStdString().c_str(), this);
+    return;
+#endif
+#endif
     if (device.name().startsWith(QStringLiteral("ECH"))) {
         bluetoothDevice = device;
 
@@ -531,6 +560,10 @@ void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool echelonconnectsport::connected() {
+#ifdef Q_OS_IOS
+    return true;
+#endif
+
     if (!m_control) {
         return false;
     }
@@ -657,10 +690,16 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
 
 void echelonconnectsport::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
-    if (state == QLowEnergyController::UnconnectedState && m_control) {
+    if (state == QLowEnergyController::UnconnectedState
+#ifndef Q_OS_IOS
+        && m_control
+#endif
+        ) {
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+#ifndef Q_OS_IOS
         m_control->connectToDevice();
+#endif
     }
 }
