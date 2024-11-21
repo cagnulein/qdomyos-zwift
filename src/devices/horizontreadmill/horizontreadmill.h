@@ -34,6 +34,13 @@
 #include "ios/lockscreen.h"
 #endif
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#include <bthsdpdef.h>
+#include <bluetoothapis.h>
+#include <VersionHelpers.h>
+#endif
+
 class horizontreadmill : public treadmill {
     Q_OBJECT
   public:
@@ -48,6 +55,11 @@ class horizontreadmill : public treadmill {
     bool autoStartWhenSpeedIsGreaterThenZero() override;
 
   private:
+#ifdef Q_OS_WIN
+    bool discoverServicesWin11(const QBluetoothAddress& address);
+    void handleWin11Service(const GUID& serviceGuid);
+#endif
+
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
                              uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
     void waitForAPacket();

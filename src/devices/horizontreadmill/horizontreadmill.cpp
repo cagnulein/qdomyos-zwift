@@ -2311,31 +2311,98 @@ void horizontreadmill::characteristicRead(const QLowEnergyCharacteristic &charac
     }
 }
 
+//#ifdef Q_OS_WIN
+bool horizontreadmill::discoverServicesWin11(const QBluetoothAddress& address) {
+    BLUETOOTH_DEVICE_INFO deviceInfo = { sizeof(BLUETOOTH_DEVICE_INFO) };
+    deviceInfo.Address.ullLong = address.toUInt64();
+
+    if (BluetoothGetDeviceInfo(nullptr, &deviceInfo) != ERROR_SUCCESS) {
+        qDebug() << "Failed to get device info";
+        return false;
+    }
+
+
+    DWORD serviceCount = 0;
+    GUID* serviceGuids = nullptr;
+    
+    // Prima chiamata per ottenere il numero di servizi
+    DWORD result = BluetoothEnumerateInstalledServices(
+        nullptr, 
+        &deviceInfo,
+        &serviceCount,
+        nullptr);
+
+    if (result != ERROR_SUCCESS) {
+        qDebug() << "Failed to enumerate services count";
+        return false;
+    }
+
+    if (serviceCount == 0) {
+        qDebug() << "No services found";
+        return false;
+    }
+
+    // Allocare memoria per i GUID dei servizi
+    serviceGuids = new GUID[serviceCount];
+    
+    // Seconda chiamata per ottenere i GUID effettivi
+    result = BluetoothEnumerateInstalledServices(
+        nullptr,
+        &deviceInfo,
+        &serviceCount,
+        serviceGuids);
+
+    if (result != ERROR_SUCCESS) {
+        delete[] serviceGuids;
+        qDebug() << "Failed to enumerate services";
+        return false;
+    }
+
+    // Processare ogni servizio trovato
+    for (DWORD i = 0; i < serviceCount; i++) {
+        handleWin11Service(serviceGuids[i]);
+    }
+
+    delete[] serviceGuids;
+    return true;
+}
+
+void horizontreadmill::handleWin11Service(const GUID& serviceGuid) {
+    wchar_t guidString[39];
+    StringFromGUID2(serviceGuid, guidString, sizeof(guidString)/sizeof(wchar_t));
+
+    QString qtGuidString = QString::fromWCharArray(guidString);
+    QBluetoothUuid qtUuid(qtGuidString);
+
+    QLowEnergyService* service = m_control->createServiceObject(qtUuid);
+    if (service) {
+        gattCommunicationChannelService.append(service);
+        connect(service, &QLowEnergyService::stateChanged, this, &horizontreadmill::stateChanged);
+        service->discoverDetails();
+        qDebug() << "Discovered service:" << qtUuid;
+    }
+}
+//#endif
+
 void horizontreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     initRequest = false;
     firstStateChanged = 0;
     auto services_list = m_control->services();
-    QBluetoothUuid ftmsService((quint16)0x1826);
-    QBluetoothUuid CustomService((quint16)0xFFF0);
+
+#ifdef Q_OS_WIN
+    if (discoverServicesWin11(m_control->remoteAddress())) {
+        return;
+    }
+#endif
 
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
-#ifdef Q_OS_WIN
-        if (s == ftmsService || s == CustomService)
-#endif
-        {
-            qDebug() << s << "discovering...";
-            gattCommunicationChannelService.append(m_control->createServiceObject(s));
-            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                    &horizontreadmill::stateChanged);
-            gattCommunicationChannelService.constLast()->discoverDetails();
-        }
-#ifdef Q_OS_WIN
-        else {
-            qDebug() << s << "NOT discovering!";
-        }
-#endif
+        qDebug() << s << "discovering...";
+        gattCommunicationChannelService.append(m_control->createServiceObject(s));
+        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
+                &horizontreadmill::stateChanged);
+        gattCommunicationChannelService.constLast()->discoverDetails();
     }
 }
 
