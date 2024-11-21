@@ -63,7 +63,15 @@ void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, con
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    zwiftPlayService->writeCharacteristic(zwiftPlayWriteChar, *writeBuffer);
+#ifndef Q_OS_ANDROID
+    if (zwiftPlayWriteChar.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        zwiftPlayService->writeCharacteristic(zwiftPlayWriteChar, *writeBuffer,
+                                              QLowEnergyService::WriteWithoutResponse);
+    } else
+#endif
+    {
+        zwiftPlayService->writeCharacteristic(zwiftPlayWriteChar, *writeBuffer);
+    }
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
@@ -1063,7 +1071,14 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             qDebug() << "implement zwift hub protobuf!";
             return;
 #endif
-            writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
+
+            if(lastSlope == slope) {
+                qDebug() << "grade is already set to " << slope << "skipping";
+                return;
+            }
+            lastSlope = slope;
+
+            writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, true);
             return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && zwiftPlayService != nullptr) {
             qDebug() << "discarding";

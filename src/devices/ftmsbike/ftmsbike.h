@@ -129,6 +129,8 @@ class ftmsbike : public bike {
 
     uint8_t battery_level = 0;
 
+    int16_t lastSlope = 0;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
