@@ -123,6 +123,7 @@
 #include "devices/echelonstride/echelonstride.h"
 
 #include "templateinfosenderbuilder.h"
+#include "technogymbike/technogymbike.h"
 #include "devices/toorxtreadmill/toorxtreadmill.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
@@ -220,6 +221,7 @@ class bluetooth : public QObject, public SignalHandler {
     truetreadmill *trueTreadmill = nullptr;
     horizongr7bike *horizonGr7Bike = nullptr;
     schwinnic4bike *schwinnIC4Bike = nullptr;
+    technogymbike* technogymBike = nullptr;
     sportstechbike *sportsTechBike = nullptr;
     sportstechelliptical *sportsTechElliptical = nullptr;
     sportsplusbike *sportsPlusBike = nullptr;
