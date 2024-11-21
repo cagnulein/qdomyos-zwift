@@ -146,8 +146,8 @@ void toorxtreadmill::update() {
             requestInclination = -100;
         } else if (requestStart != -1 && start_phase == -1) {
             emit debug(QStringLiteral("starting..."));
-            const uint8_t start[] = {0x55, 0x17, 0x01, 0x01, 0x55, 0xb5, 0x01, 0xff};
-            send((char *)start, sizeof(start));
+            //const uint8_t start[] = {0x55, 0x17, 0x01, 0x01, 0x55, 0xb5, 0x01, 0xff};
+            //send((char *)start, sizeof(start));
             start_phase = 0;
             requestStart = -1;
             emit tapeStarted();
@@ -296,56 +296,83 @@ void toorxtreadmill::update() {
             } else {
                 switch (start_phase) {
                     case 0: {
+                        const uint8_t init2[] = {0x55, 0x0c, 0x01, 0xff, 0x55, 0xbb, 0x01, 0xff, 0x55, 0x24, 0x01, 0xff, 
+                                            0x55, 0x25, 0x01, 0xff, 0x55, 0x26, 0x01, 0xff, 0x55, 0x27, 0x01, 0xff, 0x55, 0x02,
+                                            0x01, 0xff, 0x55, 0x03, 0x01, 0xff, 0x55, 0x04, 0x01, 0xff, 0x55, 0x06, 0x01, 0xff,
+                                            0x55, 0x1f, 0x01, 0xff, 0x55, 0xa0, 0x01, 0xff, 0x55, 0xb0, 0x01, 0xff, 0x55, 0xb2,
+                                            0x01, 0xff, 0x55, 0xb3, 0x01, 0xff, 0x55, 0xb4, 0x01, 0xff, 0x55, 0xb5, 0x01, 0xff,
+                                            0x55, 0xb6, 0x01, 0xff, 0x55, 0xb7, 0x01, 0xff, 0x55, 0xb8, 0x01, 0xff, 0x55, 0xb9,
+                                            0x01, 0xff, 0x55, 0xba, 0x01, 0xff, 0x55, 0x0b, 0x01, 0xff, 0x55, 0x18, 0x01, 0xff,
+                                            0x55, 0x19, 0x01, 0xff, 0x55, 0x1a, 0x01, 0xff, 0x55, 0x1b, 0x01, 0xff};
+                        send((char *)init2, sizeof(init2));
+                        start_phase++;
+                        break;
+                    }
+                    case 1:
+                        start_phase++;
+                        break;
+                    case 2: {
+                        const uint8_t init3[] = {0x55, 0x01, 0x06, 0x2f, 0x00, 0x56, 0x00, 0xb7, 0x00, 0x55, 0xb9, 0x01, 0xff, 0x55, 0xb5, 0x01, 0xff};
+                        send((char *)init3, sizeof(init3));
+                        start_phase++;
+                        break;
+                    }
+                    case 3: {
+                        const uint8_t init4[] = {0x55, 0x17, 0x01, 0x01};
+                        send((char *)init4, sizeof(init4));
+                        start_phase++;
+                        break;
+                    }
+                    case 4: {
                         const uint8_t start0[] = {0x55, 0x0a, 0x01, 0x02};
                         send((char *)start0, sizeof(start0));
                         start_phase++;
                         break;
                     }
-                    case 1: {
+                    case 5: {
                         const uint8_t start[] = {0x55, 0x01, 0x06, 0x1d, 0x00, 0x3c, 0x00, 0xaa, 0x00};
                         send((char *)start, sizeof(start));
                         start_phase++;
                         break;
                     }
-                    case 2: {
+                    case 6: {
                         const uint8_t start1[] = {0x55, 0x15, 0x01, 0x00};
                         send((char *)start1, sizeof(start1));
                         start_phase++;
                         break;
                     }
-                    case 3: {
+                    case 7: {
                         const char start2[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
                         send((char *)start2, sizeof(start2));
                         start_phase++;
                         break;
                     }
-                    case 4: {
+                    case 8: {
                         const uint8_t start3[] = {0x55, 0x11, 0x01, 0x01};
                         send((char *)start3, sizeof(start3));
                         start_phase++;
                         break;
                     }
-                    case 5: {
+                    case 9: {
                         const uint8_t start4[] = {0x55, 0x08, 0x01, 0x01};
                         send((char *)start4, sizeof(start4));
                         start_phase++;
                         break;
                     }
-                    case 6:
-                    case 7: {
+                    case 10:
+                    case 11: {
                         const uint8_t start5[] = {0x55, 0x0a, 0x01, 0x01};
                         send((char *)start5, sizeof(start5));
                         start_phase++;
                         break;
                     }
-                    case 8: {
+                    case 12: {
                         const uint8_t start6[] = {0x55, 0x07, 0x01, 0xff};
                         send((char *)start6, sizeof(start6));
                         start_phase = -1;
                         break;
                     }
                 }
-            }
             qDebug() << " start phase " << start_phase;
         } else {
             const char poll[] = {0x55, 0x17, 0x01, 0x01};
@@ -360,28 +387,9 @@ void toorxtreadmill::update() {
 void toorxtreadmill::rfCommConnected() {
     emit debug(QStringLiteral("connected ") + socket->peerName());
 
-    const uint8_t init1[] = {0x55, 0x0c, 0x01, 0xff, 0x55, 0xbb, 0x01, 0xff, 0x55, 0x24, 0x01, 0xff};
-    const uint8_t init2[] = {0x55, 0x25, 0x01, 0xff, 0x55, 0x26, 0x01, 0xff, 0x55, 0x27, 0x01, 0xff, 0x55, 0x02,
-                             0x01, 0xff, 0x55, 0x03, 0x01, 0xff, 0x55, 0x04, 0x01, 0xff, 0x55, 0x06, 0x01, 0xff,
-                             0x55, 0x1f, 0x01, 0xff, 0x55, 0xa0, 0x01, 0xff, 0x55, 0xb0, 0x01, 0xff, 0x55, 0xb2,
-                             0x01, 0xff, 0x55, 0xb3, 0x01, 0xff, 0x55, 0xb4, 0x01, 0xff, 0x55, 0xb5, 0x01, 0xff,
-                             0x55, 0xb6, 0x01, 0xff, 0x55, 0xb7, 0x01, 0xff, 0x55, 0xb8, 0x01, 0xff, 0x55, 0xb9,
-                             0x01, 0xff, 0x55, 0xba, 0x01, 0xff, 0x55, 0x0b, 0x01, 0xff, 0x55, 0x18, 0x01, 0xff,
-                             0x55, 0x19, 0x01, 0xff, 0x55, 0x1a, 0x01, 0xff, 0x55, 0x1b, 0x01, 0xff};
-
-    send((char *)init1, sizeof(init1));
-    qDebug() << QStringLiteral(" init1 write");
-    send((char *)init2, sizeof(init2));
-    qDebug() << QStringLiteral(" init2 write");
-    QThread::msleep(2000);
-    const uint8_t init3[] = {0x55, 0x01, 0x06, 0x2f, 0x00, 0x56, 0x00, 0xb7, 0x00, 0x55, 0xb9, 0x01, 0xff, 0x55, 0xb5, 0x01, 0xff};
-    this->send((char *)init3, sizeof(init3));
-    QThread::msleep(200);
-    const uint8_t init4[] = {0x55, 0x17, 0x01, 0x01};
-    this->send((char *)init4, sizeof(init4));
     this->initDone = true;
-    // this->requestStart = 1; // Commentato, ma ecco come si farebbe
-    emit this->connectedAndDiscovered(); // Usa this per emettere segnali
+    this->requestStart = 1;
+    emit this->connectedAndDiscovered();
 }
 
 void toorxtreadmill::readSocket() {
