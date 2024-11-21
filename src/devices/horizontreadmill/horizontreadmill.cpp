@@ -2311,7 +2311,7 @@ void horizontreadmill::characteristicRead(const QLowEnergyCharacteristic &charac
     }
 }
 
-//#ifdef Q_OS_WIN
+#ifdef Q_OS_WIN
 bool horizontreadmill::discoverServicesWin11(const QBluetoothAddress& address) {
     BLUETOOTH_DEVICE_INFO deviceInfo = { sizeof(BLUETOOTH_DEVICE_INFO) };
     deviceInfo.Address.ullLong = address.toUInt64();
@@ -2382,7 +2382,7 @@ void horizontreadmill::handleWin11Service(const GUID& serviceGuid) {
         qDebug() << "Discovered service:" << qtUuid;
     }
 }
-//#endif
+#endif
 
 void horizontreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
