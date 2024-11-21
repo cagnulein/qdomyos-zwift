@@ -2216,6 +2216,9 @@ class QZSettings {
     static const QString peloton_auto_start_without_intro;
     static constexpr bool default_peloton_auto_start_without_intro = false;
 
+    static const QString nordictrack_tseries5_treadmill;
+    static constexpr bool default_nordictrack_tseries5_treadmill = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
