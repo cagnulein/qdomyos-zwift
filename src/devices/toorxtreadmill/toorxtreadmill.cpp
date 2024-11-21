@@ -374,6 +374,7 @@ void toorxtreadmill::update() {
                     }
                 }
             qDebug() << " start phase " << start_phase;
+            }
         } else {
             const char poll[] = {0x55, 0x17, 0x01, 0x01};
             send((char*)poll, sizeof(poll));
