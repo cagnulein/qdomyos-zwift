@@ -12,6 +12,7 @@
 #include <QLowEnergyConnectionParameters>
 #endif
 #include <chrono>
+#include "homeform.h"
 
 using namespace std::chrono_literals;
 
@@ -157,6 +158,10 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A19)) {
         battery = newValue.at(0);
+        if(battery != battery_level)
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested(bluetoothDevice.name() + QStringLiteral(" Battery Level ") + QString::number(battery) + " %");
+        battery_level = battery;
         qDebug() << QStringLiteral("battery: ") << battery;
         return;
     }
