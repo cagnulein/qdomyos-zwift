@@ -797,8 +797,9 @@ const QString QZSettings::default_mqtt_deviceid = QStringLiteral("default");
 const QString QZSettings::peloton_auto_start_with_intro = QStringLiteral("peloton_auto_start_with_intro");
 const QString QZSettings::peloton_auto_start_without_intro = QStringLiteral("peloton_auto_start_without_intro");
 const QString QZSettings::nordictrack_tseries5_treadmill = QStringLiteral("nordictrack_tseries5_treadmill");
+const QString QZSettings::proform_carbon_tl_PFTL59722c = QStringLiteral("proform_carbon_tl_PFTL59722c");
 
-const uint32_t allSettingsCount = 673;
+const uint32_t allSettingsCount = 674;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1477,7 +1478,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::mqtt_deviceid, QZSettings::default_mqtt_deviceid},
     {QZSettings::peloton_auto_start_with_intro, QZSettings::default_peloton_auto_start_with_intro},
     {QZSettings::peloton_auto_start_without_intro, QZSettings::default_peloton_auto_start_without_intro},
-    {QZSettings::nordictrack_tseries5_treadmill, QZSettings::default_nordictrack_tseries5_treadmill}
+    {QZSettings::nordictrack_tseries5_treadmill, QZSettings::default_nordictrack_tseries5_treadmill},
+    {QZSettings::proform_carbon_tl_PFTL59722c, QZSettings::default_proform_carbon_tl_PFTL59722c},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
