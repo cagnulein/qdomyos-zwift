@@ -112,7 +112,7 @@ void csaferowerThread::run() {
         command << "CSAFE_GETHRCUR_CMD";
         command << "CSAFE_GETPACE_CMD";
         command << "CSAFE_GETSTATUS_CMD";
-        QByteArray ret = aa->write(command);
+        QByteArray ret = aa->write(command,true);
 
         qDebug() << " >> " << ret.toHex(' ');
         rawWrite((uint8_t *)ret.data(), ret.length());
