@@ -129,8 +129,8 @@ void technogymbike::forceResistance(resistance_t requestResistance) {
     double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
     requestResistance = fr;
 
-    write[2] = ((uint16_t)requestResistance * 10) & 0xFF;
-    write[3] = ((uint16_t)requestResistance * 10) >> 8;
+    write[2] = ((uint16_t)requestResistance / 10) & 0xFF;
+    write[3] = ((uint16_t)requestResistance / 10) >> 8;
 
     writeCharacteristic(write, sizeof(write),
                         QStringLiteral("forceResistance ") + QString::number(requestResistance));
@@ -583,13 +583,13 @@ void technogymbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &ch
                 lastPacketFromFTMS.append(b.at(i));
             qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
-            slope /= 10;
+            slope /= 100;
             if (gears() != 0) {
-                slope += (gears() * 5);
+                slope += (gears());
             }
 
-            if(min_inclination > (((double)slope) / 10.0)) {
-                slope = min_inclination * 10;
+            if(min_inclination > (((double)slope))) {
+                slope = min_inclination;
                 qDebug() << "grade override due to min_inclination " << min_inclination;
             }         
 
