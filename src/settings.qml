@@ -1005,6 +1005,10 @@ import QtQuick.Dialogs 1.0
             // from version 2.18.3
             property bool proform_performance_400i: false
 
+            // from version tbd
+            property string csafe_elliptical_port: ""
+
+
             // from version 2.18.5
             property bool proform_treadmill_c700: false
             property bool sram_axs_controller: false
@@ -7757,6 +7761,35 @@ import QtQuick.Dialogs 1.0
                             onClicked: settings.domyos_elliptical_inclination = checked
                         }
                     }
+                    AccordionElement {
+                        title: qsTr("Life Fitness 95xi (CSAFE)")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Serial Port:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: csafeellipticalSerialPortTextField
+                                text: settings.csafe_elliptical_port
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.csafe_elliptical_port = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.csafe_elliptical_port = csafeellipticalSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            }
+                        }
+                    }
+
                     AccordionElement {
                         id: proformEllipticalAccordion
                         title: qsTr("Proform/Nordictrack Elliptical Options")

@@ -469,6 +469,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString computrainerSerialPort =
         settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
     QString csaferowerSerialPort = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
+    QString csafeellipticalSerialPort =
+        settings.value(QZSettings::csafe_elliptical_port, QZSettings::default_csafe_elliptical_port).toString();
     bool manufacturerDeviceFound = false;
     bool ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
     bool pafers_treadmill_bh_iboxster_plus =
@@ -783,6 +785,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(csafeRower);
+
+            } else if (!csafeellipticalSerialPort.isEmpty() && !csafeElliptical) {
+                this->stopDiscovery();
+                // csafeElliptical = new csafeelliptical(noWriteResistance, noHeartService, false);
+                csafeElliptical = new csafeelliptical(noWriteResistance, noHeartService, false,
+                                                                    bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(csafeElliptical, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(csafeElliptical, &csafeelliptical::debug, this, &bluetooth::debug);
+                csafeElliptical->deviceDiscovered(b);
+                // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(csafeElliptical);
+
 #endif
             } else if (antbike_setting && !antBike) {
                 this->stopDiscovery();
@@ -3273,6 +3292,11 @@ void bluetooth::restart() {
         delete csafeRower;
         csafeRower = nullptr;
     }
+        if (csafeElliptical) {
+
+        delete csafeElliptical;
+        csafeElliptical= nullptr;
+    }
 #endif
     if (chronoBike) {
 
@@ -3590,6 +3614,8 @@ bluetoothdevice *bluetooth::device() {
         return computrainerBike;
     } else if (csafeRower) {
         return csafeRower;
+    } else if (csafeElliptical) {
+        return csafeElliptical;
 #endif
     }
     return nullptr;
