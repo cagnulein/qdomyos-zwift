@@ -62,16 +62,15 @@ class technogymbike : public bike {
     QLowEnergyService *customService = nullptr;
     QBluetoothUuid charNotification = QBluetoothUuid(QStringLiteral("22eac6e9-24d6-4bb5-be44-b36ace7c7bfb"));
     QBluetoothUuid charWrite        = QBluetoothUuid(QStringLiteral("2f7cabce-808d-411f-9a0c-bb92ba96c102"));
-    QBluetoothUuid serviceUuid      = QBluetoothUuid(QStringLiteral("89d3502b-0f36-433a-8ef4-c502ad55f8dc"));
+    QBluetoothUuid serviceUuid      = QBluetoothUuid(QStringLiteral("a913bfc0-929e-11e5-b928-0002a5d5c51b"));
 
     bool powerForced = false;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QByteArray lastPacketFromFTMS;
-    QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
-    QDateTime lastRefreshCharacteristicChanged2ACE = QDateTime::currentDateTime();
     QDateTime lastCadenceChanged = QDateTime::currentDateTime();
+    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint16_t lastCadenceValue = 0;
     uint8_t firstStateChanged = 0;
     int8_t bikeResistanceOffset = 4;
@@ -84,6 +83,13 @@ class technogymbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    QDateTime lastGoodCadence = QDateTime::currentDateTime();
+    bool noVirtualDevice = false;
+
+    uint16_t oldLastCrankEventTime = 0;
+    uint16_t oldCrankRevs = 0;
+
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
