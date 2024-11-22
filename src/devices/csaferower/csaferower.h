@@ -26,7 +26,7 @@
 #include <QObject>
 #include <QString>
 
-#include "csafe.h"
+#include "devices/csafe/csafe.h"
 #include "devices/rower.h"
 #include "virtualdevices/virtualbike.h"
 #include "virtualdevices/virtualrower.h"

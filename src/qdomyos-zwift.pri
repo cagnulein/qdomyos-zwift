@@ -99,7 +99,7 @@ SOURCES += \
     $$PWD/mqtt/qmqtttype.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
-devices/csaferower/csafe.cpp \
+devices/csafe/csafe.cpp \
 devices/csaferower/csaferower.cpp \
 devices/eliteariafan/eliteariafan.cpp \
 devices/fakerower/fakerower.cpp \
@@ -349,7 +349,7 @@ HEADERS += \
     $$PWD/wheelcircumference.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
-devices/csaferower/csafe.h \
+devices/csafe/csafe.h \
 devices/csaferower/csaferower.h \
 devices/eliteariafan/eliteariafan.h \
 devices/proformtelnetbike/proformtelnetbike.h \
