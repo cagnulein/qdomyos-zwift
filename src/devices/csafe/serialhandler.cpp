@@ -3,7 +3,7 @@
 #include "serialport.h"
 #include <QDebug>
 
-SerialHandler *SerialHandler::create(const QString &deviceFilename, uint16_t baudRate) {
+SerialHandler *SerialHandler::create(const QString &deviceFilename, uint32_t baudRate) {
     if (deviceFilename.contains(':')) {
         qDebug() << "Using NetSerial for device:" << deviceFilename;
         return new NetSerial(deviceFilename);

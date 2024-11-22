@@ -3,7 +3,7 @@
 /* ----------------------------------------------------------------------
  * CONSTRUCTOR/DESTRUCTOR
  * ---------------------------------------------------------------------- */
-Serialport::Serialport(QString deviceFilename, uint16_t baudRate) {
+Serialport::Serialport(QString deviceFilename, uint32_t baudRate) {
     setDevice(deviceFilename);
     this->baudRate = baudRate;
 }

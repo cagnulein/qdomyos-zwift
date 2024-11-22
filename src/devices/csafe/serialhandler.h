@@ -9,7 +9,7 @@ class SerialHandler {
     virtual ~SerialHandler() = 0; // Pure virtual destructor
 
     // Factory method to create the appropriate serial handler
-    static SerialHandler *create(const QString &deviceFilename, uint16_t baudRate);
+    static SerialHandler *create(const QString &deviceFilename, uint32_t baudRate);
 
     // Abstract interface for serial operations
     virtual int openPort() = 0;
