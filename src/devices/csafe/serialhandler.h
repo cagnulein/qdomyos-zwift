@@ -2,14 +2,14 @@
 #define SERIALHANDLER_H
 
 #include <QString>
-#include <cstdint>
+#include <sys/types.h>
 
 class SerialHandler {
   public:
     virtual ~SerialHandler() = 0; // Pure virtual destructor
 
     // Factory method to create the appropriate serial handler
-    static SerialHandler *create(const QString &deviceFilename, unsigned int baudRate);
+    static SerialHandler *create(const QString &deviceFilename, uint16_t baudRate);
 
     // Abstract interface for serial operations
     virtual int openPort() = 0;
