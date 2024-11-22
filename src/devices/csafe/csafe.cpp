@@ -65,6 +65,7 @@ csafe::csafe() {
     cmds["CSAFE_PM_GET_WORKDISTANCE"] = populateCmd(0xa3, QList<int>(), 0x1a);
 
     // Generic long commands
+    cmds["CSAFE_SETPROGRAM_CMD"] = populateCmd(0x24, QList<int>() << 1 << 1);
     cmds["CSAFE_SETUSERINFO_CMD"] = populateCmd(0x2B, QList<int>() << 2 << 1 << 1 << 1);
     cmds["CSAFE_SETLEVEL_CMD"] = populateCmd(0x2D, QList<int>() << 1);
 

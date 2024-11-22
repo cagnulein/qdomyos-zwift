@@ -192,10 +192,11 @@ void csafeelliptical::portAvailable(bool available) {
     if (available) {
         qDebug() << "CSAFE port available";
         _connected = true;
+        emit sendCsafeCommand(QStringList() << "CSAFE_GETUSERINFO_CMD");
         QStringList command = {"CSAFE_SETUSERINFO_CMD",
                                QString::number(settings.value(QZSettings::weight, QZSettings::default_weight).toInt()),
                                "39", QString::number(settings.value(QZSettings::age, QZSettings::default_age).toInt()),
-                               "0"}; // weight,weight unit,age,gender
+                               "1"}; // weight,weight unit,age,gender
         emit sendCsafeCommand(command);
         emit sendCsafeCommand(QStringList() << "CSAFE_GETUSERINFO_CMD");
     } else {
@@ -321,10 +322,13 @@ void csafeelliptical::changeResistance(resistance_t res) {
         res = 0;
     if (res > 25)
         res = 25;
-    QStringList resistanceCommand = {"CSAFE_SETLEVEL_CMD", QString::number(res)};
+    //setlevel is not supported by elliptical
+    //QStringList resistanceCommand = {"CSAFE_SETLEVEL_CMD", QString::number(res)};
+    QStringList resistanceCommand = {"CSAFE_SETPROGRAM_CMD", "4", QString::number(res)};
     emit sendCsafeCommand(resistanceCommand);
     qDebug() << "Send resistance update to device. Requested resitance: " << res;
     emit sendCsafeCommand(QStringList() << "CSAFE_GETPROGRAM_CMD");
+   
 }
 
 bool csafeelliptical::connected() { return _connected; }
