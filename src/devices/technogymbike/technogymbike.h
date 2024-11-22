@@ -60,8 +60,7 @@ class technogymbike : public bike {
 
     QLowEnergyCharacteristic customWriteChar;
     QLowEnergyService *customService = nullptr;
-    QBluetoothUuid charNotification = QBluetoothUuid(QStringLiteral("22eac6e9-24d6-4bb5-be44-b36ace7c7bfb"));
-    QBluetoothUuid charWrite        = QBluetoothUuid(QStringLiteral("2f7cabce-808d-411f-9a0c-bb92ba96c102"));
+    QBluetoothUuid charWrite        = QBluetoothUuid(QStringLiteral("58094966-498C-470D-8051-37E617A13895"));
     QBluetoothUuid serviceUuid      = QBluetoothUuid(QStringLiteral("a913bfc0-929e-11e5-b928-0002a5d5c51b"));
 
     bool powerForced = false;

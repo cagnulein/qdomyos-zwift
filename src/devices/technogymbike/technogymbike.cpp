@@ -514,7 +514,6 @@ void technogymbike::stateChanged(QLowEnergyService::ServiceState state) {
                     // qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }
 
-                QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
                 if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == charWrite) {
                     qDebug() << QStringLiteral("custom service and Control Point found");
                     customWriteChar = c;
