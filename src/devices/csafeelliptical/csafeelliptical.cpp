@@ -89,7 +89,7 @@ void csafeelliptical::onCsafeFrame(const QVariantMap &csafeFrame) {
                  << "Current level received:" << resistance;
     }
     if (csafeFrame["CSAFE_GETSTATUS_CMD"].isValid()) {
-        u_int16_t statusvalue = csafeFrame["CSAFE_GETSTATUS_CMD"].value<QVariantList>()[0].toUInt();
+        uint16_t statusvalue = csafeFrame["CSAFE_GETSTATUS_CMD"].value<QVariantList>()[0].toUInt();
         qDebug() << "Status value:" << statusvalue << " lastStatus:" << lastStatus
                  << " Machine state from status:" << (statusvalue & 0x0f);
         if (statusvalue != lastStatus) {
