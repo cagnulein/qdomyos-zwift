@@ -223,7 +223,7 @@ int Serialport::dataAvailable() {
 
 #elif defined(WIN32)
     COMSTAT cs;
-    if (!ClearCommError(fd_, NULL, &cs)) {
+    if (!ClearCommError(devicePort, NULL, &cs)) {
         return -1;
     }
     return static_cast<size_t>(cs.cbInQue);
