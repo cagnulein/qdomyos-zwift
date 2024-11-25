@@ -1231,6 +1231,15 @@ void trainprogram::end() {
     }
 }
 
+bool trainprogram::overrideZoneHRForCurrentRow(uint8_t zone) {
+    if (started && currentStep < rows.length() && currentRow().zoneHR != -1) {
+        qDebug() << "overriding zoneHR from" << rows.at(currentStep).zoneHR << "to" << zone;
+        rows[currentStep].zoneHR = zone;
+        return true;
+    }
+    return false;
+}
+
 bool trainprogram::overridePowerForCurrentRow(double power) {
     if (started && currentStep < rows.length() && currentRow().power != -1) {
         qDebug() << "overriding power from" << rows.at(currentStep).power << "to" << power;
