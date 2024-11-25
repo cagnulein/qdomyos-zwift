@@ -88,11 +88,11 @@ void technogymbike::init() {
 }
 
 void technogymbike::forcePower(int16_t requestPower) {
-    // TODO
-    uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
 
-    write[1] = ((uint16_t)requestPower) & 0xFF;
-    write[2] = ((uint16_t)requestPower) >> 8;
+    uint8_t write[] = {0xf8, 0x01, 0x55, 0x00, 0xe4, 0x02, 0x18, 0x01, 0x03, 0x19, 0x00};
+
+    write[2] = ((uint16_t)requestPower) & 0xFF;
+    write[3] = ((uint16_t)requestPower) >> 8;
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(requestPower));
 
