@@ -129,8 +129,8 @@ void technogymbike::forceResistance(resistance_t requestResistance) {
     double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
     requestResistance = fr;
 
-    write[2] = ((uint16_t)requestResistance / 10) & 0xFF;
-    write[3] = ((uint16_t)requestResistance / 10) >> 8;
+    write[2] = ((uint16_t)requestResistance / 3) & 0xFF;
+    write[3] = ((uint16_t)requestResistance / 3) >> 8;
 
     writeCharacteristic(write, sizeof(write),
                         QStringLiteral("forceResistance ") + QString::number(requestResistance));
