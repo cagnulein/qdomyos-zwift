@@ -1171,8 +1171,9 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
 
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
-        writeS[1] = ((uint16_t)(requestSpeed * 100)) & 0xFF;
-        writeS[2] = ((uint16_t)(requestSpeed * 100)) >> 8;
+        uint16_t speed_int = round(requestSpeed * 100);
+        writeS[1] = speed_int & 0xFF;
+        writeS[2] = speed_int >> 8;
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceSpeed"), false, false);
