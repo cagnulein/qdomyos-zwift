@@ -149,9 +149,6 @@ void ftmsbike::zwiftPlayInit() {
         uint8_t init1[] = {0x41, 0x08, 0x05};
         writeCharacteristicZwiftPlay(init1, sizeof(init1), "init1", false, true);
 
-        uint8_t init2[] = {0x04, 0x2a, 0x04, 0x10, 0xc0, 0xbb, 0x01};
-        writeCharacteristicZwiftPlay(init2, sizeof(init2), "init2", false, true);
-
         uint8_t init3[] = {0x00, 0x08, 0x00};
         writeCharacteristicZwiftPlay(init3, sizeof(init3), "init3", false, true);
 
@@ -160,23 +157,8 @@ void ftmsbike::zwiftPlayInit() {
         uint8_t init4[] = {0x00, 0x08, 0x88, 0x04};
         writeCharacteristicZwiftPlay(init4, sizeof(init4), "init4", false, true);
 
-        uint8_t init5[] = {0x04, 0x2a, 0x0a, 0x10, 0xc0, 0xbb, 0x01, 0x20, 0xbf, 0x06, 0x28, 0xb4, 0x42};
+        uint8_t init5[] = {0x04, 0x2a, 0x0a, 0x10, 0xc0, 0xbb, 0x01, 0x20, 0xbf, 0x06, 0x28, 0xb4, 0x42};  //ok with power target 0
         writeCharacteristicZwiftPlay(init5, sizeof(init5), "init5", false, true);
-
-        uint8_t init6[] = {0x04, 0x22, 0x0b, 0x08, 0x00, 0x10, 0xda, 0x02, 0x18, 0xec, 0x27, 0x20, 0x90, 0x03};
-        writeCharacteristicZwiftPlay(init6, sizeof(init6), "init6", false, true);
-
-        writeCharacteristicZwiftPlay(init2, sizeof(init2), "init2", false, true);
-        writeCharacteristicZwiftPlay(init4, sizeof(init4), "init4", false, true);
-
-        uint8_t init7[] = {0x04, 0x22, 0x03, 0x10, 0xa9, 0x01};
-        writeCharacteristicZwiftPlay(init7, sizeof(init7), "init7", false, true);
-
-        writeCharacteristicZwiftPlay(init2, sizeof(init2), "init2", false, true);
-        writeCharacteristicZwiftPlay(init4, sizeof(init4), "init4", false, true);
-
-        uint8_t init8[] = {0x04, 0x22, 0x02, 0x10, 0x00};
-        writeCharacteristicZwiftPlay(init8, sizeof(init8), "init8", false, true);
     }
 }
 
