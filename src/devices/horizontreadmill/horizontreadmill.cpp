@@ -891,7 +891,7 @@ void horizontreadmill::update() {
             if (float_one_point_round(requestSpeed) != float_one_point_round(currentSpeed().value()) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
                 forceSpeedNeed) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                forceSpeed(requestSpeed);
+                forceSpeed(float_one_point_round(requestSpeed));
             }
             requestSpeed = -1;
         }
