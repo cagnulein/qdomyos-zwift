@@ -888,7 +888,7 @@ void horizontreadmill::update() {
             bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
             qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
                      << float_one_point_round(currentSpeed().value());
-            if (requestSpeed != currentSpeed().value() && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
+            if (float_one_point_round(requestSpeed) != float_one_point_round(currentSpeed().value()) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
                 forceSpeedNeed) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(requestSpeed);
