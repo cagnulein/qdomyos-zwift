@@ -731,19 +731,29 @@ void wahookickrsnapbike::serviceScanDone(void) {
 #endif
 
     auto services_list = m_control->services();
+    bool zwift_found = false;
+    bool wahoo_found = false;
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &wahookickrsnapbike::stateChanged);
         gattCommunicationChannelService.constLast()->discoverDetails();
         if(s == QBluetoothUuid(QStringLiteral("00000001-19ca-4651-86e5-fa29dcdd09d1"))) {
-            QSettings settings;
-            settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
-            settings.sync();
-            if(homeform::singleton())
-                homeform::singleton()->setToastRequested("Zwift Hub device found, please restart the app to enjoy virtual gearing!");
-            return;
+            zwift_found = true;
+        } else if(s == QBluetoothUuid(QStringLiteral("a026ee01-0a7d-4ab3-97fa-f1500f9feb8b"))) {
+            wahoo_found = true;
         }
+    }
+
+    qDebug() << "zwift service found " << zwift_found << "wahoo service found" << wahoo_found;
+
+    if(zwift_found && !wahoo_found) {
+        QSettings settings;
+        settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
+        settings.sync();
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Zwift Hub device found, please restart the app to enjoy virtual gearing!");
+        return;
     }
 }
 
