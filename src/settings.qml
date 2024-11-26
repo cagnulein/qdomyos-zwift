@@ -10118,6 +10118,7 @@ import QtQuick.Dialogs 1.0
                                     Layout.fillWidth: true
                                 }
                                 TextField {
+																		id: zwiftDevPollTimeTextField
                                     text: settings.poll_device_time
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -10129,7 +10130,7 @@ import QtQuick.Dialogs 1.0
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.poll_device_time = pollDeviceTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.poll_device_time = zwiftDevPollTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
                                 }
                             }
                             Label {
