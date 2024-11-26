@@ -275,6 +275,7 @@ void wahookickrsnapbike::update() {
             uint8_t b[20];
             memcpy(b, a.constData(), a.length());
             writeCharacteristic(b, a.length(), "setWheelCircumference", false, false);
+            lastGrade = 999; // to force a change
         }
 
         lastGearValue = gears();
