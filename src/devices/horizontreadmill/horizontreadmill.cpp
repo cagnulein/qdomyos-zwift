@@ -813,7 +813,7 @@ void horizontreadmill::btinit() {
         messageID = 0x10;
     }
 
-    if(wellfit_treadmill) {
+    if(wellfit_treadmill || SW_TREADMILL) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                             false);
@@ -1161,7 +1161,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1228,7 +1228,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -2392,6 +2392,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("Technogym Run TREADMILL workaround ON!");
         } else if(device.name().toUpper().startsWith(QStringLiteral("SW"))) {
             qDebug() << QStringLiteral("SW TREADMILL workaround ON!");
+            SW_TREADMILL = true;
             disableAutoPause = true;
         } else if(device.name().toUpper().startsWith("HORIZON_7.8AT")) {
             HORIZON_78AT_treadmill = true;
