@@ -1147,6 +1147,12 @@ void ftmsbike::serviceScanDone(void) {
             connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                     &ftmsbike::stateChanged);
             gattCommunicationChannelService.constLast()->discoverDetails();
+
+            // watt bikes has the 6 as default gear value
+            if(s == QBluetoothUuid(QStringLiteral("b4cc1223-bc02-4cae-adb9-1217ad2860d1"))) {
+                qDebug() << QStringLiteral("restoring gear 6 to watt bikes");
+                setGears(6);
+            }
         }
     }
 }
