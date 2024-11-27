@@ -1,7 +1,4 @@
 #include "serialhandler.h"
-#include "netserial.h"
-#include "serialport.h"
-#include <QDebug>
 
 SerialHandler *SerialHandler::create(const QString &deviceFilename, uint32_t baudRate) {
     if (deviceFilename.contains(':')) {

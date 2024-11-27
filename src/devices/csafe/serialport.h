@@ -21,27 +21,28 @@
 #define _SERIALPORT_h
 
 #include "serialhandler.h"
-#include <QDebug>
-#include <QFile>
-#include <QMutex>
-#include <QString>
-#include <QThread>
-
-#ifdef WIN32
-#include <winbase.h>
-#include <windows.h>
-#else
-#include <sys/ioctl.h>
-#include <termios.h> // unix!!
-#include <unistd.h>  // unix!!
-#ifndef N_TTY        // for OpenBSD, this is a hack XXX
-#define N_TTY 0
-#endif
-#endif
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
+#endif
+
+#include <QString>
+#include <QThread>
+#include <QFile>
+#include <QMutex>
+#include <QDebug>
+
+#ifdef WIN32
+#include <windows.h>
+#include <winbase.h>
+#else
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <unistd.h>
+#ifndef N_TTY        // for OpenBSD, this is a hack
+#define N_TTY 0
+#endif
 #endif
 
 #include <errno.h>
