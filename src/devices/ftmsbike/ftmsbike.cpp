@@ -429,7 +429,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     }
 
     // Wattbike Atom First Generation - Display Gears
-    if(characteristic.uuid() == QBluetoothUuid(QStringLiteral("b4cc1224-bc02-4cae-adb9-1217ad2860d1")) && newValue.length() > 3) {
+    if(characteristic.uuid() == QBluetoothUuid(QStringLiteral("b4cc1224-bc02-4cae-adb9-1217ad2860d1")) &&
+        newValue.length() > 3 && newValue.at(1) == 0x03 && (uint8_t)newValue.at(2) == 0xb6) {
         uint8_t gear = newValue.at(3);
         qDebug() << "watt bike gears" << gear;
         setGears(gear);
