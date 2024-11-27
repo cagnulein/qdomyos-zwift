@@ -899,7 +899,7 @@ void horizontreadmill::update() {
             requestInclination = treadmillInclinationOverrideReverse(requestInclination);
 
             // this treadmill doesn't send the incline, so i'm forcing it manually
-            if(schwinn_810_treadmill || SW_TREADMILL) {
+            if(schwinn_810_treadmill) {
                 Inclination = requestInclination;
             }
 
@@ -921,6 +921,11 @@ void horizontreadmill::update() {
                
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
+
+                // this treadmill doesn't send the incline, so i'm forcing it manually
+                if(SW_TREADMILL) {
+                    Inclination = requestInclination;
+                }
             }
             requestInclination = -100;
         }
