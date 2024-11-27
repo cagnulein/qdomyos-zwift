@@ -899,7 +899,7 @@ void horizontreadmill::update() {
             requestInclination = treadmillInclinationOverrideReverse(requestInclination);
 
             // this treadmill doesn't send the incline, so i'm forcing it manually
-            if(schwinn_810_treadmill) {
+            if(schwinn_810_treadmill || SW_TREADMILL) {
                 Inclination = requestInclination;
             }
 
