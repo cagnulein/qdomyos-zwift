@@ -5468,7 +5468,11 @@ void proformtreadmill::btinit() {
         QThread::msleep(sleepms);
         writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
         writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
         writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
@@ -5476,7 +5480,11 @@ void proformtreadmill::btinit() {
         QThread::msleep(sleepms);
         writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
         writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
         writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
