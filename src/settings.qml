@@ -3223,131 +3223,89 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.proform_wheel_ratio = proformBikeWheelRatioTextField.text; toast.show("Setting saved!"); }
                         }
                     }
-                    SwitchDelegate {
-                        id: tourDeFranceCLCdelegate
-                        text: qsTr("Tour de France CLC")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_tour_de_france_clc
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+
+                    ComboBox {
                         Layout.fillWidth: true
-                        onClicked: { settings.proform_tour_de_france_clc = checked; window.settings_restart_to_apply = true; }
-                    }
-                    SwitchDelegate {
-                        id: proformStudiodelegate
-                        text: qsTr("Proform Studio Bike")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_studio
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_studio = checked; window.settings_restart_to_apply = true; }
-                    }
-                    SwitchDelegate {
-                        text: qsTr("Proform Studio Bike NTEX71021")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_studio_NTEX71021
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_studio_NTEX71021 = checked; window.settings_restart_to_apply = true; }
-                    }
-                    SwitchDelegate {
-                        text: qsTr("Freemotion Coachbike B22.7")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.freemotion_coachbike_b22_7
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.freemotion_coachbike_b22_7 = checked; window.settings_restart_to_apply = true; }
-                    }                    
-                    SwitchDelegate {
-                        id: proformTDF10odelegate
-                        text: qsTr("Proform TDF 1.0")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_tdf_10
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_tdf_10 = checked; window.settings_restart_to_apply = true; }
+                        id: bikeModelComboBox
+                        model: [
+                            "Other",
+                            "Tour de France CLC",
+                            "Proform Studio Bike",
+                            "Proform Studio Bike NTEX71021",
+                            "Freemotion Coachbike B22.7",
+                            "Proform TDF 1.0",
+                            "TDF 1.0 PFEVEX71316.1",
+                            "Proform TDF 10",
+                            "NordicTrack GX 2.7",
+                            "NordicTrack GX 4.5",
+                            "Cycle Trainer 300 CI",
+                            "Cycle Trainer 400",
+                            "Proform 225 CSX",
+                            "Proform 325 CSX / Healthrider H30X",
+                            "Proform SB"
+                        ]
+
+                        onCurrentIndexChanged: {
+                            console.log("bikeModelComboBox onCurrentIndexChanged " + currentIndex);
+
+                            // Reset all settings
+                            settings.proform_tour_de_france_clc = false;
+                            settings.proform_studio = false;
+                            settings.proform_studio_NTEX71021 = false;
+                            settings.freemotion_coachbike_b22_7 = false;
+                            settings.proform_tdf_10 = false;
+                            settings.proform_bike_PFEVEX71316_1 = false;
+                            settings.proform_tdf_10_0 = false;
+                            settings.nordictrack_gx_2_7 = false;
+                            settings.nordictrack_GX4_5_bike = false;
+                            settings.proform_cycle_trainer_300_ci = false;
+                            settings.proform_cycle_trainer_400 = false;
+                            settings.proform_bike_225_csx = false;
+                            settings.proform_bike_325_csx = false;
+                            settings.proform_bike_sb = false;
+
+                            // Set corresponding setting for selected model
+                            switch (currentIndex) {
+                                case 1: settings.proform_tour_de_france_clc = true; break;
+                                case 2: settings.proform_studio = true; break;
+                                case 3: settings.proform_studio_NTEX71021 = true; break;
+                                case 4: settings.freemotion_coachbike_b22_7 = true; break;
+                                case 5: settings.proform_tdf_10 = true; break;
+                                case 6: settings.proform_bike_PFEVEX71316_1 = true; break;
+                                case 7: settings.proform_tdf_10_0 = true; break;
+                                case 8: settings.nordictrack_gx_2_7 = true; break;
+                                case 9: settings.nordictrack_GX4_5_bike = true; break;
+                                case 10: settings.proform_cycle_trainer_300_ci = true; break;
+                                case 11: settings.proform_cycle_trainer_400 = true; break;
+                                case 12: settings.proform_bike_225_csx = true; break;
+                                case 13: settings.proform_bike_325_csx = true; break;
+                                case 14: settings.proform_bike_sb = true; break;
+                            }
+
+                            window.settings_restart_to_apply = true;
+                        }
+
+                        Component.onCompleted: {
+                            var selectedModel = settings.proform_tour_de_france_clc ? 1 :
+                                              settings.proform_studio ? 2 :
+                                              settings.proform_studio_NTEX71021 ? 3 :
+                                              settings.freemotion_coachbike_b22_7 ? 4 :
+                                              settings.proform_tdf_10 ? 5 :
+                                              settings.proform_bike_PFEVEX71316_1 ? 6 :
+                                              settings.proform_tdf_10_0 ? 7 :
+                                              settings.nordictrack_gx_2_7 ? 8 :
+                                              settings.nordictrack_GX4_5_bike ? 9 :
+                                              settings.proform_cycle_trainer_300_ci ? 10 :
+                                              settings.proform_cycle_trainer_400 ? 11 :
+                                              settings.proform_bike_225_csx ? 12 :
+                                              settings.proform_bike_325_csx ? 13 :
+                                              settings.proform_bike_sb ? 14 : 0;
+
+                            console.log("bikeModelComboBox " + "Component.onCompleted " + selectedModel);
+                            currentIndex = selectedModel;
+                        }
                     }
 
-                    SwitchDelegate {
-                        text: qsTr("TDF 1.0 PFEVEX71316.1")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_bike_PFEVEX71316_1
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_bike_PFEVEX71316_1 = checked; window.settings_restart_to_apply = true; }
-                    }
-
-                    SwitchDelegate {
-                        text: qsTr("Proform TDF 10")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_tdf_10_0
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_tdf_10_0 = checked; window.settings_restart_to_apply = true; }
-                    }
-
-                    SwitchDelegate {
-                        id: nordictrackGX27odelegate
-                        text: qsTr("NordicTrack GX 2.7")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.nordictrack_gx_2_7
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.nordictrack_gx_2_7 = checked; window.settings_restart_to_apply = true; }
-                    }
-                    SwitchDelegate {
-                        text: qsTr("NordicTrack GX 4.5")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.nordictrack_GX4_5_bike
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.nordictrack_GX4_5_bike = checked; window.settings_restart_to_apply = true; }
-                    }
-                    
                     SwitchDelegate {
                         id: proformTdfJonseedWattdelegate
                         text: qsTr("TDF CBC Jonseed Watt table")
@@ -3361,72 +3319,6 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.proform_tdf_jonseed_watt = checked
-                    }
-                    SwitchDelegate {
-                        text: qsTr("Cycle Trainer 300 CI")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_cycle_trainer_300_ci
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_cycle_trainer_300_ci = checked; window.settings_restart_to_apply = true; }
-                    }                                     
-                    SwitchDelegate {
-                        id: proformCycleTrainerdelegate
-                        text: qsTr("Cycle Trainer 400")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_cycle_trainer_400
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_cycle_trainer_400 = checked; window.settings_restart_to_apply = true; }
-                    }
-                    SwitchDelegate {
-                        text: qsTr("Proform 225 CSX")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_bike_225_csx
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_bike_225_csx = checked; window.settings_restart_to_apply = true; }
-                    }
-                    SwitchDelegate {
-                        text: qsTr("Proform 325 CSX / Healthrider H30X")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_bike_325_csx
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_bike_325_csx = checked; window.settings_restart_to_apply = true; }
-                    }                    
-                    SwitchDelegate {
-                        text: qsTr("Proform SB")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_bike_sb
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_bike_sb = checked; window.settings_restart_to_apply = true; }
                     }
 
                     RowLayout {
