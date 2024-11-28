@@ -1150,6 +1150,7 @@ void ftmsbike::serviceScanDone(void) {
 
             // watt bikes has the 6 as default gear value
             if(s == QBluetoothUuid(QStringLiteral("b4cc1223-bc02-4cae-adb9-1217ad2860d1"))) {
+                WATTBIKE = true;
                 qDebug() << QStringLiteral("restoring gear 6 to watt bikes");
                 setGears(6);
             }
@@ -1274,6 +1275,8 @@ double ftmsbike::maxGears() {
     if(zwiftPlayService != nullptr && gears_zwift_ratio) {
         wheelCircumference::GearTable g;
         return g.maxGears;
+    } else if(WATTBIKE) {
+        return 22;
     } else {
         return 9999.0;
     }
@@ -1283,8 +1286,11 @@ double ftmsbike::minGears() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
-    if(zwiftPlayService != nullptr && gears_zwift_ratio)
+    if(zwiftPlayService != nullptr && gears_zwift_ratio) {
         return 1;
-    else
+    } else if(WATTBIKE) {
+        return 1;
+    } else {
         return -9999.0;
+    }
 }
