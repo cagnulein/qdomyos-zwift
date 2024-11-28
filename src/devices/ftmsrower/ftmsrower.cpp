@@ -78,8 +78,16 @@ void ftmsrower::update() {
     }
 
     if (initRequest) {
-        uint8_t write[] = {FTMS_START_RESUME};
-        writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+        if(I_ROWER) {
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(write, sizeof(write), "start", false, true);
+
+            uint8_t write1[] = {FTMS_START_RESUME};
+            writeCharacteristic(write1, sizeof(write1), "start simulation", false, true);
+        } else {
+            uint8_t write[] = {FTMS_START_RESUME};
+            writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+        }
 
         initRequest = false;
     } else if (bluetoothDevice.isValid() &&
@@ -403,6 +411,15 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::descriptorWritten, this, &ftmsrower::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &ftmsrower::descriptorRead);
 
+            if (I_ROWER) {
+                QBluetoothUuid ftmsService((quint16)0x1826);
+                if (s->serviceUuid() != ftmsService) {
+                    qDebug() << QStringLiteral("I-ROWER wants to be subscribed only to FTMS service in order to send metrics")
+                             << s->serviceUuid();
+                    continue;
+                }
+            }
+
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
             auto characteristics_list = s->characteristics();
@@ -583,6 +600,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("DFIT-L-R"))) {
             DFIT_L_R = true;
             qDebug() << "DFIT_L_R found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("I-ROWER"))) {
+            I_ROWER = true;
+            qDebug() << "I_ROWER found!";            
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";

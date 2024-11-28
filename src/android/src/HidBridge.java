@@ -18,6 +18,7 @@ import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.util.Log;
 import android.os.Build;
+import androidx.core.content.ContextCompat;
  
 /**
  * This class is used for talking to hid of the dongle, connecting, disconnencting and enumerating the devices.
@@ -88,10 +89,12 @@ public class HidBridge {
                 int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
                 PendingIntent mPermissionIntent = PendingIntent.getBroadcast(_context, 0, new Intent(ACTION_USB_PERMISSION), flags);
 		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                	_context.registerReceiver(mUsbReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
-				else
-					_context.registerReceiver(mUsbReceiver, filter);
+				ContextCompat.registerReceiver(
+                    _context,
+                    mUsbReceiver,
+                    filter,
+                    ContextCompat.RECEIVER_EXPORTED
+                );
  
 		_usbManager.requestPermission(_usbDevice, mPermissionIntent);
 		Log("Found the device");
