@@ -170,7 +170,7 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     cadenceFromAppleWatch();
 
-    double speed = Speed;
+    double speed = Speed.value();
 
     if (wdway_treadmill) {
         if (avalue.length() == 18) {
