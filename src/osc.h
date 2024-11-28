@@ -14,6 +14,10 @@
 #include "devices/rower.h"
 #include "homeform.h"
 #include "bluetooth.h"
+#include <oscpp/client.hpp>
+#include <oscpp/server.hpp>
+#include <oscpp/print.hpp>
+#include <iostream>
 
 class OSC : public QObject
 {
