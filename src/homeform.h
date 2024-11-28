@@ -24,12 +24,6 @@
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
 
-// OSC
-#include <oscpp/client.hpp>
-#include <oscpp/server.hpp>
-#include <oscpp/print.hpp>
-#include <iostream>
-
 #ifdef Q_OS_ANDROID
 
 #include <QAndroidJniEnvironment>
