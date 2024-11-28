@@ -29,8 +29,6 @@
 #include <QString>
 #include <QDebug>
 
-#include "netserial.h"
-#include "serialport.h"
 class SerialHandler {
   public:
     virtual ~SerialHandler() = 0; // Pure virtual destructor
