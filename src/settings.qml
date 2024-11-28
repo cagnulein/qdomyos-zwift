@@ -1022,6 +1022,9 @@ import QtQuick.Dialogs 1.0
             // from version 2.18.7
             property bool nordictrack_tseries5_treadmill: false
             property bool proform_carbon_tl_PFTL59722c: false
+
+            // from version 2.18.9
+            property bool nordictrack_gx_44_pro: false
         }
 
         function paddingZeros(text, limit) {
@@ -3224,6 +3227,11 @@ import QtQuick.Dialogs 1.0
                         }
                     }
 
+                    Label {
+                        text: qsTr("Specific Model:")
+                        Layout.fillWidth: true
+                    }
+
                     ComboBox {
                         Layout.fillWidth: true
                         id: bikeModelComboBox
@@ -3242,7 +3250,8 @@ import QtQuick.Dialogs 1.0
                             "Cycle Trainer 400",
                             "Proform 225 CSX",
                             "Proform 325 CSX / Healthrider H30X",
-                            "Proform SB"
+                            "Proform SB",
+                            "Nordictrack GX 4.4 Pro"
                         ]
 
                         onCurrentIndexChanged: {
@@ -3263,6 +3272,7 @@ import QtQuick.Dialogs 1.0
                             settings.proform_bike_225_csx = false;
                             settings.proform_bike_325_csx = false;
                             settings.proform_bike_sb = false;
+                            settings.nordictrack_gx_44_pro = false;
 
                             // Set corresponding setting for selected model
                             switch (currentIndex) {
@@ -3280,6 +3290,7 @@ import QtQuick.Dialogs 1.0
                                 case 12: settings.proform_bike_225_csx = true; break;
                                 case 13: settings.proform_bike_325_csx = true; break;
                                 case 14: settings.proform_bike_sb = true; break;
+                                case 15: settings.nordictrack_gx_44_pro = true; break;
                             }
 
                             window.settings_restart_to_apply = true;
@@ -3299,7 +3310,8 @@ import QtQuick.Dialogs 1.0
                                               settings.proform_cycle_trainer_400 ? 11 :
                                               settings.proform_bike_225_csx ? 12 :
                                               settings.proform_bike_325_csx ? 13 :
-                                              settings.proform_bike_sb ? 14 : 0;
+                                              settings.proform_bike_sb ? 14 :
+                                              settings.nordictrack_gx_44_pro ? 15 : 0;
 
                             console.log("bikeModelComboBox " + "Component.onCompleted " + selectedModel);
                             currentIndex = selectedModel;
