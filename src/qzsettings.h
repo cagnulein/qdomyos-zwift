@@ -2224,7 +2224,7 @@ class QZSettings {
 
     static const QString nordictrack_gx_44_pro;
     static constexpr bool default_nordictrack_gx_44_pro = false;
-    
+
     static const QString OSC_ip;
     static const QString default_OSC_ip;
 

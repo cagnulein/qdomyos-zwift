@@ -78,6 +78,22 @@ class proformbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    bool proform_studio = false;
+    bool proform_tdf_10 = false;
+    bool nordictrack_GX4_5_bike = false;
+    bool nordictrack_gx_2_7 = false;
+    bool proform_hybrid_trainer_PFEL03815 = false;
+    bool proform_bike_sb = false;
+    bool proform_cycle_trainer_300_ci =false;
+    bool proform_bike_225_csx = false;
+    bool proform_bike_325_csx = false;
+    bool proform_tour_de_france_clc = false;
+    bool proform_studio_NTEX71021 = false;
+    bool freemotion_coachbike_b22_7 = false;
+    bool proform_cycle_trainer_400 = false;
+    bool proform_bike_PFEVEX71316_1 = false;
+    bool nordictrack_gx_44_pro = false;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

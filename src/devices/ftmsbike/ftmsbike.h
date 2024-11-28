@@ -127,6 +127,7 @@ class ftmsbike : public bike {
     bool _3G_Cardio_RB = false;
     bool SCH_190U = false;
     bool D2RIDE = false;
+    bool WATTBIKE = false;
 
     uint8_t battery_level = 0;
 

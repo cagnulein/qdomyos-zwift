@@ -1075,6 +1075,10 @@ void horizontreadmill::update() {
                 }
             }
 
+            if(SW_TREADMILL) {
+                Inclination = 0;
+            }
+            
             lastStop = QDateTime::currentMSecsSinceEpoch();
 
             requestStop = -1;
