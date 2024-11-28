@@ -1565,7 +1565,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("T2 ")) ||
                         (b.name().toUpper().startsWith("NEO BIKE SMART")) ||
                         (b.name().toUpper().startsWith("ZDRIVE")) ||
-                        (b.name().toUpper().startsWith("KICKR MOVE ")) ||
                         (b.name().toUpper().startsWith("T300P_")) ||
                         (b.name().toUpper().startsWith("VFSPINBIKE")) ||
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -1589,6 +1588,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith("KICKR SNAP") || b.name().toUpper().startsWith("KICKR BIKE") ||
                         b.name().toUpper().startsWith("KICKR ROLLR") ||
                         b.name().toUpper().startsWith("KICKR CORE") ||
+                        (b.name().toUpper().startsWith("KICKR MOVE ")) ||
                         (b.name().toUpper().startsWith("HAMMER ") && saris_trainer) ||
                         (b.name().toUpper().startsWith("WAHOO KICKR"))) &&
                        !wahooKickrSnapBike && !ftmsBike && filter) {
