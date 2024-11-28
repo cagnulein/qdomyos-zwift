@@ -1022,6 +1022,10 @@ import QtQuick.Dialogs 1.0
             // from version 2.18.7
             property bool nordictrack_tseries5_treadmill: false
             property bool proform_carbon_tl_PFTL59722c: false
+
+            // from version 2.18.9
+            property bool nordictrack_gx_44_pro: false
+            property string OSC_ip: ""
         }
 
         function paddingZeros(text, limit) {
@@ -11074,6 +11078,29 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("OSC IP:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: oscIPTextField
+                            text: settings.OSC_ip
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.OSC_ip = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.OSC_ip = oscIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                        }
                     }
 
                     SwitchDelegate {

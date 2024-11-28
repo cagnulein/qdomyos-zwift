@@ -798,8 +798,11 @@ const QString QZSettings::peloton_auto_start_with_intro = QStringLiteral("peloto
 const QString QZSettings::peloton_auto_start_without_intro = QStringLiteral("peloton_auto_start_without_intro");
 const QString QZSettings::nordictrack_tseries5_treadmill = QStringLiteral("nordictrack_tseries5_treadmill");
 const QString QZSettings::proform_carbon_tl_PFTL59722c = QStringLiteral("proform_carbon_tl_PFTL59722c");
+const QString QZSettings::nordictrack_gx_44_pro = QStringLiteral("nordictrack_gx_44_pro");
+const QString QZSettings::OSC_ip = QStringLiteral("OSC_ip");
+const QString QZSettings::default_OSC_ip = QStringLiteral("");
 
-const uint32_t allSettingsCount = 674;
+const uint32_t allSettingsCount = 676;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1480,6 +1483,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::peloton_auto_start_without_intro, QZSettings::default_peloton_auto_start_without_intro},
     {QZSettings::nordictrack_tseries5_treadmill, QZSettings::default_nordictrack_tseries5_treadmill},
     {QZSettings::proform_carbon_tl_PFTL59722c, QZSettings::default_proform_carbon_tl_PFTL59722c},
+    {QZSettings::nordictrack_gx_44_pro, QZSettings::default_nordictrack_gx_44_pro},
+    {QZSettings::OSC_ip, QZSettings::default_OSC_ip},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

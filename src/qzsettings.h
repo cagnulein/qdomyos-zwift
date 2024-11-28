@@ -2222,6 +2222,12 @@ class QZSettings {
     static const QString proform_carbon_tl_PFTL59722c;
     static constexpr bool default_proform_carbon_tl_PFTL59722c = false;
 
+    static const QString nordictrack_gx_44_pro;
+    static constexpr bool default_nordictrack_gx_44_pro = false;
+    
+    static const QString OSC_ip;
+    static const QString default_OSC_ip;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

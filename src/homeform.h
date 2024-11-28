@@ -804,12 +804,6 @@ class homeform : public QObject {
     QHostAddress iphone_address;
 #endif
 
-    // OSC
-    size_t OSC_makePacket(void* buffer, size_t size);
-    void OSC_handlePacket(const OSCPP::Server::Packet& packet);
-    QUdpSocket* OSC_sendSocket = new QUdpSocket(this);
-    QUdpSocket* OSC_recvSocket = new QUdpSocket(this);
-
   public slots:
     void aboutToQuit();
     void saveSettings(const QUrl &filename);
