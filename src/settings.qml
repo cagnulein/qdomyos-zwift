@@ -1026,7 +1026,7 @@ import QtQuick.Dialogs 1.0
             // from version 2.18.9
             property bool nordictrack_gx_44_pro: false
 
-            property string OSC_ip: ""
+            property string osc_ip: ""
         }
 
         function paddingZeros(text, limit) {

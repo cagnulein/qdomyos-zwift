@@ -799,7 +799,7 @@ const QString QZSettings::peloton_auto_start_without_intro = QStringLiteral("pel
 const QString QZSettings::nordictrack_tseries5_treadmill = QStringLiteral("nordictrack_tseries5_treadmill");
 const QString QZSettings::proform_carbon_tl_PFTL59722c = QStringLiteral("proform_carbon_tl_PFTL59722c");
 const QString QZSettings::nordictrack_gx_44_pro = QStringLiteral("nordictrack_gx_44_pro");
-const QString QZSettings::OSC_ip = QStringLiteral("OSC_ip");
+const QString QZSettings::OSC_ip = QStringLiteral("osc_ip");
 const QString QZSettings::default_OSC_ip = QStringLiteral("");
 
 const uint32_t allSettingsCount = 676;
