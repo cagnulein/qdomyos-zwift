@@ -1,0 +1,415 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7C75D33E1BBD7F3E001167B1 /* adb_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D3281BBD7F3E001167B1 /* adb_client.c */; };
+		7C75D33F1BBD7F3E001167B1 /* adb.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D32A1BBD7F3E001167B1 /* adb.c */; };
+		7C75D3401BBD7F3E001167B1 /* AdbClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D32D1BBD7F3E001167B1 /* AdbClient.m */; };
+		7C75D3411BBD7F3E001167B1 /* commandline.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D32E1BBD7F3E001167B1 /* commandline.c */; };
+		7C75D3421BBD7F3E001167B1 /* console.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D32F1BBD7F3E001167B1 /* console.c */; };
+		7C75D3431BBD7F3E001167B1 /* fdevent.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D3301BBD7F3E001167B1 /* fdevent.c */; };
+		7C75D3441BBD7F3E001167B1 /* file_sync_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D3321BBD7F3E001167B1 /* file_sync_client.c */; };
+		7C75D3451BBD7F3E001167B1 /* file_sync_service.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D3331BBD7F3E001167B1 /* file_sync_service.c */; };
+		7C75D3461BBD7F3E001167B1 /* services.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D3361BBD7F3E001167B1 /* services.c */; };
+		7C75D3471BBD7F3E001167B1 /* sockets.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D3371BBD7F3E001167B1 /* sockets.c */; };
+		7C75D3481BBD7F3E001167B1 /* transport_local.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D3391BBD7F3E001167B1 /* transport_local.c */; };
+		7C75D3491BBD7F3E001167B1 /* transport.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D33A1BBD7F3E001167B1 /* transport.c */; };
+		7C75D3501BBD7FF5001167B1 /* centraldir.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D34D1BBD7FF5001167B1 /* centraldir.c */; };
+		7C75D3511BBD7FF5001167B1 /* zipfile.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D34F1BBD7FF5001167B1 /* zipfile.c */; };
+		7C75D3581BBD8010001167B1 /* socket_inaddr_any_server.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D3521BBD8010001167B1 /* socket_inaddr_any_server.c */; };
+		7C75D3591BBD8010001167B1 /* socket_local_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D3531BBD8010001167B1 /* socket_local_client.c */; };
+		7C75D35A1BBD8010001167B1 /* socket_local_server.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D3541BBD8010001167B1 /* socket_local_server.c */; };
+		7C75D35B1BBD8010001167B1 /* socket_loopback_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D3551BBD8010001167B1 /* socket_loopback_client.c */; };
+		7C75D35C1BBD8010001167B1 /* socket_loopback_server.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D3561BBD8010001167B1 /* socket_loopback_server.c */; };
+		7C75D35D1BBD8010001167B1 /* socket_network_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C75D3571BBD8010001167B1 /* socket_network_client.c */; };
+		7C8788641BDA6484000858D6 /* adb_auth_host.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C8788621BDA6484000858D6 /* adb_auth_host.c */; };
+		7C8788671BDA6F8B000858D6 /* load_file.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C8788661BDA6F8B000858D6 /* load_file.c */; };
+		7C87886C1BDA7CA3000858D6 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C87886A1BDA7CA3000858D6 /* libcrypto.a */; settings = {ATTRIBUTES = (Required, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7C75D31A1BBD7D43001167B1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		7C75D31C1BBD7D43001167B1 /* libadb.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libadb.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		7C75D3281BBD7F3E001167B1 /* adb_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = adb_client.c; sourceTree = "<group>"; };
+		7C75D3291BBD7F3E001167B1 /* adb_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = adb_client.h; sourceTree = "<group>"; };
+		7C75D32A1BBD7F3E001167B1 /* adb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = adb.c; sourceTree = "<group>"; };
+		7C75D32B1BBD7F3E001167B1 /* adb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = adb.h; sourceTree = "<group>"; };
+		7C75D32C1BBD7F3E001167B1 /* AdbClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdbClient.h; sourceTree = "<group>"; };
+		7C75D32D1BBD7F3E001167B1 /* AdbClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AdbClient.m; sourceTree = "<group>"; };
+		7C75D32E1BBD7F3E001167B1 /* commandline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = commandline.c; sourceTree = "<group>"; };
+		7C75D32F1BBD7F3E001167B1 /* console.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = console.c; sourceTree = "<group>"; };
+		7C75D3301BBD7F3E001167B1 /* fdevent.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fdevent.c; sourceTree = "<group>"; };
+		7C75D3311BBD7F3E001167B1 /* fdevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fdevent.h; sourceTree = "<group>"; };
+		7C75D3321BBD7F3E001167B1 /* file_sync_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = file_sync_client.c; sourceTree = "<group>"; };
+		7C75D3331BBD7F3E001167B1 /* file_sync_service.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = file_sync_service.c; sourceTree = "<group>"; };
+		7C75D3341BBD7F3E001167B1 /* file_sync_service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file_sync_service.h; sourceTree = "<group>"; };
+		7C75D3351BBD7F3E001167B1 /* mutex_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mutex_list.h; sourceTree = "<group>"; };
+		7C75D3361BBD7F3E001167B1 /* services.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = services.c; sourceTree = "<group>"; };
+		7C75D3371BBD7F3E001167B1 /* sockets.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sockets.c; sourceTree = "<group>"; };
+		7C75D3381BBD7F3E001167B1 /* sysdeps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sysdeps.h; sourceTree = "<group>"; };
+		7C75D3391BBD7F3E001167B1 /* transport_local.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transport_local.c; sourceTree = "<group>"; };
+		7C75D33A1BBD7F3E001167B1 /* transport.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transport.c; sourceTree = "<group>"; };
+		7C75D33B1BBD7F3E001167B1 /* transport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = transport.h; sourceTree = "<group>"; };
+		7C75D34D1BBD7FF5001167B1 /* centraldir.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = centraldir.c; path = libzipfile/centraldir.c; sourceTree = "<group>"; };
+		7C75D34E1BBD7FF5001167B1 /* private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = private.h; path = libzipfile/private.h; sourceTree = "<group>"; };
+		7C75D34F1BBD7FF5001167B1 /* zipfile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = zipfile.c; path = libzipfile/zipfile.c; sourceTree = "<group>"; };
+		7C75D3521BBD8010001167B1 /* socket_inaddr_any_server.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = socket_inaddr_any_server.c; path = libcutils/socket_inaddr_any_server.c; sourceTree = "<group>"; };
+		7C75D3531BBD8010001167B1 /* socket_local_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = socket_local_client.c; path = libcutils/socket_local_client.c; sourceTree = "<group>"; };
+		7C75D3541BBD8010001167B1 /* socket_local_server.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = socket_local_server.c; path = libcutils/socket_local_server.c; sourceTree = "<group>"; };
+		7C75D3551BBD8010001167B1 /* socket_loopback_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = socket_loopback_client.c; path = libcutils/socket_loopback_client.c; sourceTree = "<group>"; };
+		7C75D3561BBD8010001167B1 /* socket_loopback_server.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = socket_loopback_server.c; path = libcutils/socket_loopback_server.c; sourceTree = "<group>"; };
+		7C75D3571BBD8010001167B1 /* socket_network_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = socket_network_client.c; path = libcutils/socket_network_client.c; sourceTree = "<group>"; };
+		7C8788621BDA6484000858D6 /* adb_auth_host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = adb_auth_host.c; sourceTree = "<group>"; };
+		7C8788651BDA6866000858D6 /* adb_auth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = adb_auth.h; sourceTree = "<group>"; };
+		7C8788661BDA6F8B000858D6 /* load_file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = load_file.c; path = libcutils/load_file.c; sourceTree = "<group>"; };
+		7C87886A1BDA7CA3000858D6 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
+		7C87886E1BDA82AA000858D6 /* adb_trace.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = adb_trace.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7C75D3191BBD7D43001167B1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7C87886C1BDA7CA3000858D6 /* libcrypto.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7C75D3131BBD7D43001167B1 = {
+			isa = PBXGroup;
+			children = (
+				7C87886A1BDA7CA3000858D6 /* libcrypto.a */,
+				7C75D34C1BBD7FE2001167B1 /* libzipfile */,
+				7C75D34B1BBD7FDA001167B1 /* libcutils */,
+				7C75D31E1BBD7D43001167B1 /* adb */,
+				7C75D31D1BBD7D43001167B1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7C75D31D1BBD7D43001167B1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7C75D31C1BBD7D43001167B1 /* libadb.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7C75D31E1BBD7D43001167B1 /* adb */ = {
+			isa = PBXGroup;
+			children = (
+				7C87886E1BDA82AA000858D6 /* adb_trace.h */,
+				7C8788651BDA6866000858D6 /* adb_auth.h */,
+				7C8788621BDA6484000858D6 /* adb_auth_host.c */,
+				7C75D3281BBD7F3E001167B1 /* adb_client.c */,
+				7C75D3291BBD7F3E001167B1 /* adb_client.h */,
+				7C75D32A1BBD7F3E001167B1 /* adb.c */,
+				7C75D32B1BBD7F3E001167B1 /* adb.h */,
+				7C75D32C1BBD7F3E001167B1 /* AdbClient.h */,
+				7C75D32D1BBD7F3E001167B1 /* AdbClient.m */,
+				7C75D32E1BBD7F3E001167B1 /* commandline.c */,
+				7C75D32F1BBD7F3E001167B1 /* console.c */,
+				7C75D3301BBD7F3E001167B1 /* fdevent.c */,
+				7C75D3311BBD7F3E001167B1 /* fdevent.h */,
+				7C75D3321BBD7F3E001167B1 /* file_sync_client.c */,
+				7C75D3331BBD7F3E001167B1 /* file_sync_service.c */,
+				7C75D3341BBD7F3E001167B1 /* file_sync_service.h */,
+				7C75D3351BBD7F3E001167B1 /* mutex_list.h */,
+				7C75D3361BBD7F3E001167B1 /* services.c */,
+				7C75D3371BBD7F3E001167B1 /* sockets.c */,
+				7C75D3381BBD7F3E001167B1 /* sysdeps.h */,
+				7C75D3391BBD7F3E001167B1 /* transport_local.c */,
+				7C75D33A1BBD7F3E001167B1 /* transport.c */,
+				7C75D33B1BBD7F3E001167B1 /* transport.h */,
+			);
+			path = adb;
+			sourceTree = "<group>";
+		};
+		7C75D34B1BBD7FDA001167B1 /* libcutils */ = {
+			isa = PBXGroup;
+			children = (
+				7C8788661BDA6F8B000858D6 /* load_file.c */,
+				7C75D3521BBD8010001167B1 /* socket_inaddr_any_server.c */,
+				7C75D3531BBD8010001167B1 /* socket_local_client.c */,
+				7C75D3541BBD8010001167B1 /* socket_local_server.c */,
+				7C75D3551BBD8010001167B1 /* socket_loopback_client.c */,
+				7C75D3561BBD8010001167B1 /* socket_loopback_server.c */,
+				7C75D3571BBD8010001167B1 /* socket_network_client.c */,
+			);
+			name = libcutils;
+			sourceTree = "<group>";
+		};
+		7C75D34C1BBD7FE2001167B1 /* libzipfile */ = {
+			isa = PBXGroup;
+			children = (
+				7C75D34D1BBD7FF5001167B1 /* centraldir.c */,
+				7C75D34E1BBD7FF5001167B1 /* private.h */,
+				7C75D34F1BBD7FF5001167B1 /* zipfile.c */,
+			);
+			name = libzipfile;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7C75D31B1BBD7D43001167B1 /* adb */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7C75D3251BBD7D43001167B1 /* Build configuration list for PBXNativeTarget "adb" */;
+			buildPhases = (
+				7C75D3181BBD7D43001167B1 /* Sources */,
+				7C75D3191BBD7D43001167B1 /* Frameworks */,
+				7C75D31A1BBD7D43001167B1 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = adb;
+			productName = adb;
+			productReference = 7C75D31C1BBD7D43001167B1 /* libadb.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7C75D3141BBD7D43001167B1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0700;
+				ORGANIZATIONNAME = "Li Zonghai";
+				TargetAttributes = {
+					7C75D31B1BBD7D43001167B1 = {
+						CreatedOnToolsVersion = 7.0.1;
+					};
+				};
+			};
+			buildConfigurationList = 7C75D3171BBD7D43001167B1 /* Build configuration list for PBXProject "adb" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				English,
+				en,
+			);
+			mainGroup = 7C75D3131BBD7D43001167B1;
+			productRefGroup = 7C75D31D1BBD7D43001167B1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7C75D31B1BBD7D43001167B1 /* adb */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7C75D3181BBD7D43001167B1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7C75D3591BBD8010001167B1 /* socket_local_client.c in Sources */,
+				7C75D3481BBD7F3E001167B1 /* transport_local.c in Sources */,
+				7C75D35C1BBD8010001167B1 /* socket_loopback_server.c in Sources */,
+				7C75D3491BBD7F3E001167B1 /* transport.c in Sources */,
+				7C75D3581BBD8010001167B1 /* socket_inaddr_any_server.c in Sources */,
+				7C75D3451BBD7F3E001167B1 /* file_sync_service.c in Sources */,
+				7C75D3501BBD7FF5001167B1 /* centraldir.c in Sources */,
+				7C8788671BDA6F8B000858D6 /* load_file.c in Sources */,
+				7C75D3431BBD7F3E001167B1 /* fdevent.c in Sources */,
+				7C75D35A1BBD8010001167B1 /* socket_local_server.c in Sources */,
+				7C8788641BDA6484000858D6 /* adb_auth_host.c in Sources */,
+				7C75D3471BBD7F3E001167B1 /* sockets.c in Sources */,
+				7C75D3461BBD7F3E001167B1 /* services.c in Sources */,
+				7C75D3511BBD7FF5001167B1 /* zipfile.c in Sources */,
+				7C75D3401BBD7F3E001167B1 /* AdbClient.m in Sources */,
+				7C75D3411BBD7F3E001167B1 /* commandline.c in Sources */,
+				7C75D35B1BBD8010001167B1 /* socket_loopback_client.c in Sources */,
+				7C75D3441BBD7F3E001167B1 /* file_sync_client.c in Sources */,
+				7C75D33E1BBD7F3E001167B1 /* adb_client.c in Sources */,
+				7C75D3421BBD7F3E001167B1 /* console.c in Sources */,
+				7C75D33F1BBD7F3E001167B1 /* adb.c in Sources */,
+				7C75D35D1BBD8010001167B1 /* socket_network_client.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		7C75D3231BBD7D43001167B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					"ADB_HOST=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = include;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "xrsimulator xros watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos";
+				SUPPORTS_MACCATALYST = YES;
+			};
+			name = Debug;
+		};
+		7C75D3241BBD7D43001167B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "ADB_HOST=1";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = include;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "xrsimulator xros watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos";
+				SUPPORTS_MACCATALYST = YES;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7C75D3261BBD7D43001167B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					arm64,
+					x86_64,
+				);
+				ENABLE_TESTABILITY = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INSTALL_PATH = .;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = NO;
+			};
+			name = Debug;
+		};
+		7C75D3271BBD7D43001167B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					arm64,
+					x86_64,
+				);
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INSTALL_PATH = .;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7C75D3171BBD7D43001167B1 /* Build configuration list for PBXProject "adb" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7C75D3231BBD7D43001167B1 /* Debug */,
+				7C75D3241BBD7D43001167B1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7C75D3251BBD7D43001167B1 /* Build configuration list for PBXNativeTarget "adb" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7C75D3261BBD7D43001167B1 /* Debug */,
+				7C75D3271BBD7D43001167B1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7C75D3141BBD7D43001167B1 /* Project object */;
+}

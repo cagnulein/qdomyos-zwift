@@ -170,7 +170,7 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     cadenceFromAppleWatch();
 
-    double speed = 0;
+    double speed = Speed.value();
 
     if (wdway_treadmill) {
         if (avalue.length() == 18) {
@@ -311,7 +311,11 @@ void truetreadmill::serviceScanDone(void) {
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &truetreadmill::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if(gattCommunicationChannelService) {
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        qDebug() << QStringLiteral("ERROR! gattCommunicationChannelService is NULL");
+    }
 }
 
 void truetreadmill::errorService(QLowEnergyService::ServiceError err) {

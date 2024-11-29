@@ -49,6 +49,9 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
 	 private static QZAdbRemote INSTANCE;
 
+         private static final String EXTRA_FOREGROUND_SERVICE_TYPE = "FOREGROUND_SERVICE_TYPE";
+         private static final int FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE = 0x10;
+
 	 public static QZAdbRemote getInstance() {
 		 if(INSTANCE == null) {
 			 INSTANCE = new QZAdbRemote();
@@ -181,13 +184,14 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
 		  if (binder == null) {
 			   service = new Intent(_context, ShellService.class);
+                           service.putExtra(EXTRA_FOREGROUND_SERVICE_TYPE, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
 
 				/* Bind the service if we're not bound already. After binding, the callback will
 				 * perform the initial connection. */
 				_context.bindService(service, QZAdbRemote.getInstance().serviceConn, Service.BIND_AUTO_CREATE);
 
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-					 _context.startForegroundService(service);
+                                         _context.startForegroundService(service);
 					}
 				else {
 					 _context.startService(service);

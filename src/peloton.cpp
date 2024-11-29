@@ -243,6 +243,205 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     rower_pace[4].levels[9].display_name = QStringLiteral("Level 10");
     rower_pace[4].levels[9].slug = QStringLiteral("level_10");
 
+    treadmill_pace[0].value = 0;
+    treadmill_pace[0].display_name = QStringLiteral("Recovery");
+    treadmill_pace[0].levels[0].speed = 4.83;  // 3.0 mph
+    treadmill_pace[0].levels[1].speed = 5.15;  // 3.2 mph
+    treadmill_pace[0].levels[2].speed = 5.63;  // 3.5 mph
+    treadmill_pace[0].levels[3].speed = 5.95;  // 3.7 mph
+    treadmill_pace[0].levels[4].speed = 6.60;  // 4.1 mph
+    treadmill_pace[0].levels[5].speed = 7.24;  // 4.5 mph
+    treadmill_pace[0].levels[6].speed = 8.05;  // 5.0 mph
+    treadmill_pace[0].levels[7].speed = 9.17;  // 5.7 mph
+    treadmill_pace[0].levels[8].speed = 10.46;  // 6.5 mph
+    treadmill_pace[0].levels[9].speed = 12.23;  // 7.6 mph
+    for (int i = 0; i < 10; i++) {
+        treadmill_pace[0].levels[i].display_name = QStringLiteral("Level %1").arg(i+1);
+        treadmill_pace[0].levels[i].slug = QStringLiteral("level_%1").arg(i+1);
+    }
+
+    treadmill_pace[1].value = 1;
+    treadmill_pace[1].display_name = QStringLiteral("Easy");
+    treadmill_pace[1].levels[0].speed = 5.15;  // 3.2 mph
+    treadmill_pace[1].levels[0].display_name = QStringLiteral("Level 1");
+    treadmill_pace[1].levels[0].slug = QStringLiteral("level_1");
+    treadmill_pace[1].levels[1].speed = 5.47;  // 3.4 mph
+    treadmill_pace[1].levels[1].display_name = QStringLiteral("Level 2");
+    treadmill_pace[1].levels[1].slug = QStringLiteral("level_2");
+    treadmill_pace[1].levels[2].speed = 5.95;  // 3.7 mph
+    treadmill_pace[1].levels[2].display_name = QStringLiteral("Level 3");
+    treadmill_pace[1].levels[2].slug = QStringLiteral("level_3");
+    treadmill_pace[1].levels[3].speed = 6.28;  // 3.9 mph
+    treadmill_pace[1].levels[3].display_name = QStringLiteral("Level 4");
+    treadmill_pace[1].levels[3].slug = QStringLiteral("level_4");
+    treadmill_pace[1].levels[4].speed = 6.92;  // 4.3 mph
+    treadmill_pace[1].levels[4].display_name = QStringLiteral("Level 5");
+    treadmill_pace[1].levels[4].slug = QStringLiteral("level_5");
+    treadmill_pace[1].levels[5].speed = 7.56;  // 4.7 mph
+    treadmill_pace[1].levels[5].display_name = QStringLiteral("Level 6");
+    treadmill_pace[1].levels[5].slug = QStringLiteral("level_6");
+    treadmill_pace[1].levels[6].speed = 8.37;  // 5.2 mph
+    treadmill_pace[1].levels[6].display_name = QStringLiteral("Level 7");
+    treadmill_pace[1].levels[6].slug = QStringLiteral("level_7");
+    treadmill_pace[1].levels[7].speed = 9.66;  // 6.0 mph
+    treadmill_pace[1].levels[7].display_name = QStringLiteral("Level 8");
+    treadmill_pace[1].levels[7].slug = QStringLiteral("level_8");
+    treadmill_pace[1].levels[8].speed = 11.10;  // 6.9 mph
+    treadmill_pace[1].levels[8].display_name = QStringLiteral("Level 9");
+    treadmill_pace[1].levels[8].slug = QStringLiteral("level_9");
+    treadmill_pace[1].levels[9].speed = 12.87;  // 8.0 mph
+    treadmill_pace[1].levels[9].display_name = QStringLiteral("Level 10");
+    treadmill_pace[1].levels[9].slug = QStringLiteral("level_10");
+
+    treadmill_pace[2].value = 2;
+    treadmill_pace[2].display_name = QStringLiteral("Moderate");
+    treadmill_pace[2].levels[0].speed = 5.63;  // 3.5 mph
+    treadmill_pace[2].levels[0].display_name = QStringLiteral("Level 1");
+    treadmill_pace[2].levels[0].slug = QStringLiteral("level_1");
+    treadmill_pace[2].levels[1].speed = 5.95;  // 3.7 mph
+    treadmill_pace[2].levels[1].display_name = QStringLiteral("Level 2");
+    treadmill_pace[2].levels[1].slug = QStringLiteral("level_2");
+    treadmill_pace[2].levels[2].speed = 6.44;  // 4.0 mph
+    treadmill_pace[2].levels[2].display_name = QStringLiteral("Level 3");
+    treadmill_pace[2].levels[2].slug = QStringLiteral("level_3");
+    treadmill_pace[2].levels[3].speed = 6.92;  // 4.3 mph
+    treadmill_pace[2].levels[3].display_name = QStringLiteral("Level 4");
+    treadmill_pace[2].levels[3].slug = QStringLiteral("level_4");
+    treadmill_pace[2].levels[4].speed = 7.56;  // 4.7 mph
+    treadmill_pace[2].levels[4].display_name = QStringLiteral("Level 5");
+    treadmill_pace[2].levels[4].slug = QStringLiteral("level_5");
+    treadmill_pace[2].levels[5].speed = 8.37;  // 5.2 mph
+    treadmill_pace[2].levels[5].display_name = QStringLiteral("Level 6");
+    treadmill_pace[2].levels[5].slug = QStringLiteral("level_6");
+    treadmill_pace[2].levels[6].speed = 9.17;  // 5.7 mph
+    treadmill_pace[2].levels[6].display_name = QStringLiteral("Level 7");
+    treadmill_pace[2].levels[6].slug = QStringLiteral("level_7");
+    treadmill_pace[2].levels[7].speed = 10.46;  // 6.5 mph
+    treadmill_pace[2].levels[7].display_name = QStringLiteral("Level 8");
+    treadmill_pace[2].levels[7].slug = QStringLiteral("level_8");
+    treadmill_pace[2].levels[8].speed = 12.07;  // 7.5 mph
+    treadmill_pace[2].levels[8].display_name = QStringLiteral("Level 9");
+    treadmill_pace[2].levels[8].slug = QStringLiteral("level_9");
+    treadmill_pace[2].levels[9].speed = 14.00;  // 8.7 mph
+    treadmill_pace[2].levels[9].display_name = QStringLiteral("Level 10");
+    treadmill_pace[2].levels[9].slug = QStringLiteral("level_10");
+
+    treadmill_pace[3].value = 3;
+    treadmill_pace[3].display_name = QStringLiteral("Challenging");
+    treadmill_pace[3].levels[0].speed = 6.11;  // 3.8 mph
+    treadmill_pace[3].levels[0].display_name = QStringLiteral("Level 1");
+    treadmill_pace[3].levels[0].slug = QStringLiteral("level_1");
+    treadmill_pace[3].levels[1].speed = 6.60;  // 4.1 mph
+    treadmill_pace[3].levels[1].display_name = QStringLiteral("Level 2");
+    treadmill_pace[3].levels[1].slug = QStringLiteral("level_2");
+    treadmill_pace[3].levels[2].speed = 7.08;  // 4.4 mph
+    treadmill_pace[3].levels[2].display_name = QStringLiteral("Level 3");
+    treadmill_pace[3].levels[2].slug = QStringLiteral("level_3");
+    treadmill_pace[3].levels[3].speed = 7.56;  // 4.7 mph
+    treadmill_pace[3].levels[3].display_name = QStringLiteral("Level 4");
+    treadmill_pace[3].levels[3].slug = QStringLiteral("level_4");
+    treadmill_pace[3].levels[4].speed = 8.37;  // 5.2 mph
+    treadmill_pace[3].levels[4].display_name = QStringLiteral("Level 5");
+    treadmill_pace[3].levels[4].slug = QStringLiteral("level_5");
+    treadmill_pace[3].levels[5].speed = 9.17;  // 5.7 mph
+    treadmill_pace[3].levels[5].display_name = QStringLiteral("Level 6");
+    treadmill_pace[3].levels[5].slug = QStringLiteral("level_6");
+    treadmill_pace[3].levels[6].speed = 10.30;  // 6.4 mph
+    treadmill_pace[3].levels[6].display_name = QStringLiteral("Level 7");
+    treadmill_pace[3].levels[6].slug = QStringLiteral("level_7");
+    treadmill_pace[3].levels[7].speed = 11.59;  // 7.2 mph
+    treadmill_pace[3].levels[7].display_name = QStringLiteral("Level 8");
+    treadmill_pace[3].levels[7].slug = QStringLiteral("level_8");
+    treadmill_pace[3].levels[8].speed = 13.20;  // 8.2 mph
+    treadmill_pace[3].levels[8].display_name = QStringLiteral("Level 9");
+    treadmill_pace[3].levels[8].slug = QStringLiteral("level_9");
+    treadmill_pace[3].levels[9].speed = 15.29;  // 9.5 mph
+    treadmill_pace[3].levels[9].display_name = QStringLiteral("Level 10");
+    treadmill_pace[3].levels[9].slug = QStringLiteral("level_10");
+
+    treadmill_pace[4].value = 4;
+    treadmill_pace[4].display_name = QStringLiteral("Hard");
+    treadmill_pace[4].levels[0].speed = 6.76;  // 4.2 mph
+    treadmill_pace[4].levels[0].display_name = QStringLiteral("Level 1");
+    treadmill_pace[4].levels[0].slug = QStringLiteral("level_1");
+    treadmill_pace[4].levels[1].speed = 7.24;  // 4.5 mph
+    treadmill_pace[4].levels[1].display_name = QStringLiteral("Level 2");
+    treadmill_pace[4].levels[1].slug = QStringLiteral("level_2");
+    treadmill_pace[4].levels[2].speed = 7.88;  // 4.9 mph
+    treadmill_pace[4].levels[2].display_name = QStringLiteral("Level 3");
+    treadmill_pace[4].levels[2].slug = QStringLiteral("level_3");
+    treadmill_pace[4].levels[3].speed = 8.37;  // 5.2 mph
+    treadmill_pace[4].levels[3].display_name = QStringLiteral("Level 4");
+    treadmill_pace[4].levels[3].slug = QStringLiteral("level_4");
+    treadmill_pace[4].levels[4].speed = 9.17;  // 5.7 mph
+    treadmill_pace[4].levels[4].display_name = QStringLiteral("Level 5");
+    treadmill_pace[4].levels[4].slug = QStringLiteral("level_5");
+    treadmill_pace[4].levels[5].speed = 10.14;  // 6.3 mph
+    treadmill_pace[4].levels[5].display_name = QStringLiteral("Level 6");
+    treadmill_pace[4].levels[5].slug = QStringLiteral("level_6");
+    treadmill_pace[4].levels[6].speed = 11.27;  // 7.0 mph
+    treadmill_pace[4].levels[6].display_name = QStringLiteral("Level 7");
+    treadmill_pace[4].levels[6].slug = QStringLiteral("level_7");
+    treadmill_pace[4].levels[7].speed = 12.55;  // 7.8 mph
+    treadmill_pace[4].levels[7].display_name = QStringLiteral("Level 8");
+    treadmill_pace[4].levels[7].slug = QStringLiteral("level_8");
+    treadmill_pace[4].levels[8].speed = 14.48;  // 9.0 mph
+    treadmill_pace[4].levels[8].display_name = QStringLiteral("Level 9");
+    treadmill_pace[4].levels[8].slug = QStringLiteral("level_9");
+    treadmill_pace[4].levels[9].speed = 16.90;  // 10.5 mph
+    treadmill_pace[4].levels[9].display_name = QStringLiteral("Level 10");
+    treadmill_pace[4].levels[9].slug = QStringLiteral("level_10");
+
+    treadmill_pace[5].value = 5;
+    treadmill_pace[5].display_name = QStringLiteral("Very Hard");
+    treadmill_pace[5].levels[0].speed = 7.56;  // 4.7 mph
+    treadmill_pace[5].levels[0].display_name = QStringLiteral("Level 1");
+    treadmill_pace[5].levels[0].slug = QStringLiteral("level_1");
+    treadmill_pace[5].levels[1].speed = 8.05;  // 5.0 mph
+    treadmill_pace[5].levels[1].display_name = QStringLiteral("Level 2");
+    treadmill_pace[5].levels[1].slug = QStringLiteral("level_2");
+    treadmill_pace[5].levels[2].speed = 8.69;  // 5.4 mph
+    treadmill_pace[5].levels[2].display_name = QStringLiteral("Level 3");
+    treadmill_pace[5].levels[2].slug = QStringLiteral("level_3");
+    treadmill_pace[5].levels[3].speed = 9.17;  // 5.7 mph
+    treadmill_pace[5].levels[3].display_name = QStringLiteral("Level 4");
+    treadmill_pace[5].levels[3].slug = QStringLiteral("level_4");
+    treadmill_pace[5].levels[4].speed = 10.14;  // 6.3 mph
+    treadmill_pace[5].levels[4].display_name = QStringLiteral("Level 5");
+    treadmill_pace[5].levels[4].slug = QStringLiteral("level_5");
+    treadmill_pace[5].levels[5].speed = 11.27;  // 7.0 mph
+    treadmill_pace[5].levels[5].display_name = QStringLiteral("Level 6");
+    treadmill_pace[5].levels[5].slug = QStringLiteral("level_6");
+    treadmill_pace[5].levels[6].speed = 12.39;  // 7.7 mph
+    treadmill_pace[5].levels[6].display_name = QStringLiteral("Level 7");
+    treadmill_pace[5].levels[6].slug = QStringLiteral("level_7");
+    treadmill_pace[5].levels[7].speed = 13.84;  // 8.6 mph
+    treadmill_pace[5].levels[7].display_name = QStringLiteral("Level 8");
+    treadmill_pace[5].levels[7].slug = QStringLiteral("level_8");
+    treadmill_pace[5].levels[8].speed = 15.93;  // 9.9 mph
+    treadmill_pace[5].levels[8].display_name = QStringLiteral("Level 9");
+    treadmill_pace[5].levels[8].slug = QStringLiteral("level_9");
+    treadmill_pace[5].levels[9].speed = 18.51;  // 11.5 mph
+    treadmill_pace[5].levels[9].display_name = QStringLiteral("Level 10");
+    treadmill_pace[5].levels[9].slug = QStringLiteral("level_10");
+
+    treadmill_pace[6].value = 6;
+    treadmill_pace[6].display_name = QStringLiteral("Max");
+    treadmill_pace[6].levels[0].speed = 8.05;  // 5.0 mph
+    treadmill_pace[6].levels[1].speed = 8.53;  // 5.3 mph
+    treadmill_pace[6].levels[2].speed = 9.17;  // 5.7 mph
+    treadmill_pace[6].levels[3].speed = 9.98;  // 6.2 mph
+    treadmill_pace[6].levels[4].speed = 10.78;  // 6.7 mph
+    treadmill_pace[6].levels[5].speed = 11.91;  // 7.4 mph
+    treadmill_pace[6].levels[6].speed = 13.20;  // 8.2 mph
+    treadmill_pace[6].levels[7].speed = 14.81;  // 9.2 mph
+    treadmill_pace[6].levels[8].speed = 16.90;  // 10.5 mph
+    treadmill_pace[6].levels[9].speed = 19.80;  // 12.3 mph
+    for (int i = 0; i < 10; i++) {
+        treadmill_pace[6].levels[i].display_name = QStringLiteral("Level %1").arg(i+1);
+        treadmill_pace[6].levels[i].slug = QStringLiteral("level_%1").arg(i+1);
+    }
+
     connect(timer, &QTimer::timeout, this, &peloton::startEngine);
 
     PZP = new powerzonepack(bl, this);
@@ -263,10 +462,11 @@ void peloton::hfb_trainrows(QList<trainrow> *list) {
 
         trainrows.append(r);
     }
-    if (!trainrows.isEmpty()) {
-
-        emit workoutStarted(current_workout_name, current_instructor_name);
+    if (trainrows.isEmpty()) {
+        current_api = no_metrics;
     }
+
+    emit workoutStarted(current_workout_name, current_instructor_name);
 }
 
 void peloton::pzp_trainrows(QList<trainrow> *list) {
@@ -276,10 +476,11 @@ void peloton::pzp_trainrows(QList<trainrow> *list) {
 
         trainrows.append(r);
     }
-    if (!trainrows.isEmpty()) {
-
-        emit workoutStarted(current_workout_name, current_instructor_name);
+    if (trainrows.isEmpty()) {
+        current_api = no_metrics;
     }
+
+    emit workoutStarted(current_workout_name, current_instructor_name);
 }
 
 void peloton::startEngine() {
@@ -346,7 +547,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
     current_workout = QJsonDocument::fromJson(payload, &parseError);
     QJsonObject json = current_workout.object();
     QJsonArray data = json[QStringLiteral("data")].toArray();
-    qDebug() << QStringLiteral("peloton::workoutlist_onfinish data") << data;
+    qDebug() << QStringLiteral("peloton::workoutlist_onfinish data") << payload << data;
 
     if (data.isEmpty()) {
         qDebug() << QStringLiteral(
@@ -357,6 +558,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
 
     QString id = data.at(0)[QStringLiteral("id")].toString();
     QString status = data.at(0)[QStringLiteral("status")].toString();
+    start_time = data.at(0)[QStringLiteral("start_time")].toInt();
 
     if ((status.contains(QStringLiteral("IN_PROGRESS"),
                          Qt::CaseInsensitive) && // NOTE: removed toUpper because of qstring-insensitive-allocation
@@ -425,19 +627,18 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
         qDebug() << QStringLiteral("instructor_onfinish");
     }
 
-    QString air_time = current_original_air_time.toString(QStringLiteral("MM/dd/yy"));
+    QString air_time = current_original_air_time.toString(settings.value(QZSettings::peloton_date_format, QZSettings::default_peloton_date_format).toString());
     qDebug() << QStringLiteral("air_time ") + air_time;
-    QString workout_name = current_workout_name;
     if (settings.value(QZSettings::peloton_date, QZSettings::default_peloton_date)
             .toString()
             .contains(QStringLiteral("Before"))) {
-        workout_name = air_time + QStringLiteral(" ") + workout_name;
+        current_workout_name = air_time + QStringLiteral(" ") + current_workout_name;
     } else if (settings.value(QZSettings::peloton_date, QZSettings::default_peloton_date)
                    .toString()
                    .contains(QStringLiteral("After"))) {
-        workout_name = workout_name + QStringLiteral(" ") + air_time;
+        current_workout_name = current_workout_name + QStringLiteral(" ") + air_time;
     }
-    emit workoutChanged(workout_name, current_instructor_name);
+    emit workoutChanged(current_workout_name, current_instructor_name);
 
     /*
     if (workout_name.toUpper().contains(QStringLiteral("POWER ZONE"))) {
@@ -813,6 +1014,82 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         }
     }
 
+    QJsonObject target_metrics_data_list = ride[QStringLiteral("target_metrics_data")].toObject();
+    if (trainrows.empty() && !target_metrics_data_list.isEmpty() &&
+        bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
+        bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
+        QJsonArray target_metrics = target_metrics_data_list["target_metrics"].toArray();
+        for (const QJsonValue& segment : target_metrics) {
+            QJsonObject segmentObj = segment.toObject();
+            QJsonObject offsets = segmentObj["offsets"].toObject();
+            QJsonArray metrics = segmentObj["metrics"].toArray();
+        
+            trainrow r;
+            int start = offsets["start"].toInt();
+            int end = offsets["end"].toInt();
+            r.duration = QTime(0, 0, 0).addSecs(end - start);
+            if (!metrics.isEmpty()) {
+                QJsonObject metric = metrics[0].toObject();
+                int lower = metric["lower"].toInt();
+                int upper = metric["upper"].toInt();
+                int avg = (upper - lower) / 2;
+                
+                int p = lower;
+
+                if (difficulty == QStringLiteral("average")) {
+                    p = avg;
+                } else if (difficulty == QStringLiteral("upper")) {
+                    p = upper;
+                } else { // lower
+                    p = lower;
+                }
+
+                switch(p) {
+                    case 1:
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.50;
+                    break;
+                    case 2:
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.66;
+                    break;
+                    case 3:
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.83;
+                    break;
+                    case 4:
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.98;
+                    break;
+                    case 5:
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.13;
+                    break;
+                    case 6:
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.35;
+                    break;
+                    case 7:
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.5;
+                    break;
+                    default:
+                        qDebug() << "ERROR not handled!" << p;
+                        break;
+                }
+                atLeastOnePower = true;
+                trainrows.append(r);
+                qDebug() << r.duration << "power" << r.power;
+            }        
+        }
+        QTime duration(0,0,0,0);
+        foreach(trainrow r, trainrows) {
+            duration = duration.addSecs(QTime(0,0,0,0).secsTo(r.duration));
+            qDebug() << duration << r.duration;
+        }
+        if(QTime(0,0,0,0).secsTo(duration) < current_pedaling_duration) {
+            qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << QTime(0,0,0,0).secsTo(duration) << current_pedaling_duration;
+            trainrows.clear();
+        }
+        // this list doesn't have nothing useful for this session
+        if (!atLeastOnePower) {
+            trainrows.clear();
+        }
+    }
+
     if (log_request) {
         qDebug() << "peloton::ride_onfinish" << trainrows.length() << ride;
     } else {
@@ -851,6 +1128,11 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         double miles = 1;
         bool treadmill_force_speed =
             settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
+        int peloton_treadmill_level =
+            settings.value(QZSettings::peloton_treadmill_level, QZSettings::default_peloton_treadmill_level).toInt() -
+            1;
+        if(peloton_treadmill_level < 0 || peloton_treadmill_level > 9)
+            peloton_treadmill_level = 0;
         QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
         QJsonObject splits_data = json[QStringLiteral("splits_data")].toObject();
         if (!splits_data[QStringLiteral("distance_marker_display_unit")].toString().toUpper().compare("MI"))
@@ -862,16 +1144,38 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             QJsonObject offset = metrics[QStringLiteral("offsets")].toObject();
             QString segment_type = metrics[QStringLiteral("segment_type")].toString();
             if (metrics_ar.count() > 1 && !offset.isEmpty()) {
-                QJsonObject speed = metrics_ar.at(0).toObject();
-                double speed_lower = speed[QStringLiteral("lower")].toDouble();
-                double speed_upper = speed[QStringLiteral("upper")].toDouble();
-                double speed_average = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
-                QJsonObject inc = metrics_ar.at(1).toObject();
-                double inc_lower = inc[QStringLiteral("lower")].toDouble();
-                double inc_upper = inc[QStringLiteral("upper")].toDouble();
+                double speed_lower = -1;
+                double speed_upper = -1;
+                double speed_average = -1;
+                double inc_lower = -100;
+                double inc_upper = -100;
+                double inc_average = -100;
+                int paceintensity_lower = -1;
+                int paceintensity_upper = -1;
+                int paceintensity_avg = -1;
+
+                for(int metrics=0; metrics<metrics_ar.count(); metrics++) {
+                    QJsonObject oo = metrics_ar.at(metrics).toObject();
+                    if(oo[QStringLiteral("name")].toString().toLower() == "speed") {
+                        speed_lower = oo[QStringLiteral("lower")].toDouble();
+                        speed_upper = oo[QStringLiteral("upper")].toDouble();
+                        speed_average = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
+                    } else if(oo[QStringLiteral("name")].toString().toLower() == "incline") {
+                        inc_lower = oo[QStringLiteral("lower")].toDouble();
+                        inc_upper = oo[QStringLiteral("upper")].toDouble();
+                        inc_average = ((inc_upper - inc_lower) / 2.0) + inc_lower;
+                    } else if(oo[QStringLiteral("name")].toString().toLower() == "pace_intensity") {
+                        paceintensity_lower = oo[QStringLiteral("lower")].toInt();
+                        paceintensity_upper = oo[QStringLiteral("upper")].toInt();
+                        paceintensity_avg = ((paceintensity_upper - paceintensity_lower) / 2.0) + paceintensity_lower;
+                        if(paceintensity_lower < 7)
+                        speed_lower = treadmill_pace[paceintensity_lower].levels[peloton_treadmill_level].speed;
+                        speed_upper = treadmill_pace[paceintensity_upper].levels[peloton_treadmill_level].speed;
+                        speed_average = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
+                    }
+                }
                 int offset_start = offset[QStringLiteral("start")].toInt();
                 int offset_end = offset[QStringLiteral("end")].toInt();
-                double inc_average = ((inc_upper - inc_lower) / 2.0) + inc_lower;
                 // keeping the same bike behaviour
                 /*if(i == 0 && offset_start > 0) {
                     trainrow r;
@@ -882,18 +1186,35 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                     qDebug() << i << r.duration << r.speed << r.inclination;
                 }*/
                 trainrow r;
-                r.forcespeed = treadmill_force_speed;
+                if(speed_lower != -1)
+                    r.forcespeed = treadmill_force_speed;
                 r.duration = QTime(0, 0, 0, 0);
                 r.duration = r.duration.addSecs((offset_end - offset_start) + 1);
+
                 if (!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {
-                    r.speed = speed_lower * miles;
-                    r.inclination = inc_lower;
+                    if(speed_lower != -1)
+                        r.speed = speed_lower * miles;
+                    if(inc_lower != -100)
+                        r.inclination = inc_lower;
+                    if(paceintensity_avg != -1) {
+                        r.pace_intensity = paceintensity_lower;
+                    }
                 } else if (!difficulty.toUpper().compare(QStringLiteral("UPPER"))) {
-                    r.speed = speed_upper * miles;
-                    r.inclination = inc_upper;
+                    if(speed_lower != -1)
+                        r.speed = speed_upper * miles;
+                    if(inc_lower != -100)
+                        r.inclination = inc_upper;
+                    if(paceintensity_avg != -1) {
+                        r.pace_intensity = paceintensity_upper;
+                    }
                 } else {
-                    r.speed = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
-                    r.inclination = ((inc_upper - inc_lower) / 2.0) + inc_lower;
+                    if(speed_lower != -1)
+                        r.speed = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
+                    if(inc_lower != -100)
+                        r.inclination = ((inc_upper - inc_lower) / 2.0) + inc_lower;
+                    if(paceintensity_avg != -1) {
+                        r.pace_intensity = paceintensity_avg;
+                    }
                 }
 
                 double offset =
@@ -902,21 +1223,26 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 double gain =
                     settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain)
                         .toDouble();
-                r.inclination *= gain;
-                r.inclination += offset;
-                r.lower_inclination *= gain;
-                r.lower_inclination += offset;
-                r.average_inclination *= gain;
-                r.average_inclination += offset;
-                r.upper_inclination *= gain;
-                r.upper_inclination += offset;
 
-                r.lower_speed = speed_lower * miles;
-                r.average_speed = speed_average * miles;
-                r.upper_speed = speed_upper * miles;
-                r.lower_inclination = inc_lower;
-                r.average_inclination = inc_average;
-                r.upper_inclination = inc_upper;
+                if(inc_lower != -100) {
+                    r.lower_inclination = inc_lower;
+                    r.average_inclination = inc_average;
+                    r.upper_inclination = inc_upper;
+                    r.inclination *= gain;
+                    r.inclination += offset;
+                    r.lower_inclination *= gain;
+                    r.lower_inclination += offset;
+                    r.average_inclination *= gain;
+                    r.average_inclination += offset;
+                    r.upper_inclination *= gain;
+                    r.upper_inclination += offset;
+                }
+
+                if(speed_lower != -1) {
+                    r.lower_speed = speed_lower * miles;
+                    r.average_speed = speed_average * miles;
+                    r.upper_speed = speed_upper * miles;
+                }
                 trainrows.append(r);
                 qDebug() << i << r.duration << r.speed << r.inclination;
             } else if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
