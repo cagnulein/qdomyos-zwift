@@ -128,10 +128,12 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
         Incline = va_arg(args, double);
         if (sportType.toLower().contains(QStringLiteral("run")) && !durationAsDistance(sportType, durationType)) {
             double speed = speedFromPace(Pace);
-            int speedDelta = qAbs(qCeil((((60.0 / speed) * 60.0) * (PowerHigh - PowerLow)) * 10)) + 1;
+            uint32_t rawSpeedDelta = qAbs(qCeil((((60.0 / speed) * 60.0) * (PowerHigh - PowerLow)) * 10)) + 1;
+            int speedDelta = qMin(rawSpeedDelta, Duration);
             int durationStep = Duration / speedDelta;
             int spareSeconds = Duration - (durationStep * speedDelta);
             int spareSum = 0;
+            
             for (int i = 0; i < speedDelta; i++) {
                 trainrow row;
                 int spare = 0;
@@ -142,17 +144,22 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
                 row.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
                 row.rampDuration = QTime(0, 0, 0, 0).addSecs(Duration - (durationStep * i) - spareSum);
                 row.forcespeed = 1;
+                
+                // Calculate speed change per step based on actual speedDelta
+                double speedStep = 0.1 * (static_cast<double>(i) * rawSpeedDelta / speedDelta);
+                
                 if (!qstricmp(tag, "Ramp") || !qstricmp(tag, "Warmup")) {
-                    row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * (PowerLow)) + (0.1 * i)) * 10.0) / 10.0;
+                    row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * (PowerLow)) + speedStep) * 10.0) / 10.0;
                 } else {
-                    row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * (PowerLow)) - (0.1 * i)) * 10.0) / 10.0;
+                    row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * (PowerLow)) - speedStep) * 10.0) / 10.0;
                 }
+                
                 if(Incline != -100)
                     row.inclination = Incline * 100;
+                
                 qDebug() << "TrainRow" << row.toString();
                 list.append(row);
             }
-
         } else {
             for (uint32_t i = 0; i < Duration; i++) {
                 trainrow row;
