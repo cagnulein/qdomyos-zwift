@@ -32,7 +32,11 @@ public class MediaButtonReceiver extends BroadcastReceiver {
             instance = new MediaButtonReceiver();
         }
         IntentFilter filter = new IntentFilter("android.media.VOLUME_CHANGED_ACTION");
-        context.registerReceiver(instance, filter, Context.RECEIVER_EXPORTED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            context.registerReceiver(instance, filter, Context.RECEIVER_EXPORTED);
+        } else {
+            context.registerReceiver(instance, filter);
+        }
         Log.d("MediaButtonReceiver", "registerReceiver");
     }
 
