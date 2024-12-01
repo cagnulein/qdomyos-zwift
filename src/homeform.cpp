@@ -701,14 +701,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
                                                 "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
 
-    try {
-                       QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
                                               "registerReceiver",
                                               "(Landroid/content/Context;)V",
                                               QtAndroid::androidContext().object());
-    } catch (...) {
-          qDebug() << "MediaButtonReceiver error!";
-    }
 #endif    
 
     bluetoothManager->homeformLoaded = true;
