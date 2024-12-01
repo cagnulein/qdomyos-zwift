@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.util.Log;
+import android.os.Build;
 
 public class MediaButtonReceiver extends BroadcastReceiver {
     private static MediaButtonReceiver instance;
@@ -32,7 +33,11 @@ public class MediaButtonReceiver extends BroadcastReceiver {
             instance = new MediaButtonReceiver();
         }
         IntentFilter filter = new IntentFilter("android.media.VOLUME_CHANGED_ACTION");
-        context.registerReceiver(instance, filter, Context.RECEIVER_EXPORTED);
+        if (Build.VERSION.SDK_INT >= 34) {
+            context.registerReceiver(instance, filter, Context.RECEIVER_EXPORTED);
+        } else {
+            context.registerReceiver(instance, filter);
+        }
         Log.d("MediaButtonReceiver", "registerReceiver");
     }
 
