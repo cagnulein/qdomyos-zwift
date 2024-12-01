@@ -1641,8 +1641,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         if (Flags.expEnergy && newValue.length() > index + 1) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)newValue.at(index))));
+            /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));*/
             index += 2;
 
                    // energy per hour
@@ -1650,16 +1650,16 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
                    // energy per minute
             index += 1;
-        } else {
-            if (watts(weight))
-                KCal += ((((0.048 * ((double)watts(weight)) + 1.19) *
-                           weight * 3.5) /
-                          200.0) /
-                         (60000.0 /
-                          ((double)lastRefreshCharacteristicChanged.msecsTo(
-                              now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                       // kg * 3.5) / 200 ) / 60
         }
+
+        if (watts(weight))
+            KCal += ((((0.048 * ((double)watts(weight)) + 1.19) *
+                       weight * 3.5) /
+                      200.0) /
+                     (60000.0 /
+                      ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                   // kg * 3.5) / 200 ) / 60
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
@@ -1819,8 +1819,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         if (Flags.expEnergy) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)newValue.at(index))));
+            /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));*/
             index += 2;
 
             // energy per hour
@@ -1828,21 +1828,20 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
             // energy per minute
             index += 1;
-        } else {
-            if (firstDistanceCalculated &&
-                watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                KCal +=
-                    ((((0.048 *
-                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-                        1.19) *
-                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                      200.0) /
-                     (60000.0 /
-                      ((double)lastRefreshCharacteristicChanged.msecsTo(
-                          now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                            // kg * 3.5) / 200 ) / 60
-            distanceEval = true;
         }
+        if (firstDistanceCalculated &&
+            watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+            KCal +=
+                ((((0.048 *
+                        ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 /
+                  ((double)lastRefreshCharacteristicChanged.msecsTo(
+                      now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                        // kg * 3.5) / 200 ) / 60
+        distanceEval = true;
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
@@ -1992,8 +1991,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         if (Flags.expEnergy && newValue.length() > index + 1) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)newValue.at(index))));
+            /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));*/
             index += 2;
 
             // energy per hour
@@ -2001,21 +2000,21 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
             // energy per minute
             index += 1;
-        } else {
-            if (firstDistanceCalculated &&
-                watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                KCal +=
-                    ((((0.048 *
-                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-                        1.19) *
-                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                      200.0) /
-                     (60000.0 /
-                      ((double)lastRefreshCharacteristicChanged.msecsTo(
-                          now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                            // kg * 3.5) / 200 ) / 60
-            distanceEval = true;
         }
+
+        if (firstDistanceCalculated &&
+            watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+            KCal +=
+                ((((0.048 *
+                        ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 /
+                  ((double)lastRefreshCharacteristicChanged.msecsTo(
+                      now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                        // kg * 3.5) / 200 ) / 60
+        distanceEval = true;
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
