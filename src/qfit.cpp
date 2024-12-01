@@ -130,18 +130,16 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         if(session.last().stepCount > 0)
             sessionMesg.SetTotalStrides(session.last().stepCount);
 
-        if (speed_avg == 0 || speed_avg > 6.5) {
+        if (speed_avg == 0 || speed_avg > 6.5)
             sessionMesg.SetSport(FIT_SPORT_RUNNING);
-            if (strava_virtual_activity) {
-                sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
-            } else {
-                sessionMesg.SetSubSport(FIT_SUB_SPORT_TREADMILL);
-            }
-        } else {
+        else
             sessionMesg.SetSport(FIT_SPORT_WALKING);
+
+        if (strava_virtual_activity) {
+            sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
+        } else {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_TREADMILL);
         }
-
     } else if (type == bluetoothdevice::ELLIPTICAL) {
 
         if (speed_avg == 0 || speed_avg > 6.5)
