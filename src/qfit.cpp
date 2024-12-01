@@ -130,7 +130,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         if(session.last().stepCount > 0)
             sessionMesg.SetTotalStrides(session.last().stepCount);
 
-        if (speed_avg == 0 || speed_avg > 6.5)
+        if (speed_avg == 0 || speed_avg > 6.5 || strava_virtual_activity)
             sessionMesg.SetSport(FIT_SPORT_RUNNING);
         else
             sessionMesg.SetSport(FIT_SPORT_WALKING);
