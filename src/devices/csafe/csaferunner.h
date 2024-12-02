@@ -10,7 +10,11 @@
 #include <QVector>
 
 #define MAX_QUEUE_SIZE 100
-
+/**
+ * @brief The CsafeRunnerThread class is a thread that runs the CSAFE protocol interaction.
+ * It periodically sends the refresh commands processes the responses.
+ * It also allows sending additional commands to the device.
+ */
 class CsafeRunnerThread : public QThread {
     Q_OBJECT
 
@@ -20,7 +24,7 @@ class CsafeRunnerThread : public QThread {
     void setDevice(const QString &device);
     void setBaudRate(uint32_t baudRate = 9600);
     void setSleepTime(int time);
-    void setRefreshCommands(const QStringList &commands);
+    void addRefreshCommand(const QStringList &commands);
     void run();
 
   public slots:
@@ -34,7 +38,7 @@ class CsafeRunnerThread : public QThread {
     QString deviceName;
     uint32_t baudRate = 9600;
     int sleepTime = 200;
-    QStringList refreshCommands;
+    QList<QStringList> refreshCommands;
     QQueue<QStringList> commandQueue;
     QMutex mutex;
 };

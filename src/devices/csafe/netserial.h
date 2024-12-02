@@ -18,8 +18,6 @@
  * This emulates a serial port over a network connection.
  * e.g. as created by ser2net or hardware serial to ethernet converters
  *
- * This is a simple implementation of serial port emulation over TCP
- * 
  */
 
 #ifndef NETSERIAL_H
@@ -31,11 +29,13 @@
 #include <QTcpSocket>
 #include <QDebug>
 
-
+/**
+ * @brief This is a simple implementation of serial port emulation over TCP
+ */
 class NetSerial : public SerialHandler {
   public:
     NetSerial(QString deviceFilename);
-    ~NetSerial() override;
+    ~NetSerial() ;
 
     int openPort() override;
     int closePort() override;

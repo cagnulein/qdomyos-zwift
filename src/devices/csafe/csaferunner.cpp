@@ -9,13 +9,13 @@ CsafeRunnerThread::CsafeRunnerThread(QString deviceFileName, int sleepTime) {
 
 void CsafeRunnerThread::setDevice(const QString &device) { deviceName = device; }
 
-void CsafeRunnerThread::setBaudRate(unsigned int _baudRate) { baudRate = _baudRate; }
+void CsafeRunnerThread::setBaudRate(uint32_t _baudRate) { baudRate = _baudRate; }
 
 void CsafeRunnerThread::setSleepTime(int time) { sleepTime = time; }
 
-void CsafeRunnerThread::setRefreshCommands(const QStringList &commands) {
+void CsafeRunnerThread::addRefreshCommand(const QStringList &commands) {
     mutex.lock();
-    refreshCommands = commands;
+    refreshCommands.append(commands);
     mutex.unlock();
 }
 
@@ -39,10 +39,13 @@ void CsafeRunnerThread::run() {
 
     csafe *csafeInstance = new csafe();
     int connectioncounter = 20; // counts timeouts. If 10 timeouts in a row, then the port is closed and reopened
+    int refresh_nr = -1;
+    QStringList refreshCommand = {};
 
     while (1) {
 
         if (connectioncounter > 10 || !serial->isOpen()) {
+             serial->closePort();
             rc = serial->openPort();
             if (rc != 0) {
                 emit portAvailable(false);
@@ -79,7 +82,14 @@ void CsafeRunnerThread::run() {
                      << commandQueue.size();
         } else {
             if (!(elapsed < sleepTime) || !refreshCommands.isEmpty()) {
-                ret = csafeInstance->write(refreshCommands);
+                if (refreshCommands.length() > 0) {
+                    refresh_nr++;
+                    if (refresh_nr >= refreshCommands.length()) {
+                        refresh_nr = 0;
+                    }
+                    QStringList refreshCommand = refreshCommands[refresh_nr];
+                    ret = csafeInstance->write(refreshCommand);
+                }
             }
         }
         mutex.unlock();
@@ -100,6 +110,7 @@ void CsafeRunnerThread::run() {
         rc = serial->rawRead(rx, 120, true);
         if (rc > 0) {
             qDebug() << "CSAFE << " << QByteArray::fromRawData((const char *)rx, rc).toHex(' ') << " (" << rc << ")";
+            connectioncounter = 0;
         } else {
             qDebug() << "Error reading serial port " << deviceName << " rc=" << rc;
             connectioncounter++;

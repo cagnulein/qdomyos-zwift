@@ -33,19 +33,42 @@ csafeelliptical::csafeelliptical(bool noWriteResistance, bool noHeartService, bo
     refresh->start(200ms);
     QString deviceFilename =
         settings.value(QZSettings::csafe_elliptical_port, QZSettings::default_csafe_elliptical_port).toString();
-    CsafeRunnerThread *t = new CsafeRunnerThread(deviceFilename);
+    CsafeRunnerThread *csafeRunner = new CsafeRunnerThread(deviceFilename);
+    setupCommands(csafeRunner);
+    connect(csafeRunner, &CsafeRunnerThread::portAvailable, this, &csafeelliptical::portAvailable);
+    connect(csafeRunner, &CsafeRunnerThread::onCsafeFrame, this, &csafeelliptical::onCsafeFrame);
+    connect(this, &csafeelliptical::sendCsafeCommand, csafeRunner, &CsafeRunnerThread::sendCommand,
+            Qt::QueuedConnection);
+    csafeRunner->start();
+    distanceReceived = 0;
+    kalman = new KalmanFilter(.5, .01, 1.5, 0);  //measure error, estimate error, process noise_q , initial value
+    kalman1 = new KalmanFilter(1.0, .05, 1, 0);
+    kalman2 = new KalmanFilter(.5, .1, 1.5, 0);
+    kalman3 = new KalmanFilter(.5, .01, 1, 0);
+    kalman4 = new KalmanFilter(.5, 0.01, 1, 0);
+}
+
+void csafeelliptical::setupCommands(CsafeRunnerThread *runner) {
     QStringList command;
     command << "CSAFE_GETPOWER_CMD";
     command << "CSAFE_GETSPEED_CMD";
     command << "CSAFE_GETCALORIES_CMD";
     command << "CSAFE_GETHRCUR_CMD";
     command << "CSAFE_GETHORIZONTAL_CMD";
-    command << "CSAFE_GETPROGRAM_CMD";
-    t->setRefreshCommands(command);
-    connect(t, &CsafeRunnerThread::portAvailable, this, &csafeelliptical::portAvailable);
-    connect(t, &CsafeRunnerThread::onCsafeFrame, this, &csafeelliptical::onCsafeFrame);
-    connect(this, &csafeelliptical::sendCsafeCommand, t, &CsafeRunnerThread::sendCommand, Qt::QueuedConnection);
-    t->start();
+    runner->addRefreshCommand(command);
+    runner->addRefreshCommand(QStringList() << "CSAFE_LF_GET_DETAIL");
+    runner->addRefreshCommand(QStringList() << "CSAFE_GETPROGRAM_CMD");
+}
+
+void csafeelliptical::setupWorkout() {
+    emit sendCsafeCommand(QStringList() << "CSAFE_GETUSERINFO_CMD");
+    QStringList command = {"CSAFE_SETUSERINFO_CMD",
+                           QString::number(settings.value(QZSettings::weight, QZSettings::default_weight).toInt()),
+                           "39", QString::number(settings.value(QZSettings::age, QZSettings::default_age).toInt()),
+                           "1"}; // weight,weight unit,age,gender
+    emit sendCsafeCommand(command);
+    emit sendCsafeCommand(QStringList() << "CSAFE_SETPROGRAM_CMD" << "4" << "5");
+    emit sendCsafeCommand(QStringList() << "CSAFE_GOINUSE_CMD");
 }
 
 void csafeelliptical::onCsafeFrame(const QVariantMap &csafeFrame) {
@@ -61,7 +84,6 @@ void csafeelliptical::onCsafeFrame(const QVariantMap &csafeFrame) {
 
         if (unit == 82) { // revs/minute
             onCadence(speed);
-            //   emit onSpeed(CSafeUtility::convertToStandard(unit, speed) * 60 * 2.35 / 1000);
         } else {
             onSpeed(CSafeUtility::convertToStandard(unit, speed));
         }
@@ -148,25 +170,33 @@ void csafeelliptical::onCalories(double calories) {
 }
 
 void csafeelliptical::onDistance(double distance) {
-    qDebug() << "Current Distance received:" << distance / 1000.0 << " updated:" << distanceReceived.value();
+    qDebug() << "Current Distance received:" << distance << " value tracker:" << distanceReceived.value();
     Distance = distance / 1000.0;
 
-    if (distance != distanceReceived.value() &&
-        abs(distanceReceived.lastChanged().secsTo(QDateTime::currentDateTime())) > 0) {
-        distanceIsChanging = true;
+    if (distance != distanceReceived.value()) {
 
-        qDebug() << "Current Distance received:" << distance / 1000.0 << " PREVIOUS:" << distanceReceived.value();
+        double calculated_speed = 3600 * (distance - distanceReceived.value()) /
+                                  abs(distanceReceived.lastChanged().msecsTo(QDateTime::currentDateTime()));
+        if (distanceIsChanging) { // skip the first distance or after pause otherwise you get enormous speed values
+            //            qDebug() << abs(distanceReceived.lastChanged().secsTo(QDateTime::currentDateTime())) << "MS "
+            //                     << distanceReceived.lastChanged().msecsTo(QDateTime::currentDateTime());
+            Speed = kalman->updateEstimate(calculated_speed);
 
-        if (distanceReceived.value() > 1) {
-            Speed = 3600 * (distance - distanceReceived.value()) /
-                    abs(distanceReceived.lastChanged().msecsTo(QDateTime::currentDateTime()));
-
-            qDebug() << abs(distanceReceived.lastChanged().secsTo(QDateTime::currentDateTime())) << "MS "
-                     << distanceReceived.lastChanged().msecsTo(QDateTime::currentDateTime());
-            qDebug() << "speed" << Speed.value();
+            qDebug() << "Kalman Filter Speed:" << Speed.value()
+                     << "kalman1:" << kalman1->updateEstimate(calculated_speed)
+                     << "kalman2:" << kalman2->updateEstimate(calculated_speed)
+                     << "kalman3:" << kalman3->updateEstimate(calculated_speed)
+                     << "kalman4:" << kalman4->updateEstimate(calculated_speed);
         }
+
+        qDebug() << "Current Distance received:" << distance << " Previous:" << distanceReceived.value()
+                 << " time(ms):" << abs(distanceReceived.lastChanged().msecsTo(QDateTime::currentDateTime()))
+                 << " Calculated Speed:" << calculated_speed << " New speed:" << Speed.value()
+                 << " updated:" << distanceIsChanging;
+
         distanceReceived = distance;
-    } else if (abs(distanceReceived.lastChanged().secsTo(QDateTime::currentDateTime())) > 30) {
+        distanceIsChanging = true;
+    } else if (abs(distanceReceived.lastChanged().secsTo(QDateTime::currentDateTime())) > 20) {
         distanceIsChanging = false;
         m_watt = 0.0;
         Cadence = 0.0;
@@ -177,7 +207,7 @@ void csafeelliptical::onDistance(double distance) {
 void csafeelliptical::onStatus(char status) {
     QString statusString = CSafeUtility::statusByteToText(status);
     qDebug() << "Current Status code:" << status << " status: " << statusString;
-    if (status == 0x06 || status == 0x09) {
+    if (status == 0x06) {
         // pause || offline
         paused = true;
         m_watt = 0.0;
@@ -192,13 +222,7 @@ void csafeelliptical::portAvailable(bool available) {
     if (available) {
         qDebug() << "CSAFE port available";
         _connected = true;
-        emit sendCsafeCommand(QStringList() << "CSAFE_GETUSERINFO_CMD");
-        QStringList command = {"CSAFE_SETUSERINFO_CMD",
-                               QString::number(settings.value(QZSettings::weight, QZSettings::default_weight).toInt()),
-                               "39", QString::number(settings.value(QZSettings::age, QZSettings::default_age).toInt()),
-                               "1"}; // weight,weight unit,age,gender
-        emit sendCsafeCommand(command);
-        emit sendCsafeCommand(QStringList() << "CSAFE_GETUSERINFO_CMD");
+        setupWorkout();
     } else {
         qDebug() << "CSAFE port not available";
         _connected = false;
@@ -322,13 +346,12 @@ void csafeelliptical::changeResistance(resistance_t res) {
         res = 0;
     if (res > 25)
         res = 25;
-    //setlevel is not supported by elliptical
-    //QStringList resistanceCommand = {"CSAFE_SETLEVEL_CMD", QString::number(res)};
+    // setlevel is not supported by elliptical
+    // QStringList resistanceCommand = {"CSAFE_SETLEVEL_CMD", QString::number(res)};
     QStringList resistanceCommand = {"CSAFE_SETPROGRAM_CMD", "4", QString::number(res)};
     emit sendCsafeCommand(resistanceCommand);
     qDebug() << "Send resistance update to device. Requested resitance: " << res;
     emit sendCsafeCommand(QStringList() << "CSAFE_GETPROGRAM_CMD");
-   
 }
 
 bool csafeelliptical::connected() { return _connected; }

@@ -29,8 +29,8 @@
 #include "devices/csafe/csafe.h"
 #include "devices/csafe/csaferunner.h"
 #include "devices/csafe/csafeutility.h"
+#include "devices/csafe/kalmanfilter.h"
 #include "devices/csafe/serialhandler.h"
-// #include "serialport.h"
 
 #include "devices/elliptical.h"
 #include "virtualdevices/virtualbike.h"
@@ -41,70 +41,15 @@
 #include <QSettings>
 #include <QThread>
 
-#ifdef WIN32
-#include <windows.h>
+// #include <stdint.h>
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <sys/types.h>
 
-#include <winbase.h>
-#else
-#include <sys/ioctl.h>
-#include <termios.h> // unix!!
-#include <unistd.h>  // unix!!
-#ifndef N_TTY        // for OpenBSD, this is a hack XXX
-#define N_TTY 0
-#endif
-#endif
-
-#ifdef Q_OS_ANDROID
-#include "keepawakehelper.h"
-#include <QAndroidJniObject>
-#endif
-
-// #include "serialport.h"
-
-#include <errno.h>
-#include <fcntl.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
-/*
-class csafeellipticalThread : public QThread {
-    Q_OBJECT
-
-  public:
-    explicit csafeellipticalThread();
-
-    void run();
-
-  signals:
-    void onDebug(QString debug);
-    void onPower(double power);
-    void onCadence(double cadence);
-    void onHeart(double hr);
-    void onCalories(double calories);
-    void onDistance(double distance);
-    void onPace(double pace);
-    void onStatus(char status);
-    void onSpeed(double speed);
-    void portavailable(bool available);
-    void onCsafeFrame(const QVariantMap &frame);
-
-  private:
-    QString deviceFilename;
-
-#ifdef Q_OS_ANDROID
-    QList<jbyte> bufRX;
-    bool cleanFrame = false;
-#endif
-};
-
-*/
+/**
+ * @brief This class is a CSAFE implementation for elliptical devices.
+ * Developed for Life Fitness 95x but most likely also working for other CSAFE devices.
+ */
 
 class csafeelliptical : public elliptical {
     Q_OBJECT
@@ -123,6 +68,8 @@ class csafeelliptical : public elliptical {
     QSettings settings;
 
     uint16_t watts() override;
+    void setupCommands(CsafeRunnerThread *runner);
+    void setupWorkout();
 
     bool initDone = false;
     bool initRequest = false;
@@ -133,7 +80,11 @@ class csafeelliptical : public elliptical {
 
     bool distanceIsChanging = false;
     metric distanceReceived;
-
+    KalmanFilter *kalman; 
+    KalmanFilter *kalman1; 
+    KalmanFilter *kalman2; 
+    KalmanFilter *kalman3; 
+    KalmanFilter *kalman4;
     bool _connected = true;
 
 #ifdef Q_OS_IOS
