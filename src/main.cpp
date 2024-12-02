@@ -69,6 +69,7 @@ bool service_changed = false;
 bool bike_wheel_revs = false;
 bool run_cadence_sensor = false;
 bool nordictrack_10_treadmill = false;
+bool gpiotreadmill = true;
 bool reebok_fr30_treadmill = false;
 bool zwift_play = false;
 bool zwift_click = false;
@@ -142,6 +143,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             run_cadence_sensor = true;
         if (!qstrcmp(argv[i], "-nordictrack-10-treadmill"))
             nordictrack_10_treadmill = true;
+        if (!qstrcmp(argv[i], "-gpiotreadmill"))
+            gpiotreadmill = true;
         if (!qstrcmp(argv[i], "-reebok_fr30_treadmill"))
             reebok_fr30_treadmill = true;
         if (!qstrcmp(argv[i], "-zwift_play"))
@@ -412,6 +415,8 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::virtual_device_bluetooth, virtual_device_bluetooth);
     }
 #endif
+
+    settings.setValue(QStringLiteral("gpio_treadmill"), gpiotreadmill);
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
