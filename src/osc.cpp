@@ -5,6 +5,7 @@ OSC::OSC(bluetooth* manager, QObject *parent)
 {
     bluetoothManager = manager;
     // Setup timer for periodic publishing
+    m_timer = new QTimer();
     m_timer->setInterval(1000);
     connect(m_timer, &QTimer::timeout, this, &OSC::publishWorkoutData);
 
