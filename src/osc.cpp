@@ -17,13 +17,14 @@ void OSC::publishWorkoutData() {
     if(!bluetoothManager->device()) return;
     QSettings settings;
     QString OSC_ip = settings.value(QZSettings::OSC_ip, QZSettings::default_OSC_ip).toString();
+    int OSC_port = settings.value(QZSettings::OSC_port, QZSettings::default_OSC_port).toInt();
     QByteArray osc_read = OSC_recvSocket->readAll();
     if(!osc_read.isEmpty()) {
         OSC_handlePacket(OSCPP::Server::Packet(osc_read.data(), osc_read.length()));
     }
     char osc_buffer[3000];
     int osc_len = OSC_makePacket(osc_buffer, sizeof(osc_buffer));
-    int osc_ret_len = OSC_sendSocket->writeDatagram(osc_buffer, osc_len, QHostAddress(OSC_ip), 9000);
+    int osc_ret_len = OSC_sendSocket->writeDatagram(osc_buffer, osc_len, QHostAddress(OSC_ip), OSC_port);
     qDebug() << "OSC >> " << osc_ret_len << QByteArray::fromRawData(osc_buffer, osc_len).toHex(' ');
 }
 

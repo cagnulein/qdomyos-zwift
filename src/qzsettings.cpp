@@ -801,8 +801,9 @@ const QString QZSettings::proform_carbon_tl_PFTL59722c = QStringLiteral("proform
 const QString QZSettings::nordictrack_gx_44_pro = QStringLiteral("nordictrack_gx_44_pro");
 const QString QZSettings::OSC_ip = QStringLiteral("osc_ip");
 const QString QZSettings::default_OSC_ip = QStringLiteral("");
+const QString QZSettings::OSC_port = QStringLiteral("osc_port");
 
-const uint32_t allSettingsCount = 676;
+const uint32_t allSettingsCount = 677;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1485,6 +1486,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_carbon_tl_PFTL59722c, QZSettings::default_proform_carbon_tl_PFTL59722c},
     {QZSettings::nordictrack_gx_44_pro, QZSettings::default_nordictrack_gx_44_pro},
     {QZSettings::OSC_ip, QZSettings::default_OSC_ip},
+    {QZSettings::OSC_port, QZSettings::default_OSC_port},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
