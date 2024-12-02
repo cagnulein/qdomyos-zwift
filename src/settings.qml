@@ -1025,6 +1025,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.9
             property bool nordictrack_gx_44_pro: false
+
+            property string osc_ip: ""
+            property int osc_port: 9000
         }
 
         function paddingZeros(text, limit) {
@@ -10738,6 +10741,64 @@ import QtQuick.Dialogs 1.0
                         }
                     }               
 
+                    AccordionElement {
+                        id: oscAccordion
+                        title: qsTr("OSC Settings")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                        spacing: 0
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("OSC IP:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: oscIPTextField
+                                    text: settings.osc_ip
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.osc_ip = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.osc_ip = oscIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("OSC Port:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: oscPortTextField
+                                    text: settings.osc_port
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.osc_port = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.osc_port = oscPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                }
+                            }
+                        }
+                    }
+
                     SwitchDelegate {
                         text: qsTr("Race Mode")
                         spacing: 0
@@ -11086,7 +11147,7 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
+                    }                    
 
                     SwitchDelegate {
                         id: logDebugDelegate
