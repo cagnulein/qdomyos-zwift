@@ -802,7 +802,7 @@ const QString QZSettings::nordictrack_tseries5_treadmill = QStringLiteral("nordi
 const QString QZSettings::proform_carbon_tl_PFTL59722c = QStringLiteral("proform_carbon_tl_PFTL59722c");
 const QString QZSettings::nordictrack_gx_44_pro = QStringLiteral("nordictrack_gx_44_pro");
 
-const uint32_t allSettingsCount = 675;
+const uint32_t allSettingsCount = 676;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
