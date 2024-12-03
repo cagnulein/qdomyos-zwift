@@ -15,8 +15,6 @@
  * with this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * This emulates a serial port over a network connection.
- * e.g. as created by ser2net or hardware serial to ethernet converters
  *
  */
 
@@ -31,6 +29,8 @@
 
 /**
  * @brief This is a simple implementation of serial port emulation over TCP
+ * It emulates a serial port over a network connection.
+ * e.g. as created by ser2net or hardware serial to ethernet converters
  */
 class NetSerial : public SerialHandler {
   public:
