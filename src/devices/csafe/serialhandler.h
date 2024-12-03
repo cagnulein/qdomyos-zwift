@@ -18,9 +18,6 @@
  * This emulates a serial port over a network connection.
  * e.g. as created by ser2net or hardware serial to ethernet converters
  *
- * This is a parent class for serial port handlers
- * It defines the common interface for serial operations over physical serial port or network
- * 
  */
 #ifndef SERIALHANDLER_H
 #define SERIALHANDLER_H
@@ -29,6 +26,10 @@
 #include <QString>
 #include <QDebug>
 
+/**
+ * @brief  This is a parent class for serial port handlers
+ * It defines the common interface for serial operations over physical serial port or network
+ */
 class SerialHandler {
   public:
     virtual ~SerialHandler() = 0; // Pure virtual destructor

@@ -17,8 +17,6 @@
  *
  * This emulates a serial port over a network connection.
  * e.g. as created by ser2net or hardware serial to ethernet converters
- *
- * This class contains some utility functions for CSAFE protocol
  * 
  */
 #ifndef CSAFEUTILITY_H
@@ -29,6 +27,9 @@
 #include <QMap>
 #include <QPair>
 
+/** 
+* @brief This class contains some utility functions supporting the CSAFE protocol
+*/
 class CSafeUtility {
 public:
     static QString getUnitName(int unitCode);
