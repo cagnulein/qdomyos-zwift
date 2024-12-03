@@ -41,11 +41,7 @@ csafeelliptical::csafeelliptical(bool noWriteResistance, bool noHeartService, bo
             Qt::QueuedConnection);
     csafeRunner->start();
     distanceReceived = 0;
-    kalman = new KalmanFilter(.5, .01, 1.5, 0);  //measure error, estimate error, process noise_q , initial value
-    kalman1 = new KalmanFilter(1.0, .05, 1, 0);
-    kalman2 = new KalmanFilter(.5, .1, 1.5, 0);
-    kalman3 = new KalmanFilter(.5, .01, 1, 0);
-    kalman4 = new KalmanFilter(.5, 0.01, 1, 0);
+    kalman = new KalmanFilter(1, .01, .75, 0); // measure error, estimate error, process noise q, initial value
 }
 
 void csafeelliptical::setupCommands(CsafeRunnerThread *runner) {
@@ -178,25 +174,17 @@ void csafeelliptical::onDistance(double distance) {
         double calculated_speed = 3600 * (distance - distanceReceived.value()) /
                                   abs(distanceReceived.lastChanged().msecsTo(QDateTime::currentDateTime()));
         if (distanceIsChanging) { // skip the first distance or after pause otherwise you get enormous speed values
-            //            qDebug() << abs(distanceReceived.lastChanged().secsTo(QDateTime::currentDateTime())) << "MS "
-            //                     << distanceReceived.lastChanged().msecsTo(QDateTime::currentDateTime());
+            // Speed is calculated from the distance and is bit erratic. The kalman filter is used to smooth it out
             Speed = kalman->updateEstimate(calculated_speed);
-
-            qDebug() << "Kalman Filter Speed:" << Speed.value()
-                     << "kalman1:" << kalman1->updateEstimate(calculated_speed)
-                     << "kalman2:" << kalman2->updateEstimate(calculated_speed)
-                     << "kalman3:" << kalman3->updateEstimate(calculated_speed)
-                     << "kalman4:" << kalman4->updateEstimate(calculated_speed);
         }
 
-        qDebug() << "Current Distance received:" << distance << " Previous:" << distanceReceived.value()
+        qDebug() << "Distance received:" << distance << " Previous:" << distanceReceived.value()
                  << " time(ms):" << abs(distanceReceived.lastChanged().msecsTo(QDateTime::currentDateTime()))
                  << " Calculated Speed:" << calculated_speed << " New speed:" << Speed.value()
                  << " updated:" << distanceIsChanging;
-
         distanceReceived = distance;
         distanceIsChanging = true;
-    } else if (abs(distanceReceived.lastChanged().secsTo(QDateTime::currentDateTime())) > 20) {
+    } else if (abs(distanceReceived.lastChanged().secsTo(QDateTime::currentDateTime())) > 15) {
         distanceIsChanging = false;
         m_watt = 0.0;
         Cadence = 0.0;
@@ -208,11 +196,12 @@ void csafeelliptical::onStatus(char status) {
     QString statusString = CSafeUtility::statusByteToText(status);
     qDebug() << "Current Status code:" << status << " status: " << statusString;
     if (status == 0x06) {
-        // pause || offline
+        // pause
         paused = true;
         m_watt = 0.0;
         Cadence = 0.0;
         Speed = 0.0;
+        distanceIsChanging = false;
     } else {
         paused = false;
     }
@@ -346,9 +335,7 @@ void csafeelliptical::changeResistance(resistance_t res) {
         res = 0;
     if (res > 25)
         res = 25;
-    // setlevel is not supported by elliptical
-    // QStringList resistanceCommand = {"CSAFE_SETLEVEL_CMD", QString::number(res)};
-    QStringList resistanceCommand = {"CSAFE_SETPROGRAM_CMD", "4", QString::number(res)};
+    QStringList resistanceCommand = {"CSAFE_SETLEVEL", QString::number(res)};
     emit sendCsafeCommand(resistanceCommand);
     qDebug() << "Send resistance update to device. Requested resitance: " << res;
     emit sendCsafeCommand(QStringList() << "CSAFE_GETPROGRAM_CMD");

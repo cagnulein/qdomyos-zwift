@@ -35,7 +35,7 @@ void CsafeRunnerThread::run() {
 
     SerialHandler *serial = SerialHandler::create(deviceName, baudRate);
     serial->setEndChar(0xf2); // end of frame for CSAFE
-    serial->setTimeout(1200); // CSAFE spec says 1s timeout
+    serial->setTimeout(1200); // CSAFE spec specifies 1s timeout
 
     csafe *csafeInstance = new csafe();
     int connectioncounter = 20; // counts timeouts. If 10 timeouts in a row, then the port is closed and reopened
@@ -64,9 +64,9 @@ void CsafeRunnerThread::run() {
         while (elapsed < sleepTime || sleepTime == -1) {
             QThread::msleep(50);
             elapsed += 50;
-            //  TODO: does not seem to work with netsocket as intended. (no dataavailable)
+            // TODO: does not seem to work with netsocket as intended. (no data available)
             // Needs further testing, maybe because the port is already closed and needs to remain open.
-            // No issue for current implementations as theydo not use unsolicited slave data / cmdAutoUpload .
+            // No issue for current implementations as they do not use unsolicited slave data / cmdAutoUpload .
             if (serial->dataAvailable() > 0 || !commandQueue.isEmpty()) {
                 qDebug() << "CSAFE port data available. " << serial->dataAvailable() << " bytes"
                          << "commands in queue: " << commandQueue.size();

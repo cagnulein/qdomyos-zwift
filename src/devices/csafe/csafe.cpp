@@ -74,6 +74,7 @@ csafe::csafe() {
 
     // Generic Short Commands
     cmds["CSAFE_GETSTATUS_CMD"] = populateCmd(0x80, QList<int>());
+    cmds["CSAFE_GOINUSE_CMD"] = populateCmd(0x85, QList<int>());
     cmds["CSAFE_GETCALORIES_CMD"] = populateCmd(0xa3, QList<int>());
     cmds["CSAFE_GETPROGRAM_CMD"] = populateCmd(0xA4, QList<int>());
     cmds["CSAFE_GETPACE_CMD"] = populateCmd(0xa6, QList<int>());
