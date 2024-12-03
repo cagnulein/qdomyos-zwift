@@ -1564,6 +1564,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("JUSTO")) ||
                         (b.name().toUpper().startsWith("MYCYCLE ")) ||
                         (b.name().toUpper().startsWith("T2 ")) ||
+                        (b.name().toUpper().startsWith("RC-MAX-")) ||
                         (b.name().toUpper().startsWith("NEO BIKE SMART")) ||
                         (b.name().toUpper().startsWith("ZDRIVE")) ||
                         (b.name().toUpper().startsWith("T300P_")) ||
