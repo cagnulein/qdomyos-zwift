@@ -100,6 +100,13 @@ SOURCES += \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
 devices/csafe/csafe.cpp \
+devices/csafe/csaferunner.cpp \
+devices/csafe/csafeutility.cpp \
+devices/csafe/serialhandler.cpp \
+devices/csafe/serialport.cpp \
+devices/csafe/netserial.cpp \
+devices/csafe/kalmanfilter.cpp \
+devices/csafeelliptical/csafeelliptical.cpp \
 devices/csaferower/csaferower.cpp \
 devices/eliteariafan/eliteariafan.cpp \
 devices/fakerower/fakerower.cpp \
@@ -350,6 +357,13 @@ HEADERS += \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
 devices/csafe/csafe.h \
+devices/csafe/csaferunner.h \
+devices/csafe/csafeutility.h \
+devices/csafe/serialhandler.h \
+devices/csafe/serialport.h \
+devices/csafe/netserial.h \
+devices/csafe/kalmanfilter.h \
+devices/csafeelliptical/csafeelliptical.h \
 devices/csaferower/csaferower.h \
 devices/eliteariafan/eliteariafan.h \
 devices/proformtelnetbike/proformtelnetbike.h \
