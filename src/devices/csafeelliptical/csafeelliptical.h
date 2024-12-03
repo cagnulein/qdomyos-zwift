@@ -26,6 +26,11 @@
 #include <QObject>
 #include <QString>
 
+#ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
+#include <QAndroidJniObject>
+#endif
+
 #include "devices/csafe/csafe.h"
 #include "devices/csafe/csaferunner.h"
 #include "devices/csafe/csafeutility.h"
