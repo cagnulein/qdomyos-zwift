@@ -1005,10 +1005,6 @@ import QtQuick.Dialogs 1.0
             // from version 2.18.3
             property bool proform_performance_400i: false
 
-            // from version tbd
-            property string csafe_elliptical_port: ""
-
-
             // from version 2.18.5
             property bool proform_treadmill_c700: false
             property bool sram_axs_controller: false
@@ -1029,6 +1025,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.9
             property bool nordictrack_gx_44_pro: false
+
+            // from version 2.18.10
+            property string csafe_elliptical_port: ""
         }
 
         function paddingZeros(text, limit) {
