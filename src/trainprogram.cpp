@@ -1577,7 +1577,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
                     spareSeconds = 0;
                 }
                 int spareSum = 0;
-                for (int i = 0; i <= speedDelta; i++) {
+                for (int i = 0; i < speedDelta; i++) {
                     trainrow rowI(row);
                     int spare = 0;
                     if (spareSeconds)
