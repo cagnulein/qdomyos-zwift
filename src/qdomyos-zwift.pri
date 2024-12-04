@@ -353,6 +353,7 @@ HEADERS += \
     $$PWD/mqtt/qmqtttopicname.h \
     $$PWD/mqtt/qmqtttype.h \
     $$PWD/treadmillErgTable.h \
+    $$PWD/tss_calculator.h \
     $$PWD/wheelcircumference.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
