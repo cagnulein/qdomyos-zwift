@@ -1,4 +1,5 @@
 #include "devices/bluetoothdevice.h"
+#include "bike.h"
 
 #include <QFile>
 #include <QSettings>
@@ -187,8 +188,13 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const b
         !power_as_bike && !power_as_treadmill)
         watt_calc = false;
 
-    if(deviceType() == bluetoothdevice::BIKE && !from_accessory)  // append only if it's coming from the bike, not from the power sensor
+    if(deviceType() == bluetoothdevice::BIKE && !from_accessory) { // append only if it's coming from the bike, not from the power sensor
         _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value());
+        if(!paused) {
+            ((bike*)this)->tssCalculator.addPowerData(m_watt.value());
+            qDebug() << "getTSS" << ((bike*)this)->tssCalculator.getTSS(elapsed.value());
+        }
+    }
 
     if (!_firstUpdate && !paused) {
         if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving, true).toBool()) {

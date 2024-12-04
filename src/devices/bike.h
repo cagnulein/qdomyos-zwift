@@ -3,6 +3,7 @@
 
 #include "devices/bluetoothdevice.h"
 #include "virtualdevices/virtualbike.h"
+#include "tss_calculator.h"
 #include <QObject>
 
 class bike : public bluetoothdevice {
@@ -43,6 +44,7 @@ class bike : public bluetoothdevice {
     void setSpeedLimit(double speed) { m_speedLimit = speed; }
     double speedLimit() { return m_speedLimit; }
     virtual bool ifitCompatible() {return false;}
+    TSSCalculator tssCalculator;
 
     /**
      * @brief currentSteeringAngle Gets a metric object to get or set the current steering angle
