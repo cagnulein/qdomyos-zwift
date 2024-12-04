@@ -192,7 +192,6 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const b
         _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value());
         if(!paused) {
             ((bike*)this)->tssCalculator.addPowerData(m_watt.value());
-            qDebug() << "getTSS" << ((bike*)this)->tssCalculator.getTSS(elapsed.value());
         }
     }
 
