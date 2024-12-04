@@ -263,6 +263,9 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, true);
 
             if (!initPacketRecv) {
+                if(gattFTMSService && homeform::singleton()) {
+                    homeform::singleton()->setToastRequested("Enable the 'Force Using FTMS' setting under the Settings->Treadmill Options->Horizon Treadmill options and restart the app");
+                }
                 qDebug() << "init 1 not received";
                 waitForAPacket();
                 goto init1;
@@ -1118,6 +1121,7 @@ bool horizontreadmill::checkIfForceSpeedNeeding(double requestSpeed) {
 // example frame: 55aa320003050400532c00150000
 void horizontreadmill::forceSpeed(double requestSpeed) {
     QSettings settings;
+    const double miles_conversion = 0.621371;
     bool horizon_paragon_x =
         settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
@@ -1180,6 +1184,9 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
 
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
+        if(BOWFLEX_T9) {
+            requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles, at least seems so!!
+        }
         uint16_t speed_int = round(requestSpeed * 100);
         writeS[1] = speed_int & 0xFF;
         writeS[2] = speed_int >> 8;
