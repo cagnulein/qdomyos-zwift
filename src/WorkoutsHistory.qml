@@ -22,6 +22,7 @@ ColumnLayout {
 
             Row
             {
+                id: row
                 spacing: 5
                 Text
                 {

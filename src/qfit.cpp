@@ -69,12 +69,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     fileIdMesg.SetTimeCreated(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
 
     fit::UserProfileMesg userMesg;
-    userMesg.SetWeight(settings.value(QStringLiteral("weight"), 75.0).toFloat());
-    userMesg.SetAge(settings.value(QStringLiteral("age"), 35.0).toUInt());
-    userMesg.SetGender(settings.value(QStringLiteral("sex"), "Male").toString().startsWith("Male") ? FIT_GENDER_MALE
+    userMesg.SetWeight(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat());
+    userMesg.SetAge(settings.value(QZSettings::age, QZSettings::default_age).toUInt());
+    userMesg.SetGender(settings.value(QZSettings::sex, QZSettings::default_sex).toString().startsWith(QZSettings::default_sex) ? FIT_GENDER_MALE
                                                                                                    : FIT_GENDER_FEMALE);
     userMesg.SetFriendlyName(
-        settings.value(QStringLiteral("user_nickname"), QStringLiteral("")).toString().toStdWString());
+        settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString().toStdWString());
 
     bool gps_data = false;
     double max_alt = 0;
@@ -171,7 +171,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Write(ftpSessionMesg);
 
     fit::DeveloperField ftpSessionField(ftpSessionMesg, devIdMesg);
-    ftpSessionField.AddValue(settings.value(QStringLiteral("ftp"), 200.0).toDouble());
+    ftpSessionField.AddValue(settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble());
 
     fit::DeveloperField activityTitleField(activityTitle, devIdMesg);
     activityTitleField.SetSTRINGValue(workoutName.toStdWString());
