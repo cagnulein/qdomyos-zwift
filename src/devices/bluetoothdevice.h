@@ -217,6 +217,18 @@ class bluetoothdevice : public QObject {
     metric wattsMetric();
 
     /**
+     * @brief wattsMetricforUi Show the wattage applying averaging in case the user requested this.  Units: watts
+     */
+    double wattsMetricforUI() {
+        QSettings settings;
+        bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
+        if (power5s)
+            return wattsMetric().average5s();
+        else
+            return wattsMetric().value();
+    }
+
+    /**
      * @brief changeFanSpeed Tries to change the fan speed.
      * @param speed The requested fan speed. Units: depends on device
      */
@@ -401,7 +413,7 @@ class bluetoothdevice : public QObject {
      */
     void setTargetPowerZone(double pz) { TargetPowerZone = pz; }
 
-    enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };
+    enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL, JUMPROPE };
     enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
 
     /**
@@ -530,6 +542,12 @@ class bluetoothdevice : public QObject {
     int8_t requestIncreaseFan = -1;
     int8_t requestDecreaseFan = -1;
     double requestFanSpeed = -1;
+
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
+
+    metric RequestedPower;
+    int16_t requestPower = -1;
 
     /**
      * @brief m_difficult The current difficulty gain. Units: device dependent
@@ -692,7 +710,7 @@ class bluetoothdevice : public QObject {
      * @param watt_calc ??
      * @param watts ?. Unit: watts
      */
-    void update_metrics(bool watt_calc, const double watts);
+    void update_metrics(bool watt_calc, const double watts, const bool from_accessory = false);
 
     /**
      * @brief update_hr_from_external Updates heart rate from Garmin Companion App or Apple Watch

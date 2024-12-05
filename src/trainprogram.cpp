@@ -13,6 +13,9 @@
 #include "windows_zwift_incline_paddleocr_thread.h"
 #include "windows_zwift_workout_paddleocr_thread.h"
 #endif
+#ifdef Q_CC_MSVC
+#include "zwift-api/zwift_messages.pb.h"
+#endif
 #include "localipaddress.h"
 
 using namespace std::chrono_literals;
@@ -631,6 +634,7 @@ void trainprogram::scheduler() {
                     if(zwift_counter++ >= (timeout - 1)) {
                         zwift_counter = 0;
                         QByteArray bb = zwift_world->playerStatus(zwift_player_id);
+                        qDebug() << " ZWIFT API PROTOBUF << " + bb.toHex(' ');
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
                         h->zwift_api_decodemessage_player(bb.data(), bb.length());
@@ -654,6 +658,18 @@ void trainprogram::scheduler() {
 
                         float alt = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
                         float distance = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
+#elif defined Q_CC_MSVC
+                        PlayerState state;
+                        float alt = 0;
+                        float distance = 0;
+                        if (state.ParseFromArray(bb.constData(), bb.size())) {
+                            // Parsing riuscito, ora puoi accedere ai dati in `state`
+                            alt = state.altitude();
+                            distance = state.distance();
+                        } else {
+                            // Errore durante il parsing
+                            qDebug() << "Error parsing PlayerState";
+                        }
 #else
                         float alt = 0;
                         float distance = 0;
@@ -819,6 +835,11 @@ void trainprogram::scheduler() {
 
     double odometerFromTheDevice = bluetoothManager->device()->odometer();
 
+    if(ticks < 0) {
+        qDebug() << "waiting for the start...";
+        return;
+    }
+    
     // entry point
     if (ticks == 1 && currentStep == 0) {
         rows[currentStep].started = QDateTime::currentDateTime();
@@ -931,11 +952,11 @@ void trainprogram::scheduler() {
 
         calculatedElapsedTime += calculateTimeForRow(calculatedLine);
         
-        if (calculateDistanceForRow(calculatedLine) > 0 && calculatedLine > currentStep) {
+        if (calculateDistanceForRow(calculatedLine) > 0 && calculatedLine >= currentStep) {
             break;
         }
 
-        if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
+        if (calculatedElapsedTime > static_cast<uint32_t>(ticks) && calculatedLine >= currentStep) {
             break;
         }
     }
@@ -947,6 +968,12 @@ void trainprogram::scheduler() {
 
         currentStepDistance += (odometerFromTheDevice - lastOdometer);
         lastOdometer = odometerFromTheDevice;
+
+        if(currentStep >= rows.length()) {
+            qDebug() << "currentStep greater than row.length" << currentStep << rows.length();
+            end();
+            return;
+        }
         bool distanceStep = (rows.at(currentStep).distance > 0);
         distanceEvaluation = (distanceStep && currentStepDistance >= rows.at(currentStep).distance);
         qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("currentStepDistance") << currentStepDistance
@@ -955,7 +982,7 @@ void trainprogram::scheduler() {
                  << QStringLiteral("same iteration") << sameIteration;
 
         if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
-            if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(currentStep + 1) > 0) {
+            if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(calculatedLine) > 0) {
 
                 if(rows.at(currentStep).distance != -1)
                     lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
@@ -966,6 +993,14 @@ void trainprogram::scheduler() {
                     currentStep = calculatedLine;
                 else
                     currentStep++;
+
+                if(currentStep >= rows.length()) {
+                    qDebug() << "currentStep greater than row.length" << currentStep << rows.length();
+                    end();
+                    return;
+                }
+
+                calculatedLine = currentStep;
 
                 rows[currentStep].started = QDateTime::currentDateTime();
 
@@ -1109,23 +1144,8 @@ void trainprogram::scheduler() {
                     emit changeGeoPosition(p, rows.at(currentStep).azimuth, avgAzimuthNext300Meters());
                 }
             } else {
-                qDebug() << QStringLiteral("trainprogram ends!");
-
-                // circuit?
-                if (!isnan(rows.first().latitude) && !isnan(rows.first().longitude) &&
-                    QGeoCoordinate(rows.first().latitude, rows.first().longitude)
-                            .distanceTo(bluetoothManager->device()->currentCordinate()) < 50) {
-                    emit lap();
-                    restart();
-                    distanceEvaluation = false;
-                } else {
-                    started = false;
-                    if (settings
-                            .value(QZSettings::trainprogram_stop_at_end, QZSettings::default_trainprogram_stop_at_end)
-                            .toBool())
-                        emit stop(false);
-                    distanceEvaluation = false;
-                }
+                end();
+                distanceEvaluation = false;
             }
         } else {
             if (rows.length() > currentStep && rows.at(currentStep).power != -1) {
@@ -1192,6 +1212,34 @@ void trainprogram::scheduler() {
     } while (distanceEvaluation);
 }
 
+void trainprogram::end() {
+    QSettings settings;
+    qDebug() << QStringLiteral("trainprogram ends!");
+
+           // circuit?
+    if (!isnan(rows.first().latitude) && !isnan(rows.first().longitude) &&
+        QGeoCoordinate(rows.first().latitude, rows.first().longitude)
+                .distanceTo(bluetoothManager->device()->currentCordinate()) < 50) {
+        emit lap();
+        restart();
+    } else {
+        started = false;
+        if (settings
+                .value(QZSettings::trainprogram_stop_at_end, QZSettings::default_trainprogram_stop_at_end)
+                .toBool())
+            emit stop(false);
+    }
+}
+
+bool trainprogram::overrideZoneHRForCurrentRow(uint8_t zone) {
+    if (started && currentStep < rows.length() && currentRow().zoneHR != -1) {
+        qDebug() << "overriding zoneHR from" << rows.at(currentStep).zoneHR << "to" << zone;
+        rows[currentStep].zoneHR = zone;
+        return true;
+    }
+    return false;
+}
+
 bool trainprogram::overridePowerForCurrentRow(double power) {
     if (started && currentStep < rows.length() && currentRow().power != -1) {
         qDebug() << "overriding power from" << rows.at(currentStep).power << "to" << power;
@@ -1201,13 +1249,13 @@ bool trainprogram::overridePowerForCurrentRow(double power) {
     return false;
 }
 
-void trainprogram::increaseElapsedTime(uint32_t i) {
+void trainprogram::increaseElapsedTime(int32_t i) {
 
     offset += i;
     ticks += i;
 }
 
-void trainprogram::decreaseElapsedTime(uint32_t i) {
+void trainprogram::decreaseElapsedTime(int32_t i) {
 
     offset -= i;
     ticks -= i;
@@ -1334,14 +1382,21 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
 void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
 
 trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString Extension) {
-    if (!Extension.toUpper().compare(QStringLiteral("ZWO"))) {
+    if (!Extension.toUpper().compare(QStringLiteral("ZWO"))
+#ifdef Q_OS_ANDROID
+            || filename.toUpper().contains(".ZWO")
+#endif
+            ) {
 
         QString description = "";
         QString tags = "";
         return new trainprogram(zwiftworkout::load(filename, &description, &tags), b, &description, &tags);
     } else {
 
-        return new trainprogram(loadXML(filename, b->device()->deviceType()), b);
+        bluetoothdevice::BLUETOOTH_TYPE dtype = bluetoothdevice::BLUETOOTH_TYPE::BIKE;
+        if(b && b->device())
+            dtype = b->device()->deviceType();
+        return new trainprogram(loadXML(filename, dtype), b);
     }
 }
 
@@ -1475,7 +1530,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
                     spareSeconds = 0;
                 }
                 int spareSum = 0;
-                for (int i = 0; i <= speedDelta; i++) {
+                for (int i = 0; i < speedDelta; i++) {
                     trainrow rowI(row);
                     int spare = 0;
                     if (spareSeconds)
@@ -1487,7 +1542,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
                     }
                     rowI.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
                     rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
-                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum);
+                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum - durationStep + spare);
                     rowI.forcespeed = 1;
                     if (speedFrom < speedTo) {
                         rowI.speed = speedFrom + (speedStep * i);
@@ -1522,7 +1577,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
                     spareSeconds = 0;
                 }
                 int spareSum = 0;
-                for (int i = 0; i <= speedDelta; i++) {
+                for (int i = 0; i < speedDelta; i++) {
                     trainrow rowI(row);
                     int spare = 0;
                     if (spareSeconds)
@@ -1534,7 +1589,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
                     }
                     rowI.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
                     rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
-                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum);
+                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum - durationStep + spare);
                     rowI.forcespeed = 1;
                     if (speedFrom < speedTo) {
                         if(device_type == bluetoothdevice::TREADMILL) {

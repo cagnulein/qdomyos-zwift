@@ -1,0 +1,165 @@
+﻿syntax = "proto2";
+package BLEReceiver.Zwift;
+
+option csharp_namespace = "BLEReceiver.Ble.Devices.Services.Protobuf.Zwift";
+
+
+//-------------- Zwift Hub messages
+// The command code prepending this message is 0x00
+// This message is sent always following the change of the gear ratio probably to verify it was received properly
+message HubRequest {
+	optional uint32 DataId = 1;				// Value observed 520 and 0, 0 requests general info, 1-7 are the fields# in DeviceInformationContent, 520 requests the gear ratio
+											// 512 to 534 responds unidentifiable data
+}
+
+// The command code prepending this message is 0x03
+message HubRidingData {
+	optional uint32 Power = 1;
+	optional uint32 Cadence = 2;
+	optional uint32 SpeedX100 = 3;
+	optional uint32 HR = 4;
+	optional uint32 Unknown1 = 5;				// Values observed 0 when stopped, 2864, 4060, 4636, 6803
+	optional uint32 Unknown2 = 6;				// Values observed 25714, 30091 (constant during session)
+}
+
+message SimulationParam {
+	optional sint32 Wind = 1;					// Wind in m/s * 100. In zwift there is no wind (0). Negative is backwind
+	optional sint32 InclineX100 = 2;			// Incline value * 100  
+	optional uint32 CWa = 3;					// Wind coefficient CW * a * 10000. In zwift this is constant 0.51 (5100) 
+	optional uint32 Crr = 4;					// Rolling resistance Crr * 100000. In zwift this is constant 0.004 (400)
+}
+
+message PhysicalParam {
+	optional uint32 GearRatioX10000 = 2;
+	optional uint32 BikeWeightx100 = 4;
+	optional uint32 RiderWeightx100 = 5;
+}
+
+// The command code prepending this message is 0x04
+message HubCommand {
+	optional uint32 PowerTarget = 3;
+	optional SimulationParam Simulation = 4;
+	optional PhysicalParam Physical = 5;
+}
+
+//---------------- Zwift Play messages
+
+enum PlayButtonStatus {
+	ON = 0;
+	OFF = 1;
+}
+// The command code prepending this message is 0x07
+message PlayKeyPadStatus {
+	optional PlayButtonStatus RightPad = 1;
+	optional PlayButtonStatus Button_Y_Up = 2;
+	optional PlayButtonStatus Button_Z_Left = 3;
+	optional PlayButtonStatus Button_A_Right = 4;
+	optional PlayButtonStatus Button_B_Down = 5;
+	optional PlayButtonStatus Button_On = 6;
+	optional PlayButtonStatus Button_Shift = 7;
+	optional sint32 Analog_LR = 8;
+	optional sint32 Analog_UD = 9;
+}
+
+
+message PlayCommandParameters {
+	optional uint32 param1 = 1;
+	optional uint32 param2 = 2;
+	optional uint32 HapticPattern = 3;
+}
+
+message PlayCommandContents {
+	optional PlayCommandParameters CommandParameters = 1;
+}
+
+// The command code prepending this message is 0x12
+// This is sent to the control point to configure and make the controller vibrate 
+message PlayCommand {
+	optional PlayCommandContents CommandContents = 2;
+}
+
+// The command code prepending this message is 0x19
+// This is sent periodically when there are no button presses
+message Idle {
+	optional uint32 Unknown2 = 2;
+}
+
+//----------------- Zwift Ride messages
+enum RideButtonMask {
+	LEFT_BTN      = 0x00001;
+	UP_BTN        = 0x00002;
+	RIGHT_BTN     = 0x00004;
+	DOWN_BTN      = 0x00008;
+	A_BTN         = 0x00010;
+	B_BTN         = 0x00020;
+	Y_BTN         = 0x00040;
+
+	Z_BTN         = 0x00100;
+	SHFT_UP_L_BTN = 0x00200;
+	SHFT_DN_L_BTN = 0x00400;
+	POWERUP_L_BTN = 0x00800;
+	ONOFF_L_BTN   = 0x01000;
+	SHFT_UP_R_BTN = 0x02000;
+	SHFT_DN_R_BTN = 0x04000;
+
+	POWERUP_R_BTN = 0x10000;
+	ONOFF_R_BTN   = 0x20000;
+}
+
+enum RideAnalogLocation {
+	LEFT = 0;
+	RIGHT = 1;
+	UP = 2;
+	DOWN = 3;
+}
+
+message RideAnalogKeyPress {
+	optional RideAnalogLocation Location = 1;
+	optional sint32 AnalogValue = 2;
+}
+
+message RideAnalogKeyGroup {
+	repeated RideAnalogKeyPress GroupStatus = 1;
+}
+
+// The command code prepending this message is 0x23
+message RideKeyPadStatus {
+	optional uint32 ButtonMap = 1;
+	optional RideAnalogKeyGroup AnalogButtons = 2;
+}
+
+//------------------ Zwift Click messages
+// The command code prepending this message is 0x37
+message ClickKeyPadStatus {
+	optional PlayButtonStatus Button_Plus = 1;
+	optional PlayButtonStatus Button_Minus = 2;
+}
+
+//------------------ Device Information requested after connection
+// The command code prepending this message is 0x3c
+message DeviceInformationContent {
+	optional uint32 Unknown1 = 1;
+	repeated uint32 SoftwareVersion = 2;
+	optional string DeviceName = 3;
+	optional uint32 Unknown4 = 4;
+	optional uint32 Unknown5 =5;
+	optional string SerialNumber = 6;
+	optional string HardwareVersion = 7;
+	repeated uint32 ReplyData = 8;
+	optional uint32 Unknown9 = 9;
+	optional uint32 Unknown10 = 10;
+	optional uint32 Unknown13 = 13;
+}
+
+message SubContent {
+	optional DeviceInformationContent Content = 1;
+	optional uint32 Unknown2 = 2;
+	optional uint32 Unknown4 = 4;	
+	optional uint32 Unknown5 = 5;
+	optional uint32 Unknown6 = 6;
+}
+
+message DeviceInformation {
+	optional uint32 InformationId = 1;
+	optional SubContent SubContent = 2;
+}

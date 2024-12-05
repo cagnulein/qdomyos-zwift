@@ -29,6 +29,7 @@ void treadmill::changeInclination(double grade, double inclination) {
     QSettings settings;
     double treadmill_incline_min = settings.value(QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min).toDouble();
     double treadmill_incline_max = settings.value(QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max).toDouble();
+    double step = settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline).toDouble();
 
     if(grade < treadmill_incline_min) {
         grade = treadmill_incline_min;
@@ -42,9 +43,15 @@ void treadmill::changeInclination(double grade, double inclination) {
     Q_UNUSED(inclination);
     qDebug() << "changeInclination" << grade << autoResistanceEnable << m_inclination_difficult
              << m_inclination_difficult_offset;
-    RequestedInclination = (grade * m_inclination_difficult) + m_inclination_difficult_offset;
+    
+    // Calculate the raw requested inclination
+    double rawInclination = (grade * m_inclination_difficult) + m_inclination_difficult_offset;
+    
+    // Round to nearest step
+    RequestedInclination = round(rawInclination / step) * step;
+    
     if (autoResistanceEnable) {
-        requestInclination = (grade * m_inclination_difficult) + m_inclination_difficult_offset;
+        requestInclination = RequestedInclination.value();  // Use the rounded value here as well
     }
 }
 void treadmill::changeSpeedAndInclination(double speed, double inclination) {
@@ -209,12 +216,21 @@ double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
 void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void treadmill::powerSensor(uint16_t power) {
+void treadmill::powerSensor(uint16_t power) { 
+    double vwatts = 0;
     if(power > 0) {
         powerReceivedFromPowerSensor = true;
         qDebug() << "powerReceivedFromPowerSensor" << powerReceivedFromPowerSensor << power;
+        QSettings settings;
+        if(currentInclination().value() != 0 && settings.value(QZSettings::stryd_add_inclination_gain, QZSettings::default_stryd_add_inclination_gain).toBool()) {
+            QSettings settings;
+            double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+            // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+            vwatts = ((9.8 * w) * (currentInclination().value() / 100.0));
+            qDebug() << QStringLiteral("overrding power read from the sensor of ") << power << QStringLiteral("with ") << vwatts << QStringLiteral(" for the treadmill inclination");
+        }
     }
-    m_watt.setValue(power, false); 
+    m_watt.setValue(power + vwatts, false); 
 }
 void treadmill::speedSensor(double speed) { Speed.setValue(speed); }
 void treadmill::instantaneousStrideLengthSensor(double length) { InstantaneousStrideLengthCM.setValue(length); }
@@ -233,7 +249,11 @@ double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
             return ((double)i) / 2.0;
         }
     }
-    if (Inclination < treadmillInclinationOverride(0))
+
+    // if the inclination is negative, since the table consider only positive values, I return the actual value
+    if(Inclination < 0)
+        return Inclination;
+    else if (Inclination < treadmillInclinationOverride(0))
         return treadmillInclinationOverride(0);
     else
         return treadmillInclinationOverride(15);
@@ -397,7 +417,7 @@ double treadmill::treadmillInclinationOverride(double Inclination) {
 }
 
 void treadmill::evaluateStepCount() {
-    StepCount += (Cadence.lastChanged().msecsTo(QDateTime::currentDateTime())) * (Cadence.value() / 60000);
+    StepCount += (Cadence.lastChanged().msecsTo(QDateTime::currentDateTime())) * (Cadence.value() / 60000) * 2.0;
 }
 
 void treadmill::cadenceFromAppleWatch() {

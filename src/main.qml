@@ -44,6 +44,7 @@ ApplicationWindow {
     signal keyMediaNext()
     signal floatingOpen()
     signal openFloatingWindowBrowser();
+    signal strava_upload_file_prepare();
 
     property bool lockTiles: false
     property bool settings_restart_to_apply: false
@@ -396,6 +397,15 @@ ApplicationWindow {
         visible: false
     }
 
+    MessageDialog {
+        text: "Strava"
+        informativeText: "Do you want to upload the workout to Strava?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {strava_upload_file_prepare(); rootItem.stravaUploadRequested = false;}
+        onNoClicked: {rootItem.stravaUploadRequested = false;}
+        visible: rootItem.stravaUploadRequested
+    }
+
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color
@@ -733,6 +743,15 @@ ApplicationWindow {
                     }
                 }
                 ItemDelegate {
+                    id: wizardItem
+                    text: qsTr("Wizard")
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("Wizard.qml")
+                        drawer.close()
+                    }
+                }
+                ItemDelegate {
                     id: help
                     text: qsTr("Help")
                     width: parent.width
@@ -769,7 +788,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.16.53"
+                    text: "version 2.18.9"
                     width: parent.width
                 }
 
@@ -822,6 +841,10 @@ ApplicationWindow {
                 keyMediaPrevious();
             else if (event.key === Qt.Key_MediaNext)
                 keyMediaNext();
+            else if (OS_VERSION === "Other" && event.key === Qt.Key_Z)
+                volumeDown();
+            else if (OS_VERSION === "Other" && event.key === Qt.Key_X)
+                volumeUp();
 
             event.accepted = settings.volume_change_gears;
         }

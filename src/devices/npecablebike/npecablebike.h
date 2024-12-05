@@ -51,7 +51,8 @@ class npecablebike : public bike {
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
-    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastRefreshCharacteristicChanged2A5B = QDateTime::currentDateTime();
+    QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
 
@@ -63,6 +64,8 @@ class npecablebike : public bike {
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
+    
+    bool BIKE_DEVICE = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
