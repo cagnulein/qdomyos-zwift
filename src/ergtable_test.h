@@ -33,7 +33,8 @@ class ergTableTester {
 
     static bool runAllTests() {
         ergTableTester tester;
-        return tester.testTrainingSession();
+        tester.testTrainingSession();
+        return tester.testPowerEstimationTable();
     }
 
   private:
@@ -108,6 +109,125 @@ class ergTableTester {
                   });
 
         return data;
+    }
+
+    bool testPowerEstimationTable() {
+        qDebug() << "\nTesting power estimation table...";
+        ergTable table;
+        table.reset();
+
+               // First load and process the training data to populate the table
+        auto trainingData = loadTrainingData("c:/powertraining.txt");
+        QDateTime lastResistanceChange;
+        QDateTime lastTimestamp;
+
+        // Process all training data to populate the table
+        for (const auto& point : trainingData) {
+            // Calculate and simulate real time delta
+            if (!lastTimestamp.isNull()) {
+                qint64 msSinceLastSample = lastTimestamp.msecsTo(point.timestamp);
+                QThread::msleep(std::min(static_cast<qint64>(10), msSinceLastSample));
+            }
+            lastTimestamp = point.timestamp;
+
+            if (point.isResistanceChange) {
+                lastResistanceChange = point.timestamp;
+                continue;
+            }
+
+            // Skip data points too close to resistance changes
+            if (!lastResistanceChange.isNull()) {
+                qint64 msSinceResistanceChange = lastResistanceChange.msecsTo(point.timestamp);
+                if (msSinceResistanceChange < 1000) {
+                    continue;
+                }
+            }
+
+            // Populate the table with training data
+            table.collectData(point.cadence, point.wattage, point.resistance);
+        }
+
+               // Now create formatted table header
+        qDebug() << "\nPower Estimation Table (Watts)";
+        qDebug() << "Cadence |  R25  |  R26  |  R27  |  R28  |  R29  |  R30  |  R31  |  R32";
+        qDebug() << "--------|-------|-------|-------|-------|-------|-------|-------|-------";
+
+               // Generate table for cadences 50-80
+        for (uint16_t cadence = 50; cadence <= 80; cadence += 2) {
+            QString line = QString("%1").arg(cadence, 7);
+            line += " |";
+
+                   // Test each resistance level
+            for (uint16_t resistance = 25; resistance <= 32; resistance++) {
+                double watts = table.estimateWattage(cadence, resistance);
+                // Format with 1 decimal place and right-aligned in 6 chars + separator
+                line += QString(" %1 |").arg(QString::number(watts, 'f', 1), 6);
+            }
+            qDebug().noquote() << line;
+        }
+
+               // Analyze some specific power targets
+        qDebug() << "\nPower Target Analysis:";
+        QVector<int> powerTargets = {200, 250, 300, 350, 400};
+
+        qDebug() << "Target |  Cadence 60  |  Cadence 70  |  Cadence 80";
+        qDebug() << "-------|--------------|--------------|-------------";
+
+        for (int targetPower : powerTargets) {
+            QString line = QString("%1W").arg(targetPower, 6);
+            line += " |";
+
+            // Find closest resistance for different cadences
+            for (uint16_t cadence : {60, 70, 80}) {
+                uint16_t bestResistance = 25;
+                double closestPower = table.estimateWattage(cadence, bestResistance);
+                double minDiff = std::abs(closestPower - targetPower);
+
+                // Try each resistance level
+                for (uint16_t r = 26; r <= 32; r++) {
+                    double power = table.estimateWattage(cadence, r);
+                    double diff = std::abs(power - targetPower);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestPower = power;
+                        bestResistance = r;
+                    }
+                }
+
+                // Add to output: "R28 (245W)"
+                line += QString("  R%1 (%2W) |")
+                            .arg(bestResistance)
+                            .arg(qRound(closestPower));
+            }
+            qDebug().noquote() << line;
+        }
+
+               // Print some stats about the collected data
+        auto consolidatedData = table.getConsolidatedData();
+        qDebug() << "\nTable populated with" << consolidatedData.size() << "data points";
+
+        // Print min/max values found in consolidated data
+        if (!consolidatedData.isEmpty()) {
+            uint16_t minCadence = UINT16_MAX, maxCadence = 0;
+            uint16_t minResistance = UINT16_MAX, maxResistance = 0;
+            uint16_t minWatts = UINT16_MAX, maxWatts = 0;
+
+            for (const auto& point : consolidatedData) {
+                minCadence = std::min(minCadence, point.cadence);
+                maxCadence = std::max(maxCadence, point.cadence);
+                minResistance = std::min(minResistance, point.resistance);
+                maxResistance = std::max(maxResistance, point.resistance);
+                minWatts = std::min(minWatts, point.wattage);
+                maxWatts = std::max(maxWatts, point.wattage);
+            }
+
+            qDebug() << "Data ranges:";
+            qDebug() << "  Cadence:" << minCadence << "-" << maxCadence << "RPM";
+            qDebug() << "  Resistance:" << minResistance << "-" << maxResistance;
+            qDebug() << "  Power:" << minWatts << "-" << maxWatts << "W";
+        }
+
+        return true;
     }
 
     bool testTrainingSession() {
