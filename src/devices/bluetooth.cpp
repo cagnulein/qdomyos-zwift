@@ -1927,7 +1927,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(sportsTechElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) ||
                         (b.name().toUpper().contains(QStringLiteral("CARE")) &&
-                         b.name().length() == 11)) // CARE9040177 - Carefitness CV-351
+                         b.name().length() >= 11)) // CARE9040177 - Carefitness CV-351 or CARE968300122 (this is an elliptical)
                        && !sportsPlusBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
