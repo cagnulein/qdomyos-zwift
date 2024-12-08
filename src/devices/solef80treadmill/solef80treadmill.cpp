@@ -73,12 +73,7 @@ void solef80treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStr
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharCustomService.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCustomService->writeCharacteristic(gattWriteCharCustomService, *writeBuffer,
-                                                             QLowEnergyService::WriteWithoutResponse);
-    } else {
-        gattCustomService->writeCharacteristic(gattWriteCharCustomService, *writeBuffer);
-    }
+    gattCustomService->writeCharacteristic(gattWriteCharCustomService, *writeBuffer);
 
     if (!disable_log)
         qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
