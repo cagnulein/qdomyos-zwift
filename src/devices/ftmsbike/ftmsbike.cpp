@@ -1071,7 +1071,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
                 "org/cagnulen/qdomyoszwift/ZwiftHubBike",
                 "inclinationCommand",
                 "(D)[B",
-                slope);
+                ((double)slope) / 100.0);
 
             if(!result.isValid()) {
                 qDebug() << "inclinationCommand returned invalid value";
