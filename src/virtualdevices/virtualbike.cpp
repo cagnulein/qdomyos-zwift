@@ -440,7 +440,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
                // HID Information Characteristic
         QLowEnergyCharacteristicData hidInfoChar;
-        hidInfoChar.setUuid(QBluetoothUuid::HidInformation);
+        hidInfoChar.setUuid(QBluetoothUuid::HIDInformation);
         QByteArray hidInfo;
         hidInfo.append((char)0x11);  // HID version 1.1
         hidInfo.append((char)0x01);  // Country code
