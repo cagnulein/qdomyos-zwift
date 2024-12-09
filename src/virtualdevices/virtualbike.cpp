@@ -113,6 +113,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             }
         }
 
+        services << QBluetoothUuid::HumanInterfaceDevice;
+
         advertisingData.setServices(services);
         //! [Advertising Data]
 
@@ -431,6 +433,38 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             serviceDataChanged.addCharacteristic(charData);
         }
 
+        QLowEnergyCharacteristicData reportMapChar;
+        reportMapChar.setUuid(QBluetoothUuid::ReportMap);
+        reportMapChar.setValue(getHIDReportDescriptor());
+        reportMapChar.setProperties(QLowEnergyCharacteristic::Read);
+
+               // HID Information Characteristic
+        QLowEnergyCharacteristicData hidInfoChar;
+        hidInfoChar.setUuid(QBluetoothUuid::HidInformation);
+        QByteArray hidInfo;
+        hidInfo.append((char)0x11);  // HID version 1.1
+        hidInfo.append((char)0x01);  // Country code
+        hidInfo.append((char)0x00);  // Flags
+        hidInfoChar.setValue(hidInfo);
+        hidInfoChar.setProperties(QLowEnergyCharacteristic::Read);
+
+               // Report Characteristic
+        QLowEnergyCharacteristicData reportChar;
+        reportChar.setUuid(QBluetoothUuid::Report);
+        reportChar.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read | QLowEnergyCharacteristic::Write);
+        QByteArray descriptor;
+        descriptor.append((char)0x01);
+        descriptor.append((char)0x00);
+        const QLowEnergyDescriptorData clientConfig(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
+        reportChar.addDescriptor(clientConfig);
+
+               // Configure service
+        serviceDataHID.setType(QLowEnergyServiceData::ServiceTypePrimary);
+        serviceDataHID.setUuid(QBluetoothUuid::HumanInterfaceDevice);
+        serviceDataHID.addCharacteristic(reportMapChar);
+        serviceDataHID.addCharacteristic(hidInfoChar);
+        serviceDataHID.addCharacteristic(reportChar);
+
         //! [Start Advertising]
         leController = QLowEnergyController::createPeripheral();
         Q_ASSERT(leController);
@@ -473,6 +507,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             serviceHR = leController->addService(serviceDataHR);
         }
 
+        QThread::msleep(100); // give time to Android to add the service async.ly
+        serviceHID = leController->addService(serviceDataHID);
+
         if (!echelon && !ifit) {
             if (!heart_only) {
                 if (!cadence && !power) {
@@ -481,6 +518,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     QObject::connect(serviceWattAtomBike, &QLowEnergyService::characteristicChanged, this,
                                      &virtualbike::characteristicChanged);
                     QObject::connect(serviceZwiftPlayBike, &QLowEnergyService::characteristicChanged, this,
+                                     &virtualbike::characteristicChanged);
+                    QObject::connect(serviceHID, &QLowEnergyService::characteristicChanged, this,
                                      &virtualbike::characteristicChanged);
                 } else {
                     QObject::connect(service, &QLowEnergyService::characteristicChanged, this,
@@ -1345,6 +1384,9 @@ void virtualbike::reconnect() {
 
     if (!this->noHeartService || heart_only)
         serviceHR = leController->addService(serviceDataHR);
+
+    QThread::msleep(100); // give time to Android to add the service async.ly
+    serviceHID = leController->addService(serviceDataHID);
 #endif
 
     QLowEnergyAdvertisingParameters pars;
@@ -1372,6 +1414,8 @@ void virtualbike::bikeProvider() {
         normalizeWattage = 0;
 
     uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
+
+    sendMouseReport(10, 0);
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
