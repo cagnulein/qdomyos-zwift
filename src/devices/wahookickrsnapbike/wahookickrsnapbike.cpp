@@ -219,6 +219,44 @@ void wahookickrsnapbike::update() {
         if (sec1Update++ == (500 / refresh->interval())) {
             sec1Update = 0;
             // updateDisplay(elapsed);
+            static int secs = 0;
+            if(++secs == 60) {
+                // ******************************************* virtual bike init *************************************
+                if (!firstStateChanged && !this->hasVirtualDevice()
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+                    && !h
+#endif
+#endif
+                    ) {
+                    QSettings settings;
+                    bool virtual_device_enabled =
+                        settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+                    bool cadence =
+                        settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+                    bool ios_peloton_workaround =
+                        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+                    if (ios_peloton_workaround && cadence) {
+                        qDebug() << "ios_peloton_workaround activated!";
+                        h = new lockscreen();
+                        h->virtualbike_ios();
+                    } else
+#endif
+#endif
+                        if (virtual_device_enabled) {
+                            emit debug(QStringLiteral("creating virtual bike interface..."));
+                            auto virtualBike =
+                                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                            // connect(virtualBike,&virtualbike::debug ,this,&wahookickrsnapbike::debug);
+                            connect(virtualBike, &virtualbike::changeInclination, this, &wahookickrsnapbike::inclinationChanged);
+                            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                        }
+                }
+                firstStateChanged = 1;
+                // ********************************************************************************************************
+            }
         }
 
         if (requestPower != -1) {
@@ -654,42 +692,6 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
             }
         }
     }
-
-    // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !this->hasVirtualDevice()
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        && !h
-#endif
-#endif
-    ) {
-        QSettings settings;
-        bool virtual_device_enabled =
-            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        bool cadence =
-            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround =
-            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence) {
-            qDebug() << "ios_peloton_workaround activated!";
-            h = new lockscreen();
-            h->virtualbike_ios();
-        } else
-#endif
-#endif
-            if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual bike interface..."));
-            auto virtualBike =
-                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-            // connect(virtualBike,&virtualbike::debug ,this,&wahookickrsnapbike::debug);
-            connect(virtualBike, &virtualbike::changeInclination, this, &wahookickrsnapbike::inclinationChanged);
-            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
-        }
-    }
-    firstStateChanged = 1;
-    // ********************************************************************************************************
 }
 
 void wahookickrsnapbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
