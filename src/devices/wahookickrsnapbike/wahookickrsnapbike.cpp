@@ -145,12 +145,6 @@ QByteArray wahookickrsnapbike::setSimWindResistance(double windResistanceCoeffic
 }
 
 QByteArray wahookickrsnapbike::setSimGrade(double grade) {
-    static double oldGrade = 0;
-    if(oldGrade == grade) {
-        qDebug() << "grade is already set to " << grade << "skipping";
-        return;
-    }
-    oldGrade = grade;
     // TODO: Throw Error if grade is not between -1 and 1
     grade = grade / 100;
     QByteArray r;
@@ -281,6 +275,7 @@ void wahookickrsnapbike::update() {
             uint8_t b[20];
             memcpy(b, a.constData(), a.length());
             writeCharacteristic(b, a.length(), "setWheelCircumference", false, false);
+            lastGrade = 999; // to force a change
         }
 
         lastGearValue = gears();
@@ -737,16 +732,29 @@ void wahookickrsnapbike::serviceScanDone(void) {
 #endif
 
     auto services_list = m_control->services();
+    bool zwift_found = false;
+    bool wahoo_found = false;
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &wahookickrsnapbike::stateChanged);
         gattCommunicationChannelService.constLast()->discoverDetails();
-        if(s == QBluetoothUuid((quint16)0x1826)) {
-            qDebug() << "if it doesn't change the inclination, set the bike in the FTMS bike setting under the Bike settings.";
-            if(homeform::singleton())
-                homeform::singleton()->setToastRequested("if it doesn't change the inclination, set the bike in the FTMS bike setting under the Bike settings.");
+        if(s == QBluetoothUuid(QStringLiteral("00000001-19ca-4651-86e5-fa29dcdd09d1"))) {
+            zwift_found = true;
+        } else if(s == QBluetoothUuid(QStringLiteral("a026ee01-0a7d-4ab3-97fa-f1500f9feb8b"))) {
+            wahoo_found = true;
         }
+    }
+
+    qDebug() << "zwift service found " << zwift_found << "wahoo service found" << wahoo_found;
+
+    if(zwift_found && !wahoo_found) {
+        QSettings settings;
+        settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
+        settings.sync();
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Zwift Hub device found, please restart the app to enjoy virtual gearing!");
+        return;
     }
 }
 
@@ -841,11 +849,17 @@ void wahookickrsnapbike::controllerStateChanged(QLowEnergyController::Controller
 void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     Q_UNUSED(percentage);
     if(lastCommandErgMode) {
+        lastGrade = grade + 1; // to force a refresh
         initRequest = true;
         qDebug() << "avoid sending this command, since I have first to restore the setSimGrade";
         return;
     }
+    if(lastGrade == grade) {
+        qDebug() << "grade is already set to " << grade << "skipping";
+        return;
+    }
     lastGrade = grade;
+    Inclination = grade;
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
     QSettings settings;
     double g = grade;

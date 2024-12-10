@@ -32,6 +32,7 @@
 #ifndef Q_OS_IOS
 #include "devices/computrainerbike/computrainerbike.h"
 #include "devices/csaferower/csaferower.h"
+#include "devices/csafeelliptical/csafeelliptical.h"
 #endif
 #include "devices/concept2skierg/concept2skierg.h"
 #include "devices/crossrope/crossrope.h"
@@ -112,6 +113,7 @@
 #include "devices/sportsplusbike/sportsplusbike.h"
 #include "devices/sportstechbike/sportstechbike.h"
 #include "devices/sportstechelliptical/sportstechelliptical.h"
+#include "devices/sramAXSController/sramAXSController.h"
 #include "devices/stagesbike/stagesbike.h"
 
 #include "devices/renphobike/renphobike.h"
@@ -122,6 +124,7 @@
 #include "devices/echelonstride/echelonstride.h"
 
 #include "templateinfosenderbuilder.h"
+#include "technogymbike/technogymbike.h"
 #include "devices/toorxtreadmill/toorxtreadmill.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
@@ -175,6 +178,7 @@ class bluetooth : public QObject, public SignalHandler {
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
     csaferower *csafeRower = nullptr;
+    csafeelliptical *csafeElliptical = nullptr;
 #endif
     concept2skierg *concept2Skierg = nullptr;
     deerruntreadmill *deerrunTreadmill = nullptr;
@@ -219,6 +223,7 @@ class bluetooth : public QObject, public SignalHandler {
     truetreadmill *trueTreadmill = nullptr;
     horizongr7bike *horizonGr7Bike = nullptr;
     schwinnic4bike *schwinnIC4Bike = nullptr;
+    technogymbike* technogymBike = nullptr;
     sportstechbike *sportsTechBike = nullptr;
     sportstechelliptical *sportsTechElliptical = nullptr;
     sportsplusbike *sportsPlusBike = nullptr;
@@ -274,6 +279,7 @@ class bluetooth : public QObject, public SignalHandler {
     QList<eliteariafan *> eliteAriaFan;
     QList<zwiftclickremote* > zwiftPlayDevice;
     zwiftclickremote* zwiftClickRemote = nullptr;
+    sramaxscontroller* sramAXSController = nullptr;
     QString filterDevice = QLatin1String("");
 
     bool testResistance = false;
@@ -308,6 +314,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool eliteSterzoSmartAvaiable();
     bool fitmetriaFanfitAvaiable();
     bool zwiftDeviceAvaiable();
+    bool sramDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
 #ifdef Q_OS_WIN

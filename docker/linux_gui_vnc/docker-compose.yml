@@ -1,0 +1,18 @@
+services:
+  qdomyos-zwift:
+    image: qdomyos-zwift-vnc
+    container_name: qdomyos-zwift
+    privileged: true
+    network_mode: "host"
+    environment:
+      - DISPLAY=${DISPLAY}
+      - USER=docker
+    volumes:
+      - /dev:/dev
+      - /run/dbus:/run/dbus
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./.config:/root/.config
+    stdin_open: true
+    tty: true
+    restart: "no"
+    command: bash -c "tightvncserver && ./qdomyos-zwift"

@@ -263,6 +263,9 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, true);
 
             if (!initPacketRecv) {
+                if(gattFTMSService && homeform::singleton()) {
+                    homeform::singleton()->setToastRequested("Enable the 'Force Using FTMS' setting under the Settings->Treadmill Options->Horizon Treadmill options and restart the app");
+                }
                 qDebug() << "init 1 not received";
                 waitForAPacket();
                 goto init1;
@@ -813,7 +816,7 @@ void horizontreadmill::btinit() {
         messageID = 0x10;
     }
 
-    if(wellfit_treadmill) {
+    if(wellfit_treadmill || SW_TREADMILL) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                             false);
@@ -888,10 +891,10 @@ void horizontreadmill::update() {
             bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
             qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
                      << float_one_point_round(currentSpeed().value());
-            if (requestSpeed != currentSpeed().value() && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
+            if (float_one_point_round(requestSpeed) != float_one_point_round(currentSpeed().value()) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
                 forceSpeedNeed) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                forceSpeed(requestSpeed);
+                forceSpeed(float_one_point_round(requestSpeed));
             }
             requestSpeed = -1;
         }
@@ -921,6 +924,11 @@ void horizontreadmill::update() {
                
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
+
+                // this treadmill doesn't send the incline, so i'm forcing it manually
+                if(SW_TREADMILL) {
+                    Inclination = requestInclination;
+                }
             }
             requestInclination = -100;
         }
@@ -1070,6 +1078,10 @@ void horizontreadmill::update() {
                 }
             }
 
+            if(SW_TREADMILL) {
+                Inclination = 0;
+            }
+            
             lastStop = QDateTime::currentMSecsSinceEpoch();
 
             requestStop = -1;
@@ -1109,6 +1121,7 @@ bool horizontreadmill::checkIfForceSpeedNeeding(double requestSpeed) {
 // example frame: 55aa320003050400532c00150000
 void horizontreadmill::forceSpeed(double requestSpeed) {
     QSettings settings;
+    const double miles_conversion = 0.621371;
     bool horizon_paragon_x =
         settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
@@ -1161,7 +1174,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1171,8 +1184,12 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
 
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
-        writeS[1] = ((uint16_t)(requestSpeed * 100)) & 0xFF;
-        writeS[2] = ((uint16_t)(requestSpeed * 100)) >> 8;
+        if(BOWFLEX_T9) {
+            requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles, at least seems so!!
+        }
+        uint16_t speed_int = round(requestSpeed * 100);
+        writeS[1] = speed_int & 0xFF;
+        writeS[2] = speed_int >> 8;
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceSpeed"), false, false);
@@ -1227,7 +1244,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1631,8 +1648,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         if (Flags.expEnergy && newValue.length() > index + 1) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)newValue.at(index))));
+            /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));*/
             index += 2;
 
                    // energy per hour
@@ -1640,16 +1657,16 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
                    // energy per minute
             index += 1;
-        } else {
-            if (watts(weight))
-                KCal += ((((0.048 * ((double)watts(weight)) + 1.19) *
-                           weight * 3.5) /
-                          200.0) /
-                         (60000.0 /
-                          ((double)lastRefreshCharacteristicChanged.msecsTo(
-                              now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                       // kg * 3.5) / 200 ) / 60
         }
+
+        if (watts(weight))
+            KCal += ((((0.048 * ((double)watts(weight)) + 1.19) *
+                       weight * 3.5) /
+                      200.0) /
+                     (60000.0 /
+                      ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                   // kg * 3.5) / 200 ) / 60
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
@@ -1714,9 +1731,15 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         index += 2;
 
         if (!Flags.moreData) {
-            parseSpeed(((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                              (uint16_t)((uint8_t)newValue.at(index)))) /
-                    100.0);
+            double speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                     (uint16_t)((uint8_t)newValue.at(index)))) /
+                           100.0;
+            if(BOWFLEX_T9) {
+                const double miles_conversion = 0.621371;
+                // this treadmill sends the speed in miles!
+                speed *= miles_conversion;
+            }
+            parseSpeed(speed);
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
@@ -1738,7 +1761,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
         // else
         {
-            if (firstDistanceCalculated)
+            if (firstDistanceCalculated && !isPaused())
                 Distance += ((Speed.value() / 3600000.0) *
                              ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
             distanceEval = true;
@@ -1809,8 +1832,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         if (Flags.expEnergy) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)newValue.at(index))));
+            /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));*/
             index += 2;
 
             // energy per hour
@@ -1818,21 +1841,20 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
             // energy per minute
             index += 1;
-        } else {
-            if (firstDistanceCalculated &&
-                watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                KCal +=
-                    ((((0.048 *
-                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-                        1.19) *
-                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                      200.0) /
-                     (60000.0 /
-                      ((double)lastRefreshCharacteristicChanged.msecsTo(
-                          now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                            // kg * 3.5) / 200 ) / 60
-            distanceEval = true;
         }
+        if (firstDistanceCalculated &&
+            watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+            KCal +=
+                ((((0.048 *
+                        ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 /
+                  ((double)lastRefreshCharacteristicChanged.msecsTo(
+                      now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                        // kg * 3.5) / 200 ) / 60
+        distanceEval = true;
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
@@ -1982,8 +2004,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         if (Flags.expEnergy && newValue.length() > index + 1) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)newValue.at(index))));
+            /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));*/
             index += 2;
 
             // energy per hour
@@ -1991,21 +2013,21 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
             // energy per minute
             index += 1;
-        } else {
-            if (firstDistanceCalculated &&
-                watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                KCal +=
-                    ((((0.048 *
-                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-                        1.19) *
-                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                      200.0) /
-                     (60000.0 /
-                      ((double)lastRefreshCharacteristicChanged.msecsTo(
-                          now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                            // kg * 3.5) / 200 ) / 60
-            distanceEval = true;
         }
+
+        if (firstDistanceCalculated &&
+            watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+            KCal +=
+                ((((0.048 *
+                        ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 /
+                  ((double)lastRefreshCharacteristicChanged.msecsTo(
+                      now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                        // kg * 3.5) / 200 ) / 60
+        distanceEval = true;
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
@@ -2167,7 +2189,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }*/
 
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService &&
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService && !BOWFLEX_T9 &&
                     !settings
                          .value(QZSettings::horizon_treadmill_force_ftms,
                                 QZSettings::default_horizon_treadmill_force_ftms)
@@ -2391,6 +2413,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("Technogym Run TREADMILL workaround ON!");
         } else if(device.name().toUpper().startsWith(QStringLiteral("SW"))) {
             qDebug() << QStringLiteral("SW TREADMILL workaround ON!");
+            SW_TREADMILL = true;
             disableAutoPause = true;
         } else if(device.name().toUpper().startsWith("HORIZON_7.8AT")) {
             HORIZON_78AT_treadmill = true;
@@ -2401,6 +2424,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((device.name().toUpper().startsWith("DOMYOS"))) {
             qDebug() << QStringLiteral("DOMYOS found");
             DOMYOS = true;
+        } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9_")))) {
+            qDebug() << QStringLiteral("BOWFLEX T9 found");
+            BOWFLEX_T9 = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
@@ -3125,7 +3151,7 @@ void horizontreadmill::testProfileCRC() {
 double horizontreadmill::minStepInclination() {
     QSettings settings;
     bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
-    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill)
+    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL)
         return 1.0;
     else
         return 0.5;

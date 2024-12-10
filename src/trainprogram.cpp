@@ -835,6 +835,11 @@ void trainprogram::scheduler() {
 
     double odometerFromTheDevice = bluetoothManager->device()->odometer();
 
+    if(ticks < 0) {
+        qDebug() << "waiting for the start...";
+        return;
+    }
+    
     // entry point
     if (ticks == 1 && currentStep == 0) {
         rows[currentStep].started = QDateTime::currentDateTime();
@@ -1226,6 +1231,15 @@ void trainprogram::end() {
     }
 }
 
+bool trainprogram::overrideZoneHRForCurrentRow(uint8_t zone) {
+    if (started && currentStep < rows.length() && currentRow().zoneHR != -1) {
+        qDebug() << "overriding zoneHR from" << rows.at(currentStep).zoneHR << "to" << zone;
+        rows[currentStep].zoneHR = zone;
+        return true;
+    }
+    return false;
+}
+
 bool trainprogram::overridePowerForCurrentRow(double power) {
     if (started && currentStep < rows.length() && currentRow().power != -1) {
         qDebug() << "overriding power from" << rows.at(currentStep).power << "to" << power;
@@ -1235,13 +1249,13 @@ bool trainprogram::overridePowerForCurrentRow(double power) {
     return false;
 }
 
-void trainprogram::increaseElapsedTime(uint32_t i) {
+void trainprogram::increaseElapsedTime(int32_t i) {
 
     offset += i;
     ticks += i;
 }
 
-void trainprogram::decreaseElapsedTime(uint32_t i) {
+void trainprogram::decreaseElapsedTime(int32_t i) {
 
     offset -= i;
     ticks -= i;
@@ -1516,7 +1530,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
                     spareSeconds = 0;
                 }
                 int spareSum = 0;
-                for (int i = 0; i <= speedDelta; i++) {
+                for (int i = 0; i < speedDelta; i++) {
                     trainrow rowI(row);
                     int spare = 0;
                     if (spareSeconds)
@@ -1528,7 +1542,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
                     }
                     rowI.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
                     rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
-                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum);
+                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum - durationStep + spare);
                     rowI.forcespeed = 1;
                     if (speedFrom < speedTo) {
                         rowI.speed = speedFrom + (speedStep * i);
@@ -1563,7 +1577,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
                     spareSeconds = 0;
                 }
                 int spareSum = 0;
-                for (int i = 0; i <= speedDelta; i++) {
+                for (int i = 0; i < speedDelta; i++) {
                     trainrow rowI(row);
                     int spare = 0;
                     if (spareSeconds)
@@ -1575,7 +1589,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
                     }
                     rowI.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
                     rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
-                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum);
+                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum - durationStep + spare);
                     rowI.forcespeed = 1;
                     if (speedFrom < speedTo) {
                         if(device_type == bluetoothdevice::TREADMILL) {

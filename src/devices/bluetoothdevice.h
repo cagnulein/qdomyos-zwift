@@ -217,6 +217,18 @@ class bluetoothdevice : public QObject {
     metric wattsMetric();
 
     /**
+     * @brief wattsMetricforUi Show the wattage applying averaging in case the user requested this.  Units: watts
+     */
+    double wattsMetricforUI() {
+        QSettings settings;
+        bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
+        if (power5s)
+            return wattsMetric().average5s();
+        else
+            return wattsMetric().value();
+    }
+
+    /**
      * @brief changeFanSpeed Tries to change the fan speed.
      * @param speed The requested fan speed. Units: depends on device
      */

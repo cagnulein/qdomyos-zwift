@@ -44,6 +44,7 @@ DEFINE_DEVICE(BKoolBike, "BKool Bike");
 DEFINE_DEVICE(BowflexT216Treadmill, "Bowflex T216 Treadmill");
 DEFINE_DEVICE(Crossrope, "Crossrope");
 DEFINE_DEVICE(CSafeRower, "CSafe Rower");
+DEFINE_DEVICE(CSafeElliptical, "CSafe Elliptical");
 DEFINE_DEVICE(CSCBike_Named, "CSC Bike (Named)");
 DEFINE_DEVICE(CSCBike, "CSC Bike");
 DEFINE_DEVICE(Chronobike, "Chronobike");

@@ -915,7 +915,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     //********************ZWIFT PLAY**************
 
     if(characteristic.uuid().toString().contains(QStringLiteral("00000003-19ca-4651-86e5-fa29dcdd09d1")) && zwift_play_emulator) {
-        static const QByteArray expectedHexArray = QByteArray::fromHex("52696465 4F6E0201");
+        static const QByteArray expectedHexArray = QByteArray::fromHex("52696465 4F6E02");
         static const QByteArray expectedHexArray2 = QByteArray::fromHex("410805");
         static const QByteArray expectedHexArray3 = QByteArray::fromHex("00088804");
         static const QByteArray expectedHexArray4 = QByteArray::fromHex("042A0A10 C0BB0120");

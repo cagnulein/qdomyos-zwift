@@ -705,7 +705,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                               "registerReceiver",
                                               "(Landroid/content/Context;)V",
                                               QtAndroid::androidContext().object());
-#endif
+#endif    
 
     bluetoothManager->homeformLoaded = true;
 }
@@ -957,8 +957,32 @@ void homeform::pelotonWorkoutStarted(const QString &name, const QString &instruc
         }
     }
     emit changePelotonProvider(pelotonProvider());
-    m_pelotonAskStart = true;
-    emit changePelotonAskStart(pelotonAskStart());
+    qDebug() << "peloton_start_time" << pelotonHandler->start_time << "current epoch" << QDateTime::currentSecsSinceEpoch() << qAbs(pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch());
+    QSettings settings;
+    bool peloton_auto_start_with_intro = settings.value(QZSettings::peloton_auto_start_with_intro, QZSettings::default_peloton_auto_start_with_intro).toBool();
+    bool peloton_auto_start_without_intro = settings.value(QZSettings::peloton_auto_start_without_intro, QZSettings::default_peloton_auto_start_without_intro).toBool();
+    if(qAbs(pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) < 180 && (peloton_auto_start_with_intro || peloton_auto_start_without_intro)) {
+        // auto start is possible!        
+        int timer = 0;
+
+        if(peloton_auto_start_with_intro) {
+            setToastRequested(QStringLiteral("Peloton workout auto started! It will start automatically after the intro! ") + name + QStringLiteral(" - ") + instructor);
+            timer = (pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + 64; // // 4 average time to buffer and 60 to the intro
+        } else {
+            setToastRequested(QStringLiteral("Peloton workout auto started skipping the intro! ") + name + QStringLiteral(" - ") + instructor);
+            timer = (pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + 6;  // 6 average time to push skip intro and wait the 3 seconds of the intro
+        }
+        if(timer <= 0)
+            peloton_start_workout();
+        else {
+            QTimer::singleShot(timer * 1000, this, [this]() {
+                peloton_start_workout();
+            });
+        }
+    } else {
+        m_pelotonAskStart = true;
+        emit changePelotonAskStart(pelotonAskStart());
+    }
 }
 
 void homeform::pelotonWorkoutChanged(const QString &name, const QString &instructor) {
@@ -3322,6 +3346,9 @@ void homeform::Plus(const QString &name) {
                 zone++;
                 settings.setValue(QZSettings::treadmill_pid_heart_zone, QString::number(zone));
             }
+
+            if(trainProgram)
+                trainProgram->overrideZoneHRForCurrentRow(zone);
         }
     } else if (name.contains("gears")) {
         if (bluetoothManager->device()) {
@@ -3514,7 +3541,7 @@ void homeform::Minus(const QString &name) {
                          << requestedspeed << QStringLiteral("Current Target Speed") << targetspeed;
                 if (targetspeed != -1)
                     speed = targetspeed;
-                if (requestedspeed != -1)
+                if (requestedspeed != -1 && requestedspeed < speed)
                     speed = requestedspeed;
                 double minStepSpeed = ((treadmill *)bluetoothManager->device())->minStepSpeed();
                 double step = settings.value(QZSettings::treadmill_step_speed, QZSettings::default_treadmill_step_speed)
@@ -3576,6 +3603,9 @@ void homeform::Minus(const QString &name) {
             } else {
                 settings.setValue(QZSettings::treadmill_pid_heart_zone, QStringLiteral("Disabled"));
             }
+
+            if(trainProgram)
+                trainProgram->overrideZoneHRForCurrentRow(zone);
         }
     } else if (name.contains(QStringLiteral("gears"))) {
         if (bluetoothManager->device()) {
@@ -3916,10 +3946,16 @@ QString homeform::startIcon() {
 void homeform::updateGearsValue() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
-    if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0 || gears_zwift_ratio)
-        this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears()));
-    else
-        this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears(), 'f', 1));
+    double gear = ((bike *)bluetoothManager->device())->gears();
+    double maxGearDefault = ((bike *)bluetoothManager->device())->defaultMaxGears();
+    double maxGear = ((bike *)bluetoothManager->device())->maxGears();
+    if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0 || gears_zwift_ratio || maxGear < maxGearDefault) {
+        this->gears->setValue(QString::number(gear));
+        this->gears->setSecondLine(wheelCircumference::gearsInfo(gear));
+    } else {
+        this->gears->setValue(QString::number(gear, 'f', 1));
+        this->gears->setSecondLine(QStringLiteral(""));
+    }
 }
 
 QString homeform::signal() {
@@ -3983,8 +4019,7 @@ void homeform::update() {
         double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
         double unit_conversion = 1.0;
         double meter_feet_conversion = 1.0;
-        double cm_inches_conversion = 1.0;
-        bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
+        double cm_inches_conversion = 1.0;        
         uint8_t treadmill_pid_heart_zone =
             settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone)
                 .toString()
@@ -4163,10 +4198,7 @@ void homeform::update() {
             formattedTime = currentTime.toString("H:mm:ss");
         }
         datetime->setValue(formattedTime);
-        if (power5s)
-            watts = bluetoothManager->device()->wattsMetric().average5s();
-        else
-            watts = bluetoothManager->device()->wattsMetric().value();
+        watts = bluetoothManager->device()->wattsMetricforUI();
         watt->setValue(QString::number(watts, 'f', 0));
         weightLoss->setValue(QString::number(miles ? bluetoothManager->device()->weightLoss() * 35.274
                                                    : bluetoothManager->device()->weightLoss(),
@@ -5301,7 +5333,7 @@ void homeform::update() {
                 if (fromTrainProgram) {
                     zone = trainProgram->currentRow().zoneHR;
                     if (zone > 0) {
-                        settings.setValue(QZSettings::treadmill_pid_heart_zone, QString::number(zone));
+                        settings.setValue(QZSettings::treadmill_pid_heart_zone, QString::number(zone));                        
                     } else {
                         settings.setValue(QZSettings::treadmill_pid_heart_zone, QStringLiteral("Disabled"));
                     }
@@ -5798,7 +5830,7 @@ void homeform::update() {
             if(bluetoothManager->device()->currentSpeed().value() > 0 && !isinf(bluetoothManager->device()->currentSpeed().value()))
                 bluetoothManager->device()->addCurrentDistance1s((bluetoothManager->device()->currentSpeed().value() / 3600.0));
             
-            qDebug() << "Current Distance 1s:" << bluetoothManager->device()->currentDistance1s().value() << bluetoothManager->device()->currentSpeed().value();
+            qDebug() << "Current Distance 1s:" << bluetoothManager->device()->currentDistance1s().value() << bluetoothManager->device()->currentSpeed().value() << watts;
 
             SessionLine s(
                 bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->currentDistance1s().value(),

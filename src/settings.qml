@@ -1004,6 +1004,30 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.3
             property bool proform_performance_400i: false
+
+            // from version 2.18.5
+            property bool proform_treadmill_c700: false
+            property bool sram_axs_controller: false
+            property bool proform_treadmill_c960i: false
+
+            // from version 2.18.6
+            property string mqtt_host: ""
+            property int mqtt_port: 1883
+            property string mqtt_username: ""
+            property string mqtt_password: ""
+            property string mqtt_deviceid: "default"
+            property bool peloton_auto_start_with_intro: false
+            property bool peloton_auto_start_without_intro: false
+
+            // from version 2.18.7
+            property bool nordictrack_tseries5_treadmill: false
+            property bool proform_carbon_tl_PFTL59722c: false
+
+            // from version 2.18.9
+            property bool nordictrack_gx_44_pro: false
+
+            // from version 2.18.10
+            property string csafe_elliptical_port: ""
         }
 
         function paddingZeros(text, limit) {
@@ -3205,131 +3229,98 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.proform_wheel_ratio = proformBikeWheelRatioTextField.text; toast.show("Setting saved!"); }
                         }
                     }
-                    SwitchDelegate {
-                        id: tourDeFranceCLCdelegate
-                        text: qsTr("Tour de France CLC")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_tour_de_france_clc
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+
+                    Label {
+                        text: qsTr("Specific Model:")
                         Layout.fillWidth: true
-                        onClicked: { settings.proform_tour_de_france_clc = checked; window.settings_restart_to_apply = true; }
-                    }
-                    SwitchDelegate {
-                        id: proformStudiodelegate
-                        text: qsTr("Proform Studio Bike")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_studio
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_studio = checked; window.settings_restart_to_apply = true; }
-                    }
-                    SwitchDelegate {
-                        text: qsTr("Proform Studio Bike NTEX71021")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_studio_NTEX71021
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_studio_NTEX71021 = checked; window.settings_restart_to_apply = true; }
-                    }
-                    SwitchDelegate {
-                        text: qsTr("Freemotion Coachbike B22.7")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.freemotion_coachbike_b22_7
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.freemotion_coachbike_b22_7 = checked; window.settings_restart_to_apply = true; }
-                    }                    
-                    SwitchDelegate {
-                        id: proformTDF10odelegate
-                        text: qsTr("Proform TDF 1.0")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_tdf_10
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_tdf_10 = checked; window.settings_restart_to_apply = true; }
                     }
 
-                    SwitchDelegate {
-                        text: qsTr("TDF 1.0 PFEVEX71316.1")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_bike_PFEVEX71316_1
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    ComboBox {
                         Layout.fillWidth: true
-                        onClicked: { settings.proform_bike_PFEVEX71316_1 = checked; window.settings_restart_to_apply = true; }
+                        id: bikeModelComboBox
+                        model: [
+                            "Other",
+                            "Tour de France CLC",
+                            "Proform Studio Bike",
+                            "Proform Studio Bike NTEX71021",
+                            "Freemotion Coachbike B22.7",
+                            "Proform TDF 1.0",
+                            "TDF 1.0 PFEVEX71316.1",
+                            "Proform TDF 10",
+                            "NordicTrack GX 2.7",
+                            "NordicTrack GX 4.5",
+                            "Cycle Trainer 300 CI",
+                            "Cycle Trainer 400",
+                            "Proform 225 CSX",
+                            "Proform 325 CSX / Healthrider H30X",
+                            "Proform SB",
+                            "Nordictrack GX 4.4 Pro"
+                        ]
+
+                        onCurrentIndexChanged: {
+                            console.log("bikeModelComboBox onCurrentIndexChanged " + currentIndex);
+
+                            // Reset all settings
+                            settings.proform_tour_de_france_clc = false;
+                            settings.proform_studio = false;
+                            settings.proform_studio_NTEX71021 = false;
+                            settings.freemotion_coachbike_b22_7 = false;
+                            settings.proform_tdf_10 = false;
+                            settings.proform_bike_PFEVEX71316_1 = false;
+                            settings.proform_tdf_10_0 = false;
+                            settings.nordictrack_gx_2_7 = false;
+                            settings.nordictrack_GX4_5_bike = false;
+                            settings.proform_cycle_trainer_300_ci = false;
+                            settings.proform_cycle_trainer_400 = false;
+                            settings.proform_bike_225_csx = false;
+                            settings.proform_bike_325_csx = false;
+                            settings.proform_bike_sb = false;
+                            settings.nordictrack_gx_44_pro = false;
+
+                            // Set corresponding setting for selected model
+                            switch (currentIndex) {
+                                case 1: settings.proform_tour_de_france_clc = true; break;
+                                case 2: settings.proform_studio = true; break;
+                                case 3: settings.proform_studio_NTEX71021 = true; break;
+                                case 4: settings.freemotion_coachbike_b22_7 = true; break;
+                                case 5: settings.proform_tdf_10 = true; break;
+                                case 6: settings.proform_bike_PFEVEX71316_1 = true; break;
+                                case 7: settings.proform_tdf_10_0 = true; break;
+                                case 8: settings.nordictrack_gx_2_7 = true; break;
+                                case 9: settings.nordictrack_GX4_5_bike = true; break;
+                                case 10: settings.proform_cycle_trainer_300_ci = true; break;
+                                case 11: settings.proform_cycle_trainer_400 = true; break;
+                                case 12: settings.proform_bike_225_csx = true; break;
+                                case 13: settings.proform_bike_325_csx = true; break;
+                                case 14: settings.proform_bike_sb = true; break;
+                                case 15: settings.nordictrack_gx_44_pro = true; break;
+                            }
+
+                            window.settings_restart_to_apply = true;
+                        }
+
+                        Component.onCompleted: {
+                            var selectedModel = settings.proform_tour_de_france_clc ? 1 :
+                                              settings.proform_studio ? 2 :
+                                              settings.proform_studio_NTEX71021 ? 3 :
+                                              settings.freemotion_coachbike_b22_7 ? 4 :
+                                              settings.proform_tdf_10 ? 5 :
+                                              settings.proform_bike_PFEVEX71316_1 ? 6 :
+                                              settings.proform_tdf_10_0 ? 7 :
+                                              settings.nordictrack_gx_2_7 ? 8 :
+                                              settings.nordictrack_GX4_5_bike ? 9 :
+                                              settings.proform_cycle_trainer_300_ci ? 10 :
+                                              settings.proform_cycle_trainer_400 ? 11 :
+                                              settings.proform_bike_225_csx ? 12 :
+                                              settings.proform_bike_325_csx ? 13 :
+                                              settings.proform_bike_sb ? 14 :
+                                              settings.nordictrack_gx_44_pro ? 15 : 0;
+
+                            console.log("bikeModelComboBox " + "Component.onCompleted " + selectedModel);
+                            currentIndex = selectedModel;
+                        }
                     }
 
-                    SwitchDelegate {
-                        text: qsTr("Proform TDF 10")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_tdf_10_0
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_tdf_10_0 = checked; window.settings_restart_to_apply = true; }
-                    }
-
-                    SwitchDelegate {
-                        id: nordictrackGX27odelegate
-                        text: qsTr("NordicTrack GX 2.7")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.nordictrack_gx_2_7
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.nordictrack_gx_2_7 = checked; window.settings_restart_to_apply = true; }
-                    }
-                    SwitchDelegate {
-                        text: qsTr("NordicTrack GX 4.5")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.nordictrack_GX4_5_bike
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.nordictrack_GX4_5_bike = checked; window.settings_restart_to_apply = true; }
-                    }
-                    
                     SwitchDelegate {
                         id: proformTdfJonseedWattdelegate
                         text: qsTr("TDF CBC Jonseed Watt table")
@@ -3343,72 +3334,6 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.proform_tdf_jonseed_watt = checked
-                    }
-                    SwitchDelegate {
-                        text: qsTr("Cycle Trainer 300 CI")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_cycle_trainer_300_ci
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_cycle_trainer_300_ci = checked; window.settings_restart_to_apply = true; }
-                    }                                     
-                    SwitchDelegate {
-                        id: proformCycleTrainerdelegate
-                        text: qsTr("Cycle Trainer 400")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_cycle_trainer_400
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_cycle_trainer_400 = checked; window.settings_restart_to_apply = true; }
-                    }
-                    SwitchDelegate {
-                        text: qsTr("Proform 225 CSX")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_bike_225_csx
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_bike_225_csx = checked; window.settings_restart_to_apply = true; }
-                    }
-                    SwitchDelegate {
-                        text: qsTr("Proform 325 CSX / Healthrider H30X")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_bike_325_csx
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_bike_325_csx = checked; window.settings_restart_to_apply = true; }
-                    }                    
-                    SwitchDelegate {
-                        text: qsTr("Proform SB")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.proform_bike_sb
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.proform_bike_sb = checked; window.settings_restart_to_apply = true; }
                     }
 
                     RowLayout {
@@ -4569,6 +4494,60 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Turn this on to send cadence to Peloton over Bluetooth. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }                    
+
+                    SwitchDelegate {
+                        text: qsTr("Auto Start (with intro)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.peloton_auto_start_with_intro
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.peloton_auto_start_with_intro = checked; if(settings.peloton_auto_start_with_intro === true) { settings.peloton_auto_start_without_intro = false; } }
+                    }
+
+                    Label {
+                        text: qsTr("Turn this on to start a workout automatically when you start a workout on Peloton (wathing the intro). Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Auto Start (without intro)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.peloton_auto_start_without_intro
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.peloton_auto_start_without_intro = checked; if(settings.peloton_auto_start_without_intro === true) { settings.peloton_auto_start_with_intro = false; } }
+                    }
+
+                    Label {
+                        text: qsTr("Turn this on to start a workout automatically when you start a workout on Peloton (skipping the intro). Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -6227,7 +6206,8 @@ import QtQuick.Dialogs 1.0
                                 "Proform Carbon TL", "Proform Proshox 2", "Nordictrack S20i", "Proform 595i",
                                 "Proform 8.7", "Proform 705 CST V78.239", "Proform Carbon T7",
                                 "Nordictrack EXP 5i", "Proform Carbon TL PFTL59720", "Proform Sport 7.0", "Proform 575i",
-                                "Proform Performance 400i"
+                                "Proform Performance 400i", "Proform C700", "Proform C960i", "Nordictrack T Series 5",
+                                "Proform Carbon TL PFTL59722c"
                             ]
 
                             onCurrentIndexChanged: {
@@ -6271,6 +6251,10 @@ import QtQuick.Dialogs 1.0
                                 settings.proform_treadmill_sport_70 = false;
                                 settings.proform_treadmill_575i = false;
                                 settings.proform_performance_400i = false;
+                                settings.proform_treadmill_c700 = false;
+                                settings.proform_treadmill_c960i = false;
+                                settings.nordictrack_tseries5_treadmill = false;
+                                settings.proform_carbon_tl_PFTL59722c = false;
 
                                 // Imposta il setting corrispondente al modello selezionato
                                 switch (currentIndex) {
@@ -6311,6 +6295,10 @@ import QtQuick.Dialogs 1.0
                                     case 34: settings.proform_treadmill_sport_70 = true; break;
                                     case 35: settings.proform_treadmill_575i = true; break;
                                     case 36: settings.proform_performance_400i = true; break;
+                                    case 37: settings.proform_treadmill_c700 = true; break;
+                                    case 38: settings.proform_treadmill_c960i = true; break;
+                                    case 39: settings.nordictrack_tseries5_treadmill = true; break;
+                                    case 40: settings.proform_carbon_tl_PFTL59722c = true; break;
                                 }
                             }
 
@@ -6352,7 +6340,11 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_carbon_tl_PFTL59720 ? 33 :
                                                     settings.proform_treadmill_sport_70 ? 34 :
                                                     settings.proform_treadmill_575i ? 35 :
-                                                    settings.proform_performance_400i ? 36 : -1;
+                                                    settings.proform_performance_400i ? 36 :
+                                                    settings.proform_treadmill_c700 ? 37 :
+                                                    settings.proform_treadmill_c960i ? 38 :
+                                                    settings.nordictrack_tseries5_treadmill ? 39 :
+                                                    settings.proform_carbon_tl_PFTL59722c ? 40 : -1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 
@@ -7768,6 +7760,35 @@ import QtQuick.Dialogs 1.0
                             onClicked: settings.domyos_elliptical_inclination = checked
                         }
                     }
+                    AccordionElement {
+                        title: qsTr("Life Fitness 95xi (CSAFE)")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Serial Port:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: csafeellipticalSerialPortTextField
+                                text: settings.csafe_elliptical_port
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.csafe_elliptical_port = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.csafe_elliptical_port = csafeellipticalSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            }
+                        }
+                    }
+
                     AccordionElement {
                         id: proformEllipticalAccordion
                         title: qsTr("Proform/Nordictrack Elliptical Options")
@@ -9845,6 +9866,44 @@ import QtQuick.Dialogs 1.0
                         }
                     }
                 }
+/*
+                AccordionElement {
+                        title: qsTr("SRAM Devices Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            SwitchDelegate {
+                                text: qsTr("SRAM AXS")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.sram_axs_controller
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.sram_axs_controller = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Use it to change the gears on QZ!")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }*/
+
                 AccordionElement {
                         title: qsTr("Zwift Devices Options")
                         indicatRectColor: Material.color(Material.Grey)
@@ -9977,6 +10036,41 @@ import QtQuick.Dialogs 1.0
 
                             Label {
                                 text: qsTr("Use the zwift gears table instead of the QZ classic gears algorithm.  Default is off.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Pool time (ms):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+																		id: zwiftDevPollTimeTextField
+                                    text: settings.poll_device_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.poll_device_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.poll_device_time = zwiftDevPollTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                                }
+                            }
+                            Label {
+                                text: qsTr("Default: 200ms. Lower it if you want to improve the gear reactivity. Warning: lowering this value will cause more power used on the QZ device")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -10484,6 +10578,197 @@ import QtQuick.Dialogs 1.0
                             }
                         }
                     }
+
+                    AccordionElement {
+                        id: mqttAccordion
+                        title: qsTr("MQTT Settings")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("MQTT Host:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: mqttHostTextField
+                                    text: settings.mqtt_host
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: settings.mqtt_host = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.mqtt_host = mqttHostTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Enter the MQTT broker hostname or IP address")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("MQTT Port:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: mqttPortTextField
+                                    text: settings.mqtt_port
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.mqtt_port = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.mqtt_port = mqttPortTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Enter the MQTT broker port (default: 1883)")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            // Username field
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Username:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: mqttUsernameTextField
+                                    text: settings.mqtt_username
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: settings.mqtt_username = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.mqtt_username = mqttUsernameTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Enter the MQTT broker username (if required)")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            // Password field
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Password:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: mqttPasswordTextField
+                                    text: settings.mqtt_password
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    echoMode: TextInput.Password
+                                    onAccepted: settings.mqtt_password = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.mqtt_password = mqttPasswordTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Enter the MQTT broker password (if required)")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            // Device ID field
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Device ID:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: mqttDeviceIdTextField
+                                    text: settings.mqtt_deviceid
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: settings.mqtt_deviceid = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.mqtt_deviceid = mqttDeviceIdTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Enter a unique device identifier for MQTT client")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }               
 
                     SwitchDelegate {
                         text: qsTr("Race Mode")

@@ -1010,7 +1010,8 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("jouls"), device->jouls().value());
         obj.setProperty(QStringLiteral("elevation"), device->elevationGain().value());
         obj.setProperty(QStringLiteral("difficult"), device->difficult());
-        obj.setProperty(QStringLiteral("watts"), (dep = device->wattsMetric()).value());
+        obj.setProperty(QStringLiteral("watts"), (device->wattsMetricforUI()));
+        dep = device->wattsMetric();
         obj.setProperty(QStringLiteral("watts_avg"), dep.average());
         obj.setProperty(QStringLiteral("watts_color"), homeform::singleton()->watt->valueFontColor());
         obj.setProperty(QStringLiteral("watts_lapavg"), dep.lapAverage());
