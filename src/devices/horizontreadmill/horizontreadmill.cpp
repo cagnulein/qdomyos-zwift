@@ -2316,8 +2316,11 @@ bool horizontreadmill::discoverServicesWin11(const QBluetoothAddress& address) {
     BLUETOOTH_DEVICE_INFO deviceInfo = { sizeof(BLUETOOTH_DEVICE_INFO) };
     deviceInfo.Address.ullLong = address.toUInt64();
 
-    if (BluetoothGetDeviceInfo(nullptr, &deviceInfo) != ERROR_SUCCESS) {
-        qDebug() << "Failed to get device info";
+    DWORD error = BluetoothGetDeviceInfo(nullptr, &deviceInfo);
+    if (error != ERROR_SUCCESS) {
+        qDebug() << "Failed to get device info. Error code:" << error;
+        DWORD lastError = GetLastError();
+        qDebug() << "Last error:" << lastError;
         return false;
     }
 
