@@ -1,18 +1,10 @@
 services:
-  qdomyos-zwift:
+  qdomyos-zwift-vnc:
     image: qdomyos-zwift-vnc
-    container_name: qdomyos-zwift
-    privileged: true
-    network_mode: "host"
-    environment:
-      - DISPLAY=${DISPLAY}
-      - USER=docker
+    container_name: qdomyos-zwift-vnc
+    privileged: true  # Required for Bluetooth functionality
+    network_mode: "host"  # Used to access host Bluetooth and D-Bus
     volumes:
-      - /dev:/dev
-      - /run/dbus:/run/dbus
-      - /tmp/.X11-unix:/tmp/.X11-unix
-      - ./.config:/root/.config
-    stdin_open: true
-    tty: true
-    restart: "no"
-    command: bash -c "tightvncserver && ./qdomyos-zwift"
+      - /dev:/dev  # Forward host devices (for Bluetooth)
+      - /run/dbus:/run/dbus  # Forward D-Bus for Bluetooth interaction
+    restart: "no"  # Do not restart the container automatically
