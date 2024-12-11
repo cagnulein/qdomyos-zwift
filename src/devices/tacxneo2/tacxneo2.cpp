@@ -108,6 +108,7 @@ void tacxneo2::update() {
         if (tacx_neo2_peloton)
             requestInclination = 0;
         forceInclination(5.0); // to send a value in order to allow the gear changing without external apps
+        initDone = true;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
@@ -146,7 +147,7 @@ void tacxneo2::update() {
                                                             // i'm using the gears in the inclination
         }
 
-        if(lastGearValue != gears())
+        if(lastGearValue != gears() && initDone)
             setUserConfiguration(wheelCircumference::gearsToWheelDiameter(gears()), 1);
 
         lastGearValue = gears();
