@@ -35,7 +35,7 @@
 class bhfitnesselliptical : public elliptical {
     Q_OBJECT
   public:
-    bhfitnesselliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    bhfitnesselliptical(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                         double bikeResistanceGain);
     bool connected() override;
 
@@ -55,7 +55,7 @@ class bhfitnesselliptical : public elliptical {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     const uint8_t max_resistance = 72; // 24;
     const uint8_t default_resistance = 6;

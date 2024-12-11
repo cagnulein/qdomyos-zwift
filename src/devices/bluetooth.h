@@ -21,6 +21,7 @@
 #include "qzsettings.h"
 
 #include "devices/activiotreadmill/activiotreadmill.h"
+#include "devices/antbike/antbike.h"
 #include "devices/apexbike/apexbike.h"
 #include "devices/bhfitnesselliptical/bhfitnesselliptical.h"
 #include "devices/bkoolbike/bkoolbike.h"
@@ -31,9 +32,12 @@
 #ifndef Q_OS_IOS
 #include "devices/computrainerbike/computrainerbike.h"
 #include "devices/csaferower/csaferower.h"
+#include "devices/csafeelliptical/csafeelliptical.h"
 #endif
 #include "devices/concept2skierg/concept2skierg.h"
+#include "devices/crossrope/crossrope.h"
 #include "devices/cscbike/cscbike.h"
+#include "devices/deeruntreadmill/deerruntreadmill.h"
 #include "devices/domyosbike/domyosbike.h"
 #include "devices/domyoselliptical/domyoselliptical.h"
 #include "devices/domyosrower/domyosrower.h"
@@ -75,6 +79,7 @@
 #include "devices/nautilustreadmill/nautilustreadmill.h"
 #include "devices/nordictrackelliptical/nordictrackelliptical.h"
 #include "devices/nordictrackifitadbbike/nordictrackifitadbbike.h"
+#include "devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h"
 #include "devices/nordictrackifitadbtreadmill/nordictrackifitadbtreadmill.h"
 #include "devices/npecablebike/npecablebike.h"
 #include "devices/octaneelliptical/octaneelliptical.h"
@@ -106,7 +111,10 @@
 
 #include "devices/spirittreadmill/spirittreadmill.h"
 #include "devices/sportsplusbike/sportsplusbike.h"
+#include "devices/sportsplusrower/sportsplusrower.h"
 #include "devices/sportstechbike/sportstechbike.h"
+#include "devices/sportstechelliptical/sportstechelliptical.h"
+#include "devices/sramAXSController/sramAXSController.h"
 #include "devices/stagesbike/stagesbike.h"
 
 #include "devices/renphobike/renphobike.h"
@@ -117,6 +125,7 @@
 #include "devices/echelonstride/echelonstride.h"
 
 #include "templateinfosenderbuilder.h"
+#include "technogymbike/technogymbike.h"
 #include "devices/toorxtreadmill/toorxtreadmill.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
@@ -144,7 +153,7 @@ class bluetooth : public QObject, public SignalHandler {
     bluetooth(const discoveryoptions &options);
     explicit bluetooth(bool logs, const QString &deviceName = QLatin1String(""), bool noWriteResistance = false,
                        bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false,
-                       bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
+                       bool testResistance = false, int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
                        bool startDiscovery = true);
     ~bluetooth();
     bluetoothdevice *device();
@@ -158,18 +167,22 @@ class bluetooth : public QObject, public SignalHandler {
     bool useDiscovery = false;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
+    antbike *antBike = nullptr;
     apexbike *apexBike = nullptr;
     bkoolbike *bkoolBike = nullptr;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;
     bowflext216treadmill *bowflexT216Treadmill = nullptr;
+    crossrope *crossRope = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
     focustreadmill *focusTreadmill = nullptr;
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
     csaferower *csafeRower = nullptr;
+    csafeelliptical *csafeElliptical = nullptr;
 #endif
     concept2skierg *concept2Skierg = nullptr;
+    deerruntreadmill *deerrunTreadmill = nullptr;
     domyostreadmill *domyos = nullptr;
     domyosbike *domyosBike = nullptr;
     domyosrower *domyosRower = nullptr;
@@ -191,6 +204,7 @@ class bluetooth : public QObject, public SignalHandler {
     nordictrackelliptical *nordictrackElliptical = nullptr;
     nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
     nordictrackifitadbbike *nordictrackifitadbBike = nullptr;
+    nordictrackifitadbelliptical *nordictrackifitadbElliptical = nullptr;
     octaneelliptical *octaneElliptical = nullptr;
     octanetreadmill *octaneTreadmill = nullptr;
     pelotonbike *pelotonBike = nullptr;
@@ -210,8 +224,11 @@ class bluetooth : public QObject, public SignalHandler {
     truetreadmill *trueTreadmill = nullptr;
     horizongr7bike *horizonGr7Bike = nullptr;
     schwinnic4bike *schwinnIC4Bike = nullptr;
+    technogymbike* technogymBike = nullptr;
     sportstechbike *sportsTechBike = nullptr;
+    sportstechelliptical *sportsTechElliptical = nullptr;
     sportsplusbike *sportsPlusBike = nullptr;
+    sportsplusrower *sportsPlusRower = nullptr;
     inspirebike *inspireBike = nullptr;
     snodebike *snodeBike = nullptr;
     eslinkertreadmill *eslinkerTreadmill = nullptr;
@@ -264,6 +281,7 @@ class bluetooth : public QObject, public SignalHandler {
     QList<eliteariafan *> eliteAriaFan;
     QList<zwiftclickremote* > zwiftPlayDevice;
     zwiftclickremote* zwiftClickRemote = nullptr;
+    sramaxscontroller* sramAXSController = nullptr;
     QString filterDevice = QLatin1String("");
 
     bool testResistance = false;
@@ -272,7 +290,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool noConsole = false;
     bool logs = true;
     uint32_t pollDeviceTime = 200;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bool forceHeartBeltOffForTimeout = false;
 
@@ -297,6 +315,8 @@ class bluetooth : public QObject, public SignalHandler {
     bool eliteRizerAvaiable();
     bool eliteSterzoSmartAvaiable();
     bool fitmetriaFanfitAvaiable();
+    bool zwiftDeviceAvaiable();
+    bool sramDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
 #ifdef Q_OS_WIN
