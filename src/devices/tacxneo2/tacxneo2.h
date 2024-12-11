@@ -80,7 +80,6 @@ class tacxneo2 : public bike {
 
     double lastGearValue = -1;
     bool resistance_received = false;
-    bool inclinationSent = false;
 
     bool THINK_X = false;
 

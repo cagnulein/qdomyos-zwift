@@ -92,8 +92,6 @@ void tacxneo2::forceInclination(double inclination) {
     inc[12]++;
 
     writeCharacteristic(inc, sizeof(inc), QStringLiteral("changeInclination"), false, false);
-
-    inclinationSent = true;
 }
 
 void tacxneo2::update() {
@@ -109,6 +107,7 @@ void tacxneo2::update() {
             settings.value(QZSettings::tacx_neo2_peloton, QZSettings::default_tacx_neo2_peloton).toBool();
         if (tacx_neo2_peloton)
             requestInclination = 0;
+        forceInclination(5.0); // to send a value in order to allow the gear changing without external apps
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
@@ -984,11 +983,6 @@ double tacxneo2::bikeResistanceToPeloton(double resistance) {
 
 // reference https://github.com/zacharyedwardbull/pycycling/blob/3e3ce2df386139a0c9ec9b8fc88c9546593bc66d/pycycling/tacx_trainer_control.py#L270
 void tacxneo2::setUserConfiguration(double wheelDiameter, double gearRatio) {
-
-    if(!inclinationSent) { // if the trainer doesn't receive at least one inclination request, it doesn't change the gears
-        forceInclination(0.0);
-    }
-
     QSettings settings;
     float userWeight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
