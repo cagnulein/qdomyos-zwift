@@ -111,6 +111,7 @@
 
 #include "devices/spirittreadmill/spirittreadmill.h"
 #include "devices/sportsplusbike/sportsplusbike.h"
+#include "devices/sportsplusrower/sportsplusrower.h"
 #include "devices/sportstechbike/sportstechbike.h"
 #include "devices/sportstechelliptical/sportstechelliptical.h"
 #include "devices/sramAXSController/sramAXSController.h"
@@ -227,6 +228,7 @@ class bluetooth : public QObject, public SignalHandler {
     sportstechbike *sportsTechBike = nullptr;
     sportstechelliptical *sportsTechElliptical = nullptr;
     sportsplusbike *sportsPlusBike = nullptr;
+    sportsplusrower *sportsPlusRower = nullptr;
     inspirebike *inspireBike = nullptr;
     snodebike *snodeBike = nullptr;
     eslinkertreadmill *eslinkerTreadmill = nullptr;

@@ -1587,6 +1587,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("TPS-SPBIKE-2.0")) ||
                         (b.name().toUpper().startsWith("NEO BIKE SMART")) ||
                         (b.name().toUpper().startsWith("ZDRIVE")) ||
+                        (b.name().toUpper().startsWith("ZYCLE ZPRO")) ||
                         (b.name().toUpper().startsWith("T300P_")) ||
                         (b.name().toUpper().startsWith("VFSPINBIKE")) ||
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -1928,7 +1929,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(sportsTechElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) ||
                         (b.name().toUpper().contains(QStringLiteral("CARE")) &&
-                         b.name().length() >= 11)) // CARE9040177 - Carefitness CV-351 or CARE968300122 (this is an elliptical)
+                         b.name().length() == 11)) // CARE9040177 - Carefitness CV-351
                        && !sportsPlusBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1944,6 +1945,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 sportsPlusBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsPlusBike);
+            } else if ((b.name().toUpper().contains(QStringLiteral("CARE")) &&
+                         b.name().length() >= 13) // CARE968300122
+                       && !sportsPlusRower && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                sportsPlusRower = new sportsplusrower(noWriteResistance, noHeartService);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(sportsPlusRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(sportsPlusBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(sportsPlusRower, &sportsplusrower::debug, this, &bluetooth::debug);
+                // connect(sportsPlusBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // connect(sportsPlusBike, SIGNAL(inclinationChanged(double)), this,
+                // SLOT(inclinationChanged(double)));
+                sportsPlusRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(sportsPlusRower);
             } else if ((b.name().startsWith(yesoulbike::bluetoothName) || 
                         b.name().toUpper().startsWith("YS_G1M_")) && !yesoulBike && filter) {
                 this->setLastBluetoothDevice(b);
@@ -3272,6 +3290,11 @@ void bluetooth::restart() {
         delete sportsPlusBike;
         sportsPlusBike = nullptr;
     }
+    if (sportsPlusRower) {
+
+        delete sportsPlusRower;
+        sportsPlusRower = nullptr;
+    }
     if (pelotonBike) {
 
         delete pelotonBike;
@@ -3584,6 +3607,8 @@ bluetoothdevice *bluetooth::device() {
         return sportsTechElliptical;
     } else if (sportsPlusBike) {
         return sportsPlusBike;
+    } else if (sportsPlusRower) {
+        return sportsPlusRower;
     } else if (inspireBike) {
         return inspireBike;
     } else if (chronoBike) {
