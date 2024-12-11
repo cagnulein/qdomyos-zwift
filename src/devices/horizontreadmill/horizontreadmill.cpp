@@ -1174,7 +1174,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1244,7 +1244,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL) {
+        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1344,46 +1344,46 @@ void horizontreadmill::forceIncline(double requestIncline) {
             if(requestInclination > 0 && requestInclination < 1) {
                 writeS[1] = 0x3C;
                 writeS[2] = 0x00;
-            } else if(requestInclination > 1 && requestInclination < 2) {
+            } else if(requestInclination >= 1 && requestInclination < 2) {
                 writeS[1] = 0x82;
                 writeS[2] = 0x00;
-            } else if(requestInclination > 2 && requestInclination < 3) {
+            } else if(requestInclination >= 2 && requestInclination < 3) {
                 writeS[1] = 0xC8;
                 writeS[2] = 0x00;
-            } else if(requestInclination > 3 && requestInclination < 4) {
+            } else if(requestInclination >= 3 && requestInclination < 4) {
                 writeS[1] = 0x04;
                 writeS[2] = 0x01;
-            } else if(requestInclination > 4 && requestInclination < 5) {
+            } else if(requestInclination >= 4 && requestInclination < 5) {
                 writeS[1] = 0x4A;
                 writeS[2] = 0x01;
-            } else if(requestInclination > 5 && requestInclination < 6) {
+            } else if(requestInclination >= 5 && requestInclination < 6) {
                 writeS[1] = 0x90;
                 writeS[2] = 0x01;
-            } else if(requestInclination > 6 && requestInclination < 7) {
+            } else if(requestInclination >= 6 && requestInclination < 7) {
                 writeS[1] = 0xCC;
                 writeS[2] = 0x01;
-            } else if(requestInclination > 7 && requestInclination < 8) {
+            } else if(requestInclination >= 7 && requestInclination < 8) {
                 writeS[1] = 0x12;
                 writeS[2] = 0x02;
-            } else if(requestInclination > 8 && requestInclination < 9) {
+            } else if(requestInclination >= 8 && requestInclination < 9) {
                 writeS[1] = 0x58;
                 writeS[2] = 0x02;
-            } else if(requestInclination > 9 && requestInclination < 10) {
+            } else if(requestInclination >= 9 && requestInclination < 10) {
                 writeS[1] = 0x94;
                 writeS[2] = 0x02;
-            } else if(requestInclination > 10 && requestInclination < 11) {
+            } else if(requestInclination >= 10 && requestInclination < 11) {
                 writeS[1] = 0xDA;
                 writeS[2] = 0x02;
-            } else if(requestInclination > 11 && requestInclination < 12) {
+            } else if(requestInclination >= 11 && requestInclination < 12) {
                 writeS[1] = 0x20;
                 writeS[2] = 0x03;
-            } else if(requestInclination > 12 && requestInclination < 13) {
+            } else if(requestInclination >= 12 && requestInclination < 13) {
                 writeS[1] = 0x5C;
                 writeS[2] = 0x03;
-            } else if(requestInclination > 13 && requestInclination < 14) {
+            } else if(requestInclination >= 13 && requestInclination < 14) {
                 writeS[1] = 0xA2;
                 writeS[2] = 0x03;
-            } else if(requestInclination > 14 && requestInclination < 15) {
+            } else if(requestInclination >= 14 && requestInclination < 15) {
                 writeS[1] = 0xE8;
                 writeS[2] = 0x03;
             } else {
