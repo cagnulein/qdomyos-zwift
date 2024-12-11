@@ -220,7 +220,7 @@ void wahookickrsnapbike::update() {
             sec1Update = 0;
             // updateDisplay(elapsed);
             static int secs = 0;
-            if(++secs == 60) {
+            if(++secs == 80) {
                 // ******************************************* virtual bike init *************************************
                 if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
