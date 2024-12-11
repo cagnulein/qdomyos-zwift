@@ -81,7 +81,7 @@ SOURCES += \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
     $$PWD/devices/jumprope.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
-    $$PWD/devices/sportspluselliptical/sportspluselliptical.cpp \
+    $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
     $$PWD/devices/technogymbike/technogymbike.cpp \
@@ -330,7 +330,7 @@ HEADERS += \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/jumprope.h \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
-    $$PWD/devices/sportspluselliptical/sportspluselliptical.h \
+    $$PWD/devices/sportsplusrower/sportsplusrower.h \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
     $$PWD/devices/sramAXSController/sramAXSController.h \
     $$PWD/devices/technogymbike/technogymbike.h \

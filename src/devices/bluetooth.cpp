@@ -1946,21 +1946,21 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(sportsPlusBike);
             } else if ((b.name().toUpper().contains(QStringLiteral("CARE")) &&
                          b.name().length() >= 13) // CARE968300122
-                       && !sportsPlusElliptical && filter) {
+                       && !sportsPlusRower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
-                sportsPlusElliptical = new sportspluselliptical(noWriteResistance, noHeartService);
+                sportsPlusRower = new sportsplusrower(noWriteResistance, noHeartService);
                 // stateFileRead();
                 emit deviceConnected(b);
-                connect(sportsPlusElliptical, &bluetoothdevice::connectedAndDiscovered, this,
+                connect(sportsPlusRower, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
                 // connect(sportsPlusBike, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(sportsPlusElliptical, &sportspluselliptical::debug, this, &bluetooth::debug);
+                connect(sportsPlusRower, &sportsplusrower::debug, this, &bluetooth::debug);
                 // connect(sportsPlusBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 // connect(sportsPlusBike, SIGNAL(inclinationChanged(double)), this,
                 // SLOT(inclinationChanged(double)));
-                sportsPlusElliptical->deviceDiscovered(b);
-                this->signalBluetoothDeviceConnected(sportsPlusElliptical);
+                sportsPlusRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(sportsPlusRower);
             } else if ((b.name().startsWith(yesoulbike::bluetoothName) || 
                         b.name().toUpper().startsWith("YS_G1M_")) && !yesoulBike && filter) {
                 this->setLastBluetoothDevice(b);
@@ -3289,10 +3289,10 @@ void bluetooth::restart() {
         delete sportsPlusBike;
         sportsPlusBike = nullptr;
     }
-    if (sportsPlusElliptical) {
+    if (sportsPlusRower) {
 
-        delete sportsPlusElliptical;
-        sportsPlusElliptical = nullptr;
+        delete sportsPlusRower;
+        sportsPlusRower = nullptr;
     }
     if (pelotonBike) {
 
@@ -3606,8 +3606,8 @@ bluetoothdevice *bluetooth::device() {
         return sportsTechElliptical;
     } else if (sportsPlusBike) {
         return sportsPlusBike;
-    } else if (sportsPlusElliptical) {
-        return sportsPlusElliptical;
+    } else if (sportsPlusRower) {
+        return sportsPlusRower;
     } else if (inspireBike) {
         return inspireBike;
     } else if (chronoBike) {

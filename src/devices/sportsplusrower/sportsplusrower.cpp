@@ -1,4 +1,4 @@
-#include "sportspluselliptical.h"
+#include "sportsplusrower.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -14,24 +14,24 @@
 
 using namespace std::chrono_literals;
 
-sportspluselliptical::sportspluselliptical(bool noWriteResistance, bool noHeartService) {
+sportsplusrower::sportsplusrower(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;
-    connect(refresh, &QTimer::timeout, this, &sportspluselliptical::update);
+    connect(refresh, &QTimer::timeout, this, &sportsplusrower::update);
     refresh->start(200ms);
 }
 
-void sportspluselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+void sportsplusrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                          bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
     if (wait_for_response) {
-        connect(this, &sportspluselliptical::packetReceived, &loop, &QEventLoop::quit);
+        connect(this, &sportsplusrower::packetReceived, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
@@ -56,7 +56,7 @@ void sportspluselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, 
     }
 }
 
-void sportspluselliptical::forceResistance(resistance_t requestResistance) {
+void sportsplusrower::forceResistance(resistance_t requestResistance) {
     Q_UNUSED(requestResistance)
     /*
     uint8_t resistance[] = { 0xf0, 0xa6, 0x01, 0x01, 0x00, 0x00 };
@@ -70,7 +70,7 @@ void sportspluselliptical::forceResistance(resistance_t requestResistance) {
     */
 }
 
-void sportspluselliptical::update() {
+void sportsplusrower::update() {
     // qDebug() << bike.isValid() << m_control->state() << gattCommunicationChannelService <<
     // gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
 
@@ -111,11 +111,11 @@ void sportspluselliptical::update() {
     }
 }
 
-void sportspluselliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
+void sportsplusrower::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
-void sportspluselliptical::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void sportsplusrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
@@ -135,10 +135,10 @@ void sportspluselliptical::characteristicChanged(const QLowEnergyCharacteristic 
     double kcal = 0;
     bool cadence_eval = false;
 
-    m_watt = GetWattFromPacket(newValue);
+    m_watt = ((newValue.at(10) >> 4) * 10) + (newValue.at(10) & 0x0F);
     emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
 
-    Cadence = newValue.at(10);
+    Cadence = ((newValue.at(3) >> 4) * 10) + (newValue.at(3) & 0x0F);
     Speed = 0.37497622 * ((double)Cadence.value());
     emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
 
@@ -191,25 +191,25 @@ void sportspluselliptical::characteristicChanged(const QLowEnergyCharacteristic 
     firstCharChanged = false;
 }
 
-uint16_t sportspluselliptical::GetElapsedFromPacket(const QByteArray &packet) {
+uint16_t sportsplusrower::GetElapsedFromPacket(const QByteArray &packet) {
     uint16_t convertedDataSec = (packet.at(4));
     uint16_t convertedDataMin = (packet.at(3));
     uint16_t convertedData = convertedDataMin * 60.f + convertedDataSec;
     return convertedData;
 }
 
-double sportspluselliptical::GetKcalFromPacket(const QByteArray &packet) {
+double sportsplusrower::GetKcalFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(6) << 8) | ((uint8_t)packet.at(7));
     return (double)(convertedData);
 }
 
-double sportspluselliptical::GetWattFromPacket(const QByteArray &packet) {
+double sportsplusrower::GetWattFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
     double data = ((double)(convertedData));
     return data;
 }
 
-void sportspluselliptical::btinit(bool startTape) {
+void sportsplusrower::btinit(bool startTape) {
     Q_UNUSED(startTape);
 
     const uint8_t initData1[] = {0x40, 0x00, 0x9a, 0x56, 0x30};
@@ -223,7 +223,7 @@ void sportspluselliptical::btinit(bool startTape) {
     initDone = true;
 }
 
-void sportspluselliptical::stateChanged(QLowEnergyService::ServiceState state) {
+void sportsplusrower::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -250,14 +250,14 @@ void sportspluselliptical::stateChanged(QLowEnergyService::ServiceState state) {
 
         // establish hook into notifications
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
-                &sportspluselliptical::characteristicChanged);
+                &sportsplusrower::characteristicChanged);
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
-                &sportspluselliptical::characteristicWritten);
+                &sportsplusrower::characteristicWritten);
         connect(gattCommunicationChannelService,
                 static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
-                this, &sportspluselliptical::errorService);
+                this, &sportsplusrower::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
-                &sportspluselliptical::descriptorWritten);
+                &sportsplusrower::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
         if (!firstVirtualBike && !this->hasVirtualDevice()) {
@@ -267,8 +267,8 @@ void sportspluselliptical::stateChanged(QLowEnergyService::ServiceState state) {
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
                 auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                // connect(virtualBike,&virtualbike::debug ,this,&sportspluselliptical::debug);
-                connect(virtualBike, &virtualbike::changeInclination, this, &sportspluselliptical::changeInclination);
+                // connect(virtualBike,&virtualbike::debug ,this,&sportsplusrower::debug);
+                connect(virtualBike, &virtualbike::changeInclination, this, &sportsplusrower::changeInclination);
                 this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
@@ -299,19 +299,19 @@ void sportspluselliptical::stateChanged(QLowEnergyService::ServiceState state) {
     }
 }
 
-void sportspluselliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+void sportsplusrower::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     initRequest = true;
     emit connectedAndDiscovered();
 }
 
-void sportspluselliptical::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void sportsplusrower::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
-void sportspluselliptical::serviceScanDone(void) {
+void sportsplusrower::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     // QString uuid = "0000fff0-0000-1000-8000-00805f9b34fb";
@@ -324,35 +324,35 @@ void sportspluselliptical::serviceScanDone(void) {
         return;
     }
 
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &sportspluselliptical::stateChanged);
+    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &sportsplusrower::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
 
-void sportspluselliptical::errorService(QLowEnergyService::ServiceError err) {
+void sportsplusrower::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    emit debug(QStringLiteral("sportspluselliptical::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+    emit debug(QStringLiteral("sportsplusrower::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
-void sportspluselliptical::error(QLowEnergyController::Error err) {
+void sportsplusrower::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    emit debug(QStringLiteral("sportspluselliptical::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+    emit debug(QStringLiteral("sportsplusrower::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
-void sportspluselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+void sportsplusrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
         requestResistance = 1;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &sportspluselliptical::serviceDiscovered);
-        connect(m_control, &QLowEnergyController::discoveryFinished, this, &sportspluselliptical::serviceScanDone);
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &sportsplusrower::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &sportsplusrower::serviceScanDone);
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, &sportspluselliptical::error);
-        connect(m_control, &QLowEnergyController::stateChanged, this, &sportspluselliptical::controllerStateChanged);
+                this, &sportsplusrower::error);
+        connect(m_control, &QLowEnergyController::stateChanged, this, &sportsplusrower::controllerStateChanged);
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
@@ -379,7 +379,7 @@ void sportspluselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) 
     }
 }
 
-uint16_t sportspluselliptical::watts() {
+uint16_t sportsplusrower::watts() {
     if (currentCadence().value() == 0) {
         return 0;
     }
@@ -387,14 +387,14 @@ uint16_t sportspluselliptical::watts() {
     return m_watt.value();
 }
 
-bool sportspluselliptical::connected() {
+bool sportsplusrower::connected() {
     if (!m_control) {
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void sportspluselliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
+void sportsplusrower::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");

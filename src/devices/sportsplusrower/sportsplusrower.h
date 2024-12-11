@@ -1,5 +1,5 @@
-#ifndef SPORTSPLUSELLIPTICAL_H
-#define SPORTSPLUSELLIPTICAL_H
+#ifndef SPORTSPLUSROWER_H
+#define SPORTSPLUSROWER_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -25,13 +25,13 @@
 #include <QObject>
 #include <QTime>
 
-#include "devices/elliptical.h"
+#include "devices/rower.h"
 #include "virtualdevices/virtualbike.h"
 
-class sportspluselliptical : public elliptical {
+class sportsplusrower : public rower {
     Q_OBJECT
   public:
-    sportspluselliptical(bool noWriteResistance, bool noHeartService);
+    sportsplusrower(bool noWriteResistance, bool noHeartService);
     bool connected() override;
 
   private:
@@ -96,4 +96,4 @@ class sportspluselliptical : public elliptical {
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // SPORTSPLUSELLIPTICAL_H
+#endif // SPORTSPLUSROWER_H
