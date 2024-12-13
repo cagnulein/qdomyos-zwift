@@ -154,6 +154,7 @@ resistance_t kineticinroadbike::pelotonToBikeResistance(int pelotonResistance) {
 
 resistance_t kineticinroadbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+    return 1;
 /*
     if (Cadence.value() == 0)
         return 1;
@@ -484,6 +485,7 @@ uint16_t kineticinroadbike::watts() {
     if (currentCadence().value() == 0) {
         return 0;
     }
+    return m_watt.value();
     //return wattsFromResistance(Resistance.value());
 }
 
