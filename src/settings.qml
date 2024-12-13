@@ -4520,7 +4520,7 @@ import QtQuick.Dialogs 1.0
                     }
 
                     Label {
-                        text: qsTr("Turn this on to start a workout automatically when you start a workout on Peloton (wathing the intro). Default is off.")
+                        text: qsTr("Turn this on to start a workout automatically when you start a workout on Peloton (waiting the intro). Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
