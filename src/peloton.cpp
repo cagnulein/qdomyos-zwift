@@ -1143,7 +1143,8 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             QJsonArray metrics_ar = metrics[QStringLiteral("metrics")].toArray();
             QJsonObject offset = metrics[QStringLiteral("offsets")].toObject();
             QString segment_type = metrics[QStringLiteral("segment_type")].toString();
-            if (metrics_ar.count() > 1 && !offset.isEmpty()) {
+            qDebug() << metrics << metrics_ar << offset;
+            if (metrics_ar.count() > 0 && !offset.isEmpty()) {
                 double speed_lower = -1;
                 double speed_upper = -1;
                 double speed_average = -1;
