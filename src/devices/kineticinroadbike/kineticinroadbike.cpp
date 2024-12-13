@@ -154,7 +154,7 @@ resistance_t kineticinroadbike::pelotonToBikeResistance(int pelotonResistance) {
 
 resistance_t kineticinroadbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
+/*
     if (Cadence.value() == 0)
         return 1;
 
@@ -168,7 +168,7 @@ resistance_t kineticinroadbike::resistanceFromPowerRequest(uint16_t power) {
     if (power < wattsFromResistance(1))
         return 1;
     else
-        return max_resistance;
+        return max_resistance;*/
 }
 
 double kineticinroadbike::bikeResistanceToPeloton(double resistance) {
@@ -484,7 +484,7 @@ uint16_t kineticinroadbike::watts() {
     if (currentCadence().value() == 0) {
         return 0;
     }
-    return wattsFromResistance(Resistance.value());
+    //return wattsFromResistance(Resistance.value());
 }
 
 void kineticinroadbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
