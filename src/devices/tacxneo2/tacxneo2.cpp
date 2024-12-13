@@ -92,6 +92,7 @@ void tacxneo2::forceInclination(double inclination) {
     inc[12]++;
 
     writeCharacteristic(inc, sizeof(inc), QStringLiteral("changeInclination"), false, false);
+    resistance_sent = true;
 }
 
 void tacxneo2::update() {
@@ -107,7 +108,6 @@ void tacxneo2::update() {
             settings.value(QZSettings::tacx_neo2_peloton, QZSettings::default_tacx_neo2_peloton).toBool();
         if (tacx_neo2_peloton)
             requestInclination = 0;
-        forceInclination(5.0); // to send a value in order to allow the gear changing without external apps
         initDone = true;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -147,10 +147,16 @@ void tacxneo2::update() {
                                                             // i'm using the gears in the inclination
         }
 
-        if(lastGearValue != gears() && initDone)
-            setUserConfiguration(wheelCircumference::gearsToWheelDiameter(gears()), 1);
-
-        lastGearValue = gears();
+        if(lastGearValue != gears()) {
+            if(m_watt.value() > 0) { // this trainer can change gears only if the wattage is greater than 0 and if you send at least once an inclination
+                if(!resistance_sent) {
+                    forceInclination(1.0);
+                } else {
+                    setUserConfiguration(wheelCircumference::gearsToWheelDiameter(gears()), 1);
+                    lastGearValue = gears();
+                }
+            }
+        }
 
         if (requestPower != -1) {
             changePower(requestPower);
@@ -953,6 +959,7 @@ void tacxneo2::controllerStateChanged(QLowEnergyController::ControllerState stat
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        resistance_sent = false;
         m_control->connectToDevice();
     }
 }
