@@ -1653,6 +1653,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(horizonGr7Bike, &horizongr7bike::debug, this, &bluetooth::debug);
                 horizonGr7Bike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(horizonGr7Bike);
+            } else if (((b.name().toUpper().startsWith("SMART CONTROL"))
+                        ) &&
+                       !kineticInroadBike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                kineticInroadBike =
+                    new kineticinroadbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(kineticInroadBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(kineticInroadBike, &kineticinroadbike::debug, this, &bluetooth::debug);
+                kineticInroadBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(kineticInroadBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
                         (b.name().toUpper().startsWith("TACX SATORI")) ||
                         (b.name().toUpper().startsWith("RACER S")) ||
@@ -3352,6 +3366,11 @@ void bluetooth::restart() {
         delete horizonGr7Bike;
         horizonGr7Bike = nullptr;
     }
+    if (kineticInroadBike) {
+
+        delete kineticInroadBike;
+        kineticInroadBike = nullptr;
+    }
     if (renphoBike) {
 
         delete renphoBike;
@@ -3625,6 +3644,8 @@ bluetoothdevice *bluetooth::device() {
         return technogymBike;
     } else if (horizonGr7Bike) {
         return horizonGr7Bike;
+    } else if (kineticInroadBike) {
+        return kineticInroadBike;
     } else if (renphoBike) {
         return renphoBike;
     } else if (pafersBike) {
