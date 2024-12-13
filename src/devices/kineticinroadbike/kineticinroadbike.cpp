@@ -326,6 +326,14 @@ void kineticinroadbike::stateChanged(QLowEnergyService::ServiceState state) {
     if (state == QLowEnergyService::ServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
 
+        if (gattCommunicationChannelService->state() == QLowEnergyService::ServiceDiscovered) {
+            // establish hook into notifications
+            auto characteristics_list = gattCommunicationChannelService->characteristics();
+            for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
+            }
+        }
+
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());
@@ -411,7 +419,7 @@ void kineticinroadbike::characteristicWritten(const QLowEnergyCharacteristic &ch
 void kineticinroadbike::serviceScanDone(void) {
     qDebug() << QStringLiteral("serviceScanDone");
 
-    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("E9410100-B434-446B-B5CC-36592FC4C724"));
+    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("e9410200-b434-446b-b5cc-36592fc4c724"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
