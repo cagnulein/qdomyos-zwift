@@ -334,7 +334,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         uint16_t time_division = 1024;
         uint8_t index = 4;
 
-        if (newValue.length() > 3 && Cadence.value() > 0) {
+        if (newValue.length() > 3) {
             m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
         }
 
