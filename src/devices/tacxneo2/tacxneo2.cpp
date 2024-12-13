@@ -148,7 +148,7 @@ void tacxneo2::update() {
         }
 
         if(lastGearValue != gears()) {
-            if(m_watt.value() > 0) { // this trainer can change gears only if the wattage is greater than 0 and if you send at least once an inclination
+            if(Cadence.value() > 0) { // this trainer can change gears only if the wattage is greater than 0 and if you send at least once an inclination
                 if(!resistance_sent) {
                     forceInclination(1.0);
                 } else {
@@ -334,7 +334,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         uint16_t time_division = 1024;
         uint8_t index = 4;
 
-        if (newValue.length() > 3) {
+        if (newValue.length() > 3 && Cadence.value() > 0) {
             m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
         }
 
