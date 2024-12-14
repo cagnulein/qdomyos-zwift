@@ -317,8 +317,10 @@ void kineticinroadbike::btinit() {
 }
 
 void kineticinroadbike::stateChanged(QLowEnergyService::ServiceState state) {
-    QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("E9410102-B434-446B-B5CC-36592FC4C724"));
-    QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("E9410101-B434-446B-B5CC-36592FC4C724"));
+    QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("e9410203-b434-446b-b5cc-36592fc4c724"));
+    QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("e9410201-b434-446b-b5cc-36592fc4c724"));
+    QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("e9410202-b434-446b-b5cc-36592fc4c724"));
+    QBluetoothUuid _gattNotify3CharacteristicId(QStringLiteral("e9410204-b434-446b-b5cc-36592fc4c724"));
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
@@ -336,6 +338,8 @@ void kineticinroadbike::stateChanged(QLowEnergyService::ServiceState state) {
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
+        gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
+        gattNotify3Characteristic = gattCommunicationChannelService->characteristic(_gattNotify3CharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotify1Characteristic.isValid());
 
@@ -400,6 +404,10 @@ void kineticinroadbike::stateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
             gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        gattCommunicationChannelService->writeDescriptor(
+            gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        gattCommunicationChannelService->writeDescriptor(
+            gattNotify3Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
