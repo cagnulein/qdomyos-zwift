@@ -2438,7 +2438,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9_")))) {
             qDebug() << QStringLiteral("BOWFLEX T9 found");
             BOWFLEX_T9 = true;
-        } else if ((device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-)")))) {
+        } else if ((device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")))) {
             qDebug() << QStringLiteral("YPOO-MINI PRO found");
             YPOO_MINI_PRO = true;
         }
