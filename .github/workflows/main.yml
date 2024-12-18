@@ -642,7 +642,7 @@ jobs:
           keyPassword: ${{ secrets.KEY_PASSWORD }}
     
       # Example use of `signedReleaseFile` output -- not needed
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: Android APK
           path: ${{steps.sign_app.outputs.signedReleaseFile}}
