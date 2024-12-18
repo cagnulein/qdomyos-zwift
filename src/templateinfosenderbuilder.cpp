@@ -1,5 +1,5 @@
 #include "templateinfosenderbuilder.h"
-#include "bike.h"
+#include "devices/bike.h"
 #include "treadmill.h"
 #include <QDirIterator>
 #include <QJsonArray>
@@ -459,7 +459,7 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
         }
     } else {
         QList<trainrow> lst = trainprogram::loadXML(homeform::getWritableAppDir() + QStringLiteral("training/") +
-                                                    fileXml + QStringLiteral(".xml"));
+                                                        fileXml + QStringLiteral(".xml"), (device ? device->deviceType() : bluetoothdevice::BIKE ));
         for (auto &row : lst) {
             QJsonObject item;
             TRAINPROGRAM_FIELD_TO_STRING();
@@ -981,6 +981,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("pace_s"), el.second());
         obj.setProperty(QStringLiteral("pace_m"), el.minute());
         obj.setProperty(QStringLiteral("pace_h"), el.hour());
+        obj.setProperty(QStringLiteral("pace_color"), homeform::singleton()->pace->valueFontColor());
         el = device->averagePace();
         obj.setProperty(QStringLiteral("avgpace_s"), el.second());
         obj.setProperty(QStringLiteral("avgpace_m"), el.minute());
@@ -995,13 +996,13 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("moving_h"), el.hour());
         obj.setProperty(QStringLiteral("speed"), (dep = device->currentSpeed()).value());
         obj.setProperty(QStringLiteral("speed_avg"), dep.average());
-        obj.setProperty(QStringLiteral("speed_color"), dep.color());
+        obj.setProperty(QStringLiteral("speed_color"), homeform::singleton()->speed->valueFontColor());
         obj.setProperty(QStringLiteral("speed_lapavg"), dep.lapAverage());
         obj.setProperty(QStringLiteral("speed_lapmax"), dep.lapMax());
         obj.setProperty(QStringLiteral("calories"), device->calories().value());
         obj.setProperty(QStringLiteral("distance"), device->odometer());
         obj.setProperty(QStringLiteral("heart"), (dep = device->currentHeart()).value());
-        obj.setProperty(QStringLiteral("heart_color"), dep.color());
+        obj.setProperty(QStringLiteral("heart_color"), homeform::singleton()->heart->valueFontColor());
         obj.setProperty(QStringLiteral("heart_avg"), dep.average());
         obj.setProperty(QStringLiteral("heart_lapavg"), dep.lapAverage());
         obj.setProperty(QStringLiteral("heart_max"), dep.max());
@@ -1009,9 +1010,10 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("jouls"), device->jouls().value());
         obj.setProperty(QStringLiteral("elevation"), device->elevationGain().value());
         obj.setProperty(QStringLiteral("difficult"), device->difficult());
-        obj.setProperty(QStringLiteral("watts"), (dep = device->wattsMetric()).value());
+        obj.setProperty(QStringLiteral("watts"), (device->wattsMetricforUI()));
+        dep = device->wattsMetric();
         obj.setProperty(QStringLiteral("watts_avg"), dep.average());
-        obj.setProperty(QStringLiteral("watts_color"), dep.color());
+        obj.setProperty(QStringLiteral("watts_color"), homeform::singleton()->watt->valueFontColor());
         obj.setProperty(QStringLiteral("watts_lapavg"), dep.lapAverage());
         obj.setProperty(QStringLiteral("watts_max"), dep.max());
         obj.setProperty(QStringLiteral("watts_lapmax"), dep.lapMax());
@@ -1027,6 +1029,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("peloton_offset"), pelotonOffset());
         obj.setProperty(QStringLiteral("peloton_ask_start"), pelotonAskStart());
         obj.setProperty(QStringLiteral("autoresistance"), homeform::singleton()->autoResistance());
+        obj.setProperty(QStringLiteral("nextrow"), homeform::singleton()->nextRows->value());
         if (homeform::singleton()->trainingProgram()) {
             el = homeform::singleton()->trainingProgram()->currentRowRemainingTime();
             obj.setProperty(QStringLiteral("row_remaining_time_s"), el.second());
@@ -1064,16 +1067,18 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("power_zone_lapavg"), ((bike *)device)->currentPowerZone().lapAverage());
             obj.setProperty(QStringLiteral("power_zone_lapmax"), ((bike *)device)->currentPowerZone().lapMax());
             obj.setProperty(QStringLiteral("target_power_zone"), ((bike *)device)->targetPowerZone().value());
+            obj.setProperty(QStringLiteral("power_zone_color"), homeform::singleton()->ftp->valueFontColor());
+            obj.setProperty(QStringLiteral("target_power_zone_color"), homeform::singleton()->target_zone->valueFontColor());
             obj.setProperty(QStringLiteral("peloton_resistance"),
                             (dep = ((bike *)device)->pelotonResistance()).value());
             obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
-            obj.setProperty(QStringLiteral("peloton_resistance_color"), dep.color());
+            obj.setProperty(QStringLiteral("peloton_resistance_color"), homeform::singleton()->peloton_resistance->valueFontColor());
             obj.setProperty(QStringLiteral("peloton_resistance_lapavg"), dep.lapAverage());
             obj.setProperty(QStringLiteral("peloton_resistance_lapmax"), dep.lapMax());
             obj.setProperty(QStringLiteral("peloton_req_resistance"),
                             (dep = ((bike *)device)->lastRequestedPelotonResistance()).value());
             obj.setProperty(QStringLiteral("cadence"), (dep = ((bike *)device)->currentCadence()).value());
-            obj.setProperty(QStringLiteral("cadence_color"), dep.color());
+            obj.setProperty(QStringLiteral("cadence_color"), homeform::singleton()->cadence->valueFontColor());
             obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
             obj.setProperty(QStringLiteral("cadence_lapavg"), dep.lapAverage());
             obj.setProperty(QStringLiteral("cadence_lapmax"), dep.lapMax());
@@ -1087,8 +1092,13 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("req_cadence"), (dep = ((bike *)device)->lastRequestedCadence()).value());
             obj.setProperty(QStringLiteral("req_resistance"),
                             (dep = ((bike *)device)->lastRequestedResistance()).value());
+            obj.setProperty(QStringLiteral("inclination"),
+                            (dep = ((bike *)device)->currentInclination()).value());
+            obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
         } else if (tp == bluetoothdevice::ROWING) {
+            obj.setProperty(QStringLiteral("gears"), ((rower *)device)->gears());
             el = ((rower *)device)->lastRequestedPace();
+            obj.setProperty(QStringLiteral("target_speed"), ((rower *)device)->lastRequestedSpeed().value());
             obj.setProperty(QStringLiteral("target_pace_s"), el.second());
             obj.setProperty(QStringLiteral("target_pace_m"), el.minute());
             obj.setProperty(QStringLiteral("target_pace_h"), el.hour());
@@ -1096,11 +1106,15 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                             (dep = ((rower *)device)->pelotonResistance()).value());
             obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
             obj.setProperty(QStringLiteral("cadence"), (dep = ((rower *)device)->currentCadence()).value());
-            obj.setProperty(QStringLiteral("cadence_color"), dep.color());
+            obj.setProperty(QStringLiteral("cadence_color"), homeform::singleton()->cadence->valueFontColor());
             obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
             obj.setProperty(QStringLiteral("cadence_lapavg"), dep.lapAverage());
             obj.setProperty(QStringLiteral("cadence_lapmax"), dep.lapMax());
+
+            // use to preserve compatibility to dochart.js and floating.htm
             obj.setProperty(QStringLiteral("req_cadence"), (dep = ((rower *)device)->lastRequestedCadence()).value());
+            obj.setProperty(QStringLiteral("target_cadence"), (dep = ((rower *)device)->lastRequestedCadence()).value());
+            
             obj.setProperty(QStringLiteral("resistance"), (dep = ((rower *)device)->currentResistance()).value());
             obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
             obj.setProperty(QStringLiteral("cranks"), ((rower *)device)->currentCrankRevolutions());
@@ -1116,7 +1130,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("target_inclination"),
                             ((treadmill *)device)->lastRequestedInclination().value());
             obj.setProperty(QStringLiteral("cadence"), (dep = ((treadmill *)device)->currentCadence()).value());
-            obj.setProperty(QStringLiteral("cadence_color"), dep.color());
+            obj.setProperty(QStringLiteral("cadence_color"), homeform::singleton()->cadence->valueFontColor());
             obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
             obj.setProperty(QStringLiteral("cadence_lapavg"), dep.lapAverage());
             obj.setProperty(QStringLiteral("cadence_lapmax"), dep.lapMax());
@@ -1132,7 +1146,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                             (dep = ((treadmill *)device)->currentVerticalOscillation()).value());
         } else if (tp == bluetoothdevice::ELLIPTICAL) {
             obj.setProperty(QStringLiteral("cadence"), (dep = ((elliptical *)device)->currentCadence()).value());
-            obj.setProperty(QStringLiteral("cadence_color"), dep.color());
+            obj.setProperty(QStringLiteral("cadence_color"), homeform::singleton()->cadence->valueFontColor());
             obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
             obj.setProperty(QStringLiteral("cadence_lapavg"), dep.lapAverage());
             obj.setProperty(QStringLiteral("cadence_lapmax"), dep.lapMax());

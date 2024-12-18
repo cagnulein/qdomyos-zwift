@@ -1,5 +1,8 @@
 #include "windows_zwift_incline_paddleocr_thread.h"
-#include "elliptical.h"
+#include "devices/elliptical.h"
+#if __has_include("aiserver.h")
+#include "aiserver.h"
+#endif
 #include "treadmill.h"
 #include <QDateTime>
 #include <QDebug>
@@ -40,14 +43,18 @@ QString windows_zwift_incline_paddleocr_thread::runPython(QString command) {
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 
     QString currentPath = env.value("PATH");
-    QString updatedPath = currentPath + ";" + QCoreApplication::applicationDirPath() + "\\python\\x64";
+    QString updatedPath = currentPath + ";" + QCoreApplication::applicationDirPath() + "\\python\\x64;C:\\Program Files\\CodeProject\\AI\\modules\\OCR\\bin\\windows\\python37\\venv\\Scripts";
     env.insert("PATH", updatedPath);
 
     QProcess process;
     process.setProcessEnvironment(env);
-
+    //qDebug() << "env >> " << env.value("PATH");
     qDebug() << "run >> " << command;
+#ifndef AISERVER    
     process.start("python\\x64\\python.exe", QStringList(command.split(' ')));
+#else
+    process.start("C:\\Program Files\\CodeProject\\AI\\modules\\OCR\\bin\\windows\\python37\\venv\\Scripts\\python.exe", QStringList(command.split(' ')));
+#endif
     process.waitForFinished(-1); // will wait forever until finished
 
     QString out = process.readAllStandardOutput();

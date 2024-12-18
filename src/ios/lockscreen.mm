@@ -29,6 +29,10 @@ static AdbClient *_adb = 0;
 
 static ios_eliteariafan* ios_eliteAriaFan = nil;
 
+static zwift_protobuf_layer* zwiftProtobufLayer = nil;
+
+static NSString* profile_selected;
+
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
 }
@@ -37,13 +41,11 @@ void lockscreen::request()
 {
     h = [[healthkit alloc] init];
     [h request];
+    zwiftProtobufLayer = [[zwift_protobuf_layer alloc] init];
     if (@available(iOS 13, *)) {
         Garmin = [[GarminConnect alloc] init];
     }
-    // just to be sure, I built the library for iOS17 only but theorically we can use any iOS version
-    if (@available(iOS 17, *)) {
-        _adb = [[AdbClient alloc] initWithVerbose:YES];
-    }
+    _adb = [[AdbClient alloc] initWithVerbose:YES];
 }
 
 long lockscreen::heartRate()
@@ -99,9 +101,9 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
         [_virtualbike updateCadenceWithCrankRevolutions:crankRevolutions LastCrankEventTime:lastCrankEventTime];
 }
 
-void lockscreen::virtualbike_zwift_ios(bool disable_hr)
+void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator)
 {
-    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr: disable_hr];
+    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr:disable_hr garmin_bluetooth_compatibility:garmin_bluetooth_compatibility zwift_play_emulator:zwift_play_emulator watt_bike_emulator:watt_bike_emulator];
 }
 
 void lockscreen::virtualrower_ios()
@@ -145,10 +147,10 @@ double lockscreen::virtualbike_getPowerRequested()
     return 0;
 }
 
-bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime)
+bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, signed short Gears)
 {
     if(_virtualbike_zwift != nil)
-        return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime];
+        return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime Gears:Gears];
     return 0;
 }
 
@@ -257,6 +259,14 @@ int lockscreen::getFootCad() {
     return [Garmin getFootCad];
 }
 
+int lockscreen::getPower() {
+    return [Garmin getPower];
+}
+
+double lockscreen::getSpeed() {
+    return [Garmin getSpeed];
+}
+
 // getVolume
 
 double lockscreen::getVolume()
@@ -267,6 +277,18 @@ double lockscreen::getVolume()
 
 void lockscreen::debug(const char* debugstring) {
     qDebug() << debugstring;
+}
+
+void lockscreen::nslog(const char* log) {
+    NSLog([[NSString alloc] initWithUTF8String:log]);
+}
+
+void lockscreen::set_action_profile(const char* profile) {
+    profile_selected = [[NSString alloc] initWithUTF8String:profile];
+}
+
+const char* lockscreen::get_action_profile() {
+    return [profile_selected UTF8String];
 }
 
 void lockscreen::adb_connect(const char*  IP) {
@@ -296,6 +318,55 @@ void lockscreen::eliteAriaFan() {
 void lockscreen::eliteAriaFan_fanSpeedRequest(unsigned char speed) {
     if(ios_eliteAriaFan) {
         [ios_eliteAriaFan fanSpeedRequest:speed];
+    }
+}
+
+void lockscreen::zwift_api_decodemessage_player(const char* data, int len) {
+    NSData *d = [NSData dataWithBytes:data length:len];
+    [zwiftProtobufLayer getPlayerStateWithValue:d];
+}
+
+float lockscreen::zwift_api_getaltitude() {
+    return [zwiftProtobufLayer getAltitude];
+}
+
+int lockscreen::zwift_api_getdistance() {
+    return [zwiftProtobufLayer getDistance];
+}
+
+float lockscreen::zwift_api_getlatitude() {
+    return [zwiftProtobufLayer getLatitude];
+}
+
+float lockscreen::zwift_api_getlongitude() {
+    return [zwiftProtobufLayer getLongitude];
+}
+
+QByteArray lockscreen::zwift_hub_inclinationCommand(double inclination) {
+    NSError *error = nil;
+    NSData *command = [ZwiftHubBike inclinationCommandWithInclination:inclination error:&error];
+
+    if (error) {
+        qDebug() << "error zwift_hub_inclinationCommand: " << error;
+        return QByteArray();
+    } else {
+        const char* bytes = static_cast<const char*>([command bytes]);
+        NSUInteger length = [command length];
+        return QByteArray(bytes, length);
+    }
+}
+
+QByteArray lockscreen::zwift_hub_setGearsCommand(unsigned int gears) {
+    NSError *error = nil;
+    NSData *command = [ZwiftHubBike setGearCommandWithGears:gears error:&error];
+
+    if (error) {
+        qDebug() << "error zwift_hub_setGearsCommand: " << error;
+        return QByteArray();
+    } else {
+        const char* bytes = static_cast<const char*>([command bytes]);
+        NSUInteger length = [command length];
+        return QByteArray(bytes, length);
     }
 }
 #endif
