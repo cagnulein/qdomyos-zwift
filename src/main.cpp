@@ -41,6 +41,8 @@
 #include "ios/lockscreen.h"
 #endif
 
+#include "osc.h"
+
 #include "handleurl.h"
 
 bool logs = true;
@@ -596,6 +598,11 @@ int main(int argc, char *argv[]) {
     QString mqtt_password = settings.value(QZSettings::mqtt_password, QZSettings::default_mqtt_password).toString();
     if(mqtt_host.length() > 0) {
         MQTTPublisher* mqtt = new MQTTPublisher(mqtt_host, mqtt_port, mqtt_username, mqtt_password, &bl);
+    }
+
+    QString OSC_ip = settings.value(QZSettings::OSC_ip, QZSettings::default_OSC_ip).toString();
+    if(OSC_ip.length() > 0) {
+        OSC* osc = new OSC(&bl);
     }
 
 #ifdef Q_OS_IOS

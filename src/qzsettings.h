@@ -2228,6 +2228,12 @@ class QZSettings {
     static const QString nordictrack_gx_44_pro;
     static constexpr bool default_nordictrack_gx_44_pro = false;
 
+    static const QString OSC_ip;
+    static const QString default_OSC_ip;
+
+    static const QString OSC_port;
+    static constexpr int default_OSC_port = 9000;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
