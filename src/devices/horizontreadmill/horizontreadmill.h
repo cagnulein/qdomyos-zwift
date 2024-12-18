@@ -91,6 +91,7 @@ class horizontreadmill : public treadmill {
     bool kettler_treadmill = false;
     bool wellfit_treadmill = false;
     bool sole_tt8_treadmill = false;
+    bool sole_s77_treadmill = false;
     bool anplus_treadmill = false;
     bool tunturi_t60_treadmill = false;
     bool trx3500_treadmill = false;
