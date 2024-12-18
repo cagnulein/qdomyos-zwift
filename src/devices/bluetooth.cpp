@@ -1288,7 +1288,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("F63")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ST90")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         b.name().toUpper().startsWith(QStringLiteral("TRX7.5")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("S77")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("S77")) && sole_inclination) ||
                         (b.name().toUpper().startsWith(QStringLiteral("F85")) && sole_inclination)) &&
                        !soleF80 && filter) {
                 this->setLastBluetoothDevice(b);
