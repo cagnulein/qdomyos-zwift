@@ -1026,6 +1026,8 @@ import QtQuick.Dialogs 1.0
             // from version 2.18.9
             property bool nordictrack_gx_44_pro: false
 
+            // from version 2.18.10
+            property string csafe_elliptical_port: ""
             property string osc_ip: ""
             property int osc_port: 9000
         }
@@ -4520,7 +4522,7 @@ import QtQuick.Dialogs 1.0
                     }
 
                     Label {
-                        text: qsTr("Turn this on to start a workout automatically when you start a workout on Peloton (wathing the intro). Default is off.")
+                        text: qsTr("Turn this on to start a workout automatically when you start a workout on Peloton (waiting the intro). Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -7761,6 +7763,35 @@ import QtQuick.Dialogs 1.0
                         }
                     }
                     AccordionElement {
+                        title: qsTr("Life Fitness 95xi (CSAFE)")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Serial Port:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: csafeellipticalSerialPortTextField
+                                text: settings.csafe_elliptical_port
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.csafe_elliptical_port = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.csafe_elliptical_port = csafeellipticalSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            }
+                        }
+                    }
+
+                    AccordionElement {
                         id: proformEllipticalAccordion
                         title: qsTr("Proform/Nordictrack Elliptical Options")
                         indicatRectColor: Material.color(Material.Grey)
@@ -9935,6 +9966,20 @@ import QtQuick.Dialogs 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
+                            }
+
+                            SwitchDelegate {
+                                text: qsTr("Buttons debouncing")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.gears_volume_debouncing
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.gears_volume_debouncing = checked; }
                             }
 
                             Label {

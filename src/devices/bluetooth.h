@@ -32,6 +32,7 @@
 #ifndef Q_OS_IOS
 #include "devices/computrainerbike/computrainerbike.h"
 #include "devices/csaferower/csaferower.h"
+#include "devices/csafeelliptical/csafeelliptical.h"
 #endif
 #include "devices/concept2skierg/concept2skierg.h"
 #include "devices/crossrope/crossrope.h"
@@ -67,6 +68,7 @@
 #include "devices/iconceptelliptical/iconceptelliptical.h"
 #include "devices/inspirebike/inspirebike.h"
 #include "devices/keepbike/keepbike.h"
+#include "devices/kineticinroadbike/kineticinroadbike.h"
 #include "devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h"
 #include "devices/kingsmithr2treadmill/kingsmithr2treadmill.h"
 #include "devices/lifefitnesstreadmill/lifefitnesstreadmill.h"
@@ -110,6 +112,7 @@
 
 #include "devices/spirittreadmill/spirittreadmill.h"
 #include "devices/sportsplusbike/sportsplusbike.h"
+#include "devices/sportsplusrower/sportsplusrower.h"
 #include "devices/sportstechbike/sportstechbike.h"
 #include "devices/sportstechelliptical/sportstechelliptical.h"
 #include "devices/sramAXSController/sramAXSController.h"
@@ -177,6 +180,7 @@ class bluetooth : public QObject, public SignalHandler {
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
     csaferower *csafeRower = nullptr;
+    csafeelliptical *csafeElliptical = nullptr;
 #endif
     concept2skierg *concept2Skierg = nullptr;
     deerruntreadmill *deerrunTreadmill = nullptr;
@@ -225,6 +229,7 @@ class bluetooth : public QObject, public SignalHandler {
     sportstechbike *sportsTechBike = nullptr;
     sportstechelliptical *sportsTechElliptical = nullptr;
     sportsplusbike *sportsPlusBike = nullptr;
+    sportsplusrower *sportsPlusRower = nullptr;
     inspirebike *inspireBike = nullptr;
     snodebike *snodeBike = nullptr;
     eslinkertreadmill *eslinkerTreadmill = nullptr;
@@ -265,6 +270,7 @@ class bluetooth : public QObject, public SignalHandler {
     wahookickrsnapbike *wahooKickrSnapBike = nullptr;
     ypooelliptical *ypooElliptical = nullptr;
     ziprotreadmill *ziproTreadmill = nullptr;
+    kineticinroadbike *kineticInroadBike = nullptr;
     strydrunpowersensor *powerTreadmill = nullptr;
     eliterizer *eliteRizer = nullptr;
     elitesterzosmart *eliteSterzoSmart = nullptr;

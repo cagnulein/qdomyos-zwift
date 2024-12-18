@@ -526,12 +526,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.resistanceLvl) {
-            Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)newValue.at(index))));
-            emit resistanceRead(Resistance.value());
-            index += 2;
-            emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
-            resistance_received = true;
+            double d = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));            
+            index += 2;            
+            if(Resistance.value() > 0) {
+                Resistance = d;
+                emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+                emit resistanceRead(Resistance.value());
+                resistance_received = true;
+            }
         }
             double ac = 0.01243107769;
             double bc = 1.145964912;
@@ -1031,6 +1034,11 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         // handling gears
         if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && (zwiftPlayService == nullptr || !gears_zwift_ratio)) {
             double min_inclination = settings.value(QZSettings::min_inclination, QZSettings::default_min_inclination).toDouble();
+            double offset =
+                settings.value(QZSettings::zwift_inclination_offset, QZSettings::default_zwift_inclination_offset).toDouble();
+            double gain =
+                settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain).toDouble();
+
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
                 lastPacketFromFTMS.append(b.at(i));
@@ -1044,6 +1052,9 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
                 slope = min_inclination * 100;
                 qDebug() << "grade override due to min_inclination " << min_inclination;
             }
+
+            slope *= gain;
+            slope += (offset * 100);
 
             b[3] = slope & 0xFF;
             b[4] = slope >> 8;            
@@ -1063,7 +1074,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
                 "org/cagnulen/qdomyoszwift/ZwiftHubBike",
                 "inclinationCommand",
                 "(D)[B",
-                slope);
+                ((double)slope) / 100.0);
 
             if(!result.isValid()) {
                 qDebug() << "inclinationCommand returned invalid value";

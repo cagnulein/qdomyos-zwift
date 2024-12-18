@@ -1530,7 +1530,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
                     spareSeconds = 0;
                 }
                 int spareSum = 0;
-                for (int i = 0; i <= speedDelta; i++) {
+                for (int i = 0; i < speedDelta; i++) {
                     trainrow rowI(row);
                     int spare = 0;
                     if (spareSeconds)
@@ -1542,7 +1542,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
                     }
                     rowI.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
                     rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
-                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum);
+                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum - durationStep + spare);
                     rowI.forcespeed = 1;
                     if (speedFrom < speedTo) {
                         rowI.speed = speedFrom + (speedStep * i);
@@ -1577,7 +1577,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
                     spareSeconds = 0;
                 }
                 int spareSum = 0;
-                for (int i = 0; i <= speedDelta; i++) {
+                for (int i = 0; i < speedDelta; i++) {
                     trainrow rowI(row);
                     int spare = 0;
                     if (spareSeconds)
@@ -1589,7 +1589,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
                     }
                     rowI.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
                     rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
-                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum);
+                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum - durationStep + spare);
                     rowI.forcespeed = 1;
                     if (speedFrom < speedTo) {
                         if(device_type == bluetoothdevice::TREADMILL) {

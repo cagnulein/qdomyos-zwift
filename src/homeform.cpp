@@ -3541,7 +3541,7 @@ void homeform::Minus(const QString &name) {
                          << requestedspeed << QStringLiteral("Current Target Speed") << targetspeed;
                 if (targetspeed != -1)
                     speed = targetspeed;
-                if (requestedspeed != -1)
+                if (requestedspeed != -1 && requestedspeed < speed)
                     speed = requestedspeed;
                 double minStepSpeed = ((treadmill *)bluetoothManager->device())->minStepSpeed();
                 double step = settings.value(QZSettings::treadmill_step_speed, QZSettings::default_treadmill_step_speed)

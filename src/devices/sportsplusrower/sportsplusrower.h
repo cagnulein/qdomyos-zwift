@@ -1,5 +1,5 @@
-#ifndef TRXAPPGATEUSBBIKE_H
-#define TRXAPPGATEUSBBIKE_H
+#ifndef SPORTSPLUSROWER_H
+#define SPORTSPLUSROWER_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -25,25 +25,16 @@
 #include <QObject>
 #include <QTime>
 
-#include "devices/bike.h"
-#include "ergtable.h"
+#include "devices/rower.h"
+#include "virtualdevices/virtualbike.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
-class trxappgateusbbike : public bike {
+class sportsplusrower : public rower {
     Q_OBJECT
   public:
-    trxappgateusbbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
-                      double bikeResistanceGain);
+    sportsplusrower(bool noWriteResistance, bool noHeartService);
     bool connected() override;
-    resistance_t maxResistance() override { return 32; }
-    resistance_t resistanceFromPowerRequest(uint16_t power) override;
 
   private:
-    double GetSpeedFromPacket(const QByteArray &packet);
-    double GetResistanceFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(QByteArray packet);
     uint16_t GetElapsedFromPacket(const QByteArray &packet);
@@ -52,27 +43,21 @@ class trxappgateusbbike : public bike {
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                              bool wait_for_response);
+    uint16_t wattsFromResistance(double resistance);
     void startDiscover();
     uint16_t watts() override;
     double GetWattFromPacket(const QByteArray &packet);
-    double GetWattFromPacketFytter(const QByteArray &packet);
-    double GetCadenceFromPacket(const QByteArray &packet);
-    uint16_t wattsFromResistance(double resistance);
 
     QTimer *refresh;
 
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
+    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    int8_t bikeResistanceOffset = 4;
-    double bikeResistanceGain = 1.0;
     bool noWriteResistance = false;
     bool noHeartService = false;
 
     uint8_t firstVirtualBike = 0;
     bool firstCharChanged = true;
-    QTime lastTimeCharChanged;
+    QDateTime lastTimeCharChanged;
     uint8_t sec1update = 0;
     QByteArray lastPacket;
 
@@ -80,46 +65,13 @@ class trxappgateusbbike : public bike {
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
+    QLowEnergyCharacteristic gattNotify3Characteristic;
 
     bool initDone = false;
     bool initRequest = false;
     bool readyToStart = false;
 
-    typedef enum TYPE {
-        TRXAPPGATE = 0,
-        IRUNNING = 1,
-        CHANGYOW = 2,
-        SKANDIKAWIRY = 3,
-        ICONSOLE = 4,
-        JLL_IC400 = 5,
-        DKN_MOTION = 6,
-        DKN_MOTION_2 = 7,
-        ASVIVA = 8,
-        FYTTER_RI08 = 9,
-        ICONSOLE_2 = 10,
-        HERTZ_XR_770 = 11,
-        CASALL = 12,
-        VIRTUFIT = 13,
-        HERTZ_XR_770_2 = 14,
-        VIRTUFIT_2 = 15,
-        TUNTURI = 16,
-        TUNTURI_2 = 17,
-        FITHIWAY = 18,
-        ENERFIT_SPX_9500 = 19,
-        HOP_SPORT_HS_090H = 20,
-        ENERFIT_SPX_9500_2 = 21,
-        REEBOK = 22,
-        REEBOK_2 = 23,
-        BIKZU = 24,
-        TOORX_SRX_500 = 25,
-        IRUNNING_2 = 26,
-        PASYOU = 27,
-    } TYPE;
-    TYPE bike_type = TRXAPPGATE;
-
-    // SmartSpin2k
-    metric ResistanceFromFTMSAccessory;
-    uint64_t ResistanceFromFTMSAccessoryLastTime = 0;
+    const resistance_t max_resistance = 24;
 
   signals:
     void disconnected();
@@ -128,7 +80,6 @@ class trxappgateusbbike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void resistanceFromFTMSAccessory(resistance_t res) override;
 
   private slots:
 
@@ -145,4 +96,4 @@ class trxappgateusbbike : public bike {
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // TRXAPPGATEUSBBIKE_H
+#endif // SPORTSPLUSROWER_H

@@ -64,12 +64,17 @@ csafe::csafe() {
     cmds["CSAFE_PM_GET_WORKTIME"] = populateCmd(0xa0, QList<int>(), 0x1a);
     cmds["CSAFE_PM_GET_WORKDISTANCE"] = populateCmd(0xa3, QList<int>(), 0x1a);
 
+    // LIFE FITNESS specific commands
+    cmds["CSAFE_LF_GET_DETAIL"] = populateCmd(0xd0, QList<int>());
+
     // Generic long commands
+    cmds["CSAFE_SETPROGRAM_CMD"] = populateCmd(0x24, QList<int>() << 1 << 1);
     cmds["CSAFE_SETUSERINFO_CMD"] = populateCmd(0x2B, QList<int>() << 2 << 1 << 1 << 1);
     cmds["CSAFE_SETLEVEL_CMD"] = populateCmd(0x2D, QList<int>() << 1);
 
     // Generic Short Commands
     cmds["CSAFE_GETSTATUS_CMD"] = populateCmd(0x80, QList<int>());
+    cmds["CSAFE_GOINUSE_CMD"] = populateCmd(0x85, QList<int>());
     cmds["CSAFE_GETCALORIES_CMD"] = populateCmd(0xa3, QList<int>());
     cmds["CSAFE_GETPROGRAM_CMD"] = populateCmd(0xA4, QList<int>());
     cmds["CSAFE_GETPACE_CMD"] = populateCmd(0xa6, QList<int>());
@@ -143,6 +148,9 @@ csafe::csafe() {
     resp[0x1A6C] =
         qMakePair(QString("CSAFE_PM_GET_HEARTBEATDATA"),
                   QList<int>() << 1 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2);
+
+    // LIFE FITNESS specific response
+    resp[0xD0] = qMakePair(QString("CSAFE_LF_GET_DETAIL"), QList<int>() << 0x1c);
 }
 
 QList<QList<int>> csafe::populateCmd(int First, QList<int> Second, int Third) {
@@ -312,7 +320,7 @@ QByteArray csafe::write(const QStringList &arguments, bool surround_msg) {
         qWarning("Message is too long: %d", message.size());
     }
 
-    if (surround_msg) { // apply non-standard wrapping for PM3 rower
+    if (surround_msg) {                                         // apply non-standard wrapping for PM3 rower
         int maxmessage = qMax(message.size() + 1, maxresponse); // report IDs
 
         if (maxmessage <= 21) {

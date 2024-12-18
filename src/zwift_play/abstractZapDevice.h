@@ -28,13 +28,12 @@ class AbstractZapDevice: public QObject {
     QByteArray REQUEST_START;
     QByteArray RESPONSE_START;
 
-    // Constructor now initializes the auto-repeat timer
     AbstractZapDevice() : autoRepeatTimer(new QTimer(this)) {
         RIDE_ON = QByteArray::fromRawData("\x52\x69\x64\x65\x4F\x6E", 6);  // "RideOn"
         REQUEST_START = QByteArray::fromRawData("\x00\x09", 2);  // {0, 9}
         RESPONSE_START = QByteArray::fromRawData("\x01\x03", 2);  // {1, 3}
 
-        // Setup auto-repeat timer with 500ms interval
+        // Setup auto-repeat
         autoRepeatTimer->setInterval(500);
         connect(autoRepeatTimer, &QTimer::timeout, this, &AbstractZapDevice::handleAutoRepeat);
     }
@@ -43,9 +42,12 @@ class AbstractZapDevice: public QObject {
         if (bytes.isEmpty()) return 0;
 
         QSettings settings;
+        bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
         bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
 
-        qDebug() << zapType << characteristicName << bytes.toHex() << zwiftplay_swap << risingEdge;
+        qDebug() << zapType << characteristicName << bytes.toHex() << zwiftplay_swap << gears_volume_debouncing << risingEdge;
+
+#define DEBOUNCE (!gears_volume_debouncing || risingEdge <= 0)
 
 #ifdef Q_OS_ANDROID_ENCRYPTION
         QAndroidJniEnvironment env;
@@ -64,18 +66,43 @@ class AbstractZapDevice: public QObject {
             emit minus();
         return button;
 #else
-        // Process different button press patterns
         switch(bytes[0]) {
         case 0x37:
             if(bytes.length() == 5) {
                 if(bytes[2] == 0) {
-                    // Button press detected, handle with auto-repeat
-                    handleButtonPress(!zwiftplay_swap);
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap) {
+                            emit plus();
+                            lastButtonPlus = true;
+                            autoRepeatTimer->start();
+                        }
+                        else {
+                            emit minus();
+                            lastButtonPlus = false;
+                            autoRepeatTimer->start();
+                        }
+                    }
                 } else if(bytes[4] == 0) {
-                    handleButtonPress(zwiftplay_swap);
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap) {
+                            emit minus();
+                            lastButtonPlus = false;
+                            autoRepeatTimer->start();
+                        }
+                        else {
+                            emit plus();
+                            lastButtonPlus = true;
+                            autoRepeatTimer->start();
+                        }
+                    }
                 } else {
-                    // Button release detected, stop auto-repeat
-                    handleButtonRelease();
+                    risingEdge--;
+                    if(risingEdge < 0)
+                        risingEdge = 0;
+                    if(risingEdge == 0)
+                        autoRepeatTimer->stop();
                 }
             }
             break;
@@ -85,19 +112,70 @@ class AbstractZapDevice: public QObject {
                     (((uint8_t)bytes[bytes.length() - 4]) == 0xc8 && zapType == LEFT)
                     ) && bytes[bytes.length() - 3] == 0x01) {
                 if(zapType == LEFT) {
-                    handleButtonPress(!zwiftplay_swap);
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap) {
+                            emit plus();
+                            lastButtonPlus = true;
+                            autoRepeatTimer->start();
+                        }
+                        else {
+                            emit minus();
+                            lastButtonPlus = false;
+                            autoRepeatTimer->start();
+                        }
+                    }
                 } else {
-                    handleButtonPress(zwiftplay_swap);
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap) {
+                            emit minus();
+                            lastButtonPlus = false;
+                            autoRepeatTimer->start();
+                        }
+                        else {
+                            emit plus();
+                            lastButtonPlus = true;
+                            autoRepeatTimer->start();
+                        }
+                    }
                 }
             } else if(bytes.length() > 14 && bytes[11] == 0x30 && bytes[12] == 0x00) {
                 if(zapType == LEFT) {
-                    handleButtonPress(!zwiftplay_swap);
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap) {
+                            emit plus();
+                            lastButtonPlus = true;
+                            autoRepeatTimer->start();
+                        }
+                        else {
+                            emit minus();
+                            lastButtonPlus = false;
+                            autoRepeatTimer->start();
+                        }
+                    }
                 } else {
-                    handleButtonPress(zwiftplay_swap);
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap) {
+                            emit minus();
+                            lastButtonPlus = false;
+                            autoRepeatTimer->start();
+                        }
+                        else {
+                            emit plus();
+                            lastButtonPlus = true;
+                            autoRepeatTimer->start();
+                        }
+                    }
                 }
             } else {
-                // No button press detected, handle as release
-                handleButtonRelease();
+                risingEdge--;
+                if(risingEdge < 0)
+                    risingEdge = 0;
+                if(risingEdge == 0)
+                    autoRepeatTimer->stop();
             }
             break;
         case 0x15: // empty data
@@ -109,27 +187,102 @@ class AbstractZapDevice: public QObject {
                  (((uint8_t)bytes[12]) == 0xc8 && zapType == LEFT))
                 ) {
                 if(zapType == LEFT) {
-                    handleButtonPress(!zwiftplay_swap);
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap) {
+                            emit plus();
+                            lastButtonPlus = true;
+                            autoRepeatTimer->start();
+                        }
+                        else {
+                            emit minus();
+                            lastButtonPlus = false;
+                            autoRepeatTimer->start();
+                        }
+                    }
                 } else {
-                    handleButtonPress(zwiftplay_swap);
+                    if(DEBOUNCE) {
+                        risingEdge = 2;
+                        if(!zwiftplay_swap) {
+                            emit minus();
+                            lastButtonPlus = false;
+                            autoRepeatTimer->start();
+                        }
+                        else {
+                            emit plus();
+                            lastButtonPlus = true;
+                            autoRepeatTimer->start();
+                        }
+                    }
                 }
             } else if(bytes.length() > 19 && ((uint8_t)bytes[18]) == 0xc8) {
-                handleButtonPress(!zwiftplay_swap);
+                if(DEBOUNCE) {
+                    risingEdge = 2;
+                    if(!zwiftplay_swap) {
+                        emit plus();
+                        lastButtonPlus = true;
+                        autoRepeatTimer->start();
+                    }
+                    else {
+                        emit minus();
+                        lastButtonPlus = false;
+                        autoRepeatTimer->start();
+                    }
+                }
             } else if(bytes.length() > 3 &&
                        ((((uint8_t)bytes[3]) == 0xdf) || // right top button
                         (((uint8_t)bytes[3]) == 0xbf))) { // right bottom button
-                handleButtonPress(!zwiftplay_swap);
+                if(DEBOUNCE) {
+                    risingEdge = 2;
+                    if(!zwiftplay_swap) {
+                        emit plus();
+                        lastButtonPlus = true;
+                        autoRepeatTimer->start();
+                    }
+                    else {
+                        emit minus();
+                        lastButtonPlus = false;
+                        autoRepeatTimer->start();
+                    }
+                }
             } else if(bytes.length() > 3 &&
                        ((((uint8_t)bytes[3]) == 0xfd) || // left top button
                         (((uint8_t)bytes[3]) == 0xfb))) { // left bottom button
-                handleButtonPress(zwiftplay_swap);
+                if(DEBOUNCE) {
+                    risingEdge = 2;
+                    if(!zwiftplay_swap) {
+                        emit minus();
+                        lastButtonPlus = false;
+                        autoRepeatTimer->start();
+                    }
+                    else {
+                        emit plus();
+                        lastButtonPlus = true;
+                        autoRepeatTimer->start();
+                    }
+                }
             } else if(bytes.length() > 5 &&
                        ((((uint8_t)bytes[4]) == 0xfd) || // left top button
                         (((uint8_t)bytes[4]) == 0xfb))) { // left bottom button
-                handleButtonPress(zwiftplay_swap);
+                if(DEBOUNCE) {
+                    risingEdge = 2;
+                    if(!zwiftplay_swap) {
+                        emit minus();
+                        lastButtonPlus = false;
+                        autoRepeatTimer->start();
+                    }
+                    else {
+                        emit plus();
+                        lastButtonPlus = true;
+                        autoRepeatTimer->start();
+                    }
+                }
             } else {
-                // No button press detected, handle as release
-                handleButtonRelease();
+                risingEdge--;
+                if(risingEdge < 0)
+                    risingEdge = 0;
+                if(risingEdge == 0)
+                    autoRepeatTimer->stop();
             }
             break;
         }
@@ -165,42 +318,15 @@ class AbstractZapDevice: public QObject {
   private:
     QByteArray devicePublicKeyBytes;
     static volatile int8_t risingEdge;
-
-    // Timer for auto-repeat functionality
-    QTimer* autoRepeatTimer;
-    // Tracks which button is currently being held
-    bool isPlus = false;
-
-    // Handles initial button press and starts auto-repeat timer
-    void handleButtonPress(bool plus) {
-        if (!autoRepeatTimer->isActive()) {
-            // Store which button was pressed
-            isPlus = plus;
-            // Emit initial button press event
-            if (isPlus) {
-                emit this->plus();
-            } else {
-                emit this->minus();
-            }
-            // Start auto-repeat timer
-            autoRepeatTimer->start();
-        }
-    }
-
-    // Handles button release by stopping auto-repeat
-    void handleButtonRelease() {
-        autoRepeatTimer->stop();
-    }
+    QTimer* autoRepeatTimer;    // Timer for auto-repeat
+    bool lastButtonPlus = false; // Track which button was last pressed
 
   private slots:
-    // Handles auto-repeat events when button is held
     void handleAutoRepeat() {
-        // Emit appropriate signal based on which button is held
-        if (isPlus) {
+        if(lastButtonPlus)
             emit plus();
-        } else {
+        else
             emit minus();
-        }
     }
 
   signals:
