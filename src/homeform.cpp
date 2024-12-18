@@ -4088,30 +4088,34 @@ void homeform::update() {
             targetMets->setValue(QString::number(trainProgram->currentTargetMets(), 'f', 1));
             trainrow next = trainProgram->getRowFromCurrent(1);
             trainrow next_1 = trainProgram->getRowFromCurrent(2);
-            if (next.duration.second() != 0 || next.duration.minute() != 0 || next.duration.hour() != 0) {
+            if (next.duration.second() != 0 || next.duration.minute() != 0 || next.duration.hour() != 0 || next.distance != -1) {
+                QString duration = next.duration.toString(QStringLiteral("mm:ss"));
+                if(next.distance != -1) {
+                    duration = QString::number(next.distance, 'f' , 1);
+                }
                 if (next.requested_peloton_resistance != -1)
                     nextRows->setValue(QStringLiteral("PR") + QString::number(next.requested_peloton_resistance) +
-                                       QStringLiteral(" ") + next.duration.toString(QStringLiteral("mm:ss")));
+                                       QStringLiteral(" ") + duration);
                 else if (next.resistance != -1)
                     nextRows->setValue(QStringLiteral("R") + QString::number(next.resistance) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));
+                                       duration);
                 else if (next.zoneHR != -1)
                     nextRows->setValue(QStringLiteral("HR") + QString::number(next.zoneHR) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));
+                                       duration);
                 else if (next.HRmin != -1 && next.HRmax != -1)
                     nextRows->setValue(QStringLiteral("HR") + QString::number(next.HRmin) + QStringLiteral("-") +
                                        QString::number(next.HRmax) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));
+                                       duration);
                 else if (next.speed != -1 && next.inclination != -200)
                     nextRows->setValue(QStringLiteral("S") + QString::number(next.speed, 'f' , 1) + QStringLiteral("I") +
                                        QString::number(next.inclination, 'f' , 1) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));
+                                       duration);
                 else if (next.speed != -1)
                     nextRows->setValue(QStringLiteral("S") + QString::number(next.speed, 'f' , 1) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));
+                                       duration);
                 else if (next.inclination != -200)
                     nextRows->setValue(QStringLiteral("I") + QString::number(next.inclination, 'f' , 1) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));
+                                       duration);
                 else if (next.power != -1) {
                     double ftpPerc = (next.power / ftpSetting) * 100.0;
                     uint8_t ftpZone = 1;
@@ -4131,7 +4135,7 @@ void homeform::update() {
                         ftpZone = 7;
                     }
                     nextRows->setValue(QStringLiteral("Z") + QString::number(ftpZone) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));
+                                       duration);
                     if (next_1.duration.second() != 0 || next_1.duration.minute() != 0 || next_1.duration.hour() != 0) {
                         if (next_1.requested_peloton_resistance != -1)
                             nextRows->setSecondLine(
