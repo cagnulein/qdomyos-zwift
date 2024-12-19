@@ -199,7 +199,7 @@ void kineticinroadbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     int dataSize = encryptedData.size();
 
     // Check minimum size for valid data
-    if (dataSize < 14) {
+    if (dataSize < 14 || characteristic.uuid() != QBluetoothUuid(QStringLiteral("e9410201-b434-446b-b5cc-36592fc4c724"))) {
         qDebug() << "Invalid data size";
         return;
     }
@@ -229,7 +229,7 @@ void kineticinroadbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     };
 
            // Create a copy of the data for decryption
-    QByteArray decryptedData = encryptedData;
+    QByteArray decryptedData = encryptedData;    
 
     // Initial XOR value based on last byte
     int xorValue = LOOKUP_TABLE[(encryptedData.at(dataSize - 1) & 0xFF) ^ 66];
@@ -240,6 +240,8 @@ void kineticinroadbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         decryptedData[i] = currentByte ^ xorValue;
         xorValue = LOOKUP_TABLE[xorValue ^ (currentByte & 0xFF)];
     }
+
+    qDebug() << "decryptedData" << decryptedData.toHex(' ');
 
            // Parse decrypted data
     uint8_t modeValue = decryptedData.at(0) & 0xFF;

@@ -2237,6 +2237,9 @@ class QZSettings {
     static const QString strava_treadmill;
     static constexpr bool default_strava_treadmill = true;
 
+    static const QString iconsole_rower;
+    static constexpr bool default_iconsole_rower = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

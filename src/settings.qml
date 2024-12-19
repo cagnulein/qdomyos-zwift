@@ -1033,6 +1033,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.11
             property bool strava_treadmill: true
+            property bool iconsole_rower: false
         }
 
         function paddingZeros(text, limit) {
@@ -7603,7 +7604,20 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.iconsole_elliptical = checked; window.settings_restart_to_apply = true; }
-                    }                    
+                    }
+                    SwitchDelegate {
+                        text: qsTr("iConsole Rower")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.iconsole_rower
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.iconsole_rower = checked; window.settings_restart_to_apply = true; }
+                    }
                 }
             }
 
