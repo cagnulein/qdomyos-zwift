@@ -1030,6 +1030,9 @@ import QtQuick.Dialogs 1.0
             property string csafe_elliptical_port: ""
             property string osc_ip: ""
             property int osc_port: 9000
+
+            // from version 2.18.11
+            property bool strava_treadmill: true
         }
 
         function paddingZeros(text, limit) {
@@ -8338,6 +8341,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Append the Virtual Tag to the Strava Activity")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Strava Treadmill Tag")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.strava_treadmill
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.strava_treadmill = checked
+                    }
+
+                    Label {
+                        text: qsTr("Append the Treadmill Tag to the Strava Activity when you are using a treadmill. If you want to see the elevation on Strava, you need to disable this.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

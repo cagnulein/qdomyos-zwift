@@ -22,6 +22,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     QSettings settings;
     bool strava_virtual_activity =
         settings.value(QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity).toBool();
+    bool strava_treadmill =
+        settings.value(QZSettings::strava_treadmill, QZSettings::default_strava_treadmill).toBool();
     bool powr_sensor_running_cadence_half_on_strava =
         settings
             .value(QZSettings::powr_sensor_running_cadence_half_on_strava,
@@ -138,7 +140,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         if (strava_virtual_activity) {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
         } else {
-            sessionMesg.SetSubSport(FIT_SUB_SPORT_TREADMILL);
+            if(strava_treadmill)
+                sessionMesg.SetSubSport(FIT_SUB_SPORT_TREADMILL);
         }
     } else if (type == bluetoothdevice::ELLIPTICAL) {
 

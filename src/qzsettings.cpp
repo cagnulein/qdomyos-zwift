@@ -804,8 +804,9 @@ const QString QZSettings::nordictrack_gx_44_pro = QStringLiteral("nordictrack_gx
 const QString QZSettings::OSC_ip = QStringLiteral("osc_ip");
 const QString QZSettings::default_OSC_ip = QStringLiteral("");
 const QString QZSettings::OSC_port = QStringLiteral("osc_port");
+const QString QZSettings::strava_treadmill = QStringLiteral("strava_treadmill");
 
-const uint32_t allSettingsCount = 678;
+const uint32_t allSettingsCount = 679;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1490,6 +1491,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_gx_44_pro, QZSettings::default_nordictrack_gx_44_pro},
     {QZSettings::OSC_ip, QZSettings::default_OSC_ip},
     {QZSettings::OSC_port, QZSettings::default_OSC_port},
+    {QZSettings::strava_treadmill, QZSettings::default_strava_treadmill},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

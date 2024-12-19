@@ -2234,6 +2234,9 @@ class QZSettings {
     static const QString OSC_port;
     static constexpr int default_OSC_port = 9000;
 
+    static const QString strava_treadmill;
+    static constexpr bool default_strava_treadmill = true;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
