@@ -1343,7 +1343,7 @@ void virtualbike::reconnect() {
     if (!this->noHeartService || heart_only)
         serviceHR = leController->addService(serviceDataHR);
 #endif
-
+    QLowEnergyAdvertisingParameters pars;
     leController->startAdvertising(pars, advertisingData);
 }
 
