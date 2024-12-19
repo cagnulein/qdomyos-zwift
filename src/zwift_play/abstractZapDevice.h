@@ -28,7 +28,7 @@ class AbstractZapDevice: public QObject {
     QByteArray REQUEST_START;
     QByteArray RESPONSE_START;
 
-    AbstractZapDevice() : autoRepeatTimer(new QTimer(this)) {
+    AbstractZapDevice() : autoRepeatTimer(new QTimer(this)), watchdogTimer(new QTimer(this)) {
         RIDE_ON = QByteArray::fromRawData("\x52\x69\x64\x65\x4F\x6E", 6);  // "RideOn"
         REQUEST_START = QByteArray::fromRawData("\x00\x09", 2);  // {0, 9}
         RESPONSE_START = QByteArray::fromRawData("\x01\x03", 2);  // {1, 3}
@@ -36,6 +36,10 @@ class AbstractZapDevice: public QObject {
         // Setup auto-repeat
         autoRepeatTimer->setInterval(500);
         connect(autoRepeatTimer, &QTimer::timeout, this, &AbstractZapDevice::handleAutoRepeat);
+
+        // Setup watchdog timer
+        watchdogTimer->setInterval(400); // 400ms timeout, shorter than auto-repeat
+        connect(watchdogTimer, &QTimer::timeout, this, &AbstractZapDevice::handleWatchdogTimeout);
     }
 
     int processCharacteristic(const QString& characteristicName, const QByteArray& bytes, ZWIFT_PLAY_TYPE zapType) {
@@ -68,6 +72,10 @@ class AbstractZapDevice: public QObject {
 #else
         switch(bytes[0]) {
         case 0x37:
+            if (autoRepeatTimer->isActive()) {
+                watchdogTimer->start();
+            }
+
             if(bytes.length() == 5) {
                 if(bytes[2] == 0) {
                     if(DEBOUNCE) {
@@ -101,12 +109,18 @@ class AbstractZapDevice: public QObject {
                     risingEdge--;
                     if(risingEdge < 0)
                         risingEdge = 0;
-                    if(risingEdge == 0)
+                    if(risingEdge == 0) {
                         autoRepeatTimer->stop();
+                        watchdogTimer->stop();
+                    }
                 }
             }
             break;
         case 0x07: // zwift play
+            if (autoRepeatTimer->isActive()) {
+                watchdogTimer->start();
+            }
+
             if(bytes.length() > 5 && bytes[bytes.length() - 5] == 0x40 && (
                     (((uint8_t)bytes[bytes.length() - 4]) == 0xc7 && zapType == RIGHT) ||
                     (((uint8_t)bytes[bytes.length() - 4]) == 0xc8 && zapType == LEFT)
@@ -182,6 +196,10 @@ class AbstractZapDevice: public QObject {
             qDebug() << "ignoring this frame";
             return 1;
         case 0x23: // zwift ride
+            if (autoRepeatTimer->isActive()) {
+                watchdogTimer->start();
+            }
+
             if(bytes.length() > 12 &&
                 ((((uint8_t)bytes[12]) == 0xc7 && zapType == RIGHT) ||
                  (((uint8_t)bytes[12]) == 0xc8 && zapType == LEFT))
@@ -319,6 +337,7 @@ class AbstractZapDevice: public QObject {
     QByteArray devicePublicKeyBytes;
     static volatile int8_t risingEdge;
     QTimer* autoRepeatTimer;    // Timer for auto-repeat
+    QTimer* watchdogTimer;      // Watchdog timer to detect frame absence
     bool lastButtonPlus = false; // Track which button was last pressed
 
   private slots:
@@ -327,6 +346,13 @@ class AbstractZapDevice: public QObject {
             emit plus();
         else
             emit minus();
+    }
+
+    void handleWatchdogTimeout() {
+        // No frames received for too long, stop auto-repeat
+        watchdogTimer->stop();
+        autoRepeatTimer->stop();
+        risingEdge = 0;
     }
 
   signals:
