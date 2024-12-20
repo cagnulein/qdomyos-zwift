@@ -1028,6 +1028,12 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.10
             property string csafe_elliptical_port: ""
+            property string osc_ip: ""
+            property int osc_port: 9000
+
+            // from version 2.18.11
+            property bool strava_treadmill: true
+            property bool iconsole_rower: false
         }
 
         function paddingZeros(text, limit) {
@@ -4587,7 +4593,7 @@ import QtQuick.Dialogs 1.0
                     }
 
                     Label {
-                        text: qsTr("Turn this on to start a workout automatically when you start a workout on Peloton (wathing the intro). Default is off.")
+                        text: qsTr("Turn this on to start a workout automatically when you start a workout on Peloton (waiting the intro). Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -7665,7 +7671,20 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.iconsole_elliptical = checked; window.settings_restart_to_apply = true; }
-                    }                    
+                    }
+                    SwitchDelegate {
+                        text: qsTr("iConsole Rower")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.iconsole_rower
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.iconsole_rower = checked; window.settings_restart_to_apply = true; }
+                    }
                 }
             }
 
@@ -8403,6 +8422,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Append the Virtual Tag to the Strava Activity")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Strava Treadmill Tag")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.strava_treadmill
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.strava_treadmill = checked
+                    }
+
+                    Label {
+                        text: qsTr("Append the Treadmill Tag to the Strava Activity when you are using a treadmill. If you want to see the elevation on Strava, you need to disable this.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -10837,6 +10883,64 @@ import QtQuick.Dialogs 1.0
                         }
                     }               
 
+                    AccordionElement {
+                        id: oscAccordion
+                        title: qsTr("OSC Settings")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                        spacing: 0
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("OSC IP:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: oscIPTextField
+                                    text: settings.osc_ip
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.osc_ip = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.osc_ip = oscIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("OSC Port:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: oscPortTextField
+                                    text: settings.osc_port
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.osc_port = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.osc_port = oscPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                }
+                            }
+                        }
+                    }
+
                     SwitchDelegate {
                         text: qsTr("Race Mode")
                         spacing: 0
@@ -11185,7 +11289,7 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
+                    }                    
 
                     SwitchDelegate {
                         id: logDebugDelegate
