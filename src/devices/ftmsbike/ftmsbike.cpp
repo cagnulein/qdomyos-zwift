@@ -1216,6 +1216,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(bluetoothDevice.name().toUpper().startsWith("D2RIDE")) {
             qDebug() << QStringLiteral("D2RIDE found");
             D2RIDE = true;
+        } else if(bluetoothDevice.name().toUpper().startsWith("VFSPINBIKE")) {
+            qDebug() << QStringLiteral("VFSPINBIKE found");
+            VFSPINBIKE = true;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
