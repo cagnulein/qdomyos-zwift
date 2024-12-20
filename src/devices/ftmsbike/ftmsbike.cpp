@@ -264,7 +264,8 @@ void ftmsbike::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(false, watts());
+        // here the bike that doesn't have ERG mode, so i'm using inclination to recreate a resistance value
+        update_metrics(false, watts(), false, (VFSPINBIKE ? Inclination.value() * 10.0 : Resistance.value()));
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
@@ -362,9 +363,11 @@ void ftmsbike::update() {
         lastGearValue = gears();
 
         if (requestPower != -1) {
-            qDebug() << QStringLiteral("writing power") << requestPower;
-            init();
-            forcePower(requestPower);
+            if(!VFSPINBIKE) { // this bike doesn't handle ERG mode
+                qDebug() << QStringLiteral("writing power") << requestPower;
+                init();
+                forcePower(requestPower);
+            }
             requestPower = -1;
         }
         if (requestStart != -1) {
@@ -1111,6 +1114,12 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             b[1] = power & 0xFF;
             b[2] = power >> 8;
             qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << power;
+
+            // this bike doesn't handle erg mode
+            if(VFSPINBIKE) {
+                forceResistance(((double)resistanceFromPowerRequest(power)) / 10.0);
+                return;
+            }
         }
 
         writeCharacteristic((uint8_t*)b.data(), b.length(), "injectWrite ", false, true);
