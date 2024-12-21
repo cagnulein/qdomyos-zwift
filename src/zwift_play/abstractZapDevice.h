@@ -5,7 +5,7 @@
 #include <QString>
 #include <QDebug>
 #include <QSettings>
-#include <QTimer>
+#include <QDateTime>
 //#include "localKeyProvider.h"
 //#include "zapCrypto.h"
 #include "zapConstants.h"
@@ -24,18 +24,22 @@ class AbstractZapDevice: public QObject {
         RIGHT
     };
 
+    enum BUTTON_STATE {
+        OFF,
+        PLUS_PRESSED,
+        MINUS_PRESSED
+    };
+
     QByteArray RIDE_ON;
     QByteArray REQUEST_START;
     QByteArray RESPONSE_START;
 
-    AbstractZapDevice() : autoRepeatTimer(new QTimer(this)) {
+    AbstractZapDevice() {
         RIDE_ON = QByteArray::fromRawData("\x52\x69\x64\x65\x4F\x6E", 6);  // "RideOn"
         REQUEST_START = QByteArray::fromRawData("\x00\x09", 2);  // {0, 9}
         RESPONSE_START = QByteArray::fromRawData("\x01\x03", 2);  // {1, 3}
-
-        // Setup auto-repeat
-        autoRepeatTimer->setInterval(500);
-        connect(autoRepeatTimer, &QTimer::timeout, this, &AbstractZapDevice::handleAutoRepeat);
+        buttonState = OFF;
+        lastButtonCheck = QDateTime::currentDateTime();
     }
 
     int processCharacteristic(const QString& characteristicName, const QByteArray& bytes, ZWIFT_PLAY_TYPE zapType) {
@@ -46,6 +50,19 @@ class AbstractZapDevice: public QObject {
         bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
 
         qDebug() << zapType << characteristicName << bytes.toHex() << zwiftplay_swap << gears_volume_debouncing << risingEdge;
+
+        // Check if enough time has passed (500ms) and button is still pressed
+        if (buttonState != OFF) {
+            QDateTime currentTime = QDateTime::currentDateTime();
+            if (lastButtonCheck.msecsTo(currentTime) >= 500) {
+                lastButtonCheck = currentTime;
+                if (buttonState == PLUS_PRESSED) {
+                    emit plus();
+                } else if (buttonState == MINUS_PRESSED) {
+                    emit minus();
+                }
+            }
+        }
 
 #define DEBOUNCE (!gears_volume_debouncing || risingEdge <= 0)
 
@@ -74,13 +91,13 @@ class AbstractZapDevice: public QObject {
                         risingEdge = 2;
                         if(!zwiftplay_swap) {
                             emit plus();
-                            lastButtonPlus = true;
-                            autoRepeatTimer->start();
+                            buttonState = PLUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                         else {
                             emit minus();
-                            lastButtonPlus = false;
-                            autoRepeatTimer->start();
+                            buttonState = MINUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                     }
                 } else if(bytes[4] == 0) {
@@ -88,13 +105,13 @@ class AbstractZapDevice: public QObject {
                         risingEdge = 2;
                         if(!zwiftplay_swap) {
                             emit minus();
-                            lastButtonPlus = false;
-                            autoRepeatTimer->start();
+                            buttonState = MINUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                         else {
                             emit plus();
-                            lastButtonPlus = true;
-                            autoRepeatTimer->start();
+                            buttonState = PLUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                     }
                 } else {
@@ -102,7 +119,7 @@ class AbstractZapDevice: public QObject {
                     if(risingEdge < 0)
                         risingEdge = 0;
                     if(risingEdge == 0)
-                        autoRepeatTimer->stop();
+                        buttonState = OFF;
                 }
             }
             break;
@@ -116,13 +133,13 @@ class AbstractZapDevice: public QObject {
                         risingEdge = 2;
                         if(!zwiftplay_swap) {
                             emit plus();
-                            lastButtonPlus = true;
-                            autoRepeatTimer->start();
+                            buttonState = PLUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                         else {
                             emit minus();
-                            lastButtonPlus = false;
-                            autoRepeatTimer->start();
+                            buttonState = MINUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                     }
                 } else {
@@ -130,13 +147,13 @@ class AbstractZapDevice: public QObject {
                         risingEdge = 2;
                         if(!zwiftplay_swap) {
                             emit minus();
-                            lastButtonPlus = false;
-                            autoRepeatTimer->start();
+                            buttonState = MINUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                         else {
                             emit plus();
-                            lastButtonPlus = true;
-                            autoRepeatTimer->start();
+                            buttonState = PLUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                     }
                 }
@@ -146,13 +163,13 @@ class AbstractZapDevice: public QObject {
                         risingEdge = 2;
                         if(!zwiftplay_swap) {
                             emit plus();
-                            lastButtonPlus = true;
-                            autoRepeatTimer->start();
+                            buttonState = PLUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                         else {
                             emit minus();
-                            lastButtonPlus = false;
-                            autoRepeatTimer->start();
+                            buttonState = MINUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                     }
                 } else {
@@ -160,13 +177,13 @@ class AbstractZapDevice: public QObject {
                         risingEdge = 2;
                         if(!zwiftplay_swap) {
                             emit minus();
-                            lastButtonPlus = false;
-                            autoRepeatTimer->start();
+                            buttonState = MINUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                         else {
                             emit plus();
-                            lastButtonPlus = true;
-                            autoRepeatTimer->start();
+                            buttonState = PLUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                     }
                 }
@@ -175,7 +192,7 @@ class AbstractZapDevice: public QObject {
                 if(risingEdge < 0)
                     risingEdge = 0;
                 if(risingEdge == 0)
-                    autoRepeatTimer->stop();
+                    buttonState = OFF;
             }
             break;
         case 0x15: // empty data
@@ -191,13 +208,13 @@ class AbstractZapDevice: public QObject {
                         risingEdge = 2;
                         if(!zwiftplay_swap) {
                             emit plus();
-                            lastButtonPlus = true;
-                            autoRepeatTimer->start();
+                            buttonState = PLUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                         else {
                             emit minus();
-                            lastButtonPlus = false;
-                            autoRepeatTimer->start();
+                            buttonState = MINUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                     }
                 } else {
@@ -205,13 +222,13 @@ class AbstractZapDevice: public QObject {
                         risingEdge = 2;
                         if(!zwiftplay_swap) {
                             emit minus();
-                            lastButtonPlus = false;
-                            autoRepeatTimer->start();
+                            buttonState = MINUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                         else {
                             emit plus();
-                            lastButtonPlus = true;
-                            autoRepeatTimer->start();
+                            buttonState = PLUS_PRESSED;
+                            lastButtonCheck = QDateTime::currentDateTime();
                         }
                     }
                 }
@@ -220,13 +237,13 @@ class AbstractZapDevice: public QObject {
                     risingEdge = 2;
                     if(!zwiftplay_swap) {
                         emit plus();
-                        lastButtonPlus = true;
-                        autoRepeatTimer->start();
+                        buttonState = PLUS_PRESSED;
+                        lastButtonCheck = QDateTime::currentDateTime();
                     }
                     else {
                         emit minus();
-                        lastButtonPlus = false;
-                        autoRepeatTimer->start();
+                        buttonState = MINUS_PRESSED;
+                        lastButtonCheck = QDateTime::currentDateTime();
                     }
                 }
             } else if(bytes.length() > 3 &&
@@ -236,13 +253,13 @@ class AbstractZapDevice: public QObject {
                     risingEdge = 2;
                     if(!zwiftplay_swap) {
                         emit plus();
-                        lastButtonPlus = true;
-                        autoRepeatTimer->start();
+                        buttonState = PLUS_PRESSED;
+                        lastButtonCheck = QDateTime::currentDateTime();
                     }
                     else {
                         emit minus();
-                        lastButtonPlus = false;
-                        autoRepeatTimer->start();
+                        buttonState = MINUS_PRESSED;
+                        lastButtonCheck = QDateTime::currentDateTime();
                     }
                 }
             } else if(bytes.length() > 3 &&
@@ -252,13 +269,13 @@ class AbstractZapDevice: public QObject {
                     risingEdge = 2;
                     if(!zwiftplay_swap) {
                         emit minus();
-                        lastButtonPlus = false;
-                        autoRepeatTimer->start();
+                        buttonState = MINUS_PRESSED;
+                        lastButtonCheck = QDateTime::currentDateTime();
                     }
                     else {
                         emit plus();
-                        lastButtonPlus = true;
-                        autoRepeatTimer->start();
+                        buttonState = PLUS_PRESSED;
+                        lastButtonCheck = QDateTime::currentDateTime();
                     }
                 }
             } else if(bytes.length() > 5 &&
@@ -268,13 +285,13 @@ class AbstractZapDevice: public QObject {
                     risingEdge = 2;
                     if(!zwiftplay_swap) {
                         emit minus();
-                        lastButtonPlus = false;
-                        autoRepeatTimer->start();
+                        buttonState = MINUS_PRESSED;
+                        lastButtonCheck = QDateTime::currentDateTime();
                     }
                     else {
                         emit plus();
-                        lastButtonPlus = true;
-                        autoRepeatTimer->start();
+                        buttonState = PLUS_PRESSED;
+                        lastButtonCheck = QDateTime::currentDateTime();
                     }
                 }
             } else {
@@ -282,7 +299,7 @@ class AbstractZapDevice: public QObject {
                 if(risingEdge < 0)
                     risingEdge = 0;
                 if(risingEdge == 0)
-                    autoRepeatTimer->stop();
+                    buttonState = OFF;
             }
             break;
         }
@@ -318,16 +335,8 @@ class AbstractZapDevice: public QObject {
   private:
     QByteArray devicePublicKeyBytes;
     static volatile int8_t risingEdge;
-    QTimer* autoRepeatTimer;    // Timer for auto-repeat
-    bool lastButtonPlus = false; // Track which button was last pressed
-
-  private slots:
-    void handleAutoRepeat() {
-        if(lastButtonPlus)
-            emit plus();
-        else
-            emit minus();
-    }
+    BUTTON_STATE buttonState;
+    QDateTime lastButtonCheck;
 
   signals:
     void plus();
