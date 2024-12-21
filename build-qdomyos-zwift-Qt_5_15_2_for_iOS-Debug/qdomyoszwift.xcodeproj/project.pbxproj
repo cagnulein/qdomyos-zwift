@@ -567,6 +567,8 @@
 		87FA11AB27C5ECD1008AC5D1 /* ultrasportbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87FA11AA27C5ECD1008AC5D1 /* ultrasportbike.cpp */; };
 		87FA11AD27C5ECE4008AC5D1 /* moc_ultrasportbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87FA11AC27C5ECE4008AC5D1 /* moc_ultrasportbike.cpp */; };
 		87FA94672B6B89FD00B6AB9A /* SwiftUI.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87FA94662B6B89FD00B6AB9A /* SwiftUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		87FE06812D170D3C00CDAAF6 /* moc_trxappgateusbrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87FE06802D170D3C00CDAAF6 /* moc_trxappgateusbrower.cpp */; };
+		87FE06842D170D5600CDAAF6 /* trxappgateusbrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87FE06832D170D5600CDAAF6 /* trxappgateusbrower.cpp */; };
 		87FE5BAF2692F3130056EFC8 /* tacxneo2.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87FE5BAD2692F3130056EFC8 /* tacxneo2.cpp */; };
 		87FE5BB12692F31E0056EFC8 /* moc_tacxneo2.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87FE5BB02692F31E0056EFC8 /* moc_tacxneo2.cpp */; };
 		87FFA13727BBE3FF00924E4E /* solebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87FFA13527BBE3FE00924E4E /* solebike.cpp */; };
@@ -1595,6 +1597,9 @@
 		87FA94662B6B89FD00B6AB9A /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		87FA94682B6B8A5A00B6AB9A /* libSystem.B.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libSystem.B.tbd; path = usr/lib/libSystem.B.tbd; sourceTree = SDKROOT; };
 		87FD05DDC378E9BAD82A818F /* fit_ohr_settings_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ohr_settings_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ohr_settings_mesg_listener.hpp"; sourceTree = "<absolute>"; };
+		87FE06802D170D3C00CDAAF6 /* moc_trxappgateusbrower.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_trxappgateusbrower.cpp; sourceTree = "<group>"; };
+		87FE06822D170D5600CDAAF6 /* trxappgateusbrower.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = trxappgateusbrower.h; path = ../src/devices/trxappgateusbrower/trxappgateusbrower.h; sourceTree = SOURCE_ROOT; };
+		87FE06832D170D5600CDAAF6 /* trxappgateusbrower.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = trxappgateusbrower.cpp; path = ../src/devices/trxappgateusbrower/trxappgateusbrower.cpp; sourceTree = SOURCE_ROOT; };
 		87FE5BAD2692F3130056EFC8 /* tacxneo2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tacxneo2.cpp; path = ../src/devices/tacxneo2/tacxneo2.cpp; sourceTree = "<group>"; };
 		87FE5BAE2692F3130056EFC8 /* tacxneo2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tacxneo2.h; path = ../src/devices/tacxneo2/tacxneo2.h; sourceTree = "<group>"; };
 		87FE5BB02692F31E0056EFC8 /* moc_tacxneo2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_tacxneo2.cpp; sourceTree = "<group>"; };
@@ -2618,6 +2623,9 @@
 				87A2E0202B2B024200E6168F /* swiftDebug.h */,
 				8730A3912B404159007E336D /* zwift_protobuf_layer.swift */,
 				87B871922CE1E94D009B06CA /* zwifthubbike.swift */,
+				87FE06822D170D5600CDAAF6 /* trxappgateusbrower.h */,
+				87FE06832D170D5600CDAAF6 /* trxappgateusbrower.cpp */,
+				87FE06802D170D3C00CDAAF6 /* moc_trxappgateusbrower.cpp */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -3583,6 +3591,7 @@
 				872089172CE65451008C2C17 /* qmqtttopicname.cpp in Compile Sources */,
 				872089182CE65451008C2C17 /* qmqttpublishproperties.cpp in Compile Sources */,
 				872089192CE65451008C2C17 /* qmqttauthenticationproperties.cpp in Compile Sources */,
+				87FE06842D170D5600CDAAF6 /* trxappgateusbrower.cpp in Compile Sources */,
 				87BCE6BD29F28F72001F70EB /* ypooelliptical.cpp in Compile Sources */,
 				87C7074327E4CF5900E79C46 /* keepbike.cpp in Compile Sources */,
 				87B871932CE1E94D009B06CA /* zwifthubbike.swift in Compile Sources */,
@@ -3706,6 +3715,7 @@
 				873824AE27E64706004F1B46 /* moc_browser.cpp in Compile Sources */,
 				8738249727E646E3004F1B46 /* characteristicnotifier2a53.cpp in Compile Sources */,
 				DF373364C5474D877506CB26 /* FitMesg.mm in Compile Sources */,
+				87FE06812D170D3C00CDAAF6 /* moc_trxappgateusbrower.cpp in Compile Sources */,
 				872261F0289EA887006A6F75 /* moc_nordictrackelliptical.cpp in Compile Sources */,
 				873824E327E647A8004F1B46 /* bitmap.cpp in Compile Sources */,
 				87FE5BB12692F31E0056EFC8 /* moc_tacxneo2.cpp in Compile Sources */,
