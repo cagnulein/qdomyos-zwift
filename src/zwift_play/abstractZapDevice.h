@@ -40,7 +40,6 @@ class AbstractZapDevice: public QObject {
         RESPONSE_START = QByteArray::fromRawData("\x01\x03", 2);  // {1, 3}
         buttonState = OFF;
         lastButtonCheck = QDateTime::currentDateTime();
-        lastValidFrame = QDateTime::currentDateTime();
     }
 
     int processCharacteristic(const QString& characteristicName, const QByteArray& bytes, ZWIFT_PLAY_TYPE zapType) {
@@ -52,16 +51,9 @@ class AbstractZapDevice: public QObject {
 
         qDebug() << zapType << characteristicName << bytes.toHex() << zwiftplay_swap << gears_volume_debouncing << risingEdge;
 
-        QDateTime currentTime = QDateTime::currentDateTime();
-        
-        // Check for timeout on valid frames (reset after 1 second of no valid frames)
-        if (buttonState != OFF && lastValidFrame.msecsTo(currentTime) > 400) {
-            buttonState = OFF;
-            return 1;
-        }
-
         // Check if enough time has passed (500ms) and button is still pressed
         if (buttonState != OFF) {
+            QDateTime currentTime = QDateTime::currentDateTime();
             if (lastButtonCheck.msecsTo(currentTime) >= 500) {
                 lastButtonCheck = currentTime;
                 if (buttonState == PLUS_PRESSED) {
@@ -93,7 +85,6 @@ class AbstractZapDevice: public QObject {
 #else
         switch(bytes[0]) {
         case 0x37:
-            lastValidFrame = currentTime;
             if(bytes.length() == 5) {
                 if(bytes[2] == 0) {
                     if(DEBOUNCE) {
@@ -133,7 +124,6 @@ class AbstractZapDevice: public QObject {
             }
             break;
         case 0x07: // zwift play
-            lastValidFrame = currentTime;
             if(bytes.length() > 5 && bytes[bytes.length() - 5] == 0x40 && (
                     (((uint8_t)bytes[bytes.length() - 4]) == 0xc7 && zapType == RIGHT) ||
                     (((uint8_t)bytes[bytes.length() - 4]) == 0xc8 && zapType == LEFT)
@@ -209,7 +199,6 @@ class AbstractZapDevice: public QObject {
             qDebug() << "ignoring this frame";
             return 1;
         case 0x23: // zwift ride
-            lastValidFrame = currentTime;
             if(bytes.length() > 12 &&
                 ((((uint8_t)bytes[12]) == 0xc7 && zapType == RIGHT) ||
                  (((uint8_t)bytes[12]) == 0xc8 && zapType == LEFT))
@@ -348,7 +337,6 @@ class AbstractZapDevice: public QObject {
     static volatile int8_t risingEdge;
     BUTTON_STATE buttonState;
     QDateTime lastButtonCheck;
-    QDateTime lastValidFrame;  // Timestamp of last valid frame
 
   signals:
     void plus();
