@@ -45,7 +45,7 @@ class AbstractZapDevice: public QObject {
         bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
         bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
 
-        qDebug() << zapType << characteristicName << bytes.toHex() << zwiftplay_swap << gears_volume_debouncing << risingEdge;
+        qDebug() << zapType << characteristicName << bytes.toHex() << zwiftplay_swap << gears_volume_debouncing << risingEdge << lastFrame;
 
 #define DEBOUNCE (!gears_volume_debouncing || risingEdge <= 0)
 
@@ -68,6 +68,7 @@ class AbstractZapDevice: public QObject {
 #else
         switch(bytes[0]) {
         case 0x37:
+            lastFrame = QDateTime::currentDateTime();
             if(bytes.length() == 5) {
                 if(bytes[2] == 0) {
                     if(DEBOUNCE) {
@@ -107,6 +108,7 @@ class AbstractZapDevice: public QObject {
             }
             break;
         case 0x07: // zwift play
+            lastFrame = QDateTime::currentDateTime();
             if(bytes.length() > 5 && bytes[bytes.length() - 5] == 0x40 && (
                     (((uint8_t)bytes[bytes.length() - 4]) == 0xc7 && zapType == RIGHT) ||
                     (((uint8_t)bytes[bytes.length() - 4]) == 0xc8 && zapType == LEFT)
@@ -182,6 +184,7 @@ class AbstractZapDevice: public QObject {
             qDebug() << "ignoring this frame";
             return 1;
         case 0x23: // zwift ride
+            lastFrame = QDateTime::currentDateTime();
             if(bytes.length() > 12 &&
                 ((((uint8_t)bytes[12]) == 0xc7 && zapType == RIGHT) ||
                  (((uint8_t)bytes[12]) == 0xc8 && zapType == LEFT))
@@ -320,6 +323,7 @@ class AbstractZapDevice: public QObject {
     static volatile int8_t risingEdge;
     QTimer* autoRepeatTimer;    // Timer for auto-repeat
     bool lastButtonPlus = false; // Track which button was last pressed
+    QDateTime lastFrame = QDateTime::currentDateTime();
 
   private slots:
     void handleAutoRepeat() {
