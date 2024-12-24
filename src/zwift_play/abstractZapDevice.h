@@ -328,6 +328,7 @@ class AbstractZapDevice: public QObject {
 
   private slots:
     void handleAutoRepeat() {
+        qDebug() << "gear auto repeat" << lastButtonPlus << lastFrame;
         if(lastButtonPlus)
             emit plus();
         else
