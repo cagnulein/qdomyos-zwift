@@ -73,6 +73,7 @@ class octanetreadmill : public treadmill {
     bool initRequest = false;
 
     bool ZR8 = false;
+    bool ZR7 = false;
 
   Q_SIGNALS:
     void disconnected();
