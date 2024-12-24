@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
 
 
 static const char SMART_CONTROL_SERVICE_UUID[]         = "E9410200-B434-446B-B5CC-36592FC4C724";
