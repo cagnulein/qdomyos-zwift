@@ -5,6 +5,7 @@
 //
 
 #include "SmartControl.h"
+#include <random>
 
 #define SensorHz                10000
 
@@ -15,6 +16,13 @@ typedef enum smart_control_command
     SMART_CONTROL_COMMAND_SPINDOWN_CALIBRATION  = 0x03
 } smart_control_command;
 
+
+uint32_t getrandom(uint32_t upper_bound) {
+    static std::random_device rd;  // Used to initialize the random engine
+    static std::mt19937 gen(rd()); // Mersenne Twister engine
+    std::uniform_int_distribution<uint32_t> dis(0, upper_bound - 1);
+    return dis(gen);
+}
 
 uint8_t hash8WithSeed(uint8_t hash, const uint8_t *buffer, uint8_t length)
 {
@@ -197,7 +205,7 @@ smart_control_set_mode_erg_data smart_control_set_mode_erg_command(uint16_t targ
     data.bytes[1] = SMART_CONTROL_MODE_ERG;
     data.bytes[2] = (uint16_t)clamped >> 8;
     data.bytes[3] = (uint16_t)clamped;
-    data.bytes[4] = arc4random_uniform(0x100); // nonce
+    data.bytes[4] = getrandom(0x100); // nonce
     uint8_t dataLength = 5;
     
     // Encode Packet
@@ -222,7 +230,7 @@ smart_control_set_mode_fluid_data smart_control_set_mode_fluid_command(uint8_t l
     data.bytes[0] = SMART_CONTROL_COMMAND_SET_PERFORMANCE;
     data.bytes[1] = SMART_CONTROL_MODE_FLUID;
     data.bytes[2] = clamped;
-    data.bytes[3] = arc4random_uniform(0x100); // nonce
+    data.bytes[3] = getrandom(0x100); // nonce
     uint8_t dataLength = 4;
     
     // Encode Packet
@@ -248,7 +256,7 @@ smart_control_set_mode_brake_data smart_control_set_mode_brake_command(float per
     data.bytes[1] = SMART_CONTROL_MODE_BRAKE;
     data.bytes[2] = normalized >> 8;
     data.bytes[3] = normalized;
-    data.bytes[4] = arc4random_uniform(0x100); // nonce
+    data.bytes[4] = getrandom(0x100); // nonce
     uint8_t dataLength = 5;
     
     // Encode Packet
@@ -297,7 +305,7 @@ smart_control_set_mode_simulation_data smart_control_set_mode_simulation_command
     data.bytes[10] = windSpeedCM >> 8;
     data.bytes[11] = windSpeedCM;
     
-    data.bytes[12] = arc4random_uniform(0x100); // nonce
+    data.bytes[12] = getrandom(0x100); // nonce
     uint8_t dataLength = 13;    
     
     // Encode Packet
@@ -318,7 +326,7 @@ smart_control_calibration_command_data smart_control_start_calibration_command(b
     data.bytes[0] = SMART_CONTROL_COMMAND_SPINDOWN_CALIBRATION;
     data.bytes[1] = 0x01;
     data.bytes[2] = brakeCalibration ? 0x01 : 0x00;
-    data.bytes[3] = arc4random_uniform(0x100); // nonce
+    data.bytes[3] = getrandom(0x100); // nonce
     uint8_t dataLength = 4;
     
     // Encode Packet
@@ -339,7 +347,7 @@ smart_control_calibration_command_data smart_control_stop_calibration_command()
     data.bytes[0] = SMART_CONTROL_COMMAND_SPINDOWN_CALIBRATION;
     data.bytes[1] = 0x00;
     data.bytes[2] = 0x00;
-    data.bytes[3] = arc4random_uniform(0x100); // nonce
+    data.bytes[3] = getrandom(0x100); // nonce
     uint8_t dataLength = 4;
     
     // Encode Packet
