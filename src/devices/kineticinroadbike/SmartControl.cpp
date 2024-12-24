@@ -5,6 +5,7 @@
 //
 
 #include "SmartControl.h"
+#include <stdint.h>
 
 #define SensorHz                10000
 
