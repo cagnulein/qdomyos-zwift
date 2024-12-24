@@ -369,22 +369,33 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         Cadence = ((uint8_t)newValue.at(i));
     }
 
-    if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
-        return;
+    double speed = 0;
 
-    if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
-        return;
+    if(ZR7) {
+        if(newValue.at(0) == 0xa5 && newValue.at(1) == 0x0b) {
+            uint16_t convertedData = (newValue.at(11) << 8) | ((uint8_t)newValue.at(12));
+            speed = ((1.0 / ((double)convertedData)) / 0.621371) * 3600.0;
+        } else {
+            return;
+        }
+    } else {
+        if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
+            return;
 
-    int16_t i = newValue.indexOf(actualPaceSign) + 2;
-    if (i <= 1)
-        i = newValue.indexOf(actualPace2Sign) + 3;
+        if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
+            return;
 
-    if (i + 1 >= newValue.length())
-        return;
+        int16_t i = newValue.indexOf(actualPaceSign) + 2;
+        if (i <= 1)
+            i = newValue.indexOf(actualPace2Sign) + 3;
 
-    double speed = GetSpeedFromPacket(value, i);
-    if (isinf(speed))
-        return;
+        if (i + 1 >= newValue.length())
+            return;
+
+        speed = GetSpeedFromPacket(value, i);
+        if (isinf(speed))
+            return;
+    }
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -533,6 +544,9 @@ void octanetreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (device.name().toUpper().startsWith(QLatin1String("ZR8"))) {
             ZR8 = true;
             qDebug() << "ZR8 workaround activated";
+        } else if (device.name().toUpper().startsWith(QLatin1String("ZR7"))) {
+            ZR7 = true;
+            qDebug() << "ZR7 workaround activated";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
