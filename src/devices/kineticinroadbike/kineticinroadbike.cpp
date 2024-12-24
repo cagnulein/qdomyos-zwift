@@ -197,6 +197,11 @@ void kineticinroadbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     QByteArray encryptedData = newValue;
     int dataSize = encryptedData.size();
 
+    if (dataSize < 14 || characteristic.uuid() != QBluetoothUuid(QStringLiteral("e9410201-b434-446b-b5cc-36592fc4c724"))) {
+         qDebug() << "Invalid data size";
+         return;
+    }
+
     smart_control_power_data pD = smart_control_process_power_data((uint8_t *)newValue.data(), dataSize);
 
     // Set the parsed values to the bike metrics
