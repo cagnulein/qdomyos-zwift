@@ -80,6 +80,7 @@ SOURCES += \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.cpp \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
     $$PWD/devices/jumprope.cpp \
+    $$PWD/devices/kineticinroadbike/SmartControl.c \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
@@ -332,6 +333,7 @@ HEADERS += \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/jumprope.h \
+    $$PWD/devices/kineticinroadbike/SmartControl.h \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.h \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
     $$PWD/devices/sportsplusrower/sportsplusrower.h \
