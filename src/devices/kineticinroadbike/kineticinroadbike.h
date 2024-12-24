@@ -34,6 +34,8 @@
 #include "ios/lockscreen.h"
 #endif
 
+#include "SmartControl.h"
+
 class kineticinroadbike : public bike {
     Q_OBJECT
   public:

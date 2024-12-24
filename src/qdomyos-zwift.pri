@@ -80,7 +80,7 @@ SOURCES += \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.cpp \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
     $$PWD/devices/jumprope.cpp \
-    $$PWD/devices/kineticinroadbike/SmartControl.c \
+    $$PWD/devices/kineticinroadbike/SmartControl.cpp \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \

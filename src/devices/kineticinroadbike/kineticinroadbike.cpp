@@ -11,7 +11,6 @@
 #include <QSettings>
 #include <chrono>
 #include <math.h>
-#include "SmartControl.h"
 
 using namespace std::chrono_literals;
 

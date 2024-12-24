@@ -88,7 +88,7 @@ smart_control_power_data smart_control_process_power_data(uint8_t *data, size_t 
     smart_control_power_data powerData;
     
     if (size >= 14) {
-        powerData.mode = inData[0];
+        powerData.mode = (smart_control_mode)inData[0];
         powerData.targetResistance = ((uint16_t)inData[1] << 8) | (uint16_t)inData[2];
         powerData.power = ((uint16_t)inData[3] << 8) | (uint16_t)inData[4];
         powerData.cadenceRPM = inData[12];
@@ -134,7 +134,7 @@ smart_control_config_data smart_control_process_config_data(uint8_t *data, size_
         
         if (size >= 13) {
             configData.systemStatus = ((uint16_t)inData[5] << 8) | (uint16_t)inData[6];
-            configData.calibrationState = inData[7];
+            configData.calibrationState = (smart_control_calibration_state)inData[7];
             uint32_t spindownTicks = ((uint32_t)inData[8] << 24) | ((uint32_t)inData[9] << 16) | ((uint32_t)inData[10] << 8) | (uint32_t)inData[11];
             configData.spindownTime = smart_control_ticks_to_seconds(spindownTicks);
         }
