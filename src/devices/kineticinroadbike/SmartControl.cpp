@@ -6,6 +6,7 @@
 
 #include "SmartControl.h"
 #include <random>
+#include <vector>
 
 #define SensorHz                10000
 
@@ -83,12 +84,12 @@ double smart_control_ticks_to_seconds(uint32_t ticks)
 smart_control_power_data smart_control_process_power_data(uint8_t *data, size_t size)
 {
     uint8_t hashSeed = 0x42;
-    uint8_t inData[size];
-    for (int i = 0; i < size; ++i) {
+    std::vector<uint8_t> inData(size);  // Use vector instead of VLA
+    for (size_t i = 0; i < size; ++i) {
         inData[i] = data[i];
     }
     uint8_t hash = hash8WithSeed(hashSeed, &inData[size - 1], 1);
-    for (unsigned index = 0; index < size - 1; index++) {
+    for (size_t index = 0; index < size - 1; index++) {
         inData[index] ^= hash;
         hash = hash8WithSeed(hash, &inData[index], 1);
     }
@@ -122,12 +123,12 @@ smart_control_power_data smart_control_process_power_data(uint8_t *data, size_t 
 smart_control_config_data smart_control_process_config_data(uint8_t *data, size_t size)
 {
     uint8_t hashSeed = 0x42;
-    uint8_t inData[size];
-    for (int i = 0; i < size; ++i) {
+    std::vector<uint8_t> inData(size);  // Use vector instead of VLA
+    for (size_t i = 0; i < size; ++i) {
         inData[i] = data[i];
     }
     uint8_t hash = hash8WithSeed(hashSeed, &inData[size - 1], 1);
-    for (unsigned index = 0; index < size - 1; index++) {
+    for (size_t index = 0; index < size - 1; index++) {
         inData[index] ^= hash;
         hash = hash8WithSeed(hash, &inData[index], 1);
     }
@@ -135,7 +136,6 @@ smart_control_config_data smart_control_process_config_data(uint8_t *data, size_
     smart_control_config_data configData;
     
     if (size >= 5) {
-        
         configData.updateRate = inData[0];
         configData.tickRate = ((uint32_t)inData[1] << 16) | ((uint32_t)inData[2] << 8) | (uint32_t)inData[3];
         configData.firmwareUpdateState = inData[4];
