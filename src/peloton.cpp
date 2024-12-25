@@ -1209,6 +1209,16 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                 qDebug() << row.duration << row.speed << row.inclination;
                 trainrows.append(row);
             }
+            
+            QTime duration(0,0,0,0);
+            foreach(trainrow r, trainrows) {
+                duration = duration.addSecs(QTime(0,0,0,0).secsTo(r.duration));
+                qDebug() << duration << r.duration;
+            }
+            if(QTime(0,0,0,0).secsTo(duration) < current_pedaling_duration) {
+                qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << QTime(0,0,0,0).secsTo(duration) << current_pedaling_duration;
+                trainrows.clear();
+            }
         }
     }
 
