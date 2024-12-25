@@ -29,14 +29,21 @@ class AbstractZapDevice: public QObject {
     QByteArray REQUEST_START;
     QByteArray RESPONSE_START;
 
-    AbstractZapDevice() : autoRepeatTimer(new QTimer(this)) {
+    AbstractZapDevice() {
         RIDE_ON = QByteArray::fromRawData("\x52\x69\x64\x65\x4F\x6E", 6);  // "RideOn"
         REQUEST_START = QByteArray::fromRawData("\x00\x09", 2);  // {0, 9}
         RESPONSE_START = QByteArray::fromRawData("\x01\x03", 2);  // {1, 3}
 
         // Setup auto-repeat
+        autoRepeatTimer = new QTimer();
         autoRepeatTimer->setInterval(500);
         connect(autoRepeatTimer, &QTimer::timeout, this, &AbstractZapDevice::handleAutoRepeat);
+    }
+
+    ~AbstractZapDevice() {
+        if (autoRepeatTimer) {
+            autoRepeatTimer->stop();
+        }
     }
 
     int processCharacteristic(const QString& characteristicName, const QByteArray& bytes, ZWIFT_PLAY_TYPE zapType) {
@@ -322,13 +329,19 @@ class AbstractZapDevice: public QObject {
   private:
     QByteArray devicePublicKeyBytes;
     static volatile int8_t risingEdge;
-    QTimer* autoRepeatTimer;    // Timer for auto-repeat
-    bool lastButtonPlus = false; // Track which button was last pressed
-    QDateTime lastFrame = QDateTime::currentDateTime();
+    static QTimer* autoRepeatTimer;    // Static timer for auto-repeat
+    static bool lastButtonPlus;  // Static track of which button was last pressed
+    static QDateTime lastFrame;
 
   private slots:
     void handleAutoRepeat() {
-        qDebug() << "gear auto repeat" << lastButtonPlus << lastFrame;
+        uint64_t delta = lastFrame.msecsTo(QDateTime::currentDateTime());
+        qDebug() << "gear auto repeat" << lastButtonPlus << lastFrame << delta;
+        if(delta > 500) {
+            qDebug() << "stopping repeat timer";
+            autoRepeatTimer->stop();
+            return;
+        }
         if(lastButtonPlus)
             emit plus();
         else
