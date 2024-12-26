@@ -337,7 +337,7 @@ class AbstractZapDevice: public QObject {
     void handleAutoRepeat() {
         uint64_t delta = lastFrame.msecsTo(QDateTime::currentDateTime());
         qDebug() << "gear auto repeat" << lastButtonPlus << lastFrame << delta;
-        if(delta > 500) {
+        if(delta > 400) {
             qDebug() << "stopping repeat timer";
             autoRepeatTimer->stop();
             return;
