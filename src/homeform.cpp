@@ -1563,6 +1563,12 @@ void homeform::sortTiles() {
                 target_power->setGridId(i);
                 dataList.append(target_power);
             }
+
+            if (settings.value(QZSettings::tile_target_zone_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_target_zone_order, 24).toInt() == i) {
+                target_zone->setGridId(i);
+                dataList.append(target_zone);
+            }            
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
         for (int i = 0; i < 100; i++) {
