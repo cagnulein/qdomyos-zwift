@@ -88,6 +88,7 @@
 #include "devices/pafersbike/pafersbike.h"
 #include "devices/paferstreadmill/paferstreadmill.h"
 #include "devices/pelotonbike/pelotonbike.h"
+#include "devices/pitpatbike/pitpatbike.h"
 #include "devices/proformbike/proformbike.h"
 #include "devices/proformelliptical/proformelliptical.h"
 #include "devices/proformellipticaltrainer/proformellipticaltrainer.h"
@@ -260,6 +261,7 @@ class bluetooth : public QObject, public SignalHandler {
     pafersbike *pafersBike = nullptr;
     paferstreadmill *pafersTreadmill = nullptr;
     tacxneo2 *tacxneo2Bike = nullptr;
+    pitpatbike *pitpatBike = nullptr;
     renphobike *renphoBike = nullptr;
     shuaa5treadmill *shuaA5Treadmill = nullptr;
     heartratebelt *heartRateBelt = nullptr;

@@ -2064,7 +2064,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 eslinkerTreadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(eslinkerTreadmill);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("PITPAT")) && !deerrunTreadmill && filter) {
+            } else if (b.name().toUpper().startsWith(QStringLiteral("PITPAT-T")) && !deerrunTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 deerrunTreadmill = new deerruntreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -2470,6 +2470,28 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(chronoBike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("PITPAT-S")) && !pitpatBike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                pitpatBike = new pitpatbike(noWriteResistance, noHeartService, bikeResistanceOffset,
+                                            bikeResistanceGain);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                stateFileRead();
+#endif
+                emit deviceConnected(b);
+                connect(pitpatBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                //connect(pitpatBike, &pitpatbike::debug, this, &bluetooth::debug);
+                // NOTE: Commented due to #358
+                // connect(chronoBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // NOTE: Commented due to #358
+                // connect(chronoBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                pitpatBike->deviceDiscovered(b);
+                // NOTE: Commented due to #358
+                // connect(this, SIGNAL(searchingStop()), chronoBike, SLOT(searchingStop()));
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(pitpatBike);
             }
         }
     }
@@ -3369,6 +3391,11 @@ void bluetooth::restart() {
         delete chronoBike;
         chronoBike = nullptr;
     }
+    if (pitpatBike) {
+
+        delete pitpatBike;
+        pitpatBike = nullptr;
+    }
     if (snodeBike) {
 
         delete snodeBike;
@@ -3662,6 +3689,8 @@ bluetoothdevice *bluetooth::device() {
         return inspireBike;
     } else if (chronoBike) {
         return chronoBike;
+    } else if (pitpatBike) {
+        return pitpatBike;
     } else if (m3iBike) {
         return m3iBike;
     } else if (snodeBike) {
