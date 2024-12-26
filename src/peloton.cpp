@@ -1104,10 +1104,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                 peloton_treadmill_level = 0;
 
             double miles = 1.0;
-            if (ride.contains("splits_data")) {
-                QJsonObject splits_data = ride["splits_data"].toObject();
-                if (splits_data["distance_marker_display_unit"].toString().toUpper() == "MI")
-                    miles = 1.60934;
+            if (settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool()) { // i didn't find the unit in the json
+                miles = 1.60934;
             }
 
             for (const QJsonValue& segment : target_metrics) {
