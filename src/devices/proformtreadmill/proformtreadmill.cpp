@@ -259,7 +259,7 @@ void proformtreadmill::update() {
             if (counterPoll > 5) {
                 counterPoll = 0;
             }
-        } else if (proform_1500_pro) {
+        } else if (proform_treadmill_1500_pro) {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x14, 0x03};
             uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 
                                 0x0a, 0x1b, 0x94, 0x30, 0x00, 0x00, 0x40, 0x50, 0x00, 0x80};
@@ -2994,7 +2994,7 @@ void proformtreadmill::btinit() {
         QThread::msleep(sleepms);
         writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
-    } else if (proform_1500_pro) {
+    } else if (proform_treadmill_1500_pro) {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
