@@ -1160,7 +1160,7 @@ void ftmsbike::serviceScanDone(void) {
             gattCommunicationChannelService.constLast()->discoverDetails();
 
             // watt bikes has the 6 as default gear value
-            if(s == QBluetoothUuid(QStringLiteral("b4cc1223-bc02-4cae-adb9-1217ad2860d1"))) {
+            if(s == QBluetoothUuid(QStringLiteral("b4cc1223-bc02-4cae-adb9-1217ad2860d1")) && SS2K == false) {
                 WATTBIKE = true;
                 qDebug() << QStringLiteral("restoring gear 6 to watt bikes");
                 setGears(6);
@@ -1219,6 +1219,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(bluetoothDevice.name().toUpper().startsWith("VFSPINBIKE")) {
             qDebug() << QStringLiteral("VFSPINBIKE found");
             VFSPINBIKE = true;
+        } else if(bluetoothDevice.name().toUpper().startsWith("SMARTSPIN2K")) {
+            qDebug() << QStringLiteral("SS2K found");
+            SS2K = true;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {

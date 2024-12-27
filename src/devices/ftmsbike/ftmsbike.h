@@ -129,6 +129,7 @@ class ftmsbike : public bike {
     bool D2RIDE = false;
     bool WATTBIKE = false;
     bool VFSPINBIKE = false;
+    bool SS2K = false;
 
     uint8_t battery_level = 0;
 
