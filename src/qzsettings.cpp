@@ -806,8 +806,9 @@ const QString QZSettings::default_OSC_ip = QStringLiteral("");
 const QString QZSettings::OSC_port = QStringLiteral("osc_port");
 const QString QZSettings::strava_treadmill = QStringLiteral("strava_treadmill");
 const QString QZSettings::iconsole_rower = QStringLiteral("iconsole_rower");
+const QString QZSettings::proform_treadmill_1500_pro = QStringLiteral("proform_treadmill_1500_pro");
 
-const uint32_t allSettingsCount = 680;
+const uint32_t allSettingsCount = 681;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1494,6 +1495,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::OSC_port, QZSettings::default_OSC_port},
     {QZSettings::strava_treadmill, QZSettings::default_strava_treadmill},
     {QZSettings::iconsole_rower, QZSettings::default_iconsole_rower},
+    {QZSettings::proform_treadmill_1500_pro, QZSettings::default_proform_treadmill_1500_pro},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
