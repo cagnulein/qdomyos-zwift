@@ -96,6 +96,9 @@ Zwift bridge for Treadmills and Bike!
 |:---|:---:|:---:|:---:|:---:|---:|
 |Resistance shifting with bluetooth remote|X||X|||
 |TTS support|X|X|X|X||
+|Zwift Play & Click support|X|||||
+|MQTT integration|X|X|X|X||
+|OpenSoundControl integration|X|X|X|X||
 
 
 ### Installation 
