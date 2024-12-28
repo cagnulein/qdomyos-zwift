@@ -35,7 +35,7 @@ class zwiftclickremote : public bluetoothdevice {
     zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap);
     bool connected() override;
     ZwiftPlayDevice* playDevice = new ZwiftPlayDevice();
-    void vibrate();
+    void vibrate(uint8_t pattern);
     AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap = AbstractZapDevice::NONE;
 
   private:

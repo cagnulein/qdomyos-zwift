@@ -81,6 +81,10 @@ class bike : public bluetoothdevice {
     void resistanceChanged(resistance_t resistance);
     void resistanceRead(resistance_t resistance);
     void steeringAngleChanged(double angle);
+    void gearOkUp(); // Signal when gear up succeeds
+    void gearOkDown(); // Signal when gear down succeeds
+    void gearFailedUp();   // Signal when gear up hits max
+    void gearFailedDown(); // Signal when gear down hits min
 
   protected:
     metric RequestedResistance;
