@@ -9925,7 +9925,7 @@ import QtQuick.Dialogs 1.0
                             }
                         }
                     }
-                }
+
 /*
                 AccordionElement {
                         title: qsTr("SRAM Devices Options")
@@ -10142,8 +10142,8 @@ import QtQuick.Dialogs 1.0
                                 color: Material.color(Material.Lime)
                             }
                         }
-                    }
-
+                    }                    
+                }
             }
 
             NewPageElement {
