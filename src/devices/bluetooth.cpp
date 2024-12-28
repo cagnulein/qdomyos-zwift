@@ -2843,6 +2843,8 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last(), &zwiftclickremote::debug, this, &bluetooth::debug);
                 connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
                 connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, this, &bluetooth::gearUp);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, this, &bluetooth::gearDown);
                 zwiftPlayDevice.last()->deviceDiscovered(b);
                 if(homeform::singleton())
                     homeform::singleton()->setToastRequested("Zwift Play/Ride Connected!");
@@ -2916,6 +2918,28 @@ void bluetooth::connectedAndDiscovered() {
 #endif
 
     firstConnected = false;
+}
+
+void bluetooth::gearUp() {
+    QSettings settings;
+    bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
+    foreach(zwiftclickremote* p, zwiftPlayDevice) {
+        if((p->typeZap == AbstractZapDevice::LEFT && !zwiftplay_swap) || (p->typeZap == AbstractZapDevice::RIGHT && zwiftplay_swap)) {
+            p->vibrate();
+            return;
+        }
+    }
+}
+
+void bluetooth::gearDown() {
+    QSettings settings;
+    bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
+    foreach(zwiftclickremote* p, zwiftPlayDevice) {
+        if((p->typeZap == AbstractZapDevice::RIGHT && !zwiftplay_swap) || (p->typeZap == AbstractZapDevice::LEFT && zwiftplay_swap)) {
+            p->vibrate();
+            return;
+        }
+    }
 }
 
 void bluetooth::heartRate(uint8_t heart) { Q_UNUSED(heart) }
