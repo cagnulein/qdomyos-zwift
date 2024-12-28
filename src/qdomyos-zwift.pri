@@ -31,7 +31,14 @@ CONFIG += qmltypes
 #unix:!android: CONFIG += webengine
 
 win32:DEFINES += _ITERATOR_DEBUG_LEVEL=0
-win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -L$$PWD
+win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -lBthprops -lVersion -lRpcrt4 -lole32 -L$$PWD
+
+win32 {
+    LIBS += -lBthprops
+    LIBS += -lVersion
+    LIBS += -lRpcrt4    # Per StringFromGUID2
+    LIBS += -lole32     # Altra possibile dipendenza per GUID
+}
 
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
