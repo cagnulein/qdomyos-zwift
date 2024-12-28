@@ -713,6 +713,7 @@ uint8_t renphobike::resistanceFromPowerRequest(uint16_t power)
 }*/
 
 double renphobike::bikeResistanceToPeloton(double resistance) {
+    /*
     QSettings settings;
     bool renpho_peloton_conversion_v2 =
         settings.value(QZSettings::renpho_peloton_conversion_v2, QZSettings::default_renpho_peloton_conversion_v2)
@@ -736,7 +737,9 @@ double renphobike::bikeResistanceToPeloton(double resistance) {
         if (p < 0)
             p = 0;
         return p;
-    }
+    }*/
+
+    return resistance * 4.0;
 }
 
 bool renphobike::connected() {
