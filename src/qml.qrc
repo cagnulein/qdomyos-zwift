@@ -111,5 +111,6 @@
         <file>Wizard.qml</file>
         <file>gears.qml</file>
         <file>IndicatorOnlySwitch.qml</file>
+        <file>StaticAccordionElement.qml</file>
     </qresource>
 </RCC>
