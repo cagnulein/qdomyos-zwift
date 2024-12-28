@@ -1382,7 +1382,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: unitDelegate
                         text: qsTr("Use Miles unit in UI")
                         spacing: 0
@@ -1410,7 +1410,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: pauseOnStartDelegate
                         text: qsTr("Pause when App Starts")
                         spacing: 0
@@ -1438,7 +1438,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: continuousMovingDelegate
                         text: qsTr("Continuous Moving")
                         spacing: 0
@@ -1488,8 +1488,7 @@ import QtQuick.Dialogs 1.0
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
                     spacing: 0
-                    SwitchDelegate {
-                        id: switchDelegate
+                    IndicatorOnlySwitch {
                         text: qsTr("Heart Rate service outside FTMS")
                         spacing: 0
                         bottomPadding: 0
@@ -1516,7 +1515,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: switchBultinDelegate
                         text: qsTr("Disable HRM from Machinery")
                         spacing: 0
@@ -1544,7 +1543,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: switchBultinKcalDelegate
                         text: qsTr("Disable KCal from Machinery")
                         spacing: 0
@@ -1749,7 +1748,7 @@ import QtQuick.Dialogs 1.0
                                 color: Material.backgroundColor
                                 accordionContent: ColumnLayout {
                                     spacing: 10
-                                    SwitchDelegate {
+                                    IndicatorOnlySwitch {
                                         id: heartRateMaxOverrideDelegate
                                         text: qsTr("Override Heart Rate Max Calc.")
                                         spacing: 0
@@ -1954,7 +1953,7 @@ import QtQuick.Dialogs 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: speedPowerBasedDelegate
                         text: qsTr("Speed calculates on Power")
                         spacing: 0
@@ -1981,7 +1980,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: gearsRestoreDelegate
                         text: qsTr("Restore Gears on Startup")
                         spacing: 0
@@ -2011,7 +2010,7 @@ import QtQuick.Dialogs 1.0
                     }
 
                     // Add the new specific gear value restore setting
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: gearsRestoreValueDelegate
                         text: qsTr("Restore Specific Gear Value")
                         spacing: 0
@@ -2191,7 +2190,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.cwGain = cwGainTextField.text; toast.show("Setting saved!"); }
                         }
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: zwiftErgDelegate
                         text: qsTr("Zwift Workout/Erg Mode")
                         spacing: 0
@@ -2626,7 +2625,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
                         spacing: 0
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: schwinnBikeResistanceDelegate
                             text: qsTr("Calc. Resistance")
                             spacing: 0
@@ -2640,7 +2639,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: settings.schwinn_bike_resistance = checked
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: schwinnBikeResistanceV2Delegate
                             text: qsTr("Res. Alternative Calc. v2")
                             spacing: 0
@@ -2654,7 +2653,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: settings.schwinn_bike_resistance_v2 = checked
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("Res. Alternative Calc. v3")
                             spacing: 0
                             bottomPadding: 0
@@ -2822,7 +2821,7 @@ import QtQuick.Dialogs 1.0
                                 onClicked: { settings.echelon_resistance_offset = echelonResistanceOffsetTextField.text; toast.show("Setting saved!"); }
                             }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("Change gears using knob (Experimental)")
                             spacing: 0
                             bottomPadding: 0
@@ -2846,7 +2845,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
                         spacing: 0
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: inspirePelotonFormulaDelegate
                         text: qsTr("Advanced Formula (15/3/2021)")
                         spacing: 0
@@ -2860,7 +2859,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: settings.inspire_peloton_formula = checked
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: inspirePelotonFormula2Delegate
                         text: qsTr("Advanced Formula (14/7/2021)")
                         spacing: 0
@@ -2885,7 +2884,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
                         spacing: 0
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: renphoPelotonFormulaDelegate
                             text: qsTr("New Peloton Formula (11/02/2022)")
                             spacing: 0
@@ -2899,7 +2898,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: settings.renpho_peloton_conversion_v2 = checked
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("Use 0.5 resistance lvls")
                             spacing: 0
                             bottomPadding: 0
@@ -2921,7 +2920,7 @@ import QtQuick.Dialogs 1.0
                     indicatRectColor: Material.color(Material.Grey)
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
-                    accordionContent: SwitchDelegate {
+                    accordionContent: IndicatorOnlySwitch {
                         id: hammerBikeDelegate
                         text: qsTr("Enable support")
                         spacing: 0
@@ -2942,7 +2941,7 @@ import QtQuick.Dialogs 1.0
                     indicatRectColor: Material.color(Material.Grey)
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
-                    accordionContent: SwitchDelegate {
+                    accordionContent: IndicatorOnlySwitch {
                         text: qsTr("Enable support")
                         spacing: 0
                         bottomPadding: 0
@@ -2963,7 +2962,7 @@ import QtQuick.Dialogs 1.0
                     indicatRectColor: Material.color(Material.Grey)
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
-                    accordionContent: SwitchDelegate {
+                    accordionContent: IndicatorOnlySwitch {
                         id: spht9600iEBikeDelegate
                         text: qsTr("SP-HT-9600iE")
                         spacing: 0
@@ -2984,7 +2983,7 @@ import QtQuick.Dialogs 1.0
                     indicatRectColor: Material.color(Material.Grey)
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
-                    accordionContent: SwitchDelegate {
+                    accordionContent: IndicatorOnlySwitch {
                         id: yesoulBikeDelegate
                         text: qsTr("Yesoul New Peloton Formula")
                         spacing: 0
@@ -3006,7 +3005,7 @@ import QtQuick.Dialogs 1.0
                     indicatRectColor: Material.color(Material.Grey)
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
-                    accordionContent: SwitchDelegate {
+                    accordionContent: IndicatorOnlySwitch {
                         id: snodeBikeDelegate
                         text: qsTr("Snode Bike")
                         spacing: 0
@@ -3028,7 +3027,7 @@ import QtQuick.Dialogs 1.0
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
                     accordionContent:
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: fitplusBikeDelegate
                         text: qsTr("Fit Plus Bike")
                         spacing: 0
@@ -3042,7 +3041,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.fitplus_bike = checked; window.settings_restart_to_apply = true; }
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: virtufitEtappeBikeDelegate
                         text: qsTr("Virtufit Etappe 2.0 Bike")
                         spacing: 0
@@ -3056,7 +3055,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.virtufit_etappe = checked; window.settings_restart_to_apply = true; }
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: sportstechSx600BikeDelegate
                         text: qsTr("Sportstech SX600 bike")
                         spacing: 0
@@ -3103,7 +3102,7 @@ import QtQuick.Dialogs 1.0
                                 onClicked: { settings.flywheel_filter = flywheelBikeFilterTextField.text; toast.show("Setting saved!"); }
                             }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: lifeFitnessIC8Delegate
                             text: qsTr("Life Fitness IC8")
                             spacing: 0
@@ -3149,7 +3148,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text; toast.show("Setting saved!"); }
                         }
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Fix Calories/Km to Console")
                         spacing: 0
                         bottomPadding: 0
@@ -3162,7 +3161,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: settings.domyos_bike_display_calories = checked
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Bike 500 wattage profile")
                         spacing: 0
                         bottomPadding: 0
@@ -3175,7 +3174,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.domyos_bike_500_profile_v1 = checked; settings.domyos_bike_500_profile_v2 = false; }
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Bike 500 wattage profile v2")
                         spacing: 0
                         bottomPadding: 0
@@ -3194,7 +3193,7 @@ import QtQuick.Dialogs 1.0
                     indicatRectColor: Material.color(Material.Grey)
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Peloton Configuration")
                         spacing: 0
                         bottomPadding: 0
@@ -3330,7 +3329,7 @@ import QtQuick.Dialogs 1.0
                         }
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: proformTdfJonseedWattdelegate
                         text: qsTr("TDF CBC Jonseed Watt table")
                         spacing: 0
@@ -3416,7 +3415,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.tdf_10_ip = proformTDFCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: proformBikeAdbRemotedelegate
                         text: qsTr("ADB Remote")
                         spacing: 0
@@ -3430,7 +3429,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.nordictrack_ifit_adb_remote = checked; window.settings_restart_to_apply = true; }
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Use Resistance instead of Inc.")
                         spacing: 0
                         bottomPadding: 0
@@ -3489,7 +3488,7 @@ import QtQuick.Dialogs 1.0
                     //anchors.topMargin: 10
                     accordionContent: ColumnLayout {
                         spacing: 0
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: m3iBikeQtSearchDelegate
                             text: qsTr("Use QT search on Android / iOS")
                             spacing: 0
@@ -3554,7 +3553,7 @@ import QtQuick.Dialogs 1.0
                             }
                         }
 
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: m3iBikeKcalDelegate
                             text: qsTr("Use KCal from the Bike")
                             spacing: 0
@@ -3597,7 +3596,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: antCadenceDelegate
                         text: qsTr("Ant+ Cadence")
                         spacing: 0
@@ -3698,7 +3697,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: antHeartDelegate
                         text: qsTr("Ant+ Heart")
                         spacing: 0
@@ -3728,7 +3727,7 @@ import QtQuick.Dialogs 1.0
                 }
             }
 /*
-            SwitchDelegate {
+            IndicatorOnlySwitch {
                 id: antGarminDelegate
                 text: qsTr("Ant+ Garmin Compatibility")
                 spacing: 0
@@ -3763,7 +3762,7 @@ import QtQuick.Dialogs 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: topBarEnabledDelegate
                         text: qsTr("Top Bar Enabled")
                         spacing: 0
@@ -3902,7 +3901,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: floatingStartupDelegate
                         text: qsTr("Floating Window Startup")
                         spacing: 0
@@ -3944,7 +3943,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             spacing: 0
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 id: tilesIconsDelegate
                                 text: qsTr("Tiles Icons")
                                 spacing: 0
@@ -4026,7 +4025,7 @@ import QtQuick.Dialogs 1.0
                                 }
                             }
 
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 text: qsTr("Tiles Shadow")
                                 spacing: 0
                                 bottomPadding: 0
@@ -4486,7 +4485,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: cadenceSensorDelegate
                         text: qsTr("Cycling Cadence Sensor (Peloton compatibility)")
                         spacing: 0
@@ -4514,7 +4513,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }                    
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Auto Start (with intro)")
                         spacing: 0
                         bottomPadding: 0
@@ -4541,7 +4540,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Auto Start (without intro)")
                         spacing: 0
                         bottomPadding: 0
@@ -4701,7 +4700,7 @@ import QtQuick.Dialogs 1.0
                         }
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: pelotonDescriptionLinkDelegate
                         text: qsTr("Activity Link in Strava")
                         spacing: 0
@@ -4729,7 +4728,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Spinups Autoresistance")
                         spacing: 0
                         bottomPadding: 0
@@ -4756,7 +4755,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: pelotonWorkoutOCRDelegate
                         text: qsTr("Peloton Auto Sync (Experimental)")
                         spacing: 0
@@ -4784,7 +4783,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Peloton Auto Sync Companion (Exp.)")
                         spacing: 0
                         bottomPadding: 0
@@ -4811,7 +4810,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: pelotonBikeOCRDelegate
                         text: qsTr("Peloton Bike/Bike+ (Experimental)")
                         spacing: 0
@@ -4926,7 +4925,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }              
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Get Gears from Zwift")
                         spacing: 0
                         bottomPadding: 0
@@ -4953,7 +4952,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Show Gears to Zwift Only")
                         spacing: 0
                         bottomPadding: 0
@@ -5017,7 +5016,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }                          
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Zwift Treadmill Auto Inclination")
                         spacing: 0
                         bottomPadding: 0
@@ -5044,7 +5043,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Zwift Treadmill Auto Inclination")
                         spacing: 0
                         bottomPadding: 0
@@ -5071,7 +5070,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Zwift Treadmill Climb Portal")
                         spacing: 0
                         bottomPadding: 0
@@ -5085,7 +5084,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.zwift_ocr_climb_portal = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Zwift Treadmill Auto Workout")
                         spacing: 0
                         bottomPadding: 0
@@ -5122,7 +5121,7 @@ import QtQuick.Dialogs 1.0
                 accordionContent: ColumnLayout {
                     spacing: 0
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Garmin Bluetooth Sensor")
                         spacing: 0
                         bottomPadding: 0
@@ -5149,7 +5148,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Enable Companion App")
                         spacing: 0
                         bottomPadding: 0
@@ -5176,7 +5175,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Ant+ Bike Over Garmin Watch")
                         spacing: 0
                         bottomPadding: 0
@@ -5215,7 +5214,7 @@ import QtQuick.Dialogs 1.0
                 //anchors.top: acc1.bottom
                 //anchors.topMargin: 10
 
-                SwitchDelegate {
+                IndicatorOnlySwitch {
                     id: trainprogramStopAtEndDelegate
                     text: qsTr("Stop Treadmill at the End")
                     spacing: 0
@@ -5343,7 +5342,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.color(Material.Lime)
                 }
 
-                SwitchDelegate {
+                IndicatorOnlySwitch {
                     text: qsTr("PID 'Pushy'")
                     spacing: 0
                     bottomPadding: 0
@@ -5827,7 +5826,7 @@ import QtQuick.Dialogs 1.0
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
                     spacing: 0
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: treadmillAsABikeDelegate
                         text: qsTr("Treadmill as a Bike")
                         spacing: 0
@@ -5856,7 +5855,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.color(Material.Lime)
                 }
 
-                SwitchDelegate {
+                IndicatorOnlySwitch {
                     id: treadmillForceSpeedDelegate
                     text: qsTr("Treadmill Speed Forcing")
                     spacing: 0
@@ -5884,7 +5883,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.color(Material.Lime)
                 }
 
-                SwitchDelegate {
+                IndicatorOnlySwitch {
                     id: pauseOnStartTreadmillDelegate
                     text: qsTr("Pause when App Starts")
                     spacing: 0
@@ -5912,7 +5911,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.color(Material.Lime)
                 }
 
-                SwitchDelegate {
+                IndicatorOnlySwitch {
                     id: treadmillDifficultyGainOffsetDelegate
                     text: qsTr("Difficulty offset based")
                     spacing: 0
@@ -6109,7 +6108,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.color(Material.Lime)
                 }
 
-                SwitchDelegate {
+                IndicatorOnlySwitch {
                     text: qsTr("Simulate Inclination with Speed")
                     spacing: 0
                     bottomPadding: 0
@@ -6413,7 +6412,7 @@ import QtQuick.Dialogs 1.0
                                 onClicked: { settings.nordictrack_2950_ip = nordictrack2950IPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                             }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: proformTreadmillAdbRemotedelegate
                             text: qsTr("ADB Remote")
                             spacing: 0
@@ -6438,7 +6437,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
                         spacing: 0
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: pafersTreadmillDelegate
                             text: qsTr("Pafers Treadmill")
                             spacing: 0
@@ -6452,7 +6451,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.pafers_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: bhIboxsterPlusDelegate
                             text: qsTr("BH IBoxster Plus")
                             spacing: 0
@@ -6476,7 +6475,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
                         spacing: 0
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("Inclination")
                             spacing: 0
                             bottomPadding: 0
@@ -6499,7 +6498,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
                         spacing: 0
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("Miles unit from the device")
                             spacing: 0
                             bottomPadding: 0
@@ -6523,7 +6522,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
                         spacing: 0
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: kingSmithTreadmillDelegate
                             text: qsTr("WalkingPad X21")
                             spacing: 0
@@ -6538,7 +6537,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.kingsmith_encrypt_v2 = checked; settings.kingsmith_encrypt_g1_walking_pad = false; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v4 = false; settings.kingsmith_encrypt_v5 = false; window.settings_restart_to_apply = true; }
                         }
 
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: kingSmithV3TreadmillDelegate
                             text: qsTr("WalkingPad X21 v2")
                             spacing: 0
@@ -6553,7 +6552,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.kingsmith_encrypt_v3 = checked; settings.kingsmith_encrypt_g1_walking_pad = false; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v4 = false; settings.kingsmith_encrypt_v5 = false; window.settings_restart_to_apply = true; }
                         }
 
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: kingSmithV4TreadmillDelegate
                             text: qsTr("WalkingPad X21 v3")
                             spacing: 0
@@ -6568,7 +6567,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.kingsmith_encrypt_v4 = checked; settings.kingsmith_encrypt_g1_walking_pad = false; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v5 = false; window.settings_restart_to_apply = true; }
                         }
 
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("WalkingPad X21 v4")
                             spacing: 0
                             bottomPadding: 0
@@ -6582,7 +6581,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.kingsmith_encrypt_v5 = checked; settings.kingsmith_encrypt_g1_walking_pad = false; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v4 = false; window.settings_restart_to_apply = true; }
                         }
 
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("WalkingPad G1")
                             spacing: 0
                             bottomPadding: 0
@@ -6606,7 +6605,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
                         spacing: 0
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: fitfiuMCV460TreadmillDelegate
                             text: qsTr("Fitfiu MC-460")
                             spacing: 0
@@ -6620,7 +6619,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.fitfiu_mc_v460 = checked; window.settings_restart_to_apply = true; }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("Zero ZT-2500")
                             spacing: 0
                             bottomPadding: 0
@@ -6644,7 +6643,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
                         spacing: 0
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: domyosTreadmillButtonsDelegate
                             text: qsTr("Speed/Inclination Buttons")
                             spacing: 0
@@ -6659,7 +6658,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: settings.domyos_treadmill_buttons = checked
                         }
 
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("T900A")
                             spacing: 0
                             bottomPadding: 0
@@ -6673,7 +6672,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: settings.domyos_treadmill_t900a = checked
                         }                        
 
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: domyosTreadmillDistanceDisplayDelegate
                             text: qsTr("Distance on Console")
                             spacing: 0
@@ -6688,7 +6687,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: settings.domyos_treadmill_distance_display = checked
                         }
 
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: domyosTreadmillDisplayInvertdelegate
                             text: qsTr("Fix Distance on Display")
                             spacing: 0
@@ -6840,7 +6839,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
                         spacing: 0
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: soleInclinationDelegate
                             text: qsTr("Inclination (experimental)")
                             spacing: 0
@@ -6854,7 +6853,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.sole_treadmill_inclination = checked; window.settings_restart_to_apply = true; }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("Fast Inclination (experimental)")
                             spacing: 0
                             bottomPadding: 0
@@ -6867,7 +6866,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: settings.sole_treadmill_inclination_fast = checked
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: soleMilesDelegate
                             text: qsTr("Miles unit from the device")
                             spacing: 0
@@ -6881,7 +6880,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: settings.sole_treadmill_miles = checked
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: soleF63Delegate
                             text: qsTr("Sole F63")
                             spacing: 0
@@ -6895,7 +6894,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: settings.sole_treadmill_f63 = checked
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: soleF65Delegate
                             text: qsTr("Sole F65")
                             spacing: 0
@@ -6909,7 +6908,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.sole_treadmill_f65 = checked; window.settings_restart_to_apply = true; }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: soleTT8Delegate
                             text: qsTr("Sole TT8")
                             spacing: 0
@@ -6934,7 +6933,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
                         spacing: 0
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: myrunDelegate
                             text: qsTr("MyRun Experimental")
                             spacing: 0
@@ -6958,7 +6957,7 @@ import QtQuick.Dialogs 1.0
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: fitshowAnyrunDelegate
                             text: qsTr("AnyRun")
                             spacing: 0
@@ -6972,7 +6971,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.fitshow_anyrun = checked; window.settings_restart_to_apply = true; }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("Atletica Lightspeed")
                             spacing: 0
                             bottomPadding: 0
@@ -6985,7 +6984,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.atletica_lightspeed_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: fitshowTruetimerDelegate
                             text: qsTr("True timer")
                             spacing: 0
@@ -6999,7 +6998,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: settings.fitshow_truetimer = checked
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: fitshowMilesDelegate
                             text: qsTr("Miles unit from the device")
                             spacing: 0
@@ -7047,7 +7046,7 @@ import QtQuick.Dialogs 1.0
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: eslinkerTreadmillCadenzaDelegate
                             text: qsTr("Cadenza Treadmill (Bodytone)")
                             spacing: 0
@@ -7061,7 +7060,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.eslinker_cadenza = checked; window.settings_restart_to_apply = true; }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: eslinkerTreadmillYpooDelegate
                             text: qsTr("YPOO Mini Change")
                             spacing: 0
@@ -7075,7 +7074,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.eslinker_ypoo = checked; window.settings_restart_to_apply = true; }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("Costaway Folding")
                             spacing: 0
                             bottomPadding: 0
@@ -7099,7 +7098,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
                         spacing: 0
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: horizonParagonXTreadmillCadenzaDelegate
                             text: qsTr("Paragon X")
                             spacing: 0
@@ -7113,7 +7112,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.horizon_paragon_x = checked; window.settings_restart_to_apply = true; }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: horizonFTMSTreadmillCadenzaDelegate
                             text: qsTr("Force Using FTMS")
                             spacing: 0
@@ -7127,7 +7126,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.horizon_treadmill_force_ftms = checked; window.settings_restart_to_apply = true; }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: horizon78TreadmillDelegate
                             text: qsTr("Horizon 7.8 start issue")
                             spacing: 0
@@ -7142,7 +7141,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.horizon_treadmill_7_8 = checked; window.settings_restart_to_apply = true; }
                         }
 
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: horizonTreadmillDisablePauseDelegate
                             text: qsTr("Disable Pause")
                             spacing: 0
@@ -7157,7 +7156,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: settings.horizon_treadmill_disable_pause = checked
                         }
 
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: horizonTreadmillSuspendStatsPauseDelegate
                             text: qsTr("Supends stats while paused")
                             spacing: 0
@@ -7297,7 +7296,7 @@ import QtQuick.Dialogs 1.0
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
                         spacing: 0
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("Force Using FTMS")
                             spacing: 0
                             bottomPadding: 0
@@ -7322,7 +7321,7 @@ import QtQuick.Dialogs 1.0
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
                     spacing: 0
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: toorxRouteKeyDelegate
                         text: qsTr("TRX ROUTE KEY Compatibility")
                         spacing: 0
@@ -7336,7 +7335,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked:  { settings.trx_route_key = checked; window.settings_restart_to_apply = true; }
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: trxsevoDelegate
                         text: qsTr("TRX 65s EVO")
                         spacing: 0
@@ -7351,7 +7350,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.toorx_65s_evo = checked; window.settings_restart_to_apply = true; }
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: bhSpadaDelegate
                         text: qsTr("BH SPADA Compatibility")
                         spacing: 0
@@ -7366,7 +7365,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.bh_spada_2 = checked; window.settings_restart_to_apply = true; }
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("BH SPADA Wattage")
                         spacing: 0
                         bottomPadding: 0
@@ -7380,7 +7379,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.bh_spada_2_watt = checked; window.settings_restart_to_apply = true; }
                     }                    
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Toorx SRX 500")
                         spacing: 0
                         bottomPadding: 0
@@ -7395,7 +7394,7 @@ import QtQuick.Dialogs 1.0
                     }
 
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Toorx SRX 3500")
                         spacing: 0
                         bottomPadding: 0
@@ -7409,7 +7408,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.toorx_srx_3500 = checked; window.settings_restart_to_apply = true; }
                     } 
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Enerfit SPX 9500 / Toorx SRX 500")
                         spacing: 0
                         bottomPadding: 0
@@ -7423,7 +7422,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.enerfit_SPX_9500 = checked; window.settings_restart_to_apply = true; }
                     } 
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("HOP-Sport HS-090h")
                         spacing: 0
                         bottomPadding: 0
@@ -7437,7 +7436,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.hop_sport_hs_090h_bike = checked; window.settings_restart_to_apply = true; }
                     }                    
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: jtxFitnessSprintTreadmillDelegate
                         text: qsTr("JTX Fitness Sprint Treadmill")
                         spacing: 0
@@ -7452,7 +7451,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.jtx_fitness_sprint_treadmill = checked; window.settings_restart_to_apply = true; }
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: reebokFR30TreadmillDelegate
                         text: qsTr("Reebok FR30 Treadmill")
                         spacing: 0
@@ -7467,7 +7466,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.reebok_fr30_treadmill = checked; window.settings_restart_to_apply = true; }
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: dknEndurunTreadmillDelegate
                         text: qsTr("DKN Endurn Treadmill")
                         spacing: 0
@@ -7482,7 +7481,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.dkn_endurun_treadmill = checked; window.settings_restart_to_apply = true; }
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: toorxTreadmill30Delegate
                         text: qsTr("Toorx 3.0 Compatibility")
                         spacing: 0
@@ -7497,7 +7496,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.toorx_3_0 = checked; window.settings_restart_to_apply = true; }
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: toorxBikeDelegate
                         text: qsTr("Toorx/iConsole Bike")
                         spacing: 0
@@ -7512,7 +7511,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.toorx_bike = checked; window.settings_restart_to_apply = true; }
                     }                    
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: toorxFTMSTreadmillDelegate
                         text: qsTr("Toorx FTMS Treadmill")
                         spacing: 0
@@ -7527,7 +7526,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.toorx_ftms_treadmill = checked; window.settings_restart_to_apply = true; }
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: toorxFTMSBikeDelegate
                         text: qsTr("Toorx FTMS Bike")
                         spacing: 0
@@ -7542,7 +7541,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.toorx_ftms = checked; window.settings_restart_to_apply = true; }
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: toorxBikeJLLIC400Delegate
                         text: qsTr("JLL IC400 Bike")
                         spacing: 0
@@ -7556,7 +7555,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.jll_IC400_bike = checked; window.settings_restart_to_apply = true; }
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: toorxBikeFytterRI08Delegate
                         text: qsTr("Fytter RI08 Bike")
                         spacing: 0
@@ -7570,7 +7569,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.fytter_ri08_bike = checked; window.settings_restart_to_apply = true; }
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: toorxBikeASVIVADelegate
                         text: qsTr("Asviva Bike")
                         spacing: 0
@@ -7584,7 +7583,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.asviva_bike = checked; window.settings_restart_to_apply = true; }
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: toorxBikeHertzXR770Delegate
                         text: qsTr("Hertz XR 770 Bike")
                         spacing: 0
@@ -7598,7 +7597,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.hertz_xr_770 = checked; window.settings_restart_to_apply = true; }
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("iConsole Elliptical")
                         spacing: 0
                         bottomPadding: 0
@@ -7611,7 +7610,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.iconsole_elliptical = checked; window.settings_restart_to_apply = true; }
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("iConsole Rower")
                         spacing: 0
                         bottomPadding: 0
@@ -7714,7 +7713,7 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent:
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("Proform Sport RL")
                             spacing: 0
                             bottomPadding: 0
@@ -7770,7 +7769,7 @@ import QtQuick.Dialogs 1.0
                                 onClicked: { settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.text; toast.show("Setting saved!"); }
                             }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: domyosEllipticalInclinationDelegate
                             text: qsTr("Inclination Supported")
                             spacing: 0
@@ -7821,7 +7820,7 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent:
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: proformHybridDelegate
                             text: qsTr("Proform Hybrid Trainer XT")
                             spacing: 0
@@ -7835,7 +7834,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.proform_hybrid_trainer_xt = checked; window.settings_restart_to_apply = true; }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: proformHybridPFEL03815Delegate
                             text: qsTr("Proform Hybrid Trainer PFEL03815")
                             spacing: 0
@@ -7849,7 +7848,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.proform_hybrid_trainer_PFEL03815 = checked; window.settings_restart_to_apply = true; }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("Nordictrack C7.5")
                             spacing: 0
                             bottomPadding: 0
@@ -7884,7 +7883,7 @@ import QtQuick.Dialogs 1.0
                                 onClicked: { settings.proform_elliptical_ip = proformEllipticalCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                             }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("ADB Remote")
                             spacing: 0
                             bottomPadding: 0
@@ -7906,7 +7905,7 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent:
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: soleEllipticalInclinationDelegate
                             text: qsTr("Inclination Supported")
                             spacing: 0
@@ -7920,7 +7919,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.sole_elliptical_inclination = checked; window.settings_restart_to_apply = true; }
                         }
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             id: soleEllipticalE55Delegate
                             text: qsTr("E55 elliptical")
                             spacing: 0
@@ -7942,7 +7941,7 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent:
-                        SwitchDelegate {
+                        IndicatorOnlySwitch {
                             text: qsTr("iConcept elliptical")
                             spacing: 0
                             bottomPadding: 0
@@ -8317,7 +8316,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Strava External Browser Auth")
                         spacing: 0
                         bottomPadding: 0
@@ -8344,7 +8343,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: stravaVirtualActivityDelegate
                         text: qsTr("Strava Virtual Activity Tag")
                         spacing: 0
@@ -8372,7 +8371,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Strava Treadmill Tag")
                         spacing: 0
                         bottomPadding: 0
@@ -8399,7 +8398,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Date Prefix on Strava Workout")
                         spacing: 0
                         bottomPadding: 0
@@ -8426,7 +8425,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: volumeChangeGearsDelegate
                         text: qsTr("Volume buttons change gears")
                         spacing: 0
@@ -8454,7 +8453,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Volume buttons debouncing")
                         spacing: 0
                         bottomPadding: 0
@@ -8481,7 +8480,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: powerAvg5s
                         text: qsTr("Power Average 5 sec.")
                         spacing: 0
@@ -8509,7 +8508,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: instantPowerOnPause
                         text: qsTr("Instant Power on Pause")
                         spacing: 0
@@ -8537,7 +8536,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: zwiftNegativeIncliantionX2Delegate
                         text: qsTr("Double Negative Inclination")
                         spacing: 0
@@ -8677,7 +8676,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Disable Wattage from Machinery")
                         spacing: 0
                         bottomPadding: 0
@@ -8704,7 +8703,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Use Resistance instead of Inclination")
                         spacing: 0
                         bottomPadding: 0
@@ -8836,7 +8835,7 @@ import QtQuick.Dialogs 1.0
                                 Layout.fillWidth: true
                             }
 
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 id: cadenceSensorAsBikeDelegate
                                 text: qsTr("Cadence Sensor as a Bike")
                                 spacing: 0
@@ -8960,7 +8959,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             spacing: 0
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 id: powerSensorAsBikeDelegate
                                 text: qsTr("Power Sensor as a Bike")
                                 spacing: 0
@@ -8988,7 +8987,7 @@ import QtQuick.Dialogs 1.0
                                 color: Material.color(Material.Lime)
                             }
 
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 id: powerSensorAsTreadmillDelegate
                                 text: qsTr("Power Sensor as a Treadmill")
                                 spacing: 0
@@ -9016,7 +9015,7 @@ import QtQuick.Dialogs 1.0
                                 color: Material.color(Material.Lime)
                             }
 
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 id: powerSensorRunCadenceDoubleDelegate
                                 text: qsTr("Doubling Cadence for Run")
                                 spacing: 0
@@ -9044,7 +9043,7 @@ import QtQuick.Dialogs 1.0
                                 color: Material.color(Material.Lime)
                             }
 
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 id: powerSensorRunCadenceHalfStravaDelegate
                                 text: qsTr("Half Cadence on Strava")
                                 spacing: 0
@@ -9072,7 +9071,7 @@ import QtQuick.Dialogs 1.0
                                 color: Material.color(Material.Lime)
                             }
 
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 text: qsTr("Use speed from the power sensor")
                                 spacing: 0
                                 bottomPadding: 0
@@ -9099,7 +9098,7 @@ import QtQuick.Dialogs 1.0
                                 color: Material.color(Material.Lime)
                             }
 
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 text: qsTr("Add inclination gain factor to the power")
                                 spacing: 0
                                 bottomPadding: 0
@@ -9342,7 +9341,7 @@ import QtQuick.Dialogs 1.0
                                 onClicked: refresh_bluetooth_devices_clicked();
                             }                                                        
 
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 id: ss2kPelotonDelegate
                                 text: qsTr("Peloton Bike")
                                 spacing: 0
@@ -9640,7 +9639,7 @@ import QtQuick.Dialogs 1.0
 
                         accordionContent: ColumnLayout {
                             spacing: 0
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 id: fitmetriaFanFitDelegate
                                 text: qsTr("Enable")
                                 spacing: 0
@@ -9740,7 +9739,7 @@ import QtQuick.Dialogs 1.0
 
                         accordionContent: ColumnLayout {
                             spacing: 0
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 text: qsTr("Enable")
                                 spacing: 0
                                 bottomPadding: 0
@@ -9833,7 +9832,7 @@ import QtQuick.Dialogs 1.0
 
                         accordionContent: ColumnLayout {
                             spacing: 0
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 text: qsTr("Enable")
                                 spacing: 0
                                 bottomPadding: 0
@@ -9927,7 +9926,7 @@ import QtQuick.Dialogs 1.0
 
                         accordionContent: ColumnLayout {
                             spacing: 0
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 text: qsTr("SRAM AXS")
                                 spacing: 0
                                 bottomPadding: 0
@@ -9964,7 +9963,7 @@ import QtQuick.Dialogs 1.0
 
                         accordionContent: ColumnLayout {
                             spacing: 0
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 text: qsTr("Zwift Click")
                                 spacing: 0
                                 bottomPadding: 0
@@ -9991,7 +9990,7 @@ import QtQuick.Dialogs 1.0
                                 color: Material.color(Material.Lime)
                             }
 
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 text: qsTr("Zwift Play")
                                 spacing: 0
                                 bottomPadding: 0
@@ -10018,7 +10017,7 @@ import QtQuick.Dialogs 1.0
                                 color: Material.color(Material.Lime)
                             }
 
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 text: qsTr("Buttons debouncing")
                                 spacing: 0
                                 bottomPadding: 0
@@ -10045,7 +10044,7 @@ import QtQuick.Dialogs 1.0
                                 color: Material.color(Material.Lime)
                             }
 
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 text: qsTr("Swap sides")
                                 spacing: 0
                                 bottomPadding: 0
@@ -10072,7 +10071,7 @@ import QtQuick.Dialogs 1.0
                                 color: Material.color(Material.Lime)
                             }
 
-                            SwitchDelegate {
+                            IndicatorOnlySwitch {
                                 text: qsTr("Use Zwift app ratio for gears (Experimental)")
                                 spacing: 0
                                 bottomPadding: 0
@@ -10184,7 +10183,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.maps_type = mapsTypeTextField.displayText; toast.show("Setting saved!"); }
                         }
                     }
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: gpxLoopDelegate
                         text: qsTr("Loop Start-End-Start")
                         spacing: 0
@@ -10251,7 +10250,7 @@ import QtQuick.Dialogs 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: bluetoothRelaxedDelegate
                         text: qsTr("Relaxed Bluetooth for mad devices")
                         spacing: 0
@@ -10279,7 +10278,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: bluetooth30mHangsDelegate
                         text: qsTr("Bluetooth hangs after 30m")
                         spacing: 0
@@ -10307,7 +10306,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: batteryServiceDelegate
                         text: qsTr("Simulate Battery Service")
                         spacing: 0
@@ -10335,7 +10334,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
         /*
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: serviceChangedDelegate
                         text: qsTr("Service Changed Service")
                         spacing: 0
@@ -10362,7 +10361,7 @@ import QtQuick.Dialogs 1.0
                                 linkedBoolSetting: "virtual_device_bluetooth"
                                 settings: settings
                                 accordionContent: ColumnLayout {
-                                    SwitchDelegate {
+                                    IndicatorOnlySwitch {
                                         id: virtualDeviceOnlyHeartDelegate
                                         text: qsTr("Virtual Heart Only")
                                         spacing: 0
@@ -10390,7 +10389,7 @@ import QtQuick.Dialogs 1.0
                                         color: Material.color(Material.Lime)
                                     }
 
-                                    SwitchDelegate {
+                                    IndicatorOnlySwitch {
                                         id: virtualDeviceEchelonDelegate
                                         text: qsTr("Virtual Echelon")
                                         spacing: 0
@@ -10418,7 +10417,7 @@ import QtQuick.Dialogs 1.0
                                         color: Material.color(Material.Lime)
                                     }
 
-                                    SwitchDelegate {
+                                    IndicatorOnlySwitch {
                                         id: virtualDeviceRowerDelegate
                                         text: qsTr("Virtual Rower")
                                         spacing: 0
@@ -10446,7 +10445,7 @@ import QtQuick.Dialogs 1.0
                                         color: Material.color(Material.Lime)
                                     }
 
-                                    SwitchDelegate {
+                                    IndicatorOnlySwitch {
                                         id: virtualBikeForceResistanceDelegate
                                         text: qsTr("Zwift Force Resistance")
                                         spacing: 0
@@ -10475,7 +10474,7 @@ import QtQuick.Dialogs 1.0
                                     }
 
 
-                                    SwitchDelegate {
+                                    IndicatorOnlySwitch {
                                         id: bikePowerSensorDelegate
                                         text: qsTr("Bike Power Sensor")
                                         spacing: 0
@@ -10503,7 +10502,7 @@ import QtQuick.Dialogs 1.0
                                         color: Material.color(Material.Lime)
                                     }
 
-                                    SwitchDelegate {
+                                    IndicatorOnlySwitch {
                                         id: virtualDeviceIfitDelegate
                                         text: qsTr("Virtual iFit")
                                         spacing: 0
@@ -10539,7 +10538,7 @@ import QtQuick.Dialogs 1.0
                                 settings: settings
                                 accordionContent: ColumnLayout {
                                     spacing: 0
-                                    SwitchDelegate {
+                                    IndicatorOnlySwitch {
                                         id: wahooRGTDirconDelegate
                                         text: qsTr("MyWhoosh Compatibility")
                                         spacing: 0
@@ -10880,7 +10879,7 @@ import QtQuick.Dialogs 1.0
                         }
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Race Mode")
                         spacing: 0
                         bottomPadding: 0
@@ -10907,7 +10906,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: runCadenceSensorDelegate
                         text: qsTr("Run Cadence Sensor")
                         spacing: 0
@@ -10980,7 +10979,7 @@ import QtQuick.Dialogs 1.0
                         }
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: androidWakeLockDelegate
                         text: qsTr("Android WakeLock")
                         spacing: 0
@@ -11008,7 +11007,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: iosPelotonWorkaroundDelegate
                         text: qsTr("iOS Peloton Workaround")
                         spacing: 0
@@ -11036,7 +11035,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: appleWatchFakeDeviceDelegate
                         text: qsTr("Fake Device")
                         spacing: 0
@@ -11064,7 +11063,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: fakeTreadmillDelegate
                         text: qsTr("Fake Treadmill")
                         spacing: 0
@@ -11092,7 +11091,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: fakeEllipticalDelegate
                         text: qsTr("Fake Elliptical")
                         spacing: 0
@@ -11120,7 +11119,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Fake Rower")
                         spacing: 0
                         bottomPadding: 0
@@ -11147,7 +11146,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: appleHeartCacheDelegate
                         text: qsTr("iOS Heart Caching")
                         spacing: 0
@@ -11175,7 +11174,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: androidNotificationDelegate
                         text: qsTr("Android Notification")
                         spacing: 0
@@ -11203,7 +11202,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Android Force Documents/QZ Folder")
                         spacing: 0
                         bottomPadding: 0
@@ -11230,7 +11229,7 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }                    
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         id: logDebugDelegate
                         text: qsTr("Debug Log")
                         spacing: 0

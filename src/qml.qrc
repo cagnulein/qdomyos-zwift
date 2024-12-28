@@ -110,5 +110,6 @@
         <file>inner_templates/chartjs/dochartliveheart.js</file>
         <file>Wizard.qml</file>
         <file>gears.qml</file>
+        <file>IndicatorOnlySwitch.qml</file>
     </qresource>
 </RCC>
