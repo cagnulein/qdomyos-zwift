@@ -56,7 +56,11 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+        advertisingData.setLocalName(QStringLiteral("KICKR RUN"));
+#else            
         advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
+#endif
         QList<QBluetoothUuid> services;
 
         // Add Wahoo Run Service UUID
