@@ -36,10 +36,10 @@ zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDev
 void zwiftclickremote::update() {
     if (initRequest && !initDone) {
         initRequest = false;
-        initDone = true;
         QByteArray s = playDevice->buildHandshakeStart();
         qDebug() << s.length();
         writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
+        initDone = true;
     } else if(initDone) {
         countRxTimeout++;
         if(countRxTimeout == 10) {
@@ -317,12 +317,9 @@ void zwiftclickremote::controllerStateChanged(QLowEnergyController::ControllerSt
 }
 
 void zwiftclickremote::vibrate() {
-    static uint8_t haptic = 1;
-    static uint32_t counterVibrate = 1;
-    QByteArray s = QByteArray::fromHex("12080A060802100018");
-    s.append(haptic++);
-    if(haptic > 120) haptic = 1;
-    writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "vibrate");
+    if(!initDone) return;
+    QByteArray s = QByteArray::fromHex("1212080A06080210001820");
+    writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "vibrate", false, false);
 
 }
 
