@@ -64,12 +64,26 @@ csafe::csafe() {
     cmds["CSAFE_PM_GET_WORKTIME"] = populateCmd(0xa0, QList<int>(), 0x1a);
     cmds["CSAFE_PM_GET_WORKDISTANCE"] = populateCmd(0xa3, QList<int>(), 0x1a);
 
+    // LIFE FITNESS specific commands
+    cmds["CSAFE_LF_GET_DETAIL"] = populateCmd(0xd0, QList<int>());
+
+    // Generic long commands
+    cmds["CSAFE_SETPROGRAM_CMD"] = populateCmd(0x24, QList<int>() << 1 << 1);
+    cmds["CSAFE_SETUSERINFO_CMD"] = populateCmd(0x2B, QList<int>() << 2 << 1 << 1 << 1);
+    cmds["CSAFE_SETLEVEL_CMD"] = populateCmd(0x2D, QList<int>() << 1);
+
+    // Generic Short Commands
+    cmds["CSAFE_GETSTATUS_CMD"] = populateCmd(0x80, QList<int>());
+    cmds["CSAFE_GOINUSE_CMD"] = populateCmd(0x85, QList<int>());
     cmds["CSAFE_GETCALORIES_CMD"] = populateCmd(0xa3, QList<int>());
+    cmds["CSAFE_GETPROGRAM_CMD"] = populateCmd(0xA4, QList<int>());
     cmds["CSAFE_GETPACE_CMD"] = populateCmd(0xa6, QList<int>());
     cmds["CSAFE_GETCADENCE_CMD"] = populateCmd(0xa7, QList<int>());
+    cmds["CSAFE_GETHORIZONTAL_CMD"] = populateCmd(0xA1, QList<int>());
+    cmds["CSAFE_GETSPEED_CMD"] = populateCmd(0xA5, QList<int>());
+    cmds["CSAFE_GETUSERINFO_CMD"] = populateCmd(0xAB, QList<int>());
     cmds["CSAFE_GETHRCUR_CMD"] = populateCmd(0xb0, QList<int>());
     cmds["CSAFE_GETPOWER_CMD"] = populateCmd(0xb4, QList<int>());
-    cmds["CSAFE_GETSTATUS_CMD"] = populateCmd(0x80, QList<int>());
 
     // Response Data to Short Commands
     resp[0x80] = qMakePair(QString("CSAFE_GETSTATUS_CMD"), QList<int>() << 0);
@@ -89,7 +103,8 @@ csafe::csafe() {
     resp[0xA0] = qMakePair(QString("CSAFE_GETTWORK_CMD"), QList<int>() << 1 << 1 << 1);
     resp[0xA1] = qMakePair(QString("CSAFE_GETHORIZONTAL_CMD"), QList<int>() << 2 << 1);
     resp[0xA3] = qMakePair(QString("CSAFE_GETCALORIES_CMD"), QList<int>() << 2);
-    resp[0xA4] = qMakePair(QString("CSAFE_GETPROGRAM_CMD"), QList<int>() << 1);
+    resp[0xA4] = qMakePair(QString("CSAFE_GETPROGRAM_CMD"), QList<int>() << 1 << 1);
+    resp[0xA5] = qMakePair(QString("CSAFE_GETSPEED_CMD"), QList<int>() << 2 << 1);
     resp[0xA6] = qMakePair(QString("CSAFE_GETPACE_CMD"), QList<int>() << 2 << 1);
     resp[0xA7] = qMakePair(QString("CSAFE_GETCADENCE_CMD"), QList<int>() << 2 << 1);
     resp[0xAB] = qMakePair(QString("CSAFE_GETUSERINFO_CMD"), QList<int>() << 2 << 1 << 1 << 1);
@@ -107,6 +122,8 @@ csafe::csafe() {
     resp[0x21] = qMakePair(QString("CSAFE_SETHORIZONTAL_CMD"), QList<int>() << 0);
     resp[0x23] = qMakePair(QString("CSAFE_SETCALORIES_CMD"), QList<int>() << 0);
     resp[0x24] = qMakePair(QString("CSAFE_SETPROGRAM_CMD"), QList<int>() << 0);
+    resp[0x2B] = qMakePair(QString("CSAFE_SETUSERINFO_CMD"), QList<int>() << 0);
+    resp[0x2D] = qMakePair(QString("CSAFE_SETLEVEL_CMD"), QList<int>() << 0);
     resp[0x34] = qMakePair(QString("CSAFE_SETPOWER_CMD"), QList<int>() << 0);
     resp[0x70] = qMakePair(QString("CSAFE_GETCAPS_CMD"), QList<int>() << 11);
 
@@ -131,6 +148,9 @@ csafe::csafe() {
     resp[0x1A6C] =
         qMakePair(QString("CSAFE_PM_GET_HEARTBEATDATA"),
                   QList<int>() << 1 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2 << 2);
+
+    // LIFE FITNESS specific response
+    resp[0xD0] = qMakePair(QString("CSAFE_LF_GET_DETAIL"), QList<int>() << 0x1c);
 }
 
 QList<QList<int>> csafe::populateCmd(int First, QList<int> Second, int Third) {
@@ -142,7 +162,9 @@ QList<QList<int>> csafe::populateCmd(int First, QList<int> Second, int Third) {
     second.clear();
     third.clear();
     first.append(First);
-    foreach (int a, Second) { second.append(a); }
+    foreach (int a, Second) {
+        second.append(a);
+    }
     third.append(Third);
     ret.append(first);
     ret.append(second);
@@ -157,7 +179,9 @@ QList<QList<int>> csafe::populateCmd(int First, QList<int> Second) {
     first.clear();
     second.clear();
     first.append(First);
-    foreach (int a, Second) { second.append(a); }
+    foreach (int a, Second) {
+        second.append(a);
+    }
     ret.append(first);
     ret.append(second);
     return ret;
@@ -197,7 +221,7 @@ QString csafe::bytes2ascii(const QVector<quint8> &raw_bytes) {
     return word;
 }
 
-QByteArray csafe::write(const QStringList &arguments) {
+QByteArray csafe::write(const QStringList &arguments, bool surround_msg) {
     int i = 0;
     QVector<quint8> message;
     int wrapper = 0;
@@ -206,6 +230,10 @@ QByteArray csafe::write(const QStringList &arguments) {
 
     while (i < arguments.size()) {
         QString arg = arguments[i];
+        if (!cmds.contains(arg)) {
+            qWarning("CSAFE Command not implemented: %s", qPrintable(arg));
+            return QByteArray();
+        }
         const auto &cmdprop = cmds[arg];
         QVector<quint8> command;
 
@@ -292,27 +320,31 @@ QByteArray csafe::write(const QStringList &arguments) {
         qWarning("Message is too long: %d", message.size());
     }
 
-    int maxmessage = qMax(message.size() + 1, maxresponse); // report IDs
+    if (surround_msg) {                                         // apply non-standard wrapping for PM3 rower
+        int maxmessage = qMax(message.size() + 1, maxresponse); // report IDs
 
-    if (maxmessage <= 21) {
-        message.prepend(0x01);
-        message.append(QVector<quint8>(21 - message.size()));
-    } else if (maxmessage <= 63) {
-        message.prepend(0x04);
-        message.append(QVector<quint8>(63 - message.size()));
-    } else if ((message.size() + 1) <= 121) {
-        message.prepend(0x02);
-        message.append(QVector<quint8>(121 - message.size()));
-        if (maxresponse > 121) {
-            qWarning("Response may be too long to receive. Max possible length: %d", maxresponse);
+        if (maxmessage <= 21) {
+            message.prepend(0x01);
+            message.append(QVector<quint8>(21 - message.size()));
+        } else if (maxmessage <= 63) {
+            message.prepend(0x04);
+            message.append(QVector<quint8>(63 - message.size()));
+        } else if ((message.size() + 1) <= 121) {
+            message.prepend(0x02);
+            message.append(QVector<quint8>(121 - message.size()));
+            if (maxresponse > 121) {
+                qWarning("Response may be too long to receive. Max possible length: %d", maxresponse);
+            }
+        } else {
+            qWarning("Message too long. Message length: %d", message.size());
+            message.clear();
         }
-    } else {
-        qWarning("Message too long. Message length: %d", message.size());
-        message.clear();
     }
 
     QByteArray ret;
-    foreach (int a, message) { ret.append(a); }
+    foreach (int a, message) {
+        ret.append(a);
+    }
     return ret;
 }
 
@@ -327,9 +359,7 @@ QVector<quint8> csafe::check_message(QVector<quint8> message) {
             quint8 stuffvalue = message.takeAt(i + 1);
             message[i] = 0xF0 | stuffvalue;
         }
-
         checksum ^= message[i]; // calculate checksum
-
         ++i;
     }
 
@@ -347,15 +377,21 @@ QVector<quint8> csafe::check_message(QVector<quint8> message) {
 QVariantMap csafe::read(const QVector<quint8> &transmission) {
     QVector<quint8> message;
     bool stopfound = false;
-
-    int startflag = transmission[1];
-
     int j = 0;
-    if (startflag == Extended_Frame_Start_Flag) {
-        j = 4;
-    } else if (startflag == Standard_Frame_Start_Flag) {
-        j = 2;
-    } else {
+    while (j < transmission.size()) {
+        int startflag = transmission[j];
+        if (startflag == Extended_Frame_Start_Flag) {
+            j = j + 3;
+            break;
+        } else if (startflag == Standard_Frame_Start_Flag) {
+            ++j;
+            break;
+        } else {
+            ++j;
+        }
+    }
+
+    if (j >= transmission.size()) {
         qWarning("No Start Flag found.");
         return QVariantMap();
     }
@@ -373,7 +409,6 @@ QVariantMap csafe::read(const QVector<quint8> &transmission) {
         qWarning("No Stop Flag found.");
         return QVariantMap();
     }
-
     message = check_message(message);
     int status = message.takeFirst();
 

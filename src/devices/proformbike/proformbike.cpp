@@ -152,24 +152,6 @@ uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
 }
 
 void proformbike::forceResistance(resistance_t requestResistance) {
-    QSettings settings;
-    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
-    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
-    bool nordictrack_GX4_5_bike =
-        settings.value(QZSettings::nordictrack_GX4_5_bike, QZSettings::default_nordictrack_GX4_5_bike).toBool();
-    bool nordictrack_gx_2_7 =
-        settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
-    bool proform_hybrid_trainer_PFEL03815 =
-        settings
-            .value(QZSettings::proform_hybrid_trainer_PFEL03815, QZSettings::default_proform_hybrid_trainer_PFEL03815)
-            .toBool();
-    bool proform_bike_sb = settings.value(QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb).toBool();
-    bool proform_cycle_trainer_300_ci =
-        settings.value(QZSettings::proform_cycle_trainer_300_ci, QZSettings::default_proform_cycle_trainer_300_ci)
-            .toBool();    
-    bool proform_bike_225_csx = settings.value(QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx).toBool();
-    bool proform_bike_325_csx = settings.value(QZSettings::proform_bike_325_csx, QZSettings::default_proform_bike_325_csx).toBool();
-
     if (proform_studio || proform_tdf_10) {
         const uint8_t res1[] = {0xfe, 0x02, 0x16, 0x03};
         uint8_t res2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x12, 0x08, 0x12, 0x02, 0x04,
@@ -474,7 +456,7 @@ void proformbike::forceResistance(resistance_t requestResistance) {
             writeCharacteristic((uint8_t *)res22, sizeof(res22), QStringLiteral("resistance22"), false, true);
             break;            
         }        
-    } else if(nordictrack_GX4_5_bike) {
+    } else if(nordictrack_GX4_5_bike || nordictrack_gx_44_pro) {
         const uint8_t res25[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01, 0x04, 0xe8, 0x26, 0x00, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00};
         const uint8_t res24[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01, 0x04, 0x58, 0x25, 0x00, 0x94, 0x00, 0x00, 0x00, 0x00, 0x00};
         const uint8_t res23[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01, 0x04, 0xc8, 0x23, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -711,32 +693,6 @@ void proformbike::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotify1Characteristic.isValid() && initDone) {
         update_metrics(true, watts());
-
-        QSettings settings;
-        bool proform_tour_de_france_clc =
-            settings.value(QZSettings::proform_tour_de_france_clc, QZSettings::default_proform_tour_de_france_clc)
-                .toBool();
-        bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
-        bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
-        bool nordictrack_gx_2_7 =
-            settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
-        bool proform_cycle_trainer_300_ci =
-            settings.value(QZSettings::proform_cycle_trainer_300_ci, QZSettings::default_proform_cycle_trainer_300_ci)
-                .toBool();                   
-        bool proform_cycle_trainer_400 =
-            settings.value(QZSettings::proform_cycle_trainer_400, QZSettings::default_proform_cycle_trainer_400)
-                .toBool();
-        bool proform_hybrid_trainer_PFEL03815 = settings
-                                                    .value(QZSettings::proform_hybrid_trainer_PFEL03815,
-                                                           QZSettings::default_proform_hybrid_trainer_PFEL03815)
-                                                    .toBool();
-        bool proform_bike_sb =
-            settings.value(QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb).toBool();
-        bool proform_bike_PFEVEX71316_1 =
-            settings.value(QZSettings::proform_bike_PFEVEX71316_1, QZSettings::default_proform_bike_PFEVEX71316_1)
-                .toBool();
-        bool proform_bike_225_csx = settings.value(QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx).toBool();
-        bool proform_bike_325_csx = settings.value(QZSettings::proform_bike_325_csx, QZSettings::default_proform_bike_325_csx).toBool();
 
         uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
         uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00,
@@ -1014,10 +970,6 @@ void proformbike::update() {
 }
 
 bool proformbike::inclinationAvailableByHardware() {
-    QSettings settings;
-    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
-    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
-
     if (proform_studio || proform_tdf_10)
         return true;
     else
@@ -1085,25 +1037,10 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
+    bool proform_tdf_jonseed_watt =
+            settings.value(QZSettings::proform_tdf_jonseed_watt, QZSettings::default_proform_tdf_jonseed_watt).toBool();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
-    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
-    bool proform_tdf_jonseed_watt =
-        settings.value(QZSettings::proform_tdf_jonseed_watt, QZSettings::default_proform_tdf_jonseed_watt).toBool();
-    bool nordictrack_gx_2_7 =
-        settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
-    bool proform_hybrid_trainer_PFEL03815 =
-        settings
-            .value(QZSettings::proform_hybrid_trainer_PFEL03815, QZSettings::default_proform_hybrid_trainer_PFEL03815)
-            .toBool();
-    bool proform_bike_sb = settings.value(QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb).toBool();
-    bool proform_bike_PFEVEX71316_1 =
-        settings.value(QZSettings::proform_bike_PFEVEX71316_1, QZSettings::default_proform_bike_PFEVEX71316_1).toBool();
-    bool proform_bike_225_csx = settings.value(QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx).toBool();
-    bool proform_bike_325_csx = settings.value(QZSettings::proform_bike_325_csx, QZSettings::default_proform_bike_325_csx).toBool();
-    bool nordictrack_GX4_5_bike =
-        settings.value(QZSettings::nordictrack_GX4_5_bike, QZSettings::default_nordictrack_GX4_5_bike).toBool();
     double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
     double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
 
@@ -1208,7 +1145,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (m_watts > 3000) {
             m_watts = 0;
         } else {
-            if(nordictrack_GX4_5_bike) {
+            if(nordictrack_GX4_5_bike || nordictrack_gx_44_pro) {
                 switch ((uint8_t)newValue.at(11)) {
                 case 0:
                 case 1:
@@ -1725,21 +1662,21 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 void proformbike::btinit() {
 
     QSettings settings;
-    bool nordictrack_gx_2_7 =
-        settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
-    bool proform_cycle_trainer_400 =
-        settings.value(QZSettings::proform_cycle_trainer_400, QZSettings::default_proform_cycle_trainer_400).toBool();
-    bool proform_cycle_trainer_300_ci =
-        settings.value(QZSettings::proform_cycle_trainer_300_ci, QZSettings::default_proform_cycle_trainer_300_ci).toBool();        
-    bool proform_hybrid_trainer_PFEL03815 =
-        settings
-            .value(QZSettings::proform_hybrid_trainer_PFEL03815, QZSettings::default_proform_hybrid_trainer_PFEL03815)
-            .toBool();
-    bool proform_bike_sb = settings.value(QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb).toBool();
-    bool proform_bike_225_csx = settings.value(QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx).toBool();
-    bool proform_bike_325_csx = settings.value(QZSettings::proform_bike_325_csx, QZSettings::default_proform_bike_325_csx).toBool();
-    bool nordictrack_GX4_5_bike =
-        settings.value(QZSettings::nordictrack_GX4_5_bike, QZSettings::default_nordictrack_GX4_5_bike).toBool();
+    proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+    proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
+    nordictrack_GX4_5_bike = settings.value(QZSettings::nordictrack_GX4_5_bike, QZSettings::default_nordictrack_GX4_5_bike).toBool();
+    nordictrack_gx_2_7 = settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
+    proform_hybrid_trainer_PFEL03815 = settings.value(QZSettings::proform_hybrid_trainer_PFEL03815, QZSettings::default_proform_hybrid_trainer_PFEL03815).toBool();
+    proform_bike_sb = settings.value(QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb).toBool();
+    proform_cycle_trainer_300_ci = settings.value(QZSettings::proform_cycle_trainer_300_ci, QZSettings::default_proform_cycle_trainer_300_ci).toBool();
+    proform_bike_225_csx = settings.value(QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx).toBool();
+    proform_bike_325_csx = settings.value(QZSettings::proform_bike_325_csx, QZSettings::default_proform_bike_325_csx).toBool();
+    proform_tour_de_france_clc = settings.value(QZSettings::proform_tour_de_france_clc, QZSettings::default_proform_tour_de_france_clc).toBool();
+    proform_studio_NTEX71021 = settings.value(QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021).toBool();
+    freemotion_coachbike_b22_7 = settings.value(QZSettings::freemotion_coachbike_b22_7, QZSettings::default_freemotion_coachbike_b22_7).toBool();
+    proform_cycle_trainer_400 = settings.value(QZSettings::proform_cycle_trainer_400, QZSettings::default_proform_cycle_trainer_400).toBool();
+    proform_bike_PFEVEX71316_1 = settings.value(QZSettings::proform_bike_PFEVEX71316_1, QZSettings::default_proform_bike_PFEVEX71316_1).toBool();
+    nordictrack_gx_44_pro = settings.value(QZSettings::nordictrack_gx_44_pro, QZSettings::default_nordictrack_gx_44_pro).toBool();
 
     if(nordictrack_GX4_5_bike)
         max_resistance = 25;
@@ -1803,6 +1740,86 @@ void proformbike::btinit() {
         writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
         QThread::msleep(400);
         writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+    } else if (settings.value(QZSettings::nordictrack_gx_44_pro, QZSettings::default_nordictrack_gx_44_pro).toBool()) {
+        max_resistance = 25;  // Most NordicTrack bikes use resistance range 1-25
+
+        uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x07, 0x04, 0x80, 0x8b,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x07, 0x04, 0x88, 0x93,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData5[] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t initData6[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x82, 0x00,
+                               0x00, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData7[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00,
+                               0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData8[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData9[] = {0xfe, 0x02, 0x2c, 0x04};
+        uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x04,
+                                0x00, 0x22, 0x34, 0x44, 0x52, 0x6e, 0x88, 0x90, 0xbe, 0xda};
+        uint8_t initData11[] = {0x01, 0x12, 0xfc, 0x1c, 0x3a, 0x56, 0x90, 0xb8, 0xc6, 0x12,
+                                0x24, 0x74, 0x82, 0xde, 0x18, 0x20, 0x6e, 0xaa, 0xec, 0x2c};
+        uint8_t initData12[] = {0xff, 0x08, 0x6a, 0xa6, 0x20, 0x80, 0x02, 0x00, 0x00, 0xa7,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData13[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t initData14[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x0e,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData15[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3d, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData16[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t initData17[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x07, 0x13, 0x02, 0x0c,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData18[] = {0xff, 0x05, 0x00, 0x80, 0x01, 0x00, 0xa9, 0x00, 0x00, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        // The initialization sequence requires specific timing between messages
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData13, sizeof(initData13), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData14, sizeof(initData14), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData15, sizeof(initData15), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData16, sizeof(initData16), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData17, sizeof(initData17), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData18, sizeof(initData18), QStringLiteral("init"), false, false);
         QThread::msleep(400);
     } else if (settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool() ||
                settings.value(QZSettings::proform_bike_PFEVEX71316_1, QZSettings::default_proform_bike_PFEVEX71316_1)

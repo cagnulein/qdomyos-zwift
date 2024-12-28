@@ -26,6 +26,8 @@
 #include <QtWebView/QtWebView>
 #endif
 
+#include "mqttpublisher.h"
+
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QtAndroid>
@@ -38,6 +40,8 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
+
+#include "osc.h"
 
 #include "handleurl.h"
 
@@ -71,6 +75,7 @@ bool reebok_fr30_treadmill = false;
 bool zwift_play = false;
 bool zwift_click = false;
 bool zwift_play_emulator = false;
+bool virtual_device_bluetooth = true;
 QString eventGearDevice = QStringLiteral("");
 QString trainProgram;
 QString deviceName = QLatin1String("");
@@ -107,6 +112,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             noConsole = true;
         if (!qstrcmp(argv[i], "-test-resistance"))
             testResistance = true;
+        if (!qstrcmp(argv[i], "-no-virtual-device-bluetooth"))
+            virtual_device_bluetooth = false;
         if (!qstrcmp(argv[i], "-no-log"))
             logs = false;
         if (!qstrcmp(argv[i], "-no-write-resistance"))
@@ -404,6 +411,7 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::zwift_click, zwift_click);
         settings.setValue(QZSettings::zwift_play, zwift_play);
         settings.setValue(QZSettings::zwift_play_emulator, zwift_play_emulator);
+        settings.setValue(QZSettings::virtual_device_bluetooth, virtual_device_bluetooth);
     }
 #endif
 
@@ -583,6 +591,19 @@ int main(int argc, char *argv[]) {
     bluetooth bl(logs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance,
                  bikeResistanceOffset,
                  bikeResistanceGain); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
+
+    QString mqtt_host = settings.value(QZSettings::mqtt_host, QZSettings::default_mqtt_host).toString();
+    int mqtt_port = settings.value(QZSettings::mqtt_port, QZSettings::default_mqtt_port).toInt();
+    QString mqtt_username = settings.value(QZSettings::mqtt_username, QZSettings::default_mqtt_username).toString();
+    QString mqtt_password = settings.value(QZSettings::mqtt_password, QZSettings::default_mqtt_password).toString();
+    if(mqtt_host.length() > 0) {
+        MQTTPublisher* mqtt = new MQTTPublisher(mqtt_host, mqtt_port, mqtt_username, mqtt_password, &bl);
+    }
+
+    QString OSC_ip = settings.value(QZSettings::OSC_ip, QZSettings::default_OSC_ip).toString();
+    if(OSC_ip.length() > 0) {
+        OSC* osc = new OSC(&bl);
+    }
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT

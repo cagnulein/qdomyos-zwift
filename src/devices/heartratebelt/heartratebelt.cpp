@@ -1,4 +1,5 @@
 #include "heartratebelt.h"
+#include "homeform.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QEventLoop>
@@ -118,6 +119,10 @@ void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     // QStringLiteral("Disabled")).toString();//NOTE: clazy-unused-non-trivial-variable
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
+
+    if(homeform::singleton())
+        homeform::singleton()->setToastRequested(device.name() + QStringLiteral(" connected!"));
+
     // if(device.name().startsWith(heartRateBeltName))
     {
         bluetoothDevice = device;

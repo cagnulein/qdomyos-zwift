@@ -26,7 +26,7 @@
 #include <QObject>
 #include <QString>
 
-#include "csafe.h"
+#include "devices/csafe/csafe.h"
 #include "devices/rower.h"
 #include "virtualdevices/virtualbike.h"
 #include "virtualdevices/virtualrower.h"
@@ -87,7 +87,7 @@ class csaferowerThread : public QThread {
     void onCalories(double calories);
     void onDistance(double distance);
     void onPace(double pace);
-    void onStatus(uint16_t status);
+    void onStatus(char status);
 
   private:
     // Utility and BG Thread functions
@@ -165,7 +165,7 @@ class csaferower : public rower {
     void onCalories(double calories);
     void onDistance(double distance);
     void onPace(double pace);
-    void onStatus(uint16_t status);
+    void onStatus(char status);
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

@@ -264,7 +264,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                     if(freemotion_coachbike_b22_7)
                         m_pelotonResistance = (100 / 24) * resistance;
                     else
-                        m_pelotonResistance = (100 / 32) * resistance;
+                        m_pelotonResistance = bikeResistanceToPeloton(resistance);
                     qDebug() << QStringLiteral("Current Peloton Resistance: ") << m_pelotonResistance.value()
                              << resistance;
                     if(!gearsAvailable && !nordictrackadbbike_resistance) {
@@ -497,56 +497,88 @@ void nordictrackifitadbbike::onHRM(int hrm) {
     }
 }
 
-resistance_t nordictrackifitadbbike::pelotonToBikeResistance(int pelotonResistance) {
-    if (pelotonResistance <= 10) {
+double nordictrackifitadbbike::bikeResistanceToPeloton(resistance_t bikeResistance) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
+        if (bikeResistanceToPeloton(i) <= bikeResistance && bikeResistanceToPeloton(i + 1) > bikeResistance) {
+            return i;
+        }
+    }
+    if (bikeResistance < pelotonToBikeResistance(1))
         return 1;
+    else
+        return 100;
+}
+
+resistance_t nordictrackifitadbbike::pelotonToBikeResistance(int pelotonResistance) {
+    QSettings settings;
+    int resistanceLevel;
+
+    if (pelotonResistance <= 5) {
+        resistanceLevel = 1;
     }
-    if (pelotonResistance <= 20) {
-        return 2;
+    else if (pelotonResistance <= 7) {
+        resistanceLevel = 2;
     }
-    if (pelotonResistance <= 25) {
-        return 3;
+    else if (pelotonResistance <= 9) {
+        resistanceLevel = 3;
     }
-    if (pelotonResistance <= 30) {
-        return 4;
+    else if (pelotonResistance <= 10) {
+        resistanceLevel = 4;
     }
-    if (pelotonResistance <= 35) {
-        return 5;
+    else if (pelotonResistance <= 15) {
+        resistanceLevel = 5;
     }
-    if (pelotonResistance <= 40) {
-        return 6;
+    else if (pelotonResistance <= 25) {
+        resistanceLevel = 6;
     }
-    if (pelotonResistance <= 45) {
-        return 7;
+    else if (pelotonResistance <= 30) {
+        resistanceLevel = 7;
     }
-    if (pelotonResistance <= 50) {
-        return 8;
+    else if (pelotonResistance <= 35) {
+        resistanceLevel = 8;
     }
-    if (pelotonResistance <= 55) {
-        return 9;
+    else if (pelotonResistance <= 40) {
+        resistanceLevel = 9;
     }
-    if (pelotonResistance <= 60) {
-        return 10;
+    else if (pelotonResistance <= 45) {
+        resistanceLevel = 10;
     }
-    if (pelotonResistance <= 65) {
-        return 11;
+    else if (pelotonResistance <= 50) {
+        resistanceLevel = 11;
     }
-    if (pelotonResistance <= 70) {
-        return 12;
+    else if (pelotonResistance <= 55) {
+        resistanceLevel = 12;
     }
-    if (pelotonResistance <= 75) {
-        return 13;
+    else if (pelotonResistance <= 60) {
+        resistanceLevel = 13;
     }
-    if (pelotonResistance <= 80) {
-        return 14;
+    else if (pelotonResistance <= 65) {
+        resistanceLevel = 14;
     }
-    if (pelotonResistance <= 85) {
-        return 15;
+    else if (pelotonResistance <= 70) {
+        resistanceLevel = 15;
     }
-    if (pelotonResistance <= 100) {
-        return 16;
+    else if (pelotonResistance <= 75) {
+        resistanceLevel = 16;
     }
-    return Resistance.value();
+    else if (pelotonResistance <= 80) {
+        resistanceLevel = 17;
+    }
+    else if (pelotonResistance <= 85) {
+        resistanceLevel = 18;
+    }
+    else if (pelotonResistance <= 95) {
+        resistanceLevel = 19;
+    }
+    else if (pelotonResistance <= 100) {
+        resistanceLevel = 20;
+    }
+    else {
+        return Resistance.value();
+    }
+
+    return (resistanceLevel * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+           settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
 }
 
 void nordictrackifitadbbike::forceResistance(double resistance) {}

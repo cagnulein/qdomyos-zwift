@@ -558,6 +558,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
 
     QString id = data.at(0)[QStringLiteral("id")].toString();
     QString status = data.at(0)[QStringLiteral("status")].toString();
+    start_time = data.at(0)[QStringLiteral("start_time")].toInt();
 
     if ((status.contains(QStringLiteral("IN_PROGRESS"),
                          Qt::CaseInsensitive) && // NOTE: removed toUpper because of qstring-insensitive-allocation
@@ -1074,11 +1075,151 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                 qDebug() << r.duration << "power" << r.power;
             }        
         }
+        QTime duration(0,0,0,0);
+        foreach(trainrow r, trainrows) {
+            duration = duration.addSecs(QTime(0,0,0,0).secsTo(r.duration));
+            qDebug() << duration << r.duration;
+        }
+        if(QTime(0,0,0,0).secsTo(duration) < current_pedaling_duration) {
+            qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << QTime(0,0,0,0).secsTo(duration) << current_pedaling_duration;
+            trainrows.clear();
+        }
         // this list doesn't have nothing useful for this session
         if (!atLeastOnePower) {
             trainrows.clear();
         }
     }
+    
+    if (trainrows.empty() && !target_metrics_data_list.isEmpty() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        QJsonObject target_metrics_data = ride["target_metrics_data"].toObject();
+        QJsonArray target_metrics = target_metrics_data["target_metrics"].toArray();
+        
+        if (!target_metrics.isEmpty()) {
+            bool treadmill_force_speed = settings.value(QZSettings::treadmill_force_speed,
+                                                      QZSettings::default_treadmill_force_speed).toBool();
+            int peloton_treadmill_level = settings.value(QZSettings::peloton_treadmill_level,
+                                                       QZSettings::default_peloton_treadmill_level).toInt() - 1;
+            
+            if (peloton_treadmill_level < 0 || peloton_treadmill_level > 9)
+                peloton_treadmill_level = 0;
+
+            double miles = 1.0;
+            if (settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool()) { // i didn't find the unit in the json
+                miles = 1.60934;
+            }
+
+            for (const QJsonValue& segment : target_metrics) {
+                QJsonObject segmentObj = segment.toObject();
+                QJsonArray metrics = segmentObj["metrics"].toArray();
+                QJsonObject offsets = segmentObj["offsets"].toObject();
+                QString segment_type = segmentObj["segment_type"].toString();
+
+                // Skip if no metrics or invalid offsets
+                if (metrics.isEmpty() || offsets.isEmpty())
+                    continue;
+
+                double speed_lower = -1;
+                double speed_upper = -1;
+                double inc_lower = -100;
+                double inc_upper = -100;
+                int pace_intensity_lower = -1;
+                int pace_intensity_upper = -1;
+
+                // Process metrics (speed, incline, pace_intensity)
+                for (const QJsonValue& metric : metrics) {
+                    QJsonObject metricObj = metric.toObject();
+                    QString metricName = metricObj["name"].toString().toLower();
+
+                    if (metricName == "pace_intensity") {
+                        pace_intensity_lower = metricObj["lower"].toInt();
+                        pace_intensity_upper = metricObj["upper"].toInt();
+                        
+                        if (pace_intensity_lower < 7)
+                            speed_lower = treadmill_pace[pace_intensity_lower].levels[peloton_treadmill_level].speed;
+                        speed_upper = treadmill_pace[pace_intensity_upper].levels[peloton_treadmill_level].speed;
+                    }
+                    else if (metricName == "speed") {
+                        speed_lower = metricObj["lower"].toDouble();
+                        speed_upper = metricObj["upper"].toDouble();
+                    }
+                    else if (metricName == "incline") {
+                        inc_lower = metricObj["lower"].toDouble();
+                        inc_upper = metricObj["upper"].toDouble();
+                    }
+                }
+
+                // Create training row
+                trainrow row;
+                if (speed_lower != -1)
+                    row.forcespeed = treadmill_force_speed;
+
+                // Set duration
+                int start = offsets["start"].toInt();
+                int end = offsets["end"].toInt();
+                row.duration = QTime(0, 0, 0).addSecs(end - start + 1);
+
+                // Apply difficulty settings
+                if (difficulty.toUpper() == "LOWER") {
+                    if (speed_lower != -1)
+                        row.speed = speed_lower * miles;
+                    if (inc_lower != -100)
+                        row.inclination = inc_lower;
+                    if (pace_intensity_lower != -1)
+                        row.pace_intensity = pace_intensity_lower;
+                }
+                else if (difficulty.toUpper() == "UPPER") {
+                    if (speed_lower != -1)
+                        row.speed = speed_upper * miles;
+                    if (inc_lower != -100)
+                        row.inclination = inc_upper;
+                    if (pace_intensity_upper != -1)
+                        row.pace_intensity = pace_intensity_upper;
+                }
+                else { // AVERAGE
+                    if (speed_lower != -1)
+                        row.speed = (speed_lower + speed_upper) / 2.0 * miles;
+                    if (inc_lower != -100)
+                        row.inclination = (inc_lower + inc_upper) / 2.0;
+                    if (pace_intensity_lower != -1)
+                        row.pace_intensity = (pace_intensity_lower + pace_intensity_upper) / 2;
+                }
+
+                // Store range values
+                if (speed_lower != -1) {
+                    row.lower_speed = speed_lower * miles;
+                    row.average_speed = (speed_lower + speed_upper) / 2.0 * miles;
+                    row.upper_speed = speed_upper * miles;
+                }
+
+                if (inc_lower != -100) {
+                    // Apply inclination adjustments
+                    double offset = settings.value(QZSettings::zwift_inclination_offset,
+                                                QZSettings::default_zwift_inclination_offset).toDouble();
+                    double gain = settings.value(QZSettings::zwift_inclination_gain,
+                                              QZSettings::default_zwift_inclination_gain).toDouble();
+
+                    row.lower_inclination = inc_lower * gain + offset;
+                    row.average_inclination = (inc_lower + inc_upper) / 2.0 * gain + offset;
+                    row.upper_inclination = inc_upper * gain + offset;
+                    row.inclination = row.inclination * gain + offset;
+                }
+
+                qDebug() << row.duration << row.speed << row.inclination;
+                trainrows.append(row);
+            }
+            
+            QTime duration(0,0,0,0);
+            foreach(trainrow r, trainrows) {
+                duration = duration.addSecs(QTime(0,0,0,0).secsTo(r.duration));
+                qDebug() << duration << r.duration;
+            }
+            if(QTime(0,0,0,0).secsTo(duration) < current_pedaling_duration) {
+                qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << QTime(0,0,0,0).secsTo(duration) << current_pedaling_duration;
+                trainrows.clear();
+            }
+        }
+    }
+
 
     if (log_request) {
         qDebug() << "peloton::ride_onfinish" << trainrows.length() << ride;
@@ -1133,7 +1274,8 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             QJsonArray metrics_ar = metrics[QStringLiteral("metrics")].toArray();
             QJsonObject offset = metrics[QStringLiteral("offsets")].toObject();
             QString segment_type = metrics[QStringLiteral("segment_type")].toString();
-            if (metrics_ar.count() > 1 && !offset.isEmpty()) {
+            qDebug() << metrics << metrics_ar << offset;
+            if (metrics_ar.count() > 0 && !offset.isEmpty()) {
                 double speed_lower = -1;
                 double speed_upper = -1;
                 double speed_average = -1;
