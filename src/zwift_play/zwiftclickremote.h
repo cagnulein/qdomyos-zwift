@@ -35,6 +35,8 @@ class zwiftclickremote : public bluetoothdevice {
     zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap);
     bool connected() override;
     ZwiftPlayDevice* playDevice = new ZwiftPlayDevice();
+    void vibrate();
+    AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap = AbstractZapDevice::NONE;
 
   private:
     QList<QLowEnergyService *> gattCommunicationChannelService;
@@ -45,14 +47,12 @@ class zwiftclickremote : public bluetoothdevice {
 
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic *writeChar, uint8_t *data,
                              uint8_t data_len, const QString &info, bool disable_log = false,
-                             bool wait_for_response = false);
-    void vibrate();
+                             bool wait_for_response = false);    
 
     bluetoothdevice *parentDevice = nullptr;
 
     bool initDone = false;
     bool initRequest = false;
-    AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap = AbstractZapDevice::NONE;
 
     QTimer *refresh;
 
@@ -66,8 +66,6 @@ class zwiftclickremote : public bluetoothdevice {
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void disconnectBluetooth();
-    void plus();
-    void minus();
 
   private slots:
 

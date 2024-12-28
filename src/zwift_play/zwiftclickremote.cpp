@@ -28,8 +28,6 @@ zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDev
 
     refresh = new QTimer(this);
     connect(refresh, &QTimer::timeout, this, &zwiftclickremote::update);
-    connect(playDevice, &ZwiftPlayDevice::plus, this, &zwiftclickremote::plus);
-    connect(playDevice, &ZwiftPlayDevice::minus, this, &zwiftclickremote::minus);
     refresh->start(1000ms);
 }
 
@@ -123,7 +121,8 @@ void zwiftclickremote::writeCharacteristic(QLowEnergyService *service, QLowEnerg
         qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info;
     }
 
-    loop.exec();
+    if(wait_for_response) // without this, it crashes on ios after sometimes
+        loop.exec();
 }
 
 void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
@@ -320,13 +319,4 @@ void zwiftclickremote::vibrate() {
     if(!initDone) return;
     QByteArray s = QByteArray::fromHex("1212080A06080210001820");
     writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "vibrate", false, false);
-
-}
-
-void zwiftclickremote::plus() {
-    vibrate();
-}
-
-void zwiftclickremote::minus() {
-    vibrate();
 }
