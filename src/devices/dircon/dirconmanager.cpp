@@ -23,6 +23,7 @@ using namespace std::chrono_literals;
     OP(WAHOO_RPM_SPEED, "Wahoo SPEED $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                    \
     OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
 
+#define DP_PROCESS_WRITE_0003() writeP0003
 #define DP_PROCESS_WRITE_2AD9() writeP2AD9
 #define DP_PROCESS_WRITE_2AD9T() writeP2AD9
 #define DP_PROCESS_WRITE_E005() writePE005
@@ -75,7 +76,7 @@ using namespace std::chrono_literals;
     OP(HEART_RATE, 0x2A37, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)               \
     OP(ZWIFT_PLAY_EMULATOR, 0x0003,                                                                                    \
        DPKT_CHAR_PROP_FLAG_WRITE,                                                                                      \
-       DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                               \
+       DM_BT("\x00"), DP_PROCESS_WRITE_0003, P1, P2, P3)                                                               \
     OP(ZWIFT_PLAY_EMULATOR, 0x0002,                                                                                    \
        DPKT_CHAR_PROP_FLAG_NOTIFY,                                                                                     \
        DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                               \
@@ -171,6 +172,7 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
     DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_BUILD_OP, Bike, 0, 0)
     writeP2AD9 = new CharacteristicWriteProcessor2AD9(bikeResistanceGain, bikeResistanceOffset, Bike, notif2AD9, this);
     writePE005 = new CharacteristicWriteProcessorE005(bikeResistanceGain, bikeResistanceOffset, Bike, this);
+    writeP0003 = new CharacteristicWriteProcessor0003(bikeResistanceGain, bikeResistanceOffset, Bike, notif0002, this);
     DM_CHAR_OP(DM_CHAR_INIT_OP, services, service, 0)
     connect(writeP2AD9, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
     connect(writeP2AD9, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
