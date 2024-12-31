@@ -102,6 +102,8 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
     static const QByteArray expectedHexArray6 = QByteArray::fromHex("042A0410");
     static const QByteArray expectedHexArray7 = QByteArray::fromHex("042A0310");
     static const QByteArray expectedHexArray8 = QByteArray::fromHex("0418");
+    static const QByteArray expectedHexArray9 = QByteArray::fromHex("042a0810");
+    static const QByteArray expectedHexArray10 = QByteArray::fromHex("000800");
 
     QByteArray receivedData = data;
 
@@ -119,10 +121,24 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
         reply = QByteArray::fromHex("3c080012320a3008800412040500050"
                                 "11a0b4b49434b5220434f524500320f"
                                 "3430323431383030393834000000003a01314204080110140");
+        notifier0004->addAnswer(reply);
     }
     else if (receivedData.startsWith(expectedHexArray3)) {
         qDebug() << "Zwift Play Processor: Status request";
         reply = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
+        notifier0004->addAnswer(reply);
+    }
+    else if (receivedData.startsWith(expectedHexArray4)) {
+        qDebug() << "Zwift Play Ask 4";
+
+        reply = QByteArray::fromHex("0308001000185920002800309bed01");
+        notifier0002->addAnswer(reply);
+
+        reply = QByteArray::fromHex("2a08031227222567"
+                                       "61705f706172616d735f6368616e6765"
+                                       "2832293a2037322c2037322c20302c20"
+                                       "36303000");
+        notifier0002->addAnswer(reply);
     }
     else if (receivedData.startsWith(expectedHexArray5)) {
         qDebug() << "Zwift Play Processor: Slope change request";
@@ -135,12 +151,32 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
                                      QByteArray::fromHex("116901") + slope + QByteArray::fromHex("3228"));
 
         reply = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
+        notifier0004->addAnswer(reply);
     }
-    else if (receivedData.startsWith(expectedHexArray6) ||
-             receivedData.startsWith(expectedHexArray7)) {
-        qDebug() << "Zwift Play Processor: Gear change request";
+    else if (receivedData.startsWith(expectedHexArray6)) {
+        qDebug() << "Zwift Play Ask 6";
+
+        reply = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
+        reply[9] = receivedData[4];
+        reply[10] = receivedData[5];
+        reply[11] = receivedData[6];
         handleZwiftGear(receivedData.mid(4));
+        notifier0004->addAnswer(reply);
+
+        reply = QByteArray::fromHex("03080010001827e7 20002896143093ed01");
+        notifier0002->addAnswer(reply);
+    }
+    else if (receivedData.startsWith(expectedHexArray7)) {
+        qDebug() << "Zwift Play Ask 7";
+
         reply = QByteArray::fromHex("03080010001827e7 2000 28 00 3093ed01");
+        notifier0002->addAnswer(reply);
+
+        reply = QByteArray::fromHex("3c088804120503408c60");
+        reply[9] = receivedData[4];
+        reply[10] = receivedData[5];
+        handleZwiftGear(receivedData.mid(4));
+        notifier0004->addAnswer(reply);
     }
     else if (receivedData.startsWith(expectedHexArray8)) {
         qDebug() << "Zwift Play Processor: Power request";
@@ -154,6 +190,19 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
 
         reply = QByteArray::fromHex("030882011022181020002898523086ed01");
         reply[2] = ((bike*)Bike)->wattsMetric().value();
+        notifier0002->addAnswer(reply);
+    }
+    else if (receivedData.startsWith(expectedHexArray9)) {
+        qDebug() << "Zwift Play Ask 9";
+
+        reply = QByteArray::fromHex("050a08400058b60560fc26");
+        notifier0004->addAnswer(reply);
+    }
+    else if (receivedData.startsWith(expectedHexArray10)) {
+        qDebug() << "Zwift Play Ask 10";
+
+        reply = QByteArray::fromHex("3c0800122408800412040004000c1a00320f42412d4534333732443932374244453a00420408011053");
+        notifier0004->addAnswer(reply);
     }
     else {
         qDebug() << "Zwift Play Processor: Unhandled request:" << receivedData.toHex();
