@@ -2,15 +2,18 @@
 #define CHARACTERISTICWRITEPROCESSOR0003_H
 
 #include "characteristicnotifier0002.h"
+#include "characteristicnotifier0004.h"
 #include "characteristicwriteprocessor.h"
 
 class CharacteristicWriteProcessor0003 : public CharacteristicWriteProcessor {
     Q_OBJECT
-    CharacteristicNotifier0002 *notifier = nullptr;
+    CharacteristicNotifier0002 *notifier0002 = nullptr;
+    CharacteristicNotifier0004 *notifier0004 = nullptr;
 
 public:
     explicit CharacteristicWriteProcessor0003(double bikeResistanceGain, int8_t bikeResistanceOffset,
-                                            bluetoothdevice *bike, CharacteristicNotifier0002 *notifier,
+                                            bluetoothdevice *bike, CharacteristicNotifier0002 *notifier0002,
+                                            CharacteristicNotifier0004 *notifier0004,
                                             QObject *parent = nullptr);
     int writeProcess(quint16 uuid, const QByteArray &data, QByteArray &out) override;
 

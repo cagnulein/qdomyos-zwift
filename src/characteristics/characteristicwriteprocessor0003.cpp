@@ -5,9 +5,10 @@
 CharacteristicWriteProcessor0003::CharacteristicWriteProcessor0003(double bikeResistanceGain,
                                                                  int8_t bikeResistanceOffset,
                                                                  bluetoothdevice *bike,
-                                                                 CharacteristicNotifier0002 *notifier,
+                                                                 CharacteristicNotifier0002 *notifier0002,
+                                                                 CharacteristicNotifier0004 *notifier0004,
                                                                  QObject *parent)
-    : CharacteristicWriteProcessor(bikeResistanceGain, bikeResistanceOffset, bike, parent), notifier(notifier) {
+    : CharacteristicWriteProcessor(bikeResistanceGain, bikeResistanceOffset, bike, parent), notifier0002(notifier0002), notifier0004(notifier0004) {
 }
 
 CharacteristicWriteProcessor0003::VarintResult CharacteristicWriteProcessor0003::decodeVarint(const QByteArray& bytes, int startIndex) {
@@ -107,6 +108,11 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
     if (receivedData.startsWith(expectedHexArray)) {
         qDebug() << "Zwift Play Processor: Initial connection request";
         reply = QByteArray::fromHex("2a08031211220f4154582030342c2053545820303400");
+        notifier0002->addAnswer(reply);
+        reply = QByteArray::fromHex("2a0803120d220b524944455f4f4e28322900");
+        notifier0002->addAnswer(reply);
+        reply = QByteArray::fromHex("526964654f6e0200");
+        notifier0004->addAnswer(reply);
     }
     else if (receivedData.startsWith(expectedHexArray2)) {
         qDebug() << "Zwift Play Processor: Device info request";
@@ -152,10 +158,6 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
     else {
         qDebug() << "Zwift Play Processor: Unhandled request:" << receivedData.toHex();
         return -1;
-    }
-
-    if (notifier) {
-        notifier->answer = reply;
     }
 
     return 0;

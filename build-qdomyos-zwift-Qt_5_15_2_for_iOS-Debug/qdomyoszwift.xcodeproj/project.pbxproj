@@ -522,6 +522,8 @@
 		87DA62A52D2305E4008ADA0F /* moc_characteristicwriteprocessor0003.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62A32D2305E4008ADA0F /* moc_characteristicwriteprocessor0003.cpp */; };
 		87DA62AA2D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62A92D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp */; };
 		87DA62AB2D2305F5008ADA0F /* characteristicnotifier0002.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62A72D2305F5008ADA0F /* characteristicnotifier0002.cpp */; };
+		87DA62AF2D2426F2008ADA0F /* characteristicnotifier0004.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62AD2D2426F2008ADA0F /* characteristicnotifier0004.cpp */; };
+		87DA62B02D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62AE2D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp */; };
 		87DA76502848F98200A71B64 /* libQt5TextToSpeech.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */; };
 		87DA8465284933D200B550E9 /* fakeelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA8464284933D200B550E9 /* fakeelliptical.cpp */; };
 		87DA8467284933DE00B550E9 /* moc_fakeelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA8466284933DE00B550E9 /* moc_fakeelliptical.cpp */; };
@@ -1538,6 +1540,9 @@
 		87DA62A72D2305F5008ADA0F /* characteristicnotifier0002.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicnotifier0002.cpp; path = ../src/characteristics/characteristicnotifier0002.cpp; sourceTree = SOURCE_ROOT; };
 		87DA62A82D2305F5008ADA0F /* characteristicwriteprocessor0003.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = characteristicwriteprocessor0003.h; path = ../src/characteristics/characteristicwriteprocessor0003.h; sourceTree = SOURCE_ROOT; };
 		87DA62A92D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicwriteprocessor0003.cpp; path = ../src/characteristics/characteristicwriteprocessor0003.cpp; sourceTree = SOURCE_ROOT; };
+		87DA62AC2D2426F2008ADA0F /* characteristicnotifier0004.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = characteristicnotifier0004.h; path = ../src/characteristics/characteristicnotifier0004.h; sourceTree = SOURCE_ROOT; };
+		87DA62AD2D2426F2008ADA0F /* characteristicnotifier0004.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicnotifier0004.cpp; path = ../src/characteristics/characteristicnotifier0004.cpp; sourceTree = SOURCE_ROOT; };
+		87DA62AE2D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_characteristicnotifier0004.cpp; sourceTree = "<group>"; };
 		87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5TextToSpeech.a; path = ../../Qt/5.15.2/ios/lib/libQt5TextToSpeech.a; sourceTree = "<group>"; };
 		87DA8463284933D200B550E9 /* fakeelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fakeelliptical.h; path = ../src/devices/fakeelliptical/fakeelliptical.h; sourceTree = "<group>"; };
 		87DA8464284933D200B550E9 /* fakeelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fakeelliptical.cpp; path = ../src/devices/fakeelliptical/fakeelliptical.cpp; sourceTree = "<group>"; };
@@ -2168,6 +2173,9 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87DA62AC2D2426F2008ADA0F /* characteristicnotifier0004.h */,
+				87DA62AD2D2426F2008ADA0F /* characteristicnotifier0004.cpp */,
+				87DA62AE2D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp */,
 				87DA62A62D2305F5008ADA0F /* characteristicnotifier0002.h */,
 				87DA62A72D2305F5008ADA0F /* characteristicnotifier0002.cpp */,
 				87DA62A82D2305F5008ADA0F /* characteristicwriteprocessor0003.h */,
@@ -3827,6 +3835,8 @@
 				873824B227E64706004F1B46 /* moc_hostname.cpp in Compile Sources */,
 				873824EB27E647A8004F1B46 /* prober.cpp in Compile Sources */,
 				875CA9462D0C740000667EE6 /* moc_kineticinroadbike.cpp in Compile Sources */,
+				87DA62AF2D2426F2008ADA0F /* characteristicnotifier0004.cpp in Compile Sources */,
+				87DA62B02D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp in Compile Sources */,
 				8767EF1E29448D6700810C0F /* characteristicwriteprocessor.cpp in Compile Sources */,
 				87B617F425F260150094A1CB /* moc_screencapture.cpp in Compile Sources */,
 				87B617ED25F25FED0094A1CB /* fitshowtreadmill.cpp in Compile Sources */,
