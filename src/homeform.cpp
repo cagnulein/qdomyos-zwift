@@ -1914,6 +1914,13 @@ void homeform::sortTiles() {
                 biggearsMinus->setGridId(i);
                 dataList.append(biggearsMinus);
             }
+
+            if (settings.value(QZSettings::tile_rss_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_rss_order, 53).toInt() == i) {
+                rss->setGridId(i);
+                rss->setName("TSS");
+                dataList.append(rss);
+            }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
         for (int i = 0; i < 100; i++) {
@@ -4460,6 +4467,7 @@ void homeform::update() {
             this->target_power->setValue(
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
+            this->rss->setValue(QString::number(((bike *)bluetoothManager->device())->tssCalculator.getTSS(QTime(0,0,0,0).secsTo(bluetoothManager->device()->elapsedTime())), 'f', 0));
             updateGearsValue();
 
             this->resistance->setSecondLine(
