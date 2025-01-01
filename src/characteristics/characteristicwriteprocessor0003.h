@@ -27,6 +27,13 @@ private:
     qint32 decodeSInt(const QByteArray& bytes);
     void handleZwiftGear(const QByteArray &array);
     int currentZwiftGear = 0;
+    QByteArray encodeHubRidingData(uint32_t power,
+                                    uint32_t cadence,
+                                    uint32_t speedX100,
+                                    uint32_t hr,
+                                    uint32_t unknown1,
+                                    uint32_t unknown2);
+
 
 signals:
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

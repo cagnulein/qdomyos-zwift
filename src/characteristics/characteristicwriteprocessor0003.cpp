@@ -93,6 +93,69 @@ void CharacteristicWriteProcessor0003::handleZwiftGear(const QByteArray &array) 
     currentZwiftGear = g;
 }
 
+QByteArray CharacteristicWriteProcessor0003::encodeHubRidingData(
+    uint32_t power,
+    uint32_t cadence,
+    uint32_t speedX100,
+    uint32_t hr,
+    uint32_t unknown1,
+    uint32_t unknown2
+) {
+    QByteArray buffer;
+    buffer.append(char(0x03));
+
+    auto encodeVarInt32 = [](QByteArray& buf, uint32_t value) {
+        do {
+            uint8_t byte = value & 0x7F;
+            value >>= 7;
+            if (value) byte |= 0x80;
+            buf.append(char(byte));
+        } while (value);
+    };
+    
+    encodeVarInt32(buffer, (1 << 3) | 0);
+    encodeVarInt32(buffer, power);
+    
+    encodeVarInt32(buffer, (2 << 3) | 0);
+    encodeVarInt32(buffer, cadence);
+    
+    encodeVarInt32(buffer, (3 << 3) | 0);
+    encodeVarInt32(buffer, speedX100);
+    
+    encodeVarInt32(buffer, (4 << 3) | 0);
+    encodeVarInt32(buffer, hr);
+    
+    encodeVarInt32(buffer, (5 << 3) | 0);
+    encodeVarInt32(buffer, unknown1);
+    
+    encodeVarInt32(buffer, (6 << 3) | 0);
+    encodeVarInt32(buffer, unknown2);
+    
+    return buffer;
+}
+
+static uint32_t lastUnknown1 = 836;  // Starting value from logs
+static uint32_t baseValue = 19000;   // Base value from original code
+
+uint32_t calculateUnknown1(uint16_t power) {
+    // Increment by a value between 400-800 based on current power
+    uint32_t increment = 400 + (power * 2);
+    if (increment > 800) increment = 800;
+    
+    // Adjust based on power changes
+    if (power > 0) {
+        lastUnknown1 += increment;
+    } else {
+        // For zero power, larger increments
+        lastUnknown1 += 600;
+    }
+    
+    // Keep within observed range (800-24000)
+    if (lastUnknown1 > 24000) lastUnknown1 = baseValue;
+    
+    return lastUnknown1;
+}
+
 int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArray &data, QByteArray &reply) {
     static const QByteArray expectedHexArray = QByteArray::fromHex("52696465 4F6E02");
     static const QByteArray expectedHexArray2 = QByteArray::fromHex("410805");
@@ -150,8 +213,15 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
         emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
                                      QByteArray::fromHex("116901") + slope + QByteArray::fromHex("3228"));
 
-        reply = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
-        notifier0004->addAnswer(reply);
+        reply = encodeHubRidingData(
+                               Bike->wattsMetric().value(),
+                               Bike->currentCadence().value(),
+                               0,
+                               Bike->wattsMetric().value(),
+                               calculateUnknown1(Bike->wattsMetric().value()),
+                               0
+                           );
+        notifier0002->addAnswer(reply);
     }
     else if (receivedData.startsWith(expectedHexArray6)) {
         qDebug() << "Zwift Play Ask 6";
