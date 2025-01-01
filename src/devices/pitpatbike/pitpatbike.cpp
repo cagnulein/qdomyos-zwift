@@ -405,7 +405,6 @@ void pitpatbike::error(QLowEnergyController::Error err) {
 void pitpatbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                     device.address().toString() + ')';
-    if (device.name().startsWith(QStringLiteral("ECH"))) {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -438,7 +437,6 @@ void pitpatbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         // Connect
         m_control->connectToDevice();
         return;
-    }
 }
 
 bool pitpatbike::connected() {
