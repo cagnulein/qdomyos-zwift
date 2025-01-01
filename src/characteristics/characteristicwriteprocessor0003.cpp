@@ -212,7 +212,9 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
 
         emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
                                      QByteArray::fromHex("116901") + slope + QByteArray::fromHex("3228"));
-
+    
+        changeSlope(slopefloat, 0 /* TODO */, 0 /* TODO */);
+        
         reply = encodeHubRidingData(
                                Bike->wattsMetric().value(),
                                Bike->currentCadence().value(),
@@ -258,9 +260,17 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
         emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
                                      QByteArray::fromHex("05") + power);
 
-        reply = QByteArray::fromHex("030882011022181020002898523086ed01");
-        reply[2] = ((bike*)Bike)->wattsMetric().value();
+        reply = encodeHubRidingData(
+                               Bike->wattsMetric().value(),
+                               Bike->currentCadence().value(),
+                               0,
+                               Bike->wattsMetric().value(),
+                               calculateUnknown1(Bike->wattsMetric().value()),
+                               0
+                           );
         notifier0002->addAnswer(reply);
+        
+        changePower(Power.value);
     }
     else if (receivedData.startsWith(expectedHexArray9)) {
         qDebug() << "Zwift Play Ask 9";

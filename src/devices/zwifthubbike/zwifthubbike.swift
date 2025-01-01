@@ -36,14 +36,14 @@ import Foundation
         return fullData
     }
     
-    public static func ridingData(power: UInt32, cadence: UInt32, speed: Double, HR: UInt32) throws -> Data {
+    public static func ridingData(power: UInt32, cadence: UInt32, speed: Double, HR: UInt32, unkown1: UInt32, unkown2: UInt32) throws -> Data {
         var physical = BLEReceiver_Zwift_HubRidingData()
         physical.cadence = cadence
         physical.power = power
         physical.speedX100 = UInt32(speed * 100.0)
         physical.hr = HR
-        physical.unknown1 = 2864
-        physical.unknown2 = 25714
+        physical.unknown1 = unkown1
+        physical.unknown2 = unkown2
         
         let data = try physical.serializedData()
         var fullData = Data([0x03])
