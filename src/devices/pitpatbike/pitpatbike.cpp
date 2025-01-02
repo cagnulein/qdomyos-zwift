@@ -248,7 +248,7 @@ void pitpatbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     // these useless lines are needed to calculate the AVG resistance and AVG peloton resistance since
     // echelon just send the resistance values when it changes
-    Resistance = Resistance.value();
+    Resistance = newValue.at(5);
     m_pelotonResistance = m_pelotonResistance.value();
 
     qDebug() << QStringLiteral("Current Local elapsed: ") + GetElapsedFromPacket(newValue).toString();
