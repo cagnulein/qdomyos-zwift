@@ -245,202 +245,338 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
 
     treadmill_pace[0].value = 0;
     treadmill_pace[0].display_name = QStringLiteral("Recovery");
-    treadmill_pace[0].levels[0].speed = 4.83;  // 3.0 mph
-    treadmill_pace[0].levels[1].speed = 5.15;  // 3.2 mph
-    treadmill_pace[0].levels[2].speed = 5.63;  // 3.5 mph
-    treadmill_pace[0].levels[3].speed = 5.95;  // 3.7 mph
-    treadmill_pace[0].levels[4].speed = 6.60;  // 4.1 mph
-    treadmill_pace[0].levels[5].speed = 7.24;  // 4.5 mph
-    treadmill_pace[0].levels[6].speed = 8.05;  // 5.0 mph
-    treadmill_pace[0].levels[7].speed = 9.17;  // 5.7 mph
-    treadmill_pace[0].levels[8].speed = 10.46;  // 6.5 mph
-    treadmill_pace[0].levels[9].speed = 12.23;  // 7.6 mph
     for (int i = 0; i < 10; i++) {
         treadmill_pace[0].levels[i].display_name = QStringLiteral("Level %1").arg(i+1);
         treadmill_pace[0].levels[i].slug = QStringLiteral("level_%1").arg(i+1);
     }
 
+    treadmill_pace[0].levels[0].slow_pace = 1.60934;    // 1.0 mph
+    treadmill_pace[0].levels[0].fast_pace = 4.82802;    // 3.0 mph
+    treadmill_pace[0].levels[0].speed = (treadmill_pace[0].levels[0].slow_pace + treadmill_pace[0].levels[0].fast_pace) / 2.0;
+
+    treadmill_pace[0].levels[1].slow_pace = 1.60934;    // 1.0 mph
+    treadmill_pace[0].levels[1].fast_pace = 5.14989;    // 3.2 mph
+    treadmill_pace[0].levels[1].speed = (treadmill_pace[0].levels[1].slow_pace + treadmill_pace[0].levels[1].fast_pace) / 2.0;
+
+    treadmill_pace[0].levels[2].slow_pace = 1.60934;    // 1.0 mph
+    treadmill_pace[0].levels[2].fast_pace = 5.63269;    // 3.5 mph
+    treadmill_pace[0].levels[2].speed = (treadmill_pace[0].levels[2].slow_pace + treadmill_pace[0].levels[2].fast_pace) / 2.0;
+
+    treadmill_pace[0].levels[3].slow_pace = 1.60934;    // 1.0 mph
+    treadmill_pace[0].levels[3].fast_pace = 5.95456;    // 3.7 mph
+    treadmill_pace[0].levels[3].speed = (treadmill_pace[0].levels[3].slow_pace + treadmill_pace[0].levels[3].fast_pace) / 2.0;
+
+    treadmill_pace[0].levels[4].slow_pace = 1.60934;    // 1.0 mph
+    treadmill_pace[0].levels[4].fast_pace = 6.59829;    // 4.1 mph
+    treadmill_pace[0].levels[4].speed = (treadmill_pace[0].levels[4].slow_pace + treadmill_pace[0].levels[4].fast_pace) / 2.0;
+
+    treadmill_pace[0].levels[5].slow_pace = 1.60934;    // 1.0 mph
+    treadmill_pace[0].levels[5].fast_pace = 7.24203;    // 4.5 mph
+    treadmill_pace[0].levels[5].speed = (treadmill_pace[0].levels[5].slow_pace + treadmill_pace[0].levels[5].fast_pace) / 2.0;
+
+    treadmill_pace[0].levels[6].slow_pace = 1.60934;    // 1.0 mph
+    treadmill_pace[0].levels[6].fast_pace = 8.0467;     // 5.0 mph
+    treadmill_pace[0].levels[6].speed = (treadmill_pace[0].levels[6].slow_pace + treadmill_pace[0].levels[6].fast_pace) / 2.0;
+
+    treadmill_pace[0].levels[7].slow_pace = 1.60934;    // 1.0 mph
+    treadmill_pace[0].levels[7].fast_pace = 9.17324;    // 5.7 mph
+    treadmill_pace[0].levels[7].speed = (treadmill_pace[0].levels[7].slow_pace + treadmill_pace[0].levels[7].fast_pace) / 2.0;
+
+    treadmill_pace[0].levels[8].slow_pace = 1.60934;    // 1.0 mph
+    treadmill_pace[0].levels[8].fast_pace = 10.46071;   // 6.5 mph
+    treadmill_pace[0].levels[8].speed = (treadmill_pace[0].levels[8].slow_pace + treadmill_pace[0].levels[8].fast_pace) / 2.0;
+
+    treadmill_pace[0].levels[9].slow_pace = 1.60934;    // 1.0 mph
+    treadmill_pace[0].levels[9].fast_pace = 12.23098;   // 7.6 mph
+    treadmill_pace[0].levels[9].speed = (treadmill_pace[0].levels[9].slow_pace + treadmill_pace[0].levels[9].fast_pace) / 2.0;
+
+    // Easy
     treadmill_pace[1].value = 1;
     treadmill_pace[1].display_name = QStringLiteral("Easy");
-    treadmill_pace[1].levels[0].speed = 5.15;  // 3.2 mph
-    treadmill_pace[1].levels[0].display_name = QStringLiteral("Level 1");
-    treadmill_pace[1].levels[0].slug = QStringLiteral("level_1");
-    treadmill_pace[1].levels[1].speed = 5.47;  // 3.4 mph
-    treadmill_pace[1].levels[1].display_name = QStringLiteral("Level 2");
-    treadmill_pace[1].levels[1].slug = QStringLiteral("level_2");
-    treadmill_pace[1].levels[2].speed = 5.95;  // 3.7 mph
-    treadmill_pace[1].levels[2].display_name = QStringLiteral("Level 3");
-    treadmill_pace[1].levels[2].slug = QStringLiteral("level_3");
-    treadmill_pace[1].levels[3].speed = 6.28;  // 3.9 mph
-    treadmill_pace[1].levels[3].display_name = QStringLiteral("Level 4");
-    treadmill_pace[1].levels[3].slug = QStringLiteral("level_4");
-    treadmill_pace[1].levels[4].speed = 6.92;  // 4.3 mph
-    treadmill_pace[1].levels[4].display_name = QStringLiteral("Level 5");
-    treadmill_pace[1].levels[4].slug = QStringLiteral("level_5");
-    treadmill_pace[1].levels[5].speed = 7.56;  // 4.7 mph
-    treadmill_pace[1].levels[5].display_name = QStringLiteral("Level 6");
-    treadmill_pace[1].levels[5].slug = QStringLiteral("level_6");
-    treadmill_pace[1].levels[6].speed = 8.37;  // 5.2 mph
-    treadmill_pace[1].levels[6].display_name = QStringLiteral("Level 7");
-    treadmill_pace[1].levels[6].slug = QStringLiteral("level_7");
-    treadmill_pace[1].levels[7].speed = 9.66;  // 6.0 mph
-    treadmill_pace[1].levels[7].display_name = QStringLiteral("Level 8");
-    treadmill_pace[1].levels[7].slug = QStringLiteral("level_8");
-    treadmill_pace[1].levels[8].speed = 11.10;  // 6.9 mph
-    treadmill_pace[1].levels[8].display_name = QStringLiteral("Level 9");
-    treadmill_pace[1].levels[8].slug = QStringLiteral("level_9");
-    treadmill_pace[1].levels[9].speed = 12.87;  // 8.0 mph
-    treadmill_pace[1].levels[9].display_name = QStringLiteral("Level 10");
-    treadmill_pace[1].levels[9].slug = QStringLiteral("level_10");
+    for (int i = 0; i < 10; i++) {
+        treadmill_pace[1].levels[i].display_name = QStringLiteral("Level %1").arg(i+1);
+        treadmill_pace[1].levels[i].slug = QStringLiteral("level_%1").arg(i+1);
+    }
 
+    treadmill_pace[1].levels[0].slow_pace = 4.98895;    // 3.1 mph
+    treadmill_pace[1].levels[0].fast_pace = 5.30802;    // 3.3 mph
+    treadmill_pace[1].levels[0].speed = (treadmill_pace[1].levels[0].slow_pace + treadmill_pace[1].levels[0].fast_pace) / 2.0;
+
+    treadmill_pace[1].levels[1].slow_pace = 5.30802;    // 3.3 mph
+    treadmill_pace[1].levels[1].fast_pace = 5.79362;    // 3.6 mph
+    treadmill_pace[1].levels[1].speed = (treadmill_pace[1].levels[1].slow_pace + treadmill_pace[1].levels[1].fast_pace) / 2.0;
+
+    treadmill_pace[1].levels[2].slow_pace = 5.79362;    // 3.6 mph
+    treadmill_pace[1].levels[2].fast_pace = 6.27642;    // 3.9 mph
+    treadmill_pace[1].levels[2].speed = (treadmill_pace[1].levels[2].slow_pace + treadmill_pace[1].levels[2].fast_pace) / 2.0;
+
+    treadmill_pace[1].levels[3].slow_pace = 6.11549;    // 3.8 mph
+    treadmill_pace[1].levels[3].fast_pace = 6.59829;    // 4.1 mph
+    treadmill_pace[1].levels[3].speed = (treadmill_pace[1].levels[3].slow_pace + treadmill_pace[1].levels[3].fast_pace) / 2.0;
+
+    treadmill_pace[1].levels[4].slow_pace = 6.75923;    // 4.2 mph
+    treadmill_pace[1].levels[4].fast_pace = 7.24203;    // 4.5 mph
+    treadmill_pace[1].levels[4].speed = (treadmill_pace[1].levels[4].slow_pace + treadmill_pace[1].levels[4].fast_pace) / 2.0;
+
+    treadmill_pace[1].levels[5].slow_pace = 7.40296;    // 4.6 mph
+    treadmill_pace[1].levels[5].fast_pace = 7.88576;    // 4.9 mph
+    treadmill_pace[1].levels[5].speed = (treadmill_pace[1].levels[5].slow_pace + treadmill_pace[1].levels[5].fast_pace) / 2.0;
+
+    treadmill_pace[1].levels[6].slow_pace = 8.20763;    // 5.1 mph
+    treadmill_pace[1].levels[6].fast_pace = 8.85137;    // 5.5 mph
+    treadmill_pace[1].levels[6].speed = (treadmill_pace[1].levels[6].slow_pace + treadmill_pace[1].levels[6].fast_pace) / 2.0;
+
+    treadmill_pace[1].levels[7].slow_pace = 9.33417;    // 5.8 mph
+    treadmill_pace[1].levels[7].fast_pace = 9.97791;    // 6.2 mph
+    treadmill_pace[1].levels[7].speed = (treadmill_pace[1].levels[7].slow_pace + treadmill_pace[1].levels[7].fast_pace) / 2.0;
+
+    treadmill_pace[1].levels[8].slow_pace = 10.61884;   // 6.6 mph
+    treadmill_pace[1].levels[8].fast_pace = 11.58725;   // 7.2 mph
+    treadmill_pace[1].levels[8].speed = (treadmill_pace[1].levels[8].slow_pace + treadmill_pace[1].levels[8].fast_pace) / 2.0;
+
+    treadmill_pace[1].levels[9].slow_pace = 12.39192;   // 7.7 mph
+    treadmill_pace[1].levels[9].fast_pace = 13.51846;   // 8.4 mph
+    treadmill_pace[1].levels[9].speed = (treadmill_pace[1].levels[9].slow_pace + treadmill_pace[1].levels[9].fast_pace) / 2.0;
+
+    // Moderate
     treadmill_pace[2].value = 2;
     treadmill_pace[2].display_name = QStringLiteral("Moderate");
-    treadmill_pace[2].levels[0].speed = 5.63;  // 3.5 mph
-    treadmill_pace[2].levels[0].display_name = QStringLiteral("Level 1");
-    treadmill_pace[2].levels[0].slug = QStringLiteral("level_1");
-    treadmill_pace[2].levels[1].speed = 5.95;  // 3.7 mph
-    treadmill_pace[2].levels[1].display_name = QStringLiteral("Level 2");
-    treadmill_pace[2].levels[1].slug = QStringLiteral("level_2");
-    treadmill_pace[2].levels[2].speed = 6.44;  // 4.0 mph
-    treadmill_pace[2].levels[2].display_name = QStringLiteral("Level 3");
-    treadmill_pace[2].levels[2].slug = QStringLiteral("level_3");
-    treadmill_pace[2].levels[3].speed = 6.92;  // 4.3 mph
-    treadmill_pace[2].levels[3].display_name = QStringLiteral("Level 4");
-    treadmill_pace[2].levels[3].slug = QStringLiteral("level_4");
-    treadmill_pace[2].levels[4].speed = 7.56;  // 4.7 mph
-    treadmill_pace[2].levels[4].display_name = QStringLiteral("Level 5");
-    treadmill_pace[2].levels[4].slug = QStringLiteral("level_5");
-    treadmill_pace[2].levels[5].speed = 8.37;  // 5.2 mph
-    treadmill_pace[2].levels[5].display_name = QStringLiteral("Level 6");
-    treadmill_pace[2].levels[5].slug = QStringLiteral("level_6");
-    treadmill_pace[2].levels[6].speed = 9.17;  // 5.7 mph
-    treadmill_pace[2].levels[6].display_name = QStringLiteral("Level 7");
-    treadmill_pace[2].levels[6].slug = QStringLiteral("level_7");
-    treadmill_pace[2].levels[7].speed = 10.46;  // 6.5 mph
-    treadmill_pace[2].levels[7].display_name = QStringLiteral("Level 8");
-    treadmill_pace[2].levels[7].slug = QStringLiteral("level_8");
-    treadmill_pace[2].levels[8].speed = 12.07;  // 7.5 mph
-    treadmill_pace[2].levels[8].display_name = QStringLiteral("Level 9");
-    treadmill_pace[2].levels[8].slug = QStringLiteral("level_9");
-    treadmill_pace[2].levels[9].speed = 14.00;  // 8.7 mph
-    treadmill_pace[2].levels[9].display_name = QStringLiteral("Level 10");
-    treadmill_pace[2].levels[9].slug = QStringLiteral("level_10");
+    for (int i = 0; i < 10; i++) {
+        treadmill_pace[2].levels[i].display_name = QStringLiteral("Level %1").arg(i+1);
+        treadmill_pace[2].levels[i].slug = QStringLiteral("level_%1").arg(i+1);
+    }
 
+    treadmill_pace[2].levels[0].slow_pace = 5.47176;    // 3.4 mph
+    treadmill_pace[2].levels[0].fast_pace = 5.79362;    // 3.6 mph
+    treadmill_pace[2].levels[0].speed = (treadmill_pace[2].levels[0].slow_pace + treadmill_pace[2].levels[0].fast_pace) / 2.0;
+
+    treadmill_pace[2].levels[1].slow_pace = 5.95456;    // 3.7 mph
+    treadmill_pace[2].levels[1].fast_pace = 6.27642;    // 3.9 mph
+    treadmill_pace[2].levels[1].speed = (treadmill_pace[2].levels[1].slow_pace + treadmill_pace[2].levels[1].fast_pace) / 2.0;
+
+    treadmill_pace[2].levels[2].slow_pace = 6.43736;    // 4.0 mph
+    treadmill_pace[2].levels[2].fast_pace = 6.75923;    // 4.2 mph
+    treadmill_pace[2].levels[2].speed = (treadmill_pace[2].levels[2].slow_pace + treadmill_pace[2].levels[2].fast_pace) / 2.0;
+
+    treadmill_pace[2].levels[3].slow_pace = 6.75923;    // 4.2 mph
+    treadmill_pace[2].levels[3].fast_pace = 7.24203;    // 4.5 mph
+    treadmill_pace[2].levels[3].speed = (treadmill_pace[2].levels[3].slow_pace + treadmill_pace[2].levels[3].fast_pace) / 2.0;
+
+    treadmill_pace[2].levels[4].slow_pace = 7.40296;    // 4.6 mph
+    treadmill_pace[2].levels[4].fast_pace = 7.88576;    // 4.9 mph
+    treadmill_pace[2].levels[4].speed = (treadmill_pace[2].levels[4].slow_pace + treadmill_pace[2].levels[4].fast_pace) / 2.0;
+
+    treadmill_pace[2].levels[5].slow_pace = 8.0467;     // 5.0 mph
+    treadmill_pace[2].levels[5].fast_pace = 8.69043;    // 5.4 mph
+    treadmill_pace[2].levels[5].speed = (treadmill_pace[2].levels[5].slow_pace + treadmill_pace[2].levels[5].fast_pace) / 2.0;
+
+    treadmill_pace[2].levels[6].slow_pace = 9.01230;    // 5.6 mph
+    treadmill_pace[2].levels[6].fast_pace = 9.65604;    // 6.0 mph
+    treadmill_pace[2].levels[6].speed = (treadmill_pace[2].levels[6].slow_pace + treadmill_pace[2].levels[6].fast_pace) / 2.0;
+
+    treadmill_pace[2].levels[7].slow_pace = 10.13884;   // 6.3 mph
+    treadmill_pace[2].levels[7].fast_pace = 10.94351;   // 6.8 mph
+    treadmill_pace[2].levels[7].speed = (treadmill_pace[2].levels[7].slow_pace + treadmill_pace[2].levels[7].fast_pace) / 2.0;
+
+    treadmill_pace[2].levels[8].slow_pace = 11.74818;   // 7.3 mph
+    treadmill_pace[2].levels[8].fast_pace = 12.55285;   // 7.8 mph
+    treadmill_pace[2].levels[8].speed = (treadmill_pace[2].levels[8].slow_pace + treadmill_pace[2].levels[8].fast_pace) / 2.0;
+
+    treadmill_pace[2].levels[9].slow_pace = 13.67939;   // 8.5 mph
+    treadmill_pace[2].levels[9].fast_pace = 14.48406;   // 9.0 mph
+    treadmill_pace[2].levels[9].speed = (treadmill_pace[2].levels[9].slow_pace + treadmill_pace[2].levels[9].fast_pace) / 2.0;
+
+    // Challenging
     treadmill_pace[3].value = 3;
     treadmill_pace[3].display_name = QStringLiteral("Challenging");
-    treadmill_pace[3].levels[0].speed = 6.11;  // 3.8 mph
-    treadmill_pace[3].levels[0].display_name = QStringLiteral("Level 1");
-    treadmill_pace[3].levels[0].slug = QStringLiteral("level_1");
-    treadmill_pace[3].levels[1].speed = 6.60;  // 4.1 mph
-    treadmill_pace[3].levels[1].display_name = QStringLiteral("Level 2");
-    treadmill_pace[3].levels[1].slug = QStringLiteral("level_2");
-    treadmill_pace[3].levels[2].speed = 7.08;  // 4.4 mph
-    treadmill_pace[3].levels[2].display_name = QStringLiteral("Level 3");
-    treadmill_pace[3].levels[2].slug = QStringLiteral("level_3");
-    treadmill_pace[3].levels[3].speed = 7.56;  // 4.7 mph
-    treadmill_pace[3].levels[3].display_name = QStringLiteral("Level 4");
-    treadmill_pace[3].levels[3].slug = QStringLiteral("level_4");
-    treadmill_pace[3].levels[4].speed = 8.37;  // 5.2 mph
-    treadmill_pace[3].levels[4].display_name = QStringLiteral("Level 5");
-    treadmill_pace[3].levels[4].slug = QStringLiteral("level_5");
-    treadmill_pace[3].levels[5].speed = 9.17;  // 5.7 mph
-    treadmill_pace[3].levels[5].display_name = QStringLiteral("Level 6");
-    treadmill_pace[3].levels[5].slug = QStringLiteral("level_6");
-    treadmill_pace[3].levels[6].speed = 10.30;  // 6.4 mph
-    treadmill_pace[3].levels[6].display_name = QStringLiteral("Level 7");
-    treadmill_pace[3].levels[6].slug = QStringLiteral("level_7");
-    treadmill_pace[3].levels[7].speed = 11.59;  // 7.2 mph
-    treadmill_pace[3].levels[7].display_name = QStringLiteral("Level 8");
-    treadmill_pace[3].levels[7].slug = QStringLiteral("level_8");
-    treadmill_pace[3].levels[8].speed = 13.20;  // 8.2 mph
-    treadmill_pace[3].levels[8].display_name = QStringLiteral("Level 9");
-    treadmill_pace[3].levels[8].slug = QStringLiteral("level_9");
-    treadmill_pace[3].levels[9].speed = 15.29;  // 9.5 mph
-    treadmill_pace[3].levels[9].display_name = QStringLiteral("Level 10");
-    treadmill_pace[3].levels[9].slug = QStringLiteral("level_10");
+    for (int i = 0; i < 10; i++) {
+        treadmill_pace[3].levels[i].display_name = QStringLiteral("Level %1").arg(i+1);
+        treadmill_pace[3].levels[i].slug = QStringLiteral("level_%1").arg(i+1);
+    }
 
+    treadmill_pace[3].levels[0].slow_pace = 5.95456;    // 3.7 mph
+    treadmill_pace[3].levels[0].fast_pace = 6.43736;    // 4.0 mph
+    treadmill_pace[3].levels[0].speed = (treadmill_pace[3].levels[0].slow_pace + treadmill_pace[3].levels[0].fast_pace) / 2.0;
+
+    treadmill_pace[3].levels[1].slow_pace = 6.43736;    // 4.0 mph
+    treadmill_pace[3].levels[1].fast_pace = 6.92016;    // 4.3 mph
+    treadmill_pace[3].levels[1].speed = (treadmill_pace[3].levels[1].slow_pace + treadmill_pace[3].levels[1].fast_pace) / 2.0;
+
+    treadmill_pace[3].levels[2].slow_pace = 6.92016;    // 4.3 mph
+    treadmill_pace[3].levels[2].fast_pace = 7.40296;    // 4.6 mph
+    treadmill_pace[3].levels[2].speed = (treadmill_pace[3].levels[2].slow_pace + treadmill_pace[3].levels[2].fast_pace) / 2.0;
+
+    treadmill_pace[3].levels[3].slow_pace = 7.40296;    // 4.6 mph
+    treadmill_pace[3].levels[3].fast_pace = 8.0467;     // 5.0 mph
+    treadmill_pace[3].levels[3].speed = (treadmill_pace[3].levels[3].slow_pace + treadmill_pace[3].levels[3].fast_pace) / 2.0;
+
+    treadmill_pace[3].levels[4].slow_pace = 8.0467;     // 5.0 mph
+    treadmill_pace[3].levels[4].fast_pace = 8.69043;    // 5.4 mph
+    treadmill_pace[3].levels[4].speed = (treadmill_pace[3].levels[4].slow_pace + treadmill_pace[3].levels[4].fast_pace) / 2.0;
+
+    treadmill_pace[3].levels[5].slow_pace = 8.85137;    // 5.5 mph
+    treadmill_pace[3].levels[5].fast_pace = 9.65604;    // 6.0 mph
+    treadmill_pace[3].levels[5].speed = (treadmill_pace[3].levels[5].slow_pace + treadmill_pace[3].levels[5].fast_pace) / 2.0;
+
+    treadmill_pace[3].levels[6].slow_pace = 9.81697;    // 6.1 mph
+    treadmill_pace[3].levels[6].fast_pace = 10.78258;   // 6.7 mph
+    treadmill_pace[3].levels[6].speed = (treadmill_pace[3].levels[6].slow_pace + treadmill_pace[3].levels[6].fast_pace) / 2.0;
+
+    treadmill_pace[3].levels[7].slow_pace = 11.10445;   // 6.9 mph
+    treadmill_pace[3].levels[7].fast_pace = 12.07005;   // 7.5 mph
+    treadmill_pace[3].levels[7].speed = (treadmill_pace[3].levels[7].slow_pace + treadmill_pace[3].levels[7].fast_pace) / 2.0;
+
+    treadmill_pace[3].levels[8].slow_pace = 12.71379;   // 7.9 mph
+    treadmill_pace[3].levels[8].fast_pace = 13.84032;   // 8.6 mph
+    treadmill_pace[3].levels[8].speed = (treadmill_pace[3].levels[8].slow_pace + treadmill_pace[3].levels[8].fast_pace) / 2.0;
+
+    treadmill_pace[3].levels[9].slow_pace = 14.64499;   // 9.1 mph
+    treadmill_pace[3].levels[9].fast_pace = 16.0934;    // 10.0 mph
+    treadmill_pace[3].levels[9].speed = (treadmill_pace[3].levels[9].slow_pace + treadmill_pace[3].levels[9].fast_pace) / 2.0;
+
+    // Hard
     treadmill_pace[4].value = 4;
     treadmill_pace[4].display_name = QStringLiteral("Hard");
-    treadmill_pace[4].levels[0].speed = 6.76;  // 4.2 mph
-    treadmill_pace[4].levels[0].display_name = QStringLiteral("Level 1");
-    treadmill_pace[4].levels[0].slug = QStringLiteral("level_1");
-    treadmill_pace[4].levels[1].speed = 7.24;  // 4.5 mph
-    treadmill_pace[4].levels[1].display_name = QStringLiteral("Level 2");
-    treadmill_pace[4].levels[1].slug = QStringLiteral("level_2");
-    treadmill_pace[4].levels[2].speed = 7.88;  // 4.9 mph
-    treadmill_pace[4].levels[2].display_name = QStringLiteral("Level 3");
-    treadmill_pace[4].levels[2].slug = QStringLiteral("level_3");
-    treadmill_pace[4].levels[3].speed = 8.37;  // 5.2 mph
-    treadmill_pace[4].levels[3].display_name = QStringLiteral("Level 4");
-    treadmill_pace[4].levels[3].slug = QStringLiteral("level_4");
-    treadmill_pace[4].levels[4].speed = 9.17;  // 5.7 mph
-    treadmill_pace[4].levels[4].display_name = QStringLiteral("Level 5");
-    treadmill_pace[4].levels[4].slug = QStringLiteral("level_5");
-    treadmill_pace[4].levels[5].speed = 10.14;  // 6.3 mph
-    treadmill_pace[4].levels[5].display_name = QStringLiteral("Level 6");
-    treadmill_pace[4].levels[5].slug = QStringLiteral("level_6");
-    treadmill_pace[4].levels[6].speed = 11.27;  // 7.0 mph
-    treadmill_pace[4].levels[6].display_name = QStringLiteral("Level 7");
-    treadmill_pace[4].levels[6].slug = QStringLiteral("level_7");
-    treadmill_pace[4].levels[7].speed = 12.55;  // 7.8 mph
-    treadmill_pace[4].levels[7].display_name = QStringLiteral("Level 8");
-    treadmill_pace[4].levels[7].slug = QStringLiteral("level_8");
-    treadmill_pace[4].levels[8].speed = 14.48;  // 9.0 mph
-    treadmill_pace[4].levels[8].display_name = QStringLiteral("Level 9");
-    treadmill_pace[4].levels[8].slug = QStringLiteral("level_9");
-    treadmill_pace[4].levels[9].speed = 16.90;  // 10.5 mph
-    treadmill_pace[4].levels[9].display_name = QStringLiteral("Level 10");
-    treadmill_pace[4].levels[9].slug = QStringLiteral("level_10");
+    for (int i = 0; i < 10; i++) {
+        treadmill_pace[4].levels[i].display_name = QStringLiteral("Level %1").arg(i+1);
+        treadmill_pace[4].levels[i].slug = QStringLiteral("level_%1").arg(i+1);
+    }
 
+    treadmill_pace[4].levels[0].slow_pace = 6.59829;    // 4.1 mph
+    treadmill_pace[4].levels[0].fast_pace = 7.08110;    // 4.4 mph
+    treadmill_pace[4].levels[0].speed = (treadmill_pace[4].levels[0].slow_pace + treadmill_pace[4].levels[0].fast_pace) / 2.0;
+
+    treadmill_pace[4].levels[1].slow_pace = 7.08110;    // 4.4 mph
+    treadmill_pace[4].levels[1].fast_pace = 7.56390;    // 4.7 mph
+    treadmill_pace[4].levels[1].speed = (treadmill_pace[4].levels[1].slow_pace + treadmill_pace[4].levels[1].fast_pace) / 2.0;
+
+    treadmill_pace[4].levels[2].slow_pace = 7.56390;    // 4.7 mph
+    treadmill_pace[4].levels[2].fast_pace = 8.20763;    // 5.1 mph
+    treadmill_pace[4].levels[2].speed = (treadmill_pace[4].levels[2].slow_pace + treadmill_pace[4].levels[2].fast_pace) / 2.0;
+
+    treadmill_pace[4].levels[3].slow_pace = 8.20763;    // 5.1 mph
+    treadmill_pace[4].levels[3].fast_pace = 8.69043;    // 5.4 mph
+    treadmill_pace[4].levels[3].speed = (treadmill_pace[4].levels[3].slow_pace + treadmill_pace[4].levels[3].fast_pace) / 2.0;
+
+    treadmill_pace[4].levels[4].slow_pace = 8.85137;    // 5.5 mph
+    treadmill_pace[4].levels[4].fast_pace = 9.65604;    // 6.0 mph
+    treadmill_pace[4].levels[4].speed = (treadmill_pace[4].levels[4].slow_pace + treadmill_pace[4].levels[4].fast_pace) / 2.0;
+
+    treadmill_pace[4].levels[5].slow_pace = 9.81697;    // 6.1 mph
+    treadmill_pace[4].levels[5].fast_pace = 10.62164;   // 6.6 mph
+    treadmill_pace[4].levels[5].speed = (treadmill_pace[4].levels[5].slow_pace + treadmill_pace[4].levels[5].fast_pace) / 2.0;
+
+    treadmill_pace[4].levels[6].slow_pace = 10.94351;   // 6.8 mph
+    treadmill_pace[4].levels[6].fast_pace = 11.74818;   // 7.3 mph
+    treadmill_pace[4].levels[6].speed = (treadmill_pace[4].levels[6].slow_pace + treadmill_pace[4].levels[6].fast_pace) / 2.0;
+
+    treadmill_pace[4].levels[7].slow_pace = 12.23098;   // 7.6 mph
+    treadmill_pace[4].levels[7].fast_pace = 13.19659;   // 8.2 mph
+    treadmill_pace[4].levels[7].speed = (treadmill_pace[4].levels[7].slow_pace + treadmill_pace[4].levels[7].fast_pace) / 2.0;
+
+    treadmill_pace[4].levels[8].slow_pace = 14.00126;   // 8.7 mph
+    treadmill_pace[4].levels[8].fast_pace = 15.12780;   // 9.4 mph
+    treadmill_pace[4].levels[8].speed = (treadmill_pace[4].levels[8].slow_pace + treadmill_pace[4].levels[8].fast_pace) / 2.0;
+
+    treadmill_pace[4].levels[9].slow_pace = 16.25433;   // 10.1 mph
+    treadmill_pace[4].levels[9].fast_pace = 17.54180;   // 10.9 mph
+    treadmill_pace[4].levels[9].speed = (treadmill_pace[4].levels[9].slow_pace + treadmill_pace[4].levels[9].fast_pace) / 2.0;
+
+    // Very Hard
     treadmill_pace[5].value = 5;
     treadmill_pace[5].display_name = QStringLiteral("Very Hard");
-    treadmill_pace[5].levels[0].speed = 7.56;  // 4.7 mph
-    treadmill_pace[5].levels[0].display_name = QStringLiteral("Level 1");
-    treadmill_pace[5].levels[0].slug = QStringLiteral("level_1");
-    treadmill_pace[5].levels[1].speed = 8.05;  // 5.0 mph
-    treadmill_pace[5].levels[1].display_name = QStringLiteral("Level 2");
-    treadmill_pace[5].levels[1].slug = QStringLiteral("level_2");
-    treadmill_pace[5].levels[2].speed = 8.69;  // 5.4 mph
-    treadmill_pace[5].levels[2].display_name = QStringLiteral("Level 3");
-    treadmill_pace[5].levels[2].slug = QStringLiteral("level_3");
-    treadmill_pace[5].levels[3].speed = 9.17;  // 5.7 mph
-    treadmill_pace[5].levels[3].display_name = QStringLiteral("Level 4");
-    treadmill_pace[5].levels[3].slug = QStringLiteral("level_4");
-    treadmill_pace[5].levels[4].speed = 10.14;  // 6.3 mph
-    treadmill_pace[5].levels[4].display_name = QStringLiteral("Level 5");
-    treadmill_pace[5].levels[4].slug = QStringLiteral("level_5");
-    treadmill_pace[5].levels[5].speed = 11.27;  // 7.0 mph
-    treadmill_pace[5].levels[5].display_name = QStringLiteral("Level 6");
-    treadmill_pace[5].levels[5].slug = QStringLiteral("level_6");
-    treadmill_pace[5].levels[6].speed = 12.39;  // 7.7 mph
-    treadmill_pace[5].levels[6].display_name = QStringLiteral("Level 7");
-    treadmill_pace[5].levels[6].slug = QStringLiteral("level_7");
-    treadmill_pace[5].levels[7].speed = 13.84;  // 8.6 mph
-    treadmill_pace[5].levels[7].display_name = QStringLiteral("Level 8");
-    treadmill_pace[5].levels[7].slug = QStringLiteral("level_8");
-    treadmill_pace[5].levels[8].speed = 15.93;  // 9.9 mph
-    treadmill_pace[5].levels[8].display_name = QStringLiteral("Level 9");
-    treadmill_pace[5].levels[8].slug = QStringLiteral("level_9");
-    treadmill_pace[5].levels[9].speed = 18.51;  // 11.5 mph
-    treadmill_pace[5].levels[9].display_name = QStringLiteral("Level 10");
-    treadmill_pace[5].levels[9].slug = QStringLiteral("level_10");
+    for (int i = 0; i < 10; i++) {
+        treadmill_pace[5].levels[i].display_name = QStringLiteral("Level %1").arg(i+1);
+        treadmill_pace[5].levels[i].slug = QStringLiteral("level_%1").arg(i+1);
+    }
 
+    treadmill_pace[5].levels[0].slow_pace = 7.24203;    // 4.5 mph
+    treadmill_pace[5].levels[0].fast_pace = 7.88576;    // 4.9 mph
+    treadmill_pace[5].levels[0].speed = (treadmill_pace[5].levels[0].slow_pace + treadmill_pace[5].levels[0].fast_pace) / 2.0;
+
+    treadmill_pace[5].levels[1].slow_pace = 7.72483;    // 4.8 mph
+    treadmill_pace[5].levels[1].fast_pace = 8.36857;    // 5.2 mph
+    treadmill_pace[5].levels[1].speed = (treadmill_pace[5].levels[1].slow_pace + treadmill_pace[5].levels[1].fast_pace) / 2.0;
+
+    treadmill_pace[5].levels[2].slow_pace = 8.36857;    // 5.2 mph
+    treadmill_pace[5].levels[2].fast_pace = 9.01230;    // 5.6 mph
+    treadmill_pace[5].levels[2].speed = (treadmill_pace[5].levels[2].slow_pace + treadmill_pace[5].levels[2].fast_pace) / 2.0;
+
+    treadmill_pace[5].levels[3].slow_pace = 8.85137;    // 5.5 mph
+    treadmill_pace[5].levels[3].fast_pace = 9.81697;    // 6.1 mph
+    treadmill_pace[5].levels[3].speed = (treadmill_pace[5].levels[3].slow_pace + treadmill_pace[5].levels[3].fast_pace) / 2.0;
+
+    treadmill_pace[5].levels[4].slow_pace = 9.81697;    // 6.1 mph
+    treadmill_pace[5].levels[4].fast_pace = 10.62164;   // 6.6 mph
+    treadmill_pace[5].levels[4].speed = (treadmill_pace[5].levels[4].slow_pace + treadmill_pace[5].levels[4].fast_pace) / 2.0;
+
+    treadmill_pace[5].levels[5].slow_pace = 10.78258;   // 6.7 mph
+    treadmill_pace[5].levels[5].fast_pace = 11.74818;   // 7.3 mph
+    treadmill_pace[5].levels[5].speed = (treadmill_pace[5].levels[5].slow_pace + treadmill_pace[5].levels[5].fast_pace) / 2.0;
+
+    treadmill_pace[5].levels[6].slow_pace = 11.90912;   // 7.4 mph
+    treadmill_pace[5].levels[6].fast_pace = 13.03565;   // 8.1 mph
+    treadmill_pace[5].levels[6].speed = (treadmill_pace[5].levels[6].slow_pace + treadmill_pace[5].levels[6].fast_pace) / 2.0;
+
+    treadmill_pace[5].levels[7].slow_pace = 13.35752;   // 8.3 mph
+    treadmill_pace[5].levels[7].fast_pace = 14.64499;   // 9.1 mph
+    treadmill_pace[5].levels[7].speed = (treadmill_pace[5].levels[7].slow_pace + treadmill_pace[5].levels[7].fast_pace) / 2.0;
+
+    treadmill_pace[5].levels[8].slow_pace = 15.28873;   // 9.5 mph
+    treadmill_pace[5].levels[8].fast_pace = 16.73714;   // 10.4 mph
+    treadmill_pace[5].levels[8].speed = (treadmill_pace[5].levels[8].slow_pace + treadmill_pace[5].levels[8].fast_pace) / 2.0;
+
+    treadmill_pace[5].levels[9].slow_pace = 17.70274;   // 11.0 mph
+    treadmill_pace[5].levels[9].fast_pace = 19.63395;   // 12.2 mph
+    treadmill_pace[5].levels[9].speed = (treadmill_pace[5].levels[9].slow_pace + treadmill_pace[5].levels[9].fast_pace) / 2.0;
+
+    // Max
     treadmill_pace[6].value = 6;
     treadmill_pace[6].display_name = QStringLiteral("Max");
-    treadmill_pace[6].levels[0].speed = 8.05;  // 5.0 mph
-    treadmill_pace[6].levels[1].speed = 8.53;  // 5.3 mph
-    treadmill_pace[6].levels[2].speed = 9.17;  // 5.7 mph
-    treadmill_pace[6].levels[3].speed = 9.98;  // 6.2 mph
-    treadmill_pace[6].levels[4].speed = 10.78;  // 6.7 mph
-    treadmill_pace[6].levels[5].speed = 11.91;  // 7.4 mph
-    treadmill_pace[6].levels[6].speed = 13.20;  // 8.2 mph
-    treadmill_pace[6].levels[7].speed = 14.81;  // 9.2 mph
-    treadmill_pace[6].levels[8].speed = 16.90;  // 10.5 mph
-    treadmill_pace[6].levels[9].speed = 19.80;  // 12.3 mph
     for (int i = 0; i < 10; i++) {
         treadmill_pace[6].levels[i].display_name = QStringLiteral("Level %1").arg(i+1);
         treadmill_pace[6].levels[i].slug = QStringLiteral("level_%1").arg(i+1);
     }
+
+    treadmill_pace[6].levels[0].slow_pace = 8.0467;     // 5.0 mph
+    treadmill_pace[6].levels[0].fast_pace = 20.11675;   // 12.5 mph
+    treadmill_pace[6].levels[0].speed = (treadmill_pace[6].levels[0].slow_pace + treadmill_pace[6].levels[0].fast_pace) / 2.0;
+
+    treadmill_pace[6].levels[1].slow_pace = 8.52950;    // 5.3 mph
+    treadmill_pace[6].levels[1].fast_pace = 20.11675;   // 12.5 mph
+    treadmill_pace[6].levels[1].speed = (treadmill_pace[6].levels[1].slow_pace + treadmill_pace[6].levels[1].fast_pace) / 2.0;
+
+    treadmill_pace[6].levels[2].slow_pace = 9.17324;    // 5.7 mph
+    treadmill_pace[6].levels[2].fast_pace = 20.11675;   // 12.5 mph
+    treadmill_pace[6].levels[2].speed = (treadmill_pace[6].levels[2].slow_pace + treadmill_pace[6].levels[2].fast_pace) / 2.0;
+
+    treadmill_pace[6].levels[3].slow_pace = 9.97791;    // 6.2 mph
+    treadmill_pace[6].levels[3].fast_pace = 20.11675;   // 12.5 mph
+    treadmill_pace[6].levels[3].speed = (treadmill_pace[6].levels[3].slow_pace + treadmill_pace[6].levels[3].fast_pace) / 2.0;
+
+    treadmill_pace[6].levels[4].slow_pace = 10.78258;   // 6.7 mph
+    treadmill_pace[6].levels[4].fast_pace = 20.11675;   // 12.5 mph
+    treadmill_pace[6].levels[4].speed = (treadmill_pace[6].levels[4].slow_pace + treadmill_pace[6].levels[4].fast_pace) / 2.0;
+
+    treadmill_pace[6].levels[5].slow_pace = 11.90912;   // 7.4 mph
+    treadmill_pace[6].levels[5].fast_pace = 20.11675;   // 12.5 mph
+    treadmill_pace[6].levels[5].speed = (treadmill_pace[6].levels[5].slow_pace + treadmill_pace[6].levels[5].fast_pace) / 2.0;
+
+    treadmill_pace[6].levels[6].slow_pace = 13.19659;   // 8.2 mph
+    treadmill_pace[6].levels[6].fast_pace = 20.11675;   // 12.5 mph
+    treadmill_pace[6].levels[6].speed = (treadmill_pace[6].levels[6].slow_pace + treadmill_pace[6].levels[6].fast_pace) / 2.0;
+
+    treadmill_pace[6].levels[7].slow_pace = 14.80593;   // 9.2 mph
+    treadmill_pace[6].levels[7].fast_pace = 20.11675;   // 12.5 mph
+    treadmill_pace[6].levels[7].speed = (treadmill_pace[6].levels[7].slow_pace + treadmill_pace[6].levels[7].fast_pace) / 2.0;
+
+    treadmill_pace[6].levels[8].slow_pace = 16.89993;   // 10.5 mph
+    treadmill_pace[6].levels[8].fast_pace = 20.11675;   // 12.5 mph
+    treadmill_pace[6].levels[8].speed = (treadmill_pace[6].levels[8].slow_pace + treadmill_pace[6].levels[8].fast_pace) / 2.0;
+
+    treadmill_pace[6].levels[9].slow_pace = 19.79488;   // 12.3 mph
+    treadmill_pace[6].levels[9].fast_pace = 20.11675;   // 12.5 mph
+    treadmill_pace[6].levels[9].speed = (treadmill_pace[6].levels[9].slow_pace + treadmill_pace[6].levels[9].fast_pace) / 2.0;
 
     connect(timer, &QTimer::timeout, this, &peloton::startEngine);
 
@@ -1134,9 +1270,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         pace_intensity_lower = metricObj["lower"].toInt();
                         pace_intensity_upper = metricObj["upper"].toInt();
                         
-                        if (pace_intensity_lower < 7)
-                            speed_lower = treadmill_pace[pace_intensity_lower].levels[peloton_treadmill_level].speed;
-                        speed_upper = treadmill_pace[pace_intensity_upper].levels[peloton_treadmill_level].speed;
+                        speed_lower = treadmill_pace[pace_intensity_lower].levels[peloton_treadmill_level].slow_pace;
+                        speed_upper = treadmill_pace[pace_intensity_upper].levels[peloton_treadmill_level].fast_pace;
                     }
                     else if (metricName == "speed") {
                         speed_lower = metricObj["lower"].toDouble();

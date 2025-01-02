@@ -594,3 +594,20 @@ void treadmill::changePower(int32_t power) {
 
 metric treadmill::lastRequestedPower() { return RequestedPower; }
 
+QTime treadmill::speedToPace(double Speed) {
+    QSettings settings;
+    // bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    const double unit_conversion = 1.0;
+    // rowers are always in meters!
+    /*if (miles) {
+        unit_conversion = 0.621371;
+    }*/
+    if (Speed == 0) {
+        return QTime(0, 0, 0, 0);
+    } else {
+        double speed = Speed * unit_conversion;
+        return QTime(0, (int)(1.0 / (speed / 60.0)),
+                     (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
+    }
+}
+
