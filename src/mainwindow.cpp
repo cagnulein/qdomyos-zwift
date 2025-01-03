@@ -62,6 +62,9 @@ void MainWindow::update() {
         double strideLength = 0;
         double groundContact = 0;
         double verticalOscillation = 0;
+        double target_cadence = 0;
+        double target_watt = 0;
+        double target_resistance = 0;
         double stepCount = 0;
 
         ui->speed->setText(QString::number(bluetoothManager->device()->currentSpeed().value(), 'f', 2));
@@ -178,7 +181,8 @@ void MainWindow::update() {
 
                       false, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
                       bluetoothManager->device()->currentCordinate(), strideLength, groundContact,
-                      verticalOscillation, stepCount // TODO add lap
+                      verticalOscillation, stepCount,
+                      target_cadence, target_watt, target_resistance // TODO add lap
         );
 
         Session.append(s);
