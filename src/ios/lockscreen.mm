@@ -169,9 +169,9 @@ void lockscreen::virtualrower_setHeartRate(unsigned char heartRate)
 
 
 // virtual treadmill
-void lockscreen::virtualtreadmill_zwift_ios()
+void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility)
 {
-    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] init];
+    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility];
 }
 
 void lockscreen::virtualtreadmill_setHeartRate(unsigned char heartRate)
