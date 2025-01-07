@@ -499,7 +499,7 @@ void nordictrackifitadbbike::onHRM(int hrm) {
 
 double nordictrackifitadbbike::bikeResistanceToPeloton(resistance_t bikeResistance) {
     for (resistance_t i = 1; i < max_resistance; i++) {
-        if (bikeResistanceToPeloton(i) <= bikeResistance && bikeResistanceToPeloton(i + 1) > bikeResistance) {
+        if (pelotonToBikeResistance(i) <= bikeResistance && pelotonToBikeResistance(i + 1) > bikeResistance) {
             return i;
         }
     }

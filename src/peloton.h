@@ -104,7 +104,9 @@ class peloton : public QObject {
 
     typedef struct _peloton_treadmill_pace_intensities_level {
         QString display_name;
-        double speed;
+        double fast_pace;
+        double slow_pace;
+        double speed;  // Average of fast_pace and slow_pace
         QString slug;
     }_peloton_treadmill_pace_intensities_level;
 

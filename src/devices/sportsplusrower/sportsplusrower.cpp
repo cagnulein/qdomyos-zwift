@@ -138,9 +138,11 @@ void sportsplusrower::characteristicChanged(const QLowEnergyCharacteristic &char
     m_watt = ((newValue.at(10) >> 4) * 10) + (newValue.at(10) & 0x0F);
     emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
 
-    Cadence = ((newValue.at(3) >> 4) * 10) + (newValue.at(3) & 0x0F);
-    Speed = 0.37497622 * ((double)Cadence.value());
-    emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
+    if(newValue.at(1) == 0x10) {
+        Cadence = ((newValue.at(3) >> 4) * 10) + (newValue.at(3) & 0x0F);
+        Speed = 0.37497622 * ((double)Cadence.value());
+        emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
+    }
 
     if (!firstCharChanged) {
         Distance +=
@@ -170,7 +172,7 @@ void sportsplusrower::characteristicChanged(const QLowEnergyCharacteristic &char
     }
     FanSpeed = 0;
 
-    emit debug(QStringLiteral("Current cadence: ") + QString::number(cadence));
+    emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
     // emit debug(QStringLiteral("Current resistance: ") + QString::number(resistance));
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));

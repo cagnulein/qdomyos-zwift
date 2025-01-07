@@ -109,7 +109,7 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+    if (gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse && !DOMYOS) {
         gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer,
                                              QLowEnergyService::WriteWithoutResponse);
     } else {
