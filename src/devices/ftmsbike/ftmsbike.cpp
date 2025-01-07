@@ -228,7 +228,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
     if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
-        resistance_lvl_mode == false && _3G_Cardio_RB == false) {
+        resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false) {
         uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
@@ -240,12 +240,20 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         writeCharacteristic(write, sizeof(write),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance));
     } else {
-        uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
-        if(_3G_Cardio_RB)
-            requestResistance = requestResistance * 10;
-        write[1] = ((uint8_t)(requestResistance));
-        writeCharacteristic(write, sizeof(write),
-                            QStringLiteral("forceResistance ") + QString::number(requestResistance));
+        if(JFBK5_0) {
+            uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
+            write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
+            write[2] = ((uint16_t)requestResistance * 10) >> 8;
+            writeCharacteristic(write, sizeof(write),
+                                QStringLiteral("forceResistance ") + QString::number(requestResistance));
+        } else {
+            uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
+            if(_3G_Cardio_RB)
+                requestResistance = requestResistance * 10;
+            write[1] = ((uint8_t)(requestResistance));
+            writeCharacteristic(write, sizeof(write),
+                                QStringLiteral("forceResistance ") + QString::number(requestResistance));
+        }
     }
 }
 
@@ -1222,6 +1230,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(bluetoothDevice.name().toUpper().startsWith("SMARTSPIN2K")) {
             qDebug() << QStringLiteral("SS2K found");
             SS2K = true;
+        } else if(bluetoothDevice.name().toUpper().startsWith("JFBK5.0")) {
+            qDebug() << QStringLiteral("JFBK5.0 found");
+            resistance_lvl_mode = true;
+            JFBK5_0 = true;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
