@@ -596,12 +596,11 @@ metric treadmill::lastRequestedPower() { return RequestedPower; }
 
 QTime treadmill::speedToPace(double Speed) {
     QSettings settings;
-    // bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
-    const double unit_conversion = 1.0;
-    // rowers are always in meters!
-    /*if (miles) {
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    double unit_conversion = 1.0;
+    if (miles) {
         unit_conversion = 0.621371;
-    }*/
+    }
     if (Speed == 0) {
         return QTime(0, 0, 0, 0);
     } else {
