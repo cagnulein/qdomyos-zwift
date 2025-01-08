@@ -1526,6 +1526,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(tacxneo2Bike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 tacxneo2Bike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(tacxneo2Bike);
+            } else if ((b.name().toUpper().startsWith("INDOORCYCLE")) &&
+                       !cycleopsphantomBike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                cycleopsphantomBike = new cycleopsphantombike(noWriteResistance, noHeartService);
+                // stateFileRead();
+                emit(deviceConnected(b));
+                connect(cycleopsphantomBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                // connect(cycleopsphantomBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(cycleopsphantomBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                // connect(cycleopsphantomBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // connect(cycleopsphantomBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                cycleopsphantomBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(cycleopsphantomBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral(">CABLE")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("MD")) && b.name().length() == 7) ||
                         // BIKE 1, BIKE 2, BIKE 3...
@@ -3189,6 +3203,11 @@ void bluetooth::restart() {
         delete tacxneo2Bike;
         tacxneo2Bike = nullptr;
     }
+    if (cycleopsphantomBike) {
+
+        delete cycleopsphantomBike;
+        cycleopsphantomBike = nullptr;
+    }
     if (stagesBike) {
 
         delete stagesBike;
@@ -3627,6 +3646,8 @@ bluetoothdevice *bluetooth::device() {
         return npeCableBike;
     } else if (tacxneo2Bike) {
         return tacxneo2Bike;
+    } else if (cycleopsphantomBike) {
+        return cycleopsphantomBike;
     } else if (stagesBike) {
         return stagesBike;
     } else if (toorx) {

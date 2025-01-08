@@ -101,8 +101,6 @@ class cycleopsphantombike : public bike {
     double lastGearValue = -1;
     bool resistance_received = false;
 
-    bool THINK_X = false;
-
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

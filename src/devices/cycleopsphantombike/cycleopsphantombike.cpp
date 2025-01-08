@@ -69,6 +69,8 @@ void cycleopsphantombike::setControlMode(ControlMode mode, int16_t parameter1, i
     writeCharacteristic((uint8_t*)data.data(), data.size(), QStringLiteral("setControlMode"));
 }
 
+// CycleOps trainers require ~3 seconds between manual target messages
+// -- they also take 4-5 seconds for the brake to actually engage and track towared the target.
 void cycleopsphantombike::changePower(int32_t power) {
     RequestedPower = power;
 
@@ -80,7 +82,8 @@ void cycleopsphantombike::changePower(int32_t power) {
 void cycleopsphantombike::forceInclination(double inclination) {
     QSettings settings;
 
-    setControlMode(ControlMode::ManualSlope, 180 /* TO VERIFY*/, inclination);
+    // weight = kg * 100, grade = % * 10
+    setControlMode(ControlMode::ManualSlope, settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 100.0, inclination * 10.0);
 }
 
 void cycleopsphantombike::update() {
@@ -356,160 +359,157 @@ void cycleopsphantombike::characteristicChanged(const QLowEnergyCharacteristic &
         emit powerChanged(m_watt.value());
         emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
 
-        if(THINK_X) {
+        if ((flags & 0x1) == 0x01) // Pedal Power Balance Present
+        {
+            index += 1;
+        }
+        if ((flags & 0x2) == 0x02) // Pedal Power Balance Reference
+        {
+        }
+        if ((flags & 0x4) == 0x04) // Accumulated Torque Present
+        {
+            index += 2;
+        }
+        if ((flags & 0x8) == 0x08) // Accumulated Torque Source
+        {
+        }
 
-            if ((flags & 0x1) == 0x01) // Pedal Power Balance Present
-            {
-                index += 1;
+        if ((flags & 0x10) == 0x10) // Wheel Revolution Data Present
+        {
+            cadence_present = true;
+            wheel_revs = true;
+        }
+
+        if ((flags & 0x20) == 0x20) // Crank Revolution Data Present
+        {
+            cadence_present = true;
+            crank_rev_present = true;
+        }
+
+        if (cadence_present) {
+            if (wheel_revs && !crank_rev_present) {
+                time_division = 2048;
+                CrankRevs =
+                    (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) |
+                     ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                     ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
+                index += 4;
+
+                LastCrankEventTime =
+                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+
+                index += 2; // wheel event time
+
+            } else if (wheel_revs && crank_rev_present) {
+                index += 4; // wheel revs
+                index += 2; // wheel event time
             }
-            if ((flags & 0x2) == 0x02) // Pedal Power Balance Reference
-            {
-            }
-            if ((flags & 0x4) == 0x04) // Accumulated Torque Present
-            {
+
+            if (crank_rev_present) {
+                CrankRevs =
+                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+                index += 2;
+
+                LastCrankEventTime =
+                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
                 index += 2;
             }
-            if ((flags & 0x8) == 0x08) // Accumulated Torque Source
-            {
+
+            int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
+            if (deltaT < 0) {
+                deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
             }
 
-            if ((flags & 0x10) == 0x10) // Wheel Revolution Data Present
-            {
-                cadence_present = true;
-                wheel_revs = true;
-            }
-
-            if ((flags & 0x20) == 0x20) // Crank Revolution Data Present
-            {
-                cadence_present = true;
-                crank_rev_present = true;
-            }
-
-            if (cadence_present) {
-                if (wheel_revs && !crank_rev_present) {
-                    time_division = 2048;
-                    CrankRevs =
-                        (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) |
-                         ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                         ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
-                    index += 4;
-
-                    LastCrankEventTime =
-                        (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-
-                    index += 2; // wheel event time
-
-                } else if (wheel_revs && crank_rev_present) {
-                    index += 4; // wheel revs
-                    index += 2; // wheel event time
-                }
-
-                if (crank_rev_present) {
-                    CrankRevs =
-                        (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-                    index += 2;
-
-                    LastCrankEventTime =
-                        (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-                    index += 2;
-                }
-
-                int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
-                if (deltaT < 0) {
-                    deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
-                }
-
-                if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                        .toString()
-                        .startsWith(QStringLiteral("Disabled"))) {
-                    if (CrankRevs != oldCrankRevs && deltaT) {
-                        double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
-                        if (!crank_rev_present)
-                            cadence =
-                                cadence /
-                                2; // I really don't like this, there is no relationship between wheel rev and crank rev
-                        if (cadence >= 0) {
-                            Cadence = cadence;
-                        }
-                        lastGoodCadence = now;
-                    } else if (lastGoodCadence.msecsTo(now) > 2000) {
-                        Cadence = 0;
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                if (CrankRevs != oldCrankRevs && deltaT) {
+                    double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
+                    if (!crank_rev_present)
+                        cadence =
+                            cadence /
+                            2; // I really don't like this, there is no relationship between wheel rev and crank rev
+                    if (cadence >= 0) {
+                        Cadence = cadence;
                     }
+                    lastGoodCadence = now;
+                } else if (lastGoodCadence.msecsTo(now) > 2000) {
+                    Cadence = 0;
                 }
-
-                qDebug() << QStringLiteral("Current Cadence: ") << Cadence.value() << CrankRevs << oldCrankRevs << deltaT
-                         << time_division << LastCrankEventTime << oldLastCrankEventTime;
-
-                oldLastCrankEventTime = LastCrankEventTime;
-                oldCrankRevs = CrankRevs;
-
-                if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                    Speed = Cadence.value() * settings
-                                                  .value(QZSettings::cadence_sensor_speed_ratio,
-                                                         QZSettings::default_cadence_sensor_speed_ratio)
-                                                  .toDouble();
-                } else {
-                    Speed = metric::calculateSpeedFromPower(
-                        watts(), Inclination.value(), Speed.value(),
-                        fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
-                }
-                emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-
-                Distance += ((Speed.value() / 3600000.0) *
-                             ((double)lastRefreshCharacteristicChangedPower.msecsTo(now)));
-                emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
-
-                // if we change this, also change the wattsFromResistance function. We can create a standard function in
-                // order to have all the costants in one place (I WANT MORE TIME!!!)
-                double ac = 0.01243107769;
-                double bc = 1.145964912;
-                double cc = -23.50977444;
-
-                double ar = 0.1469553975;
-                double br = -5.841344538;
-                double cr = 97.62165482;
-
-                double res =
-                    (((sqrt(pow(br, 2.0) - 4.0 * ar *
-                                               (cr - (m_watt.value() * 132.0 /
-                                                      (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
-                       br) /
-                      (2.0 * ar)) *
-                     settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-
-                if (isnan(res)) {
-                    if (Cadence.value() > 0) {
-                        // let's keep the last good value
-                    } else {
-                        m_pelotonResistance = 0;
-                    }
-                } else {
-                    m_pelotonResistance = res;
-                }
-
-                qDebug() << QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value());
-
-                if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
-                        .toBool())
-                    Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
-                else
-                    Resistance = m_pelotonResistance;
-                emit resistanceRead(Resistance.value());
-                qDebug() << QStringLiteral("Current Resistance Calculated: ") + QString::number(Resistance.value());
-
-                if (watts())
-                    KCal +=
-                        ((((0.048 * ((double)watts()) + 1.19) *
-                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                          200.0) /
-                         (60000.0 / ((double)lastRefreshCharacteristicChangedPower.msecsTo(
-                                        now)))); //(( (0.048* Output in watts +1.19) * body weight
-                                                                          // in kg * 3.5) / 200 ) / 60
-                emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
-
-                lastRefreshCharacteristicChangedPower = now;
             }
+
+            qDebug() << QStringLiteral("Current Cadence: ") << Cadence.value() << CrankRevs << oldCrankRevs << deltaT
+                     << time_division << LastCrankEventTime << oldLastCrankEventTime;
+
+            oldLastCrankEventTime = LastCrankEventTime;
+            oldCrankRevs = CrankRevs;
+
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = Cadence.value() * settings
+                                              .value(QZSettings::cadence_sensor_speed_ratio,
+                                                     QZSettings::default_cadence_sensor_speed_ratio)
+                                              .toDouble();
+            } else {
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            }
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+
+            Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCharacteristicChangedPower.msecsTo(now)));
+            emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+
+            // if we change this, also change the wattsFromResistance function. We can create a standard function in
+            // order to have all the costants in one place (I WANT MORE TIME!!!)
+            double ac = 0.01243107769;
+            double bc = 1.145964912;
+            double cc = -23.50977444;
+
+            double ar = 0.1469553975;
+            double br = -5.841344538;
+            double cr = 97.62165482;
+
+            double res =
+                (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                           (cr - (m_watt.value() * 132.0 /
+                                                  (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                   br) /
+                  (2.0 * ar)) *
+                 settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+
+            if (isnan(res)) {
+                if (Cadence.value() > 0) {
+                    // let's keep the last good value
+                } else {
+                    m_pelotonResistance = 0;
+                }
+            } else {
+                m_pelotonResistance = res;
+            }
+
+            qDebug() << QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value());
+
+            if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
+                    .toBool())
+                Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
+            else
+                Resistance = m_pelotonResistance;
+            emit resistanceRead(Resistance.value());
+            qDebug() << QStringLiteral("Current Resistance Calculated: ") + QString::number(Resistance.value());
+
+            if (watts())
+                KCal +=
+                    ((((0.048 * ((double)watts()) + 1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 / ((double)lastRefreshCharacteristicChangedPower.msecsTo(
+                                    now)))); //(( (0.048* Output in watts +1.19) * body weight
+                                                                      // in kg * 3.5) / 200 ) / 60
+            emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+
+            lastRefreshCharacteristicChangedPower = now;
         }
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
 
@@ -816,8 +816,7 @@ void cycleopsphantombike::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("CyclingPowerControlPoint found");
                     gattWriteCharControlPointId = c;
                     gattPowerService = s;
-                } else if (c.properties() & QLowEnergyCharacteristic::Write &&
-                           c.uuid() == CONTROL_POINT_UUID) {
+                } else if (c.uuid() == CONTROL_POINT_UUID) {
                     qDebug() << QStringLiteral("CustomChar found");
                     gattWriteCharCustomId = c;
                     gattCustomService = s;
@@ -920,10 +919,6 @@ void cycleopsphantombike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
-        if(device.name().toUpper().startsWith(QStringLiteral("THINK X"))) {
-            THINK_X = true;
-            qDebug() << "THINK X workaround enabled!";
-        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &cycleopsphantombike::serviceDiscovered);

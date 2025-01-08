@@ -37,6 +37,7 @@
 #include "devices/concept2skierg/concept2skierg.h"
 #include "devices/crossrope/crossrope.h"
 #include "devices/cscbike/cscbike.h"
+#include "devices/cycleopsphantombike/cycleopsphantombike.h"
 #include "devices/deeruntreadmill/deerruntreadmill.h"
 #include "devices/domyosbike/domyosbike.h"
 #include "devices/domyoselliptical/domyoselliptical.h"
@@ -185,6 +186,7 @@ class bluetooth : public QObject, public SignalHandler {
     csafeelliptical *csafeElliptical = nullptr;
 #endif
     concept2skierg *concept2Skierg = nullptr;
+    cycleopsphantombike *cycleopsphantomBike = nullptr;
     deerruntreadmill *deerrunTreadmill = nullptr;
     domyostreadmill *domyos = nullptr;
     domyosbike *domyosBike = nullptr;
