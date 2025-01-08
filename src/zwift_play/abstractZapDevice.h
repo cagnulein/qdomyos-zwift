@@ -34,7 +34,7 @@ class AbstractZapDevice: public QObject {
         REQUEST_START = QByteArray::fromRawData("\x00\x09", 2);  // {0, 9}
         RESPONSE_START = QByteArray::fromRawData("\x01\x03", 2);  // {1, 3}
 
-        // Setup auto-repeat
+               // Setup auto-repeat
         autoRepeatTimer = new QTimer();
         autoRepeatTimer->setInterval(500);
         connect(autoRepeatTimer, &QTimer::timeout, this, &AbstractZapDevice::handleAutoRepeat);
@@ -52,6 +52,7 @@ class AbstractZapDevice: public QObject {
         QSettings settings;
         bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
         bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
+        int shift_style = settings.value(QZSettings::shift_style, QZSettings::default_shift_style).toInt();
 
         qDebug() << zapType << characteristicName << bytes.toHex() << zwiftplay_swap << gears_volume_debouncing << risingEdge << lastFrame;
 
@@ -84,13 +85,12 @@ class AbstractZapDevice: public QObject {
                         if(!zwiftplay_swap) {
                             emit plus();
                             lastButtonPlus = true;
-                            autoRepeatTimer->start();
                         }
                         else {
                             emit minus();
                             lastButtonPlus = false;
-                            autoRepeatTimer->start();
                         }
+                        autoRepeatTimer->start();
                     }
                 } else if(bytes[4] == 0) {
                     if(DEBOUNCE) {
@@ -98,13 +98,12 @@ class AbstractZapDevice: public QObject {
                         if(!zwiftplay_swap) {
                             emit minus();
                             lastButtonPlus = false;
-                            autoRepeatTimer->start();
                         }
                         else {
                             emit plus();
                             lastButtonPlus = true;
-                            autoRepeatTimer->start();
                         }
+                        autoRepeatTimer->start();
                     }
                 } else {
                     risingEdge--;
@@ -115,25 +114,25 @@ class AbstractZapDevice: public QObject {
                 }
             }
             break;
+
         case 0x07: // zwift play
             lastFrame = QDateTime::currentDateTime();
             if(bytes.length() > 5 && bytes[bytes.length() - 5] == 0x40 && (
-                    (((uint8_t)bytes[bytes.length() - 4]) == 0xc7 && zapType == RIGHT) ||
-                    (((uint8_t)bytes[bytes.length() - 4]) == 0xc8 && zapType == LEFT)
-                    ) && bytes[bytes.length() - 3] == 0x01) {
+                                                                               (((uint8_t)bytes[bytes.length() - 4]) == 0xc7 && zapType == RIGHT) ||
+                                                                               (((uint8_t)bytes[bytes.length() - 4]) == 0xc8 && zapType == LEFT)
+                                                                               ) && bytes[bytes.length() - 3] == 0x01) {
                 if(zapType == LEFT) {
                     if(DEBOUNCE) {
                         risingEdge = 2;
                         if(!zwiftplay_swap) {
                             emit plus();
                             lastButtonPlus = true;
-                            autoRepeatTimer->start();
                         }
                         else {
                             emit minus();
                             lastButtonPlus = false;
-                            autoRepeatTimer->start();
                         }
+                        autoRepeatTimer->start();
                     }
                 } else {
                     if(DEBOUNCE) {
@@ -141,13 +140,12 @@ class AbstractZapDevice: public QObject {
                         if(!zwiftplay_swap) {
                             emit minus();
                             lastButtonPlus = false;
-                            autoRepeatTimer->start();
                         }
                         else {
                             emit plus();
                             lastButtonPlus = true;
-                            autoRepeatTimer->start();
                         }
+                        autoRepeatTimer->start();
                     }
                 }
             } else if(bytes.length() > 14 && bytes[11] == 0x30 && bytes[12] == 0x00) {
@@ -157,13 +155,12 @@ class AbstractZapDevice: public QObject {
                         if(!zwiftplay_swap) {
                             emit plus();
                             lastButtonPlus = true;
-                            autoRepeatTimer->start();
                         }
                         else {
                             emit minus();
                             lastButtonPlus = false;
-                            autoRepeatTimer->start();
                         }
+                        autoRepeatTimer->start();
                     }
                 } else {
                     if(DEBOUNCE) {
@@ -171,13 +168,12 @@ class AbstractZapDevice: public QObject {
                         if(!zwiftplay_swap) {
                             emit minus();
                             lastButtonPlus = false;
-                            autoRepeatTimer->start();
                         }
                         else {
                             emit plus();
                             lastButtonPlus = true;
-                            autoRepeatTimer->start();
                         }
+                        autoRepeatTimer->start();
                     }
                 }
             } else {
@@ -240,53 +236,60 @@ class AbstractZapDevice: public QObject {
                         autoRepeatTimer->start();
                     }
                 }
-            } else if(bytes.length() > 3 &&
-                       ((((uint8_t)bytes[3]) == 0xdf) || // right top button
-                        (((uint8_t)bytes[3]) == 0xbf))) { // right bottom button
-                if(DEBOUNCE) {
+            } else if(bytes.length() > 3) {
+                bool isRightTop = ((uint8_t)bytes[3]) == 0xdf;
+                bool isRightBottom = ((uint8_t)bytes[3]) == 0xbf;
+                bool isLeftTop = ((uint8_t)bytes[3]) == 0xfd;
+                bool isLeftBottom = ((uint8_t)bytes[3]) == 0xfb;
+
+                if(DEBOUNCE && (isRightTop || isRightBottom || isLeftTop || isLeftBottom)) {
                     risingEdge = 2;
-                    if(!zwiftplay_swap) {
-                        emit plus();
-                        lastButtonPlus = true;
-                        autoRepeatTimer->start();
+                    switch(shift_style) {
+                    case QZSettings::SHIFT_STYLE_SEQUENTIAL:
+                        if(isRightTop || isRightBottom) {
+                            if(!zwiftplay_swap) {
+                                emit plus();
+                                lastButtonPlus = true;
+                            } else {
+                                emit minus();
+                                lastButtonPlus = false;
+                            }
+                        } else {
+                            if(!zwiftplay_swap) {
+                                emit minus();
+                                lastButtonPlus = false;
+                            } else {
+                                emit plus();
+                                lastButtonPlus = true;
+                            }
+                        }
+                        break;
+
+                    case QZSettings::SHIFT_STYLE_SHIMANO_A:
+                        if(isLeftTop || isLeftBottom)
+                            emit isLeftTop ? chainRingUp() : chainRingDown();
+                        else
+                            emit isRightTop ? cassetteUp() : cassetteDown();
+                        lastButtonPlus = isRightTop || isLeftTop;
+                        break;
+
+                    case QZSettings::SHIFT_STYLE_SHIMANO_B:
+                        if(isLeftTop || isLeftBottom)
+                            emit isLeftBottom ? chainRingUp() : chainRingDown();
+                        else
+                            emit isRightBottom ? cassetteUp() : cassetteDown();
+                        lastButtonPlus = isRightBottom || isLeftBottom;
+                        break;
+
+                    case QZSettings::SHIFT_STYLE_SRAM:
+                        if(isRightTop || isRightBottom)
+                            emit cassetteUp();
+                        else
+                            emit cassetteDown();
+                        lastButtonPlus = isRightTop || isRightBottom;
+                        break;
                     }
-                    else {
-                        emit minus();
-                        lastButtonPlus = false;
-                        autoRepeatTimer->start();
-                    }
-                }
-            } else if(bytes.length() > 3 &&
-                       ((((uint8_t)bytes[3]) == 0xfd) || // left top button
-                        (((uint8_t)bytes[3]) == 0xfb))) { // left bottom button
-                if(DEBOUNCE) {
-                    risingEdge = 2;
-                    if(!zwiftplay_swap) {
-                        emit minus();
-                        lastButtonPlus = false;
-                        autoRepeatTimer->start();
-                    }
-                    else {
-                        emit plus();
-                        lastButtonPlus = true;
-                        autoRepeatTimer->start();
-                    }
-                }
-            } else if(bytes.length() > 5 &&
-                       ((((uint8_t)bytes[4]) == 0xfd) || // left top button
-                        (((uint8_t)bytes[4]) == 0xfb))) { // left bottom button
-                if(DEBOUNCE) {
-                    risingEdge = 2;
-                    if(!zwiftplay_swap) {
-                        emit minus();
-                        lastButtonPlus = false;
-                        autoRepeatTimer->start();
-                    }
-                    else {
-                        emit plus();
-                        lastButtonPlus = true;
-                        autoRepeatTimer->start();
-                    }
+                    autoRepeatTimer->start();
                 }
             } else {
                 risingEdge--;
@@ -329,8 +332,8 @@ class AbstractZapDevice: public QObject {
   private:
     QByteArray devicePublicKeyBytes;
     static volatile int8_t risingEdge;
-    static QTimer* autoRepeatTimer;    // Static timer for auto-repeat
-    static bool lastButtonPlus;  // Static track of which button was last pressed
+    static QTimer* autoRepeatTimer;
+    static bool lastButtonPlus;
     static QDateTime lastFrame;
 
   private slots:
@@ -351,6 +354,10 @@ class AbstractZapDevice: public QObject {
   signals:
     void plus();
     void minus();
+    void chainRingUp();
+    void chainRingDown();
+    void cassetteUp();
+    void cassetteDown();
 };
 
 #endif // ABSTRACTZAPDEVICE_H

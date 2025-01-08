@@ -2246,6 +2246,14 @@ class QZSettings {
     static const QString proform_505_cst_80_44;
     static constexpr bool default_proform_505_cst_80_44 = false;
 
+    static const QString shift_style;
+    static constexpr int default_shift_style = 0;
+
+    static const int SHIFT_STYLE_SEQUENTIAL = 0;
+    static const int SHIFT_STYLE_SHIMANO_A = 1;
+    static const int SHIFT_STYLE_SHIMANO_B = 2;
+    static const int SHIFT_STYLE_SRAM = 3;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
