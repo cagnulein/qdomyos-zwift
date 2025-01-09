@@ -1867,7 +1867,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(echelonRower, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 echelonRower->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(echelonRower);
-            } else if (b.name().startsWith(QStringLiteral("ECH")) && !echelonRower && !echelonStride && !ftmsBike
+            } else if (b.name().startsWith(QStringLiteral("ECH")) && !echelonRower && !echelonStride && !ftmsBike &&
                        !echelonConnectSport && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
