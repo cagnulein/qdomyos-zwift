@@ -345,10 +345,23 @@ class AbstractZapDevice: public QObject {
             autoRepeatTimer->stop();
             return;
         }
-        if(lastButtonPlus)
-            emit plus();
-        else
-            emit minus();
+
+        QSettings settings;
+        int shift_style = settings.value(QZSettings::shift_style, QZSettings::default_shift_style).toInt();
+
+        switch(shift_style) {
+        case QZSettings::SHIFT_STYLE_SEQUENTIAL:
+            if(lastButtonPlus) emit plus();
+            else emit minus();
+            break;
+
+        case QZSettings::SHIFT_STYLE_SHIMANO_A:
+        case QZSettings::SHIFT_STYLE_SHIMANO_B:
+        case QZSettings::SHIFT_STYLE_SRAM:
+            if(lastButtonPlus) emit cassetteUp();
+            else emit cassetteDown();
+            break;
+        }
     }
 
   signals:
