@@ -117,6 +117,100 @@ class wheelCircumference : public QObject {
             loadGearSettings();
         }
 
+        int chainRingUp(int currentGear) {
+            GearTable table;
+            GearTable::GearInfo currentGearInfo = table.getGear(currentGear);
+
+            // If current gear info is invalid, return current gear
+            if (currentGearInfo.gear == 0) return currentGear;
+
+            int highestMatchingGear = currentGear;
+            int highestCrankset = currentGearInfo.crankset;
+
+            // Scan through all gears to find one with a higher crankset
+            for (int i = 1; i <= table.maxGears; i++) {
+                GearTable::GearInfo gear = table.getGear(i);
+                if (gear.gear != 0 && gear.crankset > highestCrankset) {
+                    highestMatchingGear = gear.gear;
+                    highestCrankset = gear.crankset;
+                    break;  // Take the first higher crankset we find
+                }
+            }
+
+            return highestMatchingGear;
+        }
+
+        int chainRingDown(int currentGear) {
+            GearTable table;
+            GearTable::GearInfo currentGearInfo = table.getGear(currentGear);
+
+            // If current gear info is invalid, return current gear
+            if (currentGearInfo.gear == 0) return currentGear;
+
+            int lowestMatchingGear = currentGear;
+            int lowestCrankset = currentGearInfo.crankset;
+
+            // Scan through all gears to find one with a lower crankset
+            for (int i = table.maxGears; i >= 1; i--) {
+                GearTable::GearInfo gear = table.getGear(i);
+                if (gear.gear != 0 && gear.crankset < lowestCrankset) {
+                    lowestMatchingGear = gear.gear;
+                    lowestCrankset = gear.crankset;
+                    break;  // Take the first lower crankset we find
+                }
+            }
+
+            return lowestMatchingGear;
+        }
+
+        int cassetteUp(int currentGear) {
+            GearTable table;
+            GearTable::GearInfo currentGearInfo = table.getGear(currentGear);
+
+            // If current gear info is invalid, return current gear
+            if (currentGearInfo.gear == 0) return currentGear;
+
+            int nextGear = currentGear;
+            int currentRearCog = currentGearInfo.rearCog;
+
+            // Find the next gear with same crankset but higher rear cog
+            for (int i = 1; i <= table.maxGears; i++) {
+                GearTable::GearInfo gear = table.getGear(i);
+                if (gear.gear != 0 &&
+                    gear.crankset == currentGearInfo.crankset &&
+                    gear.rearCog > currentRearCog) {
+                    nextGear = gear.gear;
+                    break;  // Take the first higher rear cog we find
+                }
+            }
+
+            return nextGear;
+        }
+
+        int cassetteDown(int currentGear) {
+            GearTable table;
+            GearTable::GearInfo currentGearInfo = table.getGear(currentGear);
+
+            // If current gear info is invalid, return current gear
+            if (currentGearInfo.gear == 0) return currentGear;
+
+            int nextGear = currentGear;
+            int currentRearCog = currentGearInfo.rearCog;
+
+            // Find the next gear with same crankset but lower rear cog
+            for (int i = table.maxGears; i >= 1; i--) {
+                GearTable::GearInfo gear = table.getGear(i);
+                if (gear.gear != 0 &&
+                    gear.crankset == currentGearInfo.crankset &&
+                    gear.rearCog < currentRearCog) {
+                    nextGear = gear.gear;
+                    break;  // Take the first lower rear cog we find
+                }
+            }
+
+            return nextGear;
+        }
+
       private:
         std::vector<GearInfo> gears;
     };
