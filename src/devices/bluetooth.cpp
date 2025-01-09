@@ -2860,6 +2860,10 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last(), &zwiftclickremote::debug, this, &bluetooth::debug);
                 connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
                 connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::chainRingUp, (bike*)this->device(), &bike::chainRingUp);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::chainRingDown, (bike*)this->device(), &bike::chainRingDown);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::cassetteUp, (bike*)this->device(), &bike::cassetteUp);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::cassetteDown, (bike*)this->device(), &bike::cassetteDown);
                 if((zwiftPlayDevice.last()->typeZap == AbstractZapDevice::LEFT && !zwiftplay_swap) ||
                    (zwiftPlayDevice.last()->typeZap == AbstractZapDevice::RIGHT && zwiftplay_swap)) {
                     connect((bike*)this->device(), &bike::gearOkUp, this, &bluetooth::gearUp);

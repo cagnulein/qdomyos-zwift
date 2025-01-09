@@ -418,3 +418,20 @@ double bike::gearsZwiftRatio() {
     }
     return 1;
 }
+
+
+void bike::chainRingUp() {
+    setGears(gearTable.chainRingUp(m_gears));
+}
+
+void bike::chainRingDown() {
+    setGears(gearTable.chainRingDown(m_gears));
+}
+
+void bike::cassetteUp() {
+    setGears(gearTable.cassetteUp(m_gears));
+}
+
+void bike::cassetteDown() {
+    setGears(gearTable.cassetteDown(m_gears));
+}

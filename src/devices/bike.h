@@ -3,6 +3,7 @@
 
 #include "devices/bluetoothdevice.h"
 #include "virtualdevices/virtualbike.h"
+#include "wheelcircumference.h"
 #include <QObject>
 
 class bike : public bluetoothdevice {
@@ -43,6 +44,7 @@ class bike : public bluetoothdevice {
     void setSpeedLimit(double speed) { m_speedLimit = speed; }
     double speedLimit() { return m_speedLimit; }
     virtual bool ifitCompatible() {return false;}
+    wheelCircumference::GearTable gearTable;
 
     /**
      * @brief currentSteeringAngle Gets a metric object to get or set the current steering angle
@@ -75,6 +77,10 @@ class bike : public bluetoothdevice {
         setGears(gears() - (gears_zwift_ratio ? 1 :
                                 settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble()));
     }
+    void chainRingUp();
+    void chainRingDown();
+    void cassetteUp();
+    void cassetteDown();
 
   Q_SIGNALS:
     void bikeStarted();

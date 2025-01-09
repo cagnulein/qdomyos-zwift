@@ -36,8 +36,6 @@ technogymbike::technogymbike(bool noWriteResistance, bool noHeartService, int8_t
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &technogymbike::update);
     refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
-    wheelCircumference::GearTable g;
-    g.printTable();
 }
 
 bool technogymbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,

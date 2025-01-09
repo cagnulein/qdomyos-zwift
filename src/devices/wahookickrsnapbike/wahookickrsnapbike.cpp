@@ -32,8 +32,7 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     connect(refresh, &QTimer::timeout, this, &wahookickrsnapbike::update);
     QSettings settings;
     refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
-    wheelCircumference::GearTable g;
-    g.printTable();
+    gearTable.printTable();
 }
 
 bool wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
@@ -875,8 +874,7 @@ bool wahookickrsnapbike::inclinationAvailableByHardware() {
 }
 
 double wahookickrsnapbike::maxGears() {
-    wheelCircumference::GearTable g;
-    return g.maxGears;
+    return gearTable.maxGears;
 }
 
 double wahookickrsnapbike::minGears() {
