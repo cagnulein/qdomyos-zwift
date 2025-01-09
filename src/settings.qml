@@ -1040,6 +1040,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.15
             property bool proform_505_cst_80_44: false
+
+            // from version 2.18.16
+            property int shift_style: 0
         }
 
         function paddingZeros(text, limit) {
@@ -10017,6 +10020,54 @@ import QtQuick.Dialogs 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.zwift_play = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Shift Style:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    id: shiftStyleTextField
+                                    model: [ "Sequential", "Shimano A", "Shimano B", "SRAM" ]
+                                    displayText: {
+                                        switch(settings.shift_style) {
+                                            case 0: return "Sequential"
+                                            case 1: return "Shimano A"
+                                            case 2: return "Shimano B"
+                                            case 3: return "SRAM"
+                                            default: return "Sequential"
+                                        }
+                                    }
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onActivated: {
+                                        displayText = shiftStyleTextField.currentValue
+                                    }
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: {
+                                        settings.shift_style = shiftStyleTextField.currentIndex
+                                        toast.show("Setting saved!")
+                                        window.settings_restart_to_apply = true
+                                    }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Choose how the gears should shift: Sequential (standard), Shimano (both hands) or SRAM style. All trademarks, service marks, trade names, and logos referenced herein are the property of their respective owners.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
                             }
 
                             Label {
