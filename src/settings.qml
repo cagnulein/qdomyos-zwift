@@ -1040,6 +1040,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.15
             property bool proform_505_cst_80_44: false
+
+            // from version 2.18.16
+            property bool proform_trainer_8_0: false
         }
 
         function paddingZeros(text, limit) {
@@ -6218,7 +6221,8 @@ import QtQuick.Dialogs 1.0
                                     "Proform 8.7", "Proform 705 CST V78.239", "Proform Carbon T7",
                                     "Nordictrack EXP 5i", "Proform Carbon TL PFTL59720", "Proform Sport 7.0", "Proform 575i",
                                     "Proform Performance 400i", "Proform C700", "Proform C960i", "Nordictrack T Series 5",
-                                    "Proform Carbon TL PFTL59722c", "Proform 1500 Pro", "Proform 505 CST v.80.44"
+                                    "Proform Carbon TL PFTL59722c", "Proform 1500 Pro", "Proform 505 CST v.80.44",
+                                    "Proform Trainer 8.0"
                                 ]
 
                                 onCurrentIndexChanged: {
@@ -6268,6 +6272,7 @@ import QtQuick.Dialogs 1.0
                                     settings.proform_carbon_tl_PFTL59722c = false;
                                     settings.proform_treadmill_1500_pro = false;
                                     settings.proform_505_cst_80_44 = false;
+                                    settings.proform_trainer_8_0 = false;
 
                                     // Imposta il setting corrispondente al modello selezionato
                                     switch (currentIndex) {
@@ -6314,6 +6319,7 @@ import QtQuick.Dialogs 1.0
                                         case 40: settings.proform_carbon_tl_PFTL59722c = true; break;
                                         case 41: settings.proform_treadmill_1500_pro = true; break;
                                         case 42: settings.proform_505_cst_80_44 = true; break;
+                                        case 43: settings.proform_trainer_8_0 = true; break;
                                     }
                                 }
 
@@ -6361,7 +6367,8 @@ import QtQuick.Dialogs 1.0
                                                         settings.nordictrack_tseries5_treadmill ? 39 :
                                                         settings.proform_carbon_tl_PFTL59722c ? 40 :
                                                         settings.proform_treadmill_1500_pro ? 41 :
-                                                        settings.proform_505_cst_80_44 ? 42 : -1;
+                                                        settings.proform_505_cst_80_44 ? 42 :
+                                                        settings.proform_trainer_8_0 ? 43 : -1;
 
                                     console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 

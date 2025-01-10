@@ -808,8 +808,9 @@ const QString QZSettings::strava_treadmill = QStringLiteral("strava_treadmill");
 const QString QZSettings::iconsole_rower = QStringLiteral("iconsole_rower");
 const QString QZSettings::proform_treadmill_1500_pro = QStringLiteral("proform_treadmill_1500_pro");
 const QString QZSettings::proform_505_cst_80_44 = QStringLiteral("proform_505_cst_80_44");
+const QString QZSettings::proform_trainer_8_0 = QStringLiteral("proform_trainer_8_0");
 
-const uint32_t allSettingsCount = 682;
+const uint32_t allSettingsCount = 683;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1498,6 +1499,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::iconsole_rower, QZSettings::default_iconsole_rower},
     {QZSettings::proform_treadmill_1500_pro, QZSettings::default_proform_treadmill_1500_pro},
     {QZSettings::proform_505_cst_80_44, QZSettings::default_proform_505_cst_80_44},
+    {QZSettings::proform_trainer_8_0, QZSettings::default_proform_trainer_8_0},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
