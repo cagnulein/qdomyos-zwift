@@ -58,6 +58,7 @@ class horizontreadmill : public treadmill {
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
+    QLowEnergyCharacteristic gattWriteCharControlPointIdYpooMiniPro;
     QLowEnergyService *gattFTMSService = nullptr;
     QLowEnergyCharacteristic gattWriteCharCustomService;
     QLowEnergyService *gattCustomService = nullptr;
@@ -86,9 +87,11 @@ class horizontreadmill : public treadmill {
     int32_t messageID = 0;
 
     bool mobvoi_treadmill = false;
+    bool mobvoi_tmp_treadmill = false;
     bool kettler_treadmill = false;
     bool wellfit_treadmill = false;
     bool sole_tt8_treadmill = false;
+    bool sole_s77_treadmill = false;
     bool anplus_treadmill = false;
     bool tunturi_t60_treadmill = false;
     bool trx3500_treadmill = false;
@@ -100,6 +103,9 @@ class horizontreadmill : public treadmill {
     bool HORIZON_78AT_treadmill = false;
     bool ICONCEPT_FTMS_treadmill = false;
     bool DOMYOS = false;
+    bool SW_TREADMILL = false;
+    bool BOWFLEX_T9 = false;
+    bool YPOO_MINI_PRO = false;
 
     void testProfileCRC();
     void updateProfileCRC();

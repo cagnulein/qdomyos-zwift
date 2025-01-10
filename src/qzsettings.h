@@ -1842,6 +1842,9 @@ class QZSettings {
     static const QString csafe_rower;
     static const QString default_csafe_rower;
 
+    static const QString csafe_elliptical_port;
+    static const QString default_csafe_elliptical_port;
+
     static const QString ftms_rower;
     static const QString default_ftms_rower;
 
@@ -2167,6 +2170,99 @@ class QZSettings {
 
     static const QString zwift_play_emulator;
     static constexpr bool default_zwift_play_emulator = false;
+
+    static const QString gear_configuration;
+    static const QString default_gear_configuration;
+
+    static const QString gear_crankset_size;
+    static constexpr int default_gear_crankset_size = 42;
+
+    static const QString gear_cog_size;
+    static constexpr int default_gear_cog_size = 14;
+
+    static const QString gear_wheel_size;
+    static const QString default_gear_wheel_size;
+
+    static const QString gear_circumference;
+    static constexpr double default_gear_circumference = 2070.0;
+
+    static const QString watt_bike_emulator;
+    static constexpr bool default_watt_bike_emulator = false;
+
+    static const QString restore_specific_gear;
+    static constexpr bool default_restore_specific_gear = false;
+
+    static const QString skipLocationServicesDialog;
+    static constexpr bool default_skipLocationServicesDialog = false;
+
+    static const QString trainprogram_pid_pushy;
+    static constexpr bool default_trainprogram_pid_pushy = true;
+
+    static const QString min_inclination;
+    static constexpr double default_min_inclination = -999.0;
+
+    static const QString proform_performance_400i;
+    static constexpr bool default_proform_performance_400i = false;
+
+    static const QString proform_treadmill_c700;
+    static constexpr bool default_proform_treadmill_c700 = false;
+
+    static const QString sram_axs_controller;
+    static constexpr bool default_sram_axs_controller = false;
+
+    static const QString proform_treadmill_c960i;
+    static constexpr bool default_proform_treadmill_c960i = false;
+
+    static const QString mqtt_host;
+    static const QString default_mqtt_host;
+
+    static const QString mqtt_port;
+    static constexpr int default_mqtt_port = 1883;
+
+    static const QString mqtt_username;
+    static const QString default_mqtt_username;
+
+    static const QString mqtt_password;
+    static const QString default_mqtt_password;
+
+    static const QString mqtt_deviceid;
+    static const QString default_mqtt_deviceid;
+
+    static const QString peloton_auto_start_with_intro;
+    static constexpr bool default_peloton_auto_start_with_intro = false;
+
+    static const QString peloton_auto_start_without_intro;
+    static constexpr bool default_peloton_auto_start_without_intro = false;
+
+    static const QString nordictrack_tseries5_treadmill;
+    static constexpr bool default_nordictrack_tseries5_treadmill = false;
+
+    static const QString proform_carbon_tl_PFTL59722c;
+    static constexpr bool default_proform_carbon_tl_PFTL59722c = false;
+
+    static const QString nordictrack_gx_44_pro;
+    static constexpr bool default_nordictrack_gx_44_pro = false;
+
+    static const QString OSC_ip;
+    static const QString default_OSC_ip;
+
+    static const QString OSC_port;
+    static constexpr int default_OSC_port = 9000;
+
+    static const QString strava_treadmill;
+    static constexpr bool default_strava_treadmill = true;
+
+    static const QString iconsole_rower;
+    static constexpr bool default_iconsole_rower = false;
+
+    static const QString proform_treadmill_1500_pro;
+    static constexpr bool default_proform_treadmill_1500_pro = false;
+
+    static const QString proform_505_cst_80_44;
+    static constexpr bool default_proform_505_cst_80_44 = false;
+
+    static const QString proform_trainer_8_0;
+    static constexpr bool default_proform_trainer_8_0 = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

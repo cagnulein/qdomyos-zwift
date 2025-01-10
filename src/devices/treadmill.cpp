@@ -29,6 +29,7 @@ void treadmill::changeInclination(double grade, double inclination) {
     QSettings settings;
     double treadmill_incline_min = settings.value(QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min).toDouble();
     double treadmill_incline_max = settings.value(QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max).toDouble();
+    double step = settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline).toDouble();
 
     if(grade < treadmill_incline_min) {
         grade = treadmill_incline_min;
@@ -42,9 +43,15 @@ void treadmill::changeInclination(double grade, double inclination) {
     Q_UNUSED(inclination);
     qDebug() << "changeInclination" << grade << autoResistanceEnable << m_inclination_difficult
              << m_inclination_difficult_offset;
-    RequestedInclination = (grade * m_inclination_difficult) + m_inclination_difficult_offset;
+    
+    // Calculate the raw requested inclination
+    double rawInclination = (grade * m_inclination_difficult) + m_inclination_difficult_offset;
+    
+    // Round to nearest step
+    RequestedInclination = round(rawInclination / step) * step;
+    
     if (autoResistanceEnable) {
-        requestInclination = (grade * m_inclination_difficult) + m_inclination_difficult_offset;
+        requestInclination = RequestedInclination.value();  // Use the rounded value here as well
     }
 }
 void treadmill::changeSpeedAndInclination(double speed, double inclination) {
@@ -586,4 +593,20 @@ void treadmill::changePower(int32_t power) {
 }
 
 metric treadmill::lastRequestedPower() { return RequestedPower; }
+
+QTime treadmill::speedToPace(double Speed) {
+    QSettings settings;
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    double unit_conversion = 1.0;
+    if (miles) {
+        unit_conversion = 0.621371;
+    }
+    if (Speed == 0) {
+        return QTime(0, 0, 0, 0);
+    } else {
+        double speed = Speed * unit_conversion;
+        return QTime(0, (int)(1.0 / (speed / 60.0)),
+                     (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
+    }
+}
 

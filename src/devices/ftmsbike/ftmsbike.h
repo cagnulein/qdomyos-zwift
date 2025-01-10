@@ -26,6 +26,7 @@
 #include <QObject>
 #include <QString>
 
+#include "wheelcircumference.h"
 #include "devices/bike.h"
 
 #ifdef Q_OS_IOS
@@ -73,9 +74,11 @@ class ftmsbike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    double maxGears() override;
+    double minGears() override;
 
   private:
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+    bool writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
@@ -122,6 +125,12 @@ class ftmsbike : public bike {
     bool ICSE = false;
     bool DOMYOS = false;
     bool _3G_Cardio_RB = false;
+    bool SCH_190U = false;
+    bool D2RIDE = false;
+    bool WATTBIKE = false;
+    bool VFSPINBIKE = false;
+    bool SS2K = false;
+    bool JFBK5_0 = false;
 
     uint8_t battery_level = 0;
 

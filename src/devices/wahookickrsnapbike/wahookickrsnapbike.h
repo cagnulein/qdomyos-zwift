@@ -26,6 +26,7 @@
 #include <QObject>
 #include <QString>
 
+#include "wheelcircumference.h"
 #include "devices/bike.h"
 #include "virtualdevices/virtualbike.h"
 
@@ -42,6 +43,8 @@ class wahookickrsnapbike : public bike {
     bool connected() override;
     resistance_t maxResistance() override { return 100; }
     bool inclinationAvailableByHardware() override;
+    double maxGears() override;
+    double minGears() override;
 
     enum OperationCode : uint8_t {
         _unlock = 32,
@@ -56,7 +59,7 @@ class wahookickrsnapbike : public bike {
         _setWheelCircumference = 72,
     };
 
-  private:
+  private:    
     QByteArray unlockCommand();
     QByteArray setResistanceMode(double resistance);
     QByteArray setStandardMode(uint8_t level);
@@ -104,10 +107,12 @@ class wahookickrsnapbike : public bike {
 
     bool WAHOO_KICKR = false;
     bool KICKR_BIKE = false;
+    
+    bool lastCommandErgMode = false;
 
     volatile int notificationSubscribed = 0;
 
-    resistance_t lastForcedResistance = -1;
+    resistance_t lastForcedResistance = -1;    
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

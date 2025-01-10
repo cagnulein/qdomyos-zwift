@@ -49,6 +49,7 @@ public:
     DEFINE_DEVICE(BowflexT216Treadmill, "Bowflex T216 Treadmill");
     DEFINE_DEVICE(Crossrope, "Crossrope");
     DEFINE_DEVICE(CSafeRower, "CSafe Rower");
+    DEFINE_DEVICE(CSafeElliptical, "CSafe Elliptical");
     DEFINE_DEVICE(CSCBike_Named, "CSC Bike (Named)");
     DEFINE_DEVICE(CSCBike, "CSC Bike");
     DEFINE_DEVICE(Chronobike, "Chronobike");
@@ -138,7 +139,6 @@ public:
     DEFINE_DEVICE(SportsPlusBike, "Sports Plus Bike");
     DEFINE_DEVICE(SportsTechBike, "Sports Tech Bike");
     DEFINE_DEVICE(StagesBike_Assioma_PowerSensorDisabled, "Stages Bike (Assioma / Power Sensor disabled)");
-    DEFINE_DEVICE(StagesBike_KICKRCORE, "Stages Bike (KICKR CORE)");
     DEFINE_DEVICE(StagesBike, "Stages Bike");
     DEFINE_DEVICE(StagesPowerBike, "Stages Power Bike");
     DEFINE_DEVICE(StrydeRunTreadmill_PowerSensor, "StrydeRun Treadmill / Power Sensor");
@@ -156,6 +156,7 @@ public:
     DEFINE_DEVICE(TrueTreadmill2, "True Treadmill 2");
     DEFINE_DEVICE(TrxAppGateUSBElliptical, "TrxAppGateUSB Elliptical");
     DEFINE_DEVICE(UltrasportBike, "Ultrasport Bike");
+    DEFINE_DEVICE(WahooKickrSnapBike_KICKRCORE, "Wahoo KICKR CORE");
     DEFINE_DEVICE(WahooKickrSarisTrainer, "Wahoo Kickr Saris Trainer");
     DEFINE_DEVICE(WahooKickrSnapBike, "Wahoo Kickr Snap Bike");
     DEFINE_DEVICE(YesoulBike, "Yesoul Bike");

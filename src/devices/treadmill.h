@@ -48,6 +48,7 @@ class treadmill : public bluetoothdevice {
     virtual bool canHandleSpeedChange() { return true; }
     virtual bool canHandleInclineChange() { return true; }
     double runningStressScore();
+    QTime speedToPace(double Speed);
 
   public slots:
     virtual void changeSpeed(double speed);
