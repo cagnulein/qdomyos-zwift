@@ -146,7 +146,7 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             run_cadence_sensor = true;
         if (!qstrcmp(argv[i], "-horizon-treadmill-7-8"))
             horizon_treadmill_7_8 = true; 
-        f (!qstrcmp(argv[i], "-horizon-treadmill-force-ftms"))
+        if (!qstrcmp(argv[i], "-horizon-treadmill-force-ftms"))
             horizon_treadmill_force_ftms = true; 
         if (!qstrcmp(argv[i], "-nordictrack-10-treadmill"))
             nordictrack_10_treadmill = true;
