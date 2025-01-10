@@ -112,6 +112,7 @@ void heartratebelt::error(QLowEnergyController::Error err) {
     emit debug(QStringLiteral("heartratebelt::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString() + " " + m_control->state());
     if(m_control && m_control->state() == QLowEnergyController::UnconnectedState) {
+        emit requestDiscovery();
         m_control->connectToDevice();
     }
 }

@@ -42,6 +42,7 @@ class heartratebelt : public treadmill {
     void debug(QString string);
     void packetReceived();
     void heartRate(uint8_t heart) override;
+    void requestDiscovery();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

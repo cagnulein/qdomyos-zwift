@@ -367,6 +367,7 @@ class bluetooth : public QObject, public SignalHandler {
     void gearUp();
     void gearFailedDown();
     void gearFailedUp();
+    void requestedDiscovery();
 
   signals:
 };
