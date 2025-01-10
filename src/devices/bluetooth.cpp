@@ -127,6 +127,11 @@ void bluetooth::finished() {
         deviceDiscovered(QBluetoothDeviceInfo());
     }
 
+    if(scanningAfterFirstConnection) {
+        this->startDiscovery();
+        return;
+    }
+
     if (device()) {
         qDebug() << QStringLiteral("bluetooth::finished but discoveryAgent is not active");
         return;
@@ -3931,6 +3936,7 @@ void bluetooth::deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDevi
 #endif
 
 void bluetooth::requestedDiscovery() {
+    scanningAfterFirstConnection = true;
     if(!discoveryAgent->isActive()) {
         this->startDiscovery();
     }
