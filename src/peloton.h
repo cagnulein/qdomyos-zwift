@@ -59,6 +59,10 @@ class peloton : public QObject {
     int current_pedaling_duration = 0;
     qint64 start_time = 0;
 
+    // OAuth
+    QString pelotonAuthUrl;
+    bool pelotonAuthWebVisible;
+
     void setTestMode(bool test);
 
     bool isWorkoutInProgress() {
@@ -97,11 +101,9 @@ class peloton : public QObject {
     QOAuth2AuthorizationCodeFlow *pelotonOAuth = nullptr;
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *pelotonReplyHandler = nullptr;
-    QString peloton_code;
-    bool pelotonAuthWebVisible;
+    QString peloton_code;    
     QOAuth2AuthorizationCodeFlow *peloton_connect();
-    void peloton_refreshtoken();
-    QString pelotonAuthUrl;
+    void peloton_refreshtoken();    
     QNetworkReply *replyPeloton;
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
@@ -140,6 +142,9 @@ class peloton : public QObject {
 
     _peloton_treadmill_pace_intensities treadmill_pace[7];
 
+  public slots:
+    void peloton_connect_clicked();
+
   private slots:
     void login_onfinish(QNetworkReply *reply);
     void workoutlist_onfinish(QNetworkReply *reply);
@@ -153,7 +158,6 @@ class peloton : public QObject {
     void pzp_loginState(bool ok);
 
     // OAuth
-    void peloton_connect_clicked();
     void onPelotonGranted();
     void onPelotonAuthorizeWithBrowser(const QUrl &url);
     void replyDataReceived(const QByteArray &v);

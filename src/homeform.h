@@ -194,6 +194,10 @@ class homeform : public QObject {
     Q_PROPERTY(QString getStravaAuthUrl READ getStravaAuthUrl NOTIFY stravaAuthUrlChanged)
     Q_PROPERTY(bool stravaWebVisible READ stravaWebVisible NOTIFY stravaWebVisibleChanged)
 
+    QString getPelotonAuthUrl() { if(!pelotonHandler) return ""; return pelotonHandler->pelotonAuthUrl; }
+    bool pelotonWebVisible() { if(!pelotonHandler) return false; return pelotonHandler->pelotonAuthWebVisible; }
+    Q_PROPERTY(QString getPelotonAuthUrl READ getPelotonAuthUrl NOTIFY pelotonAuthUrlChanged)
+    Q_PROPERTY(bool pelotonWebVisible READ pelotonWebVisible NOTIFY pelotonWebVisibleChanged)
 
   public:
     static homeform *singleton() { return m_singleton; }
@@ -924,6 +928,8 @@ class homeform : public QObject {
     void previewWorkoutTagsChanged(QString value);
     void stravaAuthUrlChanged(QString value);
     void stravaWebVisibleChanged(bool value);
+    void pelotonAuthUrlChanged(QString value);
+    void pelotonWebVisibleChanged(bool value);
 
     void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 
