@@ -257,6 +257,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                QLowEnergyCharacteristicData charData3;
                charData3.setUuid(QBluetoothUuid::CharacteristicType::RSCMeasurement);
                charData3.setProperties(QLowEnergyCharacteristic::Read | QLowEnergyCharacteristic::Notify);
+               charData3.setValue(valueLocaltion);
                QByteArray descriptor;
                descriptor.append((char)0x01);
                descriptor.append((char)0x00);
