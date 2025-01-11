@@ -337,7 +337,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                                                  "(Landroid/content/Context;)V",
                                                  QtAndroid::androidContext().object());
 
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+#elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         pars.setInterval(30, 50);
         leController->startAdvertising(pars, advertisingData);
 #else
