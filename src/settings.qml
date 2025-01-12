@@ -10333,7 +10333,8 @@ import QtQuick.Dialogs 1.0
                 }
             }*/
 
-            AccordionElement {
+            // static in order to handle the AccordionCheckElement
+            StaticAccordionElement {
                 id: experimentalFeatureAccordion
                 title: qsTr("Experimental Features")
                 indicatRectColor: Material.color(Material.Grey)
