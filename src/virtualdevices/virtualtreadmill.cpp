@@ -375,7 +375,9 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
         QLowEnergyAdvertisingParameters pars = QLowEnergyAdvertisingParameters();
         if (!bluetooth_relaxed) {
-            // pars.setInterval(100, 100);
+#if !defined(Q_OS_LINUX) || defined(Q_OS_ANDROID)
+            pars.setInterval(100, 100);
+#endif            
         }  
 
 #ifdef Q_OS_ANDROID
