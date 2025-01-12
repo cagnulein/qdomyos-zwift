@@ -1850,6 +1850,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(ziproTreadmill, &ziprotreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
                 ziproTreadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(ziproTreadmill);
+            } else if ((b.name().toUpper().startsWith(QLatin1String("LIFESPAN-TM"))) && !lifespanTreadmill && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                lifespanTreadmill = new lifespantreadmill(this->pollDeviceTime, noConsole, noHeartService);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(lifespanTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(ziproTreadmill, SIGNAL(disconnected()), this, SLOT(restart())); connect(echelonStride,
+                connect(lifespanTreadmill, &lifespantreadmill::debug, this, &bluetooth::debug);
+                connect(lifespanTreadmill, &lifespantreadmill::speedChanged, this, &bluetooth::speedChanged);
+                connect(lifespanTreadmill, &lifespantreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
+                lifespanTreadmill->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(lifespanTreadmill);
             } else if ((b.name().startsWith(QStringLiteral("ECH-ROW")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROWSPORT")) ||
                         b.name().startsWith(QStringLiteral("ROW-S"))) &&
@@ -3305,6 +3319,10 @@ void bluetooth::restart() {
         delete ziproTreadmill;
         ziproTreadmill = nullptr;
     }
+    if (lifespanTreadmill) {
+        delete lifespanTreadmill;
+        lifespanTreadmill = nullptr;
+    }
     if (octaneElliptical) {
 
         delete octaneElliptical;
@@ -3711,6 +3729,8 @@ bluetoothdevice *bluetooth::device() {
         return octaneTreadmill;
     } else if (ziproTreadmill) {
         return ziproTreadmill;
+    } else if (lifespanTreadmill) {
+        return lifespanTreadmill;
     } else if (octaneElliptical) {
         return octaneElliptical;
     } else if (ftmsRower) {
