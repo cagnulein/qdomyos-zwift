@@ -1231,7 +1231,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(bluetoothDevice.name().toUpper().startsWith("SMARTSPIN2K")) {
             qDebug() << QStringLiteral("SS2K found");
             SS2K = true;
-        } else if(bluetoothDevice.name().toUpper().startsWith("JFBK5.0")) {
+        } else if(bluetoothDevice.name().toUpper().startsWith("JFBK5.0") || bluetoothDevice.name().toUpper().startsWith("JFBK7.0")) {
             qDebug() << QStringLiteral("JFBK5.0 found");
             resistance_lvl_mode = true;
             JFBK5_0 = true;
