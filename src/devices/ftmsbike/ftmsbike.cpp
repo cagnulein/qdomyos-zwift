@@ -289,6 +289,7 @@ void ftmsbike::update() {
         }
 
         auto virtualBike = this->VirtualBike();
+        QSettings settings;
         bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
         if (requestResistance != -1 || lastGearValue != gears()) {
@@ -324,8 +325,6 @@ void ftmsbike::update() {
             }
         }
 
-        QSettings settings;
-        bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
         if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
             QSettings settings;
             wheelCircumference::GearTable table;
