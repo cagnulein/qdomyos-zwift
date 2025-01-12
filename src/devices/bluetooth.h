@@ -73,6 +73,7 @@
 #include "devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h"
 #include "devices/kingsmithr2treadmill/kingsmithr2treadmill.h"
 #include "devices/lifefitnesstreadmill/lifefitnesstreadmill.h"
+#include "devices/lifespantreadmill/lifespantreadmill.h"
 #include "devices/m3ibike/m3ibike.h"
 #include "devices/mcfbike/mcfbike.h"
 #include "devices/mepanelbike/mepanelbike.h"
@@ -256,6 +257,7 @@ class bluetooth : public QObject, public SignalHandler {
     smartrowrower *smartrowRower = nullptr;
     echelonstride *echelonStride = nullptr;
     lifefitnesstreadmill *lifefitnessTreadmill = nullptr;
+    lifespantreadmill *lifespanTreadmill = nullptr;
     keepbike *keepBike = nullptr;
     kingsmithr1protreadmill *kingsmithR1ProTreadmill = nullptr;
     kingsmithr2treadmill *kingsmithR2Treadmill = nullptr;
