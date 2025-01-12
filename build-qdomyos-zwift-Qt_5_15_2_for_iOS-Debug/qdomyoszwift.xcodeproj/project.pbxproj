@@ -439,6 +439,8 @@
 		87A3BC232656429600D302E3 /* echelonrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3BC202656429400D302E3 /* echelonrower.cpp */; };
 		87A3BC26265642A300D302E3 /* moc_rower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3BC24265642A200D302E3 /* moc_rower.cpp */; };
 		87A3BC27265642A300D302E3 /* moc_echelonrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3BC25265642A200D302E3 /* moc_echelonrower.cpp */; };
+		87A3DD9B2D3413790060BAEB /* moc_lifespantreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3DD9A2D3413790060BAEB /* moc_lifespantreadmill.cpp */; };
+		87A3DD9C2D3413790060BAEB /* lifespantreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3DD992D3413790060BAEB /* lifespantreadmill.cpp */; };
 		87A4B76125AF27CB0027EF3C /* metric.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A4B75F25AF27CB0027EF3C /* metric.cpp */; };
 		87A6825A2CE3AB3100586A2A /* moc_sramAXSController.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A682592CE3AB3100586A2A /* moc_sramAXSController.cpp */; };
 		87A6825D2CE3AB4000586A2A /* sramAXSController.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A6825C2CE3AB4000586A2A /* sramAXSController.cpp */; };
@@ -1411,6 +1413,9 @@
 		87A3BC212656429400D302E3 /* rower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rower.h; path = ../src/devices/rower.h; sourceTree = "<group>"; };
 		87A3BC24265642A200D302E3 /* moc_rower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_rower.cpp; sourceTree = "<group>"; };
 		87A3BC25265642A200D302E3 /* moc_echelonrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_echelonrower.cpp; sourceTree = "<group>"; };
+		87A3DD982D3413790060BAEB /* lifespantreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lifespantreadmill.h; path = ../src/devices/lifespantreadmill/lifespantreadmill.h; sourceTree = SOURCE_ROOT; };
+		87A3DD992D3413790060BAEB /* lifespantreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = lifespantreadmill.cpp; path = ../src/devices/lifespantreadmill/lifespantreadmill.cpp; sourceTree = SOURCE_ROOT; };
+		87A3DD9A2D3413790060BAEB /* moc_lifespantreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_lifespantreadmill.cpp; sourceTree = "<group>"; };
 		87A3EBB925D2CFED0040EB4C /* sportstechbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sportstechbike.h; path = ../src/devices/sportstechbike/sportstechbike.h; sourceTree = "<group>"; };
 		87A3EBBA25D2CFED0040EB4C /* sportstechbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sportstechbike.cpp; path = ../src/devices/sportstechbike/sportstechbike.cpp; sourceTree = "<group>"; };
 		87A4B75F25AF27CB0027EF3C /* metric.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = metric.cpp; path = ../src/metric.cpp; sourceTree = "<group>"; };
@@ -2163,6 +2168,9 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87A3DD982D3413790060BAEB /* lifespantreadmill.h */,
+				87A3DD992D3413790060BAEB /* lifespantreadmill.cpp */,
+				87A3DD9A2D3413790060BAEB /* moc_lifespantreadmill.cpp */,
 				87FC40B92D2E74F9008BA736 /* cycleopsphantombike.h */,
 				87FC40BA2D2E74F9008BA736 /* cycleopsphantombike.cpp */,
 				87FC40BB2D2E74F9008BA736 /* moc_cycleopsphantombike.cpp */,
@@ -3881,6 +3889,8 @@
 				8790FDE1277B0AC600247550 /* moc_nautilustreadmill.cpp in Compile Sources */,
 				8727A47927849EB200019B5D /* moc_paferstreadmill.cpp in Compile Sources */,
 				8783153B25E8D81E0007817C /* moc_sportstechbike.cpp in Compile Sources */,
+				87A3DD9B2D3413790060BAEB /* moc_lifespantreadmill.cpp in Compile Sources */,
+				87A3DD9C2D3413790060BAEB /* lifespantreadmill.cpp in Compile Sources */,
 				875F69BB26342E9A0009FD78 /* moc_spirittreadmill.cpp in Compile Sources */,
 				8768C8BF2BBC11C80099DBE1 /* transport.c in Compile Sources */,
 			);
