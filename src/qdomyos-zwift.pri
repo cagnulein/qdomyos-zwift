@@ -331,6 +331,7 @@ INCLUDEPATH += fit-sdk/ devices/
 
 HEADERS += \
     $$PWD/EventHandler.h \
+    $$PWD/OAuth2.h \
     $$PWD/devices/antbike/antbike.h \
     $$PWD/devices/crossrope/crossrope.h \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.h \

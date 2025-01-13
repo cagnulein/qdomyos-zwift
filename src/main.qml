@@ -30,6 +30,7 @@ ApplicationWindow {
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
     signal strava_connect_clicked()
+    signal peloton_connect_clicked()
     signal loadSettings(url name)
     signal saveSettings(url name)
     signal deleteSettings(url name)
@@ -52,6 +53,8 @@ ApplicationWindow {
         property string profile_name: "default"        
         property string theme_status_bar_background_color: "#800080"
         property bool volume_change_gears: false
+        property string peloton_username: "username"
+        property string peloton_password: "password"
     }
 
     Store {
@@ -184,6 +187,32 @@ ApplicationWindow {
 			}
 		 }
 	}
+
+    MessageDialog {
+           id: popupPelotonAuth
+           text: "Peloton Authentication Change"
+           informativeText: "Peloton has moved to a new authentication system. Username and password are no longer required.\n\nWould you like to switch to the new authentication method now?"
+           buttons: (MessageDialog.Yes | MessageDialog.No)
+           onYesClicked: {
+               settings.peloton_username = "username"
+               settings.peloton_password = "password"
+               peloton_connect_clicked()
+           }
+           onNoClicked: this.visible = false
+           visible: false
+       }
+
+    Timer {
+       id: pelotonAuthCheck
+       interval: 1000  // 1 second delay after startup
+       running: true
+       repeat: false
+       onTriggered: {
+           if (settings.peloton_password !== "password") {
+               popupPelotonAuth.visible = true
+           }
+       }
+    }
 
     Popup {
         id: popupClassificaHelper
@@ -795,6 +824,23 @@ ApplicationWindow {
                     onClicked: {
                         stackView.push("WebStravaAuth.qml")
                         strava_connect_clicked()
+                        drawer.close()
+                    }
+                }
+
+                ItemDelegate {
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/Button_Connect_Rect_DarkMode.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
+                    }
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("WebPelotonAuth.qml")
+                        peloton_connect_clicked()
                         drawer.close()
                     }
                 }
