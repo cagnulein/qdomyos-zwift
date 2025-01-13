@@ -83,6 +83,7 @@ SOURCES += \
     $$PWD/devices/jumprope.cpp \
     $$PWD/devices/kineticinroadbike/SmartControl.cpp \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.cpp \
+    $$PWD/devices/lifespantreadmill/lifespantreadmill.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
     $$PWD/devices/pitpatbike/pitpatbike.cpp \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
@@ -338,6 +339,7 @@ HEADERS += \
     $$PWD/devices/jumprope.h \
     $$PWD/devices/kineticinroadbike/SmartControl.h \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.h \
+    $$PWD/devices/lifespantreadmill/lifespantreadmill.h \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
     $$PWD/devices/pitpatbike/pitpatbike.h \
     $$PWD/devices/sportsplusrower/sportsplusrower.h \

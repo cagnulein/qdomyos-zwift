@@ -2246,6 +2246,9 @@ class QZSettings {
     static const QString proform_505_cst_80_44;
     static constexpr bool default_proform_505_cst_80_44 = false;
 
+    static const QString proform_trainer_8_0;
+    static constexpr bool default_proform_trainer_8_0 = false;
+
     static const QString shift_style;
     static constexpr int default_shift_style = 0;
 

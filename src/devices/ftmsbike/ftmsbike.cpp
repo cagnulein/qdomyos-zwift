@@ -287,6 +287,8 @@ void ftmsbike::update() {
         }
 
         auto virtualBike = this->VirtualBike();
+        QSettings settings;
+        bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
         if (requestResistance != -1 || lastGearValue != gears()) {
             if (requestResistance > 100) {
@@ -303,18 +305,24 @@ void ftmsbike::update() {
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike || resistance_lvl_mode) &&
                     (requestPower == 0 || requestPower == -1)) {
                     init();
-                    forceResistance(requestResistance + (gears() * 5));
+
+                    if(DIRETO_XR && gears_zwift_ratio)
+                        setWheelDiameter(wheelCircumference::gearsToWheelDiameter(gears()));
+                    else
+                        forceResistance(requestResistance + (gears() * 5));
                 }
             }
             requestResistance = -1;
         }
         if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
-            qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP" << lastPacketFromFTMS.toHex(' ');
-            ftmsCharacteristicChanged(QLowEnergyCharacteristic(), lastPacketFromFTMS);
+            if(DIRETO_XR && gears_zwift_ratio) {
+                setWheelDiameter(wheelCircumference::gearsToWheelDiameter(gears()));
+            } else {
+                qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP" << lastPacketFromFTMS.toHex(' ');
+                ftmsCharacteristicChanged(QLowEnergyCharacteristic(), lastPacketFromFTMS);
+            }
         }
 
-        QSettings settings;
-        bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
         if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
             QSettings settings;
             wheelCircumference::GearTable::GearInfo g = gearTable.getGear((int)gears());
@@ -1049,22 +1057,25 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
                 lastPacketFromFTMS.append(b.at(i));
             qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
-            if (gears() != 0) {
-                slope += (gears() * 50);
-            }
+            if(!DIRETO_XR) {
+                if (gears() != 0) {
+                    slope += (gears() * 50);
+                }
 
-            if(min_inclination > (((double)slope) / 100.0)) {
-                slope = min_inclination * 100;
-                qDebug() << "grade override due to min_inclination " << min_inclination;
-            }
+                if(min_inclination > (((double)slope) / 100.0)) {
+                    slope = min_inclination * 100;
+                    qDebug() << "grade override due to min_inclination " << min_inclination;
+                }
 
-            slope *= gain;
-            slope += (offset * 100);
+                slope *= gain;
+                slope += (offset * 100);
+            }
 
             b[3] = slope & 0xFF;
-            b[4] = slope >> 8;            
+            b[4] = slope >> 8;
 
             qDebug() << "applying gears mod" << gears() << slope;
+
         } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             
@@ -1228,7 +1239,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(bluetoothDevice.name().toUpper().startsWith("SMARTSPIN2K")) {
             qDebug() << QStringLiteral("SS2K found");
             SS2K = true;
-        } else if(bluetoothDevice.name().toUpper().startsWith("JFBK5.0")) {
+        } else if(bluetoothDevice.name().toUpper().startsWith("DIRETO XR")) {
+            qDebug() << QStringLiteral("DIRETO XR found");
+            DIRETO_XR = true;
+        } else if(bluetoothDevice.name().toUpper().startsWith("JFBK5.0") || bluetoothDevice.name().toUpper().startsWith("JFBK7.0")) {
             qDebug() << QStringLiteral("JFBK5.0 found");
             resistance_lvl_mode = true;
             JFBK5_0 = true;
@@ -1278,6 +1292,17 @@ bool ftmsbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
+void ftmsbike::setWheelDiameter(double diameter) {
+    uint8_t write[] = {FTMS_SET_WHEEL_CIRCUMFERENCE, 0x00, 0x00};
+
+    diameter = diameter * 10.0;
+
+    write[1] = ((uint16_t)diameter) & 0xFF;
+    write[2] = ((uint16_t)diameter) >> 8;
+
+    writeCharacteristic(write, sizeof(write), QStringLiteral("setWheelCircumference ") + QString::number(diameter));
+}
+
 uint16_t ftmsbike::watts() {
     if (currentCadence().value() == 0) {
         return 0;
@@ -1299,7 +1324,8 @@ double ftmsbike::maxGears() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
-    if(zwiftPlayService != nullptr && gears_zwift_ratio) {
+    if((zwiftPlayService != nullptr || DIRETO_XR) && gears_zwift_ratio) {
+        wheelCircumference::GearTable g;
         return gearTable.maxGears;
     } else if(WATTBIKE) {
         return 22;
@@ -1312,7 +1338,7 @@ double ftmsbike::minGears() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
-    if(zwiftPlayService != nullptr && gears_zwift_ratio) {
+    if((zwiftPlayService != nullptr || DIRETO_XR) && gears_zwift_ratio ) {
         return 1;
     } else if(WATTBIKE) {
         return 1;
