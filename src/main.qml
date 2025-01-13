@@ -53,6 +53,8 @@ ApplicationWindow {
         property string profile_name: "default"        
         property string theme_status_bar_background_color: "#800080"
         property bool volume_change_gears: false
+        property string peloton_username: "username"
+        property string peloton_password: "password"
     }
 
     Store {
@@ -185,6 +187,32 @@ ApplicationWindow {
 			}
 		 }
 	}
+
+    MessageDialog {
+           id: popupPelotonAuth
+           text: "Peloton Authentication Change"
+           informativeText: "Peloton has moved to a new authentication system. Username and password are no longer required.\n\nWould you like to switch to the new authentication method now?"
+           buttons: (MessageDialog.Yes | MessageDialog.No)
+           onYesClicked: {
+               settings.peloton_username = "username"
+               settings.peloton_password = "password"
+               peloton_connect_clicked()
+           }
+           onNoClicked: this.visible = false
+           visible: false
+       }
+
+    Timer {
+       id: pelotonAuthCheck
+       interval: 1000  // 1 second delay after startup
+       running: true
+       repeat: false
+       onTriggered: {
+           if (settings.peloton_password !== "password") {
+               popupPelotonAuth.visible = true
+           }
+       }
+    }
 
     Popup {
         id: popupClassificaHelper

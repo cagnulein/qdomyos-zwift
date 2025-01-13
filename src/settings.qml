@@ -4175,7 +4175,7 @@ import QtQuick.Dialogs 1.0
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
                     spacing: 0
-
+/*
                     RowLayout {
                         spacing: 10
                         Label {
@@ -4252,7 +4252,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-
+*/
                     RowLayout {
                         spacing: 10
                         Label {
