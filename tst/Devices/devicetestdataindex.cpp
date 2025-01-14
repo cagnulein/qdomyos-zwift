@@ -216,8 +216,7 @@ void DeviceTestDataIndex::Initialize() {
                     config.setValue(QZSettings::cadence_sensor_name, "NOT "+cscBikeName);
                     configurations.push_back(config);
                 }
-            })
-        ->disable("Might be causing test timeouts");
+            });
 
     // DeerRun Treadmill
     RegisterNewDeviceTestData(DeviceIndex::DeerRunTreadmill)
@@ -381,8 +380,7 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::FitPlusF5)
         ->expectDevice<fitplusbike>()        
         ->acceptDeviceName("FS-", DeviceNameComparison::StartsWith)
-        ->configureSettingsWith( QZSettings::fitplus_bike)
-        ->disable("May be source of timeout in github actions"); 
+        ->configureSettingsWith( QZSettings::fitplus_bike);
 
 
     // FitPlus MRK
