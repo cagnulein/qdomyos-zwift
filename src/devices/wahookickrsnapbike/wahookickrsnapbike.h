@@ -26,7 +26,6 @@
 #include <QObject>
 #include <QString>
 
-#include "wheelcircumference.h"
 #include "devices/bike.h"
 #include "virtualdevices/virtualbike.h"
 

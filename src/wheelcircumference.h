@@ -117,6 +117,88 @@ class wheelCircumference : public QObject {
             loadGearSettings();
         }
 
+        int cassetteUp(int currentGear) {
+            GearTable table;
+            GearTable::GearInfo currentGearInfo = table.getGear(currentGear);
+            if (currentGearInfo.gear == 0) return currentGear;
+
+            int nextGear = currentGear;
+            int smallestValidCog = INT_MAX;
+
+            for (int i = 1; i <= maxGears; i++) {
+                GearTable::GearInfo gear = table.getGear(i);
+                if (gear.gear != 0 &&
+                    gear.crankset == currentGearInfo.crankset &&
+                    gear.rearCog > currentGearInfo.rearCog &&
+                    gear.rearCog < smallestValidCog) {
+                    smallestValidCog = gear.rearCog;
+                    nextGear = gear.gear;
+                }
+            }
+            return nextGear;
+        }
+
+        int cassetteDown(int currentGear) {
+            GearTable table;
+            GearTable::GearInfo currentGearInfo = table.getGear(currentGear);
+            if (currentGearInfo.gear == 0) return currentGear;
+
+            int nextGear = currentGear;
+            int largestValidCog = 0;
+
+            for (int i = 1; i <= maxGears; i++) {
+                GearTable::GearInfo gear = table.getGear(i);
+                if (gear.gear != 0 &&
+                    gear.crankset == currentGearInfo.crankset &&
+                    gear.rearCog < currentGearInfo.rearCog &&
+                    gear.rearCog > largestValidCog) {
+                    largestValidCog = gear.rearCog;
+                    nextGear = gear.gear;
+                }
+            }
+            return nextGear;
+        }
+
+        int chainRingUp(int currentGear) {
+            GearTable table;
+            GearTable::GearInfo currentGearInfo = table.getGear(currentGear);
+            if (currentGearInfo.gear == 0) return currentGear;
+
+            int nextGear = currentGear;
+            int smallestValidCrankset = INT_MAX;
+
+            for (int i = 1; i <= maxGears; i++) {
+                GearTable::GearInfo gear = table.getGear(i);
+                if (gear.gear != 0 &&
+                    gear.crankset > currentGearInfo.crankset &&
+                    gear.crankset < smallestValidCrankset) {
+                    smallestValidCrankset = gear.crankset;
+                    nextGear = gear.gear;
+                }
+            }
+            return nextGear;
+        }
+
+        int chainRingDown(int currentGear) {
+            GearTable table;
+            GearTable::GearInfo currentGearInfo = table.getGear(currentGear);
+            if (currentGearInfo.gear == 0) return currentGear;
+
+            int nextGear = currentGear;
+            int largestValidCrankset = 0;
+
+            for (int i = 1; i <= maxGears; i++) {
+                GearTable::GearInfo gear = table.getGear(i);
+                if (gear.gear != 0 &&
+                    gear.crankset < currentGearInfo.crankset &&
+                    gear.crankset > largestValidCrankset) {
+                    largestValidCrankset = gear.crankset;
+                    nextGear = gear.gear;
+                }
+            }
+            return nextGear;
+        }
+
       private:
         std::vector<GearInfo> gears;
     };
