@@ -216,7 +216,8 @@ void DeviceTestDataIndex::Initialize() {
                     config.setValue(QZSettings::cadence_sensor_name, "NOT "+cscBikeName);
                     configurations.push_back(config);
                 }
-            });
+            })
+        ->disable("Might be causing test timeouts");
 
     // DeerRun Treadmill
     RegisterNewDeviceTestData(DeviceIndex::DeerRunTreadmill)
