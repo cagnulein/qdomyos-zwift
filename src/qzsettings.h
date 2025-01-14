@@ -2249,6 +2249,9 @@ class QZSettings {
     static const QString proform_trainer_8_0;
     static constexpr bool default_proform_trainer_8_0 = false;
 
+    static const QString tile_biggears_swap;
+    static constexpr bool default_tile_biggears_swap = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
