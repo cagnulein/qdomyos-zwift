@@ -4404,7 +4404,7 @@ void homeform::update() {
             if (trainProgram) {
                 // in order to see the target pace of a peloton workout even if the speed force for treadmill is disabled
                 this->target_pace->setValue(
-                            ((treadmill *)bluetoothManager->device())->speedToPace(trainProgram->currentRow().lower_speed).toString(QStringLiteral("m:ss")));
+                            ((treadmill *)bluetoothManager->device())->speedToPace(trainProgram->currentRow().speed).toString(QStringLiteral("m:ss")));
                 this->target_pace->setSecondLine(((treadmill *)bluetoothManager->device())
                                                      ->speedToPace(trainProgram->currentRow().lower_speed)
                                                      .toString(QStringLiteral("m:ss")) +
