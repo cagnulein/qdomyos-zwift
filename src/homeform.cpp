@@ -1904,13 +1904,13 @@ void homeform::sortTiles() {
             }
 
             if (settings.value(QZSettings::tile_biggears_enabled, false).toBool() &&
-                settings.value(QZSettings::tile_biggears_order, 54).toInt() == i) {
+                settings.value(QZSettings::tile_biggears_order, 54).toInt() == i + (settings.value(QZSettings::tile_biggears_swap, QZSettings::default_tile_biggears_swap).toBool() ? 1 : 0)) {
                 biggearsPlus->setGridId(i);
                 dataList.append(biggearsPlus);
             }
 
             if (settings.value(QZSettings::tile_biggears_enabled, false).toBool() &&
-                settings.value(QZSettings::tile_biggears_order, 54).toInt() + 1 == i) {
+                settings.value(QZSettings::tile_biggears_order, 54).toInt() == i + (settings.value(QZSettings::tile_biggears_swap, QZSettings::default_tile_biggears_swap).toBool() ? 0 : 1)) {
                 biggearsMinus->setGridId(i);
                 dataList.append(biggearsMinus);
             }
@@ -4404,7 +4404,7 @@ void homeform::update() {
             if (trainProgram) {
                 // in order to see the target pace of a peloton workout even if the speed force for treadmill is disabled
                 this->target_pace->setValue(
-                            ((treadmill *)bluetoothManager->device())->speedToPace(trainProgram->currentRow().lower_speed).toString(QStringLiteral("m:ss")));
+                            ((treadmill *)bluetoothManager->device())->speedToPace(trainProgram->currentRow().speed).toString(QStringLiteral("m:ss")));
                 this->target_pace->setSecondLine(((treadmill *)bluetoothManager->device())
                                                      ->speedToPace(trainProgram->currentRow().lower_speed)
                                                      .toString(QStringLiteral("m:ss")) +

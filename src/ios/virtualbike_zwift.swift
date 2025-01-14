@@ -845,7 +845,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           }
       } else if(self.serviceToggle == 3) {
           if(watt_bike_emulator) {
-            WattBikeSequence = (WattBikeSequence + 1) % 256
+            WattBikeSequence = (WattBikeSequence + 1) % 255
                 let WattBikeArray : [UInt8] = [ WattBikeSequence, 0x03, 0xB6, (UInt8)(self.CurrentGears) ]
             let WattBikeData = Data(bytes: WattBikeArray, count: 4)
             let ok = self.peripheralManager.updateValue(WattBikeData, for: self.WattBikeReadCharacteristic, onSubscribedCentrals: nil)

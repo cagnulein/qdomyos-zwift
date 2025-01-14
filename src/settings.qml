@@ -1043,6 +1043,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.16
             property bool proform_trainer_8_0: false
+
+            // from version 2.18.18
+            property bool tile_biggears_swap: false
         }
 
         function paddingZeros(text, limit) {
