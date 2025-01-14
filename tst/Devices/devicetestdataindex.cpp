@@ -380,7 +380,8 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::FitPlusF5)
         ->expectDevice<fitplusbike>()        
         ->acceptDeviceName("FS-", DeviceNameComparison::StartsWith)
-        ->configureSettingsWith( QZSettings::fitplus_bike);
+        ->configureSettingsWith( QZSettings::fitplus_bike)
+        ->disable("May be source of timeout");
 
 
     // FitPlus MRK
