@@ -144,7 +144,7 @@ ColumnLayout {
         }
     }
 
-    AccordionElement {
+    StaticAccordionElement {
         title: qsTr("Profiles")
         indicatRectColor: Material.color(Material.Grey)
         textColor: Material.color(Material.Grey)
