@@ -1272,6 +1272,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         
                         speed_lower = treadmill_pace[pace_intensity_lower].levels[peloton_treadmill_level].slow_pace;
                         speed_upper = treadmill_pace[pace_intensity_upper].levels[peloton_treadmill_level].fast_pace;
+
+                        miles = 1; // the pace intensity are always in km/h
                     }
                     else if (metricName == "speed") {
                         speed_lower = metricObj["lower"].toDouble();
