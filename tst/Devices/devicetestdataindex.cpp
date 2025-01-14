@@ -381,7 +381,7 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<fitplusbike>()        
         ->acceptDeviceName("FS-", DeviceNameComparison::StartsWith)
         ->configureSettingsWith( QZSettings::fitplus_bike)
-        ->disable("May be source of timeout");
+        ->disable("May be source of timeout in github actions"); 
 
 
     // FitPlus MRK
