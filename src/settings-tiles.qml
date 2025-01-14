@@ -2331,7 +2331,7 @@ ScrollView {
         }
 
         AccordionCheckElement {
-            title: qsTr("Running Stress Score")
+            title: qsTr("Running/Training Stress Score")
             linkedBoolSetting: "tile_rss_enabled"
             settings: settings
             accordionContent: RowLayout {
