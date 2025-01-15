@@ -71,7 +71,9 @@ class Connection {
     func send(_ message: String) {
         print("sending \(message)")
         connection.send(content: message.data(using: .utf8), contentContext: .defaultMessage, isComplete: true, completion: .contentProcessed({ error in
-            print("Connection send error: \(String(describing: error))")
+            if error != nil {
+                print("Connection send error: \(String(describing: error))")
+            }
         }))
     }
 
@@ -97,6 +99,18 @@ class Connection {
                     if sender?.contains("PAD") ?? false && message.contains("ODO=") {
                         let odo : String = message.slice(from: "ODO=", to: "#") ?? ""
                         WatchKitConnection.distance = (Double(odo) ?? 0)
+                    }
+                    if sender?.contains("PAD") ?? false && message.contains("BCAD=") {
+                        let cad : String = message.slice(from: "BCAD=", to: "#") ?? ""
+                        WatchKitConnection.cadence = (Double(cad) ?? 0)
+                    }
+                    if sender?.contains("PAD") ?? false && message.contains("SPD=") {
+                        let spd : String = message.slice(from: "SPD=", to: "#") ?? ""
+                        WatchKitConnection.speed = (Double(spd) ?? 0)
+                    }
+                    if sender?.contains("PAD") ?? false && message.contains("PWR=") {
+                        let pwr : String = message.slice(from: "PWR=", to: "#") ?? ""
+                        WatchKitConnection.power = (Double(pwr) ?? 0)
                     }
 				}
             }

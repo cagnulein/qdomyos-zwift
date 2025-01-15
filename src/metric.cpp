@@ -25,12 +25,10 @@ void metric::setValue(double v, bool applyGainAndOffset) {
                     }
                     v *= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
                 }
-                if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() < 0) {
-                    if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
-                        qDebug()
-                            << QStringLiteral("watt value was ") << v << QStringLiteral("but it will be transformed to")
-                            << v + settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
-                    }
+                if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
+                    qDebug()
+                        << QStringLiteral("watt value was ") << v << QStringLiteral("but it will be transformed to")
+                        << v + settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
                     v += settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
                 }
             }
@@ -70,9 +68,13 @@ void metric::setValue(double v, bool applyGainAndOffset) {
         m_totValue += value();
         m_lapTotValue += value();
         m_last5.append(value());
+        m_last20.append(value());
 
         if (m_last5.count() > 5)
             m_last5.removeAt(0);
+
+        if (m_last20.count() > 20)
+            m_last20.removeAt(0);
 
         if (value() < m_min) {
             m_min = value();
@@ -101,11 +103,16 @@ void metric::clear(bool accumulator) {
     m_countValue = 0;
     m_min = 999999999;
     m_last5.clear();
+    m_last20.clear();
     clearLap(accumulator);
 #ifdef TEST
     random_value_uint8 = 0;
     random_value_uint32 = 0;
 #endif
+}
+
+double metric::valueRaw() {
+    return m_value;
 }
 
 double metric::value() {
@@ -157,6 +164,27 @@ double metric::average5s() {
             return 0;
     }
 }
+
+double metric::average20s() {
+    if (m_last20.count() == 0)
+        return 0;
+    else {
+        double sum = 0;
+        uint8_t c = 0;
+        QMutableListIterator<double> i(m_last20);
+        while (i.hasNext()) {
+            double b = i.next();
+            sum += b;
+            c++;
+        }
+
+        if (c > 0)
+            return (sum / c);
+        else
+            return 0;
+    }
+}
+
 
 void metric::operator=(double v) { setValue(v); }
 
@@ -284,20 +312,18 @@ struct CompareBests {
     }
 };
 
-// VO2 (L/min) = 0.0108 x power (W) + 0.007 x body mass (kg)
-// power = 5 min peak power for a specific ride
-double metric::calculateVO2Max(QList<SessionLine> *session) {
+double metric::powerPeak(QList<SessionLine> *session, int seconds) {
     QList<IntervalBest> bests;
     QList<IntervalBest> _results;
 
-    uint windowSize = 5 * 60; // 5 mins
+    uint windowSize = seconds;
     double total = 0.0;
     QList<const SessionLine *> window;
 
     if (session->count() == 0)
         return -1;
 
-    // ride is shorter than the window size!
+           // ride is shorter than the window size!
     if (windowSize > session->last().elapsedTime)
         return -1;
 
@@ -327,7 +353,16 @@ double metric::calculateVO2Max(QList<SessionLine> *session) {
 
     std::sort(bests.begin(), bests.end(), CompareBests());
 
-    double peak = bests.first().avg;
+    if(bests.length() > 0)
+        return bests.first().avg;
+    else
+        return 0;
+}
+
+// VO2 (L/min) = 0.0108 x power (W) + 0.007 x body mass (kg)
+// power = 5 min peak power for a specific ride
+double metric::calculateVO2Max(QList<SessionLine> *session) {       
+    double peak = powerPeak(session, 5*60);
     QSettings settings;
     return ((0.0108 * peak + 0.007 * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()) /
             settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()) *

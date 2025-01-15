@@ -5,12 +5,33 @@ import QtQuick.Controls.Material 2.12
 import Qt.labs.platform 1.1
 import Qt.labs.folderlistmodel 2.15
 import Qt.labs.settings 1.0
+import QtQuick.Dialogs 1.0 as FileDialogClass
 
 ColumnLayout {
+
+    anchors.top: parent.top
+    anchors.fill: parent
+
+    signal profile_open_clicked(url name)
 
     Settings {
         id: settings
         property string profile_name: "default"
+    }
+
+    FileDialogClass.FileDialog {
+        id: fileDialogTrainProgram
+        title: "Please choose a file"
+        folder: shortcuts.home
+        onAccepted: {
+            console.log("You chose: " + fileDialogTrainProgram.fileUrl)
+            profile_open_clicked(fileDialogTrainProgram.fileUrl)
+            fileDialogTrainProgram.close()
+        }
+        onRejected: {
+            console.log("Canceled")
+            fileDialogTrainProgram.close()
+        }
     }
 
     MessageDialog {
@@ -51,6 +72,41 @@ ColumnLayout {
         }
     }
 
+    MessageDialog {
+        id: restoreSettingsDialog
+        title: "New Profile"
+        text: "New Profile Created with default values. Save it with a name and restart the app to apply them."
+        buttons: (MessageDialog.Ok)
+        onOkClicked: {
+            restoreSettingsDialog.visible = false
+        }
+    }
+
+    MessageDialog {
+        id: newProfileDialog
+        title: "Save Current Profile?"
+        text: "You're creating a new profile with the default values, would you like to save the current one before?"
+        buttons: (MessageDialog.Yes | MessageDialog.No | MessageDialog.Abort)
+        onYesClicked: {
+            if(profileNameTextField.text.length == 0)
+                profileNameTextField.text = "OldProfile"
+
+            saveProfile(profileNameTextField.text);
+            restoreSettings()
+
+            newProfileDialog.visible = false;
+            restoreSettingsDialog.visible = true
+        }
+        onNoClicked: {
+            restoreSettings()
+            newProfileDialog.visible = false;
+            restoreSettingsDialog.visible = true
+        }
+        onAbortClicked: {
+            newProfileDialog.visible = false;
+        }
+    }
+
     RowLayout {
         spacing: 10
         Label {
@@ -68,6 +124,15 @@ ColumnLayout {
             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
         }
         Button {
+            id: addProfileButton
+            text: "+"
+            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            onClicked: {
+                console.log("folder is " + rootItem.getWritableAppDir() + 'profiles')
+                newProfileDialog.visible = true;
+            }
+        }
+        Button {
             id: saveProfileNameButton
             text: "Save"
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -79,7 +144,7 @@ ColumnLayout {
         }
     }
 
-    AccordionElement {
+    StaticAccordionElement {
         title: qsTr("Profiles")
         indicatRectColor: Material.color(Material.Grey)
         textColor: Material.color(Material.Grey)
@@ -181,6 +246,21 @@ ColumnLayout {
                     }
                 }
             }
+        }
+    }
+
+    Button {
+        id: searchButton
+        height: 50
+        width: parent.width
+        text: "Other folders"
+        Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+        onClicked: {
+            console.log("folder is " + rootItem.getWritableAppDir() + 'training')
+            fileDialogTrainProgram.visible = true
+        }
+        anchors {
+            bottom: parent.bottom
         }
     }
 }
