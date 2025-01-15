@@ -1019,7 +1019,7 @@ void homeform::backup() {
     bluetoothdevice *dev = bluetoothManager->device();
     if (dev) {
 
-        QString filename = path + QString::number(index) + backupFitFileName;
+        QString filename = QDir::toNativeSeparators((path + QString::number(index) + backupFitFileName));
         QFile::remove(filename);
         qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
@@ -6095,9 +6095,9 @@ void homeform::fit_save_clicked() {
     QString path = getWritableAppDir();
     bluetoothdevice *dev = bluetoothManager->device();
     if (dev) {
-        QString filename = path +
+        QString filename = QDir::toNativeSeparators(path +
                            QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
-                           QStringLiteral(".fit");
+                                                    QStringLiteral(".fit"));
 
         QString workoutName = "";
         if (!stravaPelotonActivityName.isEmpty() && !stravaPelotonInstructorName.isEmpty())
