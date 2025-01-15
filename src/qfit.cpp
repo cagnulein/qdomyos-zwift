@@ -56,9 +56,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         return;
     }
 
-    QFile output(filename);
-    output.open(QIODevice::WriteOnly);
-
     fit::FileIdMesg fileIdMesg; // Every FIT file requires a File ID message
     fileIdMesg.SetType(FIT_FILE_ACTIVITY);
     if(bluetooth_device_name.toUpper().startsWith("DOMYOS"))
