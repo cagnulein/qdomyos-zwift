@@ -13,6 +13,7 @@
 #include "qfit.h"
 #include "simplecrypt.h"
 #include "templateinfosenderbuilder.h"
+#include "workoutmodel.h"
 #include "zwiftworkout.h"
 
 #include <QAbstractOAuth2>
@@ -627,6 +628,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                 qDebug() << "FitDatabaseProcessor Processing stopped";
             });
     processor->processDirectory(getWritableAppDir() + "fit");
+
+    WorkoutModel* workoutModel = new WorkoutModel(getWritableAppDir() + "ddb.sqlite");;
+    engine->rootContext()->setContextProperty("workoutModel", workoutModel);
 
     m_speech.setLocale(QLocale::English);
 

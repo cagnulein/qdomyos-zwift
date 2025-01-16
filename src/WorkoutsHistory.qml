@@ -1,180 +1,199 @@
-import QtQuick 2.7
-import Qt.labs.folderlistmodel 2.15
-import QtQuick.Layouts 1.3
+import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Controls.Material 2.0
-import QtQuick.Dialogs 1.0
-import QtCharts 2.2
-import Qt.labs.settings 1.0
+import QtQuick.Layouts 1.15
+import QtCharts 2.15
 
-ColumnLayout {
-    signal fitfile_preview(url name)
+Page {
+    id: workoutHistoryPage
 
-    RowLayout{
-        spacing: 2
-        anchors.top: parent.top
+    // Il modello viene fornito dal C++ come 'workoutModel'
+
+    // Sport type to icon mapping
+    function getSportIcon(sport) {
+        switch(sport) {
+            case 0: return "🏃"; // Running/Treadmill
+            case 1: return "🚴"; // Cycling
+            case 2: return "⭕"; // Elliptical
+            case 3: return "🚣"; // Rowing
+            default: return "💪";
+        }
+    }
+
+    ColumnLayout {
         anchors.fill: parent
+        spacing: 10
 
-        ColumnLayout {
-            spacing: 0
-            anchors.top: parent.top
-            anchors.fill: parent
+        // Header
+        Rectangle {
+            Layout.fillWidth: true
+            height: 60
+            color: "#f5f5f5"
 
-            Row
-            {
-                id: row
-                spacing: 5
-                Text
-                {
-                    text:"Filter"
-                    color: "white"
-                    verticalAlignment: Text.AlignVCenter
-                }
-                TextField
-                {
-                    function updateFilter()
-                    {
-                        var text = filterField.text
-                        var filter = "*"
-                        for(var i = 0; i<text.length; i++)
-                           filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
-                        filter+="*"
-                        print(filter)
-                        var excludeBackup = "*backup*";
-                        folderModel.nameFilters = [filter + ".fit", "!" + excludeBackup];
-                    }
-                    id: filterField
-                    onTextChanged: updateFilter()
-                }
+            Text {
+                anchors.centerIn: parent
+                text: "Workout History"
+                font.pixelSize: 24
+                font.bold: true
             }
+        }
 
-            ListView {
-                Layout.fillWidth: true
-                Layout.minimumWidth: 50
-                Layout.preferredWidth: 100
-                Layout.maximumWidth: row.left
-                Layout.minimumHeight: 150
-                Layout.preferredHeight: parent.height
-                ScrollBar.vertical: ScrollBar {}
-                id: list
-                FolderListModel {
-                    id: folderModel
-                    nameFilters: ["*.fit"]
-                    folder: "file:///" + rootItem.getWritableAppDir().replace(/\\/g, "/") + "/fit"
-                    showDotAndDotDot: false
-                    showDirs: false
-                }
-                model: folderModel
-                delegate: Component {
-                    Rectangle {
-                        property alias textColor: fileTextBox.color
-                        property string summary: ""
-                        width: parent.width
-                        height: 40
-                        color: Material.backgroundColor
-                        z: 1
-                        Item {
-                            id: root
-                            property alias text: fileTextBox.text
-                            property int spacing: 30
-                            width: fileTextBox.width + spacing
-                            height: fileTextBox.height
-                            clip: true
-                            Text {
-                                id: fileTextBox
-                                color: Material.color(Material.Grey)
-                                font.pixelSize: Qt.application.font.pixelSize * 1.6
-                                text: summary || fileName.substring(0, fileName.length-4)
-                                NumberAnimation on x {
-                                    Component.onCompleted: {
-                                        if(fileName.length > 30) {
-                                            running: true;
-                                        } else {
-                                            stop();
-                                        }
-                                    }
-                                    from: 0; to: -root.width; duration: 20000; loops: Animation.Infinite
-                                }
-                                Text {
-                                  x: root.width
-                                  text: fileTextBox.text
-                                  color: Material.color(Material.Grey)
-                                  font.pixelSize: Qt.application.font.pixelSize * 1.6
-                                }
-                            }
-                            Text {
-                                id: resultTextBox
-                                color: Material.color(Material.Grey)
-                                font.pixelSize: Qt.application.font.pixelSize * 1.2
-                                text: summary
-                                anchors {
-                                    top: fileTextBox.bottom
-                                    left: fileTextBox.left
-                                }
-                            }
-                        }
-                        MouseArea {
-                            anchors.fill: parent
-                            z: 100
-                            onClicked: {
-                                console.log('onclicked ' + index+ " count "+list.count);
-                                if (index === list.currentIndex) {
-                                    let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
-                                    if (fileUrl) {
-                                        trainprogram_open_clicked(fileUrl);
-                                        popup.open()
-                                    }
-                                }
-                                else {
-                                    if (list.currentItem)
-                                        list.currentItem.textColor = Material.color(Material.Grey)
-                                    list.currentIndex = index
-                                }
-                            }
-                        }
-                    }
-                }
-                highlight: Rectangle {
-                    color: Material.color(Material.Green)
-                    z:3
-                    radius: 5
-                    opacity: 0.4
-                    focus: true
-                    /*Text {
-                        anchors.centerIn: parent
-                        text: 'Selected ' + folderModel.get(list.currentIndex, "fileName")
-                        color: "white"
-                    }*/
-                }
-                focus: true
-                onCurrentItemChanged: {
-                    let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
-                    if (fileUrl) {
-                        list.currentItem.textColor = Material.color(Material.Yellow)
-                        console.log(fileUrl + ' selected');
-                        fitfile_preview(fileUrl)
-                        //webView.reload();
-                    }
-                }
+        // Loading indicator
+        BusyIndicator {
+            id: loadingIndicator
+            Layout.alignment: Qt.AlignHCenter
+            visible: workoutModel ? workoutModel.isLoading : false
+            running: visible
+        }
+
+        // Workout List
+        ListView {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            model: workoutModel
+            spacing: 8
+            clip: true
+
+            delegate: SwipeDelegate {
+                id: swipeDelegate
+                width: ListView.view.width
+                height: 100
+
                 Component.onCompleted: {
-
+                    console.log("Delegate data:", JSON.stringify({
+                        sport: sport,
+                        title: title,
+                        date: date,
+                        duration: duration,
+                        distance: distance,
+                        calories: calories,
+                        id: id
+                    }))
                 }
+
+                swipe.right: Rectangle {
+                    width: parent.width
+                    height: parent.height
+                    color: "#FF4444"
+                    clip: true
+
+                    Row {
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.rightMargin: 20
+
+                        Text {
+                            text: "🗑️ Delete"
+                            color: "white"
+                            font.pixelSize: 16
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+
+                swipe.onCompleted: {
+                    // Show confirmation dialog
+                    confirmDialog.workoutId = model.id
+                    confirmDialog.workoutTitle = model.title
+                    confirmDialog.open()
+                }
+
+                // Card-like container
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    radius: 10
+                    color: "white"
+                    border.color: "#e0e0e0"
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 16
+
+                        // Sport icon
+                        Column {
+                            Layout.alignment: Qt.AlignVCenter
+                            Text {
+                                text: getSportIcon(sport)
+                                font.pixelSize: 32
+                            }
+                            Text {
+                                text: "Raw sport: " + sport
+                                color: "red"
+                                font.pixelSize: 10
+                            }
+                        }
+
+                        // Workout info
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+
+                            Text {
+                                text: title
+                                font.bold: true
+                                font.pixelSize: 18
+                            }
+
+                            Text {
+                                text: date
+                                color: "#666666"
+                            }
+
+                            // Stats row
+                            RowLayout {
+                                spacing: 16
+
+                                Text {
+                                    text: "⏱ " + duration
+                                }
+
+                                Text {
+                                    text: "📏 " + distance + " km"
+                                }
+
+                                Text {
+                                    text: "🔥 " + calories + " kcal"
+                                }
+                            }
+                        }
+                    }
+                }
+/*
+                onClicked: {
+                    // Navigate to detail view
+                    stackView.push(workoutDetailComponent, {
+                        workoutData: model
+                    })
+                }*/
             }
         }
     }
 
-    Connections {
-        target: rootItem
-        onPreviewFitFile: {
-            console.log("Ricevuto il risultato: " + result);
-            for (var i = 0; i < list.count; i++) {
-                var item = list.itemAt(i);
-                if (item && item.fileName === filename) {
-                    // Update the result property of the item
-                    item.summary = result;
-                    break;
-                }
-            }
+    // Confirmation Dialog
+    Dialog {
+        id: confirmDialog
+
+        property int workoutId
+        property string workoutTitle
+
+        title: "Delete Workout"
+        modal: true
+        standardButtons: Dialog.Ok | Dialog.Cancel
+
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+
+        Text {
+            text: "Are you sure you want to delete '" + confirmDialog.workoutTitle + "'?"
+        }
+
+        onAccepted: {
+            workoutModel.deleteWorkout(confirmDialog.workoutId)
+            swipeDelegate.swipe.close()
+        }
+        onRejected: {
+            swipeDelegate.swipe.close()
         }
     }
 }

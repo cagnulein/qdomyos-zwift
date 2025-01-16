@@ -106,6 +106,8 @@ SOURCES += \
     $$PWD/mqtt/qmqtttopicname.cpp \
     $$PWD/mqtt/qmqtttype.cpp \
     $$PWD/osc.cpp \
+    $$PWD/workoutloaderworker.cpp \
+    $$PWD/workoutmodel.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
 devices/csafe/csafe.cpp \
@@ -381,6 +383,8 @@ HEADERS += \
     $$PWD/mqtt/qmqtttype.h \
     $$PWD/treadmillErgTable.h \
     $$PWD/wheelcircumference.h \
+    $$PWD/workoutloaderworker.h \
+    $$PWD/workoutmodel.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
 devices/csafe/csafe.h \

@@ -20,6 +20,8 @@ class FitDatabaseProcessor : public QObject {
     void processDirectory(const QString& dirPath);
     void stopProcessing();
 
+    static const QString DB_CONNECTION_NAME;
+
   signals:
     void processingStopped();
     void fileProcessed(const QString& filename);
@@ -47,8 +49,7 @@ class FitDatabaseProcessor : public QObject {
     QString currentDirPath;
     QAtomicInt stopRequested;
     QMutex mutex;
-    QSqlDatabase db;
-    static const QString DB_CONNECTION_NAME;
+    QSqlDatabase db;    
 };
 
 #endif // FITDATABASEPROCESSOR_H
