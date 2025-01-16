@@ -801,8 +801,17 @@ const QString QZSettings::peloton_auto_start_without_intro = QStringLiteral("pel
 const QString QZSettings::nordictrack_tseries5_treadmill = QStringLiteral("nordictrack_tseries5_treadmill");
 const QString QZSettings::proform_carbon_tl_PFTL59722c = QStringLiteral("proform_carbon_tl_PFTL59722c");
 const QString QZSettings::nordictrack_gx_44_pro = QStringLiteral("nordictrack_gx_44_pro");
+const QString QZSettings::OSC_ip = QStringLiteral("osc_ip");
+const QString QZSettings::default_OSC_ip = QStringLiteral("");
+const QString QZSettings::OSC_port = QStringLiteral("osc_port");
+const QString QZSettings::strava_treadmill = QStringLiteral("strava_treadmill");
+const QString QZSettings::iconsole_rower = QStringLiteral("iconsole_rower");
+const QString QZSettings::proform_treadmill_1500_pro = QStringLiteral("proform_treadmill_1500_pro");
+const QString QZSettings::proform_505_cst_80_44 = QStringLiteral("proform_505_cst_80_44");
+const QString QZSettings::proform_trainer_8_0 = QStringLiteral("proform_trainer_8_0");
+const QString QZSettings::tile_biggears_swap = QStringLiteral("tile_biggears_swap");
 
-const uint32_t allSettingsCount = 676;
+const uint32_t allSettingsCount = 684;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1485,6 +1494,14 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_tseries5_treadmill, QZSettings::default_nordictrack_tseries5_treadmill},
     {QZSettings::proform_carbon_tl_PFTL59722c, QZSettings::default_proform_carbon_tl_PFTL59722c},
     {QZSettings::nordictrack_gx_44_pro, QZSettings::default_nordictrack_gx_44_pro},
+    {QZSettings::OSC_ip, QZSettings::default_OSC_ip},
+    {QZSettings::OSC_port, QZSettings::default_OSC_port},
+    {QZSettings::strava_treadmill, QZSettings::default_strava_treadmill},
+    {QZSettings::iconsole_rower, QZSettings::default_iconsole_rower},
+    {QZSettings::proform_treadmill_1500_pro, QZSettings::default_proform_treadmill_1500_pro},
+    {QZSettings::proform_505_cst_80_44, QZSettings::default_proform_505_cst_80_44},
+    {QZSettings::proform_trainer_8_0, QZSettings::default_proform_trainer_8_0},
+    {QZSettings::tile_biggears_swap, QZSettings::default_tile_biggears_swap},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

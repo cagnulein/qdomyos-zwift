@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QSettings>
 #include <QTimer>
+#include <QDateTime>
 //#include "localKeyProvider.h"
 //#include "zapCrypto.h"
 #include "zapConstants.h"
@@ -28,14 +29,21 @@ class AbstractZapDevice: public QObject {
     QByteArray REQUEST_START;
     QByteArray RESPONSE_START;
 
-    AbstractZapDevice() : autoRepeatTimer(new QTimer(this)) {
+    AbstractZapDevice() {
         RIDE_ON = QByteArray::fromRawData("\x52\x69\x64\x65\x4F\x6E", 6);  // "RideOn"
         REQUEST_START = QByteArray::fromRawData("\x00\x09", 2);  // {0, 9}
         RESPONSE_START = QByteArray::fromRawData("\x01\x03", 2);  // {1, 3}
 
         // Setup auto-repeat
+        autoRepeatTimer = new QTimer();
         autoRepeatTimer->setInterval(500);
         connect(autoRepeatTimer, &QTimer::timeout, this, &AbstractZapDevice::handleAutoRepeat);
+    }
+
+    ~AbstractZapDevice() {
+        if (autoRepeatTimer) {
+            autoRepeatTimer->stop();
+        }
     }
 
     int processCharacteristic(const QString& characteristicName, const QByteArray& bytes, ZWIFT_PLAY_TYPE zapType) {
@@ -45,7 +53,7 @@ class AbstractZapDevice: public QObject {
         bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
         bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
 
-        qDebug() << zapType << characteristicName << bytes.toHex() << zwiftplay_swap << gears_volume_debouncing << risingEdge;
+        qDebug() << zapType << characteristicName << bytes.toHex() << zwiftplay_swap << gears_volume_debouncing << risingEdge << lastFrame;
 
 #define DEBOUNCE (!gears_volume_debouncing || risingEdge <= 0)
 
@@ -68,6 +76,7 @@ class AbstractZapDevice: public QObject {
 #else
         switch(bytes[0]) {
         case 0x37:
+            lastFrame = QDateTime::currentDateTime();
             if(bytes.length() == 5) {
                 if(bytes[2] == 0) {
                     if(DEBOUNCE) {
@@ -107,6 +116,7 @@ class AbstractZapDevice: public QObject {
             }
             break;
         case 0x07: // zwift play
+            lastFrame = QDateTime::currentDateTime();
             if(bytes.length() > 5 && bytes[bytes.length() - 5] == 0x40 && (
                     (((uint8_t)bytes[bytes.length() - 4]) == 0xc7 && zapType == RIGHT) ||
                     (((uint8_t)bytes[bytes.length() - 4]) == 0xc8 && zapType == LEFT)
@@ -182,6 +192,7 @@ class AbstractZapDevice: public QObject {
             qDebug() << "ignoring this frame";
             return 1;
         case 0x23: // zwift ride
+            lastFrame = QDateTime::currentDateTime();
             if(bytes.length() > 12 &&
                 ((((uint8_t)bytes[12]) == 0xc7 && zapType == RIGHT) ||
                  (((uint8_t)bytes[12]) == 0xc8 && zapType == LEFT))
@@ -318,11 +329,19 @@ class AbstractZapDevice: public QObject {
   private:
     QByteArray devicePublicKeyBytes;
     static volatile int8_t risingEdge;
-    QTimer* autoRepeatTimer;    // Timer for auto-repeat
-    bool lastButtonPlus = false; // Track which button was last pressed
+    static QTimer* autoRepeatTimer;    // Static timer for auto-repeat
+    static bool lastButtonPlus;  // Static track of which button was last pressed
+    static QDateTime lastFrame;
 
   private slots:
     void handleAutoRepeat() {
+        uint64_t delta = lastFrame.msecsTo(QDateTime::currentDateTime());
+        qDebug() << "gear auto repeat" << lastButtonPlus << lastFrame << delta;
+        if(delta > 400) {
+            qDebug() << "stopping repeat timer";
+            autoRepeatTimer->stop();
+            return;
+        }
         if(lastButtonPlus)
             emit plus();
         else

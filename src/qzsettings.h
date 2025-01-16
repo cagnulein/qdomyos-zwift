@@ -2228,6 +2228,30 @@ class QZSettings {
     static const QString nordictrack_gx_44_pro;
     static constexpr bool default_nordictrack_gx_44_pro = false;
 
+    static const QString OSC_ip;
+    static const QString default_OSC_ip;
+
+    static const QString OSC_port;
+    static constexpr int default_OSC_port = 9000;
+
+    static const QString strava_treadmill;
+    static constexpr bool default_strava_treadmill = true;
+
+    static const QString iconsole_rower;
+    static constexpr bool default_iconsole_rower = false;
+
+    static const QString proform_treadmill_1500_pro;
+    static constexpr bool default_proform_treadmill_1500_pro = false;
+
+    static const QString proform_505_cst_80_44;
+    static constexpr bool default_proform_505_cst_80_44 = false;
+
+    static const QString proform_trainer_8_0;
+    static constexpr bool default_proform_trainer_8_0 = false;
+
+    static const QString tile_biggears_swap;
+    static constexpr bool default_tile_biggears_swap = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

@@ -45,10 +45,11 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 #ifndef IO_UNDER_QT
     bool ios_peloton_workaround =
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
     if (ios_peloton_workaround) {
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
-        h->virtualtreadmill_zwift_ios();
+        h->virtualtreadmill_zwift_ios(garmin_bluetooth_compatibility);
     } else
 #endif
 #endif
@@ -56,7 +57,11 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+        advertisingData.setLocalName(QStringLiteral("KICKR RUN"));
+#else            
         advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
+#endif
         QList<QBluetoothUuid> services;
 
         // Add Wahoo Run Service UUID
@@ -230,6 +235,48 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                serviceDataFTMS.addCharacteristic(charDataFIT2);
            }
 
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+        qDebug() << "Raspberry workaround for sending metrics to the peloton app";
+        QLowEnergyCharacteristicData charDataFIT;
+        charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2A00); 
+        QByteArray valueFIT;
+        valueFIT.append((char)'P'); // average speed, cadence and resistance level supported
+        valueFIT.append((char)'i'); // heart rate and elapsed time
+        valueFIT.append((char)'x');
+        valueFIT.append((char)'e');
+        valueFIT.append((char)'l'); // resistance and power target supported
+        valueFIT.append((char)' '); // indoor simulation, wheel and spin down supported
+        valueFIT.append((char)'6');
+        valueFIT.append((char)'a');
+        valueFIT.append((char)0x00);
+        charDataFIT.setValue(valueFIT);
+        charDataFIT.setProperties(QLowEnergyCharacteristic::Read);
+
+        QLowEnergyCharacteristicData charDataFIT2;
+        charDataFIT2.setUuid((QBluetoothUuid::CharacteristicType)0x2A01);
+        QByteArray valueFIT2;
+        valueFIT2.append((char)0x00);
+        charDataFIT2.setValue(valueFIT2);
+        charDataFIT2.setProperties(QLowEnergyCharacteristic::Read);
+
+        genericAccessServerData.setUuid((QBluetoothUuid::ServiceClassUuid)0x1800);
+        genericAccessServerData.addCharacteristic(charDataFIT);
+        genericAccessServerData.addCharacteristic(charDataFIT2);
+
+        QLowEnergyCharacteristicData charDataFIT3;
+        charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2A05);
+        charDataFIT3.setProperties(QLowEnergyCharacteristic::Indicate);
+        QByteArray descriptor33;
+        descriptor33.append((char)0x02);
+        descriptor33.append((char)0x00);
+        const QLowEnergyDescriptorData clientConfig43(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                        descriptor33);
+        charDataFIT3.addDescriptor(clientConfig43);
+
+        genericAttributeServiceData.setUuid((QBluetoothUuid::ServiceClassUuid)0x1801);
+        genericAttributeServiceData.addCharacteristic(charDataFIT3);
+#endif              
+
            if (RSCEnable()) {
                QLowEnergyCharacteristicData charData;
                charData.setUuid(QBluetoothUuid::CharacteristicType::RSCFeature);
@@ -252,6 +299,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                QLowEnergyCharacteristicData charData3;
                charData3.setUuid(QBluetoothUuid::CharacteristicType::RSCMeasurement);
                charData3.setProperties(QLowEnergyCharacteristic::Read | QLowEnergyCharacteristic::Notify);
+               charData3.setValue(valueLocaltion);
                QByteArray descriptor;
                descriptor.append((char)0x01);
                descriptor.append((char)0x00);
@@ -305,6 +353,11 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         
         serviceWahoo = leController->addService(serviceDataWahoo);
         QThread::msleep(100);
+
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)        
+        genericAccessServer = leController->addService(genericAccessServerData);
+        genericAttributeService = leController->addService(genericAttributeServiceData);
+#endif          
         
         if (noHeartService == false) {
             serviceHR = leController->addService(serviceDataHR);
@@ -322,14 +375,20 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
         QLowEnergyAdvertisingParameters pars = QLowEnergyAdvertisingParameters();
         if (!bluetooth_relaxed) {
+#if !defined(Q_OS_LINUX) || defined(Q_OS_ANDROID)
             pars.setInterval(100, 100);
-        }
+#endif            
+        }  
 
 #ifdef Q_OS_ANDROID
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                  "startAdvertisingTreadmill",
                                                  "(Landroid/content/Context;)V",
                                                  QtAndroid::androidContext().object());
+
+#elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+        pars.setInterval(30, 50);
+        leController->startAdvertising(pars, advertisingData);
 #else
         leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif
@@ -427,6 +486,11 @@ void virtualtreadmill::reconnect() {
     
     serviceWahoo = leController->addService(serviceDataWahoo);
     QThread::msleep(100);
+
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+    genericAccessServer = leController->addService(genericAccessServerData);
+    genericAttributeService = leController->addService(genericAttributeServiceData);
+#endif      
     
     if (noHeartService == false) {
         serviceHR = leController->addService(serviceDataHR);

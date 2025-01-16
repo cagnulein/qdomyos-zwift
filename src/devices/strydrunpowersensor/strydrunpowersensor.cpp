@@ -520,6 +520,11 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::descriptorWritten, this, &strydrunpowersensor::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &strydrunpowersensor::descriptorRead);
 
+            if(FORERUNNER && s->serviceUuid() != QBluetoothUuid::HeartRate && s->serviceUuid() != QBluetoothUuid::RunningSpeedAndCadence) {
+                qDebug() << "skipping garmin services!" << s->serviceUuid();
+                continue;
+            }
+
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
             auto characteristics_list = s->characteristics();
@@ -664,6 +669,10 @@ void strydrunpowersensor::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        if(bluetoothDevice.name().toUpper().startsWith("FORERUNNER")) {
+            FORERUNNER = true;
+            qDebug() << "FORERUNNER WORKAROUND!";
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &strydrunpowersensor::serviceDiscovered);
