@@ -383,27 +383,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     }
     file.close();
 
-#ifdef _WIN32
-    // Copy temp file contents to Windows handle
-    QFile tempFile(tempPath);
-    if (tempFile.open(QIODevice::ReadOnly)) {
-        QByteArray content = tempFile.readAll();
-        tempFile.close();
-
-        DWORD bytesWritten;
-        WriteFile(
-            fileHandle,
-            content.constData(),
-            content.size(),
-            &bytesWritten,
-            NULL
-            );
-
-        CloseHandle(fileHandle);
-        QFile::remove(tempPath);  // Clean up temp file
-    }
-#endif
-
     printf("Encoded FIT file ExampleActivity.fit.\n");
     return;
 }
