@@ -693,7 +693,7 @@ class Listener : public fit::FileIdMesgListener,
             if (!s.coordinate.isValid()) {
                 s.elevationGain = record.GetAltitude();
             }
-            s.time = QDateTime::fromSecsSinceEpoch(record.GetTimestamp());
+            s.time = QDateTime::fromSecsSinceEpoch(record.GetTimestamp() + 631065600L);
             sessionOpening->append(s);
         }
     }
