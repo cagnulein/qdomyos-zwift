@@ -42,12 +42,12 @@ bool FitDatabaseProcessor::initializeDatabase() {
         return false;
     }
 
-           // Start transaction for table creation
+    // Start transaction for table creation
     db.transaction();
 
     QSqlQuery query(db);
 
-    // Create workouts table
+    // Create workouts table - Only storing summary data
     if (!query.exec("CREATE TABLE IF NOT EXISTS workouts ("
                     "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     "file_hash TEXT UNIQUE,"
@@ -77,41 +77,8 @@ bool FitDatabaseProcessor::initializeDatabase() {
         return false;
     }
 
-           // Create workout_details table for point-by-point data
-    if (!query.exec("CREATE TABLE IF NOT EXISTS workout_details ("
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    "workout_id INTEGER,"
-                    "timestamp DATETIME,"
-                    "elapsed_time INTEGER,"  // in seconds
-                    "distance REAL,"  // in km
-                    "heart_rate INTEGER,"
-                    "cadence INTEGER,"
-                    "speed REAL,"
-                    "power INTEGER,"
-                    "resistance INTEGER,"
-                    "calories INTEGER,"
-                    "stride_length REAL,"
-                    "vertical_oscillation REAL,"
-                    "ground_contact_time INTEGER,"
-                    "elevation REAL,"
-                    "latitude REAL,"
-                    "longitude REAL,"
-                    "elevation_gain REAL,"
-                    "temperature INTEGER,"
-                    "target_cadence REAL,"
-                    "target_power REAL,"
-                    "target_resistance REAL,"
-                    "FOREIGN KEY(workout_id) REFERENCES workouts(id)"
-                    ")")) {
-        db.rollback();
-        emit error("Failed to create workout_details table: " + query.lastError().text());
-        return false;
-    }
-
-           // Create indexes for better performance
+    // Create index for better performance
     query.exec("CREATE INDEX IF NOT EXISTS idx_workout_start_time ON workouts(start_time)");
-    query.exec("CREATE INDEX IF NOT EXISTS idx_workout_details_workout_id ON workout_details(workout_id)");
-    query.exec("CREATE INDEX IF NOT EXISTS idx_workout_details_timestamp ON workout_details(timestamp)");
 
     return db.commit();
 }
@@ -175,7 +142,7 @@ bool FitDatabaseProcessor::saveWorkout(const QString& filePath,
         return false;
     }
 
-           // Calculate aggregate values
+    // Calculate aggregate values
     double totalDistance = session.last().distance - session.first().distance;
     int maxHr = 0, totalHr = 0, hrCount = 0;
     int maxCadence = 0, totalCadence = 0, cadenceCount = 0;
@@ -192,28 +159,28 @@ bool FitDatabaseProcessor::saveWorkout(const QString& filePath,
             hrCount++;
         }
 
-               // Cadence
+        // Cadence
         if (point.cadence > 0) {
             maxCadence = qMax(maxCadence, static_cast<int>(point.cadence));
             totalCadence += point.cadence;
             cadenceCount++;
         }
 
-               // Speed
+        // Speed
         if (point.speed > 0) {
             maxSpeed = qMax(maxSpeed, point.speed);
             totalSpeed += point.speed;
             speedCount++;
         }
 
-               // Power
+        // Power
         if (point.watt > 0) {
             maxPower = qMax(maxPower, static_cast<int>(point.watt));
             totalPower += point.watt;
             powerCount++;
         }
 
-               // Elevation changes
+        // Elevation changes
         if (point.coordinate.isValid()) {
             double currentElevation = point.coordinate.altitude();
             if (lastElevation > 0) {
@@ -266,50 +233,6 @@ bool FitDatabaseProcessor::saveWorkout(const QString& filePath,
     return true;
 }
 
-
-bool FitDatabaseProcessor::saveWorkoutDetails(qint64 workoutId, const QList<SessionLine>& session) {
-    QSqlQuery query(db);
-    query.prepare("INSERT INTO workout_details ("
-                  "workout_id, timestamp, elapsed_time, distance, heart_rate, "
-                  "cadence, speed, power, resistance, calories, stride_length, "
-                  "vertical_oscillation, ground_contact_time, elevation, "
-                  "latitude, longitude, elevation_gain, target_cadence, "
-                  "target_power, target_resistance"
-                  ") VALUES ("
-                  "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
-                  ")");
-
-    for (const SessionLine& point : session) {
-        query.addBindValue(workoutId);
-        query.addBindValue(point.time);
-        query.addBindValue(point.elapsedTime);
-        query.addBindValue(point.distance);
-        query.addBindValue(point.heart);
-        query.addBindValue(point.cadence);
-        query.addBindValue(point.speed);
-        query.addBindValue(point.watt);
-        query.addBindValue(point.resistance);
-        query.addBindValue(point.calories);
-        query.addBindValue(point.instantaneousStrideLengthCM);
-        query.addBindValue(point.verticalOscillationMM);
-        query.addBindValue(point.groundContactMS);
-        query.addBindValue(point.coordinate.isValid() ? point.coordinate.altitude() : 0);
-        query.addBindValue(point.coordinate.isValid() ? point.coordinate.latitude() : 0);
-        query.addBindValue(point.coordinate.isValid() ? point.coordinate.longitude() : 0);
-        query.addBindValue(point.elevationGain);
-        query.addBindValue(point.target_cadence);
-        query.addBindValue(point.target_watt);
-        query.addBindValue(point.target_resistance);
-
-        if (!query.exec()) {
-            emit error("Failed to save workout detail: " + query.lastError().text());
-            return false;
-        }
-    }
-
-    return true;
-}
-
 bool FitDatabaseProcessor::processFitFile(const QString& filePath) {
     if (isFileProcessed(filePath)) {
         return true;
@@ -330,11 +253,6 @@ bool FitDatabaseProcessor::processFitFile(const QString& filePath) {
 
         qint64 workoutId;
         if (!saveWorkout(filePath, session, sport, workoutId)) {
-            db.rollback();
-            return false;
-        }
-
-        if (!saveWorkoutDetails(workoutId, session)) {
             db.rollback();
             return false;
         }

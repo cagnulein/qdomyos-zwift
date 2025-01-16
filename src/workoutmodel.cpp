@@ -7,8 +7,8 @@
 
 WorkoutModel::WorkoutModel(const QString& dbPath, QObject *parent)
     : QAbstractListModel(parent)
-      , m_isLoading(false)
-      , m_dbPath(dbPath)
+    , m_isLoading(false)
+    , m_dbPath(dbPath)
 {
     // Create main database connection
     {
@@ -21,11 +21,11 @@ WorkoutModel::WorkoutModel(const QString& dbPath, QObject *parent)
     }
     m_db = QSqlDatabase::database(FitDatabaseProcessor::DB_CONNECTION_NAME + "_main");
 
-           // Create worker and move to thread
+    // Create worker and move to thread
     m_workerThread = new QThread(this);
     m_worker = new WorkoutLoaderWorker(dbPath);
 
-           // Connect signals/slots
+    // Connect signals/slots
     connect(m_workerThread, &QThread::finished, m_worker, &WorkoutLoaderWorker::cleanup);
     connect(m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
     connect(this, &WorkoutModel::loadWorkoutsRequested, m_worker, &WorkoutLoaderWorker::loadWorkouts);
@@ -70,34 +70,27 @@ bool WorkoutModel::isLoading() const {
 bool WorkoutModel::deleteWorkout(int workoutId) {
     QSqlQuery query(m_db);
 
-    // Start transaction
-    m_db.transaction();
-
-    // First delete workout details
-    query.prepare("DELETE FROM workout_details WHERE workout_id = ?");
+    // Get the file path before deleting
+    query.prepare("SELECT file_path FROM workouts WHERE id = ?");
     query.addBindValue(workoutId);
-
-    if (!query.exec()) {
-        m_db.rollback();
-        qDebug() << "Failed to delete workout details:" << query.lastError().text();
-        return false;
+    QString filePath;
+    if (query.exec() && query.next()) {
+        filePath = query.value("file_path").toString();
     }
 
-    // Then delete the workout
+    // Delete the workout record
     query.prepare("DELETE FROM workouts WHERE id = ?");
     query.addBindValue(workoutId);
 
     if (!query.exec()) {
-        m_db.rollback();
         qDebug() << "Failed to delete workout:" << query.lastError().text();
         return false;
     }
 
-    if (!m_db.commit()) {
-        m_db.rollback();
-        qDebug() << "Failed to commit transaction:" << m_db.lastError().text();
-        return false;
-    }
+    // Optionally, you could also delete the FIT file here if desired
+    // if (!filePath.isEmpty()) {
+    //     QFile::remove(filePath);
+    // }
 
     // Refresh the model
     refresh();
@@ -107,6 +100,7 @@ bool WorkoutModel::deleteWorkout(int workoutId) {
 QVariantMap WorkoutModel::getWorkoutDetails(int workoutId) {
     QVariantMap details;
 
+    // First get the summary data from database
     QSqlQuery query(m_db);
     query.prepare("SELECT * FROM workouts WHERE id = ?");
     query.addBindValue(workoutId);
@@ -116,6 +110,7 @@ QVariantMap WorkoutModel::getWorkoutDetails(int workoutId) {
         return details;
     }
 
+    // Fill in the summary data
     details["id"] = query.value("id");
     details["sport"] = query.value("sport_type");
     details["startTime"] = query.value("start_time").toDateTime().toString("yyyy-MM-dd HH:mm:ss");
@@ -134,32 +129,46 @@ QVariantMap WorkoutModel::getWorkoutDetails(int workoutId) {
     details["totalAscent"] = query.value("total_ascent");
     details["totalDescent"] = query.value("total_descent");
 
-           // Get workout details for charts
-    QSqlQuery detailsQuery(m_db);
-    detailsQuery.prepare("SELECT timestamp, elapsed_time, heart_rate, speed, power, cadence "
-                         "FROM workout_details WHERE workout_id = ? "
-                         "ORDER BY timestamp");
-    detailsQuery.addBindValue(workoutId);
+    // Now load detailed data from the FIT file for charts
+    QString filePath = query.value("file_path").toString();
+    if (QFile::exists(filePath)) {
+        QList<SessionLine> session;
+        FIT_SPORT sport;
+        qfit::open(filePath, &session, &sport);
 
-    if (detailsQuery.exec()) {
-        QVariantList timestamps, heartRates, speeds, power, cadence;
+        if (!session.isEmpty()) {
+            QVariantList timestamps, heartRates, speeds, power, cadence;
 
-        while (detailsQuery.next()) {
-            // Convert elapsed time to minutes for x-axis
-            double minutes = detailsQuery.value("elapsed_time").toDouble() / 60.0;
-            timestamps.append(minutes);
-            heartRates.append(detailsQuery.value("heart_rate"));
-            speeds.append(detailsQuery.value("speed"));
-            power.append(detailsQuery.value("power"));
-            cadence.append(detailsQuery.value("cadence"));
+            // Get first timestamp to calculate relative times
+            qint64 startTime = session.first().time.toSecsSinceEpoch();
+
+            for (const SessionLine& point : session) {
+                // Convert elapsed time to minutes for x-axis
+                double minutes = point.elapsedTime / 60.0;
+                timestamps.append(minutes);
+                heartRates.append(point.heart);
+                speeds.append(point.speed);
+                power.append(point.watt);
+                cadence.append(point.cadence);
+            }
+
+            details["chartData"] = QVariantMap{
+                {"timestamps", timestamps},
+                {"heartRates", heartRates},
+                {"speeds", speeds},
+                {"power", power},
+                {"cadence", cadence}
+            };
         }
-
+    } else {
+        qDebug() << "FIT file not found:" << filePath;
+        // Return empty chart data if file not found
         details["chartData"] = QVariantMap{
-            {"timestamps", timestamps},
-            {"heartRates", heartRates},
-            {"speeds", speeds},
-            {"power", power},
-            {"cadence", cadence}
+            {"timestamps", QVariantList()},
+            {"heartRates", QVariantList()},
+            {"speeds", QVariantList()},
+            {"power", QVariantList()},
+            {"cadence", QVariantList()}
         };
     }
 

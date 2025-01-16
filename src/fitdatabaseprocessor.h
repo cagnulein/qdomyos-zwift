@@ -37,19 +37,18 @@ class FitDatabaseProcessor : public QObject {
     bool isFileProcessed(const QString& filePath);
     QString getFileHash(const QString& filePath);
 
-    // New methods for handling detailed data
+    // Method for handling workout summary data
     bool saveWorkout(const QString& filePath,
                      const QList<SessionLine>& session,
                      FIT_SPORT sport,
                      qint64& workoutId);
-    bool saveWorkoutDetails(qint64 workoutId, const QList<SessionLine>& session);
 
     QThread workerThread;
     QString dbPath;
     QString currentDirPath;
     QAtomicInt stopRequested;
     QMutex mutex;
-    QSqlDatabase db;    
+    QSqlDatabase db;
 };
 
 #endif // FITDATABASEPROCESSOR_H
