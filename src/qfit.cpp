@@ -41,6 +41,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     if (session.isEmpty()) {
         return;
     }
+    std::fstream file;
     uint32_t firstRealIndex = 0;
     for (int i = 0; i < session.length(); i++) {
         if ((session.at(i).speed > 0 && (type == bluetoothdevice::TREADMILL || type == bluetoothdevice::ELLIPTICAL)) ||
@@ -54,11 +55,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         startingDistanceOffset = session.at(firstRealIndex).distance;
     }
 
-    std::fstream file;
 #ifdef _WIN32
     file.open(QString(filename).toLocal8Bit().constData(), std::ios::out | std::ios::binary | std::ios::trunc);
 #else
-    file.open(filename.toStdString(), std::ios::out | std::ios::binary | std::ios::trunc);
+    file.open(filename.toStdString(), std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
 #endif
 
     if (!file.is_open()) {
@@ -620,21 +620,10 @@ class Listener : public fit::FileIdMesgListener,
 };
 
 void qfit::open(const QString &filename, QList<SessionLine> *output) {
+    std::fstream file;
 #ifdef _WIN32
-    // Create temporary file
-    QString tempPath = QDir::tempPath() + "/fit_temp_" + QUuid::createUuid().toString(QUuid::WithoutBraces);
-
-    // Copy original file to temp location
-    QFile originalFile(filename);
-    if (!originalFile.copy(tempPath)) {
-        qDebug() << "Failed to create temporary file";
-        return;
-    }
-
-    std::fstream file;
-    file.open(tempPath.toStdString(), std::ios::in | std::ios::binary);
+    file.open(QString(filename).toLocal8Bit().constData(), std::ios::in | std::ios::binary);
 #else
-    std::fstream file;
     file.open(filename.toStdString(), std::ios::in | std::ios::binary);
 #endif
 
@@ -660,8 +649,4 @@ void qfit::open(const QString &filename, QList<SessionLine> *output) {
     decode.Read(&s, &mesgBroadcaster, &mesgBroadcaster, &listener);
 
     file.close();
-
-#ifdef _WIN32
-    QFile::remove(tempPath);  // Clean up temp file
-#endif
 }
