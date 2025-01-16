@@ -439,15 +439,15 @@ jobs:
           name: linux-desktop-binary
           path: src/qdomyos-zwift         
 
-     # - name: Test
+      - name: Test
         #run: cd tst; GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests; cd ..
 
-  #    - name: Upload test results
-        #uses: actions/upload-artifact@v4
-        #if: failure()
-        #with:
-          #name: test_results_xml
-          #path: tst/test-results/**/*.xml               
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test_results_xml
+          path: tst/test-results/**/*.xml               
 
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
