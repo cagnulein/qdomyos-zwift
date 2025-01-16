@@ -528,7 +528,6 @@ void TemplateInfoSenderBuilder::onGetPreviewSessionArray(TemplateInfoSender *tem
     main[QStringLiteral("content")] = previewSessionArray;
     main[QStringLiteral("msg")] = QStringLiteral("R_getpreviewsessionarray");
     QJsonDocument out(main);
-    qDebug() << main;
     tempSender->send(out.toJson());
 }
 

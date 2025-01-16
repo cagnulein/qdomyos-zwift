@@ -57,7 +57,7 @@ Page {
             delegate: SwipeDelegate {
                 id: swipeDelegate
                 width: ListView.view.width
-                height: 100
+                height: 135
 
                 Component.onCompleted: {
                     console.log("Delegate data:", JSON.stringify({
@@ -118,11 +118,6 @@ Page {
                                 text: getSportIcon(sport)
                                 font.pixelSize: 32
                             }
-                            Text {
-                                text: "Raw sport: " + sport
-                                color: "red"
-                                font.pixelSize: 10
-                            }
                         }
 
                         // Workout info
@@ -150,11 +145,15 @@ Page {
                                 }
 
                                 Text {
-                                    text: "📏 " + distance + " km"
+                                    text: "📏 " + distance.toFixed(2) + " km"
                                 }
+                            }
+
+                            RowLayout {
+                                spacing: 16
 
                                 Text {
-                                    text: "🔥 " + calories + " kcal"
+                                    text: "🔥 " + Math.round(calories) + " kcal"
                                 }
                             }
                         }
