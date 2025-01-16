@@ -573,11 +573,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     }
 
-    QDirIterator itFit(getWritableAppDir(),  QStringList() << ".fit");
+    QDirIterator itFit(getWritableAppDir(), QStringList() << "*.fit", QDir::Files);
+    qDebug() << itFit.path();
     QDir().mkdir(getWritableAppDir() + "fit");
     while (itFit.hasNext()) {
         qDebug() << itFit.filePath() << itFit.fileName() << itFit.filePath().replace(itFit.path(), "");
-        if (!QFile(getWritableAppDir() + itFit.next().replace(itFit.path(), "")).exists() && !itFit.fileName().contains("backup")) {
+        if (!QFile(getWritableAppDir() + "fit/" + itFit.next().replace(itFit.path(), "")).exists() && !itFit.fileName().contains("backup")) {
             if(QFile::copy(itFit.filePath(), getWritableAppDir() + "fit/" + itFit.filePath().replace(itFit.path(), "")))
                 QFile::remove(itFit.filePath());
         }
