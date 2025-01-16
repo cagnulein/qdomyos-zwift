@@ -1,7 +1,7 @@
 include(../defaults.pri)
 QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia
 QTPLUGIN += qavfmediaplayer
-QT+= charts core-private
+QT+= charts core-private sql concurrent
 
 qtHaveModule(httpserver) {
     QT += httpserver
@@ -85,6 +85,7 @@ SOURCES += \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
     $$PWD/devices/technogymbike/technogymbike.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
+    $$PWD/fitdatabaseprocessor.cpp \
     $$PWD/mqtt/qmqttauthenticationproperties.cpp \
     $$PWD/mqtt/qmqttclient.cpp \
     $$PWD/mqtt/qmqttconnection.cpp \
@@ -334,6 +335,7 @@ HEADERS += \
     $$PWD/devices/technogymbike/technogymbike.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/ergtable.h \
+    $$PWD/fitdatabaseprocessor.h \
     $$PWD/mqtt/qmqttauthenticationproperties.h \
     $$PWD/mqtt/qmqttclient.h \
     $$PWD/mqtt/qmqttclient_p.h \

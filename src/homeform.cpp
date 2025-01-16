@@ -8,6 +8,7 @@
 #include <jni.h>
 #include <QAndroidJniObject>
 #endif
+#include "fitdatabaseprocessor.h"
 #include "material.h"
 #include "qfit.h"
 #include "simplecrypt.h"
@@ -607,6 +608,25 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     }
 #endif
+
+    auto processor = new FitDatabaseProcessor(getWritableAppDir() + "ddb.sqlite");
+    connect(processor, &FitDatabaseProcessor::fileProcessed,
+            this, [](const QString& filename) {
+                qDebug() << "FitDatabaseProcessor Processing:" << filename;
+            });
+    connect(processor, &FitDatabaseProcessor::progress,
+            this, [](int processed, int total) {
+                qDebug() << "FitDatabaseProcessor Progress:" << processed << "/" << total;
+            });
+    connect(processor, &FitDatabaseProcessor::error,
+            this, [](const QString& error) {
+                qDebug() << "FitDatabaseProcessor Error:" << error;
+            });
+    connect(processor, &FitDatabaseProcessor::processingStopped,
+            this, []() {
+                qDebug() << "FitDatabaseProcessor Processing stopped";
+            });
+    processor->processDirectory(getWritableAppDir() + "fit");
 
     m_speech.setLocale(QLocale::English);
 
