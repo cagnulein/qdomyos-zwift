@@ -128,7 +128,7 @@ public:
 
 };
 
-//#define ALLDEVICES
+#define ALLDEVICES
 
 #ifdef ALLDEVICES
 
