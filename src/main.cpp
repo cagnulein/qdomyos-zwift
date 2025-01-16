@@ -454,7 +454,7 @@ int main(int argc, char *argv[]) {
         l.append(SessionLine(i%20,i%10,i,i%300,i%10,i%180,i%6,i%120,i,i, d));
     }
     QString path = homeform::getWritableAppDir();
-    qfit::save(QDir::toNativeSeparators(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", l, bluetoothdevice::BIKE));
+    qfit::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", l, bluetoothdevice::BIKE);
     return 0;
 #endif
 
