@@ -6252,7 +6252,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
 void homeform::fitfile_preview_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("fitfile_preview_clicked") << fileName;
 
-    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+    QFile file(getWritableAppDir() + "fit/" + fileName.fileName());
     qDebug() << file.fileName();
 
     if (!file.fileName().isEmpty()) {

@@ -6,7 +6,8 @@ import QtCharts 2.15
 Page {
     id: workoutHistoryPage
 
-    // Il modello viene fornito dal C++ come 'workoutModel'
+    // Signal for chart preview
+    signal fitfile_preview_clicked(var url)
 
     // Sport type to icon mapping
     function getSportIcon(sport) {
@@ -159,13 +160,17 @@ Page {
                         }
                     }
                 }
-/*
+
                 onClicked: {
-                    // Navigate to detail view
-                    stackView.push(workoutDetailComponent, {
-                        workoutData: model
-                    })
-                }*/
+                    // Get workout details from the model
+                    var details = workoutModel.getWorkoutDetails(model.id)
+
+                    // Emit signal with file URL for chart preview
+                    workoutHistoryPage.fitfile_preview_clicked(details.filePath)
+
+                    // Push the ChartJsTest view
+                    stackView.push("ChartJsTest.qml")
+                }
             }
         }
     }

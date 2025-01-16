@@ -110,6 +110,9 @@ QVariantMap WorkoutModel::getWorkoutDetails(int workoutId) {
         return details;
     }
 
+    // Add file path to details
+    details["filePath"] = query.value("file_path");  // Add this line
+
     // Fill in the summary data
     details["id"] = query.value("id");
     details["sport"] = query.value("sport_type");

@@ -126,5 +126,6 @@
         <file>StaticAccordionElement.qml</file>
         <file>inner_templates/chartjs/dotreadmillchartlive.js</file>
         <file>inner_templates/chartjs/treadmillchartlive.htm</file>
+        <file>PreviewChart.qml</file>
     </qresource>
 </RCC>

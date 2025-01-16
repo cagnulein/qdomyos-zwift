@@ -1212,11 +1212,11 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *sessio
         obj.setProperty(QStringLiteral("elapsed_s"), el.second());
         obj.setProperty(QStringLiteral("elapsed_m"), el.minute());
         obj.setProperty(QStringLiteral("elapsed_h"), el.hour());
-        el = device->currentPace();
+        el = QTime();
         obj.setProperty(QStringLiteral("pace_s"), el.second());
         obj.setProperty(QStringLiteral("pace_m"), el.minute());
         obj.setProperty(QStringLiteral("pace_h"), el.hour());
-        el = device->movingTime();
+        el = QTime();
         obj.setProperty(QStringLiteral("moving_s"), el.second());
         obj.setProperty(QStringLiteral("moving_m"), el.minute());
         obj.setProperty(QStringLiteral("moving_h"), el.hour());

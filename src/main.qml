@@ -656,7 +656,7 @@ ApplicationWindow {
                 width: parent.width
                 onClicked: {
                     stackView.push("WorkoutsHistory.qml")
-                    stackView.currentItem.fitfile_preview.connect(fitfile_preview_clicked)
+                    stackView.currentItem.fitfile_preview_clicked.connect(fitfile_preview_clicked)
                     drawer.close()
                 }
             }
