@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <ostream>
+#include <QDir>
 
 #include "QSettings"
 
@@ -13,6 +14,12 @@
 #include "fit_decode.hpp"
 #include "fit_developer_field_description.hpp"
 #include "fit_mesg_broadcaster.hpp"
+
+#ifdef _WIN32
+#include <io.h>
+#include <fcntl.h>
+#include <windows.h>
+#endif
 
 using namespace std;
 
@@ -49,16 +56,16 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         startingDistanceOffset = session.at(firstRealIndex).distance;
     }
 
+#ifdef _WIN32
+    file.open(QString(filename).toLocal8Bit().constData(), std::ios::out | std::ios::binary | std::ios::trunc);
+#else
     file.open(filename.toStdString(), std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
+#endif
 
     if (!file.is_open()) {
-
-        printf("Error opening file ExampleActivity.fit\n");
+        qDebug() << "Error opening file stream";
         return;
     }
-
-    QFile output(filename);
-    output.open(QIODevice::WriteOnly);
 
     fit::FileIdMesg fileIdMesg; // Every FIT file requires a File ID message
     fileIdMesg.SetType(FIT_FILE_ACTIVITY);
@@ -700,7 +707,11 @@ class Listener : public fit::FileIdMesgListener,
 
 void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *sport) {
     std::fstream file;
+#ifdef _WIN32
+    file.open(QString(filename).toLocal8Bit().constData(), std::ios::in | std::ios::binary);
+#else
     file.open(filename.toStdString(), std::ios::in | std::ios::binary);
+#endif
 
     if (!file.is_open()) {
 
@@ -723,4 +734,6 @@ void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *
     mesgBroadcaster.AddListener((fit::RecordMesgListener &)listener);
     mesgBroadcaster.AddListener((fit::MesgListener &)listener);
     decode.Read(&s, &mesgBroadcaster, &mesgBroadcaster, &listener);
+
+    file.close();
 }
