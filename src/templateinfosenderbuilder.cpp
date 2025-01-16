@@ -528,6 +528,7 @@ void TemplateInfoSenderBuilder::onGetPreviewSessionArray(TemplateInfoSender *tem
     main[QStringLiteral("content")] = previewSessionArray;
     main[QStringLiteral("msg")] = QStringLiteral("R_getpreviewsessionarray");
     QJsonDocument out(main);
+    qDebug() << main;
     tempSender->send(out.toJson());
 }
 
@@ -1212,14 +1213,14 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *sessio
         obj.setProperty(QStringLiteral("elapsed_s"), el.second());
         obj.setProperty(QStringLiteral("elapsed_m"), el.minute());
         obj.setProperty(QStringLiteral("elapsed_h"), el.hour());
-        el = QTime();
+        /*el = QTime();
         obj.setProperty(QStringLiteral("pace_s"), el.second());
         obj.setProperty(QStringLiteral("pace_m"), el.minute());
         obj.setProperty(QStringLiteral("pace_h"), el.hour());
         el = QTime();
         obj.setProperty(QStringLiteral("moving_s"), el.second());
         obj.setProperty(QStringLiteral("moving_m"), el.minute());
-        obj.setProperty(QStringLiteral("moving_h"), el.hour());
+        obj.setProperty(QStringLiteral("moving_h"), el.hour());*/
         obj.setProperty(QStringLiteral("speed"), s.speed);
         // obj.setProperty(QStringLiteral("speed_avg"), dep.average());
         obj.setProperty(QStringLiteral("calories"), s.calories);

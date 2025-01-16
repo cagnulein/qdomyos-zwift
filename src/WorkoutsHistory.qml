@@ -169,7 +169,7 @@ Page {
                     workoutHistoryPage.fitfile_preview_clicked(details.filePath)
 
                     // Push the ChartJsTest view
-                    stackView.push("ChartJsTest.qml")
+                    stackView.push("PreviewChart.qml")
                 }
             }
         }

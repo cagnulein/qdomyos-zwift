@@ -694,6 +694,7 @@ class Listener : public fit::FileIdMesgListener,
                 s.elevationGain = record.GetAltitude();
             }
             s.time = QDateTime::fromSecsSinceEpoch(record.GetTimestamp() + 631065600L);
+            s.elapsedTime = (sessionOpening->count() ? sessionOpening->at(0).time : s.time).secsTo(s.time);
             sessionOpening->append(s);
         }
     }
