@@ -54,40 +54,15 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         startingDistanceOffset = session.at(firstRealIndex).distance;
     }
 
+    std::fstream file;
 #ifdef _WIN32
-    // Convert QString to wstring
-    std::wstring wPath = filename.toStdWString();
-
-    // Explicitly open with wide-char Windows API
-    HANDLE fileHandle = CreateFileW(
-        wPath.c_str(),
-        GENERIC_READ | GENERIC_WRITE,
-        0,
-        NULL,
-        CREATE_ALWAYS,
-        FILE_ATTRIBUTE_NORMAL,
-        NULL
-        );
-
-    if (fileHandle == INVALID_HANDLE_VALUE) {
-        qDebug() << "Failed to create file:" << GetLastError();
-        return;
-    }
-
-           // Create temporary file path for std::fstream
-    QString tempPath = QDir::tempPath() + "/fit_temp_" + QUuid::createUuid().toString(QUuid::WithoutBraces);
-    std::fstream file;
-    file.open(tempPath.toStdString(), std::ios::out | std::ios::binary | std::ios::trunc);
+    file.open(QString(filename).toLocal8Bit().constData(), std::ios::out | std::ios::binary | std::ios::trunc);
 #else
-    std::fstream file;
     file.open(filename.toStdString(), std::ios::out | std::ios::binary | std::ios::trunc);
 #endif
 
     if (!file.is_open()) {
         qDebug() << "Error opening file stream";
-#ifdef _WIN32
-        CloseHandle(fileHandle);
-#endif
         return;
     }
 
