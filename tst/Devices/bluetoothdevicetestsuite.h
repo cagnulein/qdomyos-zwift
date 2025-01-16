@@ -128,7 +128,7 @@ public:
 
 };
 
-#define ALLDEVICES
+//#define ALLDEVICES
 
 #ifdef ALLDEVICES
 
@@ -140,7 +140,7 @@ INSTANTIATE_TEST_SUITE_P(AllDevicesDetection, BluetoothDeviceTestSuite,
 // Use this for debugging a single test data set.
 
 INSTANTIATE_TEST_SUITE_P(SelectedDevicesDetection, BluetoothDeviceTestSuite,
-                         testing::Values(DeviceIndex::TacxNeo2Bike),
+                         testing::Values(DeviceIndex::FitPlusF5),
                          [](const testing::TestParamInfo<QString>& item) {return DeviceIndex::Identifier(item.param).toStdString(); });
 #endif
 
