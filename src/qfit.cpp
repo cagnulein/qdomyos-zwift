@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <ostream>
+#include <QDir>
 
 #include "QSettings"
 
@@ -12,6 +13,12 @@
 #include "fit_decode.hpp"
 #include "fit_developer_field_description.hpp"
 #include "fit_mesg_broadcaster.hpp"
+
+#ifdef _WIN32
+#include <io.h>
+#include <fcntl.h>
+#include <windows.h>
+#endif
 
 using namespace std;
 
@@ -34,7 +41,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     if (session.isEmpty()) {
         return;
     }
-    std::fstream file;
     uint32_t firstRealIndex = 0;
     for (int i = 0; i < session.length(); i++) {
         if ((session.at(i).speed > 0 && (type == bluetoothdevice::TREADMILL || type == bluetoothdevice::ELLIPTICAL)) ||
@@ -48,11 +54,40 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         startingDistanceOffset = session.at(firstRealIndex).distance;
     }
 
-    file.open(filename.toStdString(), std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
+#ifdef _WIN32
+    // Convert QString to wstring
+    std::wstring wPath = filename.toStdWString();
+
+    // Explicitly open with wide-char Windows API
+    HANDLE fileHandle = CreateFileW(
+        wPath.c_str(),
+        GENERIC_READ | GENERIC_WRITE,
+        0,
+        NULL,
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+        );
+
+    if (fileHandle == INVALID_HANDLE_VALUE) {
+        qDebug() << "Failed to create file:" << GetLastError();
+        return;
+    }
+
+           // Create temporary file path for std::fstream
+    QString tempPath = QDir::tempPath() + "/fit_temp_" + QUuid::createUuid().toString(QUuid::WithoutBraces);
+    std::fstream file;
+    file.open(tempPath.toStdString(), std::ios::out | std::ios::binary | std::ios::trunc);
+#else
+    std::fstream file;
+    file.open(filename.toStdString(), std::ios::out | std::ios::binary | std::ios::trunc);
+#endif
 
     if (!file.is_open()) {
-
-        printf("Error opening file ExampleActivity.fit\n");
+        qDebug() << "Error opening file stream";
+#ifdef _WIN32
+        CloseHandle(fileHandle);
+#endif
         return;
     }
 
@@ -373,6 +408,27 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     }
     file.close();
 
+#ifdef _WIN32
+    // Copy temp file contents to Windows handle
+    QFile tempFile(tempPath);
+    if (tempFile.open(QIODevice::ReadOnly)) {
+        QByteArray content = tempFile.readAll();
+        tempFile.close();
+
+        DWORD bytesWritten;
+        WriteFile(
+            fileHandle,
+            content.constData(),
+            content.size(),
+            &bytesWritten,
+            NULL
+            );
+
+        CloseHandle(fileHandle);
+        QFile::remove(tempPath);  // Clean up temp file
+    }
+#endif
+
     printf("Encoded FIT file ExampleActivity.fit.\n");
     return;
 }
@@ -610,8 +666,23 @@ class Listener : public fit::FileIdMesgListener,
 };
 
 void qfit::open(const QString &filename, QList<SessionLine> *output) {
+#ifdef _WIN32
+    // Create temporary file
+    QString tempPath = QDir::tempPath() + "/fit_temp_" + QUuid::createUuid().toString(QUuid::WithoutBraces);
+
+    // Copy original file to temp location
+    QFile originalFile(filename);
+    if (!originalFile.copy(tempPath)) {
+        qDebug() << "Failed to create temporary file";
+        return;
+    }
+
     std::fstream file;
-    file.open(filename.toStdString(), std::ios::in);
+    file.open(tempPath.toStdString(), std::ios::in | std::ios::binary);
+#else
+    std::fstream file;
+    file.open(filename.toStdString(), std::ios::in | std::ios::binary);
+#endif
 
     if (!file.is_open()) {
 
@@ -633,4 +704,10 @@ void qfit::open(const QString &filename, QList<SessionLine> *output) {
     mesgBroadcaster.AddListener((fit::RecordMesgListener &)listener);
     mesgBroadcaster.AddListener((fit::MesgListener &)listener);
     decode.Read(&s, &mesgBroadcaster, &mesgBroadcaster, &listener);
+
+    file.close();
+
+#ifdef _WIN32
+    QFile::remove(tempPath);  // Clean up temp file
+#endif
 }
