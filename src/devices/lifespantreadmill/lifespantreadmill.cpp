@@ -297,8 +297,9 @@ void lifespantreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
     if (state == QLowEnergyService::ServiceDiscovered) {
         QBluetoothUuid _gattWriteCharacteristicId((uint16_t)0xfff2);
+        QBluetoothUuid _gattNotifyCharacteristicId((uint16_t)0xfff1);
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
-        gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
+        gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
 
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
                 &lifespantreadmill::characteristicChanged);
@@ -311,7 +312,7 @@ void lifespantreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 &lifespantreadmill::descriptorWritten);
 
         QByteArray descriptor;
-        descriptor.append((char)0x02);
+        descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
             gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
