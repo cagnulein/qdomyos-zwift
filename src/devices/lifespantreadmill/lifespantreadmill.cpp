@@ -52,6 +52,8 @@ void lifespantreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, con
         currentCommand = CommandState::Start;
     } else if (command.startsWith(QByteArray::fromHex("E0"))) {
         currentCommand = CommandState::Stop;
+    } else if (command.startsWith(QByteArray::fromHex("A188"))) {
+        currentCommand = CommandState::QuerySteps;
     }
 
     if (wait_for_response) {
@@ -138,6 +140,10 @@ void lifespantreadmill::changeInclinationRequested(double grade, double percenta
     changeInclination(grade, percentage);
 }
 
+uint32_t lifespantreadmill::GetStepsFromPacket(const QByteArray& packet) {
+    if (packet.length() < 4) return 0;
+    return (packet[2] << 8) | packet[3];
+}
 
 void lifespantreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
@@ -173,6 +179,9 @@ void lifespantreadmill::update() {
         // Query metrics periodically
         uint8_t speedQuery[] = {0xA1, 0x82, 0x00, 0x00, 0x00};
         writeCharacteristic(speedQuery, sizeof(speedQuery), QStringLiteral("query speed"), true, true);
+
+        uint8_t stepQuery[] = {0xA1, 0x88, 0x00, 0x00, 0x00};
+        writeCharacteristic(stepQuery, sizeof(stepQuery), QStringLiteral("query steps"), true, true);
 
         if (requestStart != -1) {
             uint8_t start[] = {0xE1, 0x00, 0x00, 0x00, 0x00};
@@ -217,6 +226,15 @@ void lifespantreadmill::characteristicChanged(const QLowEnergyCharacteristic& ch
         case CommandState::QueryCalories:
             KCal = GetKcalFromPacket(value);
             break;
+        case CommandState::QuerySteps:
+        {
+            uint32_t newSteps = GetStepsFromPacket(value);
+            if (uint32_t(StepCount.value()) != newSteps) {
+                StepCount = newSteps;
+                emit debug(QStringLiteral("Current steps: ") + QString::number(StepCount.value()));
+            }
+        }
+        break;
         default:
             break;
     }
