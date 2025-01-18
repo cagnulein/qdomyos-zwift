@@ -83,7 +83,8 @@ void cycleopsphantombike::forceInclination(double inclination) {
     QSettings settings;
 
     // weight = kg * 100, grade = % * 10
-    setControlMode(ControlMode::ManualSlope, settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 100.0, inclination * 10.0);
+    // trying without the *10 since the OP is saying it's too hard
+    setControlMode(ControlMode::ManualSlope, settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 100.0, inclination);
 }
 
 void cycleopsphantombike::update() {
