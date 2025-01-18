@@ -303,6 +303,7 @@ class bluetooth : public QObject, public SignalHandler {
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bool forceHeartBeltOffForTimeout = false;
+    bool scanningAfterFirstConnection = false;
 
     /**
      * @brief Start the Bluetooth discovery agent.
@@ -369,6 +370,7 @@ class bluetooth : public QObject, public SignalHandler {
     void gearUp();
     void gearFailedDown();
     void gearFailedUp();
+    void requestedDiscovery();
 
   signals:
 };

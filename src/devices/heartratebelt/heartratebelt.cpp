@@ -108,9 +108,17 @@ void heartratebelt::errorService(QLowEnergyService::ServiceError err) {
 }
 
 void heartratebelt::error(QLowEnergyController::Error err) {
+    static QDateTime lastTime = QDateTime::currentDateTime();
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     emit debug(QStringLiteral("heartratebelt::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
-               m_control->errorString());
+               m_control->errorString() + " " + m_control->state());
+    if(m_control && m_control->state() == QLowEnergyController::UnconnectedState) {
+        if(lastTime.secsTo(QDateTime::currentDateTime()) > 5) {
+            lastTime = QDateTime::currentDateTime();
+            emit requestDiscovery();
+            m_control->connectToDevice();
+        }
+    }
 }
 
 void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device) {

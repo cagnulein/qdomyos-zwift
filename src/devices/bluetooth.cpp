@@ -127,6 +127,11 @@ void bluetooth::finished() {
         deviceDiscovered(QBluetoothDeviceInfo());
     }
 
+    if(scanningAfterFirstConnection) {
+        this->startDiscovery();
+        return;
+    }
+
     if (device()) {
         qDebug() << QStringLiteral("bluetooth::finished but discoveryAgent is not active");
         return;
@@ -2623,6 +2628,7 @@ void bluetooth::connectedAndDiscovered() {
 
                 connect(heartRateBelt, &heartratebelt::debug, this, &bluetooth::debug);
                 connect(heartRateBelt, &heartratebelt::heartRate, this->device(), &bluetoothdevice::heartRate);
+                connect(heartRateBelt, &heartratebelt::requestDiscovery, this, &bluetooth::requestedDiscovery);
                 heartRateBelt->deviceDiscovered(b);
                 if(homeform::singleton())
                     homeform::singleton()->setToastRequested(b.name() + " (HR sensor) connected!");
@@ -3951,3 +3957,10 @@ void bluetooth::deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDevi
     debug("deviceUpdated " + device.name() + " " + updateFields);
 }
 #endif
+
+void bluetooth::requestedDiscovery() {
+    scanningAfterFirstConnection = true;
+    if(!discoveryAgent->isActive()) {
+        this->startDiscovery();
+    }
+}
