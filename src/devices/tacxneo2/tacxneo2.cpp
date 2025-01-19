@@ -740,6 +740,12 @@ void tacxneo2::stateChanged(QLowEnergyService::ServiceState state) {
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
+            if(s->serviceUuid() == QBluetoothUuid(QStringLiteral("fe03a000-17d0-470a-8798-4ad3e1c1f35b")) || 
+                s->serviceUuid() == QBluetoothUuid(QStringLiteral("fe031000-17d0-470a-8798-4ad3e1c1f35b"))) {
+                qDebug() << "skipping service" << s->serviceUuid();
+                continue;
+            }
+
             auto characteristics = s->characteristics();
             for (const QLowEnergyCharacteristic &c : characteristics) {
                 qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
