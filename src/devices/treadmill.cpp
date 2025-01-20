@@ -74,6 +74,7 @@ void treadmill::update_metrics(bool watt_calc, const double watts) {
         settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
 
     simulateInclinationWithSpeed();
+    followPowerBySpeed();
 
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
@@ -475,6 +476,41 @@ bool treadmill::simulateInclinationWithSpeed() {
     }
     return false;
 }
+
+bool treadmill::followPowerBySpeed() {
+    QSettings settings;
+    bool treadmill_follow_wattage =
+        settings
+            .value(QZSettings::treadmill_follow_wattage,
+                   QZSettings::default_treadmill_follow_wattage)
+            .toBool();
+    double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    if (treadmill_follow_wattage) {
+        static double lastInclination = 0;
+        static double lastWattage = 0;
+
+        if (currentInclination().value() != lastInclination && lastWattage != 0) {
+            double newspeed = 0;
+            double bestSpeed = 0.1;
+            double bestDifference = fabs(wattsCalc(w, bestSpeed, currentInclination().value()) - lastWattage);
+            for (int speed = 1; speed <= 300; speed++) {
+                double s = ((double)speed) / 10.0;
+                double thisDifference = fabs(wattsCalc(w, s, currentInclination().value()) - lastWattage);
+                if (thisDifference < bestDifference) {
+                    bestDifference = thisDifference;
+                    bestSpeed = s;
+                }
+            }
+            // Now bestSpeed is the speed closest to the desired wattage
+            newspeed = bestSpeed;
+            qDebug() << QStringLiteral("changing speed to") << newspeed << "due to inclination changed";
+            changeSpeedAndInclination(newspeed, currentInclination().value());
+            return true;
+        }
+    }
+    return false;
+}
+
 
 QTime treadmill::lastRequestedPace() {
     QSettings settings;

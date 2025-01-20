@@ -1046,6 +1046,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.18
             property bool tile_biggears_swap: false
+            property bool treadmill_follow_wattage: false
         }
 
         function paddingZeros(text, limit) {
@@ -5266,6 +5267,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Treadmill only: enabling this if you want that QZ will stop the tape at the end of the current train program.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }                    
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Treadmill Auto-adjust speed by power")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_follow_wattage
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_follow_wattage = checked
+                    }
+
+                    Label {
+                        text: qsTr("Treadmill only: Automatically adjusts speed to maintain consistent power output. Speed adjustments occur on incline changes and adapt to manual speed modifications.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
