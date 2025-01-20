@@ -4358,17 +4358,23 @@ void homeform::update() {
                     this->pace->setValueFontColor(QStringLiteral("red"));
                 }
             } else {
-                if (bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed &&
-                    bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
+                // Round speeds to 1 decimal place before comparison to avoid overly strict matching
+                double currentSpeed = round(bluetoothManager->device()->currentSpeed().value() * 10.0) / 10.0;
+                double upperSpeed = round(trainProgram->currentRow().upper_speed * 10.0) / 10.0;
+                double lowerSpeed = round(trainProgram->currentRow().lower_speed * 10.0) / 10.0;
+
+                // Check if speed is in target zone (green)
+                if (currentSpeed <= upperSpeed && currentSpeed >= lowerSpeed) {
                     this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
                     this->pace->setValueFontColor(QStringLiteral("limegreen"));
-                } else if (bluetoothManager->device()->currentSpeed().value() <=
-                                (trainProgram->currentRow().upper_speed + 0.2) &&
-                            bluetoothManager->device()->currentSpeed().value() >=
-                                (trainProgram->currentRow().lower_speed - 0.2)) {
+                }
+                // Check if speed is close to target zone (orange)
+                else if (currentSpeed <= (upperSpeed + 0.2) && currentSpeed >= (lowerSpeed - 0.2)) {
                     this->target_zone->setValueFontColor(QStringLiteral("orange"));
                     this->pace->setValueFontColor(QStringLiteral("orange"));
-                } else {
+                }
+                // Speed is out of range (red)
+                else {
                     this->target_zone->setValueFontColor(QStringLiteral("red"));
                     this->pace->setValueFontColor(QStringLiteral("red"));
                 }
