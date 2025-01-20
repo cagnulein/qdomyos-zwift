@@ -11,34 +11,37 @@ ColumnLayout {
     property alias textFontSize: accordionText.font.pixelSize
     property alias indicatRectColor: indicatRect.color
     default property alias accordionContent: contentLoader.sourceComponent
-    spacing: 0
 
-    Layout.fillWidth: true;
+    // Signal emitted when content becomes visible
+    signal contentBecameVisible()
+
+    spacing: 0
+    Layout.fillWidth: true
 
     Rectangle {
         id: accordionHeader
         color: "red"
         Layout.alignment: Qt.AlignTop
-        Layout.fillWidth: true;
+        Layout.fillWidth: true
         height: 48
 
-        Rectangle{
-           id:indicatRect
-           x: 16; y: 20
-           width: 8; height: 8
-           radius: 8
-           color: "white"
+        Rectangle {
+            id: indicatRect
+            x: 16; y: 20
+            width: 8; height: 8
+            radius: 8
+            color: "white"
         }
 
         Text {
             id: accordionText
-            x:34;y:13
+            x: 34; y: 13
             color: "#FFFFFF"
             text: rootElement.title
         }
 
         Image {
-            y:13
+            y: 13
             anchors.right: parent.right
             anchors.rightMargin: 20
             width: 30; height: 30
@@ -60,18 +63,34 @@ ColumnLayout {
         }
     }
 
-    // Lazy loading implementation using Loader
+    // Loader with enhanced visibility handling
     Loader {
         id: contentLoader
         active: rootElement.isOpen
-        visible: rootElement.isOpen
+        visible: false // Start invisible
         Layout.fillWidth: true
+        asynchronous: false
 
-        // Wrap the content in a ColumnLayout to maintain the original layout behavior
         onLoaded: {
             if (item) {
                 item.Layout.fillWidth = true
+                visible = true
+                rootElement.contentBecameVisible()
             }
+        }
+
+        // Handle visibility changes
+        onVisibleChanged: {
+            if (visible && status === Loader.Ready) {
+                rootElement.contentBecameVisible()
+            }
+        }
+    }
+
+    // Handle accordion closing
+    onIsOpenChanged: {
+        if (!isOpen) {
+            contentLoader.visible = false
         }
     }
 }

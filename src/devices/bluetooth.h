@@ -37,6 +37,7 @@
 #include "devices/concept2skierg/concept2skierg.h"
 #include "devices/crossrope/crossrope.h"
 #include "devices/cscbike/cscbike.h"
+#include "devices/cycleopsphantombike/cycleopsphantombike.h"
 #include "devices/deeruntreadmill/deerruntreadmill.h"
 #include "devices/domyosbike/domyosbike.h"
 #include "devices/domyoselliptical/domyoselliptical.h"
@@ -72,6 +73,7 @@
 #include "devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h"
 #include "devices/kingsmithr2treadmill/kingsmithr2treadmill.h"
 #include "devices/lifefitnesstreadmill/lifefitnesstreadmill.h"
+#include "devices/lifespantreadmill/lifespantreadmill.h"
 #include "devices/m3ibike/m3ibike.h"
 #include "devices/mcfbike/mcfbike.h"
 #include "devices/mepanelbike/mepanelbike.h"
@@ -185,6 +187,7 @@ class bluetooth : public QObject, public SignalHandler {
     csafeelliptical *csafeElliptical = nullptr;
 #endif
     concept2skierg *concept2Skierg = nullptr;
+    cycleopsphantombike *cycleopsphantomBike = nullptr;
     deerruntreadmill *deerrunTreadmill = nullptr;
     domyostreadmill *domyos = nullptr;
     domyosbike *domyosBike = nullptr;
@@ -254,6 +257,7 @@ class bluetooth : public QObject, public SignalHandler {
     smartrowrower *smartrowRower = nullptr;
     echelonstride *echelonStride = nullptr;
     lifefitnesstreadmill *lifefitnessTreadmill = nullptr;
+    lifespantreadmill *lifespanTreadmill = nullptr;
     keepbike *keepBike = nullptr;
     kingsmithr1protreadmill *kingsmithR1ProTreadmill = nullptr;
     kingsmithr2treadmill *kingsmithR2Treadmill = nullptr;

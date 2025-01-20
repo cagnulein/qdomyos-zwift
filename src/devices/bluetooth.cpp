@@ -1509,6 +1509,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
 #endif
             } else if ((b.name().toUpper().startsWith("TACX ") ||
+                        b.name().toUpper().startsWith("NEO 3M ") ||
                         b.name().toUpper().startsWith(QStringLiteral("THINK X")) ||
                         b.address() == QBluetoothAddress("C1:14:D9:9C:FB:01") || // specific TACX NEO 2 #1707
                         (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
@@ -1526,6 +1527,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(tacxneo2Bike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 tacxneo2Bike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(tacxneo2Bike);
+            } else if ((b.name().toUpper().startsWith("INDOORCYCLE")) &&
+                       !cycleopsphantomBike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                cycleopsphantomBike = new cycleopsphantombike(noWriteResistance, noHeartService);
+                // stateFileRead();
+                emit(deviceConnected(b));
+                connect(cycleopsphantomBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                // connect(cycleopsphantomBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(cycleopsphantomBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                // connect(cycleopsphantomBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // connect(cycleopsphantomBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                cycleopsphantomBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(cycleopsphantomBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral(">CABLE")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("MD")) && b.name().length() == 7) ||
                         // BIKE 1, BIKE 2, BIKE 3...
@@ -1610,8 +1625,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("NEO BIKE SMART")) ||
                         (b.name().toUpper().startsWith("ZDRIVE")) ||
                         (b.name().toUpper().startsWith("JFBK5.0")) ||
+                        (b.name().toUpper().startsWith("JFBK7.0")) ||
+                        (b.name().toUpper().startsWith("SPEEDRACEX")) ||
                         (b.name().toUpper().startsWith("POOBOO")) ||
                         (b.name().toUpper().startsWith("ZYCLE ZPRO")) ||
+                        (b.name().toUpper().startsWith("SM720I")) ||
                         (b.name().toUpper().startsWith("T300P_")) ||
                         (b.name().toUpper().startsWith("T200_")) ||
                         (b.name().toUpper().startsWith("VFSPINBIKE")) ||
@@ -1834,6 +1852,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(ziproTreadmill, &ziprotreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
                 ziproTreadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(ziproTreadmill);
+            } else if ((b.name().toUpper().startsWith(QLatin1String("LIFESPAN-TM"))) && !lifespanTreadmill && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                lifespanTreadmill = new lifespantreadmill(this->pollDeviceTime, noConsole, noHeartService);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(lifespanTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(ziproTreadmill, SIGNAL(disconnected()), this, SLOT(restart())); connect(echelonStride,
+                connect(lifespanTreadmill, &lifespantreadmill::debug, this, &bluetooth::debug);
+                connect(lifespanTreadmill, &lifespantreadmill::speedChanged, this, &bluetooth::speedChanged);
+                connect(lifespanTreadmill, &lifespantreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
+                lifespanTreadmill->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(lifespanTreadmill);
             } else if ((b.name().startsWith(QStringLiteral("ECH-ROW")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROWSPORT")) ||
                         b.name().startsWith(QStringLiteral("ROW-S"))) &&
@@ -1852,7 +1884,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(echelonRower, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 echelonRower->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(echelonRower);
-            } else if (b.name().startsWith(QStringLiteral("ECH")) && !echelonRower && !echelonStride &&
+            } else if (b.name().startsWith(QStringLiteral("ECH")) && !echelonRower && !echelonStride && !ftmsBike &&
                        !echelonConnectSport && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -3188,6 +3220,11 @@ void bluetooth::restart() {
         delete tacxneo2Bike;
         tacxneo2Bike = nullptr;
     }
+    if (cycleopsphantomBike) {
+
+        delete cycleopsphantomBike;
+        cycleopsphantomBike = nullptr;
+    }
     if (stagesBike) {
 
         delete stagesBike;
@@ -3283,6 +3320,10 @@ void bluetooth::restart() {
 
         delete ziproTreadmill;
         ziproTreadmill = nullptr;
+    }
+    if (lifespanTreadmill) {
+        delete lifespanTreadmill;
+        lifespanTreadmill = nullptr;
     }
     if (octaneElliptical) {
 
@@ -3626,6 +3667,8 @@ bluetoothdevice *bluetooth::device() {
         return npeCableBike;
     } else if (tacxneo2Bike) {
         return tacxneo2Bike;
+    } else if (cycleopsphantomBike) {
+        return cycleopsphantomBike;
     } else if (stagesBike) {
         return stagesBike;
     } else if (toorx) {
@@ -3688,6 +3731,8 @@ bluetoothdevice *bluetooth::device() {
         return octaneTreadmill;
     } else if (ziproTreadmill) {
         return ziproTreadmill;
+    } else if (lifespanTreadmill) {
+        return lifespanTreadmill;
     } else if (octaneElliptical) {
         return octaneElliptical;
     } else if (ftmsRower) {

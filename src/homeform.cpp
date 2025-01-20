@@ -1904,13 +1904,13 @@ void homeform::sortTiles() {
             }
 
             if (settings.value(QZSettings::tile_biggears_enabled, false).toBool() &&
-                settings.value(QZSettings::tile_biggears_order, 54).toInt() == i) {
+                settings.value(QZSettings::tile_biggears_order, 54).toInt() == i + (settings.value(QZSettings::tile_biggears_swap, QZSettings::default_tile_biggears_swap).toBool() ? 1 : 0)) {
                 biggearsPlus->setGridId(i);
                 dataList.append(biggearsPlus);
             }
 
             if (settings.value(QZSettings::tile_biggears_enabled, false).toBool() &&
-                settings.value(QZSettings::tile_biggears_order, 54).toInt() + 1 == i) {
+                settings.value(QZSettings::tile_biggears_order, 54).toInt() == i + (settings.value(QZSettings::tile_biggears_swap, QZSettings::default_tile_biggears_swap).toBool() ? 0 : 1)) {
                 biggearsMinus->setGridId(i);
                 dataList.append(biggearsMinus);
             }
@@ -4358,17 +4358,23 @@ void homeform::update() {
                     this->pace->setValueFontColor(QStringLiteral("red"));
                 }
             } else {
-                if (bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed &&
-                    bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
+                // Round speeds to 1 decimal place before comparison to avoid overly strict matching
+                double currentSpeed = round(bluetoothManager->device()->currentSpeed().value() * 10.0) / 10.0;
+                double upperSpeed = round(trainProgram->currentRow().upper_speed * 10.0) / 10.0;
+                double lowerSpeed = round(trainProgram->currentRow().lower_speed * 10.0) / 10.0;
+
+                // Check if speed is in target zone (green)
+                if (currentSpeed <= upperSpeed && currentSpeed >= lowerSpeed) {
                     this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
                     this->pace->setValueFontColor(QStringLiteral("limegreen"));
-                } else if (bluetoothManager->device()->currentSpeed().value() <=
-                                (trainProgram->currentRow().upper_speed + 0.2) &&
-                            bluetoothManager->device()->currentSpeed().value() >=
-                                (trainProgram->currentRow().lower_speed - 0.2)) {
+                }
+                // Check if speed is close to target zone (orange)
+                else if (currentSpeed <= (upperSpeed + 0.2) && currentSpeed >= (lowerSpeed - 0.2)) {
                     this->target_zone->setValueFontColor(QStringLiteral("orange"));
                     this->pace->setValueFontColor(QStringLiteral("orange"));
-                } else {
+                }
+                // Speed is out of range (red)
+                else {
                     this->target_zone->setValueFontColor(QStringLiteral("red"));
                     this->pace->setValueFontColor(QStringLiteral("red"));
                 }
@@ -4404,7 +4410,7 @@ void homeform::update() {
             if (trainProgram) {
                 // in order to see the target pace of a peloton workout even if the speed force for treadmill is disabled
                 this->target_pace->setValue(
-                            ((treadmill *)bluetoothManager->device())->speedToPace(trainProgram->currentRow().lower_speed).toString(QStringLiteral("m:ss")));
+                            ((treadmill *)bluetoothManager->device())->speedToPace(trainProgram->currentRow().speed).toString(QStringLiteral("m:ss")));
                 this->target_pace->setSecondLine(((treadmill *)bluetoothManager->device())
                                                      ->speedToPace(trainProgram->currentRow().lower_speed)
                                                      .toString(QStringLiteral("m:ss")) +

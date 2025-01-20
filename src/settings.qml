@@ -1037,6 +1037,16 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.14
             property bool proform_treadmill_1500_pro: false
+
+            // from version 2.18.15
+            property bool proform_505_cst_80_44: false
+
+            // from version 2.18.16
+            property bool proform_trainer_8_0: false
+
+            // from version 2.18.18
+            property bool tile_biggears_swap: false
+            property bool treadmill_follow_wattage: false
         }
 
         function paddingZeros(text, limit) {
@@ -3246,6 +3256,8 @@ import QtQuick.Dialogs 1.0
                             ComboBox {
                                 Layout.fillWidth: true
                                 id: bikeModelComboBox
+                                property bool initialized: false
+
                                 model: [
                                     "Other",
                                     "Tour de France CLC",
@@ -3265,10 +3277,50 @@ import QtQuick.Dialogs 1.0
                                     "Nordictrack GX 4.4 Pro"
                                 ]
 
+                                // Initialize when the accordion content becomes visible
+                                Connections {
+                                    target: parent.parent  // Connect to the AccordionElement
+                                    function onContentBecameVisible() {
+                                        if (!bikeModelComboBox.initialized) {
+                                            bikeModelComboBox.initializeModel();
+                                        }
+                                    }
+                                }
+
+                                function initializeModel() {
+                                    if (initialized) return;
+
+                                    console.log("Initializing bike model ComboBox");
+
+                                    var selectedModel = settings.proform_tour_de_france_clc ? 1 :
+                                                    settings.proform_studio ? 2 :
+                                                    settings.proform_studio_NTEX71021 ? 3 :
+                                                    settings.freemotion_coachbike_b22_7 ? 4 :
+                                                    settings.proform_tdf_10 ? 5 :
+                                                    settings.proform_bike_PFEVEX71316_1 ? 6 :
+                                                    settings.proform_tdf_10_0 ? 7 :
+                                                    settings.nordictrack_gx_2_7 ? 8 :
+                                                    settings.nordictrack_GX4_5_bike ? 9 :
+                                                    settings.proform_cycle_trainer_300_ci ? 10 :
+                                                    settings.proform_cycle_trainer_400 ? 11 :
+                                                    settings.proform_bike_225_csx ? 12 :
+                                                    settings.proform_bike_325_csx ? 13 :
+                                                    settings.proform_bike_sb ? 14 :
+                                                    settings.nordictrack_gx_44_pro ? 15 : 0;
+
+                                    console.log("bikeModelComboBox selected model: " + selectedModel);
+                                    if (selectedModel >= 0) {
+                                        currentIndex = selectedModel;
+                                    }
+                                    initialized = true;
+                                }
+
                                 onCurrentIndexChanged: {
+                                    if (!initialized) return;
+
                                     console.log("bikeModelComboBox onCurrentIndexChanged " + currentIndex);
 
-                                    // Reset all settings
+                                    // Reset all settings first
                                     settings.proform_tour_de_france_clc = false;
                                     settings.proform_studio = false;
                                     settings.proform_studio_NTEX71021 = false;
@@ -3305,27 +3357,6 @@ import QtQuick.Dialogs 1.0
                                     }
 
                                     window.settings_restart_to_apply = true;
-                                }
-
-                                Component.onCompleted: {
-                                    var selectedModel = settings.proform_tour_de_france_clc ? 1 :
-                                                    settings.proform_studio ? 2 :
-                                                    settings.proform_studio_NTEX71021 ? 3 :
-                                                    settings.freemotion_coachbike_b22_7 ? 4 :
-                                                    settings.proform_tdf_10 ? 5 :
-                                                    settings.proform_bike_PFEVEX71316_1 ? 6 :
-                                                    settings.proform_tdf_10_0 ? 7 :
-                                                    settings.nordictrack_gx_2_7 ? 8 :
-                                                    settings.nordictrack_GX4_5_bike ? 9 :
-                                                    settings.proform_cycle_trainer_300_ci ? 10 :
-                                                    settings.proform_cycle_trainer_400 ? 11 :
-                                                    settings.proform_bike_225_csx ? 12 :
-                                                    settings.proform_bike_325_csx ? 13 :
-                                                    settings.proform_bike_sb ? 14 :
-                                                    settings.nordictrack_gx_44_pro ? 15 : 0;
-
-                                    console.log("bikeModelComboBox " + "Component.onCompleted " + selectedModel);
-                                    currentIndex = selectedModel;
                                 }
                             }
 
@@ -5245,6 +5276,33 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }                    
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Treadmill Auto-adjust speed by power")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_follow_wattage
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_follow_wattage = checked
+                    }
+
+                    Label {
+                        text: qsTr("Treadmill only: Automatically adjusts speed to maintain consistent power output. Speed adjustments occur on incline changes and adapt to manual speed modifications.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     RowLayout {
@@ -6199,29 +6257,133 @@ import QtQuick.Dialogs 1.0
                                 text: qsTr("Specific Model:")
                                 Layout.fillWidth: true
                             }
+
                             ComboBox {
                                 Layout.fillWidth: true
                                 id: treadmillModelComboBox
+                                property bool initialized: false
+
                                 model: [
-                                    "Nordictrack S25", "Nordictrack S25i", "Nordictrack Incline Trainer x7i",
-                                    "NordicTrack X22i", "Nordictrack 10", "Nordictrack T8.5s",
-                                    "Proform 2000 (not pro)", "Proform 505 CST", "Proform 8.5",
-                                    "Proform Sport 8.5", "Proform Pro 1000", "Nordictrack L6.0S",
-                                    "Nordictrack T6.5S v81", "Nordictrack T6.5S v83", "Nordictrack T7.0",
-                                    "Nordictrack S20", "Nordictrack S30", "Proform 1800i",
-                                    "Proform/NordicTrack z1300i", "Proform SE", "Proform Cadence LT",
-                                    "Proform 8.0", "Proform 9.0", "Proform 705 CST", "Nordictrack x14i", 
-                                    "Proform Carbon TL", "Proform Proshox 2", "Nordictrack S20i", "Proform 595i",
-                                    "Proform 8.7", "Proform 705 CST V78.239", "Proform Carbon T7",
-                                    "Nordictrack EXP 5i", "Proform Carbon TL PFTL59720", "Proform Sport 7.0", "Proform 575i",
-                                    "Proform Performance 400i", "Proform C700", "Proform C960i", "Nordictrack T Series 5",
-                                    "Proform Carbon TL PFTL59722c", "Proform 1500 Pro"
+                                    "Other",
+                                    "Nordictrack S25",
+                                    "Nordictrack S25i",
+                                    "Nordictrack Incline Trainer x7i",
+                                    "NordicTrack X22i",
+                                    "Nordictrack 10",
+                                    "Nordictrack T8.5s",
+                                    "Proform 2000 (not pro)",
+                                    "Proform 505 CST",
+                                    "Proform 8.5",
+                                    "Proform Sport 8.5",
+                                    "Proform Pro 1000",
+                                    "Nordictrack L6.0S",
+                                    "Nordictrack T6.5S v81",
+                                    "Nordictrack T6.5S v83",
+                                    "Nordictrack T7.0",
+                                    "Nordictrack S20",
+                                    "Nordictrack S30",
+                                    "Proform 1800i",
+                                    "Proform/NordicTrack z1300i",
+                                    "Proform SE",
+                                    "Proform Cadence LT",
+                                    "Proform 8.0",
+                                    "Proform 9.0",
+                                    "Proform 705 CST",
+                                    "Nordictrack x14i",
+                                    "Proform Carbon TL",
+                                    "Proform Proshox 2",
+                                    "Nordictrack S20i",
+                                    "Proform 595i",
+                                    "Proform 8.7",
+                                    "Proform 705 CST V78.239",
+                                    "Proform Carbon T7",
+                                    "Nordictrack EXP 5i",
+                                    "Proform Carbon TL PFTL59720",
+                                    "Proform Sport 7.0",
+                                    "Proform 575i",
+                                    "Proform Performance 400i",
+                                    "Proform C700",
+                                    "Proform C960i",
+                                    "Nordictrack T Series 5",
+                                    "Proform Carbon TL PFTL59722c",
+                                    "Proform 1500 Pro",
+                                    "Proform 505 CST v.80.44",
+                                    "Proform Trainer 8.0"
                                 ]
 
+                                // Initialize when the accordion content becomes visible
+                                Connections {
+                                    target: parent.parent  // Connect to the AccordionElement
+                                    function onContentBecameVisible() {
+                                        if (!treadmillModelComboBox.initialized) {
+                                            treadmillModelComboBox.initializeModel();
+                                        }
+                                    }
+                                }
+
+                                function initializeModel() {
+                                    if (initialized) return;
+
+                                    console.log("Initializing treadmill model ComboBox");
+
+                                    var selectedModel = settings.norditrack_s25_treadmill ? 1 :
+                                                    settings.norditrack_s25i_treadmill ? 2 :
+                                                    settings.nordictrack_incline_trainer_x7i ? 3 :
+                                                    settings.nordictrack_x22i ? 4 :
+                                                    settings.nordictrack_10_treadmill ? 5 :
+                                                    settings.nordictrack_treadmill_t8_5s ? 6 :
+                                                    settings.proform_2000_treadmill ? 7 :
+                                                    settings.proform_treadmill_505_cst ? 8 :
+                                                    settings.proform_8_5_treadmill ? 9 :
+                                                    settings.proform_treadmill_sport_8_5 ? 10 :
+                                                    settings.proform_pro_1000_treadmill ? 11 :
+                                                    settings.proform_treadmill_l6_0s ? 12 :
+                                                    settings.nordictrack_t65s_treadmill ? 13 :
+                                                    settings.nordictrack_t65s_83_treadmill ? 14 :
+                                                    settings.nordictrack_t70_treadmill ? 15 :
+                                                    settings.nordictrack_s20_treadmill ? 16 :
+                                                    settings.nordictrack_s30_treadmill ? 17 :
+                                                    settings.proform_treadmill_1800i ? 18 :
+                                                    settings.proform_treadmill_z1300i ? 19 :
+                                                    settings.proform_treadmill_se ? 20 :
+                                                    settings.proform_treadmill_cadence_lt ? 21 :
+                                                    settings.proform_treadmill_8_0 ? 22 :
+                                                    settings.proform_treadmill_9_0 ? 23 :
+                                                    settings.proform_treadmill_705_cst ? 24 :
+                                                    settings.nordictrack_treadmill_x14i ? 25 :
+                                                    settings.proform_carbon_tl ? 26 :
+                                                    settings.proform_proshox2 ? 27 :
+                                                    settings.nordictrack_s20i_treadmill ? 28 :
+                                                    settings.proform_595i_proshox2 ? 29 :
+                                                    settings.proform_treadmill_8_7 ? 30 :
+                                                    settings.proform_treadmill_705_cst_V78_239 ? 31 :
+                                                    settings.proform_treadmill_carbon_t7 ? 32 :
+                                                    settings.nordictrack_treadmill_exp_5i ? 33 :
+                                                    settings.proform_carbon_tl_PFTL59720 ? 34 :
+                                                    settings.proform_treadmill_sport_70 ? 35 :
+                                                    settings.proform_treadmill_575i ? 36 :
+                                                    settings.proform_performance_400i ? 37 :
+                                                    settings.proform_treadmill_c700 ? 38 :
+                                                    settings.proform_treadmill_c960i ? 39 :
+                                                    settings.nordictrack_tseries5_treadmill ? 40 :
+                                                    settings.proform_carbon_tl_PFTL59722c ? 41 :
+                                                    settings.proform_treadmill_1500_pro ? 42 :
+                                                    settings.proform_505_cst_80_44 ? 43 :
+                                                    settings.proform_trainer_8_0 ? 44 : 0;
+
+                                    console.log("treadmillModelComboBox selected model: " + selectedModel);
+                                    if (selectedModel >= 0) {
+                                        currentIndex = selectedModel;
+                                    }
+                                    initialized = true;
+                                }
+
                                 onCurrentIndexChanged: {
+                                    if (!initialized) return;
+
                                     console.log("treadmillModelComboBox onCurrentIndexChanged " + currentIndex);
 
-                                    // Resetta tutti i settings
+                                    // Reset all settings
                                     settings.norditrack_s25_treadmill = false;
                                     settings.norditrack_s25i_treadmill = false;
                                     settings.nordictrack_incline_trainer_x7i = false;
@@ -6264,104 +6426,58 @@ import QtQuick.Dialogs 1.0
                                     settings.nordictrack_tseries5_treadmill = false;
                                     settings.proform_carbon_tl_PFTL59722c = false;
                                     settings.proform_treadmill_1500_pro = false;
+                                    settings.proform_505_cst_80_44 = false;
+                                    settings.proform_trainer_8_0 = false;
 
-                                    // Imposta il setting corrispondente al modello selezionato
+                                    // Set new setting based on selection
                                     switch (currentIndex) {
-                                        case 0: settings.norditrack_s25_treadmill = true; break;
-                                        case 1: settings.norditrack_s25i_treadmill = true; break;
-                                        case 2: settings.nordictrack_incline_trainer_x7i = true; break;
-                                        case 3: settings.nordictrack_x22i = true; break;
-                                        case 4: settings.nordictrack_10_treadmill = true; break;
-                                        case 5: settings.nordictrack_treadmill_t8_5s = true; break;
-                                        case 6: settings.proform_2000_treadmill = true; break;
-                                        case 7: settings.proform_treadmill_505_cst = true; break;
-                                        case 8: settings.proform_8_5_treadmill = true; break;
-                                        case 9: settings.proform_treadmill_sport_8_5 = true; break;
-                                        case 10: settings.proform_pro_1000_treadmill = true; break;
-                                        case 11: settings.proform_treadmill_l6_0s = true; break;
-                                        case 12: settings.nordictrack_t65s_treadmill = true; break;
-                                        case 13: settings.nordictrack_t65s_83_treadmill = true; break;
-                                        case 14: settings.nordictrack_t70_treadmill = true; break;
-                                        case 15: settings.nordictrack_s20_treadmill = true; break;
-                                        case 16: settings.nordictrack_s30_treadmill = true; break;
-                                        case 17: settings.proform_treadmill_1800i = true; break;
-                                        case 18: settings.proform_treadmill_z1300i = true; break;
-                                        case 19: settings.proform_treadmill_se = true; break;
-                                        case 20: settings.proform_treadmill_cadence_lt = true; break;
-                                        case 21: settings.proform_treadmill_8_0 = true; break;
-                                        case 22: settings.proform_treadmill_9_0 = true; break;
-                                        case 23: settings.proform_treadmill_705_cst = true; break;
-                                        case 24: settings.nordictrack_treadmill_x14i = true; break;
-                                        case 25: settings.proform_carbon_tl = true; break;
-                                        case 26: settings.proform_proshox2 = true; break;
-                                        case 27: settings.nordictrack_s20i_treadmill = true; break;
-                                        case 28: settings.proform_595i_proshox2 = true; break;
-                                        case 29: settings.proform_treadmill_8_7 = true; break;
-                                        case 30: settings.proform_treadmill_705_cst_V78_239 = true; break;
-                                        case 31: settings.proform_treadmill_carbon_t7 = true; break;
-                                        case 32: settings.nordictrack_treadmill_exp_5i = true; break;
-                                        case 33: settings.proform_carbon_tl_PFTL59720 = true; break;
-                                        case 34: settings.proform_treadmill_sport_70 = true; break;
-                                        case 35: settings.proform_treadmill_575i = true; break;
-                                        case 36: settings.proform_performance_400i = true; break;
-                                        case 37: settings.proform_treadmill_c700 = true; break;
-                                        case 38: settings.proform_treadmill_c960i = true; break;
-                                        case 39: settings.nordictrack_tseries5_treadmill = true; break;
-                                        case 40: settings.proform_carbon_tl_PFTL59722c = true; break;
-                                        case 41: settings.proform_treadmill_1500_pro = true; break;
+                                        case 1: settings.norditrack_s25_treadmill = true; break;
+                                        case 2: settings.norditrack_s25i_treadmill = true; break;
+                                        case 3: settings.nordictrack_incline_trainer_x7i = true; break;
+                                        case 4: settings.nordictrack_x22i = true; break;
+                                        case 5: settings.nordictrack_10_treadmill = true; break;
+                                        case 6: settings.nordictrack_treadmill_t8_5s = true; break;
+                                        case 7: settings.proform_2000_treadmill = true; break;
+                                        case 8: settings.proform_treadmill_505_cst = true; break;
+                                        case 9: settings.proform_8_5_treadmill = true; break;
+                                        case 10: settings.proform_treadmill_sport_8_5 = true; break;
+                                        case 11: settings.proform_pro_1000_treadmill = true; break;
+                                        case 12: settings.proform_treadmill_l6_0s = true; break;
+                                        case 13: settings.nordictrack_t65s_treadmill = true; break;
+                                        case 14: settings.nordictrack_t65s_83_treadmill = true; break;
+                                        case 15: settings.nordictrack_t70_treadmill = true; break;
+                                        case 16: settings.nordictrack_s20_treadmill = true; break;
+                                        case 17: settings.nordictrack_s30_treadmill = true; break;
+                                        case 18: settings.proform_treadmill_1800i = true; break;
+                                        case 19: settings.proform_treadmill_z1300i = true; break;
+                                        case 20: settings.proform_treadmill_se = true; break;
+                                        case 21: settings.proform_treadmill_cadence_lt = true; break;
+                                        case 22: settings.proform_treadmill_8_0 = true; break;
+                                        case 23: settings.proform_treadmill_9_0 = true; break;
+                                        case 24: settings.proform_treadmill_705_cst = true; break;
+                                        case 25: settings.nordictrack_treadmill_x14i = true; break;
+                                        case 26: settings.proform_carbon_tl = true; break;
+                                        case 27: settings.proform_proshox2 = true; break;
+                                        case 28: settings.nordictrack_s20i_treadmill = true; break;
+                                        case 29: settings.proform_595i_proshox2 = true; break;
+                                        case 30: settings.proform_treadmill_8_7 = true; break;
+                                        case 31: settings.proform_treadmill_705_cst_V78_239 = true; break;
+                                        case 32: settings.proform_treadmill_carbon_t7 = true; break;
+                                        case 33: settings.nordictrack_treadmill_exp_5i = true; break;
+                                        case 34: settings.proform_carbon_tl_PFTL59720 = true; break;
+                                        case 35: settings.proform_treadmill_sport_70 = true; break;
+                                        case 36: settings.proform_treadmill_575i = true; break;
+                                        case 37: settings.proform_performance_400i = true; break;
+                                        case 38: settings.proform_treadmill_c700 = true; break;
+                                        case 39: settings.proform_treadmill_c960i = true; break;
+                                        case 40: settings.nordictrack_tseries5_treadmill = true; break;
+                                        case 41: settings.proform_carbon_tl_PFTL59722c = true; break;
+                                        case 42: settings.proform_treadmill_1500_pro = true; break;
+                                        case 43: settings.proform_505_cst_80_44 = true; break;
+                                        case 44: settings.proform_trainer_8_0 = true; break;
                                     }
-                                }
 
-                                Component.onCompleted: {
-                                    // Logica per determinare e impostare il valore corretto all'avvio
-                                    var selectedModel = settings.norditrack_s25_treadmill ? 0 :
-                                                        settings.norditrack_s25i_treadmill ? 1 :
-                                                        settings.nordictrack_incline_trainer_x7i ? 2 :
-                                                        settings.nordictrack_x22i ? 3 :
-                                                        settings.nordictrack_10_treadmill ? 4 :
-                                                        settings.nordictrack_treadmill_t8_5s ? 5 :
-                                                        settings.proform_2000_treadmill ? 6 :
-                                                        settings.proform_treadmill_505_cst ? 7 :
-                                                        settings.proform_8_5_treadmill ? 8 :
-                                                        settings.proform_treadmill_sport_8_5 ? 9 :
-                                                        settings.proform_pro_1000_treadmill ? 10 :
-                                                        settings.proform_treadmill_l6_0s ? 11 :
-                                                        settings.nordictrack_t65s_treadmill ? 12 :
-                                                        settings.nordictrack_t65s_83_treadmill ? 13 :
-                                                        settings.nordictrack_t70_treadmill ? 14 :
-                                                        settings.nordictrack_s20_treadmill ? 15 :
-                                                        settings.nordictrack_s30_treadmill ? 16 :
-                                                        settings.proform_treadmill_1800i ? 17 :
-                                                        settings.proform_treadmill_z1300i ? 18 :
-                                                        settings.proform_treadmill_se ? 19 :
-                                                        settings.proform_treadmill_cadence_lt ? 20 :
-                                                        settings.proform_treadmill_8_0 ? 21 :
-                                                        settings.proform_treadmill_9_0 ? 22 :
-                                                        settings.proform_treadmill_705_cst ? 23 :
-                                                        settings.nordictrack_treadmill_x14i ? 24 :
-                                                        settings.proform_carbon_tl ? 25 :
-                                                        settings.proform_proshox2 ? 26 :
-                                                        settings.nordictrack_s20i_treadmill ? 27 :
-                                                        settings.proform_595i_proshox2 ? 28 :
-                                                        settings.proform_treadmill_8_7 ? 29 :
-                                                        settings.proform_treadmill_705_cst_V78_239 ? 30 :
-                                                        settings.proform_treadmill_carbon_t7 ? 31 :
-                                                        settings.nordictrack_treadmill_exp_5i ? 32 :
-                                                        settings.proform_carbon_tl_PFTL59720 ? 33 :
-                                                        settings.proform_treadmill_sport_70 ? 34 :
-                                                        settings.proform_treadmill_575i ? 35 :
-                                                        settings.proform_performance_400i ? 36 :
-                                                        settings.proform_treadmill_c700 ? 37 :
-                                                        settings.proform_treadmill_c960i ? 38 :
-                                                        settings.nordictrack_tseries5_treadmill ? 39 :
-                                                        settings.proform_carbon_tl_PFTL59722c ? 40 :
-                                                        settings.proform_treadmill_1500_pro ? 41 : -1;
-
-                                    console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
-
-                                    if (selectedModel >= 0) {
-                                        currentIndex = selectedModel;
-                                    }
+                                    window.settings_restart_to_apply = true;
                                 }
                             }
                             RowLayout {
@@ -10248,7 +10364,8 @@ import QtQuick.Dialogs 1.0
                 }
             }*/
 
-            AccordionElement {
+            // static in order to handle the AccordionCheckElement
+            StaticAccordionElement {
                 id: experimentalFeatureAccordion
                 title: qsTr("Experimental Features")
                 indicatRectColor: Material.color(Material.Grey)

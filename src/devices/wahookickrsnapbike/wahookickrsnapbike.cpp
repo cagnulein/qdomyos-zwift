@@ -306,17 +306,22 @@ resistance_t wahookickrsnapbike::pelotonToBikeResistance(int pelotonResistance) 
         settings.value(QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2).toBool();
     if (!schwinn_bike_resistance_v2) {
         if (pelotonResistance > 54)
-            return pelotonResistance;
+            return (pelotonResistance * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
         if (pelotonResistance < 26)
-            return pelotonResistance / 5;
+            return ((pelotonResistance / 5) * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
 
         // y = 0,04x2 - 1,32x + 11,8
-        return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
+        return (((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8) * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
     } else {
         if (pelotonResistance > 20)
-            return (((double)pelotonResistance - 20.0) * 1.25);
+            return ((((double)pelotonResistance - 20.0) * 1.25) * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
         else
-            return 1;
+            return (1  * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
     }
 }
 
