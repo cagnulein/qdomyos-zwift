@@ -84,6 +84,7 @@ class DirconProcessor : public QObject {
     bool initServer();
     void initAdvertising();
     DirconPacket processPacket(DirconProcessorClient *client, const DirconPacket &pkt);
+    QString convertUUIDFromUINT16ToString (quint16 uuid);
 
   public:
     ~DirconProcessor();
