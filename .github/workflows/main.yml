@@ -1263,7 +1263,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-20.04 
     if: github.event_name == 'schedule'
-    needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build]  # Specify the job dependencies
+    needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build, raspberry-pi-build-and-image-64bit, raspberry-pi-build]  # Specify the job dependencies
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
