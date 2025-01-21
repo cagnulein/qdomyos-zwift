@@ -479,15 +479,17 @@ bool treadmill::simulateInclinationWithSpeed() {
 
 bool treadmill::followPowerBySpeed() {
     QSettings settings;
+    bool r = false;
     bool treadmill_follow_wattage =
         settings
             .value(QZSettings::treadmill_follow_wattage,
                    QZSettings::default_treadmill_follow_wattage)
             .toBool();
     double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    static double lastInclination = 0;
+    static double lastWattage = 0;
+
     if (treadmill_follow_wattage) {
-        static double lastInclination = 0;
-        static double lastWattage = 0;
 
         if (currentInclination().value() != lastInclination && lastWattage != 0) {
             double newspeed = 0;
@@ -505,10 +507,14 @@ bool treadmill::followPowerBySpeed() {
             newspeed = bestSpeed;
             qDebug() << QStringLiteral("changing speed to") << newspeed << "due to inclination changed";
             changeSpeedAndInclination(newspeed, currentInclination().value());
-            return true;
+            r = true;
         }
     }
-    return false;
+
+    lastInclination = currentInclination().value();
+    lastWattage = wattsMetric().value();
+
+    return r;
 }
 
 
