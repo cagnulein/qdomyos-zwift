@@ -65,7 +65,7 @@ bluetoothdevice::BLUETOOTH_TYPE treadmill::deviceType() { return bluetoothdevice
 double treadmill::minStepInclination() { return 0.5; }
 double treadmill::minStepSpeed() { return 0.5; }
 
-void treadmill::update_metrics(bool watt_calc, const double watts) {
+void treadmill::update_metrics(bool watt_calc, const double watts, const bool from_accessory) {
 
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
@@ -74,7 +74,8 @@ void treadmill::update_metrics(bool watt_calc, const double watts) {
         settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
 
     simulateInclinationWithSpeed();
-    followPowerBySpeed();
+    if(!from_accessory)
+        followPowerBySpeed();
 
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
@@ -505,7 +506,7 @@ bool treadmill::followPowerBySpeed() {
             }
             // Now bestSpeed is the speed closest to the desired wattage
             newspeed = bestSpeed;
-            qDebug() << QStringLiteral("changing speed to") << newspeed << "due to inclination changed";
+            qDebug() << QStringLiteral("changing speed to") << newspeed << "due to inclination changed" << currentInclination().value() << lastInclination;
             changeSpeedAndInclination(newspeed, currentInclination().value());
             r = true;
         }

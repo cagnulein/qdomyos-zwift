@@ -9,7 +9,7 @@ class treadmill : public bluetoothdevice {
 
   public:
     treadmill();
-    void update_metrics(bool watt_calc, const double watts);
+    void update_metrics(bool watt_calc, const double watts, const bool from_accessory = false);
     metric lastRequestedSpeed() { return RequestedSpeed; }
     QTime lastRequestedPace();
     metric lastRequestedInclination() { return RequestedInclination; }
