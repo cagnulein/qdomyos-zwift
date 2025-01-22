@@ -99,7 +99,7 @@ void lifespantreadmill::btinit(bool startTape) {
 
 double lifespantreadmill::GetSpeedFromPacket(const QByteArray& packet) {
     if (packet.length() < 4) return 0.0;
-    return packet[2] + (packet[3] / 100.0);
+    return ((double)((uint16_t)((uint8_t)packet.at(2)) + ((uint16_t)((uint8_t)packet.at(3))))) / 100.0;
 }
 
 double lifespantreadmill::GetInclinationFromPacket(const QByteArray& packet) {
@@ -151,6 +151,8 @@ void lifespantreadmill::update() {
         return;
     }
 
+    static uint8_t queue = 0;
+
     qDebug() << m_control->state() << bluetoothDevice.isValid() << gattCommunicationChannelService
              << gattWriteCharacteristic.isValid() << initDone << requestSpeed << requestInclination;
 
@@ -176,12 +178,16 @@ void lifespantreadmill::update() {
         }
         // ********************************************************************************************************
 
-        // Query metrics periodically
-        uint8_t speedQuery[] = {0xA1, 0x82, 0x00, 0x00, 0x00};
-        writeCharacteristic(speedQuery, sizeof(speedQuery), QStringLiteral("query speed"), true, true);
-
-        uint8_t stepQuery[] = {0xA1, 0x88, 0x00, 0x00, 0x00};
-        writeCharacteristic(stepQuery, sizeof(stepQuery), QStringLiteral("query steps"), true, true);
+        if(queue == 0) {
+            // Query metrics periodically
+            uint8_t speedQuery[] = {0xA1, 0x82, 0x00, 0x00, 0x00};
+            writeCharacteristic(speedQuery, sizeof(speedQuery), QStringLiteral("query speed"), false, true);
+            queue = 1;
+        } else {
+            uint8_t stepQuery[] = {0xA1, 0x88, 0x00, 0x00, 0x00};
+            writeCharacteristic(stepQuery, sizeof(stepQuery), QStringLiteral("query steps"), false, true);
+            queue = 0;
+        }
 
         if (requestStart != -1) {
             uint8_t start[] = {0xE1, 0x00, 0x00, 0x00, 0x00};
@@ -205,7 +211,7 @@ void lifespantreadmill::characteristicChanged(const QLowEnergyCharacteristic& ch
                                            const QByteArray& newValue) {
     QSettings settings;
     QByteArray value = newValue;
-    emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
+    qDebug() << " << " << value.length() << value.toHex(' ') << (int)currentCommand;
 
     double speed = 0.0;
     switch(currentCommand) {
