@@ -1223,7 +1223,7 @@ jobs:
 
       - name: Copy binary to Raspberry Pi image
         run: |
-          sudo cp src/qdomyos-zwift /mnt/raspbian/home/pi/
+          sudo cp src/qdomyos-zwift-64bit /mnt/raspbian/home/pi/qdomyos-zwift
           sudo chown 1000:1000 /mnt/raspbian/home/pi/qdomyos-zwift
 
       - name: Setup auto-start for qdomyos-zwift
