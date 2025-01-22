@@ -1387,6 +1387,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("WELLFIT TM")) ||
                         b.name().toUpper().startsWith(QStringLiteral("XTERRA TR")) ||
                         b.name().toUpper().startsWith(QStringLiteral("T118_")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("TM4500")) ||
                         b.name().toUpper().startsWith(QStringLiteral("RUNN ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BFX_T9_")) ||
