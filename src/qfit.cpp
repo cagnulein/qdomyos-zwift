@@ -66,14 +66,24 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         return;
     }
 
+    bool fit_file_garmin_device_training_effect = settings.value(QZSettings::fit_file_garmin_device_training_effect, QZSettings::default_fit_file_garmin_device_training_effect).toBool();
     fit::FileIdMesg fileIdMesg; // Every FIT file requires a File ID message
     fileIdMesg.SetType(FIT_FILE_ACTIVITY);
     if(bluetooth_device_name.toUpper().startsWith("DOMYOS"))
         fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DECATHLON);
-    else
-        fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
-    fileIdMesg.SetProduct(1);
-    fileIdMesg.SetSerialNumber(12345);
+    else {
+        if(fit_file_garmin_device_training_effect)
+            fileIdMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
+        else
+            fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
+    }
+    if(fit_file_garmin_device_training_effect) {
+        fileIdMesg.SetProduct(FIT_GARMIN_PRODUCT_EDGE_1030_PLUS);
+        fileIdMesg.SetSerialNumber(3313379353);
+    } else {
+        fileIdMesg.SetProduct(1);
+        fileIdMesg.SetSerialNumber(12345);
+    }
     fileIdMesg.SetTimeCreated(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
 
     bool gps_data = false;

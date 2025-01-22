@@ -1047,6 +1047,7 @@ import QtQuick.Dialogs 1.0
             // from version 2.18.18
             property bool tile_biggears_swap: false
             property bool treadmill_follow_wattage: false
+            property bool fit_file_garmin_device_training_effect: false
         }
 
         function paddingZeros(text, limit) {
@@ -8457,6 +8458,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("QZ can open a external browser in order to auth strava to QZ. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Use garmin device in the FIT file")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fit_file_garmin_device_training_effect
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.fit_file_garmin_device_training_effect = checked; window.settings_restart_to_apply = false; }
+                    }
+
+                    Label {
+                        text: qsTr("WIth this enabled, QZ will write the FIT file as a Garmin device so Garmin will consider this fit file for the training effect. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
