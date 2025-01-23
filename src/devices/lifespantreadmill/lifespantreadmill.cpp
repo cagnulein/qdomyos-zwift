@@ -99,7 +99,7 @@ void lifespantreadmill::btinit(bool startTape) {
 
 double lifespantreadmill::GetSpeedFromPacket(const QByteArray& packet) {
     if (packet.length() < 4) return 0.0;
-    return ((double)((uint16_t)((uint8_t)packet.at(2)) + ((uint16_t)((uint8_t)packet.at(3))))) / 100.0;
+    return ((double)((uint16_t)((uint8_t)packet.at(2)) + ((uint16_t)((uint8_t)packet.at(3))) / 100.0));
 }
 
 double lifespantreadmill::GetInclinationFromPacket(const QByteArray& packet) {
@@ -218,9 +218,9 @@ void lifespantreadmill::characteristicChanged(const QLowEnergyCharacteristic& ch
         case CommandState::QuerySpeed:
             speed = GetSpeedFromPacket(value);
             if (Speed.value() != speed) {
-                emit speedChanged(speed);
-                emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+                emit speedChanged(speed);                
             }
+            emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
             Speed = speed;
             if (speed > 0) {
                 lastSpeed = speed;
