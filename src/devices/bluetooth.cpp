@@ -1512,6 +1512,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith("TACX ") ||
                         b.name().toUpper().startsWith("NEO 3M ") ||
                         b.name().toUpper().startsWith(QStringLiteral("THINK X")) ||
+                        (b.name().toUpper().startsWith("VANRYSEL-HT")) ||
                         b.address() == QBluetoothAddress("C1:14:D9:9C:FB:01") || // specific TACX NEO 2 #1707
                         (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
                         !b.name().toUpper().startsWith("TACX SATORI") &&
@@ -1613,8 +1614,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("CSRB") && b.name().length() == 11) ||
                         (b.name().toUpper().startsWith("DU30-")) ||                          // BodyTone du30
                         (b.name().toUpper().startsWith("BIKZU_")) ||
-                        (b.name().toUpper().startsWith("WLT8828")) ||
-                        (b.name().toUpper().startsWith("VANRYSEL-HT")) ||
+                        (b.name().toUpper().startsWith("WLT8828")) ||                        
                         (b.name().toUpper().startsWith("HARISON-X15")) ||
                         (b.name().toUpper().startsWith("FEIVON V2")) ||
                         (b.name().toUpper().startsWith("FELVON V2")) ||
