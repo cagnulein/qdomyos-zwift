@@ -2859,7 +2859,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     m_watts = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
 
     // for the proform_treadmill_se this field is the distance in meters ;)
-    if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill) {
+    if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill) {
         m_watts = 0;
     } else {
         if (!proform_cadence_lt) {
