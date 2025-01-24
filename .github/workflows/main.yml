@@ -141,7 +141,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
@@ -168,7 +168,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
@@ -862,7 +862,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
@@ -890,7 +890,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
@@ -1052,7 +1052,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
@@ -1136,7 +1136,7 @@ jobs:
           path: src/qdomyos-zwift-32bit
 
   raspberry-pi-build-and-image-64bit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     
     steps:
       - name: Checkout code
