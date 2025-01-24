@@ -1177,7 +1177,7 @@ jobs:
             find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
             cat qdomyos-zwift.pro &&
             qmake &&
-            make -j$(nproc)
+            make
             "
 
       - name: Rename binary
