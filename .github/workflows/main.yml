@@ -1149,6 +1149,8 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+        with:
+          version: v0.19.3  # Specify exact version
 
       - name: Secrets
         run: |
@@ -1177,7 +1179,7 @@ jobs:
             find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
             cat qdomyos-zwift.pro &&
             qmake &&
-            make
+            make -j$(nproc)
             "
 
       - name: Rename binary
