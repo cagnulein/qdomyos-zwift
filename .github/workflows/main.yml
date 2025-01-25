@@ -1150,7 +1150,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         with:
-          version: v3.7.1
+          version: v0.19.3
 
       - name: Secrets
         run: |
