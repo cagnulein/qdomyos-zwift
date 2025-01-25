@@ -238,9 +238,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         fit::WorkoutMesg workout;
         workout.SetSport(sessionMesg.GetSport());
         workout.SetSubSport(sessionMesg.GetSubSport());
-#ifdef _WIN32
-        workout.SetWktName(workoutName.toLocal8Bit().constData());
-#else
+#ifndef _WIN32
         workout.SetWktName(workoutName.toStdWString());
 #endif        
         workout.SetNumValidSteps(1);
