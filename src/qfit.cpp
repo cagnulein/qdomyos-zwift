@@ -56,7 +56,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     }
 
 #ifdef _WIN32
-    file.open(QString(filename).toLocal8Bit().constData(), std::ios::out | std::ios::binary | std::ios::trunc);
+    file.open(QString(filename).toLocal8Bit().constData(), std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
 #else
     file.open(filename.toStdString(), std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
 #endif
