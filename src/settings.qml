@@ -3038,6 +3038,8 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent:
+												ColumnLayout {
+                            spacing: 0
                         IndicatorOnlySwitch {
                             id: fitplusBikeDelegate
                             text: qsTr("Fit Plus Bike")
@@ -3080,6 +3082,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.sportstech_sx600 = checked; window.settings_restart_to_apply = true; }
                         }
+										   }
                     }
                     AccordionElement {
                         id: flywheelBikeAccordion
