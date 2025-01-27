@@ -302,7 +302,7 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                         cadence =
                             cadence /
                             2; // I really don't like this, there is no relationship between wheel rev and crank rev
-                    if (cadence >= 0) {
+                    if (cadence >= 0 && cadence < 256) {
                         Cadence = cadence;
                     }
                     lastGoodCadence = now;

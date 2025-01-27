@@ -1,7 +1,7 @@
 include(../defaults.pri)
 QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia
 QTPLUGIN += qavfmediaplayer
-QT+= charts
+QT+= charts core-private
 
 qtHaveModule(httpserver) {
     QT += httpserver
@@ -77,15 +77,44 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 SOURCES += \
     $$PWD/devices/antbike/antbike.cpp \
     $$PWD/devices/crossrope/crossrope.cpp \
+    $$PWD/devices/cycleopsphantombike/cycleopsphantombike.cpp \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.cpp \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
     $$PWD/devices/jumprope.cpp \
+    $$PWD/devices/kineticinroadbike/SmartControl.cpp \
+    $$PWD/devices/kineticinroadbike/kineticinroadbike.cpp \
+    $$PWD/devices/lifespantreadmill/lifespantreadmill.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
+    $$PWD/devices/pitpatbike/pitpatbike.cpp \
+    $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
+    $$PWD/devices/sramAXSController/sramAXSController.cpp \
+    $$PWD/devices/technogymbike/technogymbike.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
+    $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
+    $$PWD/mqtt/qmqttauthenticationproperties.cpp \
+    $$PWD/mqtt/qmqttclient.cpp \
+    $$PWD/mqtt/qmqttconnection.cpp \
+    $$PWD/mqtt/qmqttconnectionproperties.cpp \
+    $$PWD/mqtt/qmqttcontrolpacket.cpp \
+    $$PWD/mqtt/qmqttmessage.cpp \
+    $$PWD/mqtt/qmqttpublishproperties.cpp \
+    $$PWD/mqtt/qmqttsubscription.cpp \
+    $$PWD/mqtt/qmqttsubscriptionproperties.cpp \
+    $$PWD/mqtt/qmqtttopicfilter.cpp \
+    $$PWD/mqtt/qmqtttopicname.cpp \
+    $$PWD/mqtt/qmqtttype.cpp \
+    $$PWD/osc.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
-devices/csaferower/csafe.cpp \
+devices/csafe/csafe.cpp \
+devices/csafe/csaferunner.cpp \
+devices/csafe/csafeutility.cpp \
+devices/csafe/serialhandler.cpp \
+devices/csafe/serialport.cpp \
+devices/csafe/netserial.cpp \
+devices/csafe/kalmanfilter.cpp \
+devices/csafeelliptical/csafeelliptical.cpp \
 devices/csaferower/csaferower.cpp \
 devices/eliteariafan/eliteariafan.cpp \
 devices/fakerower/fakerower.cpp \
@@ -301,21 +330,65 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/ devices/
 
 HEADERS += \
-    $$PWD/CRC16IBM.h \
     $$PWD/EventHandler.h \
     $$PWD/devices/antbike/antbike.h \
     $$PWD/devices/crossrope/crossrope.h \
+    $$PWD/devices/cycleopsphantombike/cycleopsphantombike.h \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/jumprope.h \
+    $$PWD/devices/kineticinroadbike/SmartControl.h \
+    $$PWD/devices/kineticinroadbike/kineticinroadbike.h \
+    $$PWD/devices/lifespantreadmill/lifespantreadmill.h \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
+    $$PWD/devices/pitpatbike/pitpatbike.h \
+    $$PWD/devices/sportsplusrower/sportsplusrower.h \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
+    $$PWD/devices/sramAXSController/sramAXSController.h \
+    $$PWD/devices/technogymbike/technogymbike.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
+    $$PWD/devices/trxappgateusbrower/trxappgateusbrower.h \
     $$PWD/ergtable.h \
+    $$PWD/osc.h \
+    $$PWD/oscpp/client.hpp \
+    $$PWD/oscpp/detail/endian.hpp \
+    $$PWD/oscpp/detail/host.hpp \
+    $$PWD/oscpp/detail/stream.hpp \
+    $$PWD/oscpp/error.hpp \
+    $$PWD/oscpp/print.hpp \
+    $$PWD/oscpp/server.hpp \
+    $$PWD/oscpp/types.hpp \
+    $$PWD/oscpp/util.hpp \
+    $$PWD/mqtt/qmqttauthenticationproperties.h \
+    $$PWD/mqtt/qmqttclient.h \
+    $$PWD/mqtt/qmqttclient_p.h \
+    $$PWD/mqtt/qmqttconnection_p.h \
+    $$PWD/mqtt/qmqttconnectionproperties.h \
+    $$PWD/mqtt/qmqttconnectionproperties_p.h \
+    $$PWD/mqtt/qmqttcontrolpacket_p.h \
+    $$PWD/mqtt/qmqttglobal.h \
+    $$PWD/mqtt/qmqttmessage.h \
+    $$PWD/mqtt/qmqttmessage_p.h \
+    $$PWD/mqtt/qmqttpublishproperties.h \
+    $$PWD/mqtt/qmqttpublishproperties_p.h \
+    $$PWD/mqtt/qmqttsubscription.h \
+    $$PWD/mqtt/qmqttsubscription_p.h \
+    $$PWD/mqtt/qmqttsubscriptionproperties.h \
+    $$PWD/mqtt/qmqtttopicfilter.h \
+    $$PWD/mqtt/qmqtttopicname.h \
+    $$PWD/mqtt/qmqtttype.h \
     $$PWD/treadmillErgTable.h \
+    $$PWD/wheelcircumference.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
-devices/csaferower/csafe.h \
+devices/csafe/csafe.h \
+devices/csafe/csaferunner.h \
+devices/csafe/csafeutility.h \
+devices/csafe/serialhandler.h \
+devices/csafe/serialport.h \
+devices/csafe/netserial.h \
+devices/csafe/kalmanfilter.h \
+devices/csafeelliptical/csafeelliptical.h \
 devices/csaferower/csaferower.h \
 devices/eliteariafan/eliteariafan.h \
 devices/proformtelnetbike/proformtelnetbike.h \
@@ -773,6 +846,8 @@ DISTFILES += \
     $$PWD/android/src/WearableMessageListenerService.java \
     $$PWD/android/src/ZapClickLayer.java \
     $$PWD/android/src/ZwiftAPI.java \
+    $$PWD/android/src/ZwiftHubBike.java \
+    $$PWD/android/src/main/proto/zwift_hub.proto \
     $$PWD/android/src/main/proto/zwift_messages.proto \
     .clang-format \
    AppxManifest.xml \
@@ -862,10 +937,16 @@ ios {
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
+HEADERS += \
+    mqttpublisher.h
+
+SOURCES += \
+    mqttpublisher.cpp
+
 include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
 INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.18.1
+VERSION = 2.18.17

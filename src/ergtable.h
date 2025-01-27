@@ -42,7 +42,7 @@ public:
             qDebug() << "skipping collecting data due to resistance changing too fast";
             return;
         }
-        if (wattage > 0 && !ergDataPointExists(cadence, wattage, resistance)) {
+        if (wattage > 0 && cadence > 0  && !ergDataPointExists(cadence, wattage, resistance)) {
             qDebug() << "newPointAdded" << "C" << cadence << "W" << wattage << "R" << resistance;
             ergDataPoint point(cadence, wattage, resistance);
             dataTable.append(point);

@@ -29,6 +29,7 @@ void treadmill::changeInclination(double grade, double inclination) {
     QSettings settings;
     double treadmill_incline_min = settings.value(QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min).toDouble();
     double treadmill_incline_max = settings.value(QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max).toDouble();
+    double step = settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline).toDouble();
 
     if(grade < treadmill_incline_min) {
         grade = treadmill_incline_min;
@@ -42,9 +43,15 @@ void treadmill::changeInclination(double grade, double inclination) {
     Q_UNUSED(inclination);
     qDebug() << "changeInclination" << grade << autoResistanceEnable << m_inclination_difficult
              << m_inclination_difficult_offset;
-    RequestedInclination = (grade * m_inclination_difficult) + m_inclination_difficult_offset;
+    
+    // Calculate the raw requested inclination
+    double rawInclination = (grade * m_inclination_difficult) + m_inclination_difficult_offset;
+    
+    // Round to nearest step
+    RequestedInclination = round(rawInclination / step) * step;
+    
     if (autoResistanceEnable) {
-        requestInclination = (grade * m_inclination_difficult) + m_inclination_difficult_offset;
+        requestInclination = RequestedInclination.value();  // Use the rounded value here as well
     }
 }
 void treadmill::changeSpeedAndInclination(double speed, double inclination) {
@@ -58,7 +65,7 @@ bluetoothdevice::BLUETOOTH_TYPE treadmill::deviceType() { return bluetoothdevice
 double treadmill::minStepInclination() { return 0.5; }
 double treadmill::minStepSpeed() { return 0.5; }
 
-void treadmill::update_metrics(bool watt_calc, const double watts) {
+void treadmill::update_metrics(bool watt_calc, const double watts, const bool from_accessory) {
 
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
@@ -67,6 +74,8 @@ void treadmill::update_metrics(bool watt_calc, const double watts) {
         settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
 
     simulateInclinationWithSpeed();
+    if(!from_accessory)
+        followPowerBySpeed();
 
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
@@ -469,6 +478,47 @@ bool treadmill::simulateInclinationWithSpeed() {
     return false;
 }
 
+bool treadmill::followPowerBySpeed() {
+    QSettings settings;
+    bool r = false;
+    bool treadmill_follow_wattage =
+        settings
+            .value(QZSettings::treadmill_follow_wattage,
+                   QZSettings::default_treadmill_follow_wattage)
+            .toBool();
+    double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    static double lastInclination = 0;
+    static double lastWattage = 0;
+
+    if (treadmill_follow_wattage) {
+
+        if (currentInclination().value() != lastInclination && lastWattage != 0) {
+            double newspeed = 0;
+            double bestSpeed = 0.1;
+            double bestDifference = fabs(wattsCalc(w, bestSpeed, currentInclination().value()) - lastWattage);
+            for (int speed = 1; speed <= 300; speed++) {
+                double s = ((double)speed) / 10.0;
+                double thisDifference = fabs(wattsCalc(w, s, currentInclination().value()) - lastWattage);
+                if (thisDifference < bestDifference) {
+                    bestDifference = thisDifference;
+                    bestSpeed = s;
+                }
+            }
+            // Now bestSpeed is the speed closest to the desired wattage
+            newspeed = bestSpeed;
+            qDebug() << QStringLiteral("changing speed to") << newspeed << "due to inclination changed" << currentInclination().value() << lastInclination;
+            changeSpeedAndInclination(newspeed, currentInclination().value());
+            r = true;
+        }
+    }
+
+    lastInclination = currentInclination().value();
+    lastWattage = wattsMetric().value();
+
+    return r;
+}
+
+
 QTime treadmill::lastRequestedPace() {
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
@@ -586,4 +636,20 @@ void treadmill::changePower(int32_t power) {
 }
 
 metric treadmill::lastRequestedPower() { return RequestedPower; }
+
+QTime treadmill::speedToPace(double Speed) {
+    QSettings settings;
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    double unit_conversion = 1.0;
+    if (miles) {
+        unit_conversion = 0.621371;
+    }
+    if (Speed == 0) {
+        return QTime(0, 0, 0, 0);
+    } else {
+        double speed = Speed * unit_conversion;
+        return QTime(0, (int)(1.0 / (speed / 60.0)),
+                     (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
+    }
+}
 

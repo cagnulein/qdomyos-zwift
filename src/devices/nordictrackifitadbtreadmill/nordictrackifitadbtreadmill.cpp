@@ -12,6 +12,7 @@
 #include <QThread>
 #include <chrono>
 #include <math.h>
+#include <QRegularExpression>
 
 using namespace std::chrono_literals;
 
@@ -225,8 +226,13 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             if (line.contains(QStringLiteral("Changed KPH"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    speed = getDouble(aValues.last());
-                    parseSpeed(speed);
+                    QString numberStr = aValues.last();
+                    // Regular expression to match numbers like X.X or XX.X
+                    QRegularExpression regex(QStringLiteral("\\d+\\.\\d+"));
+                    if (regex.match(numberStr).hasMatch()) {
+                        speed = getDouble(numberStr);
+                        parseSpeed(speed);
+                    }
                 }
             } else if (line.contains(QStringLiteral("Changed Grade"))) {
                 QStringList aValues = line.split(" ");

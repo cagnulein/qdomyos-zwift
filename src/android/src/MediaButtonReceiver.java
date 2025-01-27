@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.util.Log;
+import android.os.Build;
 
 public class MediaButtonReceiver extends BroadcastReceiver {
     private static MediaButtonReceiver instance;
@@ -28,14 +29,39 @@ public class MediaButtonReceiver extends BroadcastReceiver {
     private native void nativeOnMediaButtonEvent(int prev, int current, int max);
 
     public static void registerReceiver(Context context) {
-        if (instance == null) {
-            instance = new MediaButtonReceiver();
+        try {
+            if (instance == null) {
+                instance = new MediaButtonReceiver();
+            }
+            IntentFilter filter = new IntentFilter("android.media.VOLUME_CHANGED_ACTION");
+            
+            if (context == null) {
+                Log.e("MediaButtonReceiver", "Context is null, cannot register receiver");
+                return;
+            }
+    
+            if (Build.VERSION.SDK_INT >= 34) {
+                try {
+                    context.registerReceiver(instance, filter, Context.RECEIVER_EXPORTED);
+                } catch (SecurityException se) {
+                    Log.e("MediaButtonReceiver", "Security exception while registering receiver: " + se.getMessage());
+                }
+            } else {
+                try {
+                    context.registerReceiver(instance, filter);
+                } catch (SecurityException se) {
+                    Log.e("MediaButtonReceiver", "Security exception while registering receiver: " + se.getMessage());
+                }
+            }
+            Log.d("MediaButtonReceiver", "Receiver registered successfully");
+            
+        } catch (IllegalArgumentException e) {
+            Log.e("MediaButtonReceiver", "Invalid arguments for receiver registration: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e("MediaButtonReceiver", "Unexpected error while registering receiver: " + e.getMessage());
         }
-        IntentFilter filter = new IntentFilter("android.media.VOLUME_CHANGED_ACTION");
-        context.registerReceiver(instance, filter, Context.RECEIVER_EXPORTED);
-        Log.d("MediaButtonReceiver", "registerReceiver");
     }
-
+    
     public static void unregisterReceiver(Context context) {
         if (instance != null) {
             context.unregisterReceiver(instance);

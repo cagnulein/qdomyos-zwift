@@ -96,34 +96,36 @@ Zwift bridge for Treadmills and Bike!
 |:---|:---:|:---:|:---:|:---:|---:|
 |Resistance shifting with bluetooth remote|X||X|||
 |TTS support|X|X|X|X||
+|Zwift Play & Click support|X|||||
+|MQTT integration|X|X|X|X||
+|OpenSoundControl integration|X|X|X|X||
 
 
 ### Installation 
 
-You can install it on multiple platforms.
-Read the [installation procedure](docs/10_Installation.md)
+  You can install it on multiple platforms.
+  Read the [installation procedure](docs/10_Installation.md)
 
 
 ### Tested on
 
-You can run the app on [Macintosh or Linux devices](docs/10_Installation.md). IOS and Android are also supported.
-
-QDomyos-Zwift works on every [FTMS-compatible application](docs/20_supported_devices_and_applications.md), and virtually any [bluetooth enabled device](docs/20_supported_devices_and_applications.md).
+  The QDomyos-Zwift application can run on [Macintosh or Linux devices](docs/10_Installation.md) iOS, and Android. 
+  It supports any [FTMS-compatible application](docs/20_supported_devices_and_applications.md) software and most [bluetooth enabled device](docs/20_supported_devices_and_applications.md).
 
 ### No GUI version
 
 run as
 
-$ sudo ./qdomyos-zwift -no-gui
+  $ sudo ./qdomyos-zwift -no-gui
 
 ### Reference
 
-https://github.com/ProH4Ck/treadmill-bridge
+  => GitHub Repository: [QDomyos-Zwift on GitHub](https://github.com/ProH4Ck/treadmill-bridge)
 
-https://www.livestrong.com/article/422012-what-is-10-degrees-in-incline-on-a-treadmill/
+  => Treadmill Incline Reference: [What Is 10 Degrees in Incline on a Treadmill?](https://www.livestrong.com/article/422012-what-is-10-degrees-in-incline-on-a-treadmill/)
 
-Icons used in this documentation come from [flaticon.com](https://www.flaticon.com)
+  => Icon Attribution: Icons used in this documentation are from [Flaticon.com](https://www.flaticon.com)
 
 ### Blog
 
-https://robertoviola.cloud
+  => Related Blog: [Roberto Viola's Blog](https://robertoviola.cloud)

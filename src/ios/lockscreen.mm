@@ -122,9 +122,9 @@ void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, uns
         [workoutTracking addMetricsWithPower:watt cadence:cadence*2 speed:speed * 100 kcal:currentCalories];
 }
 
-void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator)
+void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator)
 {
-    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr:disable_hr garmin_bluetooth_compatibility:garmin_bluetooth_compatibility zwift_play_emulator:zwift_play_emulator];
+    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr:disable_hr garmin_bluetooth_compatibility:garmin_bluetooth_compatibility zwift_play_emulator:zwift_play_emulator watt_bike_emulator:watt_bike_emulator];
 }
 
 void lockscreen::virtualrower_ios()
@@ -196,9 +196,9 @@ void lockscreen::virtualrower_setHeartRate(unsigned char heartRate)
 
 
 // virtual treadmill
-void lockscreen::virtualtreadmill_zwift_ios()
+void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility)
 {
-    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] init];
+    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility];
 }
 
 void lockscreen::virtualtreadmill_setHeartRate(unsigned char heartRate)
@@ -370,5 +370,33 @@ float lockscreen::zwift_api_getlatitude() {
 
 float lockscreen::zwift_api_getlongitude() {
     return [zwiftProtobufLayer getLongitude];
+}
+
+QByteArray lockscreen::zwift_hub_inclinationCommand(double inclination) {
+    NSError *error = nil;
+    NSData *command = [ZwiftHubBike inclinationCommandWithInclination:inclination error:&error];
+
+    if (error) {
+        qDebug() << "error zwift_hub_inclinationCommand: " << error;
+        return QByteArray();
+    } else {
+        const char* bytes = static_cast<const char*>([command bytes]);
+        NSUInteger length = [command length];
+        return QByteArray(bytes, length);
+    }
+}
+
+QByteArray lockscreen::zwift_hub_setGearsCommand(unsigned int gears) {
+    NSError *error = nil;
+    NSData *command = [ZwiftHubBike setGearCommandWithGears:gears error:&error];
+
+    if (error) {
+        qDebug() << "error zwift_hub_setGearsCommand: " << error;
+        return QByteArray();
+    } else {
+        const char* bytes = static_cast<const char*>([command bytes]);
+        NSUInteger length = [command length];
+        return QByteArray(bytes, length);
+    }
 }
 #endif
