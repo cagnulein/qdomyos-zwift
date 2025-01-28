@@ -77,8 +77,10 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
             WatchKitConnection.power = dPower
             let dCadence = Double(result["cadence"] as! Double)
             WatchKitConnection.cadence = dCadence
-            let iSteps = Int(result["steps"] as! Double)
-            WatchKitConnection.steps = iSteps
+            if let stepsDouble = result["steps"] as? Double {
+                let iSteps = Int(stepsDouble)
+                WatchKitConnection.steps = iSteps
+            }
         }, errorHandler: { (error) in
             print(error)
         })
