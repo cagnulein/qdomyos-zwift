@@ -676,6 +676,11 @@ class bluetoothdevice : public QObject {
      * @brief _ergTable The current erg table
      */
     ergTable _ergTable;
+    
+    /**
+     * @brief StepCount A metric to get and set the step count. Unit: step
+     */
+    metric StepCount;
 
     /**
      * @brief Collect the number of seconds in each zone for the current heart rate
