@@ -1144,10 +1144,11 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: docker/setup-qemu-action@v3.3.0
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@53851d14592bedcffcf25ea515637cff71ef929a # v3.3.0
         with:
-          image: tonistiigi/binfmt:master
-          
+          image: tonistiigi/binfmt:qemu-v8.1.5-43
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         with:
