@@ -28,6 +28,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContextWrapper;
 import android.content.IntentFilter;
 import android.widget.Toast;
+import androidx.core.content.ContextCompat;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -48,10 +49,22 @@ public class Garmin {
 
     private static Integer HR = 0;
     private static Integer FootCad = 0;
+    private static Double Speed = 0.0;
+    private static Integer Power = 0;
 
     public static int getHR() {
         Log.d(TAG, "getHR " + HR);
         return HR;
+    }
+
+    public static int getPower() {
+        Log.d(TAG, "getPower " + Power);
+        return Power;
+    }
+
+    public static double getSpeed() {
+        Log.d(TAG, "getSpeed " + Speed);
+        return Speed;
     }
 
     public static int getFootCad() {
@@ -152,7 +165,12 @@ public class Garmin {
                 synchronized (receiverToWrapper) {
                     receiverToWrapper.put(receiver, wrappedRecv);
                 }
-                return super.registerReceiver(wrappedRecv, filter);
+                return ContextCompat.registerReceiver(
+                    super.getBaseContext(),
+                    wrappedRecv,
+                    filter,
+                    ContextCompat.RECEIVER_EXPORTED
+                );
             }
 
             @Override
@@ -221,13 +239,21 @@ public class Garmin {
                         if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
                             //MessageHandler.getInstance().handleMessageFromWatchUsingCIQ(message, status, context);
                             Log.d(TAG, "onMessageReceived, status: " + status.toString() + message.get(0));
-                            String var[] = message.toArray()[0].toString().split(",");
-                            HR = Integer.parseInt(var[0].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
-                            if(var.length > 1) {
-                                FootCad = Integer.parseInt(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                            try {
+                                String var[] = message.toArray()[0].toString().split(",");
+                                HR = Integer.parseInt(var[0].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                                if(var.length > 1) {
+                                    FootCad = Integer.parseInt(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                                    if(var.length > 2) {
+                                        Power = Integer.parseInt(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                                        Speed = Double.parseDouble(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                                    }
+                                }
+                                Log.d(TAG, "HR " + HR);
+                                Log.d(TAG, "FootCad " + FootCad);
+                            } catch (Exception e) {
+                                Log.e(TAG, "Processing error", e);
                             }
-                            Log.d(TAG, "HR " + HR);
-                            Log.d(TAG, "FootCad " + FootCad);
                         } else {
                             Log.d(TAG, "onMessageReceived error, status: " + status.toString());
                         }

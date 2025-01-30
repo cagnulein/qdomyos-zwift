@@ -33,6 +33,7 @@ class WorkoutTracking: NSObject {
     public static var cadenceSteps = 0
     public static var speed = Double()
     public static var power = Double()
+    public static var steps = Int()
     public static var cadence = Double()
     public static var lastDateMetric = Date()
     var sport: Int = 0
@@ -162,6 +163,12 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     HKSampleType.quantityType(forIdentifier: .cyclingPower)!,
                     HKSampleType.quantityType(forIdentifier: .cyclingSpeed)!,
                     HKSampleType.quantityType(forIdentifier: .cyclingCadence)!,
+                    HKSampleType.quantityType(forIdentifier: .runningPower)!,
+                    HKSampleType.quantityType(forIdentifier: .runningSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .runningStrideLength)!,
+                    HKSampleType.quantityType(forIdentifier: .runningVerticalOscillation)!,
+                    HKSampleType.quantityType(forIdentifier: .walkingSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .walkingStepLength)!,
                     HKSampleType.workoutType()
                     ])
             } else {
@@ -263,6 +270,43 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             }
         } else {
             
+            // Guard to check if steps quantity type is available
+            guard let quantityTypeSteps = HKQuantityType.quantityType(
+                forIdentifier: .stepCount) else {
+                return
+            }
+
+            let stepsQuantity = HKQuantity(unit: HKUnit.count(), doubleValue: Double(WorkoutTracking.steps))
+            
+            // Create a sample for total steps
+            let sampleSteps = HKCumulativeQuantitySeriesSample(
+                type: quantityTypeSteps,
+                quantity: stepsQuantity,  // Use your steps quantity here
+                start: workoutSession.startDate!,
+                end: Date())
+
+            // Add the steps sample to workout builder
+            workoutBuilder.add([sampleSteps]) { (success, error) in
+                if let error = error {
+                    print(error)
+                }
+                
+                // End the data collection
+                self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
+                    if let error = error {
+                        print(error)
+                    }
+                    
+                    // Finish the workout and save total steps
+                    self.workoutBuilder.finishWorkout { (workout, error) in
+                        if let error = error {
+                            print(error)
+                        }
+                        workout?.setValue(stepsQuantity, forKey: "totalSteps")
+                    }
+                }
+            }
+            
             guard let quantityTypeDistance = HKQuantityType.quantityType(
                 forIdentifier: .distanceWalkingRunning) else {
               return
@@ -335,64 +379,131 @@ extension WorkoutTracking: HKLiveWorkoutBuilderDelegate {
             }
         }
         
-        if #available(watchOSApplicationExtension 10.0, *) {            
-            let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
-                                             doubleValue: WorkoutTracking.power)
-            
-            if(WorkoutTracking.lastDateMetric.distance(to: Date()) < 1) {
+        if(sport == 0) {
+            if #available(watchOSApplicationExtension 10.0, *) {            
+                let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
+                                                doubleValue: WorkoutTracking.power)
+                
+                if(WorkoutTracking.lastDateMetric.distance(to: Date()) < 1) {
+                    return
+                }
+                
+                guard let powerType = HKQuantityType.quantityType(
+                    forIdentifier: .cyclingPower) else {
                 return
-            }
-            
-            guard let powerType = HKQuantityType.quantityType(
-                forIdentifier: .cyclingPower) else {
-              return
-            }
-            let wattPerIntervalSample = HKQuantitySample(type: powerType,
-                                                             quantity: wattPerInterval,
-                                                         start: WorkoutTracking.lastDateMetric,
-                                                         end: Date())
-            workoutBuilder.add([wattPerIntervalSample]) {(success, error) in
-                if let error = error {
-                    print(error)
                 }
-            }
+                let wattPerIntervalSample = HKQuantitySample(type: powerType,
+                                                                quantity: wattPerInterval,
+                                                            start: WorkoutTracking.lastDateMetric,
+                                                            end: Date())
+                workoutBuilder.add([wattPerIntervalSample]) {(success, error) in
+                    if let error = error {
+                        print(error)
+                    }
+                }
 
-            let cadencePerInterval = HKQuantity(unit: HKUnit.count().unitDivided(by: HKUnit.second()),
-                                                doubleValue: WorkoutTracking.cadence / 60.0)
-            
-            guard let cadenceType = HKQuantityType.quantityType(
-                forIdentifier: .cyclingCadence) else {
-              return
-            }
-            let cadencePerIntervalSample = HKQuantitySample(type: cadenceType,
-                                                             quantity: cadencePerInterval,
-                                                         start: WorkoutTracking.lastDateMetric,
-                                                         end: Date())
-            workoutBuilder.add([cadencePerIntervalSample]) {(success, error) in
-                if let error = error {
-                    print(error)
+                let cadencePerInterval = HKQuantity(unit: HKUnit.count().unitDivided(by: HKUnit.second()),
+                                                    doubleValue: WorkoutTracking.cadence / 60.0)
+                
+                guard let cadenceType = HKQuantityType.quantityType(
+                    forIdentifier: .cyclingCadence) else {
+                return
                 }
-            }
-            
-            let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
-                                              doubleValue: WorkoutTracking.speed * 0.277778)
-            
-            guard let speedType = HKQuantityType.quantityType(
-                forIdentifier: .cyclingSpeed) else {
-              return
-            }
-            let speedPerIntervalSample = HKQuantitySample(type: speedType,
-                                                             quantity: speedPerInterval,
-                                                         start: WorkoutTracking.lastDateMetric,
-                                                         end: Date())
-            workoutBuilder.add([speedPerIntervalSample]) {(success, error) in
-                if let error = error {
-                    print(error)
+                let cadencePerIntervalSample = HKQuantitySample(type: cadenceType,
+                                                                quantity: cadencePerInterval,
+                                                            start: WorkoutTracking.lastDateMetric,
+                                                            end: Date())
+                workoutBuilder.add([cadencePerIntervalSample]) {(success, error) in
+                    if let error = error {
+                        print(error)
+                    }
                 }
-            }
+                
+                let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
+                                                doubleValue: WorkoutTracking.speed * 0.277778)
+                
+                guard let speedType = HKQuantityType.quantityType(
+                    forIdentifier: .cyclingSpeed) else {
+                return
+                }
+                let speedPerIntervalSample = HKQuantitySample(type: speedType,
+                                                                quantity: speedPerInterval,
+                                                            start: WorkoutTracking.lastDateMetric,
+                                                            end: Date())
+                workoutBuilder.add([speedPerIntervalSample]) {(success, error) in
+                    if let error = error {
+                        print(error)
+                    }
+                }
 
-        } else {
-            // Fallback on earlier versions
+            } else {
+                // Fallback on earlier versions
+            }
+        } else if(sport == 1) {
+            if #available(watchOSApplicationExtension 10.0, *) {
+                let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
+                                                doubleValue: WorkoutTracking.power)
+                
+                if(WorkoutTracking.lastDateMetric.distance(to: Date()) < 1) {
+                    return
+                }
+                
+                guard let powerType = HKQuantityType.quantityType(
+                    forIdentifier: .runningPower) else {
+                return
+                }
+                let wattPerIntervalSample = HKQuantitySample(type: powerType,
+                                                                quantity: wattPerInterval,
+                                                            start: WorkoutTracking.lastDateMetric,
+                                                            end: Date())
+                workoutBuilder.add([wattPerIntervalSample]) {(success, error) in
+                    if let error = error {
+                        print(error)
+                    }
+                }
+            
+                let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
+                                                doubleValue: WorkoutTracking.speed * 0.277778)
+                
+                guard let speedType = HKQuantityType.quantityType(
+                    forIdentifier: .runningSpeed) else {
+                return
+                }
+                let speedPerIntervalSample = HKQuantitySample(type: speedType,
+                                                                quantity: speedPerInterval,
+                                                            start: WorkoutTracking.lastDateMetric,
+                                                            end: Date())
+                workoutBuilder.add([speedPerIntervalSample]) {(success, error) in
+                    if let error = error {
+                        print(error)
+                    }
+                }
+
+            } else {
+                // Fallback on earlier versions
+            }
+        } else if(sport == 2) {
+            if #available(watchOSApplicationExtension 10.0, *) {
+                let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
+                                                doubleValue: WorkoutTracking.speed * 0.277778)
+                
+                guard let speedType = HKQuantityType.quantityType(
+                    forIdentifier: .walkingSpeed) else {
+                return
+                }
+                let speedPerIntervalSample = HKQuantitySample(type: speedType,
+                                                                quantity: speedPerInterval,
+                                                            start: WorkoutTracking.lastDateMetric,
+                                                            end: Date())
+                workoutBuilder.add([speedPerIntervalSample]) {(success, error) in
+                    if let error = error {
+                        print(error)
+                    }
+                }
+
+            } else {
+                // Fallback on earlier versions
+            }
         }
         
         WorkoutTracking.lastDateMetric = Date()

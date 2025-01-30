@@ -17,9 +17,11 @@ var pedometer = CMPedometer()
 
 @objc public class healthkit:NSObject {
     let w = watchAppStart()
+    let SwiftDebug = swiftDebug()
         
     @objc public func request()
     {
+        SwiftDebug.qtDebug("swift debug test")
         if #available(iOS 13.0, *) {
             Client.client.start()
         } else {
@@ -52,6 +54,18 @@ var pedometer = CMPedometer()
     @objc public func stepCadence() -> Int
     {
         return WatchKitConnection.stepCadence;
+    }
+
+    @objc public func setSteps(steps: Int) -> Void
+    {
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        WatchKitConnection.steps = steps;
+        Server.server?.send(createString(sender: sender))
     }
     
     @objc public func setDistance(distance: Double) -> Void

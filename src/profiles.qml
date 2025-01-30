@@ -72,6 +72,41 @@ ColumnLayout {
         }
     }
 
+    MessageDialog {
+        id: restoreSettingsDialog
+        title: "New Profile"
+        text: "New Profile Created with default values. Save it with a name and restart the app to apply them."
+        buttons: (MessageDialog.Ok)
+        onOkClicked: {
+            restoreSettingsDialog.visible = false
+        }
+    }
+
+    MessageDialog {
+        id: newProfileDialog
+        title: "Save Current Profile?"
+        text: "You're creating a new profile with the default values, would you like to save the current one before?"
+        buttons: (MessageDialog.Yes | MessageDialog.No | MessageDialog.Abort)
+        onYesClicked: {
+            if(profileNameTextField.text.length == 0)
+                profileNameTextField.text = "OldProfile"
+
+            saveProfile(profileNameTextField.text);
+            restoreSettings()
+
+            newProfileDialog.visible = false;
+            restoreSettingsDialog.visible = true
+        }
+        onNoClicked: {
+            restoreSettings()
+            newProfileDialog.visible = false;
+            restoreSettingsDialog.visible = true
+        }
+        onAbortClicked: {
+            newProfileDialog.visible = false;
+        }
+    }
+
     RowLayout {
         spacing: 10
         Label {
@@ -89,6 +124,15 @@ ColumnLayout {
             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
         }
         Button {
+            id: addProfileButton
+            text: "+"
+            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            onClicked: {
+                console.log("folder is " + rootItem.getWritableAppDir() + 'profiles')
+                newProfileDialog.visible = true;
+            }
+        }
+        Button {
             id: saveProfileNameButton
             text: "Save"
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -100,7 +144,7 @@ ColumnLayout {
         }
     }
 
-    AccordionElement {
+    StaticAccordionElement {
         title: qsTr("Profiles")
         indicatRectColor: Material.color(Material.Grey)
         textColor: Material.color(Material.Grey)

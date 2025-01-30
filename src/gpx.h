@@ -1,7 +1,7 @@
 #ifndef GPX_H
 #define GPX_H
 
-#include "bluetoothdevice.h"
+#include "devices/bluetoothdevice.h"
 #include "sessionline.h"
 #include <QFile>
 #include <QGeoCoordinate>
@@ -29,7 +29,7 @@ class gpx : public QObject {
     Q_OBJECT
   public:
     explicit gpx(QObject *parent = nullptr);
-    QList<gpx_altitude_point_for_treadmill> open(const QString &gpx);
+    QList<gpx_altitude_point_for_treadmill> open(const QString &gpx, bluetoothdevice::BLUETOOTH_TYPE device_type);
     static void save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type);
     QString getVideoURL() {return videoUrl;}
 
