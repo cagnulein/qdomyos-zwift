@@ -39,9 +39,6 @@ bool lockscreen::appleWatchAppInstalled() {
         // Get the default session
         WCSession *session = [WCSession defaultSession];
         
-        // Set the delegate to receive callbacks
-        session.delegate = self;
-        
         // Activate the session
         [session activateSession];
         

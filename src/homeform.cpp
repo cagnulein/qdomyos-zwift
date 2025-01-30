@@ -690,6 +690,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     });
 #else
     h = new lockscreen();
+    h->appleWatchAppInstalled();
 #endif
 
     if (QSslSocket::supportsSsl()) {
