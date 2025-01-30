@@ -30,6 +30,12 @@ void cycleopsphantombike::writeCharacteristic(uint8_t *data, uint8_t data_len, c
                                    bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
+    
+    if(!gattCustomService) {
+        qDebug() << "gattCustomService is null!";
+        return;
+    }
+    
     if (wait_for_response) {
         connect(gattCustomService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
@@ -83,8 +89,7 @@ void cycleopsphantombike::forceInclination(double inclination) {
     QSettings settings;
 
     // weight = kg * 100, grade = % * 10
-    // trying without the *100 since the OP is saying it's too hard
-    setControlMode(ControlMode::ManualSlope, settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(), inclination * 10.0);
+    setControlMode(ControlMode::ManualSlope, settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 100.0, inclination * 10.0);
 }
 
 void cycleopsphantombike::update() {
@@ -117,7 +122,7 @@ void cycleopsphantombike::update() {
         auto virtualBike = this->VirtualBike();
 
         if (requestResistance != -1) {
-            if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
+            if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                     (requestPower == 0 || requestPower == -1)) {
@@ -127,7 +132,7 @@ void cycleopsphantombike::update() {
             }
             requestResistance = -1;
         }
-        if (requestInclination != -100) {
+        if (requestInclination != -100 || lastGearValue != gears()) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
             forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination

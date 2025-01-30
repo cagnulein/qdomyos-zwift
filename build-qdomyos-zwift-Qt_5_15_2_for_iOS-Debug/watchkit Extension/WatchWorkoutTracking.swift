@@ -33,6 +33,7 @@ class WorkoutTracking: NSObject {
     public static var cadenceSteps = 0
     public static var speed = Double()
     public static var power = Double()
+    public static var steps = Int()
     public static var cadence = Double()
     public static var lastDateMetric = Date()
     var sport: Int = 0
@@ -269,6 +270,43 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             }
         } else {
             
+            // Guard to check if steps quantity type is available
+            guard let quantityTypeSteps = HKQuantityType.quantityType(
+                forIdentifier: .stepCount) else {
+                return
+            }
+
+            let stepsQuantity = HKQuantity(unit: HKUnit.count(), doubleValue: Double(WorkoutTracking.steps))
+            
+            // Create a sample for total steps
+            let sampleSteps = HKCumulativeQuantitySeriesSample(
+                type: quantityTypeSteps,
+                quantity: stepsQuantity,  // Use your steps quantity here
+                start: workoutSession.startDate!,
+                end: Date())
+
+            // Add the steps sample to workout builder
+            workoutBuilder.add([sampleSteps]) { (success, error) in
+                if let error = error {
+                    print(error)
+                }
+                
+                // End the data collection
+                self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
+                    if let error = error {
+                        print(error)
+                    }
+                    
+                    // Finish the workout and save total steps
+                    self.workoutBuilder.finishWorkout { (workout, error) in
+                        if let error = error {
+                            print(error)
+                        }
+                        workout?.setValue(stepsQuantity, forKey: "totalSteps")
+                    }
+                }
+            }
+            
             guard let quantityTypeDistance = HKQuantityType.quantityType(
                 forIdentifier: .distanceWalkingRunning) else {
               return
@@ -402,7 +440,7 @@ extension WorkoutTracking: HKLiveWorkoutBuilderDelegate {
                 // Fallback on earlier versions
             }
         } else if(sport == 1) {
-            if #available(watchOSApplicationExtension 10.0, *) {            
+            if #available(watchOSApplicationExtension 10.0, *) {
                 let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
                                                 doubleValue: WorkoutTracking.power)
                 
@@ -445,7 +483,7 @@ extension WorkoutTracking: HKLiveWorkoutBuilderDelegate {
                 // Fallback on earlier versions
             }
         } else if(sport == 2) {
-            if #available(watchOSApplicationExtension 10.0, *) {                                      
+            if #available(watchOSApplicationExtension 10.0, *) {
                 let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
                                                 doubleValue: WorkoutTracking.speed * 0.277778)
                 

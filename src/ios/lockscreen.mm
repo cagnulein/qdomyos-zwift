@@ -84,6 +84,11 @@ void lockscreen::setDistance(double distance)
     [h setDistanceWithDistance:distance * 0.621371];
 }
 
+void lockscreen::setSteps(double steps)
+{
+    [h setStepsWithSteps:steps];
+}
+
 void lockscreen::setPower(double power)
 {
     [h setPowerWithPower:power];
