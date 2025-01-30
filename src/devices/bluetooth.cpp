@@ -59,6 +59,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         }
         // this signal is not associated to anything in this moment, since the homeform is not loaded yet
         this->signalBluetoothDeviceConnected(fakeBike);
+        return;
     }
 
 #ifdef TEST
