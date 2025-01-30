@@ -34,6 +34,39 @@ static zwift_protobuf_layer* zwiftProtobufLayer = nil;
 
 static NSString* profile_selected;
 
+bool lockscreen::appleWatchAppInstalled() {
+    if ([WCSession isSupported]) {
+        // Get the default session
+        WCSession *session = [WCSession defaultSession];
+        
+        // Set the delegate to receive callbacks
+        session.delegate = self;
+        
+        // Activate the session
+        [session activateSession];
+        
+        // Check if a watch is paired and the app is installed
+        if (session.isPaired && session.isWatchAppInstalled) {
+            // An Apple Watch is paired and has the companion app installed
+            qDebug() << "Apple Watch is paired and app is installed";
+            return true;
+        } else if (session.isPaired) {
+            // An Apple Watch is paired but doesn't have the companion app
+            qDebug() << "Apple Watch is paired but app is not installed";
+            return false;
+        } else {
+            // No Apple Watch is paired
+            qDebug() << "No Apple Watch is paired";
+            return false;
+        }
+    } else {
+        // This device doesn't support Watch connectivity
+        qDebug() << "Watch connectivity is not supported on this device";
+        return false;
+    }
+    return false;
+}
+
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
 }

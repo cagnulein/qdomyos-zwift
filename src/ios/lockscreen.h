@@ -5,6 +5,7 @@
 
 class lockscreen {
   public:
+    bool appleWatchAppInstalled();
     void setTimerDisabled();
     void request();
     long heartRate();
