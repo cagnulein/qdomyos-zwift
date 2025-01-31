@@ -180,6 +180,7 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
     connect(writePE005, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
     connect(writePE005, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
             SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
+    connect(writeP0003, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));        
     connect(writeP0003, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
             SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
     QObject::connect(&bikeTimer, &QTimer::timeout, this, &DirconManager::bikeProvider);

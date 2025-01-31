@@ -26,7 +26,7 @@ private:
     VarintResult decodeVarint(const QByteArray& bytes, int startIndex);
     qint32 decodeSInt(const QByteArray& bytes);
     void handleZwiftGear(const QByteArray &array);
-    int currentZwiftGear = 0;
+    int currentZwiftGear = 8;
     QByteArray encodeHubRidingData(uint32_t power,
                                     uint32_t cadence,
                                     uint32_t speedX100,
