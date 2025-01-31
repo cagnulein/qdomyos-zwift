@@ -3989,6 +3989,8 @@ void homeform::update() {
     double currentHRZone = 1;
     double ftpZone = 1;
 
+    qDebug() << "homeform::update fired!";
+
     if (settings.status() != QSettings::NoError) {
         qDebug() << "!!!!QSETTINGS ERROR!" << settings.status();
     }
@@ -5139,6 +5141,8 @@ void homeform::update() {
                         trainProgramTotalDistance->setText("N/A");
                 }
         */
+
+        qDebug() << "homeform::update tiles updated!";
 
 #ifdef Q_OS_ANDROID
         if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() &&

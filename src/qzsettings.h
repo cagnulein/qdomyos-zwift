@@ -2255,6 +2255,12 @@ class QZSettings {
     static const QString treadmill_follow_wattage;
     static constexpr bool default_treadmill_follow_wattage = false;
 
+    static const QString fit_file_garmin_device_training_effect;
+    static constexpr bool default_fit_file_garmin_device_training_effect = false;
+
+    static const QString proform_treadmill_705_cst_V80_44;
+    static constexpr bool default_proform_treadmill_705_cst_V80_44 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

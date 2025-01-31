@@ -141,7 +141,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
@@ -168,7 +168,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
@@ -862,7 +862,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
@@ -890,7 +890,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
@@ -1052,7 +1052,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
@@ -1126,14 +1126,17 @@ jobs:
             make -j$(nproc)
             "
 
+      - name: Rename binary
+        run: mv src/qdomyos-zwift src/qdomyos-zwift-32bit
+      
       - name: Archive Raspberry Pi binary
         uses: actions/upload-artifact@v4
         with:
           name: raspberry-pi-binary
-          path: src/qdomyos-zwift
+          path: src/qdomyos-zwift-32bit
 
   raspberry-pi-build-and-image-64bit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     
     steps:
       - name: Checkout code
@@ -1177,11 +1180,14 @@ jobs:
             make -j$(nproc)
             "
 
+      - name: Rename binary
+        run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
+      
       - name: Archive Raspberry Pi binary
         uses: actions/upload-artifact@v4
         with:
           name: raspberry-pi-64bit-binary
-          path: src/qdomyos-zwift
+          path: src/qdomyos-zwift-64bit
 
       - name: Download and expand Raspberry Pi OS image
         run: |
@@ -1217,7 +1223,7 @@ jobs:
 
       - name: Copy binary to Raspberry Pi image
         run: |
-          sudo cp src/qdomyos-zwift /mnt/raspbian/home/pi/
+          sudo cp src/qdomyos-zwift-64bit /mnt/raspbian/home/pi/qdomyos-zwift
           sudo chown 1000:1000 /mnt/raspbian/home/pi/qdomyos-zwift
 
       - name: Setup auto-start for qdomyos-zwift
@@ -1263,7 +1269,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-20.04 
     if: github.event_name == 'schedule'
-    needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build]  # Specify the job dependencies
+    needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build, raspberry-pi-build-and-image-64bit, raspberry-pi-build]  # Specify the job dependencies
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -1292,6 +1298,6 @@ jobs:
             windows-binary-no-python/*
             windows-binary/*
             fdroid-android-trial/*
-            raspberry-pi-binary/*
-            raspberry-pi-64bit-binary/*
+            raspberry-pi-binary/qdomyos-zwift-32bit
+            raspberry-pi-64bit-binary/qdomyos-zwift-64bit
             2024-10-22-raspios-bookworm-arm64-lite.img.xz

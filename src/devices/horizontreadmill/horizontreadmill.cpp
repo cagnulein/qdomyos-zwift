@@ -2200,7 +2200,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }*/
 
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService && !BOWFLEX_T9 &&
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService && !BOWFLEX_T9 && !MX_TM &&
                     !settings
                          .value(QZSettings::horizon_treadmill_force_ftms,
                                 QZSettings::default_horizon_treadmill_force_ftms)
@@ -2445,6 +2445,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")))) {
             qDebug() << QStringLiteral("YPOO-MINI PRO found");
             YPOO_MINI_PRO = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("MX-TM "))) {
+            qDebug() << QStringLiteral("MX-TM found");
+            MX_TM = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {

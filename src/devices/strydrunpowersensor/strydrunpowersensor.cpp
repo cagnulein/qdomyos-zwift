@@ -78,7 +78,10 @@ void strydrunpowersensor::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(false, watts());
+        QSettings settings;
+        bool power_as_treadmill =
+            settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+        update_metrics(false, watts(), !power_as_treadmill);
 
         if (requestInclination != -100) {
             Inclination = treadmillInclinationOverrideReverse(requestInclination);
