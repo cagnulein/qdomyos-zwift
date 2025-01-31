@@ -195,6 +195,7 @@ ScrollView {
         property int  tile_rss_order: 53        
         property bool tile_biggears_enabled: false
         property int  tile_biggears_order: 54
+        property bool tile_biggears_swap: false
     }
 
 
@@ -1624,27 +1625,42 @@ ScrollView {
             title: qsTr("Gears Big Buttons")
             linkedBoolSetting: "tile_biggears_enabled"
             settings: settings
-            accordionContent: RowLayout {
-                spacing: 10
-                Label {
-                    text: qsTr("order index:")
+            accordionContent: ColumnLayout {
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        text: qsTr("order index:")
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    ComboBox {
+                        id: biggearsOrderTextField
+                        model: rootItem.tile_order
+                        displayText: settings.tile_biggears_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = biggearsOrderTextField.currentValue
+                         }
+                    }
+                    Button {
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_biggears_order = biggearsOrderTextField.displayText; toast.show("Setting saved!"); }
+                    }
+                }
+                SwitchDelegate {
+                    text: qsTr("Swap Buttons")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.tile_biggears_swap
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignRight
-                }
-                ComboBox {
-                    id: biggearsOrderTextField
-                    model: rootItem.tile_order
-                    displayText: settings.tile_biggears_order
-                    Layout.fillHeight: false
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onActivated: {
-                        displayText = biggearsOrderTextField.currentValue
-                     }
-                }
-                Button {
-                    text: "OK"
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_biggears_order = biggearsOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: settings.tile_biggears_swap = checked
                 }
             }
         }

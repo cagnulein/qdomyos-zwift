@@ -1045,11 +1045,18 @@ import QtQuick.Dialogs 1.0
             // from version 2.18.16
             property bool proform_trainer_8_0: false
 
+            // from version 2.18.18
+            property bool tile_biggears_swap: false
+            property bool treadmill_follow_wattage: false
+            property bool fit_file_garmin_device_training_effect: false
+            property bool proform_treadmill_705_cst_V80_44: false
+
+            // from version 2.18.19
             property string  peloton_accesstoken: ""
             property string  peloton_refreshtoken: ""
             property string  peloton_lastrefresh: ""
             property string  peloton_expires: ""
-            property string  peloton_code: ""
+            property string  peloton_code: ""            
         }
 
         function paddingZeros(text, limit) {
@@ -3039,6 +3046,8 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent:
+												ColumnLayout {
+                            spacing: 0
                         IndicatorOnlySwitch {
                             id: fitplusBikeDelegate
                             text: qsTr("Fit Plus Bike")
@@ -3081,6 +3090,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.sportstech_sx600 = checked; window.settings_restart_to_apply = true; }
                         }
+										   }
                     }
                     AccordionElement {
                         id: flywheelBikeAccordion
@@ -5279,6 +5289,33 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }                    
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Treadmill Auto-adjust speed by power")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_follow_wattage
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_follow_wattage = checked
+                    }
+
+                    Label {
+                        text: qsTr("Treadmill only: Automatically adjusts speed to maintain consistent power output. Speed adjustments occur on incline changes and adapt to manual speed modifications.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     RowLayout {
@@ -6284,7 +6321,8 @@ import QtQuick.Dialogs 1.0
                                     "Proform Carbon TL PFTL59722c",
                                     "Proform 1500 Pro",
                                     "Proform 505 CST v.80.44",
-                                    "Proform Trainer 8.0"
+                                    "Proform Trainer 8.0",
+                                    "Proform 705 CST v.80.44",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -6345,7 +6383,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_carbon_tl_PFTL59722c ? 41 :
                                                     settings.proform_treadmill_1500_pro ? 42 :
                                                     settings.proform_505_cst_80_44 ? 43 :
-                                                    settings.proform_trainer_8_0 ? 44 : 0;
+                                                    settings.proform_trainer_8_0 ? 44 :
+                                                    settings.proform_treadmill_705_cst_V80_44 ? 45 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -6404,6 +6443,7 @@ import QtQuick.Dialogs 1.0
                                     settings.proform_treadmill_1500_pro = false;
                                     settings.proform_505_cst_80_44 = false;
                                     settings.proform_trainer_8_0 = false;
+                                    settings.proform_treadmill_705_cst_V80_44 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -6451,6 +6491,7 @@ import QtQuick.Dialogs 1.0
                                         case 42: settings.proform_treadmill_1500_pro = true; break;
                                         case 43: settings.proform_505_cst_80_44 = true; break;
                                         case 44: settings.proform_trainer_8_0 = true; break;
+                                        case 45: settings.proform_treadmill_705_cst_V80_44 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -8433,6 +8474,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("QZ can open a external browser in order to auth strava to QZ. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Use garmin device in the FIT file")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fit_file_garmin_device_training_effect
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.fit_file_garmin_device_training_effect = checked; window.settings_restart_to_apply = false; }
+                    }
+
+                    Label {
+                        text: qsTr("WIth this enabled, QZ will write the FIT file as a Garmin device so Garmin will consider this fit file for the training effect. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

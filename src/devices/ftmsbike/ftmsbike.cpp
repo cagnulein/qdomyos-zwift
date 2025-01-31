@@ -475,6 +475,12 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             uint16_t word_flags;
         };
 
+        // clean time in case for a long period we don't receive values
+        if(lastRefreshCharacteristicChanged2AD2.secsTo(now) > 5) {
+            qDebug() << "clearing lastRefreshCharacteristicChanged2AD2" << lastRefreshCharacteristicChanged2AD2 << now;
+            lastRefreshCharacteristicChanged2AD2 = now;
+        }
+
         flags Flags;
         int index = 0;
         Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
@@ -974,7 +980,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 QBluetoothUuid _zwiftPlayWriteCharControlPointId(QStringLiteral("00000003-19ca-4651-86e5-fa29dcdd09d1"));
-                if (c.uuid() == _zwiftPlayWriteCharControlPointId) {
+                if (c.uuid() == _zwiftPlayWriteCharControlPointId && !DIRETO_XR) {
                     qDebug() << QStringLiteral("Zwift Play service and Control Point found");
                     zwiftPlayWriteChar = c;
                     zwiftPlayService = s;
