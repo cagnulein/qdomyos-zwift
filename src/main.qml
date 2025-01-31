@@ -403,7 +403,7 @@ ApplicationWindow {
              anchors.horizontalCenter: parent.horizontalCenter
              width: 370
              height: 120
-             text: qsTr("Your Peloton account is now connected! Restart the app to apply this change!")
+             text: qsTr("Your Peloton account is now connected!<br><br>Restart the app to apply this change!")
             }
          }
     }
