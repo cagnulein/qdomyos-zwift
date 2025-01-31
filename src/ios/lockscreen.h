@@ -11,6 +11,7 @@ class lockscreen {
     long stepCadence();
     void setKcal(double kcal);
     void setDistance(double distance);
+    void setSteps(double steps);
     void setSpeed(double speed);
     void setPower(double power);
     void setCadence(double cadence);

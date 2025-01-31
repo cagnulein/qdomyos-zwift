@@ -80,11 +80,13 @@ SOURCES += \
     $$PWD/characteristics/characteristicwriteprocessor0003.cpp \
     $$PWD/devices/antbike/antbike.cpp \
     $$PWD/devices/crossrope/crossrope.cpp \
+    $$PWD/devices/cycleopsphantombike/cycleopsphantombike.cpp \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.cpp \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
     $$PWD/devices/jumprope.cpp \
     $$PWD/devices/kineticinroadbike/SmartControl.cpp \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.cpp \
+    $$PWD/devices/lifespantreadmill/lifespantreadmill.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
     $$PWD/devices/pitpatbike/pitpatbike.cpp \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
@@ -337,11 +339,13 @@ HEADERS += \
     $$PWD/characteristics/characteristicwriteprocessor0003.h \
     $$PWD/devices/antbike/antbike.h \
     $$PWD/devices/crossrope/crossrope.h \
+    $$PWD/devices/cycleopsphantombike/cycleopsphantombike.h \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/jumprope.h \
     $$PWD/devices/kineticinroadbike/SmartControl.h \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.h \
+    $$PWD/devices/lifespantreadmill/lifespantreadmill.h \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
     $$PWD/devices/pitpatbike/pitpatbike.h \
     $$PWD/devices/sportsplusrower/sportsplusrower.h \
@@ -951,4 +955,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.18.14
+VERSION = 2.18.17

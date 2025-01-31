@@ -140,6 +140,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
         connect(socket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
     }
 #ifdef Q_OS_WIN32
+    if (nordictrack_ifit_adb_remote)
     {
         logcatAdbThread = new nordictrackifitadbtreadmillLogcatAdbThread("logcatAdbThread");
         connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::onSpeedInclination, this,

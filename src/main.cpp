@@ -70,6 +70,8 @@ bool battery_service = false;
 bool service_changed = false;
 bool bike_wheel_revs = false;
 bool run_cadence_sensor = false;
+bool horizon_treadmill_7_8 = false;
+bool horizon_treadmill_force_ftms = false;
 bool nordictrack_10_treadmill = false;
 bool reebok_fr30_treadmill = false;
 bool zwift_play = false;
@@ -142,6 +144,10 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             bike_wheel_revs = true;
         if (!qstrcmp(argv[i], "-run-cadence-sensor"))
             run_cadence_sensor = true;
+        if (!qstrcmp(argv[i], "-horizon-treadmill-7-8"))
+            horizon_treadmill_7_8 = true; 
+        if (!qstrcmp(argv[i], "-horizon-treadmill-force-ftms"))
+            horizon_treadmill_force_ftms = true; 
         if (!qstrcmp(argv[i], "-nordictrack-10-treadmill"))
             nordictrack_10_treadmill = true;
         if (!qstrcmp(argv[i], "-reebok_fr30_treadmill"))
@@ -406,6 +412,8 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::service_changed, service_changed);
         settings.setValue(QZSettings::bike_wheel_revs, bike_wheel_revs);
         settings.setValue(QZSettings::run_cadence_sensor, run_cadence_sensor);
+        settings.setValue(QZSettings::horizon_treadmill_7_8, horizon_treadmill_7_8);
+        settings.setValue(QZSettings::horizon_treadmill_force_ftms, horizon_treadmill_force_ftms);
         settings.setValue(QZSettings::nordictrack_10_treadmill, nordictrack_10_treadmill);
         settings.setValue(QZSettings::reebok_fr30_treadmill, reebok_fr30_treadmill);
         settings.setValue(QZSettings::zwift_click, zwift_click);
