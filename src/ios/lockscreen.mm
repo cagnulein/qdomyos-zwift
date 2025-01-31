@@ -85,12 +85,12 @@ void lockscreen::request()
 }
 
 void lockscreen::startWorkout(unsigned short deviceType) {
-    if(workoutTracking != nil)
+    if(workoutTracking != nil && !appleWatchAppInstalled())
         [workoutTracking startWorkOutWithDeviceType:deviceType];
 }
 
 void lockscreen::stopWorkout() {
-    if(workoutTracking != nil)
+    if(workoutTracking != nil && !appleWatchAppInstalled())
         [workoutTracking stopWorkOut];
 }
 
@@ -153,7 +153,7 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
 }
 
 void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories) {
-    if(workoutTracking != nil)
+    if(workoutTracking != nil && !appleWatchAppInstalled())
         [workoutTracking addMetricsWithPower:watt cadence:cadence*2 speed:speed * 100 kcal:currentCalories];
 }
 
@@ -205,7 +205,7 @@ double lockscreen::virtualbike_getPowerRequested()
 
 bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, signed short Gears, UInt16 currentCalories)
 {
-    if(workoutTracking != nil)
+    if(workoutTracking != nil && !appleWatchAppInstalled())
         [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories];
 
     if(_virtualbike_zwift != nil)
@@ -215,7 +215,7 @@ bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResi
 
 bool lockscreen::virtualrower_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, UInt16 StrokesCount, UInt32 Distance, UInt16 KCal, UInt16 Pace, UInt16 currentCalories)
 {
-    if(workoutTracking != nil)
+    if(workoutTracking != nil && !appleWatchAppInstalled())
         [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories];
 
     if(_virtualrower != nil)
@@ -271,7 +271,7 @@ double lockscreen::virtualtreadmill_getPowerRequested()
 
 bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, UInt16 currentCalories)
 {
-    if(workoutTracking != nil)
+    if(workoutTracking != nil && !appleWatchAppInstalled())
         [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories];
 
     if(_virtualtreadmill_zwift != nil)
