@@ -48,10 +48,10 @@ void fakebike::update() {
 
     if (requestPower != -1) {
         // bepo70: don't know if this conversion is really needed, i would do it anyway.
-        m_watt = (double)requestPower;
+        m_watt = (double)requestPower * (1.0 + (((double)rand() / RAND_MAX) * 0.4 - 0.2));
         Cadence = requestPower;
         emit debug(QStringLiteral("writing power ") + QString::number(requestPower));
-        requestPower = -1;
+        //requestPower = -1;
         // bepo70: Disregard the current inclination for calculating speed. When the video
         //         has a high inclination you have to give many power to get the desired playback speed,
         //         if inclination is very low little more power gives a quite high speed jump.
