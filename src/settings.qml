@@ -1049,6 +1049,13 @@ import QtQuick.Dialogs 1.0
             property bool treadmill_follow_wattage: false
             property bool fit_file_garmin_device_training_effect: false
             property bool proform_treadmill_705_cst_V80_44: false
+
+            // from version 2.18.19
+            property string  peloton_accesstoken: ""
+            property string  peloton_refreshtoken: ""
+            property string  peloton_lastrefresh: ""
+            property string  peloton_expires: ""
+            property string  peloton_code: ""
         }
 
         function paddingZeros(text, limit) {
