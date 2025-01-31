@@ -1924,7 +1924,7 @@ void peloton::setTestMode(bool test) { testMode = test; }
 void peloton::onPelotonGranted() {
 
     pelotonAuthWebVisible = false;
-    pelotonWebVisibleChanged(pelotonAuthWebVisible);
+    emit pelotonWebVisibleChanged(pelotonAuthWebVisible);
     QSettings settings;
     settings.setValue(QZSettings::peloton_accesstoken, pelotonOAuth->token());
     settings.setValue(QZSettings::peloton_refreshtoken, pelotonOAuth->refreshToken());
@@ -1952,7 +1952,7 @@ void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
         QDesktopServices::openUrl(url);
     else {
         pelotonAuthWebVisible = true;
-        pelotonWebVisibleChanged(pelotonAuthWebVisible);
+        emit pelotonWebVisibleChanged(pelotonAuthWebVisible);
     }
 }
 

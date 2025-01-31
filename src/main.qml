@@ -196,6 +196,7 @@ ApplicationWindow {
            onYesClicked: {
                settings.peloton_username = "username"
                settings.peloton_password = "password"
+               stackView.push("WebPelotonAuth.qml")
                peloton_connect_clicked()
            }
            onNoClicked: this.visible = false
