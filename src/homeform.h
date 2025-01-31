@@ -151,6 +151,8 @@ class homeform : public QObject {
     Q_PROPERTY(QStringList tile_order READ tile_order NOTIFY tile_orderChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE
                    setGeneralPopupVisible)
+    Q_PROPERTY(bool pelotonPopupVisible READ pelotonPopupVisible NOTIFY pelotonPopupVisibleChanged WRITE
+                   setPelotonPopupVisible)
     Q_PROPERTY(bool licensePopupVisible READ licensePopupVisible NOTIFY licensePopupVisibleChanged WRITE
                    setLicensePopupVisible)
     Q_PROPERTY(bool mapsVisible READ mapsVisible NOTIFY mapsVisibleChanged WRITE setMapsVisible)
@@ -451,6 +453,7 @@ class homeform : public QObject {
     bool stravaUploadRequested() { return m_stravaUploadRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
+    bool pelotonPopupVisible();
     bool licensePopupVisible();
     bool mapsVisible();
     bool videoIconVisible();
@@ -506,6 +509,7 @@ class homeform : public QObject {
         m_stravaUploadRequested = value;
     }
     void setGeneralPopupVisible(bool value);
+    void setPelotonPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
     int preview_workout_points();
 
@@ -702,6 +706,7 @@ class homeform : public QObject {
     QString m_info = QStringLiteral("Connecting...");
     bool m_labelHelp = true;
     bool m_generalPopupVisible = false;
+    bool m_pelotonPopupVisible = false;
     bool m_LicensePopupVisible = false;
     bool m_MapsVisible = false;
     bool m_VideoIconVisible = false;
@@ -903,6 +908,7 @@ class homeform : public QObject {
     void toastRequestedChanged(QString value);
     void stravaUploadRequestedChanged(bool value);
     void generalPopupVisibleChanged(bool value);
+    void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
     void videoIconVisibleChanged(bool value);
     void videoVisibleChanged(bool value);

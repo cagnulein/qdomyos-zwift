@@ -1931,7 +1931,8 @@ void peloton::onPelotonGranted() {
     settings.setValue(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime());
     qDebug() << QStringLiteral("peloton authenticathed") << pelotonOAuth->token() << pelotonOAuth->refreshToken();
     peloton_refreshtoken();
-    homeform::singleton()->setGeneralPopupVisible(true);
+    if(homeform::singleton())
+        homeform::singleton()->setPelotonPopupVisible(true);
 }
 
 void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {

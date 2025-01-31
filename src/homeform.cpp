@@ -6667,6 +6667,14 @@ void homeform::setGeneralPopupVisible(bool value) {
     emit generalPopupVisibleChanged(m_generalPopupVisible);
 }
 
+bool homeform::pelotonPopupVisible() { return m_pelotonPopupVisible; }
+
+void homeform::setPelotonPopupVisible(bool value) {
+
+    m_pelotonPopupVisible = value;
+    emit pelotonPopupVisibleChanged(m_pelotonPopupVisible);
+}
+
 bool homeform::licensePopupVisible() { return m_LicensePopupVisible; }
 
 void homeform::setLicensePopupVisible(bool value) {

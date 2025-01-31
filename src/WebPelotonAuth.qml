@@ -18,15 +18,16 @@ Item {
         anchors.fill: parent
         height: parent.height
         width: parent.width
-        visible: !rootItem.generalPopupVisible
+        visible: !rootItem.pelotonPopupVisible
         url: rootItem.getPelotonAuthUrl
     }
 
     Popup {
+        id: popupPelotonConnectedWeb
         parent: Overlay.overlay
-        enabled: rootItem.generalPopupVisible
-        onEnabledChanged: { if(rootItem.generalPopupVisible) popupPelotonConnectedWeb.open() }
-        onClosed: { rootItem.generalPopupVisible = false; }
+        enabled: rootItem.pelotonPopupVisible
+        onEnabledChanged: { if(rootItem.pelotonPopupVisible) popupPelotonConnectedWeb.open() }
+        onClosed: { rootItem.pelotonPopupVisible = false; }
 
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
@@ -50,7 +51,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: 370
                 height: 120
-                text: qsTr("Your Peloton account is now connected!")
+                text: qsTr("Your Peloton account is now connected!<br><br>Restart the app to apply this!")
             }
         }
     }
