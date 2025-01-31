@@ -19,6 +19,7 @@ protocol WatchKitConnectionProtocol {
 }
 
 class WatchKitConnection: NSObject {
+    let SwiftDebug = swiftDebug()
     static let shared = WatchKitConnection()
     weak var delegate: WatchKitConnectionDelegate?
     static var currentHeartRate = 0
@@ -143,6 +144,8 @@ extension WatchKitConnection: WCSessionDelegate {
         replyValues["power"] = WatchKitConnection.power
         replyValues["speed"] = WatchKitConnection.speed
         replyValues["steps"] = Double(WatchKitConnection.steps)
+        
+        SwiftDebug.qtDebug(replyValues.debugDescription)
         
         replyHandler(replyValues)
                 
