@@ -49,7 +49,10 @@ void fakebike::update() {
     if (requestPower != -1) {
         // bepo70: don't know if this conversion is really needed, i would do it anyway.
         m_watt = (double)requestPower * (1.0 + (((double)rand() / RAND_MAX) * 0.4 - 0.2));
-        Cadence = requestPower;
+        if(requestPower)
+            Cadence = 50 + (static_cast<double>(rand()) / RAND_MAX) * 50;
+        else
+            Cadence = 0;
         emit debug(QStringLiteral("writing power ") + QString::number(requestPower));
         //requestPower = -1;
         // bepo70: Disregard the current inclination for calculating speed. When the video
