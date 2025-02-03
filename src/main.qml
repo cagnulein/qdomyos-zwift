@@ -709,6 +709,9 @@ ApplicationWindow {
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;
                         stackView.push("settings.qml")
+                        stackView.currentItem.peloton_connect_clicked.connect(function() {
+                            peloton_connect_clicked()
+                         });
                         drawer.close()
                     }
                 }

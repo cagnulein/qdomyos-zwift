@@ -15,6 +15,8 @@ import QtQuick.Dialogs 1.0
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane        
 
+        signal peloton_connect_clicked()
+
         Settings {
             id: settings
             property real ui_zoom: 100.0
@@ -4263,6 +4265,23 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 */
+
+                    ItemDelegate {
+                        Image {
+                            anchors.left: parent.left;
+                            anchors.verticalCenter: parent.verticalCenter
+                            source: "icons/icons/Button_Connect_Rect_DarkMode.png"
+                            fillMode: Image.PreserveAspectFit
+                            visible: true
+                            width: parent.width
+                        }
+                        Layout.fillWidth: true
+                        onClicked: {
+                            stackView.push("WebPelotonAuth.qml")
+                            peloton_connect_clicked()
+                        }
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
