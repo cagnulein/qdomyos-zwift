@@ -227,6 +227,10 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         let quantity = HKQuantity(unit: unit,
                                   doubleValue: totalEnergyBurned)
         
+        if workoutSession.startDate == nil {
+            return
+        }
+        
         let sample = HKCumulativeQuantitySeriesSample(type: quantityType,
                                                       quantity: quantity,
                                                       start: workoutSession.startDate!,
