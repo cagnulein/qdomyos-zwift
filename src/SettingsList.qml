@@ -22,7 +22,7 @@ ColumnLayout {
         }
     }
 
-    AccordionElement {
+    StaticAccordionElement {
         title: qsTr("Settings folder")
         indicatRectColor: Material.color(Material.Grey)
         textColor: Material.color(Material.Grey)
