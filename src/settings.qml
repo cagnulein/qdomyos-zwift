@@ -1056,7 +1056,7 @@ import QtQuick.Dialogs 1.0
             property string  peloton_refreshtoken: ""
             property string  peloton_lastrefresh: ""
             property string  peloton_expires: ""
-            property string  peloton_code: ""            
+            property string  peloton_code: ""
         }
 
         function paddingZeros(text, limit) {
