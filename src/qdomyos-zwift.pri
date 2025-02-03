@@ -1,7 +1,7 @@
 include(../defaults.pri)
 QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia
 QTPLUGIN += qavfmediaplayer
-QT+= charts core-private
+QT+= charts core-private sql concurrent
 
 qtHaveModule(httpserver) {
     QT += httpserver
@@ -91,6 +91,7 @@ SOURCES += \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
     $$PWD/devices/technogymbike/technogymbike.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
+    $$PWD/fitdatabaseprocessor.cpp \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
     $$PWD/mqtt/qmqttauthenticationproperties.cpp \
     $$PWD/mqtt/qmqttclient.cpp \
@@ -105,6 +106,8 @@ SOURCES += \
     $$PWD/mqtt/qmqtttopicname.cpp \
     $$PWD/mqtt/qmqtttype.cpp \
     $$PWD/osc.cpp \
+    $$PWD/workoutloaderworker.cpp \
+    $$PWD/workoutmodel.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
 devices/csafe/csafe.cpp \
@@ -349,6 +352,7 @@ HEADERS += \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.h \
     $$PWD/ergtable.h \
+    $$PWD/fitdatabaseprocessor.h \
     $$PWD/osc.h \
     $$PWD/oscpp/client.hpp \
     $$PWD/oscpp/detail/endian.hpp \
@@ -379,6 +383,8 @@ HEADERS += \
     $$PWD/mqtt/qmqtttype.h \
     $$PWD/treadmillErgTable.h \
     $$PWD/wheelcircumference.h \
+    $$PWD/workoutloaderworker.h \
+    $$PWD/workoutmodel.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
 devices/csafe/csafe.h \
