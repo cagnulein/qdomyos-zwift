@@ -6135,6 +6135,7 @@ void homeform::fit_save_clicked() {
 }
 
 void homeform::strava_upload_file_prepare() {
+    qDebug() << lastFitFileSaved;
     QFile f(lastFitFileSaved);
     f.open(QFile::OpenModeFlag::ReadOnly);
     QByteArray fitfile = f.readAll();
