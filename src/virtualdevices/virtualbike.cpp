@@ -499,7 +499,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
         QLowEnergyAdvertisingParameters pars = QLowEnergyAdvertisingParameters();
         if (!bluetooth_relaxed) {
-            pars.setInterval(100, 100);
+            pars.setInterval(10, 10);
         }
 
         leController->startAdvertising(pars, advertisingData, advertisingData);
@@ -1348,7 +1348,7 @@ void virtualbike::reconnect() {
 #endif
 
     QLowEnergyAdvertisingParameters pars;
-    pars.setInterval(100, 100);
+    pars.setInterval(10, 10);
     leController->startAdvertising(pars, advertisingData, advertisingData);
 }
 
