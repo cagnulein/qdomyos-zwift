@@ -1059,6 +1059,8 @@ import QtQuick.Dialogs 1.0
             property string  peloton_lastrefresh: ""
             property string  peloton_expires: ""
             property string  peloton_code: ""
+
+            property bool nordictrack_treadmill_1750_adb: false
         }
 
         function paddingZeros(text, limit) {
@@ -6342,6 +6344,7 @@ import QtQuick.Dialogs 1.0
                                     "Proform 505 CST v.80.44",
                                     "Proform Trainer 8.0",
                                     "Proform 705 CST v.80.44",
+                                    "Nordictrack 1750",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -6403,7 +6406,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_treadmill_1500_pro ? 42 :
                                                     settings.proform_505_cst_80_44 ? 43 :
                                                     settings.proform_trainer_8_0 ? 44 :
-                                                    settings.proform_treadmill_705_cst_V80_44 ? 45 : 0;
+                                                    settings.proform_treadmill_705_cst_V80_44 ? 45 :
+                                                    settings.nordictrack_treadmill_1750_adb ? 46 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -6463,6 +6467,7 @@ import QtQuick.Dialogs 1.0
                                     settings.proform_505_cst_80_44 = false;
                                     settings.proform_trainer_8_0 = false;
                                     settings.proform_treadmill_705_cst_V80_44 = false;
+                                    settings.nordictrack_treadmill_1750_adb = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -6511,6 +6516,7 @@ import QtQuick.Dialogs 1.0
                                         case 43: settings.proform_505_cst_80_44 = true; break;
                                         case 44: settings.proform_trainer_8_0 = true; break;
                                         case 45: settings.proform_treadmill_705_cst_V80_44 = true; break;
+                                        case 46: settings.nordictrack_treadmill_1750_adb = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;

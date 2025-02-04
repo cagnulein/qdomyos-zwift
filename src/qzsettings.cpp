@@ -823,8 +823,9 @@ const QString QZSettings::tile_biggears_swap = QStringLiteral("tile_biggears_swa
 const QString QZSettings::treadmill_follow_wattage = QStringLiteral("treadmill_follow_wattage");
 const QString QZSettings::fit_file_garmin_device_training_effect = QStringLiteral("fit_file_garmin_device_training_effect");
 const QString QZSettings::proform_treadmill_705_cst_V80_44 = QStringLiteral("proform_treadmill_705_cst_V80_44");
+const QString QZSettings::nordictrack_treadmill_1750_adb = QStringLiteral("nordictrack_treadmill_1750_adb");
 
-const uint32_t allSettingsCount = 692;
+const uint32_t allSettingsCount = 693;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1523,6 +1524,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_follow_wattage, QZSettings::default_treadmill_follow_wattage},
     {QZSettings::fit_file_garmin_device_training_effect, QZSettings::default_fit_file_garmin_device_training_effect},
     {QZSettings::proform_treadmill_705_cst_V80_44, QZSettings::default_proform_treadmill_705_cst_V80_44},
+    {QZSettings::nordictrack_treadmill_1750_adb, QZSettings::default_nordictrack_treadmill_1750_adb},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
