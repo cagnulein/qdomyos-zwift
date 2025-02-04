@@ -552,6 +552,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                                    (uint16_t)((uint8_t)newValue.at(index))));            
             index += 2;            
             if(Resistance.value() > 0) {
+                if(BIKE_)
+                    d = d / 10.0;
                 Resistance = d;
                 emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
                 emit resistanceRead(Resistance.value());
@@ -1255,6 +1257,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("JFBK5.0 found");
             resistance_lvl_mode = true;
             JFBK5_0 = true;
+        } else if((bluetoothDevice.name().toUpper().startsWith("BIKE-"))) {
+            qDebug() << QStringLiteral("BIKE- found");
+            BIKE_ = true;            
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
