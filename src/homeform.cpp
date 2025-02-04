@@ -4499,7 +4499,7 @@ void homeform::update() {
                 QString::number(
                     bluetoothManager->device()->difficult() *
                         settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
-                            .toDouble() *
+                            .toDouble() +
                         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
                             .toDouble(),
                     'f', 0));
