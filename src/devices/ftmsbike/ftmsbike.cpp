@@ -15,7 +15,6 @@
 #include "keepawakehelper.h"
 #endif
 #include <chrono>
-#include "wheelcircumference.h"
 
 #ifdef Q_OS_IOS
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
@@ -36,8 +35,7 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &ftmsbike::update);
     refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
-    wheelCircumference::GearTable g;
-    g.printTable();
+    gearTable.printTable();
 }
 
 void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -327,8 +325,7 @@ void ftmsbike::update() {
 
         if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
             QSettings settings;
-            wheelCircumference::GearTable table;
-            wheelCircumference::GearTable::GearInfo g = table.getGear((int)gears());
+            wheelCircumference::GearTable::GearInfo g = gearTable.getGear((int)gears());
             double original_ratio = ((double)settings.value(QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size).toDouble()) /
             ((double)settings.value(QZSettings::gear_cog_size, QZSettings::default_gear_cog_size).toDouble());
             
@@ -1335,7 +1332,7 @@ double ftmsbike::maxGears() {
 
     if((zwiftPlayService != nullptr || DIRETO_XR) && gears_zwift_ratio) {
         wheelCircumference::GearTable g;
-        return g.maxGears;
+        return gearTable.maxGears;
     } else if(WATTBIKE) {
         return 22;
     } else {
