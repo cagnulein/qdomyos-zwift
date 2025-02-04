@@ -2256,6 +2256,20 @@ class QZSettings {
     static const int SHIFT_STYLE_SHIMANO_A = 1;
     static const int SHIFT_STYLE_SHIMANO_B = 2;
     static const int SHIFT_STYLE_SRAM = 3;
+    static const QString tile_biggears_swap;
+    static constexpr bool default_tile_biggears_swap = false;
+
+    static const QString treadmill_follow_wattage;
+    static constexpr bool default_treadmill_follow_wattage = false;
+
+    static const QString fit_file_garmin_device_training_effect;
+    static constexpr bool default_fit_file_garmin_device_training_effect = false;
+
+    static const QString proform_treadmill_705_cst_V80_44;
+    static constexpr bool default_proform_treadmill_705_cst_V80_44 = false;
+
+    static const QString nordictrack_treadmill_1750_adb;
+    static constexpr bool default_nordictrack_treadmill_1750_adb = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

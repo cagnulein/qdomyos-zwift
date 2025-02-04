@@ -106,6 +106,7 @@ class horizontreadmill : public treadmill {
     bool SW_TREADMILL = false;
     bool BOWFLEX_T9 = false;
     bool YPOO_MINI_PRO = false;
+    bool MX_TM = false;
 
     void testProfileCRC();
     void updateProfileCRC();

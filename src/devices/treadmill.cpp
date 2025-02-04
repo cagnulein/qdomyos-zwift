@@ -65,7 +65,7 @@ bluetoothdevice::BLUETOOTH_TYPE treadmill::deviceType() { return bluetoothdevice
 double treadmill::minStepInclination() { return 0.5; }
 double treadmill::minStepSpeed() { return 0.5; }
 
-void treadmill::update_metrics(bool watt_calc, const double watts) {
+void treadmill::update_metrics(bool watt_calc, const double watts, const bool from_accessory) {
 
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
@@ -74,6 +74,8 @@ void treadmill::update_metrics(bool watt_calc, const double watts) {
         settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
 
     simulateInclinationWithSpeed();
+    if(!from_accessory)
+        followPowerBySpeed();
 
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
@@ -475,6 +477,49 @@ bool treadmill::simulateInclinationWithSpeed() {
     }
     return false;
 }
+
+bool treadmill::followPowerBySpeed() {
+    QSettings settings;
+    bool r = false;
+    bool treadmill_follow_wattage =
+        settings
+            .value(QZSettings::treadmill_follow_wattage,
+                   QZSettings::default_treadmill_follow_wattage)
+            .toBool();
+    double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    static double lastInclination = 0;
+
+    if (treadmill_follow_wattage) {
+
+        if (currentInclination().value() != lastInclination && wattsMetric().value() != 0) {
+            double newspeed = 0;
+            double bestSpeed = 0.1;
+
+            // don't read the wattage directly from the m_watt because if you were using a power sensor, the power calcuated in the for will not match it
+            double previousWatt = wattsCalc(w, currentSpeed().value(), lastInclination);
+
+            double bestDifference = fabs(wattsCalc(w, bestSpeed, currentInclination().value()) - previousWatt);
+            for (int speed = 1; speed <= 300; speed++) {
+                double s = ((double)speed) / 10.0;
+                double thisDifference = fabs(wattsCalc(w, s, currentInclination().value()) - previousWatt);
+                if (thisDifference < bestDifference) {
+                    bestDifference = thisDifference;
+                    bestSpeed = s;
+                }
+            }
+            // Now bestSpeed is the speed closest to the desired wattage
+            newspeed = bestSpeed;
+            qDebug() << QStringLiteral("changing speed to") << newspeed << "due to inclination changed" << currentInclination().value() << lastInclination;
+            changeSpeedAndInclination(newspeed, currentInclination().value());
+            r = true;
+        }
+    }
+
+    lastInclination = currentInclination().value();
+
+    return r;
+}
+
 
 QTime treadmill::lastRequestedPace() {
     QSettings settings;
