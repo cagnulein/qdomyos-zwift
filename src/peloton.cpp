@@ -817,12 +817,12 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     current_instructor_id = ride[QStringLiteral("instructor_id")].toString();
     current_ride_id = ride[QStringLiteral("id")].toString();
     current_workout_type = ride[QStringLiteral("fitness_discipline")].toString();
-    current_pedaling_duration = ride[QStringLiteral("pedaling_duration")].toInt();
+    current_pedaling_duration = ride[QStringLiteral("duration")].toInt();
     current_image_url = ride[QStringLiteral("image_url")].toString();
 
-    qint64 time = ride[QStringLiteral("original_air_time")].toInt();
-    qDebug() << QStringLiteral("original_air_time") << time;
-    qDebug() << QStringLiteral("current_pedaling_duration") << current_pedaling_duration;
+    qint64 time = ride[QStringLiteral("scheduled_start_time")].toInt();
+    qDebug() << QStringLiteral("scheduled_start_time") << time;
+    qDebug() << QStringLiteral("duration") << current_pedaling_duration;
 
     current_original_air_time = QDateTime::fromSecsSinceEpoch(time, Qt::UTC);
 
