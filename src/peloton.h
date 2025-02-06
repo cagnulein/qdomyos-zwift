@@ -71,7 +71,7 @@ class peloton : public QObject {
 
   private:
     _PELOTON_API current_api = peloton_api;
-    const int peloton_workout_second_resolution = 10;
+    const int peloton_workout_second_resolution = 1;
     bool peloton_credentials_wrong = false;
     QNetworkAccessManager *mgr = nullptr;
 

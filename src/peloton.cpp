@@ -1516,12 +1516,28 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
             bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
 
+            int lastEnd = 60;
             for (QJsonValue metric : targetMetricsList) {
                 QJsonObject metricObj = metric.toObject();
                 QJsonObject offsets = metricObj[QStringLiteral("offsets")].toObject();
                 int start = offsets[QStringLiteral("start")].toInt();
                 int end = offsets[QStringLiteral("end")].toInt();
-                int len = end - start;
+                int len = end - start + 1;
+                
+                // Check if there's a gap from previous segment
+                if (!trainrows.isEmpty()) {
+                   int prevEnd = start - 1; // Expected previous end
+                   if (lastEnd < prevEnd) {
+                       // Add gap row
+                       trainrow gapRow;
+                       gapRow.duration = QTime(0, (prevEnd - lastEnd + 1) / 60, (prevEnd - lastEnd + 1) % 60, 0);
+                       gapRow.power = -1;
+                       qDebug() << "adding a gap row of " << gapRow.duration << " seconds because start was " << start << " and end " << lastEnd;
+                       trainrows.append(gapRow);
+                   }
+                }
+                
+                lastEnd = end;
 
                 QJsonArray metricsArray = metricObj[QStringLiteral("metrics")].toArray();
                 if (!metricsArray.isEmpty()) {
