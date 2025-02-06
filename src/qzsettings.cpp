@@ -881,7 +881,7 @@ const QString QZSettings::default_tile_preset_powerzone_7_label = QStringLiteral
 const QString QZSettings::tile_preset_powerzone_7_color = QStringLiteral("tile_preset_powerzone_7_color");
 const QString QZSettings::default_tile_preset_powerzone_7_color = QStringLiteral("red");
 
-const uint32_t allSettingsCount = 723;
+const uint32_t allSettingsCount = 728;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
