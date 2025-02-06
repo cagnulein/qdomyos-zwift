@@ -24,11 +24,17 @@ heartratebelt::~heartratebelt() {
 }
 
 void heartratebelt::update() {
+    QSettings settings;
+    
     // Check if we are in connecting state and more than 10 seconds have passed
     if (m_control && 
         m_control->state() == QLowEnergyController::ConnectingState && 
         !connectingTime.isNull() &&
-        connectingTime.msecsTo(QDateTime::currentDateTime()) > CONNECTION_TIMEOUT) {
+        connectingTime.msecsTo(QDateTime::currentDateTime()) > CONNECTION_TIMEOUT
+#ifdef Q_OS_IOS
+        && !settings.value(QZSettings::ios_cache_heart_device, QZSettings::default_ios_cache_heart_device).toBool()
+#endif
+        ) {
         
         emit debug(QStringLiteral("Connection timeout in ConnectingState - disconnecting and retrying..."));
         disconnectBluetooth();

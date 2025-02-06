@@ -2264,6 +2264,111 @@ class QZSettings {
     static const QString nordictrack_treadmill_1750_adb;
     static constexpr bool default_nordictrack_treadmill_1750_adb = false;
 
+    static const QString tile_preset_powerzone_1_enabled;
+    static constexpr bool default_tile_preset_powerzone_1_enabled = false;
+
+    static const QString tile_preset_powerzone_1_order;
+    static constexpr int default_tile_preset_powerzone_1_order = 55;
+
+    static const QString tile_preset_powerzone_1_value;
+    static constexpr double default_tile_preset_powerzone_1_value = 1.0;
+
+    static const QString tile_preset_powerzone_1_label;
+    static const QString default_tile_preset_powerzone_1_label;
+
+    static const QString tile_preset_powerzone_1_color;
+    static const QString default_tile_preset_powerzone_1_color;
+
+    static const QString tile_preset_powerzone_2_enabled;
+    static constexpr bool default_tile_preset_powerzone_2_enabled = false;
+
+    static const QString tile_preset_powerzone_2_order;
+    static constexpr int default_tile_preset_powerzone_2_order = 56;
+
+    static const QString tile_preset_powerzone_2_value;
+    static constexpr double default_tile_preset_powerzone_2_value = 2.0;
+
+    static const QString tile_preset_powerzone_2_label;
+    static const QString default_tile_preset_powerzone_2_label;
+
+    static const QString tile_preset_powerzone_2_color;
+    static const QString default_tile_preset_powerzone_2_color;
+
+    static const QString tile_preset_powerzone_3_enabled;
+    static constexpr bool default_tile_preset_powerzone_3_enabled = false;
+
+    static const QString tile_preset_powerzone_3_order;
+    static constexpr int default_tile_preset_powerzone_3_order = 57;
+
+    static const QString tile_preset_powerzone_3_value;
+    static constexpr double default_tile_preset_powerzone_3_value = 3.0;
+
+    static const QString tile_preset_powerzone_3_label;
+    static const QString default_tile_preset_powerzone_3_label;
+
+    static const QString tile_preset_powerzone_3_color;
+    static const QString default_tile_preset_powerzone_3_color;
+
+    static const QString tile_preset_powerzone_4_enabled;
+    static constexpr bool default_tile_preset_powerzone_4_enabled = false;
+
+    static const QString tile_preset_powerzone_4_order;
+    static constexpr int default_tile_preset_powerzone_4_order = 58;
+
+    static const QString tile_preset_powerzone_4_value;
+    static constexpr double default_tile_preset_powerzone_4_value = 4.0;
+
+    static const QString tile_preset_powerzone_4_label;
+    static const QString default_tile_preset_powerzone_4_label;
+
+    static const QString tile_preset_powerzone_4_color;
+    static const QString default_tile_preset_powerzone_4_color;
+
+    static const QString tile_preset_powerzone_5_enabled;
+    static constexpr bool default_tile_preset_powerzone_5_enabled = false;
+
+    static const QString tile_preset_powerzone_5_order;
+    static constexpr int default_tile_preset_powerzone_5_order = 59;
+
+    static const QString tile_preset_powerzone_5_value;
+    static constexpr double default_tile_preset_powerzone_5_value = 5.0;
+
+    static const QString tile_preset_powerzone_5_label;
+    static const QString default_tile_preset_powerzone_5_label;
+
+    static const QString tile_preset_powerzone_5_color;
+    static const QString default_tile_preset_powerzone_5_color;
+
+    static const QString tile_preset_powerzone_6_enabled;
+    static constexpr bool default_tile_preset_powerzone_6_enabled = false;
+
+    static const QString tile_preset_powerzone_6_order;
+    static constexpr int default_tile_preset_powerzone_6_order = 60;
+
+    static const QString tile_preset_powerzone_6_value;
+    static constexpr double default_tile_preset_powerzone_6_value = 6.0;
+
+    static const QString tile_preset_powerzone_6_label;
+    static const QString default_tile_preset_powerzone_6_label;
+
+    static const QString tile_preset_powerzone_6_color;
+    static const QString default_tile_preset_powerzone_6_color;
+
+    static const QString tile_preset_powerzone_7_enabled;
+    static constexpr bool default_tile_preset_powerzone_7_enabled = false;
+
+    static const QString tile_preset_powerzone_7_order;
+    static constexpr int default_tile_preset_powerzone_7_order = 61;
+
+    static const QString tile_preset_powerzone_7_value;
+    static constexpr double default_tile_preset_powerzone_7_value = 7.0;
+
+    static const QString tile_preset_powerzone_7_label;
+    static const QString default_tile_preset_powerzone_7_label;
+
+    static const QString tile_preset_powerzone_7_color;
+    static const QString default_tile_preset_powerzone_7_color;    
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
