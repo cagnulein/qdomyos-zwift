@@ -1135,8 +1135,8 @@ jobs:
           name: raspberry-pi-binary
           path: src/qdomyos-zwift-32bit
 
-   raspberry-pi-build-and-image-64bit:
-     runs-on: ubuntu-24.04
+  raspberry-pi-build-and-image-64bit:
+    runs-on: ubuntu-24.04
     
     steps:
       - name: Checkout code
