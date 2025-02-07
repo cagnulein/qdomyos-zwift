@@ -3216,6 +3216,19 @@ import QtQuick.Dialogs 1.0
                             }
                         }
                         IndicatorOnlySwitch {
+                            text: qsTr("Ignore FTMS")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.domyosbike_notfmts
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.domyosbike_notfmts = checked
+                        }
+                        IndicatorOnlySwitch {
                             text: qsTr("Fix Calories/Km to Console")
                             spacing: 0
                             bottomPadding: 0
