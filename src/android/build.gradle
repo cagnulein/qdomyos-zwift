@@ -27,6 +27,11 @@ def amazon = System.getenv('AMAZON')
 println(amazon)
 
 dependencies {
+    implementation 'io.netty:netty-all:4.1.100.Final'
+    implementation 'com.google.guava:guava:32.1.3-android'
+    implementation 'com.fazecast:jSerialComm:2.10.4'  	
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'org.slf4j:slf4j-simple:2.0.9'	
     implementation "androidx.core:core:1.12.0"
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
@@ -113,6 +118,20 @@ android {
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/io.netty.versions.properties'
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/*.kotlin_module'
     }
 
     lintOptions {
