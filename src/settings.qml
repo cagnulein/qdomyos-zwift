@@ -1099,7 +1099,9 @@ import QtQuick.Dialogs 1.0
             property int tile_preset_powerzone_7_order: 61
             property real tile_preset_powerzone_7_value: 7.0
             property string tile_preset_powerzone_7_label: "Zone 7"
-            property string tile_preset_powerzone_7_color: "red"                    
+            property string tile_preset_powerzone_7_color: "red"  
+
+            property bool proform_bike_PFEVEX71316_0: false                  
         }
 
         function paddingZeros(text, limit) {
@@ -3330,7 +3332,8 @@ import QtQuick.Dialogs 1.0
                                     "Proform 225 CSX",
                                     "Proform 325 CSX / Healthrider H30X",
                                     "Proform SB",
-                                    "Nordictrack GX 4.4 Pro"
+                                    "Nordictrack GX 4.4 Pro",
+                                    "TDF 1.0 PFEVEX71316.0",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -3362,7 +3365,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_bike_225_csx ? 12 :
                                                     settings.proform_bike_325_csx ? 13 :
                                                     settings.proform_bike_sb ? 14 :
-                                                    settings.nordictrack_gx_44_pro ? 15 : 0;
+                                                    settings.nordictrack_gx_44_pro ? 15 :
+                                                    settings.proform_bike_PFEVEX71316_0 ? 16 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -3392,6 +3396,7 @@ import QtQuick.Dialogs 1.0
                                     settings.proform_bike_325_csx = false;
                                     settings.proform_bike_sb = false;
                                     settings.nordictrack_gx_44_pro = false;
+                                    settings.proform_bike_PFEVEX71316_0 = false;
 
                                     // Set corresponding setting for selected model
                                     switch (currentIndex) {
@@ -3410,6 +3415,7 @@ import QtQuick.Dialogs 1.0
                                         case 13: settings.proform_bike_325_csx = true; break;
                                         case 14: settings.proform_bike_sb = true; break;
                                         case 15: settings.nordictrack_gx_44_pro = true; break;
+                                        case 16: settings.proform_bike_PFEVEX71316_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
