@@ -197,6 +197,8 @@ LOG_FILE="/var/log/qz-treadmill-monitor.log"
 TARGET_DEVICE="I_TL"
 SCAN_INTERVAL=30  # Time in seconds between checks
 SERVICE_NAME="qz"
+DEBUG_LOG_DIR="/var/log"  # Directory where QZ debug logs are stored
+ERROR_MESSAGE="BTLE stateChanged InvalidService"
 
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
@@ -209,7 +211,7 @@ is_service_running() {
 
 scan_for_device() {
     log "Starting Bluetooth scan for $TARGET_DEVICE..."
-    
+
     # Run bluetoothctl scan in the background and capture output
     bluetoothctl scan on &>/dev/null &
     SCAN_PID=$!
@@ -234,18 +236,43 @@ scan_for_device() {
     fi
 }
 
+restart_qz_on_error() {
+    # Get the current date
+    CURRENT_DATE=$(date '+%a_%b_%d')
+    
+    # Find the latest QZ debug log file for today
+    LATEST_LOG=$(ls -t "$DEBUG_LOG_DIR"/debug-"$CURRENT_DATE"_*.log 2>/dev/null | head -n 1)
+    
+    if [ -z "$LATEST_LOG" ]; then
+        log "No QZ debug log found for today."
+        return 0
+    fi
+
+    log "Checking latest log file: $LATEST_LOG for errors..."
+
+    # Search the latest log for the error message
+    if grep -q "$ERROR_MESSAGE" "$LATEST_LOG"; then
+        log "***** Error detected in QZ log: $ERROR_MESSAGE *****"
+        log "Restarting QZ service..."
+        systemctl restart "$SERVICE_NAME"
+    else
+        log "No errors detected in $LATEST_LOG."
+    fi
+}
+
 manage_service() {
     local device_found=$1
     if $device_found; then
         if ! is_service_running; then
-            log "Starting QZ service..."
+            log "***** Starting QZ service... *****"
             systemctl start "$SERVICE_NAME"
         else
             log "QZ service is already running."
+            restart_qz_on_error  # Check the log for errors when QZ is already running
         fi
     else
         if is_service_running; then
-            log "Stopping QZ service..."
+            log "***** Stopping QZ service... *****"
             systemctl stop "$SERVICE_NAME"
         else
             log "QZ service is already stopped."

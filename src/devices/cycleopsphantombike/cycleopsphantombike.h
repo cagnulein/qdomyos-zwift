@@ -77,7 +77,7 @@ class cycleopsphantombike : public bike {
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyCharacteristic gattWriteCharCustomId;
     QLowEnergyService *gattPowerService = nullptr;
-    QLowEnergyService *gattCustomService;
+    QLowEnergyService *gattCustomService = nullptr;
     // QLowEnergyCharacteristic gattNotify1Characteristic;
 
     uint8_t sec1Update = 0;

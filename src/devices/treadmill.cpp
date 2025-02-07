@@ -488,17 +488,20 @@ bool treadmill::followPowerBySpeed() {
             .toBool();
     double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     static double lastInclination = 0;
-    static double lastWattage = 0;
 
     if (treadmill_follow_wattage) {
 
-        if (currentInclination().value() != lastInclination && lastWattage != 0) {
+        if (currentInclination().value() != lastInclination && wattsMetric().value() != 0) {
             double newspeed = 0;
             double bestSpeed = 0.1;
-            double bestDifference = fabs(wattsCalc(w, bestSpeed, currentInclination().value()) - lastWattage);
+
+            // don't read the wattage directly from the m_watt because if you were using a power sensor, the power calcuated in the for will not match it
+            double previousWatt = wattsCalc(w, currentSpeed().value(), lastInclination);
+
+            double bestDifference = fabs(wattsCalc(w, bestSpeed, currentInclination().value()) - previousWatt);
             for (int speed = 1; speed <= 300; speed++) {
                 double s = ((double)speed) / 10.0;
-                double thisDifference = fabs(wattsCalc(w, s, currentInclination().value()) - lastWattage);
+                double thisDifference = fabs(wattsCalc(w, s, currentInclination().value()) - previousWatt);
                 if (thisDifference < bestDifference) {
                     bestDifference = thisDifference;
                     bestSpeed = s;
@@ -513,7 +516,6 @@ bool treadmill::followPowerBySpeed() {
     }
 
     lastInclination = currentInclination().value();
-    lastWattage = wattsMetric().value();
 
     return r;
 }
