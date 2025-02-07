@@ -2384,6 +2384,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
+        QSettings settings;
         bluetoothDevice = device;
 
         if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
@@ -2407,6 +2408,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("TUNTURI T60 TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("F85"))) {
             sole_f85_treadmill = true;
+            settings.setValue(QZSettings::treadmill_step_incline, 1.0); // this treadmill doesn't handle 0.5 inclination
             minInclination = -5.0;
             qDebug() << QStringLiteral("SOLE F85 TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("F89"))) {
