@@ -881,7 +881,9 @@ const QString QZSettings::default_tile_preset_powerzone_7_label = QStringLiteral
 const QString QZSettings::tile_preset_powerzone_7_color = QStringLiteral("tile_preset_powerzone_7_color");
 const QString QZSettings::default_tile_preset_powerzone_7_color = QStringLiteral("red");
 
-const uint32_t allSettingsCount = 728;
+const QString QZSettings::proform_bike_PFEVEX71316_0 = QStringLiteral("proform_bike_PFEVEX71316_0");
+
+const uint32_t allSettingsCount = 729;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1623,6 +1625,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_preset_powerzone_7_value, QZSettings::default_tile_preset_powerzone_7_value},
     {QZSettings::tile_preset_powerzone_7_label, QZSettings::default_tile_preset_powerzone_7_label},
     {QZSettings::tile_preset_powerzone_7_color, QZSettings::default_tile_preset_powerzone_7_color},    
+
+    {QZSettings::proform_bike_PFEVEX71316_0, QZSettings::default_proform_bike_PFEVEX71316_0},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

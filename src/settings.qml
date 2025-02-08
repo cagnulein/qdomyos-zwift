@@ -1102,7 +1102,9 @@ import QtQuick.Dialogs 1.0
             property int tile_preset_powerzone_7_order: 61
             property real tile_preset_powerzone_7_value: 7.0
             property string tile_preset_powerzone_7_label: "Zone 7"
-            property string tile_preset_powerzone_7_color: "red"                    
+            property string tile_preset_powerzone_7_color: "red"  
+
+            property bool proform_bike_PFEVEX71316_0: false                  
         }
 
         function paddingZeros(text, limit) {
@@ -3192,69 +3194,85 @@ import QtQuick.Dialogs 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
-                        accordionContent: RowLayout {
-                            spacing: 10
-                            Label {
-                                id: labelDomyosBikeCadenceFilter
-                                text: qsTr("Cadence Filter:")
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelDomyosBikeCadenceFilter
+                                    text: qsTr("Cadence Filter:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: domyosBikeCadenceFilterTextField
+                                    text: settings.domyos_bike_cadence_filter
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.domyos_bike_cadence_filter = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okDomyosBikeCadenceFilter
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Ignore FTMS")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyosbike_notfmts
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
+                                onClicked: settings.domyosbike_notfmts = checked
                             }
-                            TextField {
-                                id: domyosBikeCadenceFilterTextField
-                                text: settings.domyos_bike_cadence_filter
-                                horizontalAlignment: Text.AlignRight
-                                Layout.fillHeight: false
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
-                                onAccepted: settings.domyos_bike_cadence_filter = text
-                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            IndicatorOnlySwitch {
+                                text: qsTr("Fix Calories/Km to Console")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_bike_display_calories
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.domyos_bike_display_calories = checked
                             }
-                            Button {
-                                id: okDomyosBikeCadenceFilter
-                                text: "OK"
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: { settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text; toast.show("Setting saved!"); }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Bike 500 wattage profile")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_bike_500_profile_v1
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.domyos_bike_500_profile_v1 = checked; settings.domyos_bike_500_profile_v2 = false; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Bike 500 wattage profile v2")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_bike_500_profile_v2
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.domyos_bike_500_profile_v2 = checked; settings.domyos_bike_500_profile_v1 = false; }
                             }
                         }
-                        IndicatorOnlySwitch {
-                            text: qsTr("Fix Calories/Km to Console")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.domyos_bike_display_calories
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: settings.domyos_bike_display_calories = checked
-                        }
-                        IndicatorOnlySwitch {
-                            text: qsTr("Bike 500 wattage profile")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.domyos_bike_500_profile_v1
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.domyos_bike_500_profile_v1 = checked; settings.domyos_bike_500_profile_v2 = false; }
-                        }
-                        IndicatorOnlySwitch {
-                            text: qsTr("Bike 500 wattage profile v2")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.domyos_bike_500_profile_v2
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.domyos_bike_500_profile_v2 = checked; settings.domyos_bike_500_profile_v1 = false; }
-                        }                    
                     }                
                     AccordionElement {
                         title: qsTr("Tacx Neo Options")
@@ -3333,7 +3351,8 @@ import QtQuick.Dialogs 1.0
                                     "Proform 225 CSX",
                                     "Proform 325 CSX / Healthrider H30X",
                                     "Proform SB",
-                                    "Nordictrack GX 4.4 Pro"
+                                    "Nordictrack GX 4.4 Pro",
+                                    "TDF 1.0 PFEVEX71316.0",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -3365,7 +3384,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_bike_225_csx ? 12 :
                                                     settings.proform_bike_325_csx ? 13 :
                                                     settings.proform_bike_sb ? 14 :
-                                                    settings.nordictrack_gx_44_pro ? 15 : 0;
+                                                    settings.nordictrack_gx_44_pro ? 15 :
+                                                    settings.proform_bike_PFEVEX71316_0 ? 16 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -3395,6 +3415,7 @@ import QtQuick.Dialogs 1.0
                                     settings.proform_bike_325_csx = false;
                                     settings.proform_bike_sb = false;
                                     settings.nordictrack_gx_44_pro = false;
+                                    settings.proform_bike_PFEVEX71316_0 = false;
 
                                     // Set corresponding setting for selected model
                                     switch (currentIndex) {
@@ -3413,6 +3434,7 @@ import QtQuick.Dialogs 1.0
                                         case 13: settings.proform_bike_325_csx = true; break;
                                         case 14: settings.proform_bike_sb = true; break;
                                         case 15: settings.nordictrack_gx_44_pro = true; break;
+                                        case 16: settings.proform_bike_PFEVEX71316_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;

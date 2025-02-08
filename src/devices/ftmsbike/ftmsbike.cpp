@@ -922,7 +922,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
-            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || ICSE || SCH_190U || DOMYOS) {
+            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || ICSE || SCH_190U || DOMYOS || SMB1) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
                     qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
@@ -998,7 +998,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
-        settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool()) {
+        (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SMB1)) {
         init();
     }
 
@@ -1068,19 +1068,18 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
                 lastPacketFromFTMS.append(b.at(i));
             qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
-            if(!DIRETO_XR) {
-                if (gears() != 0) {
-                    slope += (gears() * 50);
-                }
 
-                if(min_inclination > (((double)slope) / 100.0)) {
-                    slope = min_inclination * 100;
-                    qDebug() << "grade override due to min_inclination " << min_inclination;
-                }
-
-                slope *= gain;
-                slope += (offset * 100);
+            if (gears() != 0) {
+                slope += (gears() * 50);
             }
+
+            if(min_inclination > (((double)slope) / 100.0)) {
+                slope = min_inclination * 100;
+                qDebug() << "grade override due to min_inclination " << min_inclination;
+            }
+
+            slope *= gain;
+            slope += (offset * 100);
 
             b[3] = slope & 0xFF;
             b[4] = slope >> 8;
@@ -1259,7 +1258,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             JFBK5_0 = true;
         } else if((bluetoothDevice.name().toUpper().startsWith("BIKE-"))) {
             qDebug() << QStringLiteral("BIKE- found");
-            BIKE_ = true;            
+            BIKE_ = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("SMB1"))) {
+            qDebug() << QStringLiteral("SMB1 found");
+            SMB1 = true;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {

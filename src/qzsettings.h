@@ -2384,6 +2384,9 @@ class QZSettings {
     static const QString tile_preset_powerzone_7_color;
     static const QString default_tile_preset_powerzone_7_color;    
 
+    static const QString proform_bike_PFEVEX71316_0;
+    static constexpr bool default_proform_bike_PFEVEX71316_0 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
