@@ -838,7 +838,7 @@ void trainprogram::scheduler() {
 
     ticks++;
     qDebug() << QStringLiteral("trainprogram ticks") << ticks << QStringLiteral("currentTimerJitter") << currentTimerJitter;
-    if(currentTimerJitter > 1000) {
+    if(qAbs(currentTimerJitter) > 1000) {
         int seconds = currentTimerJitter / 1000;
         ticks += seconds;
         currentTimerJitter -= (seconds * 1000);
