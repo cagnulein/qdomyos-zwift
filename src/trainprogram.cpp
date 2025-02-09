@@ -586,6 +586,10 @@ void trainprogram::scheduler() {
 
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
+    QDateTime now = QDateTime::currentDateTime();
+    currentTimerJitter += now.msecsTo(lastSchedulerCall) - 1000;
+    lastSchedulerCall = now;
+
     // outside the if case about a valid train program because the information for the floating window url should be
     // sent anyway
     if (settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr)
@@ -811,6 +815,7 @@ void trainprogram::scheduler() {
 #endif
         }
 
+        currentTimerJitter = 0;
         return;
     }
 
@@ -832,6 +837,13 @@ void trainprogram::scheduler() {
 #endif
 
     ticks++;
+    qDebug() << QStringLiteral("trainprogram ticks") << ticks << QStringLiteral("currentTimerJitter") << currentTimerJitter;
+    if(qAbs(currentTimerJitter) > 1000) {
+        int seconds = currentTimerJitter / 1000;
+        ticks += seconds;
+        currentTimerJitter -= (seconds * 1000);
+        qDebug() << QStringLiteral("fixing jitter!") << seconds << ticks << currentTimerJitter;
+    }
 
     double odometerFromTheDevice = bluetoothManager->device()->odometer();
 
@@ -1270,6 +1282,7 @@ void trainprogram::restart() {
     ticks = 0;
     offset = 0;
     currentStep = 0;
+    currentTimerJitter = 0;    
     started = true;
 }
 
