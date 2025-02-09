@@ -1133,10 +1133,19 @@ resistance_t fitplusbike::resistanceFromPowerRequest(uint16_t power) {
         return 1;
 
     for (resistance_t i = 1; i < max_resistance; i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
-            return i;
+        uint16_t wLower = wattsFromResistance(i);
+        uint16_t wUpper = wattsFromResistance(i + 1);
+
+        // Check if power is between wLower and wUpper
+        if (wLower <= power && wUpper >= power) {
+            // Compare which side is closer
+            int distLower = std::abs((int)wLower - (int)power);
+            int distUpper = std::abs((int)wUpper - (int)power);
+
+            if (distLower <= distUpper)
+                return i;       // If wLower is closer (or equal), pick i
+            else
+                return i + 1;   // If wUpper is closer, pick i+1
         }
     }
     if (power < wattsFromResistance(1))
