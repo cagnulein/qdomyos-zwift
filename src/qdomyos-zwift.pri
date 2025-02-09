@@ -83,6 +83,7 @@ SOURCES += \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.cpp \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.cpp \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
+    $$PWD/nordictrackusbtreadmill.cpp \
     $$PWD/devices/jumprope.cpp \
     $$PWD/devices/kineticinroadbike/SmartControl.cpp \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.cpp \
@@ -349,6 +350,7 @@ HEADERS += \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
     $$PWD/devices/sramAXSController/sramAXSController.h \
     $$PWD/devices/technogymbike/technogymbike.h \
+    $$PWD/nordictrackusbtreadmill.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.h \
     $$PWD/ergtable.h \
@@ -834,6 +836,7 @@ DISTFILES += \
     $$PWD/android/libs/zaplibrary-debug.aar \
     $$PWD/android/res/xml/device_filter.xml \
     $$PWD/android/src/BleAdvertiser.java \
+    $$PWD/android/src/NordictrackUSBHID.java \
    $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/ContentHelper.java \
     $$PWD/android/src/Garmin.java \
@@ -842,6 +845,7 @@ DISTFILES += \
     $$PWD/android/src/LocationHelper.java \
     $$PWD/android/src/MediaButtonReceiver.java \
     $$PWD/android/src/MediaProjection.java \
+   $$PWD/android/src/NordictrackUSBHID.java \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/ScreenCaptureService.java \
     $$PWD/android/src/Shortcuts.java \
