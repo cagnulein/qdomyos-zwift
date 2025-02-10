@@ -160,7 +160,8 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
     static const QByteArray expectedHexArray = QByteArray::fromHex("52696465 4F6E02");
     static const QByteArray expectedHexArray2 = QByteArray::fromHex("410805");
     static const QByteArray expectedHexArray3 = QByteArray::fromHex("00088804");
-    static const QByteArray expectedHexArray4 = QByteArray::fromHex("042A0A10 C0BB0120");
+    static const QByteArray expectedHexArray4  = QByteArray::fromHex("042A0A10 C0BB0120");
+    static const QByteArray expectedHexArray4b = QByteArray::fromHex("042A0A10 A0830120");
     static const QByteArray expectedHexArray5 = QByteArray::fromHex("0422");
     static const QByteArray expectedHexArray6 = QByteArray::fromHex("042A0410");
     static const QByteArray expectedHexArray7 = QByteArray::fromHex("042A0310");
@@ -191,7 +192,7 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
         reply = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
         notifier0004->addAnswer(reply);
     }
-    else if (receivedData.startsWith(expectedHexArray4)) {
+    else if (receivedData.startsWith(expectedHexArray4) || receivedData.startsWith(expectedHexArray4b)) {
         qDebug() << "Zwift Play Ask 4";
 
         reply = QByteArray::fromHex("0308001000185920002800309bed01");
