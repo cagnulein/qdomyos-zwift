@@ -2372,6 +2372,9 @@ class QZSettings {
     static const QString proform_bike_PFEVEX71316_0;
     static constexpr bool default_proform_bike_PFEVEX71316_0 = false;
 
+    static const QString real_inclination_to_virtual_treamill_bridge;
+    static constexpr bool default_real_inclination_to_virtual_treamill_bridge = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
