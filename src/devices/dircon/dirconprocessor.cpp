@@ -14,6 +14,16 @@ DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_servi
 
 DirconProcessor::~DirconProcessor() {}
 
+QString DirconProcessor::convertUUIDFromUINT16ToString (quint16 uuid) {
+    if(uuid == ZWIFT_PLAY_CHAR1_ENUM_VALUE)
+        return ZWIFT_PLAY_CHAR1_UUID_STRING;
+    if(uuid == ZWIFT_PLAY_CHAR2_ENUM_VALUE)
+        return ZWIFT_PLAY_CHAR2_UUID_STRING;
+    if(uuid == ZWIFT_PLAY_CHAR3_ENUM_VALUE)
+        return ZWIFT_PLAY_CHAR3_UUID_STRING;
+    return "";
+}
+
 bool DirconProcessor::initServer() {
     qDebug() << "Initializing dircon tcp server for" << serverName;
     if (!server) {
@@ -55,10 +65,16 @@ void DirconProcessor::initAdvertising() {
         mdnsService.addAttribute(QByteArrayLiteral("serial-number"), serialN.toUtf8());
         QString ble_uuids;
         int i = 0;
-        foreach (DirconProcessorService *service, services)
-            ble_uuids += QString(QStringLiteral(DP_BASE_UUID))
-                             .replace("u", QString(QStringLiteral("%1")).arg(service->uuid, 4, 16, QLatin1Char('0'))) +
-                         ((i++ < services.size() - 1) ? QStringLiteral(",") : QStringLiteral(""));
+        foreach (DirconProcessorService *service, services) {
+            if(service->uuid == ZWIFT_PLAY_ENUM_VALUE) {
+                ble_uuids += ZWIFT_PLAY_UUID_STRING +
+                ((i++ < services.size() - 1) ? QStringLiteral(",") : QStringLiteral(""));
+            } else {
+                ble_uuids += QString(QStringLiteral(DP_BASE_UUID))
+                    .replace("u", QString(QStringLiteral("%1")).arg(service->uuid, 4, 16, QLatin1Char('0'))) +
+                ((i++ < services.size() - 1) ? QStringLiteral(",") : QStringLiteral(""));
+            }
+        }
         mdnsService.addAttribute(QByteArrayLiteral("ble-service-uuids"), ble_uuids.toUtf8());
         mdnsService.setPort(serverPort);
         mdnsProvider->update(mdnsService);
@@ -209,7 +225,7 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
     pkt.uuid = uuid;
     for (QHash<QTcpSocket *, DirconProcessorClient *>::iterator i = clientsMap.begin(); i != clientsMap.end(); ++i) {
         client = i.value();
-        if (client->char_notify.indexOf(uuid) >= 0 || !settings.value(QZSettings::wahoo_rgt_dircon, QZSettings::default_wahoo_rgt_dircon).toBool()) {
+        /*if (client->char_notify.indexOf(uuid) >= 0 || !settings.value(QZSettings::wahoo_rgt_dircon, QZSettings::default_wahoo_rgt_dircon).toBool())*/ {
             socket = i.key();
             rvs = socket->write(pkt.encode(0)) < 0;
             if (rvs)
