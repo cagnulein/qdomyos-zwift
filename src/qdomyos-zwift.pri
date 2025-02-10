@@ -46,6 +46,9 @@ win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc -llibcrypto-1_1-x
 
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
+msvc {
+   win32:QMAKE_CXXFLAGS_DEBUG += /RTC1
+}
 unix:android: {
     CONFIG -= optimize_size
     QMAKE_CFLAGS_OPTIMIZE_FULL -= -Oz
@@ -955,4 +958,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.18.17
+VERSION = 2.18.18
