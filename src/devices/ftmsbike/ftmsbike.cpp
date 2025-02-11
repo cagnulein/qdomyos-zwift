@@ -182,18 +182,6 @@ void ftmsbike::zwiftPlayInit() {
     }
 }
 
-void ftmsbike::setWheelDiameter(double diameter) {
-    uint8_t write[] = {FTMS_SET_WHEEL_CIRCUMFERENCE, 0x00, 0x00};
-
-    diameter = diameter * 10.0;
-
-    write[1] = ((uint16_t)diameter) & 0xFF;
-    write[2] = ((uint16_t)diameter) >> 8;
-
-    writeCharacteristic(write, sizeof(write), QStringLiteral("setWheelCircumference ") + QString::number(diameter));
-}
-
-
 void ftmsbike::forcePower(int16_t requestPower) {
     if(resistance_lvl_mode) { 
         forceResistance(resistanceFromPowerRequest(requestPower));
