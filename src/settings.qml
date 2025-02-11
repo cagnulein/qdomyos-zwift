@@ -1104,7 +1104,8 @@ import QtQuick.Dialogs 1.0
             property string tile_preset_powerzone_7_label: "Zone 7"
             property string tile_preset_powerzone_7_color: "red"  
 
-            property bool proform_bike_PFEVEX71316_0: false                  
+            property bool proform_bike_PFEVEX71316_0: false
+            property bool real_inclination_to_virtual_treamill_bridge: false
         }
 
         function paddingZeros(text, limit) {
@@ -8933,6 +8934,35 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Send real inclination to virtual bridge")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.real_inclination_to_virtual_treamill_bridge
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.real_inclination_to_virtual_treamill_bridge = checked
+                    }
+
+                    Label {
+                        text: qsTr("By default QZ sends to the virtual bluetooth/dircon bridge the current inclination of the treadmill. Enabling this, it will send instead the one wihtout considering inclination gain or offset. Default: False.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
 
                     IndicatorOnlySwitch {
                         text: qsTr("Disable Wattage from Machinery")

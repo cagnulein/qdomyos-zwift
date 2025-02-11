@@ -943,7 +943,7 @@ void proformbike::update() {
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
             break;
         case 6:
-            if (proform_studio || proform_tdf_10 || proform_bike_PFEVEX71316_0) {
+            if (proform_studio || proform_tdf_10) {
                 innerWriteResistance();
             }
             writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
@@ -969,7 +969,7 @@ void proformbike::update() {
         } else if(counterPoll == 6 && proform_bike_225_csx) {
             counterPoll = 0;
         } else if (counterPoll == 6 &&
-                   (proform_tour_de_france_clc || proform_cycle_trainer_400 || proform_bike_PFEVEX71316_1) &&
+                   (proform_tour_de_france_clc || proform_cycle_trainer_400 || proform_bike_PFEVEX71316_1 || proform_bike_PFEVEX71316_0) &&
                    requestResistance == -1) {
             // this bike sends the frame noOpData7 only when it needs to change the resistance
             counterPoll = 0;
@@ -1084,7 +1084,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             (newValue.at(0) != 0x00 && newValue.at(0) != 0x01) || newValue.at(1) != 0x12 ||
             (newValue.at(0) == 0x00 &&
              (newValue.at(2) != 0x01 || newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || newValue.at(5) != 0x2c)) ||
-             (proform_bike_PFEVEX71316_0 && newValue.at(2) == 0xFF || newValue.at(3) == 0xFF)) {
+            (proform_bike_PFEVEX71316_0 && ((uint8_t)newValue.at(2) == 0xFF || (uint8_t)newValue.at(3) == 0xFF))) {
             return;
         }
 

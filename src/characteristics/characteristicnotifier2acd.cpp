@@ -31,8 +31,21 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
 
         
         uint16_t normalizeIncline = 0;
+
+        QSettings settings;
+        bool real_inclination_to_virtual_treamill_bridge = settings.value(QZSettings::real_inclination_to_virtual_treamill_bridge, QZSettings::default_real_inclination_to_virtual_treamill_bridge).toBool();
+        double inclination = ((treadmill *)Bike)->currentInclination().value();
+        if(real_inclination_to_virtual_treamill_bridge) {
+            double offset = settings.value(QZSettings::zwift_inclination_offset,
+                                           QZSettings::default_zwift_inclination_offset).toDouble();
+            double gain = settings.value(QZSettings::zwift_inclination_gain,
+                                         QZSettings::default_zwift_inclination_gain).toDouble();
+            inclination -= offset;
+            inclination /= gain;
+        }
+
         if (dt == bluetoothdevice::TREADMILL)
-            normalizeIncline = (uint32_t)qRound(((treadmill *)Bike)->currentInclination().value() * 10);
+            normalizeIncline = (uint32_t)qRound(inclination * 10);
         a = (normalizeIncline >> 8) & 0XFF;
         b = normalizeIncline & 0XFF;
         QByteArray inclineBytes;
@@ -40,7 +53,7 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         inclineBytes.append(a);
         double ramp = 0;
         if (dt == bluetoothdevice::TREADMILL)
-            ramp = qRadiansToDegrees(qAtan(((treadmill *)Bike)->currentInclination().value() / 100));
+            ramp = qRadiansToDegrees(qAtan(inclination / 100));
         int16_t normalizeRamp = (int32_t)qRound(ramp * 10);
         a = (normalizeRamp >> 8) & 0XFF;
         b = normalizeRamp & 0XFF;

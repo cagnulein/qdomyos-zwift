@@ -17,8 +17,14 @@ void treadmill::changeSpeed(double speed) {
     speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();    
     if(stryd_speed_instead_treadmill && Speed.value() > 0) {
         double delta = (Speed.value() - rawSpeed.value());
-        qDebug() << "stryd_speed_instead_treadmill so override speed by " << delta;
-        speed -= delta;
+        double maxAllowedDelta = speed * 0.20; // 20% della velocità richiesta
+
+        if (std::abs(delta) <= maxAllowedDelta) {
+            qDebug() << "stryd_speed_instead_treadmill so override speed by " << delta;
+            speed -= delta;
+        } else {
+            qDebug() << "Delta" << delta << "exceeds 20% threshold of" << maxAllowedDelta << "- not applying correction";
+        }
     }
     qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset << m_lastRawSpeedRequested;
     RequestedSpeed = (speed * m_difficult) + m_difficult_offset;
@@ -234,7 +240,12 @@ void treadmill::powerSensor(uint16_t power) {
     }
     m_watt.setValue(power + vwatts, false); 
 }
-void treadmill::speedSensor(double speed) { Speed.setValue(speed); }
+
+void treadmill::speedSensor(double speed) {
+    Speed.setValue(speed);
+    qDebug() << "Current speed: " << speed;
+}
+
 void treadmill::instantaneousStrideLengthSensor(double length) { InstantaneousStrideLengthCM.setValue(length); }
 void treadmill::groundContactSensor(double groundContact) { GroundContactMS.setValue(groundContact); }
 void treadmill::verticalOscillationSensor(double verticalOscillation) {
@@ -543,7 +554,7 @@ void treadmill::parseSpeed(double speed) {
     if(!stryd_speed_instead_treadmill) {
         Speed = speed;
     } else {
-        qDebug() << "speed from the treadmill is discarded since we are using the one from the power sensor";
+        qDebug() << "speed from the treadmill is discarded since we are using the one from the power sensor " << speed;
     }
     rawSpeed = speed;
 }
