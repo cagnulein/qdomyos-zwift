@@ -443,6 +443,19 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
         return;
     }
+    
+    if(characteristic.uuid() == QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")) && newValue.at(0) == 0x03) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        m_watt =  lockscreen::zwift_hub_getPowerFromBuffer(newValue.mid(1));
+        qDebug() << "Current power: " << m_watt.value();
+        
+        Cadence =  lockscreen::zwift_hub_getCadenceFromBuffer(newValue.mid(1));
+        qDebug() << "Current cadence: " << Cadence.value();
+#endif
+#endif
+        return;
+    }
 
     // Wattbike Atom First Generation - Display Gears
     if(WATTBIKE && characteristic.uuid() == QBluetoothUuid(QStringLiteral("b4cc1224-bc02-4cae-adb9-1217ad2860d1")) &&
