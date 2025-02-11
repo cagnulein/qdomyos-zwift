@@ -678,6 +678,13 @@ class homeform : public QObject {
     DataObject *stepCount;
     DataObject *ergMode;
     DataObject *rss;
+    DataObject *preset_powerzone_1;
+    DataObject *preset_powerzone_2;
+    DataObject *preset_powerzone_3;
+    DataObject *preset_powerzone_4;
+    DataObject *preset_powerzone_5;
+    DataObject *preset_powerzone_6;
+    DataObject *preset_powerzone_7;    
 
   private:
     static homeform *m_singleton;

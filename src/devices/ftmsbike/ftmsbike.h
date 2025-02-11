@@ -84,6 +84,7 @@ class ftmsbike : public bike {
                              bool wait_for_response = false);
     void zwiftPlayInit();
     void startDiscover();
+    void setWheelDiameter(double diameter);
     uint16_t watts() override;
     void init();
     void forceResistance(resistance_t requestResistance);
@@ -129,6 +130,12 @@ class ftmsbike : public bike {
     bool SCH_190U = false;
     bool D2RIDE = false;
     bool WATTBIKE = false;
+    bool VFSPINBIKE = false;
+    bool SS2K = false;
+    bool DIRETO_XR = false;
+    bool JFBK5_0 = false;
+    bool BIKE_ = false;
+    bool SMB1 = false;
 
     uint8_t battery_level = 0;
 

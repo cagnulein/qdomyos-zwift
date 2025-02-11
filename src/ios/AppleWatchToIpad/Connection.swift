@@ -21,10 +21,11 @@ extension String {
 class Connection {
 
     let connection: NWConnection
+    let SwiftDebug = swiftDebug()
 
     // outgoing connection
     init(endpoint: NWEndpoint) {
-        print("PeerConnection outgoing endpoint: \(endpoint)")
+        SwiftDebug.qtDebug("PeerConnection outgoing endpoint: \(endpoint)")
         let tcpOptions = NWProtocolTCP.Options()
         tcpOptions.enableKeepalive = true
         tcpOptions.keepaliveIdle = 2
@@ -38,41 +39,41 @@ class Connection {
 
     // incoming connection
     init(connection: NWConnection) {
-        print("PeerConnection incoming connection: \(connection)")
+        SwiftDebug.qtDebug("PeerConnection incoming connection: \(connection)")
         self.connection = connection
         start()
     }
 
     func start() {
         connection.stateUpdateHandler = { newState in
-            print("connection.stateUpdateHandler \(newState)")
+            self.SwiftDebug.qtDebug("connection.stateUpdateHandler \(newState)")
             switch newState {
             case .ready:
                 self.receiveMessage()
             case .failed(let error):
                 self.connection.stateUpdateHandler = nil
                 self.connection.cancel()
-                print("Server error\(error)")
+                self.SwiftDebug.qtDebug("Server error\(error)")
             case .setup:
-                print("Server setup.")
+                self.SwiftDebug.qtDebug("Server setup.")
             case .waiting(_):
-                print("Server waiting.")
+                self.SwiftDebug.qtDebug("Server waiting.")
             case .preparing:
-                print("Server preparing.")
+                self.SwiftDebug.qtDebug("Server preparing.")
             case .cancelled:
-                print("Server cancelled.")
+                self.SwiftDebug.qtDebug("Server cancelled.")
             @unknown default:
-                print("Server DEFAULT.")
+                self.SwiftDebug.qtDebug("Server DEFAULT.")
             }
         }
         connection.start(queue: .main)
     }
 
     func send(_ message: String) {
-        print("sending \(message)")
+        self.SwiftDebug.qtDebug("sending \(message)")
         connection.send(content: message.data(using: .utf8), contentContext: .defaultMessage, isComplete: true, completion: .contentProcessed({ error in
             if error != nil {
-                print("Connection send error: \(String(describing: error))")
+                self.SwiftDebug.qtDebug("Connection send error: \(String(describing: error))")
             }
         }))
     }
@@ -81,7 +82,7 @@ class Connection {
         connection.receive(minimumIncompleteLength: 1, maximumLength: 100) { data, _, _, _ in
             if let data = data,
                let message = String(data: data, encoding: .utf8) {
-                print("Connection receiveMessage message: \(message)")
+                self.SwiftDebug.qtDebug("Connection receiveMessage message: \(message)")
 				if message.contains("SENDER=") {
 					let sender = message.slice(from: "SENDER=", to: "#")
                     if sender?.contains("PHONE") ?? false && message.contains("HR=") {

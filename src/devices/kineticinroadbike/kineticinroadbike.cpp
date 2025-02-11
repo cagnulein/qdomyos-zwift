@@ -184,8 +184,7 @@ double kineticinroadbike::bikeResistanceToPeloton(double resistance) {
 }
 
 void kineticinroadbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
-                                                const QByteArray &newValue) {
-    // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
+                                              const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
@@ -195,25 +194,40 @@ void kineticinroadbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     lastPacket = newValue;
 
-    return;
+    QByteArray encryptedData = newValue;
+    int dataSize = encryptedData.size();
 
-    /*if ((uint8_t)(newValue.at(0)) != 0xf0 && (uint8_t)(newValue.at(1)) != 0xd1)
-        return;*/
-
-    double distance = GetDistanceFromPacket(newValue);
-
-    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-            .toString()
-            .startsWith(QStringLiteral("Disabled"))) {
-        Cadence = ((uint8_t)newValue.at(10));
+    if (dataSize < 14 || characteristic.uuid() != QBluetoothUuid(QStringLiteral("e9410201-b434-446b-b5cc-36592fc4c724"))) {
+         qDebug() << "Invalid data size";
+         return;
     }
+
+    smart_control_power_data pD = smart_control_process_power_data((uint8_t *)newValue.data(), dataSize);
+
+    // Set the parsed values to the bike metrics
+    Resistance = pD.targetResistance;
     if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-        Speed = 0.37497622 * ((double)Cadence.value());
+        Speed = pD.speedKPH;
     } else {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
             fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+            .toString()
+            .startsWith(QStringLiteral("Disabled"))) {
+        Cadence = pD.cadenceRPM;
+    }
+    m_watt = pD.power;
+
+           // Debug output
+    qDebug() << "Decrypted values:";
+    qDebug() << "  Mode:" << pD.mode;
+    qDebug() << "  Resistance:" << pD.targetResistance;
+    qDebug() << "  Power:" << pD.power << "watts";
+    qDebug() << "  Speed:" << pD.speedKPH << "km/h";
+    qDebug() << "  Cadence:" << pD.cadenceRPM << "rpm";
+
     if (watts())
         KCal +=
             ((((0.048 * ((double)watts()) + 1.19) *
@@ -222,6 +236,7 @@ void kineticinroadbike::characteristicChanged(const QLowEnergyCharacteristic &ch
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
+
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
@@ -255,16 +270,13 @@ void kineticinroadbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 #endif
 #endif
 
-    // these useless lines are needed to calculate the AVG resistance and AVG peloton resistance since
-    // echelon just send the resistance values when it changes
-    Resistance = Resistance.value();
     m_pelotonResistance = m_pelotonResistance.value();
 
     qDebug() << QStringLiteral("Current Local elapsed: ") + GetElapsedFromPacket(newValue).toString();
     qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
     qDebug() << QStringLiteral("Current Cadence: ") + QString::number(Cadence.value());
-    qDebug() << QStringLiteral("Current Distance: ") + QString::number(distance);
+    qDebug() << QStringLiteral("Current Distance: ") + QString::number(Distance.value());
     qDebug() << QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs);
     qDebug() << QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime);
     qDebug() << QStringLiteral("Current Watt: ") + QString::number(watts());
@@ -317,8 +329,10 @@ void kineticinroadbike::btinit() {
 }
 
 void kineticinroadbike::stateChanged(QLowEnergyService::ServiceState state) {
-    QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("E9410102-B434-446B-B5CC-36592FC4C724"));
-    QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("E9410101-B434-446B-B5CC-36592FC4C724"));
+    QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("e9410203-b434-446b-b5cc-36592fc4c724"));
+    QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("e9410201-b434-446b-b5cc-36592fc4c724"));
+    QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("e9410202-b434-446b-b5cc-36592fc4c724"));
+    QBluetoothUuid _gattNotify3CharacteristicId(QStringLiteral("e9410204-b434-446b-b5cc-36592fc4c724"));
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
@@ -326,8 +340,18 @@ void kineticinroadbike::stateChanged(QLowEnergyService::ServiceState state) {
     if (state == QLowEnergyService::ServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
 
+        if (gattCommunicationChannelService->state() == QLowEnergyService::ServiceDiscovered) {
+            // establish hook into notifications
+            auto characteristics_list = gattCommunicationChannelService->characteristics();
+            for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
+            }
+        }
+
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
+        gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
+        gattNotify3Characteristic = gattCommunicationChannelService->characteristic(_gattNotify3CharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotify1Characteristic.isValid());
 
@@ -392,6 +416,10 @@ void kineticinroadbike::stateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
             gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        gattCommunicationChannelService->writeDescriptor(
+            gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        gattCommunicationChannelService->writeDescriptor(
+            gattNotify3Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
@@ -411,7 +439,7 @@ void kineticinroadbike::characteristicWritten(const QLowEnergyCharacteristic &ch
 void kineticinroadbike::serviceScanDone(void) {
     qDebug() << QStringLiteral("serviceScanDone");
 
-    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("E9410100-B434-446B-B5CC-36592FC4C724"));
+    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("e9410200-b434-446b-b5cc-36592fc4c724"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,

@@ -9,7 +9,7 @@ class treadmill : public bluetoothdevice {
 
   public:
     treadmill();
-    void update_metrics(bool watt_calc, const double watts);
+    void update_metrics(bool watt_calc, const double watts, const bool from_accessory = false);
     metric lastRequestedSpeed() { return RequestedSpeed; }
     QTime lastRequestedPace();
     metric lastRequestedInclination() { return RequestedInclination; }
@@ -48,6 +48,7 @@ class treadmill : public bluetoothdevice {
     virtual bool canHandleSpeedChange() { return true; }
     virtual bool canHandleInclineChange() { return true; }
     double runningStressScore();
+    QTime speedToPace(double Speed);
 
   public slots:
     virtual void changeSpeed(double speed);
@@ -75,8 +76,7 @@ class treadmill : public bluetoothdevice {
     metric RequestedInclination;
     metric InstantaneousStrideLengthCM;
     metric GroundContactMS;
-    metric VerticalOscillationMM;
-    metric StepCount;
+    metric VerticalOscillationMM;    
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
@@ -86,6 +86,7 @@ class treadmill : public bluetoothdevice {
 
   private:
     bool simulateInclinationWithSpeed();
+    bool followPowerBySpeed();
     void evaluateStepCount();
 };
 

@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <ostream>
+#include <QDir>
 
 #include "QSettings"
 
@@ -13,6 +14,12 @@
 #include "fit_developer_field_description.hpp"
 #include "fit_mesg_broadcaster.hpp"
 
+#ifdef _WIN32
+#include <io.h>
+#include <fcntl.h>
+#include <windows.h>
+#endif
+
 using namespace std;
 
 qfit::qfit(QObject *parent) : QObject(parent) {}
@@ -22,6 +29,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     QSettings settings;
     bool strava_virtual_activity =
         settings.value(QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity).toBool();
+    bool strava_treadmill =
+        settings.value(QZSettings::strava_treadmill, QZSettings::default_strava_treadmill).toBool();
     bool powr_sensor_running_cadence_half_on_strava =
         settings
             .value(QZSettings::powr_sensor_running_cadence_half_on_strava,
@@ -46,25 +55,35 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         startingDistanceOffset = session.at(firstRealIndex).distance;
     }
 
+#ifdef _WIN32
+    file.open(QString(filename).toLocal8Bit().constData(), std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
+#else
     file.open(filename.toStdString(), std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
+#endif
 
     if (!file.is_open()) {
-
-        printf("Error opening file ExampleActivity.fit\n");
+        qDebug() << "Error opening file stream";
         return;
     }
 
-    QFile output(filename);
-    output.open(QIODevice::WriteOnly);
-
+    bool fit_file_garmin_device_training_effect = settings.value(QZSettings::fit_file_garmin_device_training_effect, QZSettings::default_fit_file_garmin_device_training_effect).toBool();
     fit::FileIdMesg fileIdMesg; // Every FIT file requires a File ID message
     fileIdMesg.SetType(FIT_FILE_ACTIVITY);
     if(bluetooth_device_name.toUpper().startsWith("DOMYOS"))
         fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DECATHLON);
-    else
-        fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
-    fileIdMesg.SetProduct(1);
-    fileIdMesg.SetSerialNumber(12345);
+    else {
+        if(fit_file_garmin_device_training_effect)
+            fileIdMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
+        else
+            fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
+    }
+    if(fit_file_garmin_device_training_effect) {
+        fileIdMesg.SetProduct(FIT_GARMIN_PRODUCT_EDGE_1030_PLUS);
+        fileIdMesg.SetSerialNumber(3313379353);
+    } else {
+        fileIdMesg.SetProduct(1);
+        fileIdMesg.SetSerialNumber(12345);
+    }
     fileIdMesg.SetTimeCreated(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
 
     bool gps_data = false;
@@ -138,7 +157,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         if (strava_virtual_activity) {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
         } else {
-            sessionMesg.SetSubSport(FIT_SUB_SPORT_TREADMILL);
+            if(strava_treadmill)
+                sessionMesg.SetSubSport(FIT_SUB_SPORT_TREADMILL);
         }
     } else if (type == bluetoothdevice::ELLIPTICAL) {
 
@@ -218,7 +238,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         fit::WorkoutMesg workout;
         workout.SetSport(sessionMesg.GetSport());
         workout.SetSubSport(sessionMesg.GetSubSport());
+#ifndef _WIN32
         workout.SetWktName(workoutName.toStdWString());
+#endif        
         workout.SetNumValidSteps(1);
         encode.Write(workout);
 
@@ -611,7 +633,11 @@ class Listener : public fit::FileIdMesgListener,
 
 void qfit::open(const QString &filename, QList<SessionLine> *output) {
     std::fstream file;
-    file.open(filename.toStdString(), std::ios::in);
+#ifdef _WIN32
+    file.open(QString(filename).toLocal8Bit().constData(), std::ios::in | std::ios::binary);
+#else
+    file.open(filename.toStdString(), std::ios::in | std::ios::binary);
+#endif
 
     if (!file.is_open()) {
 
@@ -633,4 +659,6 @@ void qfit::open(const QString &filename, QList<SessionLine> *output) {
     mesgBroadcaster.AddListener((fit::RecordMesgListener &)listener);
     mesgBroadcaster.AddListener((fit::MesgListener &)listener);
     decode.Read(&s, &mesgBroadcaster, &mesgBroadcaster, &listener);
+
+    file.close();
 }

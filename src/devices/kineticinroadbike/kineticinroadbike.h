@@ -34,6 +34,8 @@
 #include "ios/lockscreen.h"
 #endif
 
+#include "SmartControl.h"
+
 class kineticinroadbike : public bike {
     Q_OBJECT
   public:
@@ -61,6 +63,8 @@ class kineticinroadbike : public bike {
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
+    QLowEnergyCharacteristic gattNotify2Characteristic;
+    QLowEnergyCharacteristic gattNotify3Characteristic;
 
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;

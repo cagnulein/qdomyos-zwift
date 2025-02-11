@@ -99,6 +99,7 @@ class kingsmithr2treadmill : public treadmill {
     bool KS_NACH_X21C = false;
     bool KS_NACH_X21C_2 = false;
     bool KS_NGCH_G1C = false;
+    bool KS_NGCH_G1C_2 = false;
     bool KS_NACH_MXG = false;
 
 #ifdef Q_OS_IOS
