@@ -2436,7 +2436,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             HORIZON_78AT_treadmill = true;
             qDebug() << QStringLiteral("HORIZON_7.8AT workaround ON!");
         } else if(device.name().toUpper().startsWith("T01_")) {
-            ICONCEPT_FTMS_treadmill = true;
+            //ICONCEPT_FTMS_treadmill = true;
             qDebug() << QStringLiteral("ICONCEPT_FTMS_treadmill workaround ON!");
         } else if ((device.name().toUpper().startsWith("DOMYOS"))) {
             qDebug() << QStringLiteral("DOMYOS found");
