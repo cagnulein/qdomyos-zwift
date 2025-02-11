@@ -152,7 +152,28 @@ uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
 }
 
 void proformbike::forceResistance(resistance_t requestResistance) {
-    if (proform_studio || proform_tdf_10 || proform_bike_PFEVEX71316_0) {
+    if(proform_bike_PFEVEX71316_0) {
+        // Value: 0012020402120812020400000004000000000700
+        // Value: ff040001002c0000000000000000000000000000
+
+        // Value: 0012020402120812020400000004000000001000
+        // Value: ff04000100350000000000000000000000000000
+
+        const uint8_t res1[] = {0xfe, 0x02, 0x16, 0x03};
+        uint8_t res2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x12, 0x08, 0x12, 0x02, 0x04,
+                          0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00};
+
+        res2[18] = requestResistance;
+
+        uint8_t res3[] = {0xff, 0x04, 0x00, 0x10, 0x00, 0x35, 0x00, 0x00, 0x00, 0x00,
+                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        res3[5] = 0x25 + requestResistance;
+
+        writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, false);
+        writeCharacteristic((uint8_t *)res2, sizeof(res2), QStringLiteral("resistance2"), false, false);
+        writeCharacteristic((uint8_t *)res3, sizeof(res3), QStringLiteral("resistance3"), false, true);        
+    } else if (proform_studio || proform_tdf_10) {
         const uint8_t res1[] = {0xfe, 0x02, 0x16, 0x03};
         uint8_t res2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x12, 0x08, 0x12, 0x02, 0x04,
                           0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x06, 0x06};
@@ -1083,8 +1104,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             // frames with power
             (newValue.at(0) != 0x00 && newValue.at(0) != 0x01) || newValue.at(1) != 0x12 ||
             (newValue.at(0) == 0x00 &&
-             (newValue.at(2) != 0x01 || newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || newValue.at(5) != 0x2c)) ||
-            (proform_bike_PFEVEX71316_0 && ((uint8_t)newValue.at(2) == 0xFF || (uint8_t)newValue.at(3) == 0xFF))) {
+             (newValue.at(2) != 0x01 || newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || (proform_bike_PFEVEX71316_0 ? newValue.at(5) != 0x30 : newValue.at(5) != 0x2c)))) {
             return;
         }
 
