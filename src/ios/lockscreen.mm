@@ -387,7 +387,7 @@ uint32_t lockscreen::zwift_hub_getPowerFromBuffer(const QByteArray& buffer) {
 uint32_t lockscreen::zwift_hub_getCadenceFromBuffer(const QByteArray& buffer) {
     NSData *data = [NSData dataWithBytes:buffer.constData() length:buffer.length()];
     
-    uint32_t cadence = [ZwiftHubBike getPowerFromBufferWithBuffer:data];
+    uint32_t cadence = [ZwiftHubBike getCadenceFromBufferWithBuffer:data];
     return cadence;
 }
 #endif
