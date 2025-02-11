@@ -1001,7 +1001,7 @@ void tacxneo2::setUserConfiguration(double wheelDiameter, double gearRatio) {
     float userWeight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
     // Prepare the command bytes according to FE-C protocol
-    uint8_t config[] = {0xA4, 0x09, 0x4E, 0x05, 0x37, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t config[] = {0xA4, 0x09, 0x4F, 0x05, 0x37, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     // Convert user weight to protocol format (2 bytes, weight/0.01)
     uint16_t weightValue = static_cast<uint16_t>(userWeight / 0.01);
