@@ -84,6 +84,8 @@ QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
 int8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
+QString power_sensor_name = QZSettings::default_power_sensor_name;
+bool power_sensor_as_treadmill = false;
 QString logfilename = QStringLiteral("debug-") +
                       QDateTime::currentDateTime()
                           .toString()
@@ -214,6 +216,12 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             } else {
                 qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
             }
+        }
+        if (!qstrcmp(argv[i], "-power-sensor-name")) {
+            power_sensor_name = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-power-sensor-as-treadmill")) {
+            power_sensor_as_treadmill = true;
         }
     }
 
@@ -420,6 +428,8 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::zwift_play, zwift_play);
         settings.setValue(QZSettings::zwift_play_emulator, zwift_play_emulator);
         settings.setValue(QZSettings::virtual_device_bluetooth, virtual_device_bluetooth);
+        settings.setValue(QZSettings::power_sensor_name, power_sensor_name);
+        settings.setValue(QZSettings::power_sensor_as_treadmill, power_sensor_as_treadmill);
     }
 #endif
 
