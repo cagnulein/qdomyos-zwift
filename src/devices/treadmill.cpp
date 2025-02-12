@@ -262,6 +262,11 @@ void treadmill::speedSensor(double speed) {
     qDebug() << "Current speed: " << speed;
 }
 
+void treadmill::inclinationSensor(double grade, double inclination) {
+    Inclination.setValue(inclination);
+    qDebug() << "Current Inclination: " << inclination;
+}
+
 void treadmill::instantaneousStrideLengthSensor(double length) { InstantaneousStrideLengthCM.setValue(length); }
 void treadmill::groundContactSensor(double groundContact) { GroundContactMS.setValue(groundContact); }
 void treadmill::verticalOscillationSensor(double verticalOscillation) {

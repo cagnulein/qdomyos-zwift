@@ -245,6 +245,9 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
             Inclination = treadmillInclinationOverride(inc);
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
+            bool stryd_inclination_instead_treadmill = settings.value(QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill).toBool();
+            if(stryd_inclination_instead_treadmill)
+                emit inclinationChanged(Inclination.value(), Inclination.value());
         }
 
         if (Flags.elevation) {

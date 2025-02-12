@@ -58,6 +58,7 @@ class treadmill : public bluetoothdevice {
     void cadenceSensor(uint8_t cadence) override;
     void powerSensor(uint16_t power) override;
     void speedSensor(double speed) override;
+    void inclinationSensor(double grade, double inclination) override;
     void instantaneousStrideLengthSensor(double length) override;
     void groundContactSensor(double groundContact) override;
     void verticalOscillationSensor(double verticalOscillation) override;
