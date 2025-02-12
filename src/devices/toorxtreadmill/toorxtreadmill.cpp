@@ -128,6 +128,7 @@ void toorxtreadmill::update() {
                 speed[3] = (uint8_t)(requestSpeed);
                 speed[4] = (uint8_t)((requestSpeed - (double)((uint8_t)(requestSpeed))) * 100.0);
                 send((char *)speed, sizeof(speed));
+                Speed = requestSpeed;
             }
             requestSpeed = -1;
         } else if (requestInclination != -100) {
@@ -139,9 +140,7 @@ void toorxtreadmill::update() {
                 uint8_t incline[] = {0x55, 0x0a, 0x01, 0x01};
                 incline[3] = requestInclination;
                 socket->write((char *)incline, sizeof(incline));
-                if(MASTERT409) {
-                    Inclination = requestInclination;
-                }
+                Inclination = requestInclination;
             }
             requestInclination = -100;
         } else if (requestStart != -1 && start_phase == -1) {
