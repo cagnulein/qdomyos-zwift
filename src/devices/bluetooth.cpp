@@ -56,6 +56,10 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     connectedAndDiscovered();
     return;
 #endif
+    nordictrackusbTreadmill = new nordictrackusbtreadmill(false, false, false);
+    this->signalBluetoothDeviceConnected(nordictrackusbTreadmill);
+    connectedAndDiscovered();
+    return;
 
     if (!startDiscovery) {
         this->discoveryAgent = nullptr;
@@ -3177,6 +3181,11 @@ void bluetooth::restart() {
         delete proformWifiTreadmill;
         proformWifiTreadmill = nullptr;
     }
+    if (nordictrackusbTreadmill) {
+
+        delete nordictrackusbTreadmill;
+        nordictrackusbTreadmill = nullptr;
+    }
     if (nordictrackifitadbTreadmill) {
 
         delete nordictrackifitadbTreadmill;
@@ -3655,6 +3664,8 @@ bluetoothdevice *bluetooth::device() {
         return proformTelnetBike;        
     } else if (proformWifiTreadmill) {
         return proformWifiTreadmill;
+    } else if (nordictrackusbTreadmill) {
+        return nordictrackusbTreadmill;
     } else if (antBike) {
         return antBike;
     } else if (nordictrackifitadbTreadmill) {
