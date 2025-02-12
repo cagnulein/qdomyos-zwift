@@ -1104,7 +1104,8 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             // frames with power
             (newValue.at(0) != 0x00 && newValue.at(0) != 0x01) || newValue.at(1) != 0x12 ||
             (newValue.at(0) == 0x00 &&
-             (newValue.at(2) != 0x01 || newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || (proform_bike_PFEVEX71316_0 ? newValue.at(5) != 0x30 : newValue.at(5) != 0x2c)))) {
+             (newValue.at(2) != 0x01 || newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || (proform_bike_PFEVEX71316_0 ? newValue.at(5) != 0x30 : newValue.at(5) != 0x2c))) ||
+            (proform_bike_PFEVEX71316_0 && (uint8_t)newValue.at(2) != 0xFF && (uint8_t)newValue.at(3) != 0xFF)) {
             return;
         }
 
