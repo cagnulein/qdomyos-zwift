@@ -51,4 +51,28 @@ import Foundation
         
         return fullData
     }
+    
+    @objc public static func getPowerFromBuffer(buffer: Data) -> UInt32 {
+        var physical = BLEReceiver_Zwift_HubRidingData()
+        do {
+            try physical.merge(serializedData: buffer)
+            return physical.power
+        } catch {
+            var SwiftDebug = swiftDebug()
+            SwiftDebug.qtDebug("Error in getPowerFromBuffer: \(error)")
+            return 0
+        }
+    }
+
+    @objc public static func getCadenceFromBuffer(buffer: Data) -> UInt32 {
+        var physical = BLEReceiver_Zwift_HubRidingData()
+        do {
+            try physical.merge(serializedData: buffer)
+            return physical.cadence
+        } catch {
+            var SwiftDebug = swiftDebug()
+            SwiftDebug.qtDebug("Error in getCadenceFromBuffer: \(error)")
+            return 0
+        }
+    }
 }

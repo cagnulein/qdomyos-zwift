@@ -142,7 +142,7 @@ void lifespantreadmill::changeInclinationRequested(double grade, double percenta
 
 uint32_t lifespantreadmill::GetStepsFromPacket(const QByteArray& packet) {
     if (packet.length() < 4) return 0;
-    return (packet[2] << 8) | packet[3];
+    return ((uint16_t)((uint8_t)packet[2]) << 8) | (uint16_t)((uint8_t)packet[3]);
 }
 
 void lifespantreadmill::update() {

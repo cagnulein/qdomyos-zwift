@@ -89,7 +89,12 @@ void cycleopsphantombike::forceInclination(double inclination) {
     QSettings settings;
 
     // weight = kg * 100, grade = % * 10
-    setControlMode(ControlMode::ManualSlope, settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 100.0, inclination * 10.0);
+    // the OP says that doesn't work, let's use wattage instead
+    //setControlMode(ControlMode::ManualSlope, settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 100.0, inclination * 10.0);
+    double bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
+    double bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
+    double power = 100.0 + (inclination * 10.0 * bikeResistanceGain) + bikeResistanceOffset;
+    setControlMode(ControlMode::ManualPower, power);
 }
 
 void cycleopsphantombike::update() {

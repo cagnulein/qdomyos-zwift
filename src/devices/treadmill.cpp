@@ -17,8 +17,14 @@ void treadmill::changeSpeed(double speed) {
     speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();    
     if(stryd_speed_instead_treadmill && Speed.value() > 0) {
         double delta = (Speed.value() - rawSpeed.value());
-        qDebug() << "stryd_speed_instead_treadmill so override speed by " << delta;
-        speed -= delta;
+        double maxAllowedDelta = speed * 0.20; // 20% of the speed request
+
+        if (std::abs(delta) <= maxAllowedDelta) {
+            qDebug() << "stryd_speed_instead_treadmill so override speed by " << delta;
+            speed -= delta;
+        } else {
+            qDebug() << "Delta" << delta << "exceeds 20% threshold of" << maxAllowedDelta << "- not applying correction";
+        }
     }
     qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset << m_lastRawSpeedRequested;
     RequestedSpeed = (speed * m_difficult) + m_difficult_offset;
@@ -30,6 +36,7 @@ void treadmill::changeInclination(double grade, double inclination) {
     double treadmill_incline_min = settings.value(QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min).toDouble();
     double treadmill_incline_max = settings.value(QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max).toDouble();
     double step = settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline).toDouble();
+    bool stryd_inclination_instead_treadmill = settings.value(QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill).toBool();
 
     if(grade < treadmill_incline_min) {
         grade = treadmill_incline_min;
@@ -37,6 +44,18 @@ void treadmill::changeInclination(double grade, double inclination) {
     } else if(grade > treadmill_incline_max) {
         grade = treadmill_incline_max;
         qDebug() << "grade override due to treadmill_incline_max" << grade;
+    }
+
+    if(stryd_inclination_instead_treadmill) {
+        double delta = (Inclination.value() - rawInclination.value());
+        double maxAllowedDelta = grade * 0.20; // 20% of the inclination request
+
+        if (std::abs(delta) <= maxAllowedDelta) {
+            qDebug() << "stryd_inclination_instead_treadmill so override inclination by " << delta;
+            grade -= delta;
+        } else {
+            qDebug() << "Delta" << delta << "exceeds 20% threshold of" << maxAllowedDelta << "- not applying correction";
+        }
     }
 
     m_lastRawInclinationRequested = grade;
@@ -145,6 +164,7 @@ void treadmill::clearStats() {
     elapsed.clear(true);
     Speed.clear(false);
     rawSpeed.clear(false);
+    rawInclination.clear(false);
     KCal.clear(true);
     Distance.clear(true);
     Distance1s.clear(true);
@@ -169,6 +189,7 @@ void treadmill::setPaused(bool p) {
     elapsed.setPaused(p);
     Speed.setPaused(p);
     rawSpeed.setPaused(p);
+    rawInclination.setPaused(p);
     KCal.setPaused(p);
     Distance.setPaused(p);
     Distance1s.setPaused(p);
@@ -190,6 +211,7 @@ void treadmill::setLap() {
     elapsed.setLap(true);
     Speed.setLap(false);
     rawSpeed.setLap(false);
+    rawInclination.setLap(false);
     KCal.setLap(true);
     Distance.setLap(true);
     Distance1s.setLap(true);
@@ -234,7 +256,17 @@ void treadmill::powerSensor(uint16_t power) {
     }
     m_watt.setValue(power + vwatts, false); 
 }
-void treadmill::speedSensor(double speed) { Speed.setValue(speed); }
+
+void treadmill::speedSensor(double speed) {
+    Speed.setValue(speed);
+    qDebug() << "Current speed: " << speed;
+}
+
+void treadmill::inclinationSensor(double grade, double inclination) {
+    Inclination.setValue(inclination);
+    qDebug() << "Current Inclination: " << inclination;
+}
+
 void treadmill::instantaneousStrideLengthSensor(double length) { InstantaneousStrideLengthCM.setValue(length); }
 void treadmill::groundContactSensor(double groundContact) { GroundContactMS.setValue(groundContact); }
 void treadmill::verticalOscillationSensor(double verticalOscillation) {
@@ -488,17 +520,20 @@ bool treadmill::followPowerBySpeed() {
             .toBool();
     double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     static double lastInclination = 0;
-    static double lastWattage = 0;
 
     if (treadmill_follow_wattage) {
 
-        if (currentInclination().value() != lastInclination && lastWattage != 0) {
+        if (currentInclination().value() != lastInclination && wattsMetric().value() != 0) {
             double newspeed = 0;
             double bestSpeed = 0.1;
-            double bestDifference = fabs(wattsCalc(w, bestSpeed, currentInclination().value()) - lastWattage);
+
+            // don't read the wattage directly from the m_watt because if you were using a power sensor, the power calcuated in the for will not match it
+            double previousWatt = wattsCalc(w, currentSpeed().value(), lastInclination);
+
+            double bestDifference = fabs(wattsCalc(w, bestSpeed, currentInclination().value()) - previousWatt);
             for (int speed = 1; speed <= 300; speed++) {
                 double s = ((double)speed) / 10.0;
-                double thisDifference = fabs(wattsCalc(w, s, currentInclination().value()) - lastWattage);
+                double thisDifference = fabs(wattsCalc(w, s, currentInclination().value()) - previousWatt);
                 if (thisDifference < bestDifference) {
                     bestDifference = thisDifference;
                     bestSpeed = s;
@@ -513,7 +548,6 @@ bool treadmill::followPowerBySpeed() {
     }
 
     lastInclination = currentInclination().value();
-    lastWattage = wattsMetric().value();
 
     return r;
 }
@@ -535,13 +569,24 @@ QTime treadmill::lastRequestedPace() {
     }
 }
 
+void treadmill::parseInclination(double inclination) {
+    QSettings settings;
+    bool stryd_inclination_instead_treadmill = settings.value(QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill).toBool();
+    if(!stryd_inclination_instead_treadmill) {
+        Inclination = inclination;
+    } else {
+        qDebug() << "Inclination from the treadmill is discarded since we are using the one from the power sensor " << inclination;
+    }
+    rawInclination = inclination;
+}
+
 void treadmill::parseSpeed(double speed) {
     QSettings settings;
     bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
     if(!stryd_speed_instead_treadmill) {
         Speed = speed;
     } else {
-        qDebug() << "speed from the treadmill is discarded since we are using the one from the power sensor";
+        qDebug() << "speed from the treadmill is discarded since we are using the one from the power sensor " << speed;
     }
     rawSpeed = speed;
 }

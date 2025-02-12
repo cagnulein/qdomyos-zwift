@@ -93,6 +93,7 @@ class proformbike : public bike {
     bool proform_cycle_trainer_400 = false;
     bool proform_bike_PFEVEX71316_1 = false;
     bool nordictrack_gx_44_pro = false;
+    bool proform_bike_PFEVEX71316_0 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
