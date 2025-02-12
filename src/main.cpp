@@ -84,7 +84,7 @@ QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
 int8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
-QString power_sensor_name = QZSettings::default_power_sensor_name;
+QString power_sensor_name = QStringLiteral("Disabled");
 bool power_sensor_as_treadmill = false;
 QString logfilename = QStringLiteral("debug-") +
                       QDateTime::currentDateTime()
