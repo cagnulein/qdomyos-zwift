@@ -587,7 +587,14 @@ void trainprogram::scheduler() {
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
     QDateTime now = QDateTime::currentDateTime();
-    currentTimerJitter += now.msecsTo(lastSchedulerCall) - 1000;
+    qint64 msecsElapsed = lastSchedulerCall.msecsTo(now);
+
+    // Reset jitter if it's getting too large
+    if (qAbs(currentTimerJitter) > 5000) {
+        currentTimerJitter = 0;
+    }
+
+    currentTimerJitter += msecsElapsed - 1000;
     lastSchedulerCall = now;
 
     // outside the if case about a valid train program because the information for the floating window url should be
@@ -838,11 +845,18 @@ void trainprogram::scheduler() {
 
     ticks++;
     qDebug() << QStringLiteral("trainprogram ticks") << ticks << QStringLiteral("currentTimerJitter") << currentTimerJitter;
+
     if(qAbs(currentTimerJitter) > 1000) {
-        int seconds = currentTimerJitter / 1000;
-        ticks += seconds;
-        currentTimerJitter -= (seconds * 1000);
-        qDebug() << QStringLiteral("fixing jitter!") << seconds << ticks << currentTimerJitter;
+        // we are late...
+        if (currentTimerJitter > 1000) {
+            int seconds = currentTimerJitter / 1000;
+            ticks += seconds;
+            currentTimerJitter -= (seconds * 1000);
+            qDebug() << QStringLiteral("fixing jitter!") << seconds << ticks << currentTimerJitter;
+        } else {
+            // negative jitter, reset the counter without touching the ticks
+            currentTimerJitter = 0;
+        }
     }
 
     double odometerFromTheDevice = bluetoothManager->device()->odometer();
