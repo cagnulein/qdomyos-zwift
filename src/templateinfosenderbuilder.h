@@ -1,6 +1,6 @@
 #ifndef TEMPLATEINFOSENDERBUILDER_H
 #define TEMPLATEINFOSENDERBUILDER_H
-#include "bluetoothdevice.h"
+#include "devices/bluetoothdevice.h"
 #include "templateinfosender.h"
 #include <QHash>
 #include <QJSEngine>
@@ -79,6 +79,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onAutoresistance(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGetTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetSessionArray(TemplateInfoSender *tempSender);
     void onGetLatLon(TemplateInfoSender *tempSender);

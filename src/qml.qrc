@@ -102,5 +102,17 @@
         <file>inner_templates/chartjs/bike.png</file>
         <file>inner_templates/chartjs/html2canvas.min.js</file>
         <file>inner_templates/chartjs/qzlogo.png</file>
+        <file>inner_templates/chartjs/dochartlive.js</file>
+        <file>inner_templates/chartjs/chartlive.htm</file>
+        <file>ChartFooter.qml</file>
+        <file>ChartFooterInnerJS.qml</file>
+        <file>ChartFooterInnerNoJS.qml</file>
+        <file>inner_templates/chartjs/dochartliveheart.js</file>
+        <file>Wizard.qml</file>
+        <file>gears.qml</file>
+        <file>IndicatorOnlySwitch.qml</file>
+        <file>StaticAccordionElement.qml</file>
+        <file>inner_templates/chartjs/dotreadmillchartlive.js</file>
+        <file>inner_templates/chartjs/treadmillchartlive.htm</file>
     </qresource>
 </RCC>
