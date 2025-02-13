@@ -17,7 +17,7 @@ void treadmill::changeSpeed(double speed) {
     speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();    
     if(stryd_speed_instead_treadmill && Speed.value() > 0) {
         double delta = (Speed.value() - rawSpeed.value());
-        double maxAllowedDelta = speed * 0.20; // 20% della velocità richiesta
+        double maxAllowedDelta = speed * 0.20; // 20% of the speed request
 
         if (std::abs(delta) <= maxAllowedDelta) {
             qDebug() << "stryd_speed_instead_treadmill so override speed by " << delta;
@@ -36,6 +36,7 @@ void treadmill::changeInclination(double grade, double inclination) {
     double treadmill_incline_min = settings.value(QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min).toDouble();
     double treadmill_incline_max = settings.value(QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max).toDouble();
     double step = settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline).toDouble();
+    bool stryd_inclination_instead_treadmill = settings.value(QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill).toBool();
 
     if(grade < treadmill_incline_min) {
         grade = treadmill_incline_min;
@@ -43,6 +44,18 @@ void treadmill::changeInclination(double grade, double inclination) {
     } else if(grade > treadmill_incline_max) {
         grade = treadmill_incline_max;
         qDebug() << "grade override due to treadmill_incline_max" << grade;
+    }
+
+    if(stryd_inclination_instead_treadmill) {
+        double delta = (Inclination.value() - rawInclination.value());
+        double maxAllowedDelta = grade * 0.20; // 20% of the inclination request
+
+        if (std::abs(delta) <= maxAllowedDelta) {
+            qDebug() << "stryd_inclination_instead_treadmill so override inclination by " << delta;
+            grade -= delta;
+        } else {
+            qDebug() << "Delta" << delta << "exceeds 20% threshold of" << maxAllowedDelta << "- not applying correction";
+        }
     }
 
     m_lastRawInclinationRequested = grade;
@@ -151,6 +164,7 @@ void treadmill::clearStats() {
     elapsed.clear(true);
     Speed.clear(false);
     rawSpeed.clear(false);
+    rawInclination.clear(false);
     KCal.clear(true);
     Distance.clear(true);
     Distance1s.clear(true);
@@ -175,6 +189,7 @@ void treadmill::setPaused(bool p) {
     elapsed.setPaused(p);
     Speed.setPaused(p);
     rawSpeed.setPaused(p);
+    rawInclination.setPaused(p);
     KCal.setPaused(p);
     Distance.setPaused(p);
     Distance1s.setPaused(p);
@@ -196,6 +211,7 @@ void treadmill::setLap() {
     elapsed.setLap(true);
     Speed.setLap(false);
     rawSpeed.setLap(false);
+    rawInclination.setLap(false);
     KCal.setLap(true);
     Distance.setLap(true);
     Distance1s.setLap(true);
@@ -244,6 +260,11 @@ void treadmill::powerSensor(uint16_t power) {
 void treadmill::speedSensor(double speed) {
     Speed.setValue(speed);
     qDebug() << "Current speed: " << speed;
+}
+
+void treadmill::inclinationSensor(double grade, double inclination) {
+    Inclination.setValue(inclination);
+    qDebug() << "Current Inclination: " << inclination;
 }
 
 void treadmill::instantaneousStrideLengthSensor(double length) { InstantaneousStrideLengthCM.setValue(length); }
@@ -546,6 +567,17 @@ QTime treadmill::lastRequestedPace() {
         return QTime(0, (int)(1.0 / (speed / 60.0)),
                      (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
     }
+}
+
+void treadmill::parseInclination(double inclination) {
+    QSettings settings;
+    bool stryd_inclination_instead_treadmill = settings.value(QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill).toBool();
+    if(!stryd_inclination_instead_treadmill) {
+        Inclination = inclination;
+    } else {
+        qDebug() << "Inclination from the treadmill is discarded since we are using the one from the power sensor " << inclination;
+    }
+    rawInclination = inclination;
 }
 
 void treadmill::parseSpeed(double speed) {

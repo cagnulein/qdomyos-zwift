@@ -1010,6 +1010,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("YPOO-U3-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SCH_590E")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER ")) ||
+                        (b.name().toUpper().startsWith("SF-") && b.name().midRef(3).toInt() > 0) ||
                         b.name().toUpper().startsWith(QStringLiteral("MYELLIPTICAL ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("CARDIOPOWER EEGO")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("E35")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -1391,6 +1392,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("T118_")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TM4500")) ||
                         b.name().toUpper().startsWith(QStringLiteral("RUNN ")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("YS_T1MPLUST")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BFX_T9_")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AB300S-")) ||
@@ -2760,6 +2762,8 @@ void bluetooth::connectedAndDiscovered() {
                             &bluetoothdevice::cadenceSensor);
                     connect(powerSensorRun, &bluetoothdevice::speedChanged, this->device(),
                             &bluetoothdevice::speedSensor);
+                    connect(powerSensorRun, &bluetoothdevice::inclinationChanged, this->device(),
+                            &bluetoothdevice::inclinationSensor);
                     connect(powerSensorRun, &bluetoothdevice::instantaneousStrideLengthChanged, this->device(),
                             &bluetoothdevice::instantaneousStrideLengthSensor);
                     connect(powerSensorRun, &bluetoothdevice::groundContactChanged, this->device(),

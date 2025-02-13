@@ -84,6 +84,8 @@ QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
 int8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
+QString power_sensor_name = QStringLiteral("Disabled");
+bool power_sensor_as_treadmill = false;
 QString logfilename = QStringLiteral("debug-") +
                       QDateTime::currentDateTime()
                           .toString()
@@ -94,12 +96,86 @@ QString logfilename = QStringLiteral("debug-") +
 QUrl profileToLoad;
 static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandler(0);
 
+// Function to display help information and exit
+void displayHelp() {
+    printf("qDomyos-Zwift Usage:\n");
+    printf("General options:\n");
+    printf("  -h, --help                    Display this help message and exit\n");
+    printf("  -no-gui                       Run in non-GUI mode\n");
+    printf("  -qml                          Force QML mode\n");
+    printf("  -noqml                        Disable QML mode\n");
+    printf("  -miles                        Use miles instead of kilometers\n");
+    printf("  -no-console                   Disable console output\n");
+    printf("  -no-log                       Disable logging\n");
+    printf("  -profile <name>               Load specific profile\n");
+
+    printf("\nDevice configuration:\n");
+    printf("  -name <device_name>           Set device name\n");
+    printf("  -poll-device-time <ms>        Set device polling time in milliseconds\n");
+    printf("  -no-write-resistance          Disable resistance writing\n");
+    printf("  -no-heart-service             Disable heart rate service\n");
+    printf("  -heart-service                Enable heart rate service\n");
+    printf("  -no-virtual-device-bluetooth  Disable virtual device bluetooth\n");
+
+    printf("\nBike specific options:\n");
+    printf("  -only-virtualbike             Run only virtual bike mode\n");
+    printf("  -bike-resistance-gain <value> Set bike resistance gain\n");
+    printf("  -bike-resistance-offset <value> Set bike resistance offset\n");
+    printf("  -bike-cadence-sensor          Enable bike cadence sensor\n");
+    printf("  -bike-power-sensor            Enable bike power sensor\n");
+    printf("  -bike-wheel-revs              Enable bike wheel revolution tracking\n");
+    printf("  -power-sensor-name <name>     Set power sensor name\n");
+    printf("  -power-sensor-as-treadmill    Use power sensor as treadmill\n");
+
+    printf("\nTreadmill specific options:\n");
+    printf("  -only-virtualtreadmill        Run only virtual treadmill mode\n");
+    printf("  -run-cadence-sensor           Enable run cadence sensor\n");
+    printf("  -horizon-treadmill-7-8        Enable Horizon 7.8 treadmill support\n");
+    printf("  -horizon-treadmill-force-ftms Force FTMS for Horizon treadmill\n");
+    printf("  -nordictrack-10-treadmill     Enable NordicTrack 10 treadmill support\n");
+    printf("  -reebok_fr30_treadmill        Enable Reebok FR30 treadmill support\n");
+
+    printf("\nBluetooth options:\n");
+    printf("  -no-reconnection              Disable bluetooth reconnection\n");
+    printf("  -bluetooth_relaxed            Enable relaxed bluetooth mode\n");
+    printf("  -battery-service              Enable battery service\n");
+    printf("  -service-changed              Enable service changed notifications\n");
+    printf("  -bluetooth-event-gear-device <device> Set bluetooth event gear device\n");
+
+    printf("\nIntegration options:\n");
+    printf("  -zwift_play                   Enable Zwift Play\n");
+    printf("  -zwift_click                  Enable Zwift Click\n");
+    printf("  -zwift_play_emulator          Enable Zwift Play emulator\n");
+    printf("  -test-peloton                 Enable Peloton test mode\n");
+    printf("  -test-hfb                     Enable Home Fitness Buddy test mode\n");
+    printf("  -test-pzp                     Enable Power Zone Pack test mode\n");
+    printf("  -train <program>              Specify training program\n");
+
+    printf("\nPeloton options:\n");
+    printf("  -peloton-username <username>  Set Peloton username\n");
+    printf("  -peloton-password <password>  Set Peloton password\n");
+
+    printf("\nPower Zone Pack options:\n");
+    printf("  -pzp-username <username>      Set Power Zone Pack username\n");
+    printf("  -pzp-password <password>      Set Power Zone Pack password\n");
+
+    printf("\nOther options:\n");
+    printf("  -test-resistance              Enable resistance testing\n");
+    printf("  -fit-file-saved-on-quit       Save FIT file on application quit\n");
+
+    exit(0);
+}
+
 QCoreApplication *createApplication(int &argc, char *argv[]) {
 
     QSettings settings;
     bool nogui = false;
 
     for (int i = 1; i < argc; ++i) {
+        if (!qstrcmp(argv[i], "-h") || !qstrcmp(argv[i], "--help")) {
+            displayHelp();
+            // displayHelp() will exit the program
+        }
         if (!qstrcmp(argv[i], "-no-gui")) {
             nogui = true;
             forceQml = false;
@@ -214,6 +290,12 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             } else {
                 qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
             }
+        }
+        if (!qstrcmp(argv[i], "-power-sensor-name")) {
+            power_sensor_name = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-power-sensor-as-treadmill")) {
+            power_sensor_as_treadmill = true;
         }
     }
 
@@ -420,6 +502,8 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::zwift_play, zwift_play);
         settings.setValue(QZSettings::zwift_play_emulator, zwift_play_emulator);
         settings.setValue(QZSettings::virtual_device_bluetooth, virtual_device_bluetooth);
+        settings.setValue(QZSettings::power_sensor_name, power_sensor_name);
+        settings.setValue(QZSettings::power_sensor_as_treadmill, power_sensor_as_treadmill);
     }
 #endif
 

@@ -2390,6 +2390,9 @@ class QZSettings {
     static const QString real_inclination_to_virtual_treamill_bridge;
     static constexpr bool default_real_inclination_to_virtual_treamill_bridge = false;
 
+    static const QString stryd_inclination_instead_treadmill;
+    static constexpr bool default_stryd_inclination_instead_treadmill = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
