@@ -2221,6 +2221,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().startsWith(QStringLiteral("TRX ROUTE KEY")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MASTERT40-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT TREAD")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("TF-T")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BH-TR-"))) && !toorx && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2408,7 +2409,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 pafersBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(pafersBike);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && snode_bike) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("TF-")) &&
+                        (b.name().toUpper().startsWith(QStringLiteral("TF-")) && !b.name().toUpper().startsWith(QStringLiteral("TF-T")) &&
                          !horizon_treadmill_force_ftms)) && // TF-769DF2
                        !snodeBike &&
                        !ftmsBike && !fitPlusBike && filter) {

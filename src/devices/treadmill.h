@@ -86,6 +86,7 @@ class treadmill : public bluetoothdevice {
 
     void parseSpeed(double speed);
     void parseInclination(double speed);
+    bool areInclinationSettingsDefault();
 
   private:
     bool simulateInclinationWithSpeed();
