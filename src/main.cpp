@@ -166,6 +166,45 @@ void displayHelp() {
     exit(0);
 }
 
+
+#ifdef Q_CC_MSVC
+#include <windows.h>
+#include <dbghelp.h>
+#include <rtcapi.h>
+#include <cstdio>
+
+void PrintStack() {
+    CONTEXT context = {};
+    RtlCaptureContext(&context);
+
+    STACKFRAME64 stackFrame = {};
+    stackFrame.AddrPC.Offset = context.Rip;  // Per x64, usa Rip
+    stackFrame.AddrPC.Mode = AddrModeFlat;
+    stackFrame.AddrFrame.Offset = context.Rbp;
+    stackFrame.AddrFrame.Mode = AddrModeFlat;
+    stackFrame.AddrStack.Offset = context.Rsp;
+    stackFrame.AddrStack.Mode = AddrModeFlat;
+
+    HANDLE process = GetCurrentProcess();
+    HANDLE thread = GetCurrentThread();
+
+    SymInitialize(process, NULL, TRUE);
+
+    while (StackWalk64(
+        IMAGE_FILE_MACHINE_AMD64, process, thread, &stackFrame, &context,
+        NULL, SymFunctionTableAccess64, SymGetModuleBase64, NULL)) {
+        printf("Address: 0x%llx\n", stackFrame.AddrPC.Offset);
+    }
+
+    SymCleanup(process);
+}
+
+void CustomRTCErrorHandler(int errorType, const char* file, int line, const char* module) {
+    printf("ERROR Stack overflow: %s (line %d in %s)\n", file, line, module);
+    PrintStack();
+}
+#endif
+
 QCoreApplication *createApplication(int &argc, char *argv[]) {
 
     QSettings settings;
@@ -396,6 +435,10 @@ int main(int argc, char *argv[]) {
     qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");
 #endif
 
+#ifdef Q_CC_MSVC
+  _RTC_SetErrorFunc(CustomRTCErrorHandler);
+#endif
+  
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 #else
