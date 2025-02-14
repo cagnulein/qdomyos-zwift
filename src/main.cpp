@@ -199,8 +199,8 @@ void PrintStack() {
     SymCleanup(process);
 }
 
-void CustomRTCErrorHandler(int errorType, const char* file, int line, const char* module) {
-    printf("ERROR Stack overflow: %s (line %d in %s)\n", file, line, module);
+void CustomRTCErrorHandler(const char* message) {
+    printf("ERROR RTC: %s\n", message);
     PrintStack();
 }
 #endif
