@@ -199,9 +199,33 @@ void PrintStack() {
     SymCleanup(process);
 }
 
-void CustomRTCErrorHandler(const char* message) {
-    printf("ERROR RTC: %s\n", message);
+void __cdecl CustomRTCErrorHandler(int errorType, const char* filename, int line, const char* moduleName, const char* format, ...)
+{
+    // Buffer for the formatted error message
+    char errorMessage[512];
+    va_list args;
+    
+    // Format the error message using varargs
+    va_start(args, format);
+    vsnprintf(errorMessage, sizeof(errorMessage), format, args);
+    va_end(args);
+    
+    // Print complete error information
+    fprintf(stderr, "Runtime Error Check Failed!\n");
+    fprintf(stderr, "Error Type: %d\n", errorType);
+    fprintf(stderr, "File: %s\n", filename ? filename : "Unknown");
+    fprintf(stderr, "Line: %d\n", line);
+    fprintf(stderr, "Module: %s\n", moduleName ? moduleName : "Unknown");
+    fprintf(stderr, "Error Message: %s\n", errorMessage);
+    fprintf(stderr, "----------------------------------------\n");
+
     PrintStack();
+  
+    // You might want to add your own error handling here
+    // For example, logging to a file or triggering a breakpoint
+    #ifdef _DEBUG
+        __debugbreak();  // Break into debugger in debug builds
+    #endif    
 }
 #endif
 
