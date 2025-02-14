@@ -199,26 +199,33 @@ void PrintStack() {
     SymCleanup(process);
 }
 
-void __cdecl CustomRTCErrorHandler(int errorType, const char* filename, int line, const char* moduleName, const char* format, ...)
+int __cdecl CustomRTCErrorHandler(int errorType, const wchar_t* filename, int line, const wchar_t* moduleName, const wchar_t* format, ...)
 {
     // Buffer for the formatted error message
-    char errorMessage[512];
+    wchar_t errorMessage[512];
     va_list args;
     
     // Format the error message using varargs
     va_start(args, format);
-    vsnprintf(errorMessage, sizeof(errorMessage), format, args);
+    vswprintf(errorMessage, sizeof(errorMessage)/sizeof(wchar_t), format, args);
     va_end(args);
     
     // Print complete error information
-    fprintf(stderr, "Runtime Error Check Failed!\n");
-    fprintf(stderr, "Error Type: %d\n", errorType);
-    fprintf(stderr, "File: %s\n", filename ? filename : "Unknown");
-    fprintf(stderr, "Line: %d\n", line);
-    fprintf(stderr, "Module: %s\n", moduleName ? moduleName : "Unknown");
-    fprintf(stderr, "Error Message: %s\n", errorMessage);
-    fprintf(stderr, "----------------------------------------\n");
+    fwprintf(stderr, L"Runtime Error Check Failed!\n");
+    fwprintf(stderr, L"Error Type: %d\n", errorType);
+    fwprintf(stderr, L"File: %s\n", filename ? filename : L"Unknown");
+    fwprintf(stderr, L"Line: %d\n", line);
+    fwprintf(stderr, L"Module: %s\n", moduleName ? moduleName : L"Unknown");
+    fwprintf(stderr, L"Error Message: %s\n", errorMessage);
+    fwprintf(stderr, L"----------------------------------------\n");
+    
+    // You might want to add your own error handling here
+    // For example, logging to a file or triggering a breakpoint
+    #ifdef _DEBUG
+        __debugbreak();  // Break into debugger in debug builds
+    #endif
 
+    
     PrintStack();
   
     // You might want to add your own error handling here
@@ -226,6 +233,8 @@ void __cdecl CustomRTCErrorHandler(int errorType, const char* filename, int line
     #ifdef _DEBUG
         __debugbreak();  // Break into debugger in debug builds
     #endif    
+
+    return 1;  // Return non-zero to indicate error was handled
 }
 #endif
 
