@@ -435,6 +435,8 @@
 		87A18F072660D5C1002D7C96 /* ftmsrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A18F052660D5C0002D7C96 /* ftmsrower.cpp */; };
 		87A18F092660D5D9002D7C96 /* moc_ftmsrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A18F082660D5D9002D7C96 /* moc_ftmsrower.cpp */; };
 		87A2E0222B2B053E00E6168F /* swiftDebug.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A2E0212B2B053E00E6168F /* swiftDebug.mm */; };
+		87A33F1A2D611D8400BFFF29 /* moc_logwriter.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A33F192D611D8400BFFF29 /* moc_logwriter.cpp */; };
+		87A33F1D2D611D9500BFFF29 /* logwriter.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A33F1C2D611D9500BFFF29 /* logwriter.cpp */; };
 		87A3BC222656429600D302E3 /* rower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3BC1F2656429400D302E3 /* rower.cpp */; };
 		87A3BC232656429600D302E3 /* echelonrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3BC202656429400D302E3 /* echelonrower.cpp */; };
 		87A3BC26265642A300D302E3 /* moc_rower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3BC24265642A200D302E3 /* moc_rower.cpp */; };
@@ -1413,6 +1415,9 @@
 		87A18F082660D5D9002D7C96 /* moc_ftmsrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_ftmsrower.cpp; sourceTree = "<group>"; };
 		87A2E0202B2B024200E6168F /* swiftDebug.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = swiftDebug.h; path = ../src/ios/swiftDebug.h; sourceTree = "<group>"; };
 		87A2E0212B2B053E00E6168F /* swiftDebug.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = swiftDebug.mm; path = ../src/ios/swiftDebug.mm; sourceTree = "<group>"; };
+		87A33F192D611D8400BFFF29 /* moc_logwriter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_logwriter.cpp; sourceTree = "<group>"; };
+		87A33F1B2D611D9500BFFF29 /* logwriter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = logwriter.h; path = ../src/logwriter.h; sourceTree = SOURCE_ROOT; };
+		87A33F1C2D611D9500BFFF29 /* logwriter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = logwriter.cpp; path = ../src/logwriter.cpp; sourceTree = SOURCE_ROOT; };
 		87A3BC1E2656429300D302E3 /* echelonrower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = echelonrower.h; path = ../src/devices/echelonrower/echelonrower.h; sourceTree = "<group>"; };
 		87A3BC1F2656429400D302E3 /* rower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rower.cpp; path = ../src/devices/rower.cpp; sourceTree = "<group>"; };
 		87A3BC202656429400D302E3 /* echelonrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = echelonrower.cpp; path = ../src/devices/echelonrower/echelonrower.cpp; sourceTree = "<group>"; };
@@ -2191,7 +2196,10 @@
 				87DA62A82D2305F5008ADA0F /* characteristicwriteprocessor0003.h */,
 				87DA62A92D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp */,
 				87DA62A22D2305E4008ADA0F /* moc_characteristicnotifier0002.cpp */,
-				87DA62A32D2305E4008ADA0F /* moc_characteristicwriteprocessor0003.cpp */,
+				87DA62A32D2305E4008ADA0F /* moc_characteristicwriteprocessor0003git .cpp */,
+				87A33F1B2D611D9500BFFF29 /* logwriter.h */,
+				87A33F1C2D611D9500BFFF29 /* logwriter.cpp */,
+				87A33F192D611D8400BFFF29 /* moc_logwriter.cpp */,
 				87A3DD982D3413790060BAEB /* lifespantreadmill.h */,
 				87A3DD992D3413790060BAEB /* lifespantreadmill.cpp */,
 				87A3DD9A2D3413790060BAEB /* moc_lifespantreadmill.cpp */,
@@ -3652,6 +3660,7 @@
 				87C7074327E4CF5900E79C46 /* keepbike.cpp in Compile Sources */,
 				87B871932CE1E94D009B06CA /* zwifthubbike.swift in Compile Sources */,
 				878C9E6928B77E7C00669129 /* nordictrackifitadbbike.cpp in Compile Sources */,
+				87A33F1D2D611D9500BFFF29 /* logwriter.cpp in Compile Sources */,
 				8798C8892733E10E003148B3 /* moc_strydrunpowersensor.cpp in Compile Sources */,
 				8781907E2615089D0085E656 /* peloton.cpp in Compile Sources */,
 				2B800DC34C91D8B080DEFBE8 /* fit_mesg_with_event_broadcaster.cpp in Compile Sources */,
@@ -3828,6 +3837,7 @@
 				E62DA5FF2436135448C94671 /* moc_toorxtreadmill.cpp in Compile Sources */,
 				87586A4325B8341B00A243C4 /* moc_proformbike.cpp in Compile Sources */,
 				87CC3BA325A0885F001EC5A8 /* domyoselliptical.cpp in Compile Sources */,
+				87A33F1A2D611D8400BFFF29 /* moc_logwriter.cpp in Compile Sources */,
 				87D105542909971100B3935B /* moc_mepanelbike.cpp in Compile Sources */,
 				87B617F325F260150094A1CB /* moc_snodebike.cpp in Compile Sources */,
 				87DA8467284933DE00B550E9 /* moc_fakeelliptical.cpp in Compile Sources */,
