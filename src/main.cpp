@@ -199,41 +199,29 @@ void PrintStack() {
     SymCleanup(process);
 }
 
-int __cdecl CustomRTCErrorHandler(int errorType, const wchar_t* filename, int line, const wchar_t* moduleName, const wchar_t* format, ...)
+void __cdecl CustomRTCErrorHandler(const unsigned char* message, ...)
 {
     // Buffer for the formatted error message
-    wchar_t errorMessage[512];
+    char errorMessage[512];
     va_list args;
     
     // Format the error message using varargs
-    va_start(args, format);
-    vswprintf(errorMessage, sizeof(errorMessage)/sizeof(wchar_t), format, args);
+    va_start(args, message);
+    vsnprintf(errorMessage, sizeof(errorMessage), (const char*)message, args);
     va_end(args);
     
-    // Print complete error information
-    fwprintf(stderr, L"Runtime Error Check Failed!\n");
-    fwprintf(stderr, L"Error Type: %d\n", errorType);
-    fwprintf(stderr, L"File: %s\n", filename ? filename : L"Unknown");
-    fwprintf(stderr, L"Line: %d\n", line);
-    fwprintf(stderr, L"Module: %s\n", moduleName ? moduleName : L"Unknown");
-    fwprintf(stderr, L"Error Message: %s\n", errorMessage);
-    fwprintf(stderr, L"----------------------------------------\n");
+    // Print the error message
+    fprintf(stderr, "Runtime Error Check Failed!\n");
+    fprintf(stderr, "Error Message: %s\n", errorMessage);
+    fprintf(stderr, "----------------------------------------\n");
     
     // You might want to add your own error handling here
-    // For example, logging to a file or triggering a breakpoint
     #ifdef _DEBUG
         __debugbreak();  // Break into debugger in debug builds
     #endif
-
     
     PrintStack();
   
-    // You might want to add your own error handling here
-    // For example, logging to a file or triggering a breakpoint
-    #ifdef _DEBUG
-        __debugbreak();  // Break into debugger in debug builds
-    #endif    
-
     return 1;  // Return non-zero to indicate error was handled
 }
 #endif
