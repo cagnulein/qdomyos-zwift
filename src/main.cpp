@@ -199,28 +199,34 @@ void PrintStack() {
     SymCleanup(process);
 }
 
-void __cdecl CustomRTCErrorHandler(const unsigned char* message, ...)
+int __cdecl CustomRTCErrorHandler(int errorType, const wchar_t* filename, int linenumber, 
+                           const wchar_t* moduleName, const wchar_t* format, ...)
 {
     // Buffer for the formatted error message
-    char errorMessage[512];
+    wchar_t errorMessage[512];
     va_list args;
     
     // Format the error message using varargs
-    va_start(args, message);
-    vsnprintf(errorMessage, sizeof(errorMessage), (const char*)message, args);
+    va_start(args, format);
+    vswprintf(errorMessage, sizeof(errorMessage)/sizeof(wchar_t), format, args);
     va_end(args);
     
-    // Print the error message
-    fprintf(stderr, "Runtime Error Check Failed!\n");
-    fprintf(stderr, "Error Message: %s\n", errorMessage);
-    fprintf(stderr, "----------------------------------------\n");
+    // Print complete error information
+    fwprintf(stderr, L"Runtime Error Check Failed!\n");
+    fwprintf(stderr, L"Error Type: %d\n", errorType);
+    fwprintf(stderr, L"File: %ls\n", filename ? filename : L"Unknown");
+    fwprintf(stderr, L"Line: %d\n", linenumber);
+    fwprintf(stderr, L"Module: %ls\n", moduleName ? moduleName : L"Unknown");
+    fwprintf(stderr, L"Error Message: %ls\n", errorMessage);
+    fwprintf(stderr, L"----------------------------------------\n");
     
-    // You might want to add your own error handling here
     #ifdef _DEBUG
         __debugbreak();  // Break into debugger in debug builds
     #endif
-    
+  
     PrintStack();
+
+    return 1;  // Return non-zero to indicate error was handled    
 }
 #endif
 
@@ -455,7 +461,7 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifdef Q_CC_MSVC
-  _RTC_SetErrorFunc(CustomRTCErrorHandler);
+  _RTC_SetErrorFuncW(CustomRTCErrorHandler);
 #endif
   
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
