@@ -9,7 +9,7 @@
 #endif
 #endif
 #include <QQmlContext>
-
+#include "logwriter.h"
 #include "bluetooth.h"
 #include "devices/domyostreadmill/domyostreadmill.h"
 #include "homeform.h"
@@ -342,6 +342,19 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
     }
 }
 
+// Global thread and writer instance
+static QThread *logThread = nullptr;
+static LogWriter *logWriter = nullptr;
+
+void initializeLogThread() {
+    if (!logThread) {
+        logThread = new QThread();
+        logWriter = new LogWriter();
+        logWriter->moveToThread(logThread);
+        logThread->start();
+    }
+}
+
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
 
     QSettings settings;
@@ -380,13 +393,15 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
         QString path = homeform::getWritableAppDir();
 
-        // Linux log files are generated on binary location
+        // Ensure thread is initialized
+        initializeLogThread();
 
-        QFile outFile(path + logfilename);
-        outFile.open(QIODevice::WriteOnly | QIODevice::Append);
-        QTextStream ts(&outFile);
-        ts << txt;
-        fprintf(stderr, "%s", txt.toLocal8Bit().constData());
+        // Write log in the worker thread
+        QMetaObject::invokeMethod(logWriter, "writeLog",
+                                 Qt::QueuedConnection,
+                                 Q_ARG(QString, path + logfilename),
+                                 Q_ARG(QString, txt));
+
     }
     (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
