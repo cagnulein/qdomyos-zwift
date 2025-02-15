@@ -149,6 +149,7 @@ double bluetoothdevice::inclinationDifficultOffset() { return m_inclination_diff
 void bluetoothdevice::cadenceSensor(uint8_t cadence) { Q_UNUSED(cadence) }
 void bluetoothdevice::powerSensor(uint16_t power) { Q_UNUSED(power) }
 void bluetoothdevice::speedSensor(double speed) { Q_UNUSED(speed) }
+void bluetoothdevice::inclinationSensor(double grade, double inclination) { Q_UNUSED(grade); Q_UNUSED(inclination) }
 void bluetoothdevice::instantaneousStrideLengthSensor(double length) { Q_UNUSED(length); }
 void bluetoothdevice::groundContactSensor(double groundContact) { Q_UNUSED(groundContact); }
 void bluetoothdevice::verticalOscillationSensor(double verticalOscillation) { Q_UNUSED(verticalOscillation); }

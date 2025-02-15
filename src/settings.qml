@@ -1101,7 +1101,9 @@ import QtQuick.Dialogs 1.0
             property string tile_preset_powerzone_7_label: "Zone 7"
             property string tile_preset_powerzone_7_color: "red"  
 
-            property bool proform_bike_PFEVEX71316_0: false                  
+            property bool proform_bike_PFEVEX71316_0: false
+            property bool real_inclination_to_virtual_treamill_bridge: false
+            property bool stryd_inclination_instead_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -8914,6 +8916,35 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Send real inclination to virtual bridge")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.real_inclination_to_virtual_treamill_bridge
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.real_inclination_to_virtual_treamill_bridge = checked
+                    }
+
+                    Label {
+                        text: qsTr("By default QZ sends to the virtual bluetooth/dircon bridge the current inclination of the treadmill. Enabling this, it will send instead the one wihtout considering inclination gain or offset. Default: False.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+
                     IndicatorOnlySwitch {
                         text: qsTr("Disable Wattage from Machinery")
                         spacing: 0
@@ -9325,6 +9356,33 @@ import QtQuick.Dialogs 1.0
 
                             Label {
                                 text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Use inclination from the power sensor")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.stryd_inclination_instead_treadmill
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.stryd_inclination_instead_treadmill = checked
+                            }
+
+                            Label {
+                                text: qsTr("If you have a bluetooth treadmill and also a Runn device connected to QZ and you want to use the inclination from the RUNN instead of the inclination of the treadmill, enable this. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
