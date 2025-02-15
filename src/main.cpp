@@ -221,8 +221,6 @@ void __cdecl CustomRTCErrorHandler(const unsigned char* message, ...)
     #endif
     
     PrintStack();
-  
-    return 1;  // Return non-zero to indicate error was handled
 }
 #endif
 
