@@ -28,6 +28,12 @@ tacxneo2::tacxneo2(bool noWriteResistance, bool noHeartService) {
 
 void tacxneo2::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
+    
+    if(!gattCustomService) {
+        qDebug() << "gattCustomService is null!";
+        return;
+    }
+    
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
