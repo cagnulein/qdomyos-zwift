@@ -166,6 +166,70 @@ void displayHelp() {
     exit(0);
 }
 
+
+#ifdef Q_CC_MSVC
+#include <windows.h>
+#include <dbghelp.h>
+#include <rtcapi.h>
+#include <cstdio>
+
+void PrintStack() {
+    CONTEXT context = {};
+    RtlCaptureContext(&context);
+
+    STACKFRAME64 stackFrame = {};
+    stackFrame.AddrPC.Offset = context.Rip;  // Per x64, usa Rip
+    stackFrame.AddrPC.Mode = AddrModeFlat;
+    stackFrame.AddrFrame.Offset = context.Rbp;
+    stackFrame.AddrFrame.Mode = AddrModeFlat;
+    stackFrame.AddrStack.Offset = context.Rsp;
+    stackFrame.AddrStack.Mode = AddrModeFlat;
+
+    HANDLE process = GetCurrentProcess();
+    HANDLE thread = GetCurrentThread();
+
+    SymInitialize(process, NULL, TRUE);
+
+    while (StackWalk64(
+        IMAGE_FILE_MACHINE_AMD64, process, thread, &stackFrame, &context,
+        NULL, SymFunctionTableAccess64, SymGetModuleBase64, NULL)) {
+        printf("Address: 0x%llx\n", stackFrame.AddrPC.Offset);
+    }
+
+    SymCleanup(process);
+}
+
+int __cdecl CustomRTCErrorHandler(int errorType, const wchar_t* filename, int linenumber, 
+                           const wchar_t* moduleName, const wchar_t* format, ...)
+{
+    // Buffer for the formatted error message
+    wchar_t errorMessage[512];
+    va_list args;
+    
+    // Format the error message using varargs
+    va_start(args, format);
+    vswprintf(errorMessage, sizeof(errorMessage)/sizeof(wchar_t), format, args);
+    va_end(args);
+    
+    // Print complete error information
+    fwprintf(stderr, L"Runtime Error Check Failed!\n");
+    fwprintf(stderr, L"Error Type: %d\n", errorType);
+    fwprintf(stderr, L"File: %ls\n", filename ? filename : L"Unknown");
+    fwprintf(stderr, L"Line: %d\n", linenumber);
+    fwprintf(stderr, L"Module: %ls\n", moduleName ? moduleName : L"Unknown");
+    fwprintf(stderr, L"Error Message: %ls\n", errorMessage);
+    fwprintf(stderr, L"----------------------------------------\n");
+    
+    #ifdef _DEBUG
+        __debugbreak();  // Break into debugger in debug builds
+    #endif
+  
+    PrintStack();
+
+    return 1;  // Return non-zero to indicate error was handled    
+}
+#endif
+
 QCoreApplication *createApplication(int &argc, char *argv[]) {
 
     QSettings settings;
@@ -396,6 +460,10 @@ int main(int argc, char *argv[]) {
     qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");
 #endif
 
+#ifdef Q_CC_MSVC
+  _RTC_SetErrorFuncW(CustomRTCErrorHandler);
+#endif
+  
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 #else
