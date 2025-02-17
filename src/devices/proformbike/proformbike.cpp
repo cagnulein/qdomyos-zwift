@@ -948,7 +948,18 @@ void proformbike::update() {
                                     QStringLiteral("noOp"));
             } else if(proform_bike_PFEVEX71316_0) {
                 writeCharacteristic(noOpData6_proform_bike_PFEVEX71316_0, sizeof(noOpData6_proform_bike_PFEVEX71316_0), QStringLiteral("noOp"), false, true);
-                innerWriteResistance();
+                innerWriteResistance();          
+                if (requestInclination != -100) {
+                    writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
+                    // only 0.5 steps ara available
+                    double inc = qRound(requestInclination * 2.0) / 2.0;
+                    if (inc != currentInclination().value()) {
+                        emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination) +
+                                   " rounded " + QString::number(inc));
+                        forceIncline(inc);
+                    }
+                    requestInclination = -100;
+                }
             } else if (proform_bike_225_csx) {
                 writeCharacteristic(noOpData6_proform_bike_225_csx, sizeof(noOpData6_proform_bike_225_csx),
                                     QStringLiteral("noOp"));
@@ -971,7 +982,7 @@ void proformbike::update() {
             if (!proform_studio && !proform_tdf_10) {
                 innerWriteResistance();
             }
-            if (requestInclination != -100 && (proform_studio || proform_tdf_10 || proform_bike_PFEVEX71316_0)) {
+            if (requestInclination != -100 && (proform_studio || proform_tdf_10)) {
                 // only 0.5 steps ara available
                 double inc = qRound(requestInclination * 2.0) / 2.0;
                 if (inc != currentInclination().value()) {
@@ -987,10 +998,10 @@ void proformbike::update() {
         counterPoll++;
         if (counterPoll > 6) {
             counterPoll = 0;
-        } else if(counterPoll == 6 && proform_bike_225_csx) {
+        } else if(counterPoll == 6 && (proform_bike_225_csx || proform_bike_PFEVEX71316_0)) {
             counterPoll = 0;
         } else if (counterPoll == 6 &&
-                   (proform_tour_de_france_clc || proform_cycle_trainer_400 || proform_bike_PFEVEX71316_1 || proform_bike_PFEVEX71316_0) &&
+                   (proform_tour_de_france_clc || proform_cycle_trainer_400 || proform_bike_PFEVEX71316_1) &&
                    requestResistance == -1) {
             // this bike sends the frame noOpData7 only when it needs to change the resistance
             counterPoll = 0;

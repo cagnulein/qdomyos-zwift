@@ -87,31 +87,31 @@ class Connection {
 					let sender = message.slice(from: "SENDER=", to: "#")
                     if sender?.contains("PHONE") ?? false && message.contains("HR=") {
                         let hr : String = message.slice(from: "HR=", to: "#") ?? ""
-                        WatchKitConnection.currentHeartRate = (Int(hr) ?? 0)
+                        WatchKitConnection.currentHeartRate = (Int(hr) ?? WatchKitConnection.currentHeartRate)
 					}
                     if sender?.contains("PHONE") ?? false && message.contains("CAD=") {
                         let cad : String = message.slice(from: "CAD=", to: "#") ?? ""
-                        WatchKitConnection.stepCadence = (Int(cad) ?? 0)
+                        WatchKitConnection.stepCadence = (Int(cad) ?? WatchKitConnection.stepCadence)
                     }
                     if sender?.contains("PAD") ?? false && message.contains("KCAL=") {
                         let kcal : String = message.slice(from: "KCAL=", to: "#") ?? ""
-                        WatchKitConnection.kcal = (Double(kcal) ?? 0)
+                        WatchKitConnection.kcal = (Double(kcal) ?? WatchKitConnection.kcal)
                     }
                     if sender?.contains("PAD") ?? false && message.contains("ODO=") {
                         let odo : String = message.slice(from: "ODO=", to: "#") ?? ""
-                        WatchKitConnection.distance = (Double(odo) ?? 0)
+                        WatchKitConnection.distance = (Double(odo) ?? WatchKitConnection.distance)
                     }
                     if sender?.contains("PAD") ?? false && message.contains("BCAD=") {
                         let cad : String = message.slice(from: "BCAD=", to: "#") ?? ""
-                        WatchKitConnection.cadence = (Double(cad) ?? 0)
+                        WatchKitConnection.cadence = (Double(cad) ?? WatchKitConnection.cadence)
                     }
                     if sender?.contains("PAD") ?? false && message.contains("SPD=") {
                         let spd : String = message.slice(from: "SPD=", to: "#") ?? ""
-                        WatchKitConnection.speed = (Double(spd) ?? 0)
+                        WatchKitConnection.speed = (Double(spd) ?? WatchKitConnection.speed)
                     }
                     if sender?.contains("PAD") ?? false && message.contains("PWR=") {
                         let pwr : String = message.slice(from: "PWR=", to: "#") ?? ""
-                        WatchKitConnection.power = (Double(pwr) ?? 0)
+                        WatchKitConnection.power = (Double(pwr) ?? WatchKitConnection.power)
                     }
 				}
             }
