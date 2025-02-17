@@ -178,7 +178,7 @@ void eslinkertreadmill::forceSpeed(double requestSpeed) {
                             QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
     } else if(treadmill_type == ESANGLINKER) {
         uint8_t display[] = {0xa9, 0x01, 0x01, 0x0b, 0x00};
-        display[3] = (int)(requestSpeed * 10 * 0.621371);
+        display[3] = (int)qRound(requestSpeed * 10 * 0.621371);
         for (int i = 0; i < 4; i++) {
             display[4] = display[4] ^ display[i];
         }
@@ -461,12 +461,11 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         }
     }
 
-    if ((newValue.length() != 17 && (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE)))
-        return;
-    else if (newValue.length() != 5 && (treadmill_type == COSTAWAY || treadmill_type == TYPE::ESANGLINKER))
-        return;
+    if ((newValue.length() != 17 && (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE))) {
 
-    if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
+    } else if (newValue.length() != 5 && (treadmill_type == COSTAWAY || treadmill_type == TYPE::ESANGLINKER)) {
+
+    } else if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
         double speed = GetSpeedFromPacket(value);
         double incline = GetInclinationFromPacket(value);
         double kcal = GetKcalFromPacket(value);
@@ -502,12 +501,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             lastSpeed = speed;
             lastInclination = incline;
         }
-    } else if (treadmill_type == COSTAWAY || treadmill_type == TYPE::ESANGLINKER) {
-        if(treadmill_type == TYPE::ESANGLINKER) {
-            if((uint8_t)newValue.at(1) != 0xe0)
-                return;
-        }
-
+    } else if (treadmill_type == COSTAWAY || (treadmill_type == TYPE::ESANGLINKER && (uint8_t)newValue.at(1) == 0xe0)) {
         const double miles = 1.60934;
         if(((uint8_t)newValue.at(3)) == 0xFF && treadmill_type == COSTAWAY)
             Speed = 0;
@@ -913,4 +907,11 @@ void eslinkertreadmill::waitForHandshakePacket() {
     connect(this, &eslinkertreadmill::handshakePacketReceived, &loop, &QEventLoop::quit);
     timeout.singleShot(3000, &loop, SLOT(quit()));
     loop.exec();
+}
+
+double eslinkertreadmill::minStepSpeed() {
+    if(treadmill_type == ESANGLINKER)
+        return 0.160934;  // 0.1 mi
+    else
+        return 0.5;
 }

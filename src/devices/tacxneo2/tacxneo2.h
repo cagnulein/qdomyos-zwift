@@ -47,6 +47,7 @@ class tacxneo2 : public bike {
     void forceInclination(double inclination);
     uint16_t watts() override;
     double bikeResistanceToPeloton(double resistance);
+    void setUserConfiguration(double wheelDiameter, double gearRatio);
 
     QTimer *refresh;
 

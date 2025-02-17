@@ -27,6 +27,7 @@ class WatchKitConnection: NSObject {
     public static var speed = 0.0
     public static var cadence = 0.0
     public static var power = 0.0
+    public static var steps = 0
     weak var delegate: WatchKitConnectionDelegate?
     
     private override init() {
@@ -76,6 +77,10 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
             WatchKitConnection.power = dPower
             let dCadence = Double(result["cadence"] as! Double)
             WatchKitConnection.cadence = dCadence
+            if let stepsDouble = result["steps"] as? Double {
+                let iSteps = Int(stepsDouble)
+                WatchKitConnection.steps = iSteps
+            }
         }, errorHandler: { (error) in
             print(error)
         })

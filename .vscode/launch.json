@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(Windows) Launch",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "C://Users//violarob//Downloads//windows-msvc2019-binary-no-python (1)//output/qdomyos-zwift.exe",
+            "symbolSearchPath": "C://Users//violarob//Downloads//windows-msvc2019-binary-no-python (1)//output/qdomyos-zwift.pdb",
+            "sourceFileMap": {
+                "d:/a/qdomyos-zwift/qdomyos-zwift": "c:/work/qdomyos-zwift/",
+                "compiled_source_path": "C://Users//violarob//Downloads//windows-msvc2019-binary-no-python (1)//output/"
+            }
+        }
+    ]
+    }

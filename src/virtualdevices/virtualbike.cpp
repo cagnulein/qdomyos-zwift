@@ -30,6 +30,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
+    bool watt_bike_emulator = settings.value(QZSettings::watt_bike_emulator, QZSettings::default_watt_bike_emulator).toBool();
 
     if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
         dirconManager = new DirconManager(Bike, bikeResistanceOffset, bikeResistanceGain, this);
@@ -60,7 +61,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
         h->virtualbike_zwift_ios(
-            settings.value(QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service).toBool(), garmin_bluetooth_compatibility, zwift_play_emulator);
+                                 settings.value(QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service).toBool(), garmin_bluetooth_compatibility, zwift_play_emulator, watt_bike_emulator);
     } else
 
 #endif
@@ -70,7 +71,11 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
         if (!echelon && !ifit) {
-            advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+        advertisingData.setLocalName(QStringLiteral("QZPI"));
+#else            
+        advertisingData.setLocalName(QStringLiteral("QZ"));
+#endif
         } else if (ifit) {
             advertisingData.setLocalName(QStringLiteral("I_EB"));
         } else {
@@ -93,8 +98,6 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             if (!this->noHeartService || heart_only) {
                 services << QBluetoothUuid::HeartRate;
             }
-
-            services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
         } else if (ifit) {
             services << (QBluetoothUuid(QStringLiteral("00001533-1412-efde-1523-785feabcd123")));
 
@@ -151,8 +154,11 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
                     charDataFIT3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate |
                                                QLowEnergyCharacteristic::Notify);
+                    QByteArray descriptor9;
+                    descriptor9.append((char)0x03);
+                    descriptor9.append((char)0x00);
                     const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                                                  QByteArray(3, 0));
+                                                                  descriptor9);
                     charDataFIT3.addDescriptor(cpClientConfig);
 
                     QLowEnergyCharacteristicData charDataFIT4;
@@ -223,6 +229,22 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                         serviceDataZwiftPlayBike.addCharacteristic(charData);
                         serviceDataZwiftPlayBike.addCharacteristic(charData2);
                         serviceDataZwiftPlayBike.addCharacteristic(charData3);
+                    } else if(watt_bike_emulator) {
+                        QLowEnergyCharacteristicData charData;
+                        charData.setUuid(QBluetoothUuid(QStringLiteral("b4cc1225-bc02-4cae-adb9-1217ad2860d1")));
+                        charData.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::WriteNoResponse);
+
+                        QLowEnergyCharacteristicData charData2;
+                        charData2.setUuid(QBluetoothUuid(QStringLiteral("b4cc1224-bc02-4cae-adb9-1217ad2860d1")));
+                        charData2.setProperties(QLowEnergyCharacteristic::Notify);
+                        const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
+
+                        charData2.addDescriptor(clientConfig2);
+
+                        serviceDataWattAtomBike.setType(QLowEnergyServiceData::ServiceTypePrimary);
+                        serviceDataWattAtomBike.setUuid(QBluetoothUuid(QStringLiteral("b4cc1223-bc02-4cae-adb9-1217ad2860d1")));
+                        serviceDataWattAtomBike.addCharacteristic(charData);
+                        serviceDataWattAtomBike.addCharacteristic(charData2);                                           
                     }
                 } else if (power) {
 
@@ -421,9 +443,13 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                 if (!cadence && !power) {
 
                     serviceFIT = leController->addService(serviceDataFIT);
+
                     if(zwift_play_emulator) {
                         QThread::msleep(100); // give time to Android to add the service async.ly
                         serviceZwiftPlayBike = leController->addService(serviceDataZwiftPlayBike);
+                    } else if(watt_bike_emulator) {
+                        QThread::msleep(100); // give time to Android to add the service async.ly
+                        serviceWattAtomBike = leController->addService(serviceDataWattAtomBike);
                     }
                 } else {
                     service = leController->addService(serviceData);
@@ -451,6 +477,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             if (!heart_only) {
                 if (!cadence && !power) {
                     QObject::connect(serviceFIT, &QLowEnergyService::characteristicChanged, this,
+                                     &virtualbike::characteristicChanged);
+                    QObject::connect(serviceWattAtomBike, &QLowEnergyService::characteristicChanged, this,
                                      &virtualbike::characteristicChanged);
                     QObject::connect(serviceZwiftPlayBike, &QLowEnergyService::characteristicChanged, this,
                                      &virtualbike::characteristicChanged);
@@ -492,6 +520,55 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         leController,
         static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this,
         &virtualbike::error);
+}
+
+// zwift play emulator protobuf
+
+// Decode a protobuf varint starting from startIndex
+// Returns the decoded value and number of bytes read
+virtualbike::VarintResult virtualbike::decodeVarint(const QByteArray& bytes, int startIndex) {
+   qint64 result = 0;
+   int shift = 0;
+   int bytesRead = 0;
+   
+   for (int i = startIndex; i < bytes.size(); i++) {
+       quint8 byte = static_cast<quint8>(bytes.at(i));
+       result |= static_cast<qint64>(byte & 0x7F) << shift;
+       bytesRead++;
+       
+       // If the most significant bit is 0, we're done
+       if ((byte & 0x80) == 0) {
+           break;
+       }
+       shift += 7;
+   }
+   
+   return {result, bytesRead};
+}
+
+// Decode a protobuf sint value from a byte array
+// Expects a field header (0x22), length byte, inner header (0x10) and varint value
+qint32 virtualbike::decodeSInt(const QByteArray& bytes) {
+   // Check field header (0x22 = field number 4, wire type 2)
+   if (static_cast<quint8>(bytes.at(0)) != 0x22) {
+       qFatal("Invalid field header");
+   }
+   
+   // Get content length
+   int length = static_cast<quint8>(bytes.at(1));
+   
+   // Check inner header (0x10 = field number 2, wire type 0)
+   if (static_cast<quint8>(bytes.at(2)) != 0x10) {
+       qFatal("Invalid inner header");
+   }
+   
+   // Decode the varint value
+   VarintResult varint = decodeVarint(bytes, 3);
+   
+   // Apply ZigZag decoding to get the original signed value
+   qint32 decoded = (varint.value >> 1) ^ -(varint.value & 1);
+   
+   return decoded;
 }
 
 void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
@@ -838,13 +915,14 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     //********************ZWIFT PLAY**************
 
     if(characteristic.uuid().toString().contains(QStringLiteral("00000003-19ca-4651-86e5-fa29dcdd09d1")) && zwift_play_emulator) {
-        static const QByteArray expectedHexArray = QByteArray::fromHex("52696465 4F6E0201");
+        static const QByteArray expectedHexArray = QByteArray::fromHex("52696465 4F6E02");
         static const QByteArray expectedHexArray2 = QByteArray::fromHex("410805");
         static const QByteArray expectedHexArray3 = QByteArray::fromHex("00088804");
         static const QByteArray expectedHexArray4 = QByteArray::fromHex("042A0A10 C0BB0120");
         static const QByteArray expectedHexArray5 = QByteArray::fromHex("0422");
         static const QByteArray expectedHexArray6 = QByteArray::fromHex("042A0410");
         static const QByteArray expectedHexArray7 = QByteArray::fromHex("042A0310");
+        static const QByteArray expectedHexArray8 = QByteArray::fromHex("0418");
 
         QByteArray receivedData = newValue;
 
@@ -895,14 +973,10 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         else if (receivedData.startsWith(expectedHexArray5)) {
             qDebug() << "Zwift Play Ask 5";
 
+            double slopefloat = decodeSInt(receivedData.mid(1));
             QByteArray slope(2, 0);
-            slope[0] = receivedData[4];
-            if (receivedData.at(2) == (uint8_t)0x03) {
-                slope[1] = receivedData[5];
-            }
-            double CurrentSlope = (qint16(slope[0]) + ((qint16(slope[1]) << 8) & 0xFF00)) / 4.0;
-            slope[0] = quint8(qint16(CurrentSlope) & 0xFF);
-            slope[1] = quint8((qint16(CurrentSlope) >> 8) & 0x00FF);
+            slope[0] = quint8(qint16(slopefloat) & 0xFF);
+            slope[1] = quint8((qint16(slopefloat) >> 8) & 0x00FF);
 
             QBluetoothUuid targetUuid = QBluetoothUuid(quint16(0x2ad9));
             QLowEnergyCharacteristic targetCharacteristic;
@@ -910,12 +984,12 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             for (const QLowEnergyCharacteristic &characteristic : serviceFIT->characteristics()) {
                 if (characteristic.uuid() == targetUuid) {
                     targetCharacteristic = characteristic;
-                    break;  // Abbiamo trovato la caratteristica, usciamo dal ciclo
+                    break; 
                 }
             }
 
             if (targetCharacteristic.isValid()) {
-                characteristicChanged(targetCharacteristic, QByteArray::fromHex("110000") + slope + QByteArray::fromHex("0000"));
+                characteristicChanged(targetCharacteristic, QByteArray::fromHex("116901") + slope + QByteArray::fromHex("3228"));
 
                 QByteArray response = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
                 writeCharacteristic(serviceZwiftPlayBike, zwiftPlayIndicate, response);
@@ -947,6 +1021,34 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             response[10] = receivedData[5];
             handleZwiftGear(receivedData.mid(4));
             writeCharacteristic(serviceZwiftPlayBike, zwiftPlayIndicate, response);
+        }
+        else if (receivedData.startsWith(expectedHexArray8)) {
+            qDebug() << "Zwift Play Ask 8";
+
+            QByteArray power(2, 0);
+            VarintResult Power = decodeVarint(receivedData, 2);
+            power[0] = quint8(qint16(Power.value) & 0xFF);
+            power[1] = quint8((qint16(Power.value) >> 8) & 0x00FF);
+
+            QBluetoothUuid targetUuid = QBluetoothUuid(quint16(0x2ad9));
+            QLowEnergyCharacteristic targetCharacteristic;
+
+            for (const QLowEnergyCharacteristic &characteristic : serviceFIT->characteristics()) {
+                if (characteristic.uuid() == targetUuid) {
+                    targetCharacteristic = characteristic;
+                    break; 
+                }
+            }
+
+            if (targetCharacteristic.isValid()) {
+                characteristicChanged(targetCharacteristic, QByteArray::fromHex("05") + power);
+
+                QByteArray response = QByteArray::fromHex("030882011022181020002898523086ed01");
+                response[2] = (uint8_t)Bike->wattsMetric().value();
+                writeCharacteristic(serviceZwiftPlayBike, zwiftPlayRead, response);
+            } else {
+                qDebug() << "ERROR! Zwift Play Ask 8 without answer!";
+            }
         }
     }
 
@@ -1036,31 +1138,35 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 void virtualbike::handleZwiftGear(const QByteArray &array)
 {
     uint8_t g = 0;
-    if (array.size() >= 3) {
+    if (array.size() >= 2) {
         if ((uint8_t)array[0] == (uint8_t)0xCC && (uint8_t)array[1] == (uint8_t)0x3A) g = 1;
         else if ((uint8_t)array[0] == (uint8_t)0xFC && (uint8_t)array[1] == (uint8_t)0x43) g = 2;
         else if ((uint8_t)array[0] == (uint8_t)0xAC && (uint8_t)array[1] == (uint8_t)0x4D) g = 3;
-        else if ((uint8_t)array[0] == (uint8_t)0xD5 && (uint8_t)array[1] == (uint8_t)0x56) g = 4;
+        else if ((uint8_t)array[0] == (uint8_t)0xDC && (uint8_t)array[1] == (uint8_t)0x56) g = 4;
         else if ((uint8_t)array[0] == (uint8_t)0x8C && (uint8_t)array[1] == (uint8_t)0x60) g = 5;
         else if ((uint8_t)array[0] == (uint8_t)0xE8 && (uint8_t)array[1] == (uint8_t)0x6B) g = 6;
         else if ((uint8_t)array[0] == (uint8_t)0xC4 && (uint8_t)array[1] == (uint8_t)0x77) g = 7;
-        else if ((uint8_t)array[0] == (uint8_t)0xA0 && (uint8_t)array[1] == (uint8_t)0x83 && (uint8_t)array[2] == (uint8_t)0x01) g = 8;
-        else if ((uint8_t)array[0] == (uint8_t)0xA8 && (uint8_t)array[1] == (uint8_t)0x91 && (uint8_t)array[2] == (uint8_t)0x01) g = 9;
-        else if ((uint8_t)array[0] == (uint8_t)0xB0 && (uint8_t)array[1] == (uint8_t)0x9F && (uint8_t)array[2] == (uint8_t)0x01) g = 10;
-        else if ((uint8_t)array[0] == (uint8_t)0xB8 && (uint8_t)array[1] == (uint8_t)0xAD && (uint8_t)array[2] == (uint8_t)0x01) g = 11;
-        else if ((uint8_t)array[0] == (uint8_t)0xC0 && (uint8_t)array[1] == (uint8_t)0xBB && (uint8_t)array[2] == (uint8_t)0x01) g = 12;
-        else if ((uint8_t)array[0] == (uint8_t)0xF3 && (uint8_t)array[1] == (uint8_t)0xCB && (uint8_t)array[2] == (uint8_t)0x01) g = 13;
-        else if ((uint8_t)array[0] == (uint8_t)0xA8 && (uint8_t)array[1] == (uint8_t)0xDC && (uint8_t)array[2] == (uint8_t)0x01) g = 14;
-        else if ((uint8_t)array[0] == (uint8_t)0xDC && (uint8_t)array[1] == (uint8_t)0xEC && (uint8_t)array[2] == (uint8_t)0x01) g = 15;
-        else if ((uint8_t)array[0] == (uint8_t)0x90 && (uint8_t)array[1] == (uint8_t)0xFD && (uint8_t)array[2] == (uint8_t)0x01) g = 16;
-        else if ((uint8_t)array[0] == (uint8_t)0xD4 && (uint8_t)array[1] == (uint8_t)0x90 && (uint8_t)array[2] == (uint8_t)0x02) g = 17;
-        else if ((uint8_t)array[0] == (uint8_t)0x98 && (uint8_t)array[1] == (uint8_t)0xA4 && (uint8_t)array[2] == (uint8_t)0x02) g = 18;
-        else if ((uint8_t)array[0] == (uint8_t)0xDC && (uint8_t)array[1] == (uint8_t)0xB7 && (uint8_t)array[2] == (uint8_t)0x02) g = 19;
-        else if ((uint8_t)array[0] == (uint8_t)0x9F && (uint8_t)array[1] == (uint8_t)0xCB && (uint8_t)array[2] == (uint8_t)0x02) g = 20;
-        else if ((uint8_t)array[0] == (uint8_t)0xD8 && (uint8_t)array[1] == (uint8_t)0xE2 && (uint8_t)array[2] == (uint8_t)0x02) g = 21;
-        else if ((uint8_t)array[0] == (uint8_t)0x90 && (uint8_t)array[1] == (uint8_t)0xFA && (uint8_t)array[2] == (uint8_t)0x02) g = 22;
-        else if ((uint8_t)array[0] == (uint8_t)0xC8 && (uint8_t)array[1] == (uint8_t)0x91 && (uint8_t)array[2] == (uint8_t)0x03) g = 23;
-        else if ((uint8_t)array[0] == (uint8_t)0xF3 && (uint8_t)array[1] == (uint8_t)0xAC && (uint8_t)array[2] == (uint8_t)0x03) g = 24;
+        else if (array.size() >= 3) {
+            if ((uint8_t)array[0] == (uint8_t)0xA0 && (uint8_t)array[1] == (uint8_t)0x83 && (uint8_t)array[2] == (uint8_t)0x01) g = 8;
+            else if ((uint8_t)array[0] == (uint8_t)0xA8 && (uint8_t)array[1] == (uint8_t)0x91 && (uint8_t)array[2] == (uint8_t)0x01) g = 9;
+            else if ((uint8_t)array[0] == (uint8_t)0xB0 && (uint8_t)array[1] == (uint8_t)0x9F && (uint8_t)array[2] == (uint8_t)0x01) g = 10;
+            else if ((uint8_t)array[0] == (uint8_t)0xB8 && (uint8_t)array[1] == (uint8_t)0xAD && (uint8_t)array[2] == (uint8_t)0x01) g = 11;
+            else if ((uint8_t)array[0] == (uint8_t)0xC0 && (uint8_t)array[1] == (uint8_t)0xBB && (uint8_t)array[2] == (uint8_t)0x01) g = 12;
+            else if ((uint8_t)array[0] == (uint8_t)0xF3 && (uint8_t)array[1] == (uint8_t)0xCB && (uint8_t)array[2] == (uint8_t)0x01) g = 13;
+            else if ((uint8_t)array[0] == (uint8_t)0xA8 && (uint8_t)array[1] == (uint8_t)0xDC && (uint8_t)array[2] == (uint8_t)0x01) g = 14;
+            else if ((uint8_t)array[0] == (uint8_t)0xDC && (uint8_t)array[1] == (uint8_t)0xEC && (uint8_t)array[2] == (uint8_t)0x01) g = 15;
+            else if ((uint8_t)array[0] == (uint8_t)0x90 && (uint8_t)array[1] == (uint8_t)0xFD && (uint8_t)array[2] == (uint8_t)0x01) g = 16;
+            else if ((uint8_t)array[0] == (uint8_t)0xD4 && (uint8_t)array[1] == (uint8_t)0x90 && (uint8_t)array[2] == (uint8_t)0x02) g = 17;
+            else if ((uint8_t)array[0] == (uint8_t)0x98 && (uint8_t)array[1] == (uint8_t)0xA4 && (uint8_t)array[2] == (uint8_t)0x02) g = 18;
+            else if ((uint8_t)array[0] == (uint8_t)0xDC && (uint8_t)array[1] == (uint8_t)0xB7 && (uint8_t)array[2] == (uint8_t)0x02) g = 19;
+            else if ((uint8_t)array[0] == (uint8_t)0x9F && (uint8_t)array[1] == (uint8_t)0xCB && (uint8_t)array[2] == (uint8_t)0x02) g = 20;
+            else if ((uint8_t)array[0] == (uint8_t)0xD8 && (uint8_t)array[1] == (uint8_t)0xE2 && (uint8_t)array[2] == (uint8_t)0x02) g = 21;
+            else if ((uint8_t)array[0] == (uint8_t)0x90 && (uint8_t)array[1] == (uint8_t)0xFA && (uint8_t)array[2] == (uint8_t)0x02) g = 22;
+            else if ((uint8_t)array[0] == (uint8_t)0xC8 && (uint8_t)array[1] == (uint8_t)0x91 && (uint8_t)array[2] == (uint8_t)0x03) g = 23;
+            else if ((uint8_t)array[0] == (uint8_t)0xF3 && (uint8_t)array[1] == (uint8_t)0xAC && (uint8_t)array[2] == (uint8_t)0x03) g = 24;
+            else { return; }
+        }
+        else { return; }
     }
 
     if (g < CurrentZwiftGear) {
@@ -1188,6 +1294,7 @@ void virtualbike::reconnect() {
     }
 
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
+    bool watt_bike_emulator = settings.value(QZSettings::watt_bike_emulator, QZSettings::default_watt_bike_emulator).toBool();
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     bool battery = settings.value(QZSettings::battery_service, QZSettings::default_battery_service).toBool();
     bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
@@ -1211,9 +1318,13 @@ void virtualbike::reconnect() {
             if (!cadence && !power) {
 
                 serviceFIT = leController->addService(serviceDataFIT);
+
                 if(zwift_play_emulator) {
                     QThread::msleep(100); // give time to Android to add the service async.ly
                     serviceZwiftPlayBike = leController->addService(serviceDataZwiftPlayBike);
+                } else if(watt_bike_emulator) {
+                    QThread::msleep(100); // give time to Android to add the service async.ly
+                    serviceWattAtomBike = leController->addService(serviceDataWattAtomBike);
                 }
             } else {
                 service = leController->addService(serviceData);
@@ -1245,6 +1356,7 @@ void virtualbike::bikeProvider() {
 
     QSettings settings;
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
+    bool watt_bike_emulator = settings.value(QZSettings::watt_bike_emulator, QZSettings::default_watt_bike_emulator).toBool();
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     bool battery = settings.value(QZSettings::battery_service, QZSettings::default_battery_service).toBool();
     bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
@@ -1361,6 +1473,20 @@ void virtualbike::bikeProvider() {
                         const uint8_t v[] = {0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01};
                         value = QByteArray::fromRawData((char*)v, 16);
                         writeCharacteristic(serviceZwiftPlayBike, characteristic1, value);
+                    } else if (watt_bike_emulator) {
+                        QLowEnergyCharacteristic characteristic1 =
+                            serviceWattAtomBike->characteristic(QBluetoothUuid(QStringLiteral("b4cc1224-bc02-4cae-adb9-1217ad2860d1")));
+                        value.clear();
+                        static uint8_t seq = 0;
+                        ++seq;
+                        value.append(seq);
+                        value.append(0x03);
+                        value.append(0xB6);
+                        int8_t g = ((bike*)Bike)->gears();
+                        if(g < 1)
+                            g = 1;
+                        value.append(g);
+                        writeCharacteristic(serviceWattAtomBike, characteristic1, value);
                     }
                 }
             } else if (power) {

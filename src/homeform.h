@@ -351,6 +351,10 @@ class homeform : public QObject {
 
     Q_INVOKABLE bool firstRun() {
         QSettings settings;
+        QString proformtdf4ip = settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString();
+        QString proformtdf1ip = settings.value(QZSettings::proformtdf1ip, QZSettings::default_proformtdf1ip).toString();
+        QString proformtreadmillip = settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString();
+
         QString nordictrack_2950_ip =
             settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
         QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
@@ -366,7 +370,9 @@ class homeform : public QObject {
             settings.value(QZSettings::antbike, QZSettings::default_antbike).toBool();
 
         return settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString().isEmpty() && 
-                nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical && !fakedevice_rower && !fakedevice_treadmill && !antbike && proform_elliptical_ip.isEmpty();
+                nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical &&
+                !fakedevice_rower && !fakedevice_treadmill && !antbike && proform_elliptical_ip.isEmpty() && 
+                proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty();
     }
 
 
@@ -672,6 +678,13 @@ class homeform : public QObject {
     DataObject *stepCount;
     DataObject *ergMode;
     DataObject *rss;
+    DataObject *preset_powerzone_1;
+    DataObject *preset_powerzone_2;
+    DataObject *preset_powerzone_3;
+    DataObject *preset_powerzone_4;
+    DataObject *preset_powerzone_5;
+    DataObject *preset_powerzone_6;
+    DataObject *preset_powerzone_7;    
 
   private:
     static homeform *m_singleton;

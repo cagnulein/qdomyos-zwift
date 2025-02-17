@@ -23,6 +23,9 @@ class bike : public bluetoothdevice {
     double currentCrankRevolutions() override;
     uint16_t lastCrankEventTime() override;
     bool connected() override;
+    double defaultMaxGears() { return 9999.0; }
+    virtual double maxGears() { return defaultMaxGears(); }
+    virtual double minGears() { return -9999.0; }
     virtual uint16_t watts();
     virtual resistance_t pelotonToBikeResistance(int pelotonResistance);
     virtual resistance_t resistanceFromPowerRequest(uint16_t power);
@@ -78,6 +81,10 @@ class bike : public bluetoothdevice {
     void resistanceChanged(resistance_t resistance);
     void resistanceRead(resistance_t resistance);
     void steeringAngleChanged(double angle);
+    void gearOkUp(); // Signal when gear up succeeds
+    void gearOkDown(); // Signal when gear down succeeds
+    void gearFailedUp();   // Signal when gear up hits max
+    void gearFailedDown(); // Signal when gear down hits min
 
   protected:
     metric RequestedResistance;

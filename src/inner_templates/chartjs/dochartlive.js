@@ -35,6 +35,8 @@ var miles = 1;
 var powerChart = null;
 var watts_max = 0;
 
+var firstElapsedTargetPower = 0;
+
 function process_trainprogram(arr) {
     let powerWorkout = false;
     let elapsed = 0;
@@ -128,9 +130,6 @@ function process_arr(arr) {
         distance = el.distance;
         calories = el.calories;
         maxEl = time;
-        wattel.x = time;
-        wattel.y = el.watts;
-        watts.push(wattel);
         if(el.watts < ftpZones[0])
             distributionPowerZones[0]++;
         else if(el.watts < ftpZones[1])
@@ -179,6 +178,15 @@ function process_arr(arr) {
         inclinationel.x = time;
         inclinationel.y = el.inclination;
         inclination.push(inclinationel);
+
+        if(el.target_power > 0) { // in order to add only metrics of the training program
+            if(firstElapsedTargetPower === 0) {
+                firstElapsedTargetPower = el.elapsed_s + (el.elapsed_m * 60) + (el.elapsed_h * 3600);
+            }
+            wattel.x = (el.elapsed_s + (el.elapsed_m * 60) + (el.elapsed_h * 3600)) - firstElapsedTargetPower;
+            wattel.y = el.watts;
+            watts.push(wattel);
+        }
     }
 
     const backgroundFill = {
@@ -391,7 +399,14 @@ function refresh() {
 }
 
 function process_workout(arr) {    
-    powerChart.data.datasets[0].data.push({x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600), y: arr.watts});
+    if(arr.target_power > 0) { // in order to add only metrics of the training program
+        if(firstElapsedTargetPower === 0) {
+            firstElapsedTargetPower = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
+            powerChart.data.datasets[0].data = [];
+        }
+    }
+
+    powerChart.data.datasets[0].data.push({x: (arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600)) - firstElapsedTargetPower, y: arr.watts});
     if(watts_max < arr.watts)
         watts_max = arr.watts;
     powerChart.update();

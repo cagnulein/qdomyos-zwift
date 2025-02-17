@@ -1,4 +1,5 @@
 #include "heartratebelt.h"
+#include "homeform.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QEventLoop>
@@ -7,9 +8,47 @@
 #include <QSettings>
 #include <QThread>
 
-heartratebelt::heartratebelt() {}
+heartratebelt::heartratebelt() {
+    // Initialize the update timer to run every second
+    updateTimer = new QTimer(this);
+    updateTimer->setInterval(1000);  // 1 second
+    connect(updateTimer, &QTimer::timeout, this, &heartratebelt::update);
+    updateTimer->start();
+}
 
-void heartratebelt::update() {}
+heartratebelt::~heartratebelt() {
+    if (updateTimer) {
+        updateTimer->stop();
+        delete updateTimer;
+    }
+}
+
+void heartratebelt::update() {
+    QSettings settings;
+    
+    // Check if we are in connecting state and more than 10 seconds have passed
+    if (m_control && 
+        m_control->state() == QLowEnergyController::ConnectingState && 
+        !connectingTime.isNull() &&
+        connectingTime.msecsTo(QDateTime::currentDateTime()) > CONNECTION_TIMEOUT
+#ifdef Q_OS_IOS
+        && !settings.value(QZSettings::ios_cache_heart_device, QZSettings::default_ios_cache_heart_device).toBool()
+#endif
+        ) {
+        
+        emit debug(QStringLiteral("Connection timeout in ConnectingState - disconnecting and retrying..."));
+        disconnectBluetooth();
+        connectingTime = QDateTime();  // Reset the timestamp
+        
+        // Reconnect after 1 second
+        QTimer::singleShot(1000, this, [this]() {
+            if (m_control) {
+                emit debug(QStringLiteral("Attempting to reconnect after timeout..."));
+                m_control->connectToDevice();
+            }
+        });
+    }
+}
 
 void heartratebelt::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
@@ -114,10 +153,13 @@ void heartratebelt::error(QLowEnergyController::Error err) {
 
 void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QSettings settings;
-    // QString heartRateBeltName = settings.value(QZSettings::heart_rate_belt_name),
-    // QStringLiteral("Disabled")).toString();//NOTE: clazy-unused-non-trivial-variable
+    
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
+
+    if(homeform::singleton())
+        homeform::singleton()->setToastRequested(device.name() + QStringLiteral(" connected!"));
+
     // if(device.name().startsWith(heartRateBeltName))
     {
         bluetoothDevice = device;
@@ -163,6 +205,13 @@ bool heartratebelt::connected() {
 
 void heartratebelt::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
+    
+    if (state == QLowEnergyController::ConnectingState) {
+        connectingTime = QDateTime::currentDateTime();
+    } else {
+        connectingTime = QDateTime();  // Reset timestamp for other states
+    }
+    
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         m_control->connectToDevice();

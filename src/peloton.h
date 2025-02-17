@@ -48,6 +48,7 @@ class peloton : public QObject {
     void downloadImage();
     QDateTime current_original_air_time;
     int current_pedaling_duration = 0;
+    qint64 start_time = 0;
 
     void setTestMode(bool test);
 
@@ -103,7 +104,9 @@ class peloton : public QObject {
 
     typedef struct _peloton_treadmill_pace_intensities_level {
         QString display_name;
-        double speed;
+        double fast_pace;
+        double slow_pace;
+        double speed;  // Average of fast_pace and slow_pace
         QString slug;
     }_peloton_treadmill_pace_intensities_level;
 
