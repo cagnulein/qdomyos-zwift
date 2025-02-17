@@ -7,6 +7,7 @@
 #include <QSettings>
 #include <QThread>
 #include <math.h>
+#include "wheelcircumference.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
@@ -103,6 +104,7 @@ void tacxneo2::forceInclination(double inclination) {
     inc[12]++;
 
     writeCharacteristic(inc, sizeof(inc), QStringLiteral("changeInclination"), false, false);
+    resistance_sent = true;
 }
 
 void tacxneo2::update() {
@@ -118,6 +120,7 @@ void tacxneo2::update() {
             settings.value(QZSettings::tacx_neo2_peloton, QZSettings::default_tacx_neo2_peloton).toBool();
         if (tacx_neo2_peloton)
             requestInclination = 0;
+        initDone = true;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
@@ -135,7 +138,7 @@ void tacxneo2::update() {
         auto virtualBike = this->VirtualBike();
 
         if (requestResistance != -1) {
-            if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
+            if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                     (requestPower == 0 || requestPower == -1)) {
@@ -147,16 +150,25 @@ void tacxneo2::update() {
         }
         if (requestInclination != -100) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-            forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+            forceInclination(requestInclination); // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
             requestInclination = -100;            
-        } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
+        } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastRawRequestedInclinationValue != -100) {
             // in order to send the new gear value ASAP
-            forceInclination(lastRawRequestedInclinationValue + gears());   // since this bike doesn't have the concept of resistance,
+            forceInclination(lastRawRequestedInclinationValue);   // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
         }
 
-        lastGearValue = gears();
+        if(lastGearValue != gears()) {
+            if(Cadence.value() > 0) { // this trainer can change gears only if the wattage is greater than 0 and if you send at least once an inclination
+                if(!resistance_sent) {
+                    forceInclination(1.0);
+                } else {
+                    setUserConfiguration(wheelCircumference::gearsToWheelDiameter(gears()), 1);
+                    lastGearValue = gears();
+                }
+            }
+        }
 
         if (requestPower != -1) {
             changePower(requestPower);
@@ -965,6 +977,7 @@ void tacxneo2::controllerStateChanged(QLowEnergyController::ControllerState stat
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        resistance_sent = false;
         m_control->connectToDevice();
     }
 }
@@ -1000,7 +1013,7 @@ void tacxneo2::setUserConfiguration(double wheelDiameter, double gearRatio) {
     float userWeight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
     // Prepare the command bytes according to FE-C protocol
-    uint8_t config[] = {0xA4, 0x09, 0x4E, 0x05, 0x37, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t config[] = {0xA4, 0x09, 0x4F, 0x05, 0x37, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     // Convert user weight to protocol format (2 bytes, weight/0.01)
     uint16_t weightValue = static_cast<uint16_t>(userWeight / 0.01);
