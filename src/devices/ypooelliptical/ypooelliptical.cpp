@@ -402,8 +402,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.expEnergy && lastPacket.length() > index + 1) {
-            KCal = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)lastPacket.at(index))));
+            /*KCal = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)lastPacket.at(index))));*/
             index += 2;
 
             // energy per hour
@@ -411,16 +411,16 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
             // energy per minute
             index += 1;
-        } else {
-            if (watts())
-                KCal += ((((0.048 * ((double)watts()) + 1.19) *
-                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                          200.0) /
-                         (60000.0 /
-                          ((double)lastRefreshCharacteristicChanged.msecsTo(
-                              now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                // kg * 3.5) / 200 ) / 60
         }
+        
+        if (watts())
+            KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                        settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                        200.0) /
+                        (60000.0 /
+                        ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                            // kg * 3.5) / 200 ) / 60    
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
@@ -483,14 +483,14 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
             emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         }
-
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
-            (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
-            update_hr_from_external();
-        }
     } else {
         return;
     }
+
+    if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
+        (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
+        update_hr_from_external();
+    }    
 
     lastRefreshCharacteristicChanged = now;
 
