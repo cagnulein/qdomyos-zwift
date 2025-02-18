@@ -186,8 +186,8 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
     QObject::connect(&bikeTimer, &QTimer::timeout, this, &DirconManager::bikeProvider);
     QString mac = getMacAddress();
     DM_MACHINE_OP(DM_MACHINE_INIT_OP, services, proc_services, type)
-    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
-        bikeTimer.start(100ms);
+    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool() || settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool())
+        bikeTimer.start(50ms);
     else
         bikeTimer.start(1s);
 }
