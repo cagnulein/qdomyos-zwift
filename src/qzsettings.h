@@ -2378,6 +2378,9 @@ class QZSettings {
     static const QString stryd_inclination_instead_treadmill;
     static constexpr bool default_stryd_inclination_instead_treadmill = false;
 
+    static const QString domyos_elliptical_fmts;
+    static constexpr bool default_domyos_elliptical_fmts = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

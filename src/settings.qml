@@ -1104,6 +1104,9 @@ import QtQuick.Dialogs 1.0
             property bool proform_bike_PFEVEX71316_0: false
             property bool real_inclination_to_virtual_treamill_bridge: false
             property bool stryd_inclination_instead_treadmill: false
+
+            // 2.18.20
+            property bool domyos_elliptical_fmts: false
         }
 
         function paddingZeros(text, limit) {

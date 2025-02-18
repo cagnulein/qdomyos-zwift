@@ -875,8 +875,9 @@ const QString QZSettings::proform_bike_PFEVEX71316_0 = QStringLiteral("proform_b
 
 const QString QZSettings::real_inclination_to_virtual_treamill_bridge = QStringLiteral("real_inclination_to_virtual_treamill_bridge");
 const QString QZSettings::stryd_inclination_instead_treadmill = QStringLiteral("stryd_inclination_instead_treadmill");
+const QString QZSettings::domyos_elliptical_fmts = QStringLiteral("domyos_elliptical_fmts");
 
-const uint32_t allSettingsCount = 726;
+const uint32_t allSettingsCount = 727;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1617,6 +1618,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_bike_PFEVEX71316_0, QZSettings::default_proform_bike_PFEVEX71316_0},
     {QZSettings::real_inclination_to_virtual_treamill_bridge, QZSettings::default_real_inclination_to_virtual_treamill_bridge},
     {QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill},
+    {QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

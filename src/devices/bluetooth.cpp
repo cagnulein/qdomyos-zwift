@@ -990,7 +990,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(trxappgateusbElliptical);
-            } else if (b.name().startsWith(QStringLiteral("Domyos-EL")) &&
+            } else if (b.name().startsWith(QStringLiteral("Domyos-EL")) && !settings.value(QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts).toBool() &&
                        !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosElliptical && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1010,6 +1010,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("YPOO-U3-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SCH_590E")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER ")) ||
+                        (b.name().startsWith(QStringLiteral("Domyos-EL")) && settings.value(QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts).toBool()) ||
                         (b.name().toUpper().startsWith("SF-") && b.name().midRef(3).toInt() > 0) ||
                         b.name().toUpper().startsWith(QStringLiteral("MYELLIPTICAL ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("CARDIOPOWER EEGO")) ||
@@ -1519,6 +1520,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.address() == QBluetoothAddress("C1:14:D9:9C:FB:01") || // specific TACX NEO 2 #1707
                         (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
                         !b.name().toUpper().startsWith("TACX SATORI") &&
+                        ftms_bike.contains(QZSettings::default_ftms_bike) &&
                        !tacxneo2Bike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1641,6 +1643,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("AVANTI")) ||
                         (b.name().toUpper().startsWith("T300P_")) ||
                         (b.name().toUpper().startsWith("T200_")) ||
+                        (b.name().toUpper().startsWith("BZ9110 ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||
                         (b.name().toUpper().startsWith("VFSPINBIKE")) ||
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||

@@ -2188,15 +2188,6 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				87DA62AC2D2426F2008ADA0F /* characteristicnotifier0004.h */,
-				87DA62AD2D2426F2008ADA0F /* characteristicnotifier0004.cpp */,
-				87DA62AE2D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp */,
-				87DA62A62D2305F5008ADA0F /* characteristicnotifier0002.h */,
-				87DA62A72D2305F5008ADA0F /* characteristicnotifier0002.cpp */,
-				87DA62A82D2305F5008ADA0F /* characteristicwriteprocessor0003.h */,
-				87DA62A92D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp */,
-				87DA62A22D2305E4008ADA0F /* moc_characteristicnotifier0002.cpp */,
-				87DA62A32D2305E4008ADA0F /* moc_characteristicwriteprocessor0003.cpp */,
 				87A33F1B2D611D9500BFFF29 /* logwriter.h */,
 				87A33F1C2D611D9500BFFF29 /* logwriter.cpp */,
 				87A33F192D611D8400BFFF29 /* moc_logwriter.cpp */,
