@@ -948,8 +948,9 @@ void proformbike::update() {
                                     QStringLiteral("noOp"));
             } else if(proform_bike_PFEVEX71316_0) {
                 writeCharacteristic(noOpData6_proform_bike_PFEVEX71316_0, sizeof(noOpData6_proform_bike_PFEVEX71316_0), QStringLiteral("noOp"), false, true);
-                innerWriteResistance();          
-                if (requestInclination != -100) {
+                if (requestResistance != -1)
+                    innerWriteResistance();          
+                else if (requestInclination != -100) {
                     writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
                     // only 0.5 steps ara available
                     double inc = qRound(requestInclination * 2.0) / 2.0;
