@@ -1633,10 +1633,11 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                         paceintensity_lower = oo[QStringLiteral("lower")].toInt();
                         paceintensity_upper = oo[QStringLiteral("upper")].toInt();
                         paceintensity_avg = ((paceintensity_upper - paceintensity_lower) / 2.0) + paceintensity_lower;
-                        if(paceintensity_lower < 7)
-                        speed_lower = treadmill_pace[paceintensity_lower].levels[peloton_treadmill_level].speed;
-                        speed_upper = treadmill_pace[paceintensity_upper].levels[peloton_treadmill_level].speed;
-                        speed_average = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
+                        if(paceintensity_lower < 7) {
+                            speed_lower = treadmill_pace[paceintensity_lower].levels[peloton_treadmill_level].speed;
+                            speed_upper = treadmill_pace[paceintensity_upper].levels[peloton_treadmill_level].speed;
+                            speed_average = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
+                        }
                     }
                 }
                 int offset_start = offset[QStringLiteral("start")].toInt();
