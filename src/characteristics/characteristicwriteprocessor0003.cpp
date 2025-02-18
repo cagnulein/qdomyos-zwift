@@ -81,16 +81,15 @@ void CharacteristicWriteProcessor0003::handleZwiftGear(const QByteArray &array) 
         else { return; }
     }
 
-    if (g < currentZwiftGear) {
-        for (int i = 0; i < currentZwiftGear - g; ++i) {
+    if (g < ((bike*)Bike)->gears()) {
+        for (int i = 0; i < ((bike*)Bike)->gears() - g; i++) {
             ((bike*)Bike)->gearDown();
         }
-    } else if (g > currentZwiftGear) {
-        for (int i = 0; i < g - currentZwiftGear; ++i) {
+    } else if (g > ((bike*)Bike)->gears()) {
+        for (int i = 0; i < g - ((bike*)Bike)->gears(); i++) {
             ((bike*)Bike)->gearUp();
         }
     }
-    currentZwiftGear = g;
 }
 
 QByteArray CharacteristicWriteProcessor0003::encodeHubRidingData(
