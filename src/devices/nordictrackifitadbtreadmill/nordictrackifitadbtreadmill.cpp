@@ -268,7 +268,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             requestInclination = -100;
         }
 
-        int currentRequestInclination = requestInclination;
+        double currentRequestInclination = requestInclination;
 
         // since the motor of the treadmill is slow, let's filter the inclination changes to more than 1 second
         if (requestInclination != -100 && lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > 1) {

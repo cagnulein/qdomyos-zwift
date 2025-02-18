@@ -182,6 +182,10 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, true);
             waitForAPacket();
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...0%");
+            }
+
         init1:
             initPacketRecv = false;
 
@@ -271,6 +275,10 @@ void horizontreadmill::btinit() {
                 goto init1;
             }
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...15%");
+            }        
+
         init2:
             initPacketRecv = false;
 
@@ -357,6 +365,10 @@ void horizontreadmill::btinit() {
                 goto init2;
             }
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...25%");
+            }            
+
         init3:
             initPacketRecv = false;
 
@@ -441,6 +453,10 @@ void horizontreadmill::btinit() {
                 qDebug() << "init 3 not received";
                 waitForAPacket();
                 goto init3;
+            }
+
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...35%");
             }
 
         init4:
@@ -529,6 +545,10 @@ void horizontreadmill::btinit() {
                 goto init4;
             }
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...50%");
+            }            
+
         init5:
             initPacketRecv = false;
 
@@ -613,6 +633,10 @@ void horizontreadmill::btinit() {
                 qDebug() << "init 5 not received";
                 waitForAPacket();
                 goto init5;
+            }
+
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...65%");
             }
 
         init6:
@@ -701,6 +725,10 @@ void horizontreadmill::btinit() {
                 goto init6;
             }
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...80%");
+            }            
+
         init7:
             initPacketRecv = false;
 
@@ -787,6 +815,10 @@ void horizontreadmill::btinit() {
                 goto init7;
             }
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...90%");
+            }
+
         init8:
             initPacketRecv = false;
 
@@ -812,6 +844,10 @@ void horizontreadmill::btinit() {
                 waitForAPacket();
                 goto init8;
             }
+
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization completed!");
+            }            
         }
         messageID = 0x10;
     }
