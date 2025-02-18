@@ -391,6 +391,9 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             }
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             index += 2;
+        } else if(DOMYOS) {
+            m_watt = watts();
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
         }
 
         if (Flags.avgPower && lastPacket.length() > index + 1 && !E35 && !SCH_590E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS) { // E35 has a bug about this
