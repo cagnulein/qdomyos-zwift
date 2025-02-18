@@ -2081,7 +2081,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(proformBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 proformBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(proformBike);
-            } else if ((b.name().startsWith(QStringLiteral("I_TL")) || b.name().startsWith(QStringLiteral("I_IT"))) &&
+            } else if ((b.name().startsWith(QStringLiteral("I_TL")) || b.name().startsWith(QStringLiteral("I_IT")) ||
+                        b.name().toUpper().contains(QStringLiteral("_IFIT TREADMILL"))) &&
                        !proformTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
