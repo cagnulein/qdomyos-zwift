@@ -312,6 +312,8 @@ devices/trixterxdreamv1bike/trixterxdreamv1bike.cpp \
 devices/trixterxdreamv1bike/trixterxdreamv1client.cpp \
 devices/trixterxdreamv1bike/trixterxdreamv1serial.cpp \
 devices/trixterxdreamv1bike/trixterxdreamv1settings.cpp \
+devices/trixterxdreamv1bike/qserialdatasource.cpp \
+devices/trixterxdreamv1bike/serialdatasource.cpp \
 trainprogram.cpp \
 devices/trxappgateusbtreadmill/trxappgateusbtreadmill.cpp \
 virtualdevices/virtualbike.cpp \
@@ -355,8 +357,6 @@ HEADERS += \
     $$PWD/devices/sramAXSController/sramAXSController.h \
     $$PWD/devices/technogymbike/technogymbike.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
-    $$PWD/devices/trixterxdreamv1bike/qserialdatasource.h \
-    $$PWD/devices/trixterxdreamv1bike/serialdatasource.h \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.h \
     $$PWD/ergtable.h \
     $$PWD/logwriter.h \
@@ -430,6 +430,8 @@ devices/trixterxdreamv1bike/trixterxdreamv1client.h \
 devices/trixterxdreamv1bike/trixterxdreamv1bike.h \
 devices/trixterxdreamv1bike/trixterxdreamv1serial.h \
 devices/trixterxdreamv1bike/trixterxdreamv1settings.h \
+devices/trixterxdreamv1bike/qserialdatasource.h \
+devices/trixterxdreamv1bike/serialdatasource.h \
 PathController.h \
 characteristics/characteristicnotifier2a53.h \
 characteristics/characteristicnotifier2a5b.h \
