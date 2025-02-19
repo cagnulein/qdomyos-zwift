@@ -1289,6 +1289,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("SMB1"))) {
             qDebug() << QStringLiteral("SMB1 found");
             SMB1 = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("SPAX-BK-"))) {
+            qDebug() << QStringLiteral("SPAX-BK found");
+            resistance_lvl_mode = true;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
