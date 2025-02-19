@@ -15,6 +15,8 @@ import QtQuick.Dialogs 1.0
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane        
 
+        signal peloton_connect_clicked()
+
         Settings {
             id: settings
             property real ui_zoom: 100.0
@@ -977,6 +979,7 @@ import QtQuick.Dialogs 1.0
             property bool gears_zwift_ratio: false
             property bool domyos_bike_500_profile_v2: false
             property double gears_offset: 0.0
+
             property bool proform_carbon_tl_PFTL59720: false
 
             // from version 2.16.71
@@ -4255,7 +4258,7 @@ import QtQuick.Dialogs 1.0
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
                     spacing: 0
-
+/*
                     RowLayout {
                         spacing: 10
                         Label {
@@ -4331,6 +4334,23 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+*/
+
+                    ItemDelegate {
+                        Image {
+                            anchors.left: parent.left;
+                            anchors.verticalCenter: parent.verticalCenter
+                            source: "icons/icons/Button_Connect_Rect_DarkMode.png"
+                            fillMode: Image.PreserveAspectFit
+                            visible: true
+                            width: parent.width
+                        }
+                        Layout.fillWidth: true
+                        onClicked: {
+                            stackView.push("WebPelotonAuth.qml")
+                            peloton_connect_clicked()
+                        }
                     }
 
                     RowLayout {
