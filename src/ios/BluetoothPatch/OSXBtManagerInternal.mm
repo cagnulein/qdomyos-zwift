@@ -1,14 +1,31 @@
-#import "osxbtcentralmanager_p.h"  // header del modulo originale
+#define QT_IOS_BLUETOOTH
+#import "osxbtcentralmanager_p.h"
 #import <objc/runtime.h>
+
+QT_USE_NAMESPACE
+
+// Definizione della struttura dei membri privati
+@interface QT_MANGLE_NAMESPACE(OSXBTCentralManager) () {
+@package  // Rende i membri accessibili alla categoria
+    OSXBluetooth::CharHash charMap;
+    OSXBluetooth::DescHash descMap;
+    OSXBluetooth::ValueHash valuesToWrite;
+}
+@end
 
 @implementation QT_MANGLE_NAMESPACE(OSXBTCentralManager) (SafeCache)
 
 - (bool)cacheWriteValue:(const QByteArray &)value for:(NSObject *)obj
 {
     @try {
+        // Accesso alle variabili private tramite self
+        OSXBluetooth::CharHash &localCharMap = ((QT_MANGLE_NAMESPACE(OSXBTCentralManager) *)self)->charMap;
+        OSXBluetooth::DescHash &localDescMap = ((QT_MANGLE_NAMESPACE(OSXBTCentralManager) *)self)->descMap;
+        OSXBluetooth::ValueHash &localValuesToWrite = ((QT_MANGLE_NAMESPACE(OSXBTCentralManager) *)self)->valuesToWrite;
+
         // Verifica validità oggetto
         if (!obj) {
-            qCWarning(QT_BT_OSX) << "Error: Invalid object (nil)";
+            qDebug() << "Error: Invalid object (nil)";
             return false;
         }
         
@@ -16,46 +33,46 @@
         if ([obj isKindOfClass:[CBCharacteristic class]]) {
             @try {
                 CBCharacteristic *const ch = (CBCharacteristic *)obj;
-                if (!charMap.key(ch)) {
-                    qCWarning(QT_BT_OSX) << "Error: Unexpected characteristic, no handle found";
+                if (!localCharMap.key(ch)) {
+                    qDebug() << "Error: Unexpected characteristic, no handle found";
                     return false;
                 }
             } @catch (NSException *e) {
-                qCWarning(QT_BT_OSX) << "Exception handling characteristic:" << e.reason;
+                qDebug() << "Exception handling characteristic:" << e.reason;
                 return false;
             }
         } else if ([obj isKindOfClass:[CBDescriptor class]]) {
             @try {
                 CBDescriptor *const d = (CBDescriptor *)obj;
-                if (!descMap.key(d)) {
-                    qCWarning(QT_BT_OSX) << "Error: Unexpected descriptor, no handle found";
+                if (!localDescMap.key(d)) {
+                    qDebug() << "Error: Unexpected descriptor, no handle found";
                     return false;
                 }
             } @catch (NSException *e) {
-                qCWarning(QT_BT_OSX) << "Exception handling descriptor:" << e.reason;
+                qDebug() << "Exception handling descriptor:" << e.reason;
                 return false;
             }
         } else {
-            qCWarning(QT_BT_OSX) << "Error: Invalid object type, characteristic or descriptor required";
+            qDebug() << "Error: Invalid object type, characteristic or descriptor required";
             return false;
         }
 
         // Gestione cache esistente
         @try {
-            if (valuesToWrite.contains(obj)) {
-                qCWarning(QT_BT_OSX) << "Warning: Already has a cached value for this object, the value will be replaced";
+            if (localValuesToWrite.contains(obj)) {
+                qDebug() << "Warning: Already has a cached value for this object, the value will be replaced";
             }
             
-            valuesToWrite[obj] = value;
+            localValuesToWrite[obj] = value;
         } @catch (NSException *e) {
-            qCWarning(QT_BT_OSX) << "Exception during cache operation:" << e.reason;
+            qDebug() << "Exception during cache operation:" << e.reason;
             return false;
         }
         
         return true;
         
     } @catch (NSException *e) {
-        qCWarning(QT_BT_OSX) << "Unexpected exception in cacheWriteValue:" << e.reason;
+        qDebug() << "Unexpected exception in cacheWriteValue:" << e.reason;
         return false;
     }
 }
