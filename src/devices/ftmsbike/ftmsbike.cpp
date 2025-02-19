@@ -131,12 +131,23 @@ void ftmsbike::init() {
 
     uint8_t write[] = {FTMS_REQUEST_CONTROL};
     bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
-    write[0] = {FTMS_START_RESUME};
-    ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+    if(resistance_lvl_mode && DIRETO_XR) {
+        setWheelDiameter(2070.0);
+    } else {
+        write[0] = {FTMS_START_RESUME};
+        ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+    }
 
     if(ret) {
         initDone = true;
         initRequest = false;
+    }
+}
+
+ftmsbike::~ftmsbike() {
+    // Set wheel circumference back to 2070 when object is destroyed
+    if (DIRETO_XR) {
+        setWheelDiameter(2070.0);
     }
 }
 
@@ -240,7 +251,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         writeCharacteristic(write, sizeof(write),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance));
     } else {
-        if(JFBK5_0) {
+        if(JFBK5_0 || DIRETO_XR) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -310,8 +321,11 @@ void ftmsbike::update() {
 
                     if(DIRETO_XR && gears_zwift_ratio)
                         setWheelDiameter(wheelCircumference::gearsToWheelDiameter(gears()));
-                    else
+                    else {
                         forceResistance(requestResistance + (gears() * 5));
+                        if(DIRETO_XR)
+                            Resistance = requestResistance;
+                    }
                 }
             }
             requestResistance = -1;
