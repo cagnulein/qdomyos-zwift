@@ -144,6 +144,13 @@ void ftmsbike::init() {
     }
 }
 
+ftmsbike::~ftmsbike() {
+    // Set wheel circumference back to 2070 when object is destroyed
+    if (DIRETO_XR) {
+        setWheelDiameter(2070.0);
+    }
+}
+
 void ftmsbike::zwiftPlayInit() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
