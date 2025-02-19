@@ -314,8 +314,11 @@ void ftmsbike::update() {
 
                     if(DIRETO_XR && gears_zwift_ratio)
                         setWheelDiameter(wheelCircumference::gearsToWheelDiameter(gears()));
-                    else
+                    else {
                         forceResistance(requestResistance + (gears() * 5));
+                        if(DIRETO_XR)
+                            Resistance = requestResistance;
+                    }
                 }
             }
             requestResistance = -1;
