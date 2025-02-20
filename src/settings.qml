@@ -1110,6 +1110,7 @@ import QtQuick.Dialogs 1.0
 
             // 2.18.20
             property bool domyos_elliptical_fmts: false
+            property bool proform_xbike: false
         }
 
         function paddingZeros(text, limit) {
@@ -3358,6 +3359,7 @@ import QtQuick.Dialogs 1.0
                                     "Proform SB",
                                     "Nordictrack GX 4.4 Pro",
                                     "TDF 1.0 PFEVEX71316.0",
+                                    "Proform XBike"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -3390,7 +3392,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_bike_325_csx ? 13 :
                                                     settings.proform_bike_sb ? 14 :
                                                     settings.nordictrack_gx_44_pro ? 15 :
-                                                    settings.proform_bike_PFEVEX71316_0 ? 16 : 0;
+                                                    settings.proform_bike_PFEVEX71316_0 ? 16 :
+                                                    settings.proform_xbike ? 17 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -3421,6 +3424,7 @@ import QtQuick.Dialogs 1.0
                                     settings.proform_bike_sb = false;
                                     settings.nordictrack_gx_44_pro = false;
                                     settings.proform_bike_PFEVEX71316_0 = false;
+                                    settings.proform_xbike = false;
 
                                     // Set corresponding setting for selected model
                                     switch (currentIndex) {
@@ -3440,6 +3444,7 @@ import QtQuick.Dialogs 1.0
                                         case 14: settings.proform_bike_sb = true; break;
                                         case 15: settings.nordictrack_gx_44_pro = true; break;
                                         case 16: settings.proform_bike_PFEVEX71316_0 = true; break;
+                                        case 17: settings.proform_xbike = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
