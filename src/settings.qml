@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.0
+import Qt.labs.platform 1.1
 
 //Page {
     ScrollView {
@@ -5066,6 +5067,20 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }              
 
+                    MessageDialog {
+                        id: zwiftPlaySettingsDialog
+                        text: "Zwift Play & Click Settings"
+                        informativeText: "Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with 'Get gears from Zwift' may cause conflicts."
+                        buttons: (MessageDialog.Yes | MessageDialog.No)
+                        onYesClicked: {
+                            settings.zwift_play = false;
+                            settings.zwift_click = false;
+                            settings.zwift_play_emulator = true;
+                            window.settings_restart_to_apply = true;
+                        }
+                        visible: false
+                    }
+
                     IndicatorOnlySwitch {
                         text: qsTr("Get Gears from Zwift")
                         spacing: 0
@@ -5077,7 +5092,16 @@ import QtQuick.Dialogs 1.0
                         checked: settings.zwift_play_emulator
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_play_emulator = checked; if(checked) { settings.watt_bike_emulator = false; } window.settings_restart_to_apply = true; }
+                        onClicked: {
+                             if (checked && !settings.zwift_play_emulator) {  // Only show dialog when enabling
+                                 if (settings.zwift_play || settings.zwift_click) {
+                                     zwiftPlaySettingsDialog.visible = true;
+                                 }
+                                 settings.watt_bike_emulator = false;
+                             }
+                             window.settings_restart_to_apply = true;
+                             settings.zwift_play_emulator = checked;
+                         }
                     }
 
                     Label {
