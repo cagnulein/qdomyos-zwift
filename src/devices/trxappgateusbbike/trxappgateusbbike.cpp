@@ -237,7 +237,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     double resistance = 0.0;
     double watt = 0.0;
     QTime now = QTime::currentTime();
-    if (bike_type == FYTTER_RI08 || bike_type == FAL_SPORTS) {
+    if (bike_type == FYTTER_RI08) {
         speed = cadence * 0.37407407407407407407407407407407;
         watt = GetWattFromPacketFytter(newValue);
         if (watt)
@@ -247,7 +247,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
                                    (60000.0 / ((double)lastTimeCharChanged.msecsTo(
                                                   now)))); //(( (0.048* Output in watts +1.19) *
                                                                             // body weight in kg * 3.5) / 200 ) / 60
-    } else if (bike_type == TUNTURI || bike_type == TUNTURI_2) {
+    } else if (bike_type == TUNTURI || bike_type == TUNTURI_2 || bike_type == FAL_SPORTS) {
         speed = cadence * 0.37407407407407407407407407407407;
         resistance = GetResistanceFromPacket(newValue);
         watt = GetWattFromPacket(newValue);
