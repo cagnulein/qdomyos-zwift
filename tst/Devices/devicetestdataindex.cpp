@@ -171,6 +171,12 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(QZSettings::csafe_rower, "COMX", "");
 
+    // CSafe Elliptical
+    RegisterNewDeviceTestData(DeviceIndex::CSafeElliptical)
+        ->expectDevice<csafeelliptical>()
+        ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith(QZSettings::csafe_elliptical_port, "COMX", "");
+
     cscBikeName = "CyclingSpeedCadenceBike-";
     RegisterNewDeviceTestData(DeviceIndex::CSCBike)
         ->expectDevice<cscbike>()
@@ -212,10 +218,15 @@ void DeviceTestDataIndex::Initialize() {
                 }
             });
 
+    // Cyclops Phantom Bike
+    RegisterNewDeviceTestData(DeviceIndex::CyclopsPhantomBike)
+        ->expectDevice<cycleopsphantombike>()
+        ->acceptDeviceName("INDOORCYCLE", DeviceNameComparison::StartsWithIgnoreCase);
+
     // DeerRun Treadmill
     RegisterNewDeviceTestData(DeviceIndex::DeerRunTreadmill)
         ->expectDevice<deerruntreadmill>()
-        ->acceptDeviceName("PITPAT", DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceName("PITPAT-T", DeviceNameComparison::StartsWithIgnoreCase);
 
     // Domyos bike
     RegisterNewDeviceTestData(DeviceIndex::DomyosBike)
@@ -917,6 +928,10 @@ void DeviceTestDataIndex::Initialize() {
             }
         });
 
+    // Pitpat Bike
+    RegisterNewDeviceTestData(DeviceIndex::PitpatBike)
+        ->expectDevice<pitpatbike>()
+        ->acceptDeviceName("PITPAT-S", DeviceNameComparison::StartsWithIgnoreCase);
 
     // Proform Bike
     RegisterNewDeviceTestData(DeviceIndex::ProformBike)

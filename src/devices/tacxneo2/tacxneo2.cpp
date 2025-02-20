@@ -11,6 +11,7 @@
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
+#include "homeform.h"
 
 #include <chrono>
 
@@ -28,6 +29,17 @@ tacxneo2::tacxneo2(bool noWriteResistance, bool noHeartService) {
 
 void tacxneo2::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
+    
+    if(!gattCustomService) {
+        qDebug() << "gattCustomService is null!";
+        QSettings settings;
+        settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
+        qDebug() << "forcing FTMS bike since it has FTMS";
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("FTMS bike found, restart the app to apply the change!");
+        return;
+    }
+    
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
@@ -739,6 +751,12 @@ void tacxneo2::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::descriptorRead, this, &tacxneo2::descriptorRead);
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
+
+            if(s->serviceUuid() == QBluetoothUuid(QStringLiteral("fe03a000-17d0-470a-8798-4ad3e1c1f35b")) || 
+                s->serviceUuid() == QBluetoothUuid(QStringLiteral("fe031000-17d0-470a-8798-4ad3e1c1f35b"))) {
+                qDebug() << "skipping service" << s->serviceUuid();
+                continue;
+            }
 
             auto characteristics = s->characteristics();
             for (const QLowEnergyCharacteristic &c : characteristics) {

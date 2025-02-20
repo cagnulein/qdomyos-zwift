@@ -10,59 +10,87 @@ ColumnLayout {
     property alias textFont: accordionText.font.family
     property alias textFontSize: accordionText.font.pixelSize
     property alias indicatRectColor: indicatRect.color
-    default property alias accordionContent: contentPlaceholder.data
-    spacing: 0
+    default property alias accordionContent: contentLoader.sourceComponent
 
-    Layout.fillWidth: true;
+    // Signal emitted when content becomes visible
+    signal contentBecameVisible()
+
+    spacing: 0
+    Layout.fillWidth: true
 
     Rectangle {
         id: accordionHeader
         color: "red"
         Layout.alignment: Qt.AlignTop
-        Layout.fillWidth: true;
+        Layout.fillWidth: true
         height: 48
 
-        Rectangle{
-           id:indicatRect
-           x: 16; y: 20
-           width: 8; height: 8
-           radius: 8
-           color: "white"
+        Rectangle {
+            id: indicatRect
+            x: 16; y: 20
+            width: 8; height: 8
+            radius: 8
+            color: "white"
         }
 
         Text {
             id: accordionText
-            x:34;y:13
+            x: 34; y: 13
             color: "#FFFFFF"
             text: rootElement.title
         }
+
         Image {
-            y:13
-            anchors.right:  parent.right
+            y: 13
+            anchors.right: parent.right
             anchors.rightMargin: 20
             width: 30; height: 30
             id: indicatImg
             source: "qrc:/icons/arrow-collapse-vertical.png"
         }
+
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
             onClicked: {
                 rootElement.isOpen = !rootElement.isOpen
-                if(rootElement.isOpen)
-                {
+                if(rootElement.isOpen) {
                     indicatImg.source = "qrc:/icons/arrow-expand-vertical.png"
-                }else{
+                } else {
                     indicatImg.source = "qrc:/icons/arrow-collapse-vertical.png"
                 }
             }
         }
     }
 
-    // This will get filled with the content
-    ColumnLayout {
-        id: contentPlaceholder
-        visible: rootElement.isOpen
-        Layout.fillWidth: true;
+    // Loader with enhanced visibility handling
+    Loader {
+        id: contentLoader
+        active: rootElement.isOpen
+        visible: false // Start invisible
+        Layout.fillWidth: true
+        asynchronous: false
+
+        onLoaded: {
+            if (item) {
+                item.Layout.fillWidth = true
+                visible = true
+                rootElement.contentBecameVisible()
+            }
+        }
+
+        // Handle visibility changes
+        onVisibleChanged: {
+            if (visible && status === Loader.Ready) {
+                rootElement.contentBecameVisible()
+            }
+        }
+    }
+
+    // Handle accordion closing
+    onIsOpenChanged: {
+        if (!isOpen) {
+            contentLoader.visible = false
+        }
     }
 }

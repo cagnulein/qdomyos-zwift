@@ -2,6 +2,7 @@
 #define PELOTON_H
 
 #include "bluetooth.h"
+#include "OAuth2.h"
 #include "powerzonepack.h"
 #include "trainprogram.h"
 #include <QAbstractOAuth2>
@@ -23,6 +24,14 @@
 
 #include "filedownloader.h"
 #include "homefitnessbuddy.h"
+
+#if defined(WIN32)
+#pragma message("DEFINE PELOTON_SECRET_KEY!!!")
+#else
+#warning "DEFINE PELOTON_SECRET_KEY!!!"
+#endif
+
+#define PELOTON_CLIENT_ID_S STRINGIFY(PELOTON_SECRET_KEY)
 
 class peloton : public QObject {
 
@@ -48,6 +57,11 @@ class peloton : public QObject {
     void downloadImage();
     QDateTime current_original_air_time;
     int current_pedaling_duration = 0;
+    qint64 start_time = 0;
+
+    // OAuth
+    QString pelotonAuthUrl;
+    bool pelotonAuthWebVisible;
 
     void setTestMode(bool test);
 
@@ -57,7 +71,7 @@ class peloton : public QObject {
 
   private:
     _PELOTON_API current_api = peloton_api;
-    const int peloton_workout_second_resolution = 10;
+    const int peloton_workout_second_resolution = 1;
     bool peloton_credentials_wrong = false;
     QNetworkAccessManager *mgr = nullptr;
 
@@ -83,6 +97,17 @@ class peloton : public QObject {
 
     bool testMode = false;
 
+    //OAuth
+    QOAuth2AuthorizationCodeFlow *pelotonOAuth = nullptr;
+    QNetworkAccessManager *manager = nullptr;
+    QOAuthHttpServerReplyHandler *pelotonReplyHandler = nullptr;
+    QString peloton_code;    
+    QOAuth2AuthorizationCodeFlow *peloton_connect();
+    void peloton_refreshtoken();    
+    QNetworkReply *replyPeloton;
+    QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
+                                                                           const QUrl &clientIdentifierSharedKey);
+
     // rowers
     double rowerpaceToSpeed(double pace);
     typedef struct _peloton_rower_pace_intensities_level {
@@ -103,7 +128,9 @@ class peloton : public QObject {
 
     typedef struct _peloton_treadmill_pace_intensities_level {
         QString display_name;
-        double speed;
+        double fast_pace;
+        double slow_pace;
+        double speed;  // Average of fast_pace and slow_pace
         QString slug;
     }_peloton_treadmill_pace_intensities_level;
 
@@ -114,6 +141,9 @@ class peloton : public QObject {
     } _peloton_treadmill_pace_intensities;
 
     _peloton_treadmill_pace_intensities treadmill_pace[7];
+
+  public slots:
+    void peloton_connect_clicked();
 
   private slots:
     void login_onfinish(QNetworkReply *reply);
@@ -127,6 +157,14 @@ class peloton : public QObject {
     void hfb_trainrows(QList<trainrow> *list);
     void pzp_loginState(bool ok);
 
+    // OAuth
+    void onPelotonGranted();
+    void onPelotonAuthorizeWithBrowser(const QUrl &url);
+    void replyDataReceived(const QByteArray &v);
+    void onSslErrors(QNetworkReply *reply, const QList<QSslError> &error);
+    void networkRequestFinished(QNetworkReply *reply);
+    void callbackReceived(const QVariantMap &values);
+
     void startEngine();
 
   signals:
@@ -134,6 +172,8 @@ class peloton : public QObject {
     void pzpLoginState(bool ok);
     void workoutStarted(QString name, QString instructor);
     void workoutChanged(QString name, QString instructor);
+    void pelotonAuthUrlChanged(QString value);
+    void pelotonWebVisibleChanged(bool value);
 };
 
 #endif // PELOTON_H
