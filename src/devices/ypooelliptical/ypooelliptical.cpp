@@ -392,7 +392,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             index += 2;
         } else if(DOMYOS) {
-            m_watt = watts();
+            m_watt = elliptical::watts();
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
         }
 

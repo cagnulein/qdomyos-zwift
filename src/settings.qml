@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.0
+import Qt.labs.platform 1.1
 
 //Page {
     ScrollView {
@@ -14,6 +15,8 @@ import QtQuick.Dialogs 1.0
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane        
+
+        signal peloton_connect_clicked()
 
         Settings {
             id: settings
@@ -977,6 +980,7 @@ import QtQuick.Dialogs 1.0
             property bool gears_zwift_ratio: false
             property bool domyos_bike_500_profile_v2: false
             property double gears_offset: 0.0
+
             property bool proform_carbon_tl_PFTL59720: false
 
             // from version 2.16.71
@@ -1107,6 +1111,7 @@ import QtQuick.Dialogs 1.0
 
             // 2.18.20
             property bool domyos_elliptical_fmts: false
+            property bool proform_xbike: false
 
             // from version ?
             property bool trixter_xdream_v1_bike_enabled: false
@@ -3546,6 +3551,7 @@ import QtQuick.Dialogs 1.0
                                     "Proform SB",
                                     "Nordictrack GX 4.4 Pro",
                                     "TDF 1.0 PFEVEX71316.0",
+                                    "Proform XBike"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -3578,7 +3584,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_bike_325_csx ? 13 :
                                                     settings.proform_bike_sb ? 14 :
                                                     settings.nordictrack_gx_44_pro ? 15 :
-                                                    settings.proform_bike_PFEVEX71316_0 ? 16 : 0;
+                                                    settings.proform_bike_PFEVEX71316_0 ? 16 :
+                                                    settings.proform_xbike ? 17 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -3609,6 +3616,7 @@ import QtQuick.Dialogs 1.0
                                     settings.proform_bike_sb = false;
                                     settings.nordictrack_gx_44_pro = false;
                                     settings.proform_bike_PFEVEX71316_0 = false;
+                                    settings.proform_xbike = false;
 
                                     // Set corresponding setting for selected model
                                     switch (currentIndex) {
@@ -3628,6 +3636,7 @@ import QtQuick.Dialogs 1.0
                                         case 14: settings.proform_bike_sb = true; break;
                                         case 15: settings.nordictrack_gx_44_pro = true; break;
                                         case 16: settings.proform_bike_PFEVEX71316_0 = true; break;
+                                        case 17: settings.proform_xbike = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -4446,7 +4455,7 @@ import QtQuick.Dialogs 1.0
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
                     spacing: 0
-
+/*
                     RowLayout {
                         spacing: 10
                         Label {
@@ -4522,6 +4531,23 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+*/
+
+                    ItemDelegate {
+                        Image {
+                            anchors.left: parent.left;
+                            anchors.verticalCenter: parent.verticalCenter
+                            source: "icons/icons/Button_Connect_Rect_DarkMode.png"
+                            fillMode: Image.PreserveAspectFit
+                            visible: true
+                            width: parent.width
+                        }
+                        Layout.fillWidth: true
+                        onClicked: {
+                            stackView.push("WebPelotonAuth.qml")
+                            peloton_connect_clicked()
+                        }
                     }
 
                     RowLayout {
@@ -5232,6 +5258,20 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }              
 
+                    MessageDialog {
+                        id: zwiftPlaySettingsDialog
+                        text: "Zwift Play & Click Settings"
+                        informativeText: "Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with 'Get gears from Zwift' may cause conflicts."
+                        buttons: (MessageDialog.Yes | MessageDialog.No)
+                        onYesClicked: {
+                            settings.zwift_play = false;
+                            settings.zwift_click = false;
+                            settings.zwift_play_emulator = true;
+                            window.settings_restart_to_apply = true;
+                        }
+                        visible: false
+                    }
+
                     IndicatorOnlySwitch {
                         text: qsTr("Get Gears from Zwift")
                         spacing: 0
@@ -5243,7 +5283,16 @@ import QtQuick.Dialogs 1.0
                         checked: settings.zwift_play_emulator
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_play_emulator = checked; if(checked) { settings.watt_bike_emulator = false; } window.settings_restart_to_apply = true; }
+                        onClicked: {
+                             if (checked && !settings.zwift_play_emulator) {  // Only show dialog when enabling
+                                 if (settings.zwift_play || settings.zwift_click) {
+                                     zwiftPlaySettingsDialog.visible = true;
+                                 }
+                                 settings.watt_bike_emulator = false;
+                             }
+                             window.settings_restart_to_apply = true;
+                             settings.zwift_play_emulator = checked;
+                         }
                     }
 
                     Label {
