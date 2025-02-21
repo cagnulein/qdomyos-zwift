@@ -673,6 +673,7 @@ void peloton::login_onfinish(QNetworkReply *reply) {
 
         peloton_credentials_wrong = true;
         qDebug() << QStringLiteral("invalid peloton credentials during login ") << status;
+        homeform::singleton()->setToastRequested("Peloton Auth Failed!");
         emit loginState(false);
         return;
     }
@@ -2173,8 +2174,7 @@ void peloton::peloton_refreshtoken() {
 
     // oops, no dice
     if (reply->error() != 0) {
-        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
-        homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();        
         return;
     }
 
