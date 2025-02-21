@@ -1989,6 +1989,27 @@ void proformbike::btinit() {
         uint8_t initData18[] = {0xff, 0x05, 0x00, 0x80, 0x01, 0x00, 0xa9, 0x00, 0x00, 0x00,
                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+        uint8_t xbike_pkt582[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t xbike_pkt585[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x07, 0x13, 0x02, 0x00, 0x0d, 0x00,
+                                  0x10, 0x00, 0xc0, 0x1c, 0x4c, 0x00, 0x00, 0xe0};
+        uint8_t xbike_pkt588[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x10, 0x51, 0x00, 0x00, 0x00,
+                                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t xbike_pkt594[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t xbike_pkt599[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x07, 0x13, 0x02, 0x0c, 0x00, 0x00,
+                                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t xbike_pkt602[] = {0xff, 0x05, 0x00, 0x80, 0x01, 0x00, 0xa9, 0x00, 0x00, 0x00,
+                                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t xbike_pkt607[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t xbike_pkt610[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x07, 0x13, 0x02, 0x0c, 0x00, 0x00,
+                                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t xbike_pkt613[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa8, 0x00, 0x00, 0x00,
+                                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t xbike_pkt618[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t xbike_pkt621[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x07, 0x13, 0x02, 0x0c, 0x00, 0x00,
+                                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t xbike_pkt624[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa8, 0x00, 0x00, 0x00,
+                                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
                // The initialization sequence requires specific timing between messages
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
         QThread::msleep(400);
@@ -2033,6 +2054,30 @@ void proformbike::btinit() {
         writeCharacteristic(initData17, sizeof(initData17), QStringLiteral("init"), false, false);
         QThread::msleep(400);
         writeCharacteristic(initData18, sizeof(initData18), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(xbike_pkt582, sizeof(xbike_pkt582), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(xbike_pkt585, sizeof(xbike_pkt585), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(xbike_pkt588, sizeof(xbike_pkt588), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(xbike_pkt594, sizeof(xbike_pkt594), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(xbike_pkt599, sizeof(xbike_pkt599), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(xbike_pkt602, sizeof(xbike_pkt602), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(xbike_pkt607, sizeof(xbike_pkt607), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(xbike_pkt610, sizeof(xbike_pkt610), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(xbike_pkt613, sizeof(xbike_pkt613), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(xbike_pkt618, sizeof(xbike_pkt618), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(xbike_pkt621, sizeof(xbike_pkt621), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(xbike_pkt624, sizeof(xbike_pkt624), QStringLiteral("init"), false, false);
         QThread::msleep(400);
     } else if (settings.value(QZSettings::nordictrack_gx_44_pro, QZSettings::default_nordictrack_gx_44_pro).toBool()) {
         max_resistance = 25;  // Most NordicTrack bikes use resistance range 1-25
