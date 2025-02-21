@@ -1583,6 +1583,55 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     m_pelotonResistance = 100;
                     break;
                 }
+            } else if (proform_xbike) {
+                switch ((uint8_t)newValue.at(11)) {
+                case 0x07:
+                    Resistance = 2;
+                    m_pelotonResistance = 25;
+                    break;
+                case 0x0b:
+                case 0x0c:
+                    Resistance = 3;
+                    m_pelotonResistance = 35;
+                    break;
+                case 0x0f:
+                    Resistance = 4;
+                    m_pelotonResistance = 40;
+                    break;
+                case 0x13:
+                    Resistance = 5;
+                    m_pelotonResistance = 50;
+                    break;
+                case 0x17:
+                    Resistance = 6;
+                    m_pelotonResistance = 60;
+                    break;
+                case 0x1a:
+                case 0x1b:
+                    Resistance = 7;
+                    m_pelotonResistance = 65;
+                    break;
+                case 0x1f:
+                    Resistance = 8;
+                    m_pelotonResistance = 75;
+                    break;
+                case 0x23:
+                case 0x24:
+                    Resistance = 9;
+                    m_pelotonResistance = 85;
+                    break;
+                case 0x26:
+                case 0x27:
+                    Resistance = 10;
+                    m_pelotonResistance = 100;
+                    break;
+                    /* when the proform bike is changing the resistance, it sends some strange values, so i'm keeping
+                    the last good one default: Resistance = 0; m_pelotonResistance = 0; break;
+                    */
+                default:
+                    Resistance = 1;
+                    m_pelotonResistance = 10;
+                }
             } else if (!nordictrack_gx_2_7) {
                 switch ((uint8_t)newValue.at(11)) {
                 case 0x00:
@@ -1909,7 +1958,7 @@ void proformbike::btinit() {
         writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
         QThread::msleep(400);
     } else if (settings.value(QZSettings::proform_xbike, QZSettings::default_proform_xbike).toBool()) {
-        max_resistance = 25;  // Most NordicTrack bikes use resistance range 1-25
+        max_resistance = 10;
 
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
