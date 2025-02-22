@@ -6781,7 +6781,7 @@ QOAuth2AuthorizationCodeFlow *homeform::strava_connect() {
 }
 
 void homeform::strava_connect_clicked() {
-    QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=debug"));
 
     strava_connect();
     connect(strava, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, this, &homeform::onStravaAuthorizeWithBrowser);
