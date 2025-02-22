@@ -1647,6 +1647,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("TITAN 7000")) ||
                         (b.name().toUpper().startsWith("LYDSTO")) ||
                         (b.name().toUpper().startsWith("CYCLO_")) ||
+                        (b.name().toUpper().startsWith("LCR")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||
                         (b.name().toUpper().startsWith("VFSPINBIKE")) ||
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
