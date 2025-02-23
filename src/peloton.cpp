@@ -10,6 +10,7 @@
 #include "homeform.h"
 #include "peloton.h"
 #include <chrono>
+#include <QTimer>
 
 using namespace std::chrono_literals;
 
@@ -758,6 +759,8 @@ void peloton::summary_onfinish(QNetworkReply *reply) {
         qDebug() << QStringLiteral("peloton::summary_onfinish");
     }
 
+    workout_retry_count = 0;
+
     getWorkout(current_workout_id);
 }
 
@@ -813,6 +816,20 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     workout = QJsonDocument::fromJson(payload, &parseError);
+
+    if (workout.isNull() && workout_retry_count < 3) {
+        workout_retry_count++;
+        qDebug() << "Empty JSON document received, retry attempt" << workout_retry_count;
+        QTimer::singleShot(2000, this, [this]() {
+            getWorkout(current_workout_id);
+        });
+        return;
+    } else if (workout.isNull() && workout_retry_count >= 3) {
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Error: Failed to load workout data after 3 attempts");
+    }
+    workout_retry_count = 0;
+
     QJsonObject ride = workout.object()[QStringLiteral("ride")].toObject();
     current_workout_name = ride[QStringLiteral("title")].toString();
     current_instructor_id = ride[QStringLiteral("instructor_id")].toString();
