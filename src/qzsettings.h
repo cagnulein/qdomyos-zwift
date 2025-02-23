@@ -2138,6 +2138,21 @@ class QZSettings {
     static const QString gears_offset;
     static constexpr double default_gears_offset = 0.0;
 
+    static const QString peloton_accesstoken;
+    static const QString default_peloton_accesstoken;
+
+    static const QString peloton_refreshtoken;
+    static const QString default_peloton_refreshtoken;
+
+    static const QString peloton_lastrefresh;
+    static const QString default_peloton_lastrefresh;
+
+    static const QString peloton_expires;
+    static const QString default_peloton_expires;
+
+    static const QString peloton_code;
+    static const QString default_peloton_code;
+    
     static const QString proform_carbon_tl_PFTL59720;
     static constexpr bool default_proform_carbon_tl_PFTL59720 = false;    
 
@@ -2377,6 +2392,12 @@ class QZSettings {
 
     static const QString stryd_inclination_instead_treadmill;
     static constexpr bool default_stryd_inclination_instead_treadmill = false;
+
+    static const QString domyos_elliptical_fmts;
+    static constexpr bool default_domyos_elliptical_fmts = false;
+
+    static const QString proform_xbike;
+    static constexpr bool default_proform_xbike = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
