@@ -878,6 +878,9 @@ ApplicationWindow {
                     width: parent.width
                     onClicked: {
                         stackView.push("WebPelotonAuth.qml")
+                        stackView.currentItem.goBack.connect(function() {
+                            stackView.pop();
+                        })
                         peloton_connect_clicked()
                         drawer.close()
                     }

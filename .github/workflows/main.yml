@@ -128,7 +128,7 @@ jobs:
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
@@ -305,7 +305,7 @@ jobs:
 #            qmake
 #            cd src
 #            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-#            echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" > secret.h
+#            echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
 #            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
 #            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
 #            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
@@ -608,7 +608,7 @@ jobs:
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
@@ -712,7 +712,7 @@ jobs:
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
@@ -823,7 +823,7 @@ jobs:
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
@@ -1011,7 +1011,7 @@ jobs:
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h          
@@ -1106,7 +1106,7 @@ jobs:
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
@@ -1165,7 +1165,7 @@ jobs:
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
