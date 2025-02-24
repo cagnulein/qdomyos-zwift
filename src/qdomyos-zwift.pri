@@ -308,6 +308,12 @@ devices/ultrasportbike/ultrasportbike.cpp \
 virtualdevices/virtualrower.cpp \
 devices/wahookickrsnapbike/wahookickrsnapbike.cpp \
 devices/yesoulbike/yesoulbike.cpp \
+devices/trixterxdreamv1bike/trixterxdreamv1bike.cpp \
+devices/trixterxdreamv1bike/trixterxdreamv1client.cpp \
+devices/trixterxdreamv1bike/trixterxdreamv1serial.cpp \
+devices/trixterxdreamv1bike/trixterxdreamv1settings.cpp \
+devices/trixterxdreamv1bike/qserialdatasource.cpp \
+devices/trixterxdreamv1bike/serialdatasource.cpp \
 trainprogram.cpp \
 devices/trxappgateusbtreadmill/trxappgateusbtreadmill.cpp \
 virtualdevices/virtualbike.cpp \
@@ -421,6 +427,12 @@ devices/wahookickrheadwind/wahookickrheadwind.h \
 devices/ypooelliptical/ypooelliptical.h \
 devices/ziprotreadmill/ziprotreadmill.h \
 devices/computrainerbike/Computrainer.h \
+devices/trixterxdreamv1bike/trixterxdreamv1client.h \
+devices/trixterxdreamv1bike/trixterxdreamv1bike.h \
+devices/trixterxdreamv1bike/trixterxdreamv1serial.h \
+devices/trixterxdreamv1bike/trixterxdreamv1settings.h \
+devices/trixterxdreamv1bike/qserialdatasource.h \
+devices/trixterxdreamv1bike/serialdatasource.h \
 PathController.h \
 characteristics/characteristicnotifier2a53.h \
 characteristics/characteristicnotifier2a5b.h \
