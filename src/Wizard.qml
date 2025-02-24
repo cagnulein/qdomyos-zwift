@@ -5,6 +5,7 @@ import Qt.labs.settings 1.0
 
 Page {
     id: wizardPage
+    objectName: "wizardPage"
 
     property int currentStep: 0
     property var selectedOptions: ({})
@@ -362,6 +363,10 @@ Page {
                             anchors.fill: parent
                             onClicked: {
                                 stackViewLocal.push("WebPelotonAuth.qml")
+                                stackViewLocal.currentItem.goBack.connect(function() {
+                                            stackViewLocal.pop();
+                                            stackViewLocal.push(pelotonDifficultyComponent)
+                                        })
                                 peloton_connect_clicked()
                             }
                         }
