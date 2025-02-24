@@ -142,6 +142,19 @@ void eslinkertreadmill::forceIncline(double requestIncline) {
 
         writeCharacteristic(display, sizeof(display),
                             QStringLiteral("forceIncline inclination=") + QString::number(requestIncline), false, true);
+    } else if(treadmill_type == ESANGLINKER) {
+        static uint8_t idfunc = 2;
+        uint8_t display[] = {0xa9, 0x01, 0x01, 0x0b, 0x00};
+        homeform::singleton()->setToastRequested("Test " + QString::number(idfunc) + " of 255");
+        display[1] = idfunc++;
+        display[3] = (int)qRound(requestIncline * 10 );
+        for (int i = 0; i < 4; i++) {
+            display[4] = display[4] ^ display[i];
+        }
+
+        writeCharacteristic(display, sizeof(display),
+                            QStringLiteral("forceIncline inclination=") + QString::number(requestSpeed), false, true);
+
     }
 }
 
