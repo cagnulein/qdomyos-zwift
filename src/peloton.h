@@ -119,7 +119,7 @@ class peloton : public QObject {
         QSettings settings;
         settings.setValue(getPelotonSettingKey(baseKey, userId), value);
     }
-    QString getPelotonTokenForUser(const QString& baseKey, const QString& userId, const QVariant& defaultValue = "") {
+    QVariant getPelotonTokenForUser(const QString& baseKey, const QString& userId, const QVariant& defaultValue = "") {
         QSettings settings;
         return settings.value(getPelotonSettingKey(baseKey, userId), defaultValue).toString();
     }

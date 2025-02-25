@@ -16,7 +16,7 @@ using namespace std::chrono_literals;
 
 const bool log_request = true;
 
-#define RAWHEADER request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toUtf8());
+#define RAWHEADER request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toUtf8());
 
 peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
 
@@ -651,7 +651,7 @@ void peloton::startEngine() {
 
     RAWHEADER
     
-    qDebug() << getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toLatin1() << request.rawHeader(QByteArray("authorization"));
+    qDebug() << getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toLatin1() << request.rawHeader(QByteArray("authorization"));
     
     mgr->get(request);
 }
@@ -2180,7 +2180,7 @@ void peloton::peloton_refreshtoken() {
         }
     } else {
         // Use user-specific settings
-        if (getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).isEmpty()) {
+        if (getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString().isEmpty()) {
             peloton_connect();
             return;
         }
@@ -2192,7 +2192,7 @@ void peloton::peloton_refreshtoken() {
     // set params
     QString data;
     data += QStringLiteral("client_id=" PELOTON_CLIENT_ID_S);
-    data += QStringLiteral("&refresh_token=") + getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId);
+    data += QStringLiteral("&refresh_token=") + getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString();
     data += QStringLiteral("&grant_type=refresh_token");
 
     // make request
