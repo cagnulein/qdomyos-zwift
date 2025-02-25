@@ -1868,6 +1868,7 @@ double peloton::rowerpaceToSpeed(double pace) {
 
 void peloton::getInstructor(const QString &instructor_id) {
     QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::instructor_onfinish);
 
     QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/instructor/") + instructor_id);
@@ -1881,6 +1882,7 @@ void peloton::getInstructor(const QString &instructor_id) {
 
 void peloton::getRide(const QString &ride_id) {
     QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::ride_onfinish);
 
     QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/ride/") + ride_id +
@@ -1895,6 +1897,7 @@ void peloton::getRide(const QString &ride_id) {
 
 void peloton::getPerformance(const QString &workout) {
     QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::performance_onfinish);
 
     QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/workout/") + workout +
@@ -1909,6 +1912,7 @@ void peloton::getPerformance(const QString &workout) {
 
 void peloton::getWorkout(const QString &workout) {
     QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::workout_onfinish);
 
     QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/workout/") + workout);
@@ -1922,6 +1926,7 @@ void peloton::getWorkout(const QString &workout) {
 
 void peloton::getSummary(const QString &workout) {
     QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::summary_onfinish);
 
     QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/workout/") + workout + QStringLiteral("/summary"));
@@ -1936,6 +1941,7 @@ void peloton::getSummary(const QString &workout) {
 void peloton::getWorkoutList(int num) {
     Q_UNUSED(num)
     QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     //    if (num == 0) { //NOTE: clang-analyzer-deadcode.DeadStores
     //        num = this->total_workout;
     //    }
