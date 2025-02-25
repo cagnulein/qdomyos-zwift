@@ -72,9 +72,7 @@ class peloton : public QObject {
   private:
     _PELOTON_API current_api = peloton_api;
     const int peloton_workout_second_resolution = 1;
-    int api_retry_count = 0;
-    const int MAX_RETRY_ATTEMPTS = 3;
-    const int RETRY_DELAY_MS = 2000; // 2 seconds
+    int workout_retry_count = 0;
     bool peloton_credentials_wrong = false;
     QNetworkAccessManager *mgr = nullptr;
 
@@ -97,8 +95,6 @@ class peloton : public QObject {
     void getInstructor(const QString &instructor_id);
     void getRide(const QString &ride_id);
     void getPerformance(const QString &workout);
-
-    bool shouldRetryApiCall(const QJsonDocument &document, const QString &endpoint);
 
     bool testMode = false;
 

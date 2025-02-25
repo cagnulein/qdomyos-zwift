@@ -662,14 +662,6 @@ void peloton::login_onfinish(QNetworkReply *reply) {
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
-
-    if (shouldRetryApiCall(document, "login")) {
-        QTimer::singleShot(RETRY_DELAY_MS, this, [this]() {
-            startEngine(); // Retry the login process
-        });
-        return;
-    }
-
     QJsonObject json = document.object();
     int status = json[QStringLiteral("status")].toInt();
 
@@ -707,14 +699,6 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     current_workout = QJsonDocument::fromJson(payload, &parseError);
-
-    if (shouldRetryApiCall(current_workout, "workout list")) {
-        QTimer::singleShot(RETRY_DELAY_MS, this, [this]() {
-            getWorkoutList(1);
-        });
-        return;
-    }
-
     QJsonObject json = current_workout.object();
     QJsonArray data = json[QStringLiteral("data")].toArray();
     qDebug() << QStringLiteral("peloton::workoutlist_onfinish data") << payload << data;
@@ -773,18 +757,13 @@ void peloton::summary_onfinish(QNetworkReply *reply) {
     QJsonParseError parseError;
     current_workout_summary = QJsonDocument::fromJson(payload, &parseError);
 
-    if (shouldRetryApiCall(current_workout_summary, "workout summary")) {
-        QTimer::singleShot(RETRY_DELAY_MS, this, [this]() {
-            getSummary(current_workout_id);
-        });
-        return;
-    }
-
     if (log_request) {
         qDebug() << QStringLiteral("peloton::summary_onfinish") << current_workout_summary;
     } else {
         qDebug() << QStringLiteral("peloton::summary_onfinish");
     }
+
+    workout_retry_count = 0;
 
     getWorkout(current_workout_id);
 }
@@ -796,14 +775,6 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     instructor = QJsonDocument::fromJson(payload, &parseError);
-
-    if (shouldRetryApiCall(instructor, "instructor")) {
-        QTimer::singleShot(RETRY_DELAY_MS, this, [this]() {
-            getInstructor(current_instructor_id);
-        });
-        return;
-    }
-
     current_instructor_name = instructor.object()[QStringLiteral("name")].toString();
 
     if (log_request) {
@@ -843,23 +814,6 @@ void peloton::downloadImage() {
     }
 }
 
-bool peloton::shouldRetryApiCall(const QJsonDocument &document, const QString &endpoint) {
-    if (document.isNull() && api_retry_count < MAX_RETRY_ATTEMPTS) {
-        api_retry_count++;
-        qDebug() << "Empty JSON document received in" << endpoint << "retry attempt" << api_retry_count;
-        return true;
-    } else if (document.isNull() && api_retry_count >= MAX_RETRY_ATTEMPTS) {
-        if(homeform::singleton())
-            homeform::singleton()->setToastRequested(QString("Error: Failed to load %1 data after %2 attempts").arg(endpoint).arg(MAX_RETRY_ATTEMPTS));
-        api_retry_count = 0; // Reset for next API call chain
-        return false;
-    }
-
-    // Success, reset counter
-    api_retry_count = 0;
-    return false;
-}
-
 void peloton::workout_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::workout_onfinish);
 
@@ -867,12 +821,18 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     QJsonParseError parseError;
     workout = QJsonDocument::fromJson(payload, &parseError);
 
-    if (shouldRetryApiCall(workout, "workout")) {
-        QTimer::singleShot(RETRY_DELAY_MS, this, [this]() {
+    if (workout.isNull() && workout_retry_count < 3) {
+        workout_retry_count++;
+        qDebug() << "Empty JSON document received, retry attempt" << workout_retry_count;
+        QTimer::singleShot(2000, this, [this]() {
             getWorkout(current_workout_id);
         });
         return;
+    } else if (workout.isNull() && workout_retry_count >= 3) {
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Error: Failed to load workout data after 3 attempts");
     }
+    workout_retry_count = 0;
 
     QJsonObject ride = workout.object()[QStringLiteral("ride")].toObject();
     current_workout_name = ride[QStringLiteral("title")].toString();
@@ -903,14 +863,6 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
-
-    if (shouldRetryApiCall(document, "ride")) {
-        QTimer::singleShot(RETRY_DELAY_MS, this, [this]() {
-            getRide(current_ride_id);
-        });
-        return;
-    }
-
     QJsonObject ride = document.object();
 
     // ride.pedaling_start_offset and instructor_cues[0].offset.start is
@@ -1465,14 +1417,6 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     performance = QJsonDocument::fromJson(payload, &parseError);
-
-    if (shouldRetryApiCall(performance, "performance")) {
-        QTimer::singleShot(RETRY_DELAY_MS, this, [this]() {
-            getPerformance(current_workout_id);
-        });
-        return;
-    }
-
     current_api = peloton_api;
 
     QJsonObject json = performance.object();
