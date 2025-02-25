@@ -1112,6 +1112,7 @@ import Qt.labs.platform 1.1
             // 2.18.20
             property bool domyos_elliptical_fmts: false
             property bool proform_xbike: false
+            property string peloton_current_user_id: ""
         }
 
         function paddingZeros(text, limit) {

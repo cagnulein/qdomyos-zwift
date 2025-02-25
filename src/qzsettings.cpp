@@ -887,8 +887,10 @@ const QString QZSettings::real_inclination_to_virtual_treamill_bridge = QStringL
 const QString QZSettings::stryd_inclination_instead_treadmill = QStringLiteral("stryd_inclination_instead_treadmill");
 const QString QZSettings::domyos_elliptical_fmts = QStringLiteral("domyos_elliptical_fmts");
 const QString QZSettings::proform_xbike = QStringLiteral("proform_xbike");
+const QString QZSettings::peloton_current_user_id = QStringLiteral("peloton_current_user_id");
+const QString QZSettings::default_peloton_current_user_id = QStringLiteral("");
 
-const uint32_t allSettingsCount = 733;
+const uint32_t allSettingsCount = 734;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1636,6 +1638,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill},
     {QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts},
     {QZSettings::proform_xbike, QZSettings::default_proform_xbike},
+    {QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

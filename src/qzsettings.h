@@ -2399,6 +2399,9 @@ class QZSettings {
     static const QString proform_xbike;
     static constexpr bool default_proform_xbike = false;
 
+    static const QString peloton_current_user_id;
+    static const QString default_peloton_current_user_id;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
