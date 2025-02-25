@@ -2178,12 +2178,6 @@ void peloton::peloton_refreshtoken() {
             peloton_connect();
             return;
         }
-    } else {
-        // Use user-specific settings
-        if (getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString().isEmpty()) {
-            peloton_connect();
-            return;
-        }
     }
 
     QNetworkRequest request(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token?")));
