@@ -35,13 +35,6 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
                                 "img_1646099287_a620f71b3d6740718457b21769a7ed46.png"));
     */
 
-    if (!settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken)
-             .toString()
-        .length()) {
-        qDebug() << QStringLiteral("invalid peloton credentials");
-        return;
-    }
-
     rower_pace_offset = 1;
 
     rower_pace[0].value = -1;
@@ -602,6 +595,13 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     connect(PZP, &powerzonepack::workoutStarted, this, &peloton::pzp_trainrows);
     connect(PZP, &powerzonepack::loginState, this, &peloton::pzp_loginState);
     connect(HFB, &homefitnessbuddy::workoutStarted, this, &peloton::hfb_trainrows);
+
+    if (!settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken)
+             .toString()
+        .length()) {
+        qDebug() << QStringLiteral("invalid peloton credentials");
+        return;
+    }
 
     startEngine();
 }
@@ -1980,6 +1980,8 @@ void peloton::onPelotonGranted() {
     peloton_refreshtoken();
     if(homeform::singleton())
         homeform::singleton()->setPelotonPopupVisible(true);
+    if(!timer->isActive())
+        startEngine();
 }
 
 void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
