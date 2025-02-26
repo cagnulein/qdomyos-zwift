@@ -684,7 +684,14 @@ void peloton::login_onfinish(QNetworkReply *reply) {
     total_workout = document[QStringLiteral("total_workouts")].toInt();
 
     QSettings settings;
-    settings.setValue(QZSettings::peloton_current_user_id, user_id);
+    // if it's a new user
+    if(user_id.compare(settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString())) {
+        qDebug() << "new peloton user id, saving information...";
+        settings.setValue(QZSettings::peloton_current_user_id, user_id);
+        settings.setValue(getPelotonSettingKey(QZSettings::peloton_refreshtoken, user_id), settings.value(QZSettings::peloton_refreshtoken, QZSettings::default_peloton_refreshtoken).toString());
+        settings.setValue(getPelotonSettingKey(QZSettings::peloton_accesstoken, user_id), settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString());
+    }
+    
 
     qDebug() << "user_id" << user_id << "total workout" << total_workout;
     
@@ -2210,7 +2217,8 @@ void peloton::peloton_refreshtoken() {
 
     // oops, no dice
     if (reply->error() != 0) {
-        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();        
+        homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
         return;
     }
 
@@ -2229,6 +2237,7 @@ void peloton::peloton_refreshtoken() {
     QString access_token = document[QStringLiteral("access_token")].toString();
     QString refresh_token = document[QStringLiteral("refresh_token")].toString();
 
+    qDebug() << "userid: " << userId;
     savePelotonTokenForUser(QZSettings::peloton_accesstoken, access_token, userId);
     savePelotonTokenForUser(QZSettings::peloton_refreshtoken, refresh_token, userId);
     savePelotonTokenForUser(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime(), userId);

@@ -111,6 +111,7 @@ class peloton : public QObject {
     // Save token with user-specific suffix
     QString getPelotonSettingKey(const QString& baseKey, const QString& userId) {
         if (userId.isEmpty()) {
+            qDebug() << "ERROR: userid is empty!";
             return baseKey; // If no user ID, use the default key
         }
         return baseKey + "_" + userId;
