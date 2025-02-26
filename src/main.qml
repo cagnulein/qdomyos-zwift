@@ -844,7 +844,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.18.19"
+                    text: "version 2.18.21"
                     width: parent.width
                 }
 
@@ -878,6 +878,9 @@ ApplicationWindow {
                     width: parent.width
                     onClicked: {
                         stackView.push("WebPelotonAuth.qml")
+                        stackView.currentItem.goBack.connect(function() {
+                            stackView.pop();
+                        })
                         peloton_connect_clicked()
                         drawer.close()
                     }

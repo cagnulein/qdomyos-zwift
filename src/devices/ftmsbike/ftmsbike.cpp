@@ -434,6 +434,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     bool heart = false;
+    bool watt_ignore_builtin =
+        settings.value(QZSettings::watt_ignore_builtin, QZSettings::default_watt_ignore_builtin).toBool();
 
     qDebug() << characteristic.uuid() << newValue.length() << QStringLiteral(" << ") << newValue.toHex(' ');
 
@@ -616,6 +618,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             // power table from an user
             if(DU30_bike) {
                 m_watt = wattsFromResistance(Resistance.value());
+                emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+            } else if (LYDSTO && watt_ignore_builtin) {
+                m_watt = wattFromHR(true);
+                emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             } else if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
@@ -1289,6 +1295,12 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("SMB1"))) {
             qDebug() << QStringLiteral("SMB1 found");
             SMB1 = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("SPAX-BK-"))) {
+            qDebug() << QStringLiteral("SPAX-BK found");
+            resistance_lvl_mode = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("LYDSTO"))) {
+            qDebug() << QStringLiteral("LYDSTO found");
+            LYDSTO = true;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {

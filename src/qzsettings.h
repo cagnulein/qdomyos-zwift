@@ -2396,6 +2396,14 @@ class QZSettings {
     static const QString domyos_elliptical_fmts;
     static constexpr bool default_domyos_elliptical_fmts = false;
 
+    static const QString proform_xbike;
+    static constexpr bool default_proform_xbike = false;
+
+    static const QString peloton_current_user_id;
+    static const QString default_peloton_current_user_id;
+    static const QString proform_225_csx_PFEX32925_INT_0;
+    static constexpr bool default_proform_225_csx_PFEX32925_INT_0 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

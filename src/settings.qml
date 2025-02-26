@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.0
+import Qt.labs.platform 1.1
 
 //Page {
     ScrollView {
@@ -1110,6 +1111,9 @@ import QtQuick.Dialogs 1.0
 
             // 2.18.20
             property bool domyos_elliptical_fmts: false
+            property bool proform_xbike: false            
+            property bool proform_225_csx_PFEX32925_INT_0: false
+            property string peloton_current_user_id: ""
         }
 
         function paddingZeros(text, limit) {
@@ -3358,6 +3362,8 @@ import QtQuick.Dialogs 1.0
                                     "Proform SB",
                                     "Nordictrack GX 4.4 Pro",
                                     "TDF 1.0 PFEVEX71316.0",
+                                    "Proform XBike",
+                                    "Proform 225 CSX PFEX32925 INT.0"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -3390,7 +3396,9 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_bike_325_csx ? 13 :
                                                     settings.proform_bike_sb ? 14 :
                                                     settings.nordictrack_gx_44_pro ? 15 :
-                                                    settings.proform_bike_PFEVEX71316_0 ? 16 : 0;
+                                                    settings.proform_bike_PFEVEX71316_0 ? 16 :
+                                                    settings.proform_xbike ? 17 :
+                                                    settings.proform_225_csx_PFEX32925_INT_0 ? 18 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -3421,6 +3429,8 @@ import QtQuick.Dialogs 1.0
                                     settings.proform_bike_sb = false;
                                     settings.nordictrack_gx_44_pro = false;
                                     settings.proform_bike_PFEVEX71316_0 = false;
+                                    settings.proform_xbike = false;
+                                    settings.proform_225_csx_PFEX32925_INT_0 = false;
 
                                     // Set corresponding setting for selected model
                                     switch (currentIndex) {
@@ -3440,6 +3450,8 @@ import QtQuick.Dialogs 1.0
                                         case 14: settings.proform_bike_sb = true; break;
                                         case 15: settings.nordictrack_gx_44_pro = true; break;
                                         case 16: settings.proform_bike_PFEVEX71316_0 = true; break;
+                                        case 17: settings.proform_xbike = true; break;
+                                        case 18: settings.proform_225_csx_PFEX32925_INT_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -5061,6 +5073,20 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }              
 
+                    MessageDialog {
+                        id: zwiftPlaySettingsDialog
+                        text: "Zwift Play & Click Settings"
+                        informativeText: "Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with 'Get gears from Zwift' may cause conflicts."
+                        buttons: (MessageDialog.Yes | MessageDialog.No)
+                        onYesClicked: {
+                            settings.zwift_play = false;
+                            settings.zwift_click = false;
+                            settings.zwift_play_emulator = true;
+                            window.settings_restart_to_apply = true;
+                        }
+                        visible: false
+                    }
+
                     IndicatorOnlySwitch {
                         text: qsTr("Get Gears from Zwift")
                         spacing: 0
@@ -5072,7 +5098,16 @@ import QtQuick.Dialogs 1.0
                         checked: settings.zwift_play_emulator
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_play_emulator = checked; if(checked) { settings.watt_bike_emulator = false; } window.settings_restart_to_apply = true; }
+                        onClicked: {
+                             if (checked && !settings.zwift_play_emulator) {  // Only show dialog when enabling
+                                 if (settings.zwift_play || settings.zwift_click) {
+                                     zwiftPlaySettingsDialog.visible = true;
+                                 }
+                                 settings.watt_bike_emulator = false;
+                             }
+                             window.settings_restart_to_apply = true;
+                             settings.zwift_play_emulator = checked;
+                         }
                     }
 
                     Label {

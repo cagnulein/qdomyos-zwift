@@ -72,6 +72,7 @@ class peloton : public QObject {
   private:
     _PELOTON_API current_api = peloton_api;
     const int peloton_workout_second_resolution = 1;
+    int workout_retry_count = 0;
     bool peloton_credentials_wrong = false;
     QNetworkAccessManager *mgr = nullptr;
 
@@ -107,6 +108,22 @@ class peloton : public QObject {
     QNetworkReply *replyPeloton;
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
+    // Save token with user-specific suffix
+    QString getPelotonSettingKey(const QString& baseKey, const QString& userId) {
+        if (userId.isEmpty()) {
+            qDebug() << "ERROR: userid is empty!";
+            return baseKey; // If no user ID, use the default key
+        }
+        return baseKey + "_" + userId;
+    }
+    void savePelotonTokenForUser(const QString& baseKey, const QVariant& value, const QString& userId) {
+        QSettings settings;
+        settings.setValue(getPelotonSettingKey(baseKey, userId), value);
+    }
+    QVariant getPelotonTokenForUser(const QString& baseKey, const QString& userId, const QVariant& defaultValue = "") {
+        QSettings settings;
+        return settings.value(getPelotonSettingKey(baseKey, userId), defaultValue).toString();
+    }
 
     // rowers
     double rowerpaceToSpeed(double pace);

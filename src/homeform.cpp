@@ -7323,12 +7323,15 @@ void homeform::loadSettings(const QUrl &filename) {
     auto settings2LoadAllKeys = settings2Load.allKeys();
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
         if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
-            if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
-                settings.setValue(s, settings2Load.value(s));
-            } else {
-                SimpleCrypt crypt;
-                crypt.setKey(cryptoKeySettingsProfiles());
-                settings.setValue(s, crypt.decryptToString(settings2Load.value(s).toString()));
+            // peloton refresh token must not be changed because it has one refresh token for peloton user saved locally on the device
+            if(!s.contains(QStringLiteral("peloton_refreshtoken"))) {
+                if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
+                    settings.setValue(s, settings2Load.value(s));
+                } else {
+                    SimpleCrypt crypt;
+                    crypt.setKey(cryptoKeySettingsProfiles());
+                    settings.setValue(s, crypt.decryptToString(settings2Load.value(s).toString()));
+                }
             }
         }
     }
