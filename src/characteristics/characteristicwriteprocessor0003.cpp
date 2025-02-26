@@ -137,7 +137,7 @@ QByteArray CharacteristicWriteProcessor0003::encodeHubRidingData(
 static uint32_t lastUnknown1 = 836;  // Starting value from logs
 static uint32_t baseValue = 19000;   // Base value from original code
 
-uint32_t calculateUnknown1(uint16_t power) {
+uint32_t CharacteristicWriteProcessor0003::calculateUnknown1(uint16_t power) {
     // Increment by a value between 400-800 based on current power
     uint32_t increment = 400 + (power * 2);
     if (increment > 800) increment = 800;
