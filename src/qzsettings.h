@@ -2401,6 +2401,8 @@ class QZSettings {
 
     static const QString peloton_current_user_id;
     static const QString default_peloton_current_user_id;
+    static const QString proform_225_csx_PFEX32925_INT_0;
+    static constexpr bool default_proform_225_csx_PFEX32925_INT_0 = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
