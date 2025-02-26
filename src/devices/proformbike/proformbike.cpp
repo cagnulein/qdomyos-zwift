@@ -1064,7 +1064,7 @@ void proformbike::update() {
                 }
             } else if (proform_bike_225_csx || proform_225_csx_PFEX32925_INT_0) {
                 writeCharacteristic(noOpData6_proform_bike_225_csx, sizeof(noOpData6_proform_bike_225_csx),
-                                    QStringLiteral("noOp"));
+                                    QStringLiteral("noOp"), false, true);
                 innerWriteResistance();
             }
             else if (proform_cycle_trainer_400)
@@ -1960,7 +1960,7 @@ void proformbike::btinit() {
         writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
         QThread::msleep(400);
      } else if (proform_225_csx_PFEX32925_INT_0) {
-        max_resistance = 23;
+        max_resistance = 20;
 
         // Using the packet sequences from the 225 csx.c log file
         uint8_t init1[] = {0xfe, 0x02, 0x08, 0x02};
@@ -2841,7 +2841,7 @@ void proformbike::btinit() {
             writeCharacteristic(noOpData22, sizeof(noOpData22), QStringLiteral("init"), false, false);
             QThread::msleep(400);
         } else if (proform_bike_225_csx) {
-            max_resistance = 10;
+            max_resistance = 20;
             uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07, 0x01, 0xd2, 0x74, 0x14, 0xb2, 0x5e, 0x08, 0xa0, 0x5e, 0x0a};
             uint8_t initData11[] = {0x01, 0x12, 0xbc, 0x6c, 0x1a, 0xc6, 0x90, 0x28, 0xe6, 0xa2, 0x64, 0x24, 0xe2, 0xae, 0x98, 0x50, 0x0e, 0xfa, 0xac, 0x9c};
             uint8_t initData12[] = {0xff, 0x08, 0x4a, 0x36, 0x20, 0x98, 0x02, 0x00, 0x00, 0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
