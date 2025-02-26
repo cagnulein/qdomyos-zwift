@@ -741,8 +741,12 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
 
   func startSendingDataToSubscribers() {
     if self.notificationTimer == nil {
-        self.notificationTimer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(self.updateSubscribers), userInfo: nil, repeats: true)
+        var t : Double = 0.2
+        if(zwift_play_emulator) {
+            t = 0.01
         }
+        self.notificationTimer = Timer.scheduledTimer(timeInterval: t, target: self, selector: #selector(self.updateSubscribers), userInfo: nil, repeats: true)
+    }
   }
 
   func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
