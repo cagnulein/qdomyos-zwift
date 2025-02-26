@@ -276,6 +276,8 @@ void ftmsbike::update() {
 
     if (initRequest) {
         zwiftPlayInit();
+        if(ICSE)
+            requestResistance = 1;  // to force the engine to send every second a target inclination
         initRequest = false;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -328,8 +330,10 @@ void ftmsbike::update() {
                     }
                 }
             }
-            requestResistance = -1;
+            if(!ICSE)
+                requestResistance = -1;
         }
+        
         if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
             if(DIRETO_XR && gears_zwift_ratio) {
                 setWheelDiameter(wheelCircumference::gearsToWheelDiameter(gears()));
@@ -955,7 +959,18 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
-            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || ICSE || SCH_190U || DOMYOS || SMB1) {
+            if (ICSE) {
+                QBluetoothUuid ftmsService((quint16)0x1826);
+                QBluetoothUuid CSCService((quint16)0x1816);
+                if (s->serviceUuid() != ftmsService && s->serviceUuid() != CSCService) {
+                    qDebug() << QStringLiteral("ICSE bike wants to be subscribed only to FTMS and CSC services in order "
+                                               "to send metrics")
+                             << s->serviceUuid();
+                    continue;
+                }
+            }
+            
+            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || DOMYOS || SMB1) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
                     qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
