@@ -1152,7 +1152,7 @@ jobs:
           submodules: recursive
 
       - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@4574d27a4764455b42196d70a065bc6853246a25
         with:
           image: tonistiigi/binfmt:qemu-v7.0.0
 
