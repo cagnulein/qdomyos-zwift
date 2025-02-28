@@ -80,6 +80,7 @@ class domyosbike : public bike {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    bool firstCharacteristicChanged = true;
 
     enum _BIKE_TYPE {
         CHANG_YOW,

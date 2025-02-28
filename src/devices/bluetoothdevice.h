@@ -217,6 +217,18 @@ class bluetoothdevice : public QObject {
     metric wattsMetric();
 
     /**
+     * @brief wattsMetricforUi Show the wattage applying averaging in case the user requested this.  Units: watts
+     */
+    double wattsMetricforUI() {
+        QSettings settings;
+        bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
+        if (power5s)
+            return wattsMetric().average5s();
+        else
+            return wattsMetric().value();
+    }
+
+    /**
      * @brief changeFanSpeed Tries to change the fan speed.
      * @param speed The requested fan speed. Units: depends on device
      */
@@ -433,6 +445,7 @@ class bluetoothdevice : public QObject {
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void speedSensor(double speed);
+    virtual void inclinationSensor(double grade, double inclination);
     virtual void changeResistance(resistance_t res);
     virtual void changePower(int32_t power);
     virtual void changeInclination(double grade, double percentage);
@@ -664,6 +677,11 @@ class bluetoothdevice : public QObject {
      * @brief _ergTable The current erg table
      */
     ergTable _ergTable;
+    
+    /**
+     * @brief StepCount A metric to get and set the step count. Unit: step
+     */
+    metric StepCount;
 
     /**
      * @brief Collect the number of seconds in each zone for the current heart rate

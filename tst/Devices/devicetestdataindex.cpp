@@ -171,6 +171,12 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(QZSettings::csafe_rower, "COMX", "");
 
+    // CSafe Elliptical
+    RegisterNewDeviceTestData(DeviceIndex::CSafeElliptical)
+        ->expectDevice<csafeelliptical>()
+        ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith(QZSettings::csafe_elliptical_port, "COMX", "");
+
     cscBikeName = "CyclingSpeedCadenceBike-";
     RegisterNewDeviceTestData(DeviceIndex::CSCBike)
         ->expectDevice<cscbike>()
@@ -212,10 +218,15 @@ void DeviceTestDataIndex::Initialize() {
                 }
             });
 
+    // Cyclops Phantom Bike
+    RegisterNewDeviceTestData(DeviceIndex::CyclopsPhantomBike)
+        ->expectDevice<cycleopsphantombike>()
+        ->acceptDeviceName("INDOORCYCLE", DeviceNameComparison::StartsWithIgnoreCase);
+
     // DeerRun Treadmill
     RegisterNewDeviceTestData(DeviceIndex::DeerRunTreadmill)
         ->expectDevice<deerruntreadmill>()
-        ->acceptDeviceName("PITPAT", DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceName("PITPAT-T", DeviceNameComparison::StartsWithIgnoreCase);
 
     // Domyos bike
     RegisterNewDeviceTestData(DeviceIndex::DomyosBike)
@@ -518,6 +529,7 @@ void DeviceTestDataIndex::Initialize() {
         "WAVEFIT-",
         "KETTLERBLE",
         "JAS_C3",
+        "SCH_190U",
         "RAVE WHITE",
         "DOMYOS-BIKING-",
         "DU30-",
@@ -528,6 +540,9 @@ void DeviceTestDataIndex::Initialize() {
         "FEIVON V2",
         "FELVON V2",
         "ZUMO",
+        "JUSTO",
+        "T2 ",
+        "VFSPINBIKE",
         "XS08-",
         "B94",
         "STAGES BIKE",
@@ -594,14 +609,6 @@ void DeviceTestDataIndex::Initialize() {
             config.setValue(QZSettings::flywheel_life_fitness_ic8, true);
             configurations.push_back(config);
         });
-
-
-    // FTMS KICKR CORE
-    RegisterNewDeviceTestData(DeviceIndex::FTMSKICKRCORE)
-        ->expectDevice<ftmsbike>()        
-        ->acceptDeviceName("KICKR CORE", DeviceNameComparison::StartsWithIgnoreCase)
-        ->excluding(ftmsBikeConfigureExclusions)
-        ->configureSettingsWith(QBluetoothUuid((quint16)0x1826));
 
     // FTMS Bike 2
     RegisterNewDeviceTestData(DeviceIndex::FTMSBike2)
@@ -921,6 +928,10 @@ void DeviceTestDataIndex::Initialize() {
             }
         });
 
+    // Pitpat Bike
+    RegisterNewDeviceTestData(DeviceIndex::PitpatBike)
+        ->expectDevice<pitpatbike>()
+        ->acceptDeviceName("PITPAT-S", DeviceNameComparison::StartsWithIgnoreCase);
 
     // Proform Bike
     RegisterNewDeviceTestData(DeviceIndex::ProformBike)
@@ -1117,50 +1128,16 @@ void DeviceTestDataIndex::Initialize() {
     // Stages Bike
     RegisterNewDeviceTestData(DeviceIndex::StagesBike)
         ->expectDevice<stagesbike>()        
-        ->acceptDeviceNames({"STAGES ", "TACX SATORI", "RACER S", "ELITE TRAINER"}, DeviceNameComparison::StartsWithIgnoreCase)
-        ->acceptDeviceNames({"QD","DFC"}, DeviceNameComparison::IgnoreCase)
-        ->excluding<ftmsbike>();
+        ->acceptDeviceNames({"STAGES ", "TACX SATORI", "RACER S", "ELITETRAINER"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"QD","DFC", "KU"}, DeviceNameComparison::IgnoreCase)
+        ->excluding(stagesBikeExclusions);
 
     // Stages Bike Stages Bike (Assioma / Power Sensor disabled
     RegisterNewDeviceTestData(DeviceIndex::StagesBike_Assioma_PowerSensorDisabled)
         ->expectDevice<stagesbike>()        
         ->acceptDeviceName("ASSIOMA", DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(QZSettings::power_sensor_name, "DisabledX", "XDisabled")
-        ->excluding( stagesBikeExclusions);
-
-    // Stages Bike (KICKR CORE)
-    RegisterNewDeviceTestData(DeviceIndex::StagesBike_KICKRCORE)
-        ->expectDevice<stagesbike>()        
-        ->acceptDeviceName("KICKR CORE", DeviceNameComparison::StartsWithIgnoreCase)
-        ->excluding(stagesBikeExclusions)
-        ->configureSettingsWith(
-            [](const DeviceDiscoveryInfo& info,  bool enable, std::vector<DeviceDiscoveryInfo>& configurations)->void
-            {
-                // The condition, if the name is acceptable, is:
-                // !deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && deviceHasService(b, QBluetoothUuid((quint16)0x1818)))
-
-                if(enable) {
-                    DeviceDiscoveryInfo result = info;
-                    result.addBluetoothService(QBluetoothUuid((quint16)0x1818));
-                    result.removeBluetoothService(QBluetoothUuid((quint16)0x1826));
-                    configurations.push_back(result);
-                } else {
-                    DeviceDiscoveryInfo hasNeither = info;
-                    hasNeither.removeBluetoothService(QBluetoothUuid((quint16)0x1818));
-                    hasNeither.removeBluetoothService(QBluetoothUuid((quint16)0x1826));
-
-                    DeviceDiscoveryInfo hasInvalid = info;
-                    hasInvalid.addBluetoothService(QBluetoothUuid((quint16)0x1826));
-                    DeviceDiscoveryInfo hasBoth = hasInvalid;
-                    hasBoth.addBluetoothService(QBluetoothUuid((quint16)0x1818));
-                    hasBoth.addBluetoothService(QBluetoothUuid((quint16)0x1826));
-
-                    configurations.push_back(info); // has neither
-                    configurations.push_back(hasInvalid);
-                    configurations.push_back(hasBoth);
-                }
-            });
-
+        ->excluding(stagesBikeExclusions);
 
     // Power (Stages) Bike
     QString powerSensorName = "WattsItCalled";
@@ -1316,12 +1293,21 @@ void DeviceTestDataIndex::Initialize() {
         ->excluding(toorxAppGateUSBBikeExclusions);
 
 
+    // TODO: revisit, this missing a few names
+
     // Toorx AppGate USB Bike (Enabled in settings)
     RegisterNewDeviceTestData(DeviceIndex::ToorxAppGateUSBBike_EnabledInSettings)
         ->expectDevice<trxappgateusbbike>()        
         ->acceptDeviceName("TOORX", DeviceNameComparison::StartsWith)
-        ->acceptDeviceNames({"I-CONSOIE+", "I-CONSOLE+", "IBIKING+", "ICONSOLE+", "VIFHTR2.1", "DKN MOTION"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"I-CONSOIE+",
+                             "I-CONSOLE+",
+                             "IBIKING+",
+                             "ICONSOLE+",
+                             "VIFHTR2.1",
+                             "REEBOK",
+                             "DKN MOTION"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceName("CR011R", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceNames({"CR011R", "xCR011R"}, DeviceNameComparison::StartsWithIgnoreCase) // a contains relationship
         ->configureSettingsWith(
             [](const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations) -> void
             {
@@ -1418,6 +1404,13 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<ultrasportbike>()
         ->acceptDeviceName("X-BIKE", DeviceNameComparison::StartsWithIgnoreCase);
 
+
+    // Wahoo KICKR CORE
+    RegisterNewDeviceTestData(DeviceIndex::WahooKickrSnapBike_KICKRCORE)
+        ->expectDevice<wahookickrsnapbike>()
+        ->acceptDeviceNames({"KICKR CORE" }, DeviceNameComparison::StartsWithIgnoreCase)
+        ->excluding<ftmsbike>();
+
     // Wahoo Kickr Snap Bike
     RegisterNewDeviceTestData(DeviceIndex::WahooKickrSnapBike)
         ->expectDevice<wahookickrsnapbike>()        
@@ -1440,12 +1433,12 @@ void DeviceTestDataIndex::Initialize() {
     // Ypoo Elliptical
     RegisterNewDeviceTestData(DeviceIndex::YpooElliptical)
         ->expectDevice<ypooelliptical>()        
-        ->acceptDeviceNames({"YPOO-U3-", "SCH_590E"}, DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceNames({"YPOO-U3-", "SCH_590E", "KETTLER"}, DeviceNameComparison::StartsWithIgnoreCase);
 
     // Ypoo Elliptical 2
     RegisterNewDeviceTestData(DeviceIndex::YpooElliptical2)
         ->expectDevice<ypooelliptical>()
-        ->acceptDeviceName("E35-", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("E35", DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(QBluetoothUuid((quint16)0x1826));
 
     // Ypoo Elliptical 3

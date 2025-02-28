@@ -30,7 +30,10 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &wahookickrsnapbike::update);
-    refresh->start(200ms);
+    QSettings settings;
+    refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
+    wheelCircumference::GearTable g;
+    g.printTable();
 }
 
 bool wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
@@ -97,6 +100,7 @@ QByteArray wahookickrsnapbike::setErgMode(uint16_t watts) {
     r.append(_setErgMode);
     r.append((uint8_t)(watts & 0xFF));
     r.append((uint8_t)(watts >> 8 & 0xFF));
+    lastCommandErgMode = true;
     return r;
     // response: 0x01 0x42 0x01 0x00 watts1 watts2
 }
@@ -175,6 +179,7 @@ void wahookickrsnapbike::update() {
     }
 
     if (initRequest) {
+        lastCommandErgMode = false;
         QSettings settings;
         QByteArray a = unlockCommand();
         uint8_t b[20];
@@ -192,10 +197,16 @@ void wahookickrsnapbike::update() {
         }
         QThread::msleep(700);
 
+        QByteArray d = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
+        uint8_t e[20];
+        setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value).toDouble());
+        memcpy(e, d.constData(), d.length());
+        writeCharacteristic(e, d.length(), "setWheelCircumference", false, true);
+
         // required to the SS2K only one time
         Resistance = 0;
         emit resistanceRead(Resistance.value());
-        initRequest = false;
+        initRequest = false;               
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
@@ -220,7 +231,7 @@ void wahookickrsnapbike::update() {
             QByteArray a = setErgMode(requestPower);
             uint8_t b[20];
             memcpy(b, a.constData(), a.length());
-            writeCharacteristic(b, a.length(), "setErgMode", false, true);
+            writeCharacteristic(b, a.length(), "setErgMode", false, false);
             requestPower = -1;
             requestResistance = -1;
         }
@@ -231,10 +242,7 @@ void wahookickrsnapbike::update() {
                 inclinationChanged(requestInclination, requestInclination);
                 Inclination = requestInclination; // the bike is not sending back the inclination?
                 requestInclination = -100;
-            } else if (lastGearValue != gears()) {
-                inclinationChanged(lastGrade, lastGrade);
             }
-            lastGearValue = gears();
         } else if (requestResistance != -1 && KICKR_BIKE == false) {
             if (requestResistance > 100) {
                 requestResistance = 100;
@@ -250,20 +258,28 @@ void wahookickrsnapbike::update() {
                 QByteArray a = setResistanceMode(((double)requestResistance) / 100.0);
                 uint8_t b[20];
                 memcpy(b, a.constData(), a.length());
-                writeCharacteristic(b, a.length(), "setResistance", false, true);
+                writeCharacteristic(b, a.length(), "setResistance", false, false);
             } else if (requestResistance != currentResistance().value() &&
-               ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) && lastGearValue != gears()) {
-               emit debug(QStringLiteral("writing resistance due to gears changed ") + QString::number(lastForcedResistance));
-               QByteArray a = setResistanceMode(((double)lastForcedResistance + (gears() - lastGearValue)) / 100.0);
+               ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
+               emit debug(QStringLiteral("writing resistance ") + QString::number(lastForcedResistance));
+               QByteArray a = setResistanceMode(((double)lastForcedResistance) / 100.0);
                uint8_t b[20];
                memcpy(b, a.constData(), a.length());
-               writeCharacteristic(b, a.length(), "setResistance", false, true);
-            } else if (virtualBike && virtualBike->ftmsDeviceConnected() && lastGearValue != gears()) {
-                inclinationChanged(lastGrade, lastGrade);
+               writeCharacteristic(b, a.length(), "setResistance", false, false);
             }
-            lastGearValue = gears();
             requestResistance = -1;
         }
+
+        if (lastGearValue != gears()) {
+            QByteArray a = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
+            uint8_t b[20];
+            memcpy(b, a.constData(), a.length());
+            writeCharacteristic(b, a.length(), "setWheelCircumference", false, false);
+            lastGrade = 999; // to force a change
+        }
+
+        lastGearValue = gears();
+
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
@@ -290,17 +306,22 @@ resistance_t wahookickrsnapbike::pelotonToBikeResistance(int pelotonResistance) 
         settings.value(QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2).toBool();
     if (!schwinn_bike_resistance_v2) {
         if (pelotonResistance > 54)
-            return pelotonResistance;
+            return (pelotonResistance * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
         if (pelotonResistance < 26)
-            return pelotonResistance / 5;
+            return ((pelotonResistance / 5) * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
 
         // y = 0,04x2 - 1,32x + 11,8
-        return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
+        return (((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8) * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
     } else {
         if (pelotonResistance > 20)
-            return (((double)pelotonResistance - 20.0) * 1.25);
+            return ((((double)pelotonResistance - 20.0) * 1.25) * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
         else
-            return 1;
+            return (1  * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
     }
 }
 
@@ -716,16 +737,29 @@ void wahookickrsnapbike::serviceScanDone(void) {
 #endif
 
     auto services_list = m_control->services();
+    bool zwift_found = false;
+    bool wahoo_found = false;
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &wahookickrsnapbike::stateChanged);
         gattCommunicationChannelService.constLast()->discoverDetails();
-        if(s == QBluetoothUuid((quint16)0x1826)) {
-            qDebug() << "if it doesn't change the inclination, set the bike in the FTMS bike setting under the Bike settings.";
-            if(homeform::singleton())
-                homeform::singleton()->setToastRequested("if it doesn't change the inclination, set the bike in the FTMS bike setting under the Bike settings.");
+        if(s == QBluetoothUuid(QStringLiteral("00000001-19ca-4651-86e5-fa29dcdd09d1"))) {
+            zwift_found = true;
+        } else if(s == QBluetoothUuid(QStringLiteral("a026ee01-0a7d-4ab3-97fa-f1500f9feb8b"))) {
+            wahoo_found = true;
         }
+    }
+
+    qDebug() << "zwift service found " << zwift_found << "wahoo service found" << wahoo_found;
+
+    if(zwift_found && !wahoo_found) {
+        QSettings settings;
+        settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
+        settings.sync();
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Zwift Hub device found, please restart the app to enjoy virtual gearing!");
+        return;
     }
 }
 
@@ -819,17 +853,37 @@ void wahookickrsnapbike::controllerStateChanged(QLowEnergyController::Controller
 
 void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     Q_UNUSED(percentage);
+    if(lastCommandErgMode) {
+        lastGrade = grade + 1; // to force a refresh
+        initRequest = true;
+        qDebug() << "avoid sending this command, since I have first to restore the setSimGrade";
+        return;
+    }
+    if(lastGrade == grade) {
+        qDebug() << "grade is already set to " << grade << "skipping";
+        return;
+    }
     lastGrade = grade;
+    Inclination = grade;
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
     QSettings settings;
     double g = grade;
-    g += gears();
     QByteArray a = setSimGrade(g);
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());
-    writeCharacteristic(b, a.length(), "setSimGrade", false, true);
+    writeCharacteristic(b, a.length(), "setSimGrade", false, false);
+    lastCommandErgMode = false;
 }
 
 bool wahookickrsnapbike::inclinationAvailableByHardware() {
     return KICKR_BIKE;
+}
+
+double wahookickrsnapbike::maxGears() {
+    wheelCircumference::GearTable g;
+    return g.maxGears;
+}
+
+double wahookickrsnapbike::minGears() {
+    return 1;
 }
