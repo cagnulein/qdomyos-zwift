@@ -309,7 +309,7 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         return;
     }
 
-    QStringList _props = data.split(QStringLiteral(" "), QString::SkipEmptyParts);
+    QStringList _props = data.split(QStringLiteral(" "), Qt::SkipEmptyParts);
     for (int i = 1; i < _props.size(); i += 2) {
         QString key = _props.at(i);
         // Error key only can have error code
@@ -456,9 +456,9 @@ void kingsmithr2treadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
-    if (state == QLowEnergyService::DiscoveringServices) {
+    if (state == QLowEnergyService::RemoteServiceDiscovering) {
     }
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
 
         // qDebug() << gattCommunicationChannelService->characteristics();
 

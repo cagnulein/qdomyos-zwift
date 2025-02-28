@@ -76,20 +76,20 @@ void soleelliptical::forceResistanceAndInclination(resistance_t requestResistanc
     if (currentResistance().value() < requestResistance) {
         writeCharacteristic(write, sizeof(write),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance) +
-                                QStringLiteral(" Inclination ") + inclination,
+                                QStringLiteral(" Inclination ") + QString::number(inclination),
                             false, true);
         writeCharacteristic(writeUp, sizeof(writeUp),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance) +
-                                QStringLiteral(" Inclination ") + inclination,
+                                QStringLiteral(" Inclination ") + QString::number(inclination),
                             false, true);
     } else if (currentResistance().value() > requestResistance) {
         writeCharacteristic(writeDown, sizeof(writeDown),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance) +
-                                QStringLiteral(" Inclination ") + inclination,
+                                QStringLiteral(" Inclination ") + QString::number(inclination),
                             false, true);
         writeCharacteristic(write, sizeof(write),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance) +
-                                QStringLiteral(" Inclination ") + inclination,
+                                QStringLiteral(" Inclination ") + QString::number(inclination),
                             false, true);
     }
 }
@@ -495,7 +495,7 @@ void soleelliptical::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
 
         // qDebug() << gattCommunicationChannelService->characteristics();
 

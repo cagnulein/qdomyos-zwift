@@ -2100,7 +2100,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         if (Flags.remainingTime) {
             // todo
         }
-    } else if (characteristic.uuid() == QBluetoothUuid::RSCMeasurement) {
+    } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::RSCMeasurement) {
         uint8_t flags = (uint8_t)newValue.at(0);
         bool InstantaneousStrideLengthPresent = (flags & 0x01);
         bool TotalDistancePresent = (flags & 0x02) ? true : false;
@@ -2188,7 +2188,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             return;
         }
 
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
         }
@@ -2199,7 +2199,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     notificationSubscribed = 0;
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &horizontreadmill::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &horizontreadmill::characteristicWritten);
@@ -2250,7 +2250,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
                 auto descriptors_list = c.descriptors();
@@ -2261,7 +2261,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
                     // if it's a FTMS treadmill and has FTMS and/or RSC service too
                     ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
-                       || (s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence))
+                       || (s->serviceUuid() == QBluetoothUuid::ServiceClassUuid::RunningSpeedAndCadence))
                       && !gattCustomService) ||
                      (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()))) {
                     QByteArray descriptor;

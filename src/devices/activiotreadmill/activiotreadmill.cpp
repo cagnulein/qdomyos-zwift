@@ -248,7 +248,7 @@ void activiotreadmill::update() {
                 emit tapeStarted();
             }
             if (requestStop != -1) {
-                emit debug(QStringLiteral("stopping... ") + paused);
+                emit debug(QStringLiteral("stopping... ") + (paused ? QStringLiteral("true") : QStringLiteral("false")));
                 if (lastState == PAUSED) {
                     uint8_t pause[] = {0x05, 0x00, 0x00, 0x00, 0x00, 0x2a, 0x07};
 
@@ -542,7 +542,7 @@ void activiotreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
 
         // qDebug() << gattCommunicationChannelService->characteristics();
         auto characteristics_list = gattCommunicationChannelService->characteristics();

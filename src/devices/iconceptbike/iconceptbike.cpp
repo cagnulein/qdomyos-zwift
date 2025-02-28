@@ -83,7 +83,7 @@ void iconceptbike::serviceDiscovered(const QBluetoothServiceInfo &service) {
             connect(socket, &QBluetoothSocket::readyRead, this, &iconceptbike::readSocket);
             connect(socket, &QBluetoothSocket::connected, this, QOverload<>::of(&iconceptbike::rfCommConnected));
             connect(socket, &QBluetoothSocket::disconnected, this, &iconceptbike::disconnected);
-            connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
+            connect(socket, &QBluetoothSocket::error, this,
                     &iconceptbike::onSocketErrorOccurred);
         } else {
             qDebug () << QStringLiteral("service ignored!");

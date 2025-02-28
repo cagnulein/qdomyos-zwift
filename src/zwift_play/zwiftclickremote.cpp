@@ -72,7 +72,7 @@ void zwiftclickremote::characteristicChanged(const QLowEnergyCharacteristic &cha
         playDevice->processCharacteristic("Async", newValue, typeZap);
     } else if(characteristic.uuid() == QBluetoothUuid(QStringLiteral("00000004-19CA-4651-86E5-FA29DCDD09D1"))) {
         playDevice->processCharacteristic("SyncTx", newValue, typeZap);
-    } else if(characteristic.uuid() == QBluetoothUuid::BatteryLevel) {
+    } else if(characteristic.uuid() == QBluetoothUuid::CharacteristicType::BatteryLevel) {
     }
 }
 
@@ -135,7 +135,7 @@ void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
         }
@@ -149,7 +149,7 @@ void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &zwiftclickremote::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicRead, this, &zwiftclickremote::characteristicChanged);

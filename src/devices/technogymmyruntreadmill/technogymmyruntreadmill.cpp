@@ -422,7 +422,7 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
 
         lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    } else if (characteristic.uuid() == QBluetoothUuid::RSCMeasurement) {
+    } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::RSCMeasurement) {
         uint8_t flags = (uint8_t)newValue.at(0);
         bool InstantaneousStrideLengthPresent = (flags & 0x01);
         bool TotalDistancePresent = (flags & 0x02) ? true : false;
@@ -465,7 +465,7 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
         }
@@ -474,7 +474,7 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this,
                     &technogymmyruntreadmill::characteristicChanged);

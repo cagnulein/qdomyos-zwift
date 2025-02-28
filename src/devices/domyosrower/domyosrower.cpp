@@ -739,7 +739,7 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
         QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
         emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-        if (state == QLowEnergyService::ServiceDiscovered) {
+        if (state == QLowEnergyService::RemoteServiceDiscovered) {
 
             // qDebug() << gattCommunicationChannelService->characteristics();
 
@@ -771,7 +771,7 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
 
         for (QLowEnergyService *s : qAsConst(gattCommunicationChannelServiceArray)) {
             qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-            if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+            if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
                 qDebug() << QStringLiteral("not all services discovered");
 
                 return;
@@ -781,7 +781,7 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
         qDebug() << QStringLiteral("all services discovered!");
 
         for (QLowEnergyService *s : qAsConst(gattCommunicationChannelServiceArray)) {
-            if (s->state() == QLowEnergyService::ServiceDiscovered) {
+            if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
 
                 // establish hook into notifications
                 connect(s, &QLowEnergyService::characteristicChanged, this, &domyosrower::characteristicChanged);

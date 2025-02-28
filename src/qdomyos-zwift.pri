@@ -1,5 +1,5 @@
 include(../defaults.pri)
-QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia network
+QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia network gui
 QTPLUGIN += qavfmediaplayer
 QT+= charts core-private
 

@@ -394,7 +394,7 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
         if (s->serviceUuid() == ftmsService)
 #endif
         {
-            if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+            if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
                 qDebug() << "not all services discovered";
                 return;
             }
@@ -404,7 +404,7 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << "all services discovered!";
 
     foreach (QLowEnergyService *s, gattCommunicationChannelService) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             connect(s, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
                     SLOT(characteristicChanged(QLowEnergyCharacteristic, QByteArray)));

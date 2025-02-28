@@ -96,20 +96,20 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                 }
             }
             if (!this->noHeartService || heart_only) {
-                services << QBluetoothUuid::HeartRate;
+                services << QBluetoothUuid::ServiceClassUuid::HeartRate;
             }
         } else if (ifit) {
             services << (QBluetoothUuid(QStringLiteral("00001533-1412-efde-1523-785feabcd123")));
 
             this->noHeartService = true;
             if (!this->noHeartService) {
-                services << QBluetoothUuid::HeartRate;
+                services << QBluetoothUuid::ServiceClassUuid::HeartRate;
             }
         } else {
             services << (QBluetoothUuid(QStringLiteral("0bf669f0-45f2-11e7-9598-0800200c9a66")));
 
             if (!this->noHeartService) {
-                services << QBluetoothUuid::HeartRate;
+                services << QBluetoothUuid::ServiceClassUuid::HeartRate;
             }
         }
 
@@ -413,7 +413,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             charDataHR.addDescriptor(clientConfigHR);
 
             serviceDataHR.setType(QLowEnergyServiceData::ServiceTypePrimary);
-            serviceDataHR.setUuid(QBluetoothUuid::HeartRate);
+            serviceDataHR.setUuid(QBluetoothUuid::ServiceClassUuid::HeartRate);
             serviceDataHR.addCharacteristic(charDataHR);
         }
 

@@ -276,7 +276,7 @@ void ziprotreadmill::btinit(bool startTape) {
 void ziprotreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         QBluetoothUuid _gattWriteCharacteristicId((quint16)0xfff2);
         QBluetoothUuid _gattNotify1CharacteristicId((quint16)0xfff1);
 

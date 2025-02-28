@@ -77,7 +77,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         }
 
         if (noHeartService == false) {
-            services << QBluetoothUuid::HeartRate;
+            services << QBluetoothUuid::ServiceClassUuid::HeartRate;
         }
 
         /*services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
@@ -333,7 +333,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                 charDataHR.addDescriptor(clientConfigHR);
 
                 serviceDataHR.setType(QLowEnergyServiceData::ServiceTypePrimary);
-                serviceDataHR.setUuid(QBluetoothUuid::HeartRate);
+                serviceDataHR.setUuid(QBluetoothUuid::ServiceClassUuid::HeartRate);
                 serviceDataHR.addCharacteristic(charDataHR);
             }
 

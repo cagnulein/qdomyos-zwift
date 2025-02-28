@@ -319,7 +319,7 @@ void lifespantreadmill::descriptorWritten(const QLowEnergyDescriptor& descriptor
 void lifespantreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         QBluetoothUuid _gattWriteCharacteristicId((uint16_t)0xfff2);
         QBluetoothUuid _gattNotifyCharacteristicId((uint16_t)0xfff1);
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);

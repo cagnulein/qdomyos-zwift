@@ -698,13 +698,13 @@ void fitshowtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-    if(gattCommunicationRSCService != nullptr && (gattCommunicationRSCService->state() != QLowEnergyService::ServiceDiscovered ||
-        gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered)) {
+    if(gattCommunicationRSCService != nullptr && (gattCommunicationRSCService->state() != QLowEnergyService::RemoteServiceDiscovered ||
+        gattCommunicationChannelService->state() != QLowEnergyService::RemoteServiceDiscovered)) {
         qDebug() << QStringLiteral("not all services discovered");
         return;        
     }
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         uint32_t id32;
         auto characteristics_list = gattCommunicationChannelService->characteristics();
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {

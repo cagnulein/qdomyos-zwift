@@ -840,15 +840,15 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
     if (sportstech_sx600 && gattCommunicationChannelServiceFTMS) {
-        if (gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered ||
-            gattCommunicationChannelServiceFTMS->state() != QLowEnergyService::ServiceDiscovered) {
+        if (gattCommunicationChannelService->state() != QLowEnergyService::RemoteServiceDiscovered ||
+            gattCommunicationChannelServiceFTMS->state() != QLowEnergyService::RemoteServiceDiscovered) {
             qDebug() << "sportstech_sx600 not all services discovered" << gattCommunicationChannelService->state()
                      << gattCommunicationChannelServiceFTMS->state();
             return;
         }
     }
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);

@@ -693,7 +693,7 @@ void eslinkertreadmill::btinit(bool startTape) {
 void eslinkertreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         QBluetoothUuid _gattWriteCharacteristicId((quint16)0xfff2);
         QBluetoothUuid _gattNotifyCharacteristicId((quint16)0xfff1);
 

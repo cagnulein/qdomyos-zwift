@@ -386,7 +386,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 }
 
 void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
-    if (state != QLowEnergyService::ServiceDiscovered) {
+    if (state != QLowEnergyService::RemoteServiceDiscovered) {
         return;
     }
 

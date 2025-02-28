@@ -376,7 +376,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         }
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
         lastRefreshCadenceChanged = now;
-    } else if (characteristic.uuid() == QBluetoothUuid::CSCMeasurement) {
+    } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::CSCMeasurement) {
         uint16_t _LastCrankEventTime = 0;
         double _CrankRevs = 0;
         uint16_t _LastWheelEventTime = 0;
@@ -510,7 +510,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
         }
@@ -519,7 +519,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &strydrunpowersensor::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &strydrunpowersensor::characteristicWritten);
@@ -530,7 +530,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::descriptorWritten, this, &strydrunpowersensor::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &strydrunpowersensor::descriptorRead);
 
-            if(FORERUNNER && s->serviceUuid() != QBluetoothUuid::HeartRate && s->serviceUuid() != QBluetoothUuid::RunningSpeedAndCadence) {
+            if(FORERUNNER && s->serviceUuid() != QBluetoothUuid::ServiceClassUuid::HeartRate && s->serviceUuid() != QBluetoothUuid::RunningSpeedAndCadence) {
                 qDebug() << "skipping garmin services!" << s->serviceUuid();
                 continue;
             }

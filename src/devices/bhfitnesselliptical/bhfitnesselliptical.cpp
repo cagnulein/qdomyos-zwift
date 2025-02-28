@@ -144,7 +144,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
     QDateTime now = QDateTime::currentDateTime();
 
-    if (characteristic.uuid() == QBluetoothUuid::HeartRate && newValue.length() > 1) {
+    if (characteristic.uuid() == QBluetoothUuid::ServiceClassUuid::HeartRate && newValue.length() > 1) {
         Heart = (uint8_t)newValue[1];
         emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         return;
@@ -361,7 +361,7 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
         }
@@ -370,7 +370,7 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &bhfitnesselliptical::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &bhfitnesselliptical::characteristicWritten);

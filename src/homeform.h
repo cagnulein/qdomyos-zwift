@@ -14,7 +14,7 @@
 #include "sessionline.h"
 #include "smtpclient/src/SmtpMime"
 #include "trainprogram.h"
-#include <QChart>
+#include <QtCharts/QChart>
 #include <QColor>
 #include <QGraphicsScene>
 #include <QMediaPlayer>
@@ -243,7 +243,7 @@ class homeform : public QObject {
         if (QGraphicsScene *scene = item->findChild<QGraphicsScene *>()) {
             auto items_list = scene->items();
             for (QGraphicsItem *it : qAsConst(items_list)) {
-                if (QtCharts::QChart *chart = dynamic_cast<QtCharts::QChart *>(it)) {
+                if (QChart *chart = dynamic_cast<QChart *>(it)) {
                     // Customize chart background
                     QLinearGradient backgroundGradient;
                     double maxWatt = wattMaxChart();
@@ -283,7 +283,7 @@ class homeform : public QObject {
         if (QGraphicsScene *scene = item->findChild<QGraphicsScene *>()) {
             auto items_list = scene->items();
             for (QGraphicsItem *it : qAsConst(items_list)) {
-                if (QtCharts::QChart *chart = dynamic_cast<QtCharts::QChart *>(it)) {
+                if (QChart *chart = dynamic_cast<QChart *>(it)) {
                     // Customize chart background
                     QLinearGradient backgroundGradient;
                     QSettings settings;
@@ -343,7 +343,7 @@ class homeform : public QObject {
         }
     }
 
-    Q_INVOKABLE void update_axes(QtCharts::QAbstractAxis *axisX, QtCharts::QAbstractAxis *axisY) {
+    Q_INVOKABLE void update_axes(QAbstractAxis *axisX, QAbstractAxis *axisY) {
         if (axisX && axisY) {
             // Customize axis colors
             QPen axisPen(QRgb(0xd18952));

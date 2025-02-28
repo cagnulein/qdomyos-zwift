@@ -52,7 +52,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             services << ((QBluetoothUuid::ServiceClassUuid)0x1826);
         }
         if (!this->noHeartService || heart_only) {
-            services << QBluetoothUuid::HeartRate;
+            services << QBluetoothUuid::ServiceClassUuid::HeartRate;
         }
 
         services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
@@ -152,7 +152,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             charDataHR.addDescriptor(clientConfigHR);
 
             serviceDataHR.setType(QLowEnergyServiceData::ServiceTypePrimary);
-            serviceDataHR.setUuid(QBluetoothUuid::HeartRate);
+            serviceDataHR.setUuid(QBluetoothUuid::ServiceClassUuid::HeartRate);
             serviceDataHR.addCharacteristic(charDataHR);
         }
 

@@ -198,7 +198,7 @@ bool nordictrackifitadbbike::inclinationAvailableByHardware() {
 }
 
 double nordictrackifitadbbike::getDouble(QString v) {
-    QChar d = QLocale().decimalPoint();
+    QString d = QLocale().decimalPoint();
     if (d == ',') {
         v = v.replace('.', ',');
     }

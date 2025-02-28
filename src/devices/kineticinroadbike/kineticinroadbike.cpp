@@ -337,10 +337,10 @@ void kineticinroadbike::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
 
-        if (gattCommunicationChannelService->state() == QLowEnergyService::ServiceDiscovered) {
+        if (gattCommunicationChannelService->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             auto characteristics_list = gattCommunicationChannelService->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {

@@ -270,7 +270,7 @@ void trxappgateusbelliptical::stateChanged(QLowEnergyService::ServiceState state
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
 
         QString uuidWrite = QStringLiteral("0000fff2-0000-1000-8000-00805f9b34fb");

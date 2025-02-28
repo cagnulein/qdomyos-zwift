@@ -267,7 +267,7 @@ void truetreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattNotifyCharacteristicId(QStringLiteral("a026e01d-0a7d-4ab3-97fa-f1500f9feb8b"));
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
 
         // qDebug() << gattCommunicationChannelService->characteristics();
 

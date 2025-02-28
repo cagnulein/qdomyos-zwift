@@ -324,7 +324,7 @@ void paferstreadmill::btinit(bool startTape) {
 void paferstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("72d70002-501f-46f7-95f9-23846ee1aba3"));
         QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("72d70003-501f-46f7-95f9-23846ee1aba3"));
 

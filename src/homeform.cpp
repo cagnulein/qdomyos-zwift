@@ -5275,8 +5275,8 @@ void homeform::update() {
                                    (bluetoothManager->device()->elapsedTime().hour() * 3600);
                 if ((seconds / 60) <
                     settings.value(QZSettings::trainprogram_total, QZSettings::default_trainprogram_total).toUInt()) {
-                    qDebug() << QStringLiteral("trainprogram random seconds ") + QString::number(seconds) +
-                                    QStringLiteral(" last_change ") + last_seconds + QStringLiteral(" period ") +
+                    qDebug() << QStringLiteral("trainprogram random seconds ") << QString::number(seconds) <<
+                                    QStringLiteral(" last_change ") << last_seconds << QStringLiteral(" period ") <<
                                     settings
                                         .value(QZSettings::trainprogram_period_seconds,
                                                QZSettings::default_trainprogram_period_seconds)
@@ -6367,14 +6367,13 @@ QStringList homeform::metrics() { return bluetoothdevice::metrics(); }
 
 QAbstractOAuth::ModifyParametersFunction
 homeform::buildModifyParametersFunction(const QUrl &clientIdentifier, const QUrl &clientIdentifierSharedKey) {
-    return [clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
+    return [clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QMultiMap<QString, QVariant> *parameters) {
         if (stage == QAbstractOAuth::Stage::RequestingAuthorization) {
-            parameters->insert(QStringLiteral("responseType"), QStringLiteral("code")); /* Request refresh token*/
-            parameters->insert(QStringLiteral("approval_prompt"),
-                               QStringLiteral("force")); /* force user check scope again */
+            parameters->insert(QStringLiteral("responseType"), QStringLiteral("code"));
+            parameters->insert(QStringLiteral("approval_prompt"), QStringLiteral("force"));
             QByteArray code = parameters->value(QStringLiteral("code")).toByteArray();
-            // DON'T TOUCH THIS LINE, THANKS Roberto Viola
-            (*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code); // NOTE: Old code replaced by
+            parameters->remove(QStringLiteral("code"));
+            parameters->insert(QStringLiteral("code"), QUrl::fromPercentEncoding(code));
         }
         if (stage == QAbstractOAuth::Stage::RefreshingAccessToken) {
             parameters->insert(QStringLiteral("client_id"), clientIdentifier);

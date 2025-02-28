@@ -67,8 +67,8 @@ void kingsmithr1protreadmill::writeCharacteristic(uint8_t *data, uint8_t data_le
                                                              QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
-                   QStringLiteral(" // ") + info + " " + gattWriteCharacteristic.properties());
+        qDebug() << QStringLiteral(" >> ") << writeBuffer->toHex(' ') <<
+                   QStringLiteral(" // ") << info << " " << gattWriteCharacteristic.properties());
     }
 
     loop.exec();
@@ -435,7 +435,7 @@ void kingsmithr1protreadmill::stateChanged(QLowEnergyService::ServiceState state
     QBluetoothUuid _gattNotifyCharacteristicId((quint16)0xFE01);
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
 
         // qDebug() << gattCommunicationChannelService->characteristics();
 

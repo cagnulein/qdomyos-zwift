@@ -343,7 +343,7 @@ void snodebike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 }
 
 void snodebike::stateChanged(QLowEnergyService::ServiceState state) {
-    if (state != QLowEnergyService::ServiceDiscovered) {
+    if (state != QLowEnergyService::RemoteServiceDiscovered) {
         return;
     }
 

@@ -13,8 +13,10 @@
 #include "windows_zwift_incline_paddleocr_thread.h"
 #include "windows_zwift_workout_paddleocr_thread.h"
 #endif
+#ifdef PROTOBUF
 #ifdef Q_CC_MSVC
 #include "zwift-api/zwift_messages.pb.h"
+#endif
 #endif
 #include "localipaddress.h"
 
@@ -33,10 +35,12 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
     if (tags)
         this->tags = *tags;
     
+#ifdef PROTOBUF
     if(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0) {
         zwift_auth_token = new AuthToken(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString(), settings.value(QZSettings::zwift_password, QZSettings::default_zwift_password).toString());
         zwift_auth_token->getAccessToken();
     }
+#endif
 
     /*
     int c = 0;
@@ -604,6 +608,7 @@ void trainprogram::scheduler() {
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
         
+        #ifdef PROTOBUF
         if(bluetoothManager->device() && (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) &&
            settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 && zwift_auth_token &&
            zwift_auth_token->access_token.length() > 0) {
@@ -720,6 +725,7 @@ void trainprogram::scheduler() {
                 }
             }
         }
+#endif
 
         // in case no workout has been selected
         // Zwift OCR

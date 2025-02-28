@@ -310,8 +310,8 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-    QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::CyclingSpeedAndCadence);
-    QBluetoothUuid Battery(QBluetoothUuid::BatteryService);
+    QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence);
+    QBluetoothUuid Battery(QBluetoothUuid::ServiceClassUuid::BatteryService);
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
 #ifdef Q_OS_WINDOWS
@@ -320,7 +320,7 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
         if (s->serviceUuid() == CyclingSpeedAndCadence)
 #endif
         {
-            if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+            if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
                 qDebug() << QStringLiteral("not all services discovered");
                 return;
             }
@@ -330,7 +330,7 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
 
             if(s->serviceUuid() == CyclingSpeedAndCadence) {
                 qDebug() << "CyclingSpeedAndCadence found";
@@ -475,7 +475,7 @@ void cscbike::serviceScanDone(void) {
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
 #ifdef Q_OS_WINDOWS
-        QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::CyclingSpeedAndCadence);
+        QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence);
         qDebug() << "windows workaround, check only the CyclingSpeedAndCadence service" << s << CyclingSpeedAndCadence
                  << (s == CyclingSpeedAndCadence);
         if (s == CyclingSpeedAndCadence)
