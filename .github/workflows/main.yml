@@ -791,7 +791,7 @@ jobs:
         with:
           version: '6.8.2'
           host: 'windows'
-          modules: 'qtnetworkauth qtcharts qtbluetooth qtpositioning qtwebsockets qttexttospeech qtlocation qtmultimedia qtmultimediawidgets'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia'
           target: "desktop"
           arch: win64_msvc2022_64
           dir: "${{github.workspace}}/qt/"
