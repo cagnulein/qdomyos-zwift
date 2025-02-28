@@ -119,16 +119,16 @@ void lifefitnesstreadmill::btinit() {
     QLowEnergyCharacteristic gattCrossTrainerData = gattFTMSService->characteristic(_gattCrossTrainerDataId);
     descriptor.append((char)0x01);
     descriptor.append((char)0x00);
-    gattFTMSService->writeDescriptor(gattTrainingStatus.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
+    gattFTMSService->writeDescriptor(gattTrainingStatus.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration),
                                      descriptor);
     if (gattTreadmillData.isValid()) {
         gattFTMSService->writeDescriptor(
-            gattTreadmillData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattTreadmillData.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
         gattFTMSService->writeDescriptor(
-            gattTreadmillData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattTreadmillData.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     } else if (gattCrossTrainerData.isValid()) {
         gattFTMSService->writeDescriptor(
-            gattCrossTrainerData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattCrossTrainerData.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     }
 
     initDone = true;
@@ -653,7 +653,7 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &lifefitnesstreadmill::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &lifefitnesstreadmill::characteristicRead);
             connect(
-                s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                s, &QLowEnergyService::error,
                 this, &lifefitnesstreadmill::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &lifefitnesstreadmill::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &lifefitnesstreadmill::descriptorRead);

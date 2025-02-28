@@ -414,7 +414,7 @@ void smartspin2k::stateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x02);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
-            gattWriteCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattWriteCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     }
 }
 

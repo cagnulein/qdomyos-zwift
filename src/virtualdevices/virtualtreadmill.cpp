@@ -119,7 +119,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         wahooNotifyChar.setProperties(QLowEnergyCharacteristic::Read |
                                     QLowEnergyCharacteristic::WriteNoResponse |
                                     QLowEnergyCharacteristic::Notify);
-        const QLowEnergyDescriptorData wahooNotifyConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+        const QLowEnergyDescriptorData wahooNotifyConfig(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                         QByteArray(2, 0));
         wahooNotifyChar.addDescriptor(wahooNotifyConfig);
 
@@ -128,7 +128,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         wahooWriteChar.setUuid(QBluetoothUuid(QString("A026E03E-0A7D-4AB3-97FA-F1500F9FEB8B")));
         wahooWriteChar.setProperties(QLowEnergyCharacteristic::WriteNoResponse |
                                    QLowEnergyCharacteristic::Indicate);
-        const QLowEnergyDescriptorData wahooWriteConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+        const QLowEnergyDescriptorData wahooWriteConfig(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                        QByteArray(2, 0));
         wahooWriteChar.addDescriptor(wahooWriteConfig);
 
@@ -151,7 +151,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             charData.setValue(value);
             charData.setProperties(QLowEnergyCharacteristic::Read);
 
-            /*    const QLowEnergyDescriptorData clientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+            /*    const QLowEnergyDescriptorData clientConfig(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                QByteArray(2, 0));
            charData.addDescriptor(clientConfig);*/
 
@@ -162,7 +162,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                    QByteArray descriptor;
                    descriptor.append((char)0x01);
                    descriptor.append((char)0x00);
-                   const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration,
+                   const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                 descriptor);
                    charData2.addDescriptor(clientConfig2);
                }
@@ -170,7 +170,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                QLowEnergyCharacteristicData charData3;
                charData3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
                charData3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
-               const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+               const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                              QByteArray(2, 0));
                charData3.addDescriptor(cpClientConfig);
 
@@ -180,7 +180,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                QByteArray descriptor5;
                descriptor5.append((char)0x01);
                descriptor5.append((char)0x00);
-               const QLowEnergyDescriptorData clientConfig5(QBluetoothUuid::ClientCharacteristicConfiguration,
+               const QLowEnergyDescriptorData clientConfig5(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                             descriptor5);
                charDataFIT5.addDescriptor(clientConfig5);
 
@@ -194,7 +194,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                QByteArray descriptor6;
                descriptor6.append((char)0x01);
                descriptor6.append((char)0x00);
-               const QLowEnergyDescriptorData clientConfig6(QBluetoothUuid::ClientCharacteristicConfiguration,
+               const QLowEnergyDescriptorData clientConfig6(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                             descriptor6);
                charDataFIT6.addDescriptor(clientConfig6);
                charDataFIT6.setProperties(QLowEnergyCharacteristic::Read);
@@ -206,7 +206,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                QByteArray descriptor7;
                descriptor7.append((char)0x01);
                descriptor7.append((char)0x00);
-               const QLowEnergyDescriptorData clientConfig7(QBluetoothUuid::ClientCharacteristicConfiguration,
+               const QLowEnergyDescriptorData clientConfig7(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                             descriptor7);
                charDataFIT7.addDescriptor(clientConfig7);
 
@@ -270,7 +270,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         QByteArray descriptor33;
         descriptor33.append((char)0x02);
         descriptor33.append((char)0x00);
-        const QLowEnergyDescriptorData clientConfig43(QBluetoothUuid::ClientCharacteristicConfiguration,
+        const QLowEnergyDescriptorData clientConfig43(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                         descriptor33);
         charDataFIT3.addDescriptor(clientConfig43);
 
@@ -293,7 +293,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                QByteArray valueLocaltion;
                valueLocaltion.append((char)1); // Top of shoe
                charData2.setValue(valueLocaltion);
-               /*const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration,
+               /*const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                            QByteArray(2, 0));
                charData2.addDescriptor(clientConfig2);*/
 
@@ -304,13 +304,13 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                QByteArray descriptor;
                descriptor.append((char)0x01);
                descriptor.append((char)0x00);
-               const QLowEnergyDescriptorData clientConfig4(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
+               const QLowEnergyDescriptorData clientConfig4(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration, descriptor);
                charData3.addDescriptor(clientConfig4);
 
                QLowEnergyCharacteristicData charData4;
                charData4.setUuid(QBluetoothUuid::CharacteristicType::SCControlPoint);
                charData4.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
-               const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+               const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                              QByteArray(2, 0));
                charData4.addDescriptor(cpClientConfig);
 
@@ -328,7 +328,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                charDataHR.setUuid(QBluetoothUuid::HeartRateMeasurement);
                charDataHR.setValue(QByteArray(2, 0));
                charDataHR.setProperties(QLowEnergyCharacteristic::Notify);
-                const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::ClientCharacteristicConfiguration,
+                const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                               QByteArray(2, 0));
                 charDataHR.addDescriptor(clientConfigHR);
 

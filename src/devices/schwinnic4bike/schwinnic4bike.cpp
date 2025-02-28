@@ -404,7 +404,7 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
     // m_control->d_ptr->writeDescriptor(qzService, 0x30, 0x31, descriptor);
 
     gattCommunicationChannelService->writeDescriptor(
-        gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        gattNotify1Characteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
 
     connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
             &schwinnic4bike::characteristicChanged);

@@ -157,7 +157,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     QByteArray descriptor9;
                     descriptor9.append((char)0x03);
                     descriptor9.append((char)0x00);
-                    const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+                    const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                   descriptor9);
                     charDataFIT3.addDescriptor(cpClientConfig);
 
@@ -167,7 +167,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
-                    const QLowEnergyDescriptorData clientConfig4(QBluetoothUuid::ClientCharacteristicConfiguration,
+                    const QLowEnergyDescriptorData clientConfig4(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                  descriptor);
                     charDataFIT4.addDescriptor(clientConfig4);
 
@@ -177,7 +177,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     QByteArray descriptor5;
                     descriptor5.append((char)0x01);
                     descriptor5.append((char)0x00);
-                    const QLowEnergyDescriptorData clientConfig5(QBluetoothUuid::ClientCharacteristicConfiguration,
+                    const QLowEnergyDescriptorData clientConfig5(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                  descriptor5);
                     charDataFIT5.addDescriptor(clientConfig5);
 
@@ -191,7 +191,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     QByteArray descriptor6;
                     descriptor6.append((char)0x01);
                     descriptor6.append((char)0x00);
-                    const QLowEnergyDescriptorData clientConfig6(QBluetoothUuid::ClientCharacteristicConfiguration,
+                    const QLowEnergyDescriptorData clientConfig6(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                  descriptor6);
                     charDataFIT6.addDescriptor(clientConfig6);
                     charDataFIT6.setProperties(QLowEnergyCharacteristic::Read);
@@ -212,7 +212,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                         QLowEnergyCharacteristicData charData2;
                         charData2.setUuid(QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")));
                         charData2.setProperties(QLowEnergyCharacteristic::Notify);
-                        const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
+                        const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration, descriptor);
                         charData2.addDescriptor(clientConfig2);
 
                         QLowEnergyCharacteristicData charData3;
@@ -221,7 +221,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                         QByteArray descriptorIndicate;
                         descriptorIndicate.append((char)0x02);
                         descriptorIndicate.append((char)0x00);
-                        const QLowEnergyDescriptorData clientConfig3(QBluetoothUuid::ClientCharacteristicConfiguration, descriptorIndicate);
+                        const QLowEnergyDescriptorData clientConfig3(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration, descriptorIndicate);
                         charData3.addDescriptor(clientConfig3);
 
                         serviceDataZwiftPlayBike.setType(QLowEnergyServiceData::ServiceTypePrimary);
@@ -237,7 +237,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                         QLowEnergyCharacteristicData charData2;
                         charData2.setUuid(QBluetoothUuid(QStringLiteral("b4cc1224-bc02-4cae-adb9-1217ad2860d1")));
                         charData2.setProperties(QLowEnergyCharacteristic::Notify);
-                        const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
+                        const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration, descriptor);
 
                         charData2.addDescriptor(clientConfig2);
 
@@ -264,7 +264,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     QByteArray valueLocaltion;
                     valueLocaltion.append((char)13); // rear hub
                     charData2.setValue(valueLocaltion);
-                    /*const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration,
+                    /*const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                         QByteArray(2, 0));
             charData2.addDescriptor(clientConfig2);*/
 
@@ -274,7 +274,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
-                    const QLowEnergyDescriptorData clientConfig4(QBluetoothUuid::ClientCharacteristicConfiguration,
+                    const QLowEnergyDescriptorData clientConfig4(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                  descriptor);
                     charData3.addDescriptor(clientConfig4);
 
@@ -303,7 +303,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     QByteArray valueLocaltion;
                     valueLocaltion.append((char)13); // rear hub
                     charData2.setValue(valueLocaltion);
-                    /*const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration,
+                    /*const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                         QByteArray(2, 0));
             charData2.addDescriptor(clientConfig2);*/
 
@@ -313,14 +313,14 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
-                    const QLowEnergyDescriptorData clientConfig4(QBluetoothUuid::ClientCharacteristicConfiguration,
+                    const QLowEnergyDescriptorData clientConfig4(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                  descriptor);
                     charData3.addDescriptor(clientConfig4);
 
                     QLowEnergyCharacteristicData charData4;
                     charData4.setUuid(QBluetoothUuid::CharacteristicType::SCControlPoint);
                     charData4.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
-                    const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+                    const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                   QByteArray(2, 0));
                     charData4.addDescriptor(cpClientConfig);
 
@@ -343,7 +343,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             QByteArray descriptor;
             descriptor.append((char)0x01);
             descriptor.append((char)0x00);
-            const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
+            const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration, descriptor);
 
             charData2.addDescriptor(clientConfig2);
 
@@ -366,7 +366,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             QByteArray descriptor;
             descriptor.append((char)0x01);
             descriptor.append((char)0x00);
-            const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
+            const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration, descriptor);
 
             charData2.addDescriptor(clientConfig2);
 
@@ -376,7 +376,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             QByteArray descriptor3;
             descriptor3.append((char)0x01);
             descriptor3.append((char)0x00);
-            const QLowEnergyDescriptorData clientConfig4(QBluetoothUuid::ClientCharacteristicConfiguration,
+            const QLowEnergyDescriptorData clientConfig4(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                          descriptor3);
             charData3.addDescriptor(clientConfig4);
 
@@ -393,7 +393,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             charDataBattery.setUuid(QBluetoothUuid::BatteryLevel);
             charDataBattery.setValue(QByteArray(2, 0));
             charDataBattery.setProperties(QLowEnergyCharacteristic::Notify);
-            const QLowEnergyDescriptorData clientConfigBattery(QBluetoothUuid::ClientCharacteristicConfiguration,
+            const QLowEnergyDescriptorData clientConfigBattery(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                QByteArray(2, 0));
             charDataBattery.addDescriptor(clientConfigBattery);
 
@@ -408,7 +408,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             charDataHR.setUuid(QBluetoothUuid::HeartRateMeasurement);
             charDataHR.setValue(QByteArray(2, 0));
             charDataHR.setProperties(QLowEnergyCharacteristic::Notify);
-            const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::ClientCharacteristicConfiguration,
+            const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                           QByteArray(2, 0));
             charDataHR.addDescriptor(clientConfigHR);
 
@@ -422,7 +422,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             QLowEnergyCharacteristicData charData;
             charData.setUuid(QBluetoothUuid::CharacteristicType::ServiceChanged);
             charData.setProperties(QLowEnergyCharacteristic::Indicate);
-            const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+            const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                           QByteArray(2, 0));
             charData.addDescriptor(cpClientConfig);
 

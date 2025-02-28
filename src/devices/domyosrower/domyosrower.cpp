@@ -754,7 +754,7 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
             connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                     &domyosrower::characteristicWritten);
             connect(gattCommunicationChannelService,
-                    static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                    &QLowEnergyService::error,
                     this, &domyosrower::errorService);
             connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                     &domyosrower::descriptorWritten);
@@ -763,7 +763,7 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
             descriptor.append((char)0x01);
             descriptor.append((char)0x00);
             gattCommunicationChannelService->writeDescriptor(
-                gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                gattNotifyCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
         }
     } else {
         QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
@@ -788,7 +788,7 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
                 connect(s, &QLowEnergyService::characteristicWritten, this, &domyosrower::characteristicWritten);
                 connect(s, &QLowEnergyService::characteristicRead, this, &domyosrower::characteristicRead);
                 connect(
-                    s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                    s, &QLowEnergyService::error,
                     this, &domyosrower::errorService);
                 connect(s, &QLowEnergyService::descriptorWritten, this, &domyosrower::descriptorWritten);
                 connect(s, &QLowEnergyService::descriptorRead, this, &domyosrower::descriptorRead);
@@ -808,12 +808,12 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
                         QByteArray descriptor;
                         descriptor.append((char)0x01);
                         descriptor.append((char)0x00);
-                        if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                            s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                        if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid()) {
+                            s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
                         } else {
                             qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                     << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                     << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                     << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
+                                     << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).handle()
                                      << QStringLiteral(" is not valid");
                         }
 
@@ -823,12 +823,12 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
                         QByteArray descriptor;
                         descriptor.append((char)0x02);
                         descriptor.append((char)0x00);
-                        if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                            s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                        if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid()) {
+                            s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
                         } else {
                             qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                     << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                     << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                     << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
+                                     << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).handle()
                                      << QStringLiteral(" is not valid");
                         }
 
