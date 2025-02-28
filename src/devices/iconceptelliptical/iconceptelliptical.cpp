@@ -81,8 +81,9 @@ void iconceptelliptical::serviceDiscovered(const QBluetoothServiceInfo &service)
             connect(socket, &QBluetoothSocket::readyRead, this, &iconceptelliptical::readSocket);
             connect(socket, &QBluetoothSocket::connected, this, QOverload<>::of(&iconceptelliptical::rfCommConnected));
             connect(socket, &QBluetoothSocket::disconnected, this, &iconceptelliptical::disconnected);
-            connect(socket, &QBluetoothSocket::error, this,
-                    &iconceptelliptical::onSocketErrorOccurred);
+            connect(socket,
+                    QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::errorOccurred),
+                    this, &iconceptelliptical::onSocketErrorOccurred);
         }
     }
 }

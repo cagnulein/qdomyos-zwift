@@ -64,8 +64,9 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service) {
             connect(socket, &QBluetoothSocket::readyRead, this, &toorxtreadmill::readSocket);
             connect(socket, &QBluetoothSocket::connected, this, QOverload<>::of(&toorxtreadmill::rfCommConnected));
             connect(socket, &QBluetoothSocket::disconnected, this, &toorxtreadmill::disconnected);
-            connect(socket, &QBluetoothSocket::error, this,
-                    &toorxtreadmill::onSocketErrorOccurred);
+            connect(socket,
+                    QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::errorOccurred),
+                    this, &toorxtreadmill::onSocketErrorOccurred);
 
 #ifdef Q_OS_ANDROID
             socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);

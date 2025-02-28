@@ -53,8 +53,9 @@ void technogymmyruntreadmillrfcomm::serviceFinished(void) {
         connect(socket, &QBluetoothSocket::connected, this,
                 QOverload<>::of(&technogymmyruntreadmillrfcomm::rfCommConnected));
         connect(socket, &QBluetoothSocket::disconnected, this, &technogymmyruntreadmillrfcomm::disconnected);
-        connect(socket, &QBluetoothSocket::error, this,
-                &technogymmyruntreadmillrfcomm::onSocketErrorOccurred);
+        connect(socket,
+                QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::errorOccurred),
+                this, &technogymmyruntreadmillrfcomm::onSocketErrorOccurred);
 
 #ifdef Q_OS_ANDROID
         socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
