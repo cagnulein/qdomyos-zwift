@@ -5443,7 +5443,8 @@ void homeform::update() {
                 delta = trainProgram->currentRow().loopTimeHR;
             }
 
-            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL && 
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL &&
+                !settings.value(QZSettings::trainprogram_pid_ignore_inclination, QZSettings::default_trainprogram_pid_ignore_inclination).toBool() &&
                 bluetoothManager->device()->currentInclination().value() != lastInclination && lastWattage != 0) {
                 last_seconds_pid_heart_zone = seconds;
 

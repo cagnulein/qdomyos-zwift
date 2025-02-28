@@ -1114,6 +1114,9 @@ import Qt.labs.platform 1.1
             property bool proform_xbike: false            
             property bool proform_225_csx_PFEX32925_INT_0: false
             property string peloton_current_user_id: ""
+
+            // 2.18.22
+            property bool trainprogram_pid_ignore_inclination: false
         }
 
         function paddingZeros(text, limit) {
@@ -5556,6 +5559,33 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("PID Ignore Inclination")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.trainprogram_pid_ignore_inclination
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.trainprogram_pid_ignore_inclination = checked
+                    }
+
+                    Label {
+                        text: qsTr("Enabling this the PID will ignore the inclination changes. Default: Disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
