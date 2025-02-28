@@ -306,7 +306,7 @@ void ftmsbike::update() {
         bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
         if (requestResistance != -1 || lastGearValue != gears()) {
-            if (requestResistance > 100) {
+            if (requestResistance > 100 && !DIRETO_XR) {    // Direto XR has different resistance levels, i'm still figuring them out
                 requestResistance = 100;
             } // TODO, use the bluetooth value
             else if (requestResistance == 0) {
