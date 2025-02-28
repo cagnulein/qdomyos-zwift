@@ -789,11 +789,11 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '5.15.2'
+          version: '6.8.2'
           host: 'windows'
           modules: 'qtnetworkauth qtcharts'
           target: "desktop"
-          arch: win64_msvc2019_64
+          arch: win64_msvc2022_64
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
           cache: 'true'
@@ -803,20 +803,20 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with: 
           # 14.1 is for vs2017, 14.2 is vs2019, following the upstream vcpkg build from Qv2ray-deps repo
-          toolset: 14.2
+          #toolset: 14.2
           arch: x64
 
-      - name: download 3rd party files for qthttpserver
-        run: |
-            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+      # - name: download 3rd party files for qthttpserver
+      #   run: |
+      #       cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
-      - name: Build qthttpserver
-        run: |
-            cd src\qthttpserver 
-            qmake
-            nmake
-            nmake install
-            cd ../..          
+      # - name: Build qthttpserver
+      #   run: |
+      #       cd src\qthttpserver 
+      #       qmake
+      #       nmake
+      #       nmake install
+      #       cd ../..          
 
       - name: Secrets
         if: github.ref == 'refs/heads/master'
