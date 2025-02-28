@@ -852,16 +852,16 @@ jobs:
             "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
           }' > vcpkg.json
       
-      # - name: Install dependencies
-      #   run: |
-      #     .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=D:\a\qdomyos-zwift\vcpkg\installed
-      #   working-directory: ${{ runner.workspace }}
+      - name: Install dependencies
+        run: |
+           .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=D:\a\qdomyos-zwift\vcpkg\installed
+           working-directory: ${{ runner.workspace }}
   
       - name: Build
         run: |
-            #Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            #Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
-            #Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             qmake            
             nmake
             cd src/debug
