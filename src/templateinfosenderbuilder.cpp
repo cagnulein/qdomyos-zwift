@@ -265,7 +265,8 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue &val, TemplateInf
                 outObj.insert(key, 1);
                 QRegularExpression regex(key.mid(1));
                 for (auto &keypresent : settings.allKeys()) {
-                    if (regex.indexIn(keypresent) >= 0) {
+                    QRegularExpressionMatch match = regex.match(keypresent);
+                    if (match.hasMatch()) {
                         outObj.insert(keypresent, QJsonValue::fromVariant(settings.value(keypresent)));
                     }
                 }

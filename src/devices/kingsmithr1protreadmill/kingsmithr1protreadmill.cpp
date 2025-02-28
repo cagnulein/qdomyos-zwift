@@ -68,7 +68,7 @@ void kingsmithr1protreadmill::writeCharacteristic(uint8_t *data, uint8_t data_le
 
     if (!disable_log) {
         qDebug() << QStringLiteral(" >> ") << writeBuffer->toHex(' ') <<
-                   QStringLiteral(" // ") << info << " " << gattWriteCharacteristic.properties());
+                   QStringLiteral(" // ") << info << " " << gattWriteCharacteristic.properties();
     }
 
     loop.exec();

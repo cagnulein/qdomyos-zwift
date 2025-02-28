@@ -34,14 +34,14 @@ class charts : public QDialog {
     Ui::charts *ui;
     MainWindow *parent = nullptr;
 
-    QtCharts::QChart *chart = nullptr;
-    QtCharts::QChartView *chart_view = nullptr;
-    QtCharts::QLineSeries *chart_series_speed = nullptr;
-    QtCharts::QLineSeries *chart_series_inclination = nullptr;
-    QtCharts::QLineSeries *chart_series_heart = nullptr;
-    QtCharts::QLineSeries *chart_series_watt = nullptr;
-    QtCharts::QLineSeries *chart_series_resistance = nullptr;
-    QtCharts::QLineSeries *chart_series_pace = nullptr;
+    QChart *chart = nullptr;
+    QChartView *chart_view = nullptr;
+    QLineSeries *chart_series_speed = nullptr;
+    QLineSeries *chart_series_inclination = nullptr;
+    QLineSeries *chart_series_heart = nullptr;
+    QLineSeries *chart_series_watt = nullptr;
+    QLineSeries *chart_series_resistance = nullptr;
+    QLineSeries *chart_series_pace = nullptr;
 };
 
 #endif // CHARTS_H

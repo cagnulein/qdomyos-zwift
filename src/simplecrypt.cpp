@@ -25,6 +25,9 @@ conditions are met:
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             */
+#include <QtCore/QIODevice>
+#include <QtCore/QDataStream>
+#include <QtCore/QRandomGenerator>
 #include "simplecrypt.h"
 #include <QByteArray>
 #include <QCryptographicHash>
@@ -35,12 +38,12 @@ conditions are met:
 
 SimpleCrypt::SimpleCrypt()
     : m_key(0), m_compressionMode(CompressionAuto), m_protectionMode(ProtectionChecksum), m_lastError(ErrorNoError) {
-    qsrand(uint(QDateTime::currentMSecsSinceEpoch() & 0xFFFF));
+    QRandomGenerator::global()->generate();
 }
 
 SimpleCrypt::SimpleCrypt(quint64 key)
     : m_key(key), m_compressionMode(CompressionAuto), m_protectionMode(ProtectionChecksum), m_lastError(ErrorNoError) {
-    qsrand(uint(QDateTime::currentMSecsSinceEpoch() & 0xFFFF));
+    QRandomGenerator::global()->generate();
     splitKey();
 }
 
@@ -101,7 +104,7 @@ QByteArray SimpleCrypt::encryptToByteArray(QByteArray plaintext) {
     }
 
     // prepend a random char to the string
-    char randomChar = char(qrand() & 0xFF);
+    char randomChar = char(QRandomGenerator::global()->generate() & 0xFF);
     ba = randomChar + integrityProtection + ba;
 
     int pos(0);

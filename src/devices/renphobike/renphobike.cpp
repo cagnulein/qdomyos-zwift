@@ -429,9 +429,9 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
             }
 
             foreach (QLowEnergyCharacteristic c, s->characteristics()) {
-                qDebug() << "char uuid" << c.uuid() << "handle" << c.handle();
+                qDebug() << "char uuid" << c.uuid();
                 foreach (QLowEnergyDescriptor d, c.descriptors())
-                    qDebug() << "descriptor uuid" << d.uuid() << "handle" << d.handle();
+                    qDebug() << "descriptor uuid" << d.uuid();
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
                     QByteArray descriptor;

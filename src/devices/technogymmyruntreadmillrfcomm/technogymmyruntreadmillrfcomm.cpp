@@ -53,7 +53,7 @@ void technogymmyruntreadmillrfcomm::serviceFinished(void) {
         connect(socket, &QBluetoothSocket::connected, this,
                 QOverload<>::of(&technogymmyruntreadmillrfcomm::rfCommConnected));
         connect(socket, &QBluetoothSocket::disconnected, this, &technogymmyruntreadmillrfcomm::disconnected);
-        connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
+        connect(socket, &QBluetoothSocket::error, this,
                 &technogymmyruntreadmillrfcomm::onSocketErrorOccurred);
 
 #ifdef Q_OS_ANDROID
@@ -63,7 +63,7 @@ void technogymmyruntreadmillrfcomm::serviceFinished(void) {
         emit debug(QStringLiteral("Create socket"));
         if(!found) {
             qDebug() << QStringLiteral("technogymmyruntreadmillrfcomm::serviceFinished, no service found, trying workaround");
-            socket->connectToService(bluetoothDevice.address(), QBluetoothUuid(QBluetoothUuid::SerialPort));
+            socket->connectToService(bluetoothDevice.address(), QBluetoothUuid(QBluetoothUuid::ServiceClassUuid::SerialPort));
         } else {
             socket->connectToService(serialPortService);
         }
@@ -229,5 +229,5 @@ void technogymmyruntreadmillrfcomm::readSocket() {
 }
 
 void technogymmyruntreadmillrfcomm::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
-    emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
+    qDebug() << QStringLiteral("onSocketErrorOccurred ") << error;
 }

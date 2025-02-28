@@ -362,7 +362,7 @@ uint16_t iconceptbike::GetElapsedTimeFromPacket(const QByteArray &packet) {
 }
 
 void iconceptbike::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
-    emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
+    qDebug() << QStringLiteral("onSocketErrorOccurred ") << error;
 }
 
 uint16_t iconceptbike::watts() {

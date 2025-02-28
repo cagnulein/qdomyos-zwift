@@ -102,12 +102,12 @@ void soleelliptical::forceInclination(uint8_t inclination) {
     uint8_t writeDown[] = {0x5b, 0x02, 0xf1, 0x05, 0x5d};
 
     if (currentInclination().value() < inclination) {
-        writeCharacteristic(write, sizeof(write), QStringLiteral("forceInclination ") + inclination, false, true);
-        writeCharacteristic(writeUp, sizeof(writeUp), QStringLiteral("forceInclination ") + inclination, false, true);
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceInclination ") + QString::number(inclination), false, true);
+        writeCharacteristic(writeUp, sizeof(writeUp), QStringLiteral("forceInclination ") + QString::number(inclination), false, true);
     } else if (currentInclination().value() > inclination) {
-        writeCharacteristic(writeDown, sizeof(writeDown), QStringLiteral("forceInclination ") + inclination, false,
+        writeCharacteristic(writeDown, sizeof(writeDown), QStringLiteral("forceInclination ") + QString::number(inclination), false,
                             true);
-        writeCharacteristic(write, sizeof(write), QStringLiteral("forceInclination ") + inclination, false, true);
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceInclination ") + QString::number(inclination), false, true);
     }
 }
 

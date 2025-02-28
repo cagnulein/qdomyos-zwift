@@ -104,7 +104,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
         // Create Device Information Service        
         serviceDataDIS.setType(QLowEnergyServiceData::ServiceTypePrimary);
-        serviceDataDIS.setUuid(QBluetoothUuid::DeviceInformation);
+        serviceDataDIS.setUuid(QBluetoothUuid::ServiceClassUuid::DeviceInformation);
         serviceDataDIS.addCharacteristic(manufacturerNameChar);
         serviceDataDIS.addCharacteristic(firmwareRevChar);
         serviceDataDIS.addCharacteristic(hardwareRevChar);

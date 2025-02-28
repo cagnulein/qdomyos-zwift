@@ -951,7 +951,7 @@ void trxappgateusbbike::serviceScanDone(void) {
         bool found = false;
         foreach (QBluetoothUuid s, m_control->services()) {
 
-            if (s == QBluetoothUuid::fromString(uuid)) {
+            if (s == (QBluetoothUuid)QBluetoothUuid::fromString(uuid)) {
                 found = true;
                 break;
             }
@@ -965,7 +965,7 @@ void trxappgateusbbike::serviceScanDone(void) {
         bool found = false;
         foreach (QBluetoothUuid s, m_control->services()) {
 
-            if (s == QBluetoothUuid::fromString(uuid)) {
+            if (s == (QBluetoothUuid)QBluetoothUuid::fromString(uuid)) {
                 found = true;
                 break;
             }
@@ -979,7 +979,7 @@ void trxappgateusbbike::serviceScanDone(void) {
         bool found = false;
         foreach (QBluetoothUuid s, m_control->services()) {
 
-            if (s == QBluetoothUuid::fromString(uuid)) {
+            if (s == (QBluetoothUuid)QBluetoothUuid::fromString(uuid)) {
                 found = true;
                 break;
             }
@@ -993,7 +993,7 @@ void trxappgateusbbike::serviceScanDone(void) {
         bool found = false;
         foreach (QBluetoothUuid s, m_control->services()) {
 
-            if (s == QBluetoothUuid::fromString(uuid)) {
+            if (s == (QBluetoothUuid)QBluetoothUuid::fromString(uuid)) {
                 found = true;
                 break;
             }
@@ -1007,7 +1007,7 @@ void trxappgateusbbike::serviceScanDone(void) {
         bool found = false;
         foreach (QBluetoothUuid s, m_control->services()) {
 
-            if (s == QBluetoothUuid::fromString(uuid)) {
+            if (s == (QBluetoothUuid)QBluetoothUuid::fromString(uuid)) {
                 found = true;
                 break;
             }
@@ -1022,7 +1022,7 @@ void trxappgateusbbike::serviceScanDone(void) {
         bool found = false;
         foreach (QBluetoothUuid s, m_control->services()) {
 
-            if (s == QBluetoothUuid::fromString(uuid)) {
+            if (s == (QBluetoothUuid)QBluetoothUuid::fromString(uuid)) {
                 found = true;
                 break;
             }
@@ -1036,7 +1036,7 @@ void trxappgateusbbike::serviceScanDone(void) {
         bool found = false;
         foreach (QBluetoothUuid s, m_control->services()) {
 
-            if (s == QBluetoothUuid::fromString(uuid)) {
+            if (s == (QBluetoothUuid)QBluetoothUuid::fromString(uuid)) {
                 found = true;
                 break;
             }
@@ -1050,7 +1050,7 @@ void trxappgateusbbike::serviceScanDone(void) {
         bool found = false;
         foreach (QBluetoothUuid s, m_control->services()) {
 
-            if (s == QBluetoothUuid::fromString(uuid)) {
+            if (s == (QBluetoothUuid)QBluetoothUuid::fromString(uuid)) {
                 found = true;
                 break;
             }

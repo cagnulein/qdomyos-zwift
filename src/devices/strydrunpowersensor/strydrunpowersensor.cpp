@@ -322,7 +322,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         if (Flags.forceBelt) {
             // todo
         }
-    } else if (characteristic.uuid() == QBluetoothUuid::RSCMeasurement) {
+    } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::RSCMeasurement) {
         uint8_t flags = (uint8_t)newValue.at(0);
         bool InstantaneousStrideLengthPresent = (flags & 0x01);
         bool TotalDistancePresent = (flags & 0x02) ? true : false;
@@ -530,7 +530,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::descriptorWritten, this, &strydrunpowersensor::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &strydrunpowersensor::descriptorRead);
 
-            if(FORERUNNER && s->serviceUuid() != QBluetoothUuid::ServiceClassUuid::HeartRate && s->serviceUuid() != QBluetoothUuid::RunningSpeedAndCadence) {
+            if(FORERUNNER && s->serviceUuid() != QBluetoothUuid::ServiceClassUuid::HeartRate && s->serviceUuid() != QBluetoothUuid::ServiceClassUuid::RunningSpeedAndCadence) {
                 qDebug() << "skipping garmin services!" << s->serviceUuid();
                 continue;
             }

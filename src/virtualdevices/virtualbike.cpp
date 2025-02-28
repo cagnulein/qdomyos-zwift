@@ -390,7 +390,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         if (battery) {
 
             QLowEnergyCharacteristicData charDataBattery;
-            charDataBattery.setUuid(QBluetoothUuid::BatteryLevel);
+            charDataBattery.setUuid(QBluetoothUuid::CharacteristicType::BatteryLevel);
             charDataBattery.setValue(QByteArray(2, 0));
             charDataBattery.setProperties(QLowEnergyCharacteristic::Notify);
             const QLowEnergyDescriptorData clientConfigBattery(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
@@ -398,7 +398,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             charDataBattery.addDescriptor(clientConfigBattery);
 
             serviceDataBattery.setType(QLowEnergyServiceData::ServiceTypePrimary);
-            serviceDataBattery.setUuid(QBluetoothUuid::BatteryService);
+            serviceDataBattery.setUuid(QBluetoothUuid::ServiceClassUuid::BatteryService);
             serviceDataBattery.addCharacteristic(charDataBattery);
         }
 
@@ -1566,7 +1566,7 @@ void virtualbike::bikeProvider() {
 
         QByteArray valueBattery;
         valueBattery.append(100); // Actual value.
-        QLowEnergyCharacteristic characteristicBattery = serviceBattery->characteristic(QBluetoothUuid::BatteryLevel);
+        QLowEnergyCharacteristic characteristicBattery = serviceBattery->characteristic(QBluetoothUuid::CharacteristicType::BatteryLevel);
 
         Q_ASSERT(characteristicBattery.isValid());
         if (leController->state() != QLowEnergyController::ConnectedState) {

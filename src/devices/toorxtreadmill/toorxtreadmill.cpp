@@ -64,7 +64,7 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service) {
             connect(socket, &QBluetoothSocket::readyRead, this, &toorxtreadmill::readSocket);
             connect(socket, &QBluetoothSocket::connected, this, QOverload<>::of(&toorxtreadmill::rfCommConnected));
             connect(socket, &QBluetoothSocket::disconnected, this, &toorxtreadmill::disconnected);
-            connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
+            connect(socket, &QBluetoothSocket::error, this,
                     &toorxtreadmill::onSocketErrorOccurred);
 
 #ifdef Q_OS_ANDROID
@@ -437,5 +437,5 @@ uint16_t toorxtreadmill::GetElapsedTimeFromPacket(const QByteArray &packet) {
 }
 
 void toorxtreadmill::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
-    emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
+    qDebug() << QStringLiteral("onSocketErrorOccurred ") << error;
 }
