@@ -405,7 +405,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         if (!this->noHeartService || heart_only) {
 
             QLowEnergyCharacteristicData charDataHR;
-            charDataHR.setUuid(QBluetoothUuid::HeartRateMeasurement);
+            charDataHR.setUuid(QBluetoothUuid::CharacteristicType::HeartRateMeasurement);
             charDataHR.setValue(QByteArray(2, 0));
             charDataHR.setProperties(QLowEnergyCharacteristic::Notify);
             const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
@@ -1586,7 +1586,7 @@ void virtualbike::bikeProvider() {
 
         QByteArray valueHR;
         if (notif2A37->notify(valueHR) == CN_OK) {
-            QLowEnergyCharacteristic characteristicHR = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
+            QLowEnergyCharacteristic characteristicHR = serviceHR->characteristic(QBluetoothUuid::CharacteristicType::HeartRateMeasurement);
 
             Q_ASSERT(characteristicHR.isValid());
             if (leController->state() != QLowEnergyController::ConnectedState) {

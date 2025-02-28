@@ -166,7 +166,7 @@ void eliteariafan::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                qDebug() << QStringLiteral("char uuid") << c.uuid();
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
@@ -181,7 +181,6 @@ void eliteariafan::stateChanged(QLowEnergyService::ServiceState state) {
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
                                  << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).handle()
                                  << QStringLiteral(" is not valid");
                     }
 
@@ -196,7 +195,6 @@ void eliteariafan::stateChanged(QLowEnergyService::ServiceState state) {
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
                                  << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).handle()
                                  << QStringLiteral(" is not valid");
                     }
 

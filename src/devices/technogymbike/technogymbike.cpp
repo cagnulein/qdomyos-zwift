@@ -236,7 +236,7 @@ void technogymbike::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     lastPacket = newValue;
 
-    if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
+    if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement) {
         lastPacket = newValue;
 
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));

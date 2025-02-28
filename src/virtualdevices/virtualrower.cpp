@@ -144,7 +144,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         if (!this->noHeartService || heart_only) {
 
             QLowEnergyCharacteristicData charDataHR;
-            charDataHR.setUuid(QBluetoothUuid::HeartRateMeasurement);
+            charDataHR.setUuid(QBluetoothUuid::CharacteristicType::HeartRateMeasurement);
             charDataHR.setValue(QByteArray(2, 0));
             charDataHR.setProperties(QLowEnergyCharacteristic::Notify);
             const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
@@ -465,7 +465,7 @@ void virtualrower::rowerProvider() {
         QByteArray valueHR;
         valueHR.append(char(0));                                   // Flags that specify the format of the value.
         valueHR.append(char(Rower->metrics_override_heartrate())); // Actual value.
-        QLowEnergyCharacteristic characteristicHR = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
+        QLowEnergyCharacteristic characteristicHR = serviceHR->characteristic(QBluetoothUuid::CharacteristicType::HeartRateMeasurement);
 
         Q_ASSERT(characteristicHR.isValid());
         if (leController->state() != QLowEnergyController::ConnectedState) {

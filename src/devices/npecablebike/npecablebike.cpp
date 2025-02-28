@@ -212,13 +212,13 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
         lastRefreshCharacteristicChanged2A5B = now;
-    } else if (characteristic.uuid() == QBluetoothUuid::HeartRateMeasurement) {
+    } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::HeartRateMeasurement) {
         if (newValue.length() > 1) {
             Heart = newValue[1];
         }
 
         emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
-    } else if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
+    } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement) {
         if (newValue.length() > 3) {
             m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
         }

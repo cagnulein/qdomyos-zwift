@@ -348,14 +348,14 @@ void cycleopsphantombike::characteristicChanged(const QLowEnergyCharacteristic &
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
-    } else if (characteristic.uuid() == QBluetoothUuid::HeartRateMeasurement) {
+    } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::HeartRateMeasurement) {
         if (newValue.length() > 1 && !disable_hr_frommachinery) {
             Heart = newValue[1];
             heart = Heart.value();
         }
 
         emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
-    } else if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
+    } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement) {
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
         bool cadence_present = false;
         bool wheel_revs = false;
@@ -780,10 +780,10 @@ void cycleopsphantombike::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto characteristics = s->characteristics();
             for (const QLowEnergyCharacteristic &c : characteristics) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                qDebug() << QStringLiteral("char uuid") << c.uuid();
                 auto descriptors = c.descriptors();
                 for (const QLowEnergyDescriptor &d : descriptors) {
-                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid();
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
@@ -821,7 +821,7 @@ void cycleopsphantombike::stateChanged(QLowEnergyService::ServiceState state) {
                 const QBluetoothUuid CONTROL_POINT_UUID = QBluetoothUuid(QString("CA31A533-A858-4DC7-A650-FDEB6DAD4C14"));
 
                 if (c.properties() & QLowEnergyCharacteristic::Write &&
-                    c.uuid() == QBluetoothUuid::ServiceClassUuid::CyclingPowerControlPoint) {
+                    c.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerControlPoint) {
                     qDebug() << QStringLiteral("CyclingPowerControlPoint found");
                     gattWriteCharControlPointId = c;
                     gattPowerService = s;

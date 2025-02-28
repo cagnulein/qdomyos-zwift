@@ -112,7 +112,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
-    if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
+    if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement) {
         lastPacket = newValue;
 
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
@@ -163,7 +163,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
                      (60000.0 / ((double)lastRefreshPowerChanged.msecsTo(now))));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
         lastRefreshPowerChanged = now;
-    } else if (characteristic.uuid() == QBluetoothUuid::HeartRateMeasurement) {
+    } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::HeartRateMeasurement) {
         if (newValue.length() > 1) {
             Heart = (uint8_t)newValue[1];
             emit onHeartRate((uint8_t)Heart.value());

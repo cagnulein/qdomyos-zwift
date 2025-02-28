@@ -88,7 +88,7 @@ void heartratebelt::stateChanged(QLowEnergyService::ServiceState state) {
         }
 
         gattNotifyCharacteristic =
-            gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement));
+            gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::CharacteristicType::HeartRateMeasurement));
         if(!gattNotifyCharacteristic.isValid()) {
             qDebug() << "gattNotifyCharacteristic not valid for HR";
             return;

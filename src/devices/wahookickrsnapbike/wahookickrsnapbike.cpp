@@ -364,7 +364,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
 
     qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << characteristic.uuid();
 
-    if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
+    if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement) {
         lastPacket = newValue;
 
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));

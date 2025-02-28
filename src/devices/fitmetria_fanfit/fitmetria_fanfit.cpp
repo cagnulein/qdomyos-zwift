@@ -237,7 +237,7 @@ void fitmetria_fanfit::stateChanged(QLowEnergyService::ServiceState state) {
 
         /*
         gattNotifyCharacteristic =
-            gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement));
+            gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::CharacteristicType::HeartRateMeasurement));
         Q_ASSERT(gattNotifyCharacteristic.isValid());*/
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);

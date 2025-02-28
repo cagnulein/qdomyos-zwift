@@ -319,14 +319,14 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
-    } else if (characteristic.uuid() == QBluetoothUuid::HeartRateMeasurement) {
+    } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::HeartRateMeasurement) {
         if (newValue.length() > 1 && !disable_hr_frommachinery) {
             Heart = newValue[1];
             heart = Heart.value();
         }
 
         emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
-    } else if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
+    } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement) {
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
         bool cadence_present = false;
         bool wheel_revs = false;

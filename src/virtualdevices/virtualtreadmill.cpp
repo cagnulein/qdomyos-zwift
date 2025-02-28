@@ -325,7 +325,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
            if (noHeartService == false) {
                QLowEnergyCharacteristicData charDataHR;
-               charDataHR.setUuid(QBluetoothUuid::HeartRateMeasurement);
+               charDataHR.setUuid(QBluetoothUuid::CharacteristicType::HeartRateMeasurement);
                charDataHR.setValue(QByteArray(2, 0));
                charDataHR.setProperties(QLowEnergyCharacteristic::Notify);
                 const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
