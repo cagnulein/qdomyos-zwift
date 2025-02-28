@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
-import QtGraphicalEffects 1.12
+//import QtGraphicalEffects 1.15
 import Qt.labs.settings 1.0
 
 Page {
@@ -60,12 +60,12 @@ Page {
                             source: "icons/icons/bluetooth-icon.png"
                             enabled: rootItem.device
                             smooth: true
-                        }
+                        }/*
                         ColorOverlay {
                             anchors.fill: treadmill_connection
                             source: treadmill_connection
                             color: treadmill_connection.enabled ? "#00000000" : "#B0D3d3d3"
-                        }
+                        }*/
                     }
                     Image {
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -91,13 +91,13 @@ Page {
                     id: start
                     width: 120
                     height: row.height - 4
-                }
+                }/*
                 ColorOverlay {
                     anchors.fill: start
                     source: start
                     color: rootItem.startColor
                     enabled: rootItem.startColor === "red" ? true : false
-                }
+                }*/
             }
 
             Rectangle {
@@ -114,13 +114,13 @@ Page {
                     id: stop
                     width: 120
                     height: row.height - 4
-                }
+                }/*
                 ColorOverlay {
                     anchors.fill: stop
                     source: stop
                     color: rootItem.stopColor
                     enabled: rootItem.stopColor === "red" ? true : false
-                }
+                }*/
             }
 
             Rectangle {
@@ -138,12 +138,12 @@ Page {
                     icon.height: 48
                     enabled: rootItem.lap
                     smooth: true
-                }
+                }/*
                 ColorOverlay {
                     anchors.fill: lap
                     source: lap
                     color: lap.enabled ? "#00000000" : "#B0D3d3d3"
-                }
+                }*/
             }
         }
 

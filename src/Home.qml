@@ -160,7 +160,7 @@ HomeForm {
         id: gridView
         objectName: "gridview"
         onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
-        Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
+        //Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
         Screen.onPrimaryOrientationChanged:{
             if(OS_VERSION === "Android")
                 gridView.leftMargin = (Screen.width % cellWidth) / 2;
@@ -210,7 +210,7 @@ HomeForm {
                 color: settings.theme_tile_background_color
                 id: rect
             }
-
+/*
             DropShadow {
                 visible: settings.theme_tile_shadow_enabled
                 anchors.fill: rect
@@ -221,7 +221,7 @@ HomeForm {
                 samples: 16
                 color: settings.theme_tile_shadow_color
                 source: rect
-            }
+            }*/
 
             Timer {
                 id: toggleIconTimer
@@ -421,12 +421,12 @@ HomeForm {
                 autoPlay: false
                 playbackRate: rootItem.videoRate
 
-                source: videoPlaybackHalf
+                source: videoPlaybackHalf/*
                 errorOccurred: {
                     if (videoPlaybackHalf.NoError !== error) {
                         console.log("[qmlvideo] VideoItem.onError error " + error + " errorString " + errorString)
                     }
-                }
+                }*/
             }
 
             VideoOutput {
