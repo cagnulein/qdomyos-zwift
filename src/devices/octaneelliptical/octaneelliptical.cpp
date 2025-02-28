@@ -526,12 +526,12 @@ void octaneelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &octaneelliptical::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &octaneelliptical::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::error,
                 this, &octaneelliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &octaneelliptical::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::error,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

@@ -467,12 +467,12 @@ void nautiluselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &nautiluselliptical::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &nautiluselliptical::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::error,
                 this, &nautiluselliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &nautiluselliptical::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::error,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

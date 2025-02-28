@@ -518,7 +518,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualbike::reconnect);
     QObject::connect(
         leController,
-        static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this,
+        &QLowEnergyController::error, this,
         &virtualbike::error);
 }
 

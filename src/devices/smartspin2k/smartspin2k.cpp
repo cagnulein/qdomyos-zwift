@@ -485,12 +485,12 @@ void smartspin2k::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &smartspin2k::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &smartspin2k::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::error,
                 this, &smartspin2k::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &smartspin2k::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::error,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

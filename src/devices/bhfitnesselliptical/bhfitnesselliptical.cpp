@@ -569,12 +569,12 @@ void bhfitnesselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &bhfitnesselliptical::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &bhfitnesselliptical::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::error,
                 this, &bhfitnesselliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &bhfitnesselliptical::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::error,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

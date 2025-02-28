@@ -290,12 +290,12 @@ void wahookickrheadwind::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &wahookickrheadwind::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &wahookickrheadwind::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::error,
                 this, &wahookickrheadwind::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &wahookickrheadwind::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::error,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

@@ -306,12 +306,12 @@ void fitmetria_fanfit::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &fitmetria_fanfit::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &fitmetria_fanfit::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::error,
                 this, &fitmetria_fanfit::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &fitmetria_fanfit::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::error,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

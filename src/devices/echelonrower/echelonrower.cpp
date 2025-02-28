@@ -473,12 +473,12 @@ void echelonrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     connect(m_control, &QLowEnergyController::serviceDiscovered, this, &echelonrower::serviceDiscovered);
     connect(m_control, &QLowEnergyController::discoveryFinished, this, &echelonrower::serviceScanDone);
     connect(m_control,
-            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+            &QLowEnergyController::error,
             this, &echelonrower::error);
     connect(m_control, &QLowEnergyController::stateChanged, this, &echelonrower::controllerStateChanged);
 
     connect(m_control,
-            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+            &QLowEnergyController::error,
             this, [this](QLowEnergyController::Error error) {
                 Q_UNUSED(error);
                 Q_UNUSED(this);

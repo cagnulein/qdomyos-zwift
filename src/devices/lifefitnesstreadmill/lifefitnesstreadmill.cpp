@@ -808,12 +808,12 @@ void lifefitnesstreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &lifefitnesstreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &lifefitnesstreadmill::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::error,
                 this, &lifefitnesstreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &lifefitnesstreadmill::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::error,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
