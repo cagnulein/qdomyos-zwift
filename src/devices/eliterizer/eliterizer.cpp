@@ -158,10 +158,10 @@ void eliterizer::stateChanged(QLowEnergyService::ServiceState state) {
 
         auto characteristics_list = gattCommunicationChannelService->characteristics();
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+            qDebug() << QStringLiteral("char uuid") << c.uuid();
             auto descriptors_list = c.descriptors();
             for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
-                qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+                qDebug() << QStringLiteral("descriptor uuid") << d.uuid();
             }
         }
 

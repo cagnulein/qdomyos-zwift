@@ -198,7 +198,7 @@ bool nordictrackifitadbelliptical::inclinationAvailableByHardware() {
 }
 
 double nordictrackifitadbelliptical::getDouble(QString v) {
-    QChar d = QLocale().decimalPoint();
+    QChar d = QLocale().decimalPoint().at(0); // Get first character from QString
     if (d == ',') {
         v = v.replace('.', ',');
     }

@@ -2214,7 +2214,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << c.properties();
 
                 if (c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
@@ -2255,7 +2255,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
-                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid();
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
@@ -2273,7 +2273,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
                                  << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).handle()
+                                 
                                  << QStringLiteral(" is not valid");
                     }
 
@@ -2291,7 +2291,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
                                  << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).handle()
+                                 
                                  << QStringLiteral(" is not valid");
                     }
 

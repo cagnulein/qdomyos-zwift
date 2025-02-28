@@ -3,6 +3,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkReply>
+#include <QTcpServer>
 #include <QtWebSockets/QWebSocket>
 
 WebServerInfoSender::WebServerInfoSender(const QString &id, QObject *parent) : TemplateInfoSender(id, parent) {
@@ -220,9 +221,12 @@ void WebServerInfoSender::processFetcher(QWebSocket *sender, const QByteArray &d
 }
 
 void WebServerInfoSender::onNewConnection() {
-    QWebSocket *pSocket = httpServer->nextPendingWebSocketConnection();
+    std::unique_ptr<QWebSocket> pSocketUnique = httpServer->nextPendingWebSocketConnection();
+    QWebSocket* pSocket = pSocketUnique.get();
+
     QUrl requestUrl = pSocket->requestUrl();
     qDebug() << QStringLiteral("WebSocket connection") << requestUrl;
+
     if (requestUrl.path() == QStringLiteral("/fetcher")) {
         connect(pSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(processFetcherRequest(QString)));
         connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processFetcherRawRequest(QByteArray)));
@@ -231,9 +235,12 @@ void WebServerInfoSender::onNewConnection() {
         connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processBinaryMessage(QByteArray)));
         sendToClients << pSocket;
     }
+
     connect(pSocket, SIGNAL(disconnected()), this, SLOT(socketDisconnected()));
 
-    clients << pSocket;
+    // Create a QSharedPointer from the unique_ptr
+    QSharedPointer<QWebSocket> sharedSocket(pSocketUnique.release());
+    clients << sharedSocket;
 }
 
 void WebServerInfoSender::socketDisconnected() {

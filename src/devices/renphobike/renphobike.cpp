@@ -442,7 +442,7 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
                     else
                         qDebug() << "ClientCharacteristicConfiguration" << c.uuid()
                                  << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).handle()
+                                 
                                  << " is not valid";
 
                     qDebug() << s->serviceUuid() << c.uuid() << "notification subscribed!";
@@ -456,7 +456,7 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
                     else
                         qDebug() << "ClientCharacteristicConfiguration" << c.uuid()
                                  << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).handle()
+                                 
                                  << " is not valid";
 
                     qDebug() << s->serviceUuid() << c.uuid() << "indication subscribed!";

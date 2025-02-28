@@ -36,7 +36,7 @@ class WebServerInfoSender : public TemplateInfoSender {
     int port = 0;
     QTcpServer *innerTcpServer = 0;
     virtual bool init();
-    QList<QWebSocket *> clients;
+    QList<QSharedPointer<QWebSocket>> clients;
     QNetworkAccessManager *fetcher = 0;
     QList<QWebSocket *> sendToClients;
     QHash<QString, QString> relative2Absolute;

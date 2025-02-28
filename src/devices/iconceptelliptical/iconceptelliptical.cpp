@@ -81,7 +81,7 @@ void iconceptelliptical::serviceDiscovered(const QBluetoothServiceInfo &service)
             connect(socket, &QBluetoothSocket::readyRead, this, &iconceptelliptical::readSocket);
             connect(socket, &QBluetoothSocket::connected, this, QOverload<>::of(&iconceptelliptical::rfCommConnected));
             connect(socket, &QBluetoothSocket::disconnected, this, &iconceptelliptical::disconnected);
-            connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
+            connect(socket, &QBluetoothSocket::error, this,
                     &iconceptelliptical::onSocketErrorOccurred);
         }
     }
@@ -284,7 +284,7 @@ uint16_t iconceptelliptical::GetElapsedTimeFromPacket(const QByteArray &packet) 
 }
 
 void iconceptelliptical::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
-    emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
+    qDebug() << QStringLiteral("onSocketErrorOccurred ") << error;
 }
 
 uint16_t iconceptelliptical::watts() {

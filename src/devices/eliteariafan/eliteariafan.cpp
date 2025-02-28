@@ -169,7 +169,7 @@ void eliteariafan::stateChanged(QLowEnergyService::ServiceState state) {
                 qDebug() << QStringLiteral("char uuid") << c.uuid();
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
-                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid();
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {

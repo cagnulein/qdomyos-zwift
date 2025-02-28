@@ -760,10 +760,10 @@ void tacxneo2::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto characteristics = s->characteristics();
             for (const QLowEnergyCharacteristic &c : characteristics) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                qDebug() << QStringLiteral("char uuid") << c.uuid();
                 auto descriptors = c.descriptors();
                 for (const QLowEnergyDescriptor &d : descriptors) {
-                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid();
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
@@ -775,7 +775,7 @@ void tacxneo2::stateChanged(QLowEnergyService::ServiceState state) {
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
                                  << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).handle()
+                                 
                                  << QStringLiteral(" is not valid");
                     }
 
@@ -790,7 +790,7 @@ void tacxneo2::stateChanged(QLowEnergyService::ServiceState state) {
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
                                  << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).handle()
+                                 
                                  << QStringLiteral(" is not valid");
                     }
 

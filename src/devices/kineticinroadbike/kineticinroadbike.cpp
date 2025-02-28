@@ -344,7 +344,7 @@ void kineticinroadbike::stateChanged(QLowEnergyService::ServiceState state) {
             // establish hook into notifications
             auto characteristics_list = gattCommunicationChannelService->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << c.properties();
             }
         }
 

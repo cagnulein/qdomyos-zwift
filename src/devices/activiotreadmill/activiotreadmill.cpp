@@ -547,7 +547,7 @@ void activiotreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         // qDebug() << gattCommunicationChannelService->characteristics();
         auto characteristics_list = gattCommunicationChannelService->characteristics();
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle()
+            qDebug() << QStringLiteral("char uuid") << c.uuid()
                      << c.properties();
         }
 
