@@ -791,7 +791,7 @@ jobs:
         with:
           version: '6.8.2'
           host: 'windows'
-          modules: 'qtnetworkauth qtcharts'
+          modules: 'qtnetworkauth qtcharts qtbluetooth qtpositioning qtwebsockets qttexttospeech qtlocation qtmultimedia qtmultimediawidgets'
           target: "desktop"
           arch: win64_msvc2022_64
           dir: "${{github.workspace}}/qt/"
@@ -852,10 +852,10 @@ jobs:
             "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
           }' > vcpkg.json
       
-      - name: Install dependencies
-        run: |
-          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=D:\a\qdomyos-zwift\vcpkg\installed
-        working-directory: ${{ runner.workspace }}
+      # - name: Install dependencies
+      #   run: |
+      #     .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=D:\a\qdomyos-zwift\vcpkg\installed
+      #   working-directory: ${{ runner.workspace }}
   
       - name: Build
         run: |
