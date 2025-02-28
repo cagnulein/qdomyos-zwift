@@ -251,7 +251,7 @@ void chronobike::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &chronobike::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &chronobike::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &chronobike::descriptorWritten);
@@ -341,12 +341,12 @@ void chronobike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &chronobike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &chronobike::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &chronobike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &chronobike::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

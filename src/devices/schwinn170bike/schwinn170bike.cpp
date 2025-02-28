@@ -305,7 +305,7 @@ void schwinn170bike::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &schwinn170bike::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &schwinn170bike::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &schwinn170bike::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &schwinn170bike::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &schwinn170bike::descriptorRead);
@@ -463,12 +463,12 @@ void schwinn170bike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &schwinn170bike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &schwinn170bike::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &schwinn170bike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &schwinn170bike::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

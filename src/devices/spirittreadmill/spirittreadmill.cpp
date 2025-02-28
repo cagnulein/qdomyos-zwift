@@ -445,7 +445,7 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &spirittreadmill::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &spirittreadmill::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &spirittreadmill::descriptorWritten);
@@ -551,12 +551,12 @@ void spirittreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &spirittreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &spirittreadmill::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &spirittreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &spirittreadmill::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

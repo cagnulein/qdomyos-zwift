@@ -329,7 +329,7 @@ void mcfbike::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &mcfbike::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &mcfbike::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &mcfbike::descriptorWritten);
@@ -422,12 +422,12 @@ void mcfbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     connect(m_control, &QLowEnergyController::serviceDiscovered, this, &mcfbike::serviceDiscovered);
     connect(m_control, &QLowEnergyController::discoveryFinished, this, &mcfbike::serviceScanDone);
     connect(m_control,
-            &QLowEnergyController::error,
+            &QLowEnergyController::errorOccurred,
             this, &mcfbike::error);
     connect(m_control, &QLowEnergyController::stateChanged, this, &mcfbike::controllerStateChanged);
 
     connect(m_control,
-            &QLowEnergyController::error,
+            &QLowEnergyController::errorOccurred,
             this, [this](QLowEnergyController::Error error) {
                 Q_UNUSED(error);
                 Q_UNUSED(this);

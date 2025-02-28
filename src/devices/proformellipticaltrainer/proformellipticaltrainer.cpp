@@ -558,7 +558,7 @@ void proformellipticaltrainer::stateChanged(QLowEnergyService::ServiceState stat
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &proformellipticaltrainer::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &proformellipticaltrainer::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &proformellipticaltrainer::descriptorWritten);
@@ -647,13 +647,13 @@ void proformellipticaltrainer::deviceDiscovered(const QBluetoothDeviceInfo &devi
                 &proformellipticaltrainer::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &proformellipticaltrainer::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &proformellipticaltrainer::error);
         connect(m_control, &QLowEnergyController::stateChanged, this,
                 &proformellipticaltrainer::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

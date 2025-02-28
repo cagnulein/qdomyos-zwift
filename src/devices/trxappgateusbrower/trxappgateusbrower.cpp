@@ -267,7 +267,7 @@ void trxappgateusbrower::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &trxappgateusbrower::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &trxappgateusbrower::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &trxappgateusbrower::descriptorWritten);
@@ -364,12 +364,12 @@ void trxappgateusbrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &trxappgateusbrower::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &trxappgateusbrower::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &trxappgateusbrower::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &trxappgateusbrower::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

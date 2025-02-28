@@ -367,7 +367,7 @@ void sportsplusbike::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &sportsplusbike::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &sportsplusbike::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &sportsplusbike::descriptorWritten);
@@ -468,12 +468,12 @@ void sportsplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &sportsplusbike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &sportsplusbike::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &sportsplusbike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &sportsplusbike::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

@@ -348,7 +348,7 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &cscbike::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &cscbike::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &cscbike::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &cscbike::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &cscbike::descriptorRead);
@@ -511,12 +511,12 @@ void cscbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &cscbike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &cscbike::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &cscbike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &cscbike::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

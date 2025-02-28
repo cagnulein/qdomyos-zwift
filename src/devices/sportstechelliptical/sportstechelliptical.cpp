@@ -281,7 +281,7 @@ void sportstechelliptical::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &sportstechelliptical::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &sportstechelliptical::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &sportstechelliptical::descriptorWritten);
@@ -360,12 +360,12 @@ void sportstechelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) 
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &sportstechelliptical::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &sportstechelliptical::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &sportstechelliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &sportstechelliptical::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

@@ -754,7 +754,7 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
             connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                     &domyosrower::characteristicWritten);
             connect(gattCommunicationChannelService,
-                    &QLowEnergyService::error,
+                    &QLowEnergyService::errorOccurred,
                     this, &domyosrower::errorService);
             connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                     &domyosrower::descriptorWritten);
@@ -788,7 +788,7 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
                 connect(s, &QLowEnergyService::characteristicWritten, this, &domyosrower::characteristicWritten);
                 connect(s, &QLowEnergyService::characteristicRead, this, &domyosrower::characteristicRead);
                 connect(
-                    s, &QLowEnergyService::error,
+                    s, &QLowEnergyService::errorOccurred,
                     this, &domyosrower::errorService);
                 connect(s, &QLowEnergyService::descriptorWritten, this, &domyosrower::descriptorWritten);
                 connect(s, &QLowEnergyService::descriptorRead, this, &domyosrower::descriptorRead);
@@ -928,12 +928,12 @@ void domyosrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &domyosrower::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &domyosrower::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &domyosrower::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &domyosrower::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

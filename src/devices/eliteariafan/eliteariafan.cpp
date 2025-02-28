@@ -158,7 +158,7 @@ void eliteariafan::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicChanged, this, &eliteariafan::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &eliteariafan::characteristicWritten);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &eliteariafan::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &eliteariafan::descriptorWritten);
 
@@ -276,12 +276,12 @@ void eliteariafan::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &eliteariafan::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &eliteariafan::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &eliteariafan::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &eliteariafan::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

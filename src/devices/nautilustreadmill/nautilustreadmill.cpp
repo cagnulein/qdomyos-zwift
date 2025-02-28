@@ -304,7 +304,7 @@ void nautilustreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &nautilustreadmill::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &nautilustreadmill::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &nautilustreadmill::descriptorWritten);
@@ -380,12 +380,12 @@ void nautilustreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &nautilustreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &nautilustreadmill::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &nautilustreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &nautilustreadmill::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

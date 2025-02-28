@@ -797,7 +797,7 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &domyostreadmill::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &domyostreadmill::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &domyostreadmill::descriptorWritten);
@@ -857,12 +857,12 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &domyostreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &domyostreadmill::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &domyostreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &domyostreadmill::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

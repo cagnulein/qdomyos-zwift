@@ -204,12 +204,12 @@ void elitesterzosmart::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &elitesterzosmart::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &elitesterzosmart::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &elitesterzosmart::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &elitesterzosmart::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

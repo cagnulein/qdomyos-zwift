@@ -389,7 +389,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &echelonconnectsport::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &echelonconnectsport::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &echelonconnectsport::descriptorWritten);
@@ -501,12 +501,12 @@ void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &echelonconnectsport::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &echelonconnectsport::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &echelonconnectsport::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &echelonconnectsport::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

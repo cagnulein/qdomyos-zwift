@@ -482,12 +482,12 @@ void snodebike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &snodebike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &snodebike::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &snodebike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &snodebike::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

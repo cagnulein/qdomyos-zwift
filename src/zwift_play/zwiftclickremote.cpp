@@ -155,7 +155,7 @@ void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicRead, this, &zwiftclickremote::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &zwiftclickremote::characteristicWritten);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &zwiftclickremote::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &zwiftclickremote::descriptorWritten);
 
@@ -268,12 +268,12 @@ void zwiftclickremote::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &zwiftclickremote::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &zwiftclickremote::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &zwiftclickremote::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &zwiftclickremote::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

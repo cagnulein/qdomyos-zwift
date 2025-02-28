@@ -511,12 +511,12 @@ void schwinnic4bike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &schwinnic4bike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &schwinnic4bike::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &schwinnic4bike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &schwinnic4bike::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

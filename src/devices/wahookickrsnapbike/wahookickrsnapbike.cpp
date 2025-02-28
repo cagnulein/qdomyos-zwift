@@ -600,7 +600,7 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &wahookickrsnapbike::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &wahookickrsnapbike::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &wahookickrsnapbike::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &wahookickrsnapbike::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &wahookickrsnapbike::descriptorRead);
@@ -793,12 +793,12 @@ void wahookickrsnapbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &wahookickrsnapbike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &wahookickrsnapbike::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &wahookickrsnapbike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &wahookickrsnapbike::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

@@ -653,7 +653,7 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &lifefitnesstreadmill::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &lifefitnesstreadmill::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &lifefitnesstreadmill::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &lifefitnesstreadmill::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &lifefitnesstreadmill::descriptorRead);
@@ -808,12 +808,12 @@ void lifefitnesstreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &lifefitnesstreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &lifefitnesstreadmill::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &lifefitnesstreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &lifefitnesstreadmill::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

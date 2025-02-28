@@ -744,7 +744,7 @@ void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &solef80treadmill::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &solef80treadmill::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &solef80treadmill::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &solef80treadmill::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &solef80treadmill::descriptorRead);
@@ -902,12 +902,12 @@ void solef80treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &solef80treadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &solef80treadmill::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &solef80treadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &solef80treadmill::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

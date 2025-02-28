@@ -374,7 +374,7 @@ void shuaa5treadmill::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &shuaa5treadmill::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &shuaa5treadmill::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &shuaa5treadmill::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &shuaa5treadmill::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &shuaa5treadmill::descriptorRead);
@@ -525,12 +525,12 @@ void shuaa5treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &shuaa5treadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &shuaa5treadmill::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &shuaa5treadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &shuaa5treadmill::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

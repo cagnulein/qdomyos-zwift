@@ -376,7 +376,7 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &bhfitnesselliptical::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &bhfitnesselliptical::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &bhfitnesselliptical::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &bhfitnesselliptical::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &bhfitnesselliptical::descriptorRead);
@@ -569,12 +569,12 @@ void bhfitnesselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &bhfitnesselliptical::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &bhfitnesselliptical::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &bhfitnesselliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &bhfitnesselliptical::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

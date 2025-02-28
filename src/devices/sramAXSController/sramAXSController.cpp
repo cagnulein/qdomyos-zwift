@@ -106,7 +106,7 @@ void sramaxscontroller::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicChanged, this, &sramaxscontroller::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &sramaxscontroller::characteristicWritten);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &sramaxscontroller::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &sramaxscontroller::descriptorWritten);
 
@@ -229,12 +229,12 @@ void sramaxscontroller::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &sramaxscontroller::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &sramaxscontroller::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &sramaxscontroller::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &sramaxscontroller::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

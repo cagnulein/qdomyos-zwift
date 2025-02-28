@@ -449,7 +449,7 @@ void stagesbike::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &stagesbike::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &stagesbike::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &stagesbike::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &stagesbike::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &stagesbike::descriptorRead);
@@ -611,12 +611,12 @@ void stagesbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &stagesbike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &stagesbike::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &stagesbike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &stagesbike::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

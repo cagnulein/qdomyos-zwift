@@ -862,7 +862,7 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &fitplusbike::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &fitplusbike::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &fitplusbike::descriptorWritten);
@@ -921,7 +921,7 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
                     &fitplusbike::characteristicWritten);
             connect(
                 gattCommunicationChannelServiceFTMS,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &fitplusbike::errorService);
             connect(gattCommunicationChannelServiceFTMS, &QLowEnergyService::descriptorWritten, this,
                     &fitplusbike::descriptorWritten);
@@ -1010,12 +1010,12 @@ void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &fitplusbike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &fitplusbike::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &fitplusbike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &fitplusbike::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

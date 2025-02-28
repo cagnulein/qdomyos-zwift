@@ -952,7 +952,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &ftmsbike::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &ftmsbike::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &ftmsbike::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &ftmsbike::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &ftmsbike::descriptorRead);
@@ -1326,12 +1326,12 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &ftmsbike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &ftmsbike::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &ftmsbike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &ftmsbike::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

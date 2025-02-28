@@ -373,7 +373,7 @@ void echelonrower::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &echelonrower::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &echelonrower::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &echelonrower::descriptorWritten);
@@ -473,12 +473,12 @@ void echelonrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     connect(m_control, &QLowEnergyController::serviceDiscovered, this, &echelonrower::serviceDiscovered);
     connect(m_control, &QLowEnergyController::discoveryFinished, this, &echelonrower::serviceScanDone);
     connect(m_control,
-            &QLowEnergyController::error,
+            &QLowEnergyController::errorOccurred,
             this, &echelonrower::error);
     connect(m_control, &QLowEnergyController::stateChanged, this, &echelonrower::controllerStateChanged);
 
     connect(m_control,
-            &QLowEnergyController::error,
+            &QLowEnergyController::errorOccurred,
             this, [this](QLowEnergyController::Error error) {
                 Q_UNUSED(error);
                 Q_UNUSED(this);

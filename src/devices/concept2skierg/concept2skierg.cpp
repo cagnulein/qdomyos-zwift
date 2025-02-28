@@ -290,7 +290,7 @@ void concept2skierg::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &concept2skierg::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &concept2skierg::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &concept2skierg::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &concept2skierg::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &concept2skierg::descriptorRead);
@@ -462,12 +462,12 @@ void concept2skierg::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &concept2skierg::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &concept2skierg::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &concept2skierg::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &concept2skierg::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

@@ -479,7 +479,7 @@ void domyoselliptical::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &domyoselliptical::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &domyoselliptical::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &domyoselliptical::descriptorWritten);
@@ -560,12 +560,12 @@ void domyoselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &domyoselliptical::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &domyoselliptical::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &domyoselliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &domyoselliptical::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

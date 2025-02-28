@@ -299,7 +299,7 @@ void trxappgateusbelliptical::stateChanged(QLowEnergyService::ServiceState state
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &trxappgateusbelliptical::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &trxappgateusbelliptical::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &trxappgateusbelliptical::descriptorWritten);
@@ -403,12 +403,12 @@ void trxappgateusbelliptical::deviceDiscovered(const QBluetoothDeviceInfo &devic
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &trxappgateusbelliptical::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &trxappgateusbelliptical::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &trxappgateusbelliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &trxappgateusbelliptical::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

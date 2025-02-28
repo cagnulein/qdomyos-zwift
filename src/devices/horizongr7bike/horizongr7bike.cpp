@@ -438,7 +438,7 @@ void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &horizongr7bike::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &horizongr7bike::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &horizongr7bike::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &horizongr7bike::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &horizongr7bike::descriptorRead);
@@ -621,12 +621,12 @@ void horizongr7bike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &horizongr7bike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &horizongr7bike::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &horizongr7bike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &horizongr7bike::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

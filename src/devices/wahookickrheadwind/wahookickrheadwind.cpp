@@ -173,7 +173,7 @@ void wahookickrheadwind::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicChanged, this, &wahookickrheadwind::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &wahookickrheadwind::characteristicWritten);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &wahookickrheadwind::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &wahookickrheadwind::descriptorWritten);
 
@@ -290,12 +290,12 @@ void wahookickrheadwind::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &wahookickrheadwind::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &wahookickrheadwind::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &wahookickrheadwind::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &wahookickrheadwind::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

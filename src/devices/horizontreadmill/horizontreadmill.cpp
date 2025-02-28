@@ -2205,7 +2205,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &horizontreadmill::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &horizontreadmill::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &horizontreadmill::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &horizontreadmill::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &horizontreadmill::descriptorRead);
@@ -2512,12 +2512,12 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &horizontreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &horizontreadmill::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &horizontreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &horizontreadmill::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

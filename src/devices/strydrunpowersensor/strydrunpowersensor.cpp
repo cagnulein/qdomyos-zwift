@@ -525,7 +525,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &strydrunpowersensor::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &strydrunpowersensor::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &strydrunpowersensor::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &strydrunpowersensor::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &strydrunpowersensor::descriptorRead);
@@ -688,12 +688,12 @@ void strydrunpowersensor::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &strydrunpowersensor::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &strydrunpowersensor::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &strydrunpowersensor::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &strydrunpowersensor::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

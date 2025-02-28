@@ -358,7 +358,7 @@ void bowflext216treadmill::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &bowflext216treadmill::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &bowflext216treadmill::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &bowflext216treadmill::descriptorWritten);
@@ -451,12 +451,12 @@ void bowflext216treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &bowflext216treadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &bowflext216treadmill::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &bowflext216treadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &bowflext216treadmill::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

@@ -482,7 +482,7 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
                     &technogymmyruntreadmill::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &technogymmyruntreadmill::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &technogymmyruntreadmill::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &technogymmyruntreadmill::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &technogymmyruntreadmill::descriptorRead);
@@ -663,12 +663,12 @@ void technogymmyruntreadmill::deviceDiscovered(const QBluetoothDeviceInfo &devic
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &technogymmyruntreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &technogymmyruntreadmill::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &technogymmyruntreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &technogymmyruntreadmill::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

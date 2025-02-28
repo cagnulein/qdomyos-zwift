@@ -1344,7 +1344,7 @@ void nordictrackelliptical::stateChanged(QLowEnergyService::ServiceState state) 
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &nordictrackelliptical::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &nordictrackelliptical::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &nordictrackelliptical::descriptorWritten);
@@ -1432,12 +1432,12 @@ void nordictrackelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device)
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &nordictrackelliptical::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &nordictrackelliptical::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &nordictrackelliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &nordictrackelliptical::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

@@ -198,7 +198,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualrower::reconnect);
     QObject::connect(
         leController,
-        &QLowEnergyController::error, this,
+        &QLowEnergyController::errorOccurred, this,
         &virtualrower::error);
 }
 

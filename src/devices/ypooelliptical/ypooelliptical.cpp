@@ -552,7 +552,7 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicWritten, this, &ypooelliptical::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &ypooelliptical::characteristicRead);
             connect(
-                s, &QLowEnergyService::error,
+                s, &QLowEnergyService::errorOccurred,
                 this, &ypooelliptical::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &ypooelliptical::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &ypooelliptical::descriptorRead);
@@ -774,12 +774,12 @@ void ypooelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &ypooelliptical::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &ypooelliptical::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &ypooelliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &ypooelliptical::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

@@ -450,7 +450,7 @@ void kingsmithr1protreadmill::stateChanged(QLowEnergyService::ServiceState state
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &kingsmithr1protreadmill::characteristicWritten);
         connect(gattCommunicationChannelService,
-                &QLowEnergyService::error,
+                &QLowEnergyService::errorOccurred,
                 this, &kingsmithr1protreadmill::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &kingsmithr1protreadmill::descriptorWritten);
@@ -518,12 +518,12 @@ void kingsmithr1protreadmill::deviceDiscovered(const QBluetoothDeviceInfo &devic
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &kingsmithr1protreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &kingsmithr1protreadmill::serviceScanDone);
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, &kingsmithr1protreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &kingsmithr1protreadmill::controllerStateChanged);
 
         connect(m_control,
-                &QLowEnergyController::error,
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
