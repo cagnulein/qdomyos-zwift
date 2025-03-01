@@ -286,6 +286,12 @@ smtpclient/src/mimepart.cpp \
 smtpclient/src/mimetext.cpp \
 smtpclient/src/quotedprintable.cpp \
 smtpclient/src/smtpclient.cpp \
+smtpclient/src/mimebase64encoder.cpp \
+smtpclient/src/mimebase64formatter.cpp \
+smtpclient/src/mimebytearrayattachment.cpp \
+smtpclient/src/mimecontentencoder.cpp \
+smtpclient/src/mimeqpencoder.cpp \
+smtpclient/src/mimeqpformatter.cpp \
 devices/snodebike/snodebike.cpp \
 devices/solebike/solebike.cpp \
 devices/soleelliptical/soleelliptical.cpp \
@@ -783,6 +789,13 @@ smtpclient/src/mimetext.h \
 smtpclient/src/quotedprintable.h \
 smtpclient/src/smtpclient.h \
 smtpclient/src/smtpexports.h \
+smtpclient/src/mimebase64encoder.h \
+smtpclient/src/mimebase64formatter.h \
+smtpclient/src/mimebytearrayattachment.h \
+smtpclient/src/mimecontentencoder.h \
+smtpclient/src/mimeqpencoder.h \
+smtpclient/src/mimeqpformatter.h \
+smtpclient/src/smtpmime_global.h \
 devices/snodebike/snodebike.h \
 devices/solebike/solebike.h \
 devices/soleelliptical/soleelliptical.h \
