@@ -6931,10 +6931,13 @@ void homeform::sendMail() {
     // Now we create a MimeMessage object. This will be the email.
 
     MimeMessage message;
-
-    message.setSender(new EmailAddress(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ")));
-    message.addRecipient(new EmailAddress(settings.value(QZSettings::user_email, QLatin1String("")).toString(),
-                                          settings.value(QZSettings::user_email, QLatin1String("")).toString()));
+    EmailAddress sender(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ"));
+    message.setSender(sender);
+    
+    EmailAddress recipient(settings.value(QZSettings::user_email, QLatin1String("")).toString(),
+                           settings.value(QZSettings::user_email, QLatin1String("")).toString());
+    message.addRecipient(recipient);
+  
     if (!Session.isEmpty()) {
         QString title = Session.constFirst().time.toString();
         if (!stravaPelotonActivityName.isEmpty()) {
@@ -7215,7 +7218,7 @@ void homeform::sendMail() {
     while (!r) {
         qDebug() << "trying to send email #" << i;
         r = smtp.connectToHost();
-        r = smtp.login();
+        smtp.login();
         r = smtp.sendMail(message);
         if (i++ == 3)
             break;
