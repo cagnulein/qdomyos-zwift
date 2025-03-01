@@ -7215,21 +7215,19 @@ void homeform::sendMail() {
 
     bool r = false;
     uint8_t i = 0;
-    while (!r) {
+    
       qDebug() << "trying to send email #" << i;
-      r = smtp.connectToHost();
+      smtp.connectToHost();
       
       // Use the public login method with parameters instead of the protected one
-      if (r) {
-          r = smtp.login(STRINGIFY(SMTP_USERNAME), STRINGIFY(SMTP_PASSWORD)); // Replace with actual credentials
-      }
       
-      if (r) {
-          r = smtp.sendMail(message);
-      }
-        if (i++ == 3)
-            break;
-    }
+         smtp.login(STRINGIFY(SMTP_USERNAME), STRINGIFY(SMTP_PASSWORD)); // Replace with actual credentials
+      
+      
+     
+          smtp.sendMail(message);
+      
+        
     smtp.quit();
 
     // delete image variable
