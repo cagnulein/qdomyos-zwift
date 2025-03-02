@@ -5122,7 +5122,7 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-
+/*
                     IndicatorOnlySwitch {
                         text: qsTr("Show Gears to Zwift Only")
                         spacing: 0
@@ -5149,7 +5149,7 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-
+*/
 
                     RowLayout {
                         spacing: 10
