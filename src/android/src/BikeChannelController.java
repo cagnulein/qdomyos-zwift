@@ -43,6 +43,26 @@ public class BikeChannelController {
     public HeartRateDataSource heartRateSource = HeartRateDataSource.UNKNOWN;
     public BigDecimal elapsedTime = new BigDecimal(0); // Elapsed time in seconds
 
+    // Fitness equipment state receiver
+    private final IFitnessEquipmentStateReceiver mFitnessEquipmentStateReceiver =
+        new IFitnessEquipmentStateReceiver() {
+            @Override
+            public void onNewFitnessEquipmentState(long estTimestamp,
+                                                 EnumSet<EventFlag> eventFlags,
+                                                 EquipmentType type,
+                                                 EquipmentState state) {
+                equipmentType = type;
+                equipmentState = state;
+                Log.d(TAG, "Equipment type: " + type + ", State: " + state);
+
+                // Only subscribe to bike specific data if this is actually a bike
+                if (type == EquipmentType.BIKE && !isSubscribedToBikeData) {
+                    subscribeToBikeSpecificData();
+                    isSubscribedToBikeData = true;
+                }
+            }
+        };
+
     public BikeChannelController() {
         this.context = Ant.activity;
         openChannel();
@@ -50,11 +70,10 @@ public class BikeChannelController {
 
     public boolean openChannel() {
         // Request access to first available fitness equipment device
-        // Fixed method name and parameters based on sample code
-        releaseHandle = AntPlusFitnessEquipmentPcc.requestAccess(
+        // Using requestNewOpenAccess from the sample code
+        releaseHandle = AntPlusFitnessEquipmentPcc.requestNewOpenAccess(
             (Activity)context,
-            0, // Use first device found
-            0, // Take your time searching
+            context,
             new IPluginAccessResultReceiver<AntPlusFitnessEquipmentPcc>() {
                 @Override
                 public void onResultReceived(AntPlusFitnessEquipmentPcc result, RequestAccessResult resultCode, DeviceState initialDeviceState) {
@@ -97,7 +116,8 @@ public class BikeChannelController {
                         isConnected = false;
                     }
                 }
-            }
+            },
+            mFitnessEquipmentStateReceiver
         );
 
         return isConnected;
@@ -105,25 +125,7 @@ public class BikeChannelController {
 
     private void subscribeToBikeEvents() {
         if (fePcc != null) {
-            // Subscribe to equipment state changes
-            // Fixed method name based on sample code
-            fePcc.subscribeEquipmentStateEvent(new IFitnessEquipmentStateReceiver() {
-                @Override
-                public void onNewFitnessEquipmentState(long estTimestamp, EnumSet<EventFlag> eventFlags,
-                                                     EquipmentType type, EquipmentState state) {
-                    equipmentType = type;
-                    equipmentState = state;
-                    Log.d(TAG, "Equipment type: " + type + ", State: " + state);
-
-                    // Only subscribe to bike specific data if this is actually a bike
-                    if (type == EquipmentType.BIKE && !isSubscribedToBikeData) {
-                        subscribeToBikeSpecificData();
-                        isSubscribedToBikeData = true;
-                    }
-                }
-            });
-
-            // Subscribe to general fitness equipment data
+            // General fitness equipment data
             fePcc.subscribeGeneralFitnessEquipmentDataEvent(new IGeneralFitnessEquipmentDataReceiver() {
                 @Override
                 public void onNewGeneralFitnessEquipmentData(long estTimestamp, EnumSet<EventFlag> eventFlags,
