@@ -891,8 +891,9 @@ const QString QZSettings::peloton_current_user_id = QStringLiteral("peloton_curr
 const QString QZSettings::default_peloton_current_user_id = QStringLiteral("");
 const QString QZSettings::proform_225_csx_PFEX32925_INT_0 = QStringLiteral("proform_225_csx_PFEX32925_INT_0");
 const QString QZSettings::trainprogram_pid_ignore_inclination = QStringLiteral("trainprogram_pid_ignore_inclination");
+const QString QZSettings::android_ant_bike = QStringLiteral("android_ant_bike");
 
-const uint32_t allSettingsCount = 736;
+const uint32_t allSettingsCount = 737;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1643,6 +1644,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id},
     {QZSettings::proform_225_csx_PFEX32925_INT_0, QZSettings::proform_225_csx_PFEX32925_INT_0},
     {QZSettings::trainprogram_pid_ignore_inclination, QZSettings::default_trainprogram_pid_ignore_inclination},
+    {QZSettings::android_ant_bike, QZSettings::default_android_ant_bike},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

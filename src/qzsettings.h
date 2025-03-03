@@ -2405,6 +2405,8 @@ class QZSettings {
     static constexpr bool default_proform_225_csx_PFEX32925_INT_0 = false;
     static const QString trainprogram_pid_ignore_inclination;
     static constexpr bool default_trainprogram_pid_ignore_inclination = false;
+    static const QString android_ant_bike;
+    static constexpr bool default_android_ant_bike = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

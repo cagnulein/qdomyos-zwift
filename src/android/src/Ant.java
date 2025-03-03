@@ -1,5 +1,4 @@
 package org.cagnulen.qdomyoszwift;
-
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -27,106 +26,129 @@ import android.util.Log;
 import android.content.Intent;
 
 public class Ant {
-
  private ChannelService.ChannelServiceComm mChannelService = null;
  private boolean mChannelServiceBound = false;
  private final String TAG = "Ant";
  public static Activity activity = null;
  static boolean speedRequest = false;
  static boolean heartRequest = false;
+ static boolean bikeRequest = false; // Added bike request flag
  static boolean garminKey = false;
  static boolean treadmill = false;
 
- public void antStart(Activity a, boolean SpeedRequest, boolean HeartRequest, boolean GarminKey, boolean Treadmill) {
-	 Log.v(TAG, "antStart");
-	 speedRequest = SpeedRequest;
-	 heartRequest = HeartRequest;
-	 treadmill = Treadmill;
-	 garminKey = GarminKey;
-
-	 activity = a;
-	 if(a != null)
-	    Log.v(TAG, "antStart activity is valid");
-	 else
-	 {
-		 Log.v(TAG, "antStart activity is invalid");
-		 return;
-	 }
+ // Updated antStart method with BikeRequest parameter at the end
+ public void antStart(Activity a, boolean SpeedRequest, boolean HeartRequest, boolean GarminKey, boolean Treadmill, boolean BikeRequest) {
+     Log.v(TAG, "antStart");
+     speedRequest = SpeedRequest;
+     heartRequest = HeartRequest;
+     treadmill = Treadmill;
+     garminKey = GarminKey;
+     bikeRequest = BikeRequest; // Set bike request flag
+     activity = a;
+     if(a != null)
+        Log.v(TAG, "antStart activity is valid");
+     else
+     {
+         Log.v(TAG, "antStart activity is invalid");
+         return;
+     }
     if(!mChannelServiceBound) doBindChannelService();
  }
 
  private ServiceConnection mChannelServiceConnection = new ServiceConnection()
  {
-	@Override
-	public void onServiceConnected(ComponentName name, IBinder serviceBinder)
-	{
-		Log.v(TAG, "mChannelServiceConnection.onServiceConnected...");
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder serviceBinder)
+    {
+        Log.v(TAG, "mChannelServiceConnection.onServiceConnected...");
+        mChannelService = (ChannelService.ChannelServiceComm) serviceBinder;
+        Log.v(TAG, "...mChannelServiceConnection.onServiceConnected");
+    }
 
-		mChannelService = (ChannelService.ChannelServiceComm) serviceBinder;
-
-
-		Log.v(TAG, "...mChannelServiceConnection.onServiceConnected");
-		}
-
-	@Override
-	public void onServiceDisconnected(ComponentName arg0)
-	{
-		Log.v(TAG, "mChannelServiceConnection.onServiceDisconnected...");
-
-		// Clearing and disabling when disconnecting from ChannelService
-		mChannelService = null;
-
-		Log.v(TAG, "...mChannelServiceConnection.onServiceDisconnected");
-		}
-	};
+    @Override
+    public void onServiceDisconnected(ComponentName arg0)
+    {
+        Log.v(TAG, "mChannelServiceConnection.onServiceDisconnected...");
+        // Clearing and disabling when disconnecting from ChannelService
+        mChannelService = null;
+        Log.v(TAG, "...mChannelServiceConnection.onServiceDisconnected");
+    }
+ };
 
  private void doBindChannelService()
  {
-	Log.v(TAG, "doBindChannelService...");
-
-	// Binds to ChannelService. ChannelService binds and manages connection between the
-	// app and the ANT Radio Service
-	mChannelServiceBound = activity.bindService(new Intent(activity, ChannelService.class), mChannelServiceConnection , Context.BIND_AUTO_CREATE);
-
-	if(!mChannelServiceBound)   //If the bind returns false, run the unbind method to update the GUI
-	doUnbindChannelService();
-
-	Log.i(TAG, "  Channel Service binding = "+ mChannelServiceBound);
-
-	Log.v(TAG, "...doBindChannelService");
-	}
+    Log.v(TAG, "doBindChannelService...");
+    // Binds to ChannelService. ChannelService binds and manages connection between the
+    // app and the ANT Radio Service
+    mChannelServiceBound = activity.bindService(new Intent(activity, ChannelService.class), mChannelServiceConnection, Context.BIND_AUTO_CREATE);
+    if(!mChannelServiceBound)   //If the bind returns false, run the unbind method to update the GUI
+        doUnbindChannelService();
+    Log.i(TAG, "  Channel Service binding = "+ mChannelServiceBound);
+    Log.v(TAG, "...doBindChannelService");
+ }
 
  public void doUnbindChannelService()
  {
-	Log.v(TAG, "doUnbindChannelService...");
-
-	if(mChannelServiceBound)
-	{
-		activity.unbindService(mChannelServiceConnection);
-
-		mChannelServiceBound = false;
-		}
-
-	Log.v(TAG, "...doUnbindChannelService");
-	}
+    Log.v(TAG, "doUnbindChannelService...");
+    if(mChannelServiceBound)
+    {
+        activity.unbindService(mChannelServiceConnection);
+        mChannelServiceBound = false;
+    }
+    Log.v(TAG, "...doUnbindChannelService");
+ }
 
  public void setCadenceSpeedPower(float speed, int power, int cadence)
  {
-	 if(mChannelService == null)
-	    return;
-
-	 Log.v(TAG, "setCadenceSpeedPower " + speed + " " + power + " " + cadence);
-	 mChannelService.setSpeed(speed);
-	 mChannelService.setPower(power);
-	 mChannelService.setCadence(cadence);
+     if(mChannelService == null)
+        return;
+     Log.v(TAG, "setCadenceSpeedPower " + speed + " " + power + " " + cadence);
+     mChannelService.setSpeed(speed);
+     mChannelService.setPower(power);
+     mChannelService.setCadence(cadence);
  }
 
  public int getHeart()
  {
-	if(mChannelService == null)
-	   return 0;
+    if(mChannelService == null)
+       return 0;
+    Log.v(TAG, "getHeart");
+    return mChannelService.getHeart();
+ }
 
-	Log.v(TAG, "getHeart");
-	return mChannelService.getHeart();
+ // Added bike-related getter methods
+ public int getBikeCadence() {
+    if(mChannelService == null)
+       return 0;
+    Log.v(TAG, "getBikeCadence");
+    return mChannelService.getBikeCadence();
+ }
+
+ public int getBikePower() {
+    if(mChannelService == null)
+       return 0;
+    Log.v(TAG, "getBikePower");
+    return mChannelService.getBikePower();
+ }
+
+ public double getBikeSpeed() {
+    if(mChannelService == null)
+       return 0.0;
+    Log.v(TAG, "getBikeSpeed");
+    return mChannelService.getBikeSpeed();
+ }
+
+ public long getBikeDistance() {
+    if(mChannelService == null)
+       return 0;
+    Log.v(TAG, "getBikeDistance");
+    return mChannelService.getBikeDistance();
+ }
+
+ public boolean isBikeConnected() {
+    if(mChannelService == null)
+       return false;
+    Log.v(TAG, "isBikeConnected");
+    return mChannelService.isBikeConnected();
  }
 }
