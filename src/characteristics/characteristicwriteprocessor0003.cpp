@@ -81,15 +81,29 @@ void CharacteristicWriteProcessor0003::handleZwiftGear(const QByteArray &array) 
         else { return; }
     }
 
-    int actGear = ((bike*)Bike)->gears();
-    if (g < actGear) {
-        for (int i = 0; i < actGear - g; i++) {
-            ((bike*)Bike)->gearDown();
+    QSettings settings;
+    if(settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool()) {
+        int actGear = ((bike*)Bike)->gears();
+        if (g < actGear) {
+            for (int i = 0; i < actGear - g; i++) {
+                ((bike*)Bike)->gearDown();
+            }
+        } else if (g > actGear) {
+            for (int i = 0; i < g - actGear; i++) {
+                ((bike*)Bike)->gearUp();
+            }
         }
-    } else if (g > actGear) {
-        for (int i = 0; i < g - actGear; i++) {
-            ((bike*)Bike)->gearUp();
+    } else {
+        if (g < currentZwiftGear) {
+            for (int i = 0; i < currentZwiftGear - g; ++i) {
+                ((bike*)Bike)->gearDown();
+            }
+        } else if (g > currentZwiftGear) {
+            for (int i = 0; i < g - currentZwiftGear; ++i) {
+                ((bike*)Bike)->gearUp();
+            }
         }
+        currentZwiftGear = g;
     }
 }
 

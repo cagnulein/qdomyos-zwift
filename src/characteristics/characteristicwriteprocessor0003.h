@@ -34,6 +34,7 @@ private:
     VarintResult decodeVarint(const QByteArray& bytes, int startIndex);
     qint32 decodeSInt(const QByteArray& bytes);
     void handleZwiftGear(const QByteArray &array);
+    int currentZwiftGear = 8;
 
 signals:
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
