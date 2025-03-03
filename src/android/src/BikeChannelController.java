@@ -50,7 +50,11 @@ public class BikeChannelController {
 
     public boolean openChannel() {
         // Request access to first available fitness equipment device
-        releaseHandle = AntPlusFitnessEquipmentPcc.requestAccess((Activity)context, 0, 0, // 0 means first available device
+        // Fixed method name and parameters based on sample code
+        releaseHandle = AntPlusFitnessEquipmentPcc.requestAccess(
+            (Activity)context,
+            0, // Use first device found
+            0, // Take your time searching
             new IPluginAccessResultReceiver<AntPlusFitnessEquipmentPcc>() {
                 @Override
                 public void onResultReceived(AntPlusFitnessEquipmentPcc result, RequestAccessResult resultCode, DeviceState initialDeviceState) {
@@ -102,7 +106,8 @@ public class BikeChannelController {
     private void subscribeToBikeEvents() {
         if (fePcc != null) {
             // Subscribe to equipment state changes
-            fePcc.subscribeFitnessEquipmentStateEvent(new IFitnessEquipmentStateReceiver() {
+            // Fixed method name based on sample code
+            fePcc.subscribeEquipmentStateEvent(new IFitnessEquipmentStateReceiver() {
                 @Override
                 public void onNewFitnessEquipmentState(long estTimestamp, EnumSet<EventFlag> eventFlags,
                                                      EquipmentType type, EquipmentState state) {
