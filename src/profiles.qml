@@ -5,7 +5,7 @@ import QtQuick.Controls.Material 2.12
 import Qt.labs.platform 1.1
 import Qt.labs.folderlistmodel 2.15
 import Qt.labs.settings 1.0
-import QtQuick.Dialogs 1.0 as FileDialogClass
+//import QtQuick.Dialogs 1.0 as FileDialogClass
 
 ColumnLayout {
 
