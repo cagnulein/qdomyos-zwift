@@ -269,6 +269,9 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 }
 
 void ftmsbike::update() {
+
+    QSettings settings;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -278,6 +281,11 @@ void ftmsbike::update() {
         zwiftPlayInit();
         if(ICSE)
             requestResistance = 1;  // to force the engine to send every second a target inclination
+
+        // when we are emulating the zwift protocol, zwift doesn't senf the start simulation frames, so we have to send them
+        if(settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool())
+            init();
+
         initRequest = false;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -301,8 +309,7 @@ void ftmsbike::update() {
             forceResistance(currentResistance().value());
         }
 
-        auto virtualBike = this->VirtualBike();
-        QSettings settings;
+        auto virtualBike = this->VirtualBike();        
         bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
         if (requestResistance != -1 || lastGearValue != gears()) {
@@ -395,7 +402,8 @@ void ftmsbike::update() {
 
         lastGearValue = gears();
 
-        if (requestPower != -1) {
+        // if a classic request of power from zwift or any other platform is coming, will be transfereed on the ftmsCharacteristicChanged applying the gear mod too
+        if (requestPower != -1 && (!virtualBike || !virtualBike->ftmsDeviceConnected() || (zwiftPlayService != nullptr && gears_zwift_ratio))) {
             qDebug() << QStringLiteral("writing power") << requestPower;
             init();
             forcePower(requestPower);
