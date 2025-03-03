@@ -131,12 +131,8 @@ void ftmsbike::init() {
 
     uint8_t write[] = {FTMS_REQUEST_CONTROL};
     bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
-    if(resistance_lvl_mode && DIRETO_XR) {
-        setWheelDiameter(2070.0);
-    } else {
-        write[0] = {FTMS_START_RESUME};
-        ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
-    }
+    write[0] = {FTMS_START_RESUME};
+    ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
 
     if(ret) {
         initDone = true;
@@ -145,10 +141,6 @@ void ftmsbike::init() {
 }
 
 ftmsbike::~ftmsbike() {
-    // Set wheel circumference back to 2070 when object is destroyed
-    if (DIRETO_XR) {
-        setWheelDiameter(2070.0);
-    }
 }
 
 void ftmsbike::zwiftPlayInit() {
@@ -306,7 +298,7 @@ void ftmsbike::update() {
         bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
         if (requestResistance != -1 || lastGearValue != gears()) {
-            if (requestResistance > 100 && !DIRETO_XR) {    // Direto XR has different resistance levels, i'm still figuring them out
+            if (requestResistance > 100) {
                 requestResistance = 100;
             } // TODO, use the bluetooth value
             else if (requestResistance == 0) {
@@ -321,13 +313,7 @@ void ftmsbike::update() {
                     (requestPower == 0 || requestPower == -1)) {
                     init();
 
-                    if(DIRETO_XR && gears_zwift_ratio)
-                        setWheelDiameter(wheelCircumference::gearsToWheelDiameter(gears()));
-                    else {
-                        forceResistance(requestResistance + (gears() * 5));
-                        if(DIRETO_XR)
-                            Resistance = requestResistance;
-                    }
+                    forceResistance(requestResistance + (gears() * 5));
                 }
             }
             if(!ICSE)
@@ -335,12 +321,8 @@ void ftmsbike::update() {
         }
         
         if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
-            if(DIRETO_XR && gears_zwift_ratio) {
-                setWheelDiameter(wheelCircumference::gearsToWheelDiameter(gears()));
-            } else {
-                qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP" << lastPacketFromFTMS.toHex(' ');
-                ftmsCharacteristicChanged(QLowEnergyCharacteristic(), lastPacketFromFTMS);
-            }
+            qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP" << lastPacketFromFTMS.toHex(' ');
+            ftmsCharacteristicChanged(QLowEnergyCharacteristic(), lastPacketFromFTMS);
         }
 
         if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
@@ -1030,7 +1012,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 QBluetoothUuid _zwiftPlayWriteCharControlPointId(QStringLiteral("00000003-19ca-4651-86e5-fa29dcdd09d1"));
-                if (c.uuid() == _zwiftPlayWriteCharControlPointId && !DIRETO_XR) {
+                if (c.uuid() == _zwiftPlayWriteCharControlPointId) {
                     qDebug() << QStringLiteral("Zwift Play service and Control Point found");
                     zwiftPlayWriteChar = c;
                     zwiftPlayService = s;
@@ -1394,7 +1376,7 @@ double ftmsbike::maxGears() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
-    if((zwiftPlayService != nullptr || DIRETO_XR) && gears_zwift_ratio) {
+    if((zwiftPlayService != nullptr) && gears_zwift_ratio) {
         wheelCircumference::GearTable g;
         return g.maxGears;
     } else if(WATTBIKE) {
@@ -1408,7 +1390,7 @@ double ftmsbike::minGears() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
-    if((zwiftPlayService != nullptr || DIRETO_XR) && gears_zwift_ratio ) {
+    if((zwiftPlayService != nullptr) && gears_zwift_ratio ) {
         return 1;
     } else if(WATTBIKE) {
         return 1;
