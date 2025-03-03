@@ -2929,7 +2929,8 @@ void bluetooth::connectedAndDiscovered() {
             settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool(),
             settings.value(QZSettings::ant_garmin, QZSettings::default_ant_garmin).toBool(),
             device()->deviceType() == bluetoothdevice::TREADMILL ||
-                device()->deviceType() == bluetoothdevice::ELLIPTICAL, settings.value(QZSettings::android_ant_bike, QZSettings::default_android_ant_bike).toBool(),);
+            device()->deviceType() == bluetoothdevice::ELLIPTICAL,
+            settings.value(QZSettings::android_ant_bike, QZSettings::default_android_ant_bike).toBool());
     }
 
     if (settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
