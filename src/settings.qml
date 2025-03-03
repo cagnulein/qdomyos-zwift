@@ -5125,7 +5125,7 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-
+/*
                     IndicatorOnlySwitch {
                         text: qsTr("Show Gears to Zwift Only")
                         spacing: 0
@@ -5152,7 +5152,7 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-
+*/
 
                     RowLayout {
                         spacing: 10
@@ -10923,6 +10923,7 @@ import Qt.labs.platform 1.1
                                 settings: settings
                                 accordionContent: ColumnLayout {
                                     spacing: 0
+                                    /*
                                     IndicatorOnlySwitch {
                                         id: wahooRGTDirconDelegate
                                         text: qsTr("MyWhoosh Compatibility")
@@ -10936,7 +10937,7 @@ import Qt.labs.platform 1.1
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
                                         onClicked: { settings.wahoo_rgt_dircon = checked; window.settings_restart_to_apply = true; }
-                                    }
+                                    }*/
 
                                     Label {
                                         text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to Wahoo RGT app. Leave the RGT compatibility disabled in order to use Zwift.")

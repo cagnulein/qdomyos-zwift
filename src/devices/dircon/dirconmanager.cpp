@@ -14,7 +14,8 @@ using namespace std::chrono_literals;
     OP(CYCLING_POWER, 0x1818, WAHOO_KICKR, P1, P2, P3)                                                                 \
     OP(CYCLING_SPEED_AND_CADENCE, 0x1816, WAHOO_KICKR, P1, P2, P3)                                                     \
     OP(RUNNING_SPEED_AND_CADENCE, 0x1814, WAHOO_TREADMILL, P1, P2, P3)                                                 \
-    OP(HEART_RATE, 0x180D, WAHOO_BLUEHR, P1, P2, P3)
+    OP(HEART_RATE, 0x180D, WAHOO_BLUEHR, P1, P2, P3)                                                                   \
+    OP(ZWIFT_PLAY_EMULATOR, ZWIFT_PLAY_ENUM_VALUE, WAHOO_KICKR, P1, P2, P3)
 
 #define DM_MACHINE_OP(OP, P1, P2, P3)                                                                                  \
     OP(WAHOO_KICKR, "Wahoo KICKR $uuid_hex$", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)            \
@@ -22,6 +23,7 @@ using namespace std::chrono_literals;
     OP(WAHOO_RPM_SPEED, "Wahoo SPEED $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                    \
     OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
 
+#define DP_PROCESS_WRITE_0003() writeP0003
 #define DP_PROCESS_WRITE_2AD9() writeP2AD9
 #define DP_PROCESS_WRITE_2AD9T() writeP2AD9
 #define DP_PROCESS_WRITE_E005() writePE005
@@ -71,7 +73,17 @@ using namespace std::chrono_literals;
        P3)                                                                                                             \
     OP(RUNNING_SPEED_AND_CADENCE, 0x2A53, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2,    \
        P3)                                                                                                             \
-    OP(HEART_RATE, 0x2A37, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)
+    OP(HEART_RATE, 0x2A37, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)               \
+    OP(ZWIFT_PLAY_EMULATOR, 0x0003,                                                                                    \
+       DPKT_CHAR_PROP_FLAG_WRITE,                                                                                      \
+       DM_BT("\x00"), DP_PROCESS_WRITE_0003, P1, P2, P3)                                                               \
+    OP(ZWIFT_PLAY_EMULATOR, 0x0002,                                                                                    \
+       DPKT_CHAR_PROP_FLAG_NOTIFY,                                                                                     \
+       DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                               \
+    OP(ZWIFT_PLAY_EMULATOR, 0x0004,                                                                                    \
+       /* CHECK THE INDICATE*/                                                                                         \
+       DPKT_CHAR_PROP_FLAG_INDICATE,                                                                                   \
+       DM_BT("\x02\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)
 
 #define DM_MACHINE_ENUM_OP(DESC, NAME, TYPE, P1, P2, P3) DM_MACHINE_##DESC,
 
@@ -160,6 +172,7 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
     DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_BUILD_OP, Bike, 0, 0)
     writeP2AD9 = new CharacteristicWriteProcessor2AD9(bikeResistanceGain, bikeResistanceOffset, Bike, notif2AD9, this);
     writePE005 = new CharacteristicWriteProcessorE005(bikeResistanceGain, bikeResistanceOffset, Bike, this);
+    writeP0003 = new CharacteristicWriteProcessor0003(bikeResistanceGain, bikeResistanceOffset, Bike, notif0002, notif0004, this);
     DM_CHAR_OP(DM_CHAR_INIT_OP, services, service, 0)
     connect(writeP2AD9, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
     connect(writeP2AD9, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
@@ -167,11 +180,14 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
     connect(writePE005, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
     connect(writePE005, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
             SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
+    connect(writeP0003, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));        
+    connect(writeP0003, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
+            SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
     QObject::connect(&bikeTimer, &QTimer::timeout, this, &DirconManager::bikeProvider);
     QString mac = getMacAddress();
     DM_MACHINE_OP(DM_MACHINE_INIT_OP, services, proc_services, type)
-    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
-        bikeTimer.start(100ms);
+    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool() || settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool())
+        bikeTimer.start(50ms);
     else
         bikeTimer.start(1s);
 }
