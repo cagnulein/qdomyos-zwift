@@ -693,7 +693,12 @@ class homeform : public QObject {
     DataObject *preset_powerzone_4;
     DataObject *preset_powerzone_5;
     DataObject *preset_powerzone_6;
-    DataObject *preset_powerzone_7;    
+    DataObject *preset_powerzone_7;
+    DataObject *tile_hr_time_in_zone_1;
+    DataObject *tile_hr_time_in_zone_2;
+    DataObject *tile_hr_time_in_zone_3;
+    DataObject *tile_hr_time_in_zone_4;
+    DataObject *tile_hr_time_in_zone_5;
 
   private:
     static homeform *m_singleton;
