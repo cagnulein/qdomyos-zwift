@@ -1,8 +1,8 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Controls.Material 2.12
-//import QtGraphicalEffects 1.15
-import Qt.labs.settings 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Material
+import QtQuick.Effects
+import Qt.labs.settings 1.1
 
 Page {
 
@@ -15,11 +15,11 @@ Page {
     property alias row: row
 
     Settings {
-	     id: settings
-		  property real ui_zoom: 100.0
-		  property bool theme_tile_icon_enabled: true
-		  property string theme_background_color: "#303030"
-		}
+        id: settings
+        property real ui_zoom: 100.0
+        property bool theme_tile_icon_enabled: true
+        property string theme_background_color: "#303030"
+    }
 
     Item {
         width: parent.width
@@ -38,7 +38,7 @@ Page {
             Rectangle {
                 width: 50
                 height: row.height
-					 color: settings.theme_background_color
+                color: settings.theme_background_color
                 Column {
                     id: column
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -60,12 +60,24 @@ Page {
                             source: "icons/icons/bluetooth-icon.png"
                             enabled: rootItem.device
                             smooth: true
-                        }/*
-                        ColorOverlay {
+                        }
+
+                        ShaderEffect {
                             anchors.fill: treadmill_connection
-                            source: treadmill_connection
-                            color: treadmill_connection.enabled ? "#00000000" : "#B0D3d3d3"
-                        }*/
+                            property var source: treadmill_connection
+                            property color overlayColor: treadmill_connection.enabled ? "#00000000" : "#B0D3d3d3"
+
+                            fragmentShader: "
+                                varying highp vec2 qt_TexCoord0;
+                                uniform sampler2D source;
+                                uniform highp vec4 overlayColor;
+                                uniform lowp float qt_Opacity;
+                                void main() {
+                                    highp vec4 pixelColor = texture2D(source, qt_TexCoord0);
+                                    gl_FragColor = mix(pixelColor, vec4(overlayColor.rgb, pixelColor.a), overlayColor.a) * qt_Opacity;
+                                }
+                            "
+                        }
                     }
                     Image {
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -81,7 +93,7 @@ Page {
             Rectangle {
                 width: 120
                 height: row.height
-					 color: settings.theme_background_color
+                color: settings.theme_background_color
                 RoundButton {
                     icon.source: rootItem.startIcon
                     icon.height: row.height - 54
@@ -91,19 +103,31 @@ Page {
                     id: start
                     width: 120
                     height: row.height - 4
-                }/*
-                ColorOverlay {
+                }
+
+                ShaderEffect {
                     anchors.fill: start
-                    source: start
-                    color: rootItem.startColor
-                    enabled: rootItem.startColor === "red" ? true : false
-                }*/
+                    visible: rootItem.startColor === "red"
+                    property var source: start
+                    property color overlayColor: rootItem.startColor
+
+                    fragmentShader: "
+                        varying highp vec2 qt_TexCoord0;
+                        uniform sampler2D source;
+                        uniform highp vec4 overlayColor;
+                        uniform lowp float qt_Opacity;
+                        void main() {
+                            highp vec4 pixelColor = texture2D(source, qt_TexCoord0);
+                            gl_FragColor = mix(pixelColor, vec4(overlayColor.rgb, pixelColor.a), overlayColor.a) * qt_Opacity;
+                        }
+                    "
+                }
             }
 
             Rectangle {
                 width: 120
                 height: row.height
-					 color: settings.theme_background_color
+                color: settings.theme_background_color
 
                 RoundButton {
                     icon.source: rootItem.stopIcon
@@ -114,20 +138,32 @@ Page {
                     id: stop
                     width: 120
                     height: row.height - 4
-                }/*
-                ColorOverlay {
+                }
+
+                ShaderEffect {
                     anchors.fill: stop
-                    source: stop
-                    color: rootItem.stopColor
-                    enabled: rootItem.stopColor === "red" ? true : false
-                }*/
+                    visible: rootItem.stopColor === "red"
+                    property var source: stop
+                    property color overlayColor: rootItem.stopColor
+
+                    fragmentShader: "
+                        varying highp vec2 qt_TexCoord0;
+                        uniform sampler2D source;
+                        uniform highp vec4 overlayColor;
+                        uniform lowp float qt_Opacity;
+                        void main() {
+                            highp vec4 pixelColor = texture2D(source, qt_TexCoord0);
+                            gl_FragColor = mix(pixelColor, vec4(overlayColor.rgb, pixelColor.a), overlayColor.a) * qt_Opacity;
+                        }
+                    "
+                }
             }
 
             Rectangle {
                 id: item2
                 width: 50
                 height: row.height
-					 color: settings.theme_background_color
+                color: settings.theme_background_color
                 RoundButton {
                     anchors.verticalCenter: parent.verticalCenter
                     id: lap
@@ -138,12 +174,24 @@ Page {
                     icon.height: 48
                     enabled: rootItem.lap
                     smooth: true
-                }/*
-                ColorOverlay {
+                }
+
+                ShaderEffect {
                     anchors.fill: lap
-                    source: lap
-                    color: lap.enabled ? "#00000000" : "#B0D3d3d3"
-                }*/
+                    property var source: lap
+                    property color overlayColor: lap.enabled ? "#00000000" : "#B0D3d3d3"
+
+                    fragmentShader: "
+                        varying highp vec2 qt_TexCoord0;
+                        uniform sampler2D source;
+                        uniform highp vec4 overlayColor;
+                        uniform lowp float qt_Opacity;
+                        void main() {
+                            highp vec4 pixelColor = texture2D(source, qt_TexCoord0);
+                            gl_FragColor = mix(pixelColor, vec4(overlayColor.rgb, pixelColor.a), overlayColor.a) * qt_Opacity;
+                        }
+                    "
+                }
             }
         }
 
@@ -177,4 +225,3 @@ Designer {
     D{i:0;autoSize:true;formeditorZoom:0.6600000262260437;height:480;width:640}
 }
 ##^##*/
-
