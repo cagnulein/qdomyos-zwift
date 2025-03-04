@@ -238,6 +238,17 @@ ScrollView {
         property real tile_preset_powerzone_7_value: 7.0
         property string tile_preset_powerzone_7_label: "Zone 7"
         property string tile_preset_powerzone_7_color: "red"        
+
+        property bool tile_hr_time_in_zone_1_enabled: false
+        property int  tile_hr_time_in_zone_1_order: 62
+        property bool tile_hr_time_in_zone_2_enabled: false
+        property int  tile_hr_time_in_zone_2_order: 63
+        property bool tile_hr_time_in_zone_3_enabled: false
+        property int  tile_hr_time_in_zone_3_order: 64
+        property bool tile_hr_time_in_zone_4_enabled: false
+        property int  tile_hr_time_in_zone_4_order: 65
+        property bool tile_hr_time_in_zone_5_enabled: false
+        property int  tile_hr_time_in_zone_5_order: 66
     }
 
 
@@ -4761,6 +4772,231 @@ ScrollView {
 
         Label {
             text: qsTr("Power zone presets allow quick access to specific training zones with customizable labels and values.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: hrTimeInZone1EnabledAccordion
+            title: qsTr("Heart Rate Time in Zone 1+")
+            linkedBoolSetting: "tile_hr_time_in_zone_1_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelHrTimeInZone1Order
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: hrTimeInZone1OrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_hr_time_in_zone_1_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = hrTimeInZone1OrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okHrTimeInZone1OrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_hr_time_in_zone_1_order = hrTimeInZone1OrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Displays total time spent in heart rate Zone 1 or higher during the session.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: hrTimeInZone2EnabledAccordion
+            title: qsTr("Heart Rate Time in Zone 2+")
+            linkedBoolSetting: "tile_hr_time_in_zone_2_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelHrTimeInZone2Order
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: hrTimeInZone2OrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_hr_time_in_zone_2_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = hrTimeInZone2OrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okHrTimeInZone2OrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_hr_time_in_zone_2_order = hrTimeInZone2OrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Displays total time spent in heart rate Zone 2 or higher during the session.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: hrTimeInZone3EnabledAccordion
+            title: qsTr("Heart Rate Time in Zone 3+")
+            linkedBoolSetting: "tile_hr_time_in_zone_3_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelHrTimeInZone3Order
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: hrTimeInZone3OrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_hr_time_in_zone_3_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = hrTimeInZone3OrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okHrTimeInZone3OrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_hr_time_in_zone_3_order = hrTimeInZone3OrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Displays total time spent in heart rate Zone 3 or higher during the session.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: hrTimeInZone4EnabledAccordion
+            title: qsTr("Heart Rate Time in Zone 4+")
+            linkedBoolSetting: "tile_hr_time_in_zone_4_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelHrTimeInZone4Order
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: hrTimeInZone4OrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_hr_time_in_zone_4_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = hrTimeInZone4OrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okHrTimeInZone4OrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_hr_time_in_zone_4_order = hrTimeInZone4OrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Displays total time spent in heart rate Zone 4 or higher during the session.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: hrTimeInZone5EnabledAccordion
+            title: qsTr("Heart Rate Time in Zone 5+")
+            linkedBoolSetting: "tile_hr_time_in_zone_5_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelHrTimeInZone5Order
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: hrTimeInZone5OrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_hr_time_in_zone_5_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = hrTimeInZone5OrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okHrTimeInZone5OrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_hr_time_in_zone_5_order = hrTimeInZone5OrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Displays total time spent in heart rate Zone 5 or higher during the session.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2
