@@ -873,6 +873,9 @@ void horizontreadmill::btinit() {
 float horizontreadmill::float_one_point_round(float value) { return ((float)((int)(value * 10))) / 10; }
 
 void horizontreadmill::update() {
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
         emit disconnected();

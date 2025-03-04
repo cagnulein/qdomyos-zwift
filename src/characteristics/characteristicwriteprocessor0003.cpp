@@ -246,8 +246,8 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
         notifier0002->addAnswer(reply);
 
         reply = QByteArray::fromHex("3c088804120503408c60");
-        reply[9] = receivedData[4];
-        reply[10] = receivedData[5];
+        reply[8] = receivedData[4];
+        reply[9] = receivedData[5];
         handleZwiftGear(receivedData.mid(4));
         notifier0004->addAnswer(reply);
     }
