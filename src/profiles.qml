@@ -5,10 +5,9 @@ import QtQuick.Controls.Material 2.12
 import Qt.labs.platform 1.1
 import Qt.labs.folderlistmodel 2.15
 import Qt.labs.settings 1.0
-//import QtQuick.Dialogs 1.0 as FileDialogClass
+import QtQuick.Dialogs
 
 ColumnLayout {
-
     anchors.top: parent.top
     anchors.fill: parent
 
@@ -19,13 +18,13 @@ ColumnLayout {
         property string profile_name: "default"
     }
 
-    FileDialogClass.FileDialog {
+    FileDialog {
         id: fileDialogTrainProgram
         title: "Please choose a file"
-        folder: shortcuts.home
+        currentFolder: StandardPaths.standardLocations(StandardPaths.HomeLocation)[0]
         onAccepted: {
-            console.log("You chose: " + fileDialogTrainProgram.fileUrl)
-            profile_open_clicked(fileDialogTrainProgram.fileUrl)
+            console.log("You chose: " + fileDialogTrainProgram.selectedFile)
+            profile_open_clicked(fileDialogTrainProgram.selectedFile)
             fileDialogTrainProgram.close()
         }
         onRejected: {
@@ -40,11 +39,12 @@ ColumnLayout {
         text: "Would you like to quit?"
         informativeText: "You must quit and restart for changes to take effect."
         buttons: (MessageDialog.Yes | MessageDialog.No)
-        onYesClicked: {
-            restart()
-        }
-        onNoClicked: {
-            quitDialog.close()
+        onAccepted: {
+            if (quitDialog.clickedButton === MessageDialog.Yes) {
+                restart()
+            } else {
+                quitDialog.close()
+            }
         }
     }
 
@@ -54,11 +54,12 @@ ColumnLayout {
         title: "Delete profile"
         text: "Would you like to delete this profile?"
         buttons: (MessageDialog.Yes | MessageDialog.No)
-        onYesClicked: {
-            deleteSettings(fileUrl)
-        }
-        onNoClicked: {
-            deleteDialog.close()
+        onAccepted: {
+            if (deleteDialog.clickedButton === MessageDialog.Yes) {
+                deleteSettings(fileUrl)
+            } else {
+                deleteDialog.close()
+            }
         }
     }
 
@@ -67,7 +68,7 @@ ColumnLayout {
         title: "Profile Saved"
         text: "Profile saved correctly!"
         buttons: (MessageDialog.Ok)
-        onOkClicked: {
+        onAccepted: {
             stackView.pop();
         }
     }
@@ -77,7 +78,7 @@ ColumnLayout {
         title: "New Profile"
         text: "New Profile Created with default values. Save it with a name and restart the app to apply them."
         buttons: (MessageDialog.Ok)
-        onOkClicked: {
+        onAccepted: {
             restoreSettingsDialog.visible = false
         }
     }
@@ -87,23 +88,23 @@ ColumnLayout {
         title: "Save Current Profile?"
         text: "You're creating a new profile with the default values, would you like to save the current one before?"
         buttons: (MessageDialog.Yes | MessageDialog.No | MessageDialog.Abort)
-        onYesClicked: {
-            if(profileNameTextField.text.length == 0)
-                profileNameTextField.text = "OldProfile"
+        onAccepted: {
+            if (newProfileDialog.clickedButton === MessageDialog.Yes) {
+                if (profileNameTextField.text.length == 0)
+                    profileNameTextField.text = "OldProfile"
 
-            saveProfile(profileNameTextField.text);
-            restoreSettings()
+                saveProfile(profileNameTextField.text);
+                restoreSettings()
 
-            newProfileDialog.visible = false;
-            restoreSettingsDialog.visible = true
-        }
-        onNoClicked: {
-            restoreSettings()
-            newProfileDialog.visible = false;
-            restoreSettingsDialog.visible = true
-        }
-        onAbortClicked: {
-            newProfileDialog.visible = false;
+                newProfileDialog.visible = false;
+                restoreSettingsDialog.visible = true
+            } else if (newProfileDialog.clickedButton === MessageDialog.No) {
+                restoreSettings()
+                newProfileDialog.visible = false;
+                restoreSettingsDialog.visible = true
+            } else if (newProfileDialog.clickedButton === MessageDialog.Abort) {
+                newProfileDialog.visible = false;
+            }
         }
     }
 
@@ -149,7 +150,7 @@ ColumnLayout {
         indicatRectColor: Material.color(Material.Grey)
         textColor: Material.color(Material.Grey)
         color: Material.backgroundColor
-        isOpen: true        
+        isOpen: true
         accordionContent: ColumnLayout {
             ListView {
                 id: list
