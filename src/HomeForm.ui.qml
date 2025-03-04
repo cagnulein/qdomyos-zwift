@@ -1,11 +1,9 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
-import QtQuick.Effects
 import Qt.labs.settings 1.1
 
 Page {
-
     title: qsTr("QZ Fitness")
     id: page
 
@@ -60,23 +58,7 @@ Page {
                             source: "icons/icons/bluetooth-icon.png"
                             enabled: rootItem.device
                             smooth: true
-                        }
-
-                        ShaderEffect {
-                            anchors.fill: treadmill_connection
-                            property var source: treadmill_connection
-                            property color overlayColor: treadmill_connection.enabled ? "#00000000" : "#B0D3d3d3"
-
-                            fragmentShader: "
-                                varying highp vec2 qt_TexCoord0;
-                                uniform sampler2D source;
-                                uniform highp vec4 overlayColor;
-                                uniform lowp float qt_Opacity;
-                                void main() {
-                                    highp vec4 pixelColor = texture2D(source, qt_TexCoord0);
-                                    gl_FragColor = mix(pixelColor, vec4(overlayColor.rgb, pixelColor.a), overlayColor.a) * qt_Opacity;
-                                }
-                            "
+                            opacity: rootItem.device ? 1.0 : 0.3 // Riduce l'opacità quando disabilitato
                         }
                     }
                     Image {
@@ -103,24 +85,8 @@ Page {
                     id: start
                     width: 120
                     height: row.height - 4
-                }
-
-                ShaderEffect {
-                    anchors.fill: start
-                    visible: rootItem.startColor === "red"
-                    property var source: start
-                    property color overlayColor: rootItem.startColor
-
-                    fragmentShader: "
-                        varying highp vec2 qt_TexCoord0;
-                        uniform sampler2D source;
-                        uniform highp vec4 overlayColor;
-                        uniform lowp float qt_Opacity;
-                        void main() {
-                            highp vec4 pixelColor = texture2D(source, qt_TexCoord0);
-                            gl_FragColor = mix(pixelColor, vec4(overlayColor.rgb, pixelColor.a), overlayColor.a) * qt_Opacity;
-                        }
-                    "
+                    // Modifica diretta del colore del bottone
+                    Material.foreground: rootItem.startColor === "red" ? "red" : Material.foreground
                 }
             }
 
@@ -138,24 +104,8 @@ Page {
                     id: stop
                     width: 120
                     height: row.height - 4
-                }
-
-                ShaderEffect {
-                    anchors.fill: stop
-                    visible: rootItem.stopColor === "red"
-                    property var source: stop
-                    property color overlayColor: rootItem.stopColor
-
-                    fragmentShader: "
-                        varying highp vec2 qt_TexCoord0;
-                        uniform sampler2D source;
-                        uniform highp vec4 overlayColor;
-                        uniform lowp float qt_Opacity;
-                        void main() {
-                            highp vec4 pixelColor = texture2D(source, qt_TexCoord0);
-                            gl_FragColor = mix(pixelColor, vec4(overlayColor.rgb, pixelColor.a), overlayColor.a) * qt_Opacity;
-                        }
-                    "
+                    // Modifica diretta del colore del bottone
+                    Material.foreground: rootItem.stopColor === "red" ? "red" : Material.foreground
                 }
             }
 
@@ -174,23 +124,7 @@ Page {
                     icon.height: 48
                     enabled: rootItem.lap
                     smooth: true
-                }
-
-                ShaderEffect {
-                    anchors.fill: lap
-                    property var source: lap
-                    property color overlayColor: lap.enabled ? "#00000000" : "#B0D3d3d3"
-
-                    fragmentShader: "
-                        varying highp vec2 qt_TexCoord0;
-                        uniform sampler2D source;
-                        uniform highp vec4 overlayColor;
-                        uniform lowp float qt_Opacity;
-                        void main() {
-                            highp vec4 pixelColor = texture2D(source, qt_TexCoord0);
-                            gl_FragColor = mix(pixelColor, vec4(overlayColor.rgb, pixelColor.a), overlayColor.a) * qt_Opacity;
-                        }
-                    "
+                    opacity: rootItem.lap ? 1.0 : 0.3 // Riduce l'opacità quando disabilitato
                 }
             }
         }
