@@ -2403,6 +2403,38 @@ class QZSettings {
     static const QString default_peloton_current_user_id;
     static const QString proform_225_csx_PFEX32925_INT_0;
     static constexpr bool default_proform_225_csx_PFEX32925_INT_0 = false;
+    static const QString trainprogram_pid_ignore_inclination;
+    static constexpr bool default_trainprogram_pid_ignore_inclination = false;
+
+    static const QString tile_hr_time_in_zone_1_enabled;
+    static constexpr bool default_tile_hr_time_in_zone_1_enabled = false;
+
+    static const QString tile_hr_time_in_zone_1_order;
+    static constexpr int default_tile_hr_time_in_zone_1_order = 62;
+
+    static const QString tile_hr_time_in_zone_2_enabled;
+    static constexpr bool default_tile_hr_time_in_zone_2_enabled = false;
+
+    static const QString tile_hr_time_in_zone_2_order;
+    static constexpr int default_tile_hr_time_in_zone_2_order = 63;
+
+    static const QString tile_hr_time_in_zone_3_enabled;
+    static constexpr bool default_tile_hr_time_in_zone_3_enabled = false;
+
+    static const QString tile_hr_time_in_zone_3_order;
+    static constexpr int default_tile_hr_time_in_zone_3_order = 64;
+
+    static const QString tile_hr_time_in_zone_4_enabled;
+    static constexpr bool default_tile_hr_time_in_zone_4_enabled = false;
+
+    static const QString tile_hr_time_in_zone_4_order;
+    static constexpr int default_tile_hr_time_in_zone_4_order = 65;
+
+    static const QString tile_hr_time_in_zone_5_enabled;
+    static constexpr bool default_tile_hr_time_in_zone_5_enabled = false;
+
+    static const QString tile_hr_time_in_zone_5_order;
+    static constexpr int default_tile_hr_time_in_zone_5_order = 66;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
