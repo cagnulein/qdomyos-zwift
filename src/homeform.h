@@ -840,6 +840,7 @@ class homeform : public QObject {
     void StopRequested();
     void Lap();
     void LargeButton(const QString &);
+    void keyPressed(int key);
     void volumeDown();
     void volumeUp();
     void keyMediaPrevious();
