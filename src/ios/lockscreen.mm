@@ -434,4 +434,20 @@ QByteArray lockscreen::zwift_hub_setGearsCommand(unsigned int gears) {
         return QByteArray(bytes, length);
     }
 }
+
+// Function to get power value from buffer data
+uint32_t lockscreen::zwift_hub_getPowerFromBuffer(const QByteArray& buffer) {
+    NSData *data = [NSData dataWithBytes:buffer.constData() length:buffer.length()];
+    
+    uint32_t power = [ZwiftHubBike getPowerFromBufferWithBuffer:data];
+    return power;
+}
+
+// Function to get cadence value from buffer data
+uint32_t lockscreen::zwift_hub_getCadenceFromBuffer(const QByteArray& buffer) {
+    NSData *data = [NSData dataWithBytes:buffer.constData() length:buffer.length()];
+    
+    uint32_t cadence = [ZwiftHubBike getCadenceFromBufferWithBuffer:data];
+    return cadence;
+}
 #endif

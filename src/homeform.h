@@ -5,6 +5,7 @@
 #include "bluetooth.h"
 #include "fit_profile.hpp"
 #include "gpx.h"
+#include "OAuth2.h"
 #include "peloton.h"
 #include "qmdnsengine/browser.h"
 #include "qmdnsengine/cache.h"
@@ -152,6 +153,8 @@ class homeform : public QObject {
     Q_PROPERTY(QStringList tile_order READ tile_order NOTIFY tile_orderChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE
                    setGeneralPopupVisible)
+    Q_PROPERTY(bool pelotonPopupVisible READ pelotonPopupVisible NOTIFY pelotonPopupVisibleChanged WRITE
+                   setPelotonPopupVisible)
     Q_PROPERTY(bool licensePopupVisible READ licensePopupVisible NOTIFY licensePopupVisibleChanged WRITE
                    setLicensePopupVisible)
     Q_PROPERTY(bool mapsVisible READ mapsVisible NOTIFY mapsVisibleChanged WRITE setMapsVisible)
@@ -195,6 +198,10 @@ class homeform : public QObject {
     Q_PROPERTY(QString getStravaAuthUrl READ getStravaAuthUrl NOTIFY stravaAuthUrlChanged)
     Q_PROPERTY(bool stravaWebVisible READ stravaWebVisible NOTIFY stravaWebVisibleChanged)
 
+    QString getPelotonAuthUrl() { if(!pelotonHandler) return ""; return pelotonHandler->pelotonAuthUrl; }
+    bool pelotonWebVisible() { if(!pelotonHandler) return false; return pelotonHandler->pelotonAuthWebVisible; }
+    Q_PROPERTY(QString getPelotonAuthUrl READ getPelotonAuthUrl NOTIFY pelotonAuthUrlChanged)
+    Q_PROPERTY(bool pelotonWebVisible READ pelotonWebVisible NOTIFY pelotonWebVisibleChanged)
 
   public:
     static homeform *singleton() { return m_singleton; }
@@ -448,6 +455,7 @@ class homeform : public QObject {
     bool stravaUploadRequested() { return m_stravaUploadRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
+    bool pelotonPopupVisible();
     bool licensePopupVisible();
     bool mapsVisible();
     bool videoIconVisible();
@@ -503,6 +511,7 @@ class homeform : public QObject {
         m_stravaUploadRequested = value;
     }
     void setGeneralPopupVisible(bool value);
+    void setPelotonPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
     int preview_workout_points();
 
@@ -680,6 +689,18 @@ class homeform : public QObject {
     DataObject *stepCount;
     DataObject *ergMode;
     DataObject *rss;
+    DataObject *preset_powerzone_1;
+    DataObject *preset_powerzone_2;
+    DataObject *preset_powerzone_3;
+    DataObject *preset_powerzone_4;
+    DataObject *preset_powerzone_5;
+    DataObject *preset_powerzone_6;
+    DataObject *preset_powerzone_7;
+    DataObject *tile_hr_time_in_zone_1;
+    DataObject *tile_hr_time_in_zone_2;
+    DataObject *tile_hr_time_in_zone_3;
+    DataObject *tile_hr_time_in_zone_4;
+    DataObject *tile_hr_time_in_zone_5;
 
   private:
     static homeform *m_singleton;
@@ -699,6 +720,7 @@ class homeform : public QObject {
     QString m_info = QStringLiteral("Connecting...");
     bool m_labelHelp = true;
     bool m_generalPopupVisible = false;
+    bool m_pelotonPopupVisible = false;
     bool m_LicensePopupVisible = false;
     bool m_MapsVisible = false;
     bool m_VideoIconVisible = false;
@@ -903,6 +925,7 @@ class homeform : public QObject {
     void toastRequestedChanged(QString value);
     void stravaUploadRequestedChanged(bool value);
     void generalPopupVisibleChanged(bool value);
+    void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
     void videoIconVisibleChanged(bool value);
     void videoVisibleChanged(bool value);
@@ -928,6 +951,8 @@ class homeform : public QObject {
     void previewWorkoutTagsChanged(QString value);
     void stravaAuthUrlChanged(QString value);
     void stravaWebVisibleChanged(bool value);
+    void pelotonAuthUrlChanged(QString value);
+    void pelotonWebVisibleChanged(bool value);
 
     void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 

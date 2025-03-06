@@ -531,12 +531,22 @@ void virtualtreadmill::treadmillProvider() {
         cadence_multiplier = 1.0;
 
     if (h) {
+        bool real_inclination_to_virtual_treamill_bridge = settings.value(QZSettings::real_inclination_to_virtual_treamill_bridge, QZSettings::default_real_inclination_to_virtual_treamill_bridge).toBool();
+        double inclination = treadMill->currentInclination().value();
+        if(real_inclination_to_virtual_treamill_bridge) {
+              double offset = settings.value(QZSettings::zwift_inclination_offset,
+                                             QZSettings::default_zwift_inclination_offset).toDouble();
+              double gain = settings.value(QZSettings::zwift_inclination_gain,
+                                           QZSettings::default_zwift_inclination_gain).toDouble();
+              inclination -= offset;
+              inclination /= gain;
+        }
         uint16_t normalizeSpeed = (uint16_t)qRound(treadMill->currentSpeed().value() * 100);
         // really connected to a device
         if (h->virtualtreadmill_updateFTMS(
                 normalizeSpeed, 0, (uint16_t)((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier,
                 (uint16_t)((treadmill *)treadMill)->wattsMetric().value(),
-                treadMill->currentInclination().value() * 10, (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0), ((treadmill *)treadMill)->calories().value())) {
+                inclination * 10, (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0), ((treadmill *)treadMill)->calories().value())) {
             h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
             lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
             if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)

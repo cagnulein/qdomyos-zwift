@@ -2,6 +2,7 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
+#include "homeform.h"
 #include "virtualdevices/virtualbike.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
@@ -513,6 +514,14 @@ void domyoselliptical::serviceScanDone(void) {
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &domyoselliptical::stateChanged);
+    if(!gattCommunicationChannelService) {
+        QSettings settings;
+        settings.setValue(QZSettings::domyos_elliptical_fmts, true);
+
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Domyos Elliptial it's a FTMS. Restart QZ to apply the fix, thanks.");
+        return;
+    }
     gattCommunicationChannelService->discoverDetails();
 }
 

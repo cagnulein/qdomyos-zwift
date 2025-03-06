@@ -764,6 +764,16 @@ const QString QZSettings::zwiftplay_swap = QStringLiteral("zwiftplay_swap");
 const QString QZSettings::gears_zwift_ratio = QStringLiteral("gears_zwift_ratio");
 const QString QZSettings::domyos_bike_500_profile_v2 = QStringLiteral("domyos_bike_500_profile_v2");
 const QString QZSettings::gears_offset = QStringLiteral("gears_offset");
+const QString QZSettings::peloton_accesstoken = QStringLiteral("peloton_accesstoken");
+const QString QZSettings::default_peloton_accesstoken = QStringLiteral("");
+const QString QZSettings::peloton_refreshtoken = QStringLiteral("peloton_refreshtoken");
+const QString QZSettings::default_peloton_refreshtoken = QStringLiteral("");
+const QString QZSettings::peloton_lastrefresh = QStringLiteral("peloton_lastrefresh");
+const QString QZSettings::default_peloton_lastrefresh = QStringLiteral("");
+const QString QZSettings::peloton_expires = QStringLiteral("peloton_expires");
+const QString QZSettings::default_peloton_expires = QStringLiteral("");
+const QString QZSettings::peloton_code = QStringLiteral("peloton_code");
+const QString QZSettings::default_peloton_code = QStringLiteral("");
 const QString QZSettings::proform_carbon_tl_PFTL59720 = QStringLiteral("proform_carbon_tl_PFTL59720");
 const QString QZSettings::proform_treadmill_sport_70 = QStringLiteral("proform_treadmill_sport_70");
 const QString QZSettings::peloton_date_format = QStringLiteral("peloton_date_format");
@@ -813,8 +823,91 @@ const QString QZSettings::tile_biggears_swap = QStringLiteral("tile_biggears_swa
 const QString QZSettings::treadmill_follow_wattage = QStringLiteral("treadmill_follow_wattage");
 const QString QZSettings::fit_file_garmin_device_training_effect = QStringLiteral("fit_file_garmin_device_training_effect");
 const QString QZSettings::proform_treadmill_705_cst_V80_44 = QStringLiteral("proform_treadmill_705_cst_V80_44");
+const QString QZSettings::nordictrack_treadmill_1750_adb = QStringLiteral("nordictrack_treadmill_1750_adb");
 
-const uint32_t allSettingsCount = 687;
+const QString QZSettings::tile_preset_powerzone_1_enabled = QStringLiteral("tile_preset_powerzone_1_enabled");
+const QString QZSettings::tile_preset_powerzone_1_order = QStringLiteral("tile_preset_powerzone_1_order");
+const QString QZSettings::tile_preset_powerzone_1_value = QStringLiteral("tile_preset_powerzone_1_value");
+const QString QZSettings::tile_preset_powerzone_1_label = QStringLiteral("tile_preset_powerzone_1_label");
+const QString QZSettings::default_tile_preset_powerzone_1_label = QStringLiteral("Zone 1");
+const QString QZSettings::tile_preset_powerzone_1_color = QStringLiteral("tile_preset_powerzone_1_color");
+const QString QZSettings::default_tile_preset_powerzone_1_color = QStringLiteral("white");
+
+const QString QZSettings::tile_preset_powerzone_2_enabled = QStringLiteral("tile_preset_powerzone_2_enabled");
+const QString QZSettings::tile_preset_powerzone_2_order = QStringLiteral("tile_preset_powerzone_2_order");
+const QString QZSettings::tile_preset_powerzone_2_value = QStringLiteral("tile_preset_powerzone_2_value");
+const QString QZSettings::tile_preset_powerzone_2_label = QStringLiteral("tile_preset_powerzone_2_label");
+const QString QZSettings::default_tile_preset_powerzone_2_label = QStringLiteral("Zone 2");
+const QString QZSettings::tile_preset_powerzone_2_color = QStringLiteral("tile_preset_powerzone_2_color");
+const QString QZSettings::default_tile_preset_powerzone_2_color = QStringLiteral("limegreen");
+
+const QString QZSettings::tile_preset_powerzone_3_enabled = QStringLiteral("tile_preset_powerzone_3_enabled");
+const QString QZSettings::tile_preset_powerzone_3_order = QStringLiteral("tile_preset_powerzone_3_order");
+const QString QZSettings::tile_preset_powerzone_3_value = QStringLiteral("tile_preset_powerzone_3_value");
+const QString QZSettings::tile_preset_powerzone_3_label = QStringLiteral("tile_preset_powerzone_3_label");
+const QString QZSettings::default_tile_preset_powerzone_3_label = QStringLiteral("Zone 3");
+const QString QZSettings::tile_preset_powerzone_3_color = QStringLiteral("tile_preset_powerzone_3_color");
+const QString QZSettings::default_tile_preset_powerzone_3_color = QStringLiteral("gold");
+
+const QString QZSettings::tile_preset_powerzone_4_enabled = QStringLiteral("tile_preset_powerzone_4_enabled");
+const QString QZSettings::tile_preset_powerzone_4_order = QStringLiteral("tile_preset_powerzone_4_order");
+const QString QZSettings::tile_preset_powerzone_4_value = QStringLiteral("tile_preset_powerzone_4_value");
+const QString QZSettings::tile_preset_powerzone_4_label = QStringLiteral("tile_preset_powerzone_4_label");
+const QString QZSettings::default_tile_preset_powerzone_4_label = QStringLiteral("Zone 4");
+const QString QZSettings::tile_preset_powerzone_4_color = QStringLiteral("tile_preset_powerzone_4_color");
+const QString QZSettings::default_tile_preset_powerzone_4_color = QStringLiteral("orange");
+
+const QString QZSettings::tile_preset_powerzone_5_enabled = QStringLiteral("tile_preset_powerzone_5_enabled");
+const QString QZSettings::tile_preset_powerzone_5_order = QStringLiteral("tile_preset_powerzone_5_order");
+const QString QZSettings::tile_preset_powerzone_5_value = QStringLiteral("tile_preset_powerzone_5_value");
+const QString QZSettings::tile_preset_powerzone_5_label = QStringLiteral("tile_preset_powerzone_5_label");
+const QString QZSettings::default_tile_preset_powerzone_5_label = QStringLiteral("Zone 5");
+const QString QZSettings::tile_preset_powerzone_5_color = QStringLiteral("tile_preset_powerzone_5_color");
+const QString QZSettings::default_tile_preset_powerzone_5_color = QStringLiteral("darkorange");
+
+const QString QZSettings::tile_preset_powerzone_6_enabled = QStringLiteral("tile_preset_powerzone_6_enabled");
+const QString QZSettings::tile_preset_powerzone_6_order = QStringLiteral("tile_preset_powerzone_6_order");
+const QString QZSettings::tile_preset_powerzone_6_value = QStringLiteral("tile_preset_powerzone_6_value");
+const QString QZSettings::tile_preset_powerzone_6_label = QStringLiteral("tile_preset_powerzone_6_label");
+const QString QZSettings::default_tile_preset_powerzone_6_label = QStringLiteral("Zone 6");
+const QString QZSettings::tile_preset_powerzone_6_color = QStringLiteral("tile_preset_powerzone_6_color");
+const QString QZSettings::default_tile_preset_powerzone_6_color = QStringLiteral("orangered");
+
+const QString QZSettings::tile_preset_powerzone_7_enabled = QStringLiteral("tile_preset_powerzone_7_enabled");
+const QString QZSettings::tile_preset_powerzone_7_order = QStringLiteral("tile_preset_powerzone_7_order");
+const QString QZSettings::tile_preset_powerzone_7_value = QStringLiteral("tile_preset_powerzone_7_value");
+const QString QZSettings::tile_preset_powerzone_7_label = QStringLiteral("tile_preset_powerzone_7_label");
+const QString QZSettings::default_tile_preset_powerzone_7_label = QStringLiteral("Zone 7");
+const QString QZSettings::tile_preset_powerzone_7_color = QStringLiteral("tile_preset_powerzone_7_color");
+const QString QZSettings::default_tile_preset_powerzone_7_color = QStringLiteral("red");
+
+const QString QZSettings::proform_bike_PFEVEX71316_0 = QStringLiteral("proform_bike_PFEVEX71316_0");
+
+const QString QZSettings::real_inclination_to_virtual_treamill_bridge = QStringLiteral("real_inclination_to_virtual_treamill_bridge");
+const QString QZSettings::stryd_inclination_instead_treadmill = QStringLiteral("stryd_inclination_instead_treadmill");
+const QString QZSettings::domyos_elliptical_fmts = QStringLiteral("domyos_elliptical_fmts");
+const QString QZSettings::proform_xbike = QStringLiteral("proform_xbike");
+const QString QZSettings::peloton_current_user_id = QStringLiteral("peloton_current_user_id");
+const QString QZSettings::default_peloton_current_user_id = QStringLiteral("");
+const QString QZSettings::proform_225_csx_PFEX32925_INT_0 = QStringLiteral("proform_225_csx_PFEX32925_INT_0");
+const QString QZSettings::trainprogram_pid_ignore_inclination = QStringLiteral("trainprogram_pid_ignore_inclination");
+
+const QString QZSettings::tile_hr_time_in_zone_1_enabled = QStringLiteral("tile_hr_time_in_zone_1_enabled");
+const QString QZSettings::tile_hr_time_in_zone_1_order = QStringLiteral("tile_hr_time_in_zone_1_order");
+
+const QString QZSettings::tile_hr_time_in_zone_2_enabled = QStringLiteral("tile_hr_time_in_zone_2_enabled");
+const QString QZSettings::tile_hr_time_in_zone_2_order = QStringLiteral("tile_hr_time_in_zone_2_order");
+
+const QString QZSettings::tile_hr_time_in_zone_3_enabled = QStringLiteral("tile_hr_time_in_zone_3_enabled");
+const QString QZSettings::tile_hr_time_in_zone_3_order = QStringLiteral("tile_hr_time_in_zone_3_order");
+
+const QString QZSettings::tile_hr_time_in_zone_4_enabled = QStringLiteral("tile_hr_time_in_zone_4_enabled");
+const QString QZSettings::tile_hr_time_in_zone_4_order = QStringLiteral("tile_hr_time_in_zone_4_order");
+
+const QString QZSettings::tile_hr_time_in_zone_5_enabled = QStringLiteral("tile_hr_time_in_zone_5_enabled");
+const QString QZSettings::tile_hr_time_in_zone_5_order = QStringLiteral("tile_hr_time_in_zone_5_order");
+
+const uint32_t allSettingsCount = 746;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1467,6 +1560,11 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio},
     {QZSettings::domyos_bike_500_profile_v2, QZSettings::default_domyos_bike_500_profile_v2},
     {QZSettings::gears_offset, QZSettings::default_gears_offset},
+    {QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken},
+    {QZSettings::peloton_refreshtoken, QZSettings::default_peloton_refreshtoken},
+    {QZSettings::peloton_lastrefresh, QZSettings::default_peloton_lastrefresh},
+    {QZSettings::peloton_expires, QZSettings::default_peloton_expires},
+    {QZSettings::peloton_code, QZSettings::default_peloton_code},
     {QZSettings::proform_carbon_tl_PFTL59720, QZSettings::default_proform_carbon_tl_PFTL59720},
     {QZSettings::proform_treadmill_sport_70, QZSettings::default_proform_treadmill_sport_70},
     {QZSettings::peloton_date_format, QZSettings::default_peloton_date_format},
@@ -1508,6 +1606,69 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_follow_wattage, QZSettings::default_treadmill_follow_wattage},
     {QZSettings::fit_file_garmin_device_training_effect, QZSettings::default_fit_file_garmin_device_training_effect},
     {QZSettings::proform_treadmill_705_cst_V80_44, QZSettings::default_proform_treadmill_705_cst_V80_44},
+    {QZSettings::nordictrack_treadmill_1750_adb, QZSettings::default_nordictrack_treadmill_1750_adb},
+    
+    {QZSettings::tile_preset_powerzone_1_enabled, QZSettings::default_tile_preset_powerzone_1_enabled},
+    {QZSettings::tile_preset_powerzone_1_order, QZSettings::default_tile_preset_powerzone_1_order},
+    {QZSettings::tile_preset_powerzone_1_value, QZSettings::default_tile_preset_powerzone_1_value},
+    {QZSettings::tile_preset_powerzone_1_label, QZSettings::default_tile_preset_powerzone_1_label},
+    {QZSettings::tile_preset_powerzone_1_color, QZSettings::default_tile_preset_powerzone_1_color},
+
+    {QZSettings::tile_preset_powerzone_2_enabled, QZSettings::default_tile_preset_powerzone_2_enabled},
+    {QZSettings::tile_preset_powerzone_2_order, QZSettings::default_tile_preset_powerzone_2_order},
+    {QZSettings::tile_preset_powerzone_2_value, QZSettings::default_tile_preset_powerzone_2_value},
+    {QZSettings::tile_preset_powerzone_2_label, QZSettings::default_tile_preset_powerzone_2_label},
+    {QZSettings::tile_preset_powerzone_2_color, QZSettings::default_tile_preset_powerzone_2_color},
+
+    {QZSettings::tile_preset_powerzone_3_enabled, QZSettings::default_tile_preset_powerzone_3_enabled},
+    {QZSettings::tile_preset_powerzone_3_order, QZSettings::default_tile_preset_powerzone_3_order},
+    {QZSettings::tile_preset_powerzone_3_value, QZSettings::default_tile_preset_powerzone_3_value}, 
+    {QZSettings::tile_preset_powerzone_3_label, QZSettings::default_tile_preset_powerzone_3_label},
+    {QZSettings::tile_preset_powerzone_3_color, QZSettings::default_tile_preset_powerzone_3_color},
+
+    {QZSettings::tile_preset_powerzone_4_enabled, QZSettings::default_tile_preset_powerzone_4_enabled},
+    {QZSettings::tile_preset_powerzone_4_order, QZSettings::default_tile_preset_powerzone_4_order},
+    {QZSettings::tile_preset_powerzone_4_value, QZSettings::default_tile_preset_powerzone_4_value},
+    {QZSettings::tile_preset_powerzone_4_label, QZSettings::default_tile_preset_powerzone_4_label},
+    {QZSettings::tile_preset_powerzone_4_color, QZSettings::default_tile_preset_powerzone_4_color},
+
+    {QZSettings::tile_preset_powerzone_5_enabled, QZSettings::default_tile_preset_powerzone_5_enabled},
+    {QZSettings::tile_preset_powerzone_5_order, QZSettings::default_tile_preset_powerzone_5_order},
+    {QZSettings::tile_preset_powerzone_5_value, QZSettings::default_tile_preset_powerzone_5_value},
+    {QZSettings::tile_preset_powerzone_5_label, QZSettings::default_tile_preset_powerzone_5_label},
+    {QZSettings::tile_preset_powerzone_5_color, QZSettings::default_tile_preset_powerzone_5_color},
+
+    {QZSettings::tile_preset_powerzone_6_enabled, QZSettings::default_tile_preset_powerzone_6_enabled},
+    {QZSettings::tile_preset_powerzone_6_order, QZSettings::default_tile_preset_powerzone_6_order},
+    {QZSettings::tile_preset_powerzone_6_value, QZSettings::default_tile_preset_powerzone_6_value},
+    {QZSettings::tile_preset_powerzone_6_label, QZSettings::default_tile_preset_powerzone_6_label}, 
+    {QZSettings::tile_preset_powerzone_6_color, QZSettings::default_tile_preset_powerzone_6_color},
+
+    {QZSettings::tile_preset_powerzone_7_enabled, QZSettings::default_tile_preset_powerzone_7_enabled},
+    {QZSettings::tile_preset_powerzone_7_order, QZSettings::default_tile_preset_powerzone_7_order},
+    {QZSettings::tile_preset_powerzone_7_value, QZSettings::default_tile_preset_powerzone_7_value},
+    {QZSettings::tile_preset_powerzone_7_label, QZSettings::default_tile_preset_powerzone_7_label},
+    {QZSettings::tile_preset_powerzone_7_color, QZSettings::default_tile_preset_powerzone_7_color},    
+
+    {QZSettings::proform_bike_PFEVEX71316_0, QZSettings::default_proform_bike_PFEVEX71316_0},
+    {QZSettings::real_inclination_to_virtual_treamill_bridge, QZSettings::default_real_inclination_to_virtual_treamill_bridge},
+    {QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill},
+    {QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts},
+    {QZSettings::proform_xbike, QZSettings::default_proform_xbike},
+    {QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id},
+    {QZSettings::proform_225_csx_PFEX32925_INT_0, QZSettings::proform_225_csx_PFEX32925_INT_0},
+    {QZSettings::trainprogram_pid_ignore_inclination, QZSettings::default_trainprogram_pid_ignore_inclination},
+
+    {QZSettings::tile_hr_time_in_zone_1_enabled, QZSettings::default_tile_hr_time_in_zone_1_enabled},
+    {QZSettings::tile_hr_time_in_zone_1_order, QZSettings::default_tile_hr_time_in_zone_1_order},
+    {QZSettings::tile_hr_time_in_zone_2_enabled, QZSettings::default_tile_hr_time_in_zone_2_enabled},
+    {QZSettings::tile_hr_time_in_zone_2_order, QZSettings::default_tile_hr_time_in_zone_2_order},
+    {QZSettings::tile_hr_time_in_zone_3_enabled, QZSettings::default_tile_hr_time_in_zone_3_enabled},
+    {QZSettings::tile_hr_time_in_zone_3_order, QZSettings::default_tile_hr_time_in_zone_3_order},
+    {QZSettings::tile_hr_time_in_zone_4_enabled, QZSettings::default_tile_hr_time_in_zone_4_enabled},
+    {QZSettings::tile_hr_time_in_zone_4_order, QZSettings::default_tile_hr_time_in_zone_4_order},
+    {QZSettings::tile_hr_time_in_zone_5_enabled, QZSettings::default_tile_hr_time_in_zone_5_enabled},
+    {QZSettings::tile_hr_time_in_zone_5_order, QZSettings::default_tile_hr_time_in_zone_5_order},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

@@ -31,7 +31,7 @@ CONFIG += qmltypes
 #unix:!android: CONFIG += webengine
 
 win32:DEFINES += _ITERATOR_DEBUG_LEVEL=0
-win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -L$$PWD
+win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -ldbghelp -L$$PWD 
 
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
@@ -46,6 +46,9 @@ win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc -llibcrypto-1_1-x
 
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
+msvc {
+   win32:QMAKE_CXXFLAGS_DEBUG += /RTC1
+}
 unix:android: {
     CONFIG -= optimize_size
     QMAKE_CFLAGS_OPTIMIZE_FULL -= -Oz
@@ -92,6 +95,7 @@ SOURCES += \
     $$PWD/devices/technogymbike/technogymbike.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
+    $$PWD/logwriter.cpp \
     $$PWD/mqtt/qmqttauthenticationproperties.cpp \
     $$PWD/mqtt/qmqttclient.cpp \
     $$PWD/mqtt/qmqttconnection.cpp \
@@ -331,6 +335,7 @@ INCLUDEPATH += fit-sdk/ devices/
 
 HEADERS += \
     $$PWD/EventHandler.h \
+    $$PWD/OAuth2.h \
     $$PWD/devices/antbike/antbike.h \
     $$PWD/devices/crossrope/crossrope.h \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.h \
@@ -349,6 +354,7 @@ HEADERS += \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.h \
     $$PWD/ergtable.h \
+    $$PWD/logwriter.h \
     $$PWD/osc.h \
     $$PWD/oscpp/client.hpp \
     $$PWD/oscpp/detail/endian.hpp \
@@ -949,4 +955,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.18.18
+VERSION = 2.18.21

@@ -1,9 +1,22 @@
+#if __has_include("secret.h")
+#include "secret.h"
+#else
+#if defined(WIN32)
+#pragma message("PELOTON API WILL NOT WORK!!!")
+#else
+#warning "PELOTON API WILL NOT WORK!!!"
+#endif
+#endif
+#include "homeform.h"
 #include "peloton.h"
 #include <chrono>
+#include <QTimer>
 
 using namespace std::chrono_literals;
 
 const bool log_request = true;
+
+#define RAWHEADER request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toUtf8());
 
 peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
 
@@ -12,19 +25,15 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     mgr = new QNetworkAccessManager(this);
     timer = new QTimer(this);
 
+    //peloton_connect_clicked();
+    peloton_refreshtoken();
+
     // only for test purpose
     /*
     current_image_downloaded =
         new fileDownloader(QUrl("https://s3.amazonaws.com/peloton-ride-images/fa50b87ea5c44ce078e28a3030b8865b5dbffb35/"
                                 "img_1646099287_a620f71b3d6740718457b21769a7ed46.png"));
     */
-
-    if (!settings.value(QZSettings::peloton_username, QZSettings::default_peloton_username)
-             .toString()
-             .compare(QStringLiteral("username"))) {
-        qDebug() << QStringLiteral("invalid peloton credentials");
-        return;
-    }
 
     rower_pace_offset = 1;
 
@@ -587,6 +596,13 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     connect(PZP, &powerzonepack::loginState, this, &peloton::pzp_loginState);
     connect(HFB, &homefitnessbuddy::workoutStarted, this, &peloton::hfb_trainrows);
 
+    if (!settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken)
+             .toString()
+        .length()) {
+        qDebug() << QStringLiteral("invalid peloton credentials");
+        return;
+    }
+
     startEngine();
 }
 
@@ -625,23 +641,19 @@ void peloton::startEngine() {
     }
 
     QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     timer->stop();
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::login_onfinish);
-    QUrl url(QStringLiteral("https://api.onepeloton.com/auth/login"));
+        
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/me"));
+    qDebug() << "peloton::getMe" << url;
     QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
-
-    QJsonObject obj;
-    obj[QStringLiteral("username_or_email")] =
-        settings.value(QZSettings::peloton_username, QZSettings::default_peloton_username).toString();
-    obj[QStringLiteral("password")] =
-        settings.value(QZSettings::peloton_password, QZSettings::default_peloton_password).toString();
-    QJsonDocument doc(obj);
-    QByteArray data = doc.toJson();
-
-    mgr->post(request, data);
+    RAWHEADER
+    
+    qDebug() << getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toLatin1() << request.rawHeader(QByteArray("authorization"));
+    
+    mgr->get(request);
 }
 
 void peloton::login_onfinish(QNetworkReply *reply) {
@@ -663,13 +675,26 @@ void peloton::login_onfinish(QNetworkReply *reply) {
 
         peloton_credentials_wrong = true;
         qDebug() << QStringLiteral("invalid peloton credentials during login ") << status;
+        homeform::singleton()->setToastRequested("Peloton Auth Failed!");
         emit loginState(false);
         return;
     }
 
-    user_id = document[QStringLiteral("user_id")].toString();
-    total_workout = document[QStringLiteral("user_data")][QStringLiteral("total_workouts")].toInt();
+    user_id = document[QStringLiteral("id")].toString();
+    total_workout = document[QStringLiteral("total_workouts")].toInt();
 
+    QSettings settings;
+    // if it's a new user
+    if(user_id.compare(settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString())) {
+        qDebug() << "new peloton user id, saving information...";
+        settings.setValue(QZSettings::peloton_current_user_id, user_id);
+        settings.setValue(getPelotonSettingKey(QZSettings::peloton_refreshtoken, user_id), settings.value(QZSettings::peloton_refreshtoken, QZSettings::default_peloton_refreshtoken).toString());
+        settings.setValue(getPelotonSettingKey(QZSettings::peloton_accesstoken, user_id), settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString());
+    }
+    
+
+    qDebug() << "user_id" << user_id << "total workout" << total_workout;
+    
     emit loginState(!user_id.isEmpty());
 
     getWorkoutList(1);
@@ -745,6 +770,8 @@ void peloton::summary_onfinish(QNetworkReply *reply) {
         qDebug() << QStringLiteral("peloton::summary_onfinish");
     }
 
+    workout_retry_count = 0;
+
     getWorkout(current_workout_id);
 }
 
@@ -800,17 +827,31 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     workout = QJsonDocument::fromJson(payload, &parseError);
+
+    if (workout.isNull() && workout_retry_count < 3) {
+        workout_retry_count++;
+        qDebug() << "Empty JSON document received, retry attempt" << workout_retry_count;
+        QTimer::singleShot(2000, this, [this]() {
+            getWorkout(current_workout_id);
+        });
+        return;
+    } else if (workout.isNull() && workout_retry_count >= 3) {
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Error: Failed to load workout data after 3 attempts");
+    }
+    workout_retry_count = 0;
+
     QJsonObject ride = workout.object()[QStringLiteral("ride")].toObject();
     current_workout_name = ride[QStringLiteral("title")].toString();
     current_instructor_id = ride[QStringLiteral("instructor_id")].toString();
     current_ride_id = ride[QStringLiteral("id")].toString();
     current_workout_type = ride[QStringLiteral("fitness_discipline")].toString();
-    current_pedaling_duration = ride[QStringLiteral("pedaling_duration")].toInt();
+    current_pedaling_duration = ride[QStringLiteral("duration")].toInt();
     current_image_url = ride[QStringLiteral("image_url")].toString();
 
-    qint64 time = ride[QStringLiteral("original_air_time")].toInt();
-    qDebug() << QStringLiteral("original_air_time") << time;
-    qDebug() << QStringLiteral("current_pedaling_duration") << current_pedaling_duration;
+    qint64 time = ride[QStringLiteral("scheduled_start_time")].toInt();
+    qDebug() << QStringLiteral("scheduled_start_time") << time;
+    qDebug() << QStringLiteral("duration") << current_pedaling_duration;
 
     current_original_air_time = QDateTime::fromSecsSinceEpoch(time, Qt::UTC);
 
@@ -1391,7 +1432,191 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     QJsonArray segment_list = json[QStringLiteral("segment_list")].toArray();
     trainrows.clear();
 
-    if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
+    if(!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
+        bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+        QJsonArray targetMetrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
+
+        if (targetMetrics.count() > 0)
+            trainrows.reserve(targetMetrics.count());
+
+        QSettings settings;
+        QString difficulty =
+            settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
+        bool powerZoneFound = false;
+        
+        for (int i = 0; i < targetMetrics.count(); i++) {
+            QJsonObject targetMetric = targetMetrics.at(i).toObject();
+            QJsonObject offsets = targetMetric[QStringLiteral("offsets")].toObject();
+            QJsonArray metrics = targetMetric[QStringLiteral("metrics")].toArray();
+
+                   // Find resistance and cadence metrics
+            int lowerResistance = 0, upperResistance = 0, lowerCadence = 0, upperCadence = 0;
+            for (QJsonValue metricValue : metrics) {
+                QJsonObject metric = metricValue.toObject();
+                QString name = metric[QStringLiteral("name")].toString();
+
+                if (name == QStringLiteral("resistance")) {
+                        lowerResistance = metric[QStringLiteral("lower")].toInt();
+                        upperResistance = metric[QStringLiteral("upper")].toInt();
+                } else if (name == QStringLiteral("cadence")) {
+                        lowerCadence = metric[QStringLiteral("lower")].toInt();
+                        upperCadence = metric[QStringLiteral("upper")].toInt();
+                } else if (name == QStringLiteral("power_zone")) {
+                    powerZoneFound = true;
+                    break;
+                }
+            }
+
+            if(powerZoneFound == true)
+                break;
+            
+            trainrow r;
+            int duration = offsets[QStringLiteral("end")].toInt() - offsets[QStringLiteral("start")].toInt();
+            if (i != 0) {
+                // offsets have a 1s gap
+                duration++;
+            }
+
+            r.lower_requested_peloton_resistance = lowerResistance;
+            r.upper_requested_peloton_resistance = upperResistance;
+            r.lower_cadence = lowerCadence;
+            r.upper_cadence = upperCadence;
+
+            r.average_requested_peloton_resistance =
+                (r.lower_requested_peloton_resistance + r.upper_requested_peloton_resistance) / 2;
+            r.average_cadence = (r.lower_cadence + r.upper_cadence) / 2;
+
+            if (bluetoothManager && bluetoothManager->device()) {
+                if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                        r.lower_resistance = ((bike *)bluetoothManager->device())
+                                                 ->pelotonToBikeResistance(lowerResistance);
+                        r.upper_resistance = ((bike *)bluetoothManager->device())
+                                                 ->pelotonToBikeResistance(upperResistance);
+                        r.average_resistance = ((bike *)bluetoothManager->device())
+                                                   ->pelotonToBikeResistance(r.average_requested_peloton_resistance);
+                } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                        r.lower_resistance =
+                            ((elliptical *)bluetoothManager->device())
+                                ->pelotonToEllipticalResistance(lowerResistance);
+                        r.upper_resistance =
+                            ((elliptical *)bluetoothManager->device())
+                                ->pelotonToEllipticalResistance(upperResistance);
+                        r.average_resistance = ((elliptical *)bluetoothManager->device())
+                                                   ->pelotonToEllipticalResistance(r.average_requested_peloton_resistance);
+                }
+            }
+
+                   // Set for compatibility
+            if (difficulty == QStringLiteral("average")) {
+                r.resistance = r.average_resistance;
+                r.requested_peloton_resistance = r.average_requested_peloton_resistance;
+                r.cadence = r.average_cadence;
+            } else if (difficulty == QStringLiteral("upper")) {
+                r.resistance = r.upper_resistance;
+                r.requested_peloton_resistance = r.upper_requested_peloton_resistance;
+                r.cadence = r.upper_cadence;
+            } else { // lower
+                r.resistance = r.lower_resistance;
+                r.requested_peloton_resistance = r.lower_requested_peloton_resistance;
+                r.cadence = r.lower_cadence;
+            }
+
+                   // Compact rows in the training program
+            if (i == 0 ||
+                (r.lower_requested_peloton_resistance != trainrows.last().lower_requested_peloton_resistance ||
+                 r.upper_requested_peloton_resistance != trainrows.last().upper_requested_peloton_resistance ||
+                 r.lower_cadence != trainrows.last().lower_cadence ||
+                 r.upper_cadence != trainrows.last().upper_cadence)) {
+                r.duration = QTime(0, 0, 0).addSecs(duration);
+                trainrows.append(r);
+            } else {
+                trainrows.last().duration = trainrows.last().duration.addSecs(duration);
+            }
+        }
+        
+        foreach(trainrow r, trainrows) {
+            qDebug() << r.duration << r.average_cadence << r.average_resistance;
+        }
+
+        QJsonArray targetMetricsList = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
+
+        bool atLeastOnePower = false;
+        if (trainrows.empty() && !targetMetricsList.isEmpty() &&
+            bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
+            bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
+
+            int lastEnd = 60;
+            for (QJsonValue metric : targetMetricsList) {
+                QJsonObject metricObj = metric.toObject();
+                QJsonObject offsets = metricObj[QStringLiteral("offsets")].toObject();
+                int start = offsets[QStringLiteral("start")].toInt();
+                int end = offsets[QStringLiteral("end")].toInt();
+                int len = end - start + 1;
+                
+                // Check if there's a gap from previous segment
+                if (!trainrows.isEmpty()) {
+                   int prevEnd = start - 1; // Expected previous end
+                   if (lastEnd < prevEnd) {
+                       // Add gap row
+                       trainrow gapRow;
+                       gapRow.duration = QTime(0, (prevEnd - lastEnd + 1) / 60, (prevEnd - lastEnd + 1) % 60, 0);
+                       gapRow.power = -1;
+                       qDebug() << "adding a gap row of " << gapRow.duration << " seconds because start was " << start << " and end " << lastEnd;
+                       trainrows.append(gapRow);
+                   }
+                }
+                
+                lastEnd = end;
+
+                QJsonArray metricsArray = metricObj[QStringLiteral("metrics")].toArray();
+                if (!metricsArray.isEmpty()) {
+                        QJsonObject powerMetric = metricsArray[0].toObject();
+                        int zone = powerMetric[QStringLiteral("lower")].toInt();
+
+                        trainrow r;
+                        r.duration = QTime(0, len / 60, len % 60, 0);
+
+                        switch(zone) {
+                        case 1: // Zone 1 / Recovery
+                            r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.50;
+                        break;
+                        case 2: // Zone 2
+                            r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.66;
+                        break;
+                        case 3: // Zone 3
+                            r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.83;
+                        break;
+                        case 4: // Zone 4 / Sweet Spot
+                            r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.98;
+                        break;
+                        case 5: // Zone 5
+                            r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.13;
+                        break;
+                        case 6: // Zone 6
+                            r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.35;
+                        break;
+                        case 7: // Zone 7
+                            r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.5;
+                        break;
+                        default:
+                            r.power = -1;
+                        break;
+                        }
+
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power << "zone" << zone;
+                }
+            }
+
+            // If this list doesn't have anything useful for this session
+            if (!atLeastOnePower) {
+                trainrows.clear();
+            }
+        }
+    } else if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
         bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
         double miles = 1;
         bool treadmill_force_speed =
@@ -1437,10 +1662,12 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                         paceintensity_lower = oo[QStringLiteral("lower")].toInt();
                         paceintensity_upper = oo[QStringLiteral("upper")].toInt();
                         paceintensity_avg = ((paceintensity_upper - paceintensity_lower) / 2.0) + paceintensity_lower;
-                        if(paceintensity_lower < 7)
-                        speed_lower = treadmill_pace[paceintensity_lower].levels[peloton_treadmill_level].speed;
-                        speed_upper = treadmill_pace[paceintensity_upper].levels[peloton_treadmill_level].speed;
-                        speed_average = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
+                        if(paceintensity_lower < 7) {
+                            speed_lower = treadmill_pace[paceintensity_lower].levels[peloton_treadmill_level].slow_pace;
+                            speed_upper = treadmill_pace[paceintensity_upper].levels[peloton_treadmill_level].fast_pace;
+                            speed_average = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
+                            miles = 1; // the pace intensity are always in km/h
+                        }
                     }
                 }
                 int offset_start = offset[QStringLiteral("start")].toInt();
@@ -1647,74 +1874,81 @@ double peloton::rowerpaceToSpeed(double pace) {
 }
 
 void peloton::getInstructor(const QString &instructor_id) {
+    QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::instructor_onfinish);
 
-    QUrl url(QStringLiteral("https://api.onepeloton.com/api/instructor/") + instructor_id);
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/instructor/") + instructor_id);
     qDebug() << "peloton::getInstructor" << url;
     QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+    RAWHEADER
 
     mgr->get(request);
 }
 
 void peloton::getRide(const QString &ride_id) {
+    QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::ride_onfinish);
 
-    QUrl url(QStringLiteral("https://api.onepeloton.com/api/ride/") + ride_id +
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/ride/") + ride_id +
              QStringLiteral("/details?stream_source=multichannel"));
     qDebug() << "peloton::getRide" << url;
     QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+    RAWHEADER
 
     mgr->get(request);
 }
 
 void peloton::getPerformance(const QString &workout) {
+    QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::performance_onfinish);
 
-    QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout +
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/workout/") + workout +
              QStringLiteral("/performance_graph?every_n=") + QString::number(peloton_workout_second_resolution));
     qDebug() << "peloton::getPerformance" << url;
     QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+    RAWHEADER
 
     mgr->get(request);
 }
 
 void peloton::getWorkout(const QString &workout) {
+    QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::workout_onfinish);
 
-    QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout);
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/workout/") + workout);
     qDebug() << "peloton::getWorkout" << url;
     QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+    RAWHEADER
 
     mgr->get(request);
 }
 
 void peloton::getSummary(const QString &workout) {
+    QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::summary_onfinish);
 
-    QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout + QStringLiteral("/summary"));
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/workout/") + workout + QStringLiteral("/summary"));
     qDebug() << "peloton::getSummary" << url;
     QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+    RAWHEADER
 
     mgr->get(request);
 }
 
 void peloton::getWorkoutList(int num) {
     Q_UNUSED(num)
+    QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     //    if (num == 0) { //NOTE: clang-analyzer-deadcode.DeadStores
     //        num = this->total_workout;
     //    }
@@ -1727,16 +1961,287 @@ void peloton::getWorkoutList(int num) {
 
     int current_page = 0;
 
-    QUrl url(QStringLiteral("https://api.onepeloton.com/api/user/") + user_id +
+    QUrl url(QStringLiteral("https://api-3p.onepeloton.com/api/v1/user") +
              QStringLiteral("/workouts?sort_by=-created&page=") + QString::number(current_page) +
              QStringLiteral("&limit=") + QString::number(limit));
     qDebug() << "peloton::getWorkoutList" << url;
     QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+    RAWHEADER
 
     mgr->get(request);
 }
 
 void peloton::setTestMode(bool test) { testMode = test; }
+
+void peloton::onPelotonGranted() {
+
+    pelotonAuthWebVisible = false;
+    emit pelotonWebVisibleChanged(pelotonAuthWebVisible);
+    QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
+    savePelotonTokenForUser(QZSettings::peloton_accesstoken, pelotonOAuth->token(), userId);
+    savePelotonTokenForUser(QZSettings::peloton_refreshtoken, pelotonOAuth->refreshToken(), userId);
+    savePelotonTokenForUser(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime(), userId);
+    qDebug() << QStringLiteral("peloton authenticathed") << pelotonOAuth->token() << pelotonOAuth->refreshToken();
+    peloton_refreshtoken();
+    if(homeform::singleton())
+        homeform::singleton()->setPelotonPopupVisible(true);
+    if(!timer->isActive())
+        startEngine();
+}
+
+void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
+
+    // ui->textBrowser->append(tr("Open with browser:") + url.toString());
+    QSettings settings;
+    bool strava_auth_external_webbrowser =
+        settings.value(QZSettings::strava_auth_external_webbrowser, QZSettings::default_strava_auth_external_webbrowser)
+            .toBool();
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+    strava_auth_external_webbrowser = true;
+#endif
+    pelotonAuthUrl = url.toString();
+    emit pelotonAuthUrlChanged(pelotonAuthUrl);
+
+    if (strava_auth_external_webbrowser)
+        QDesktopServices::openUrl(url);
+    else {
+        pelotonAuthWebVisible = true;
+        emit pelotonWebVisibleChanged(pelotonAuthWebVisible);
+    }
+}
+
+void peloton::replyDataReceived(const QByteArray &v) {
+
+    qDebug() << v;
+
+    QByteArray data;
+    QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
+    QString s(v);
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(s.toUtf8());
+    savePelotonTokenForUser(QZSettings::peloton_accesstoken, jsonResponse[QStringLiteral("access_token")], userId);
+    savePelotonTokenForUser(QZSettings::peloton_refreshtoken, jsonResponse[QStringLiteral("refresh_token")], userId);
+    savePelotonTokenForUser(QZSettings::peloton_expires, jsonResponse[QStringLiteral("expires_at")], userId);
+
+    qDebug() << jsonResponse[QStringLiteral("access_token")] << jsonResponse[QStringLiteral("refresh_token")]
+             << jsonResponse[QStringLiteral("expires_at")];
+
+    QString urlstr = QStringLiteral("https://www.peloton.com/oauth/token?");
+    QUrlQuery params;
+    params.addQueryItem(QStringLiteral("client_id"), QStringLiteral(PELOTON_CLIENT_ID_S));
+#ifdef PELOTON_SECRET_KEY
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+    params.addQueryItem("client_secret", STRINGIFY(PELOTON_SECRET_KEY));
+#endif
+
+    params.addQueryItem(QStringLiteral("code"), peloton_code);
+    data.append(params.query(QUrl::FullyEncoded).toUtf8());
+
+    // trade-in the temporary access code retrieved by the Call-Back URL for the finale token
+    QUrl url = QUrl(urlstr);
+
+    QNetworkRequest request = QNetworkRequest(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
+
+    // now get the final token - but ignore errors
+    if (manager) {
+
+        delete manager;
+        manager = 0;
+    }
+    manager = new QNetworkAccessManager(this);
+    // connect(manager, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> & )), this,
+    // SLOT(onSslErrors(QNetworkReply*, const QList<QSslError> & ))); connect(manager,
+    // SIGNAL(finished(QNetworkReply*)), this, SLOT(networkRequestFinished(QNetworkReply*)));
+    manager->post(request, data);
+}
+
+void peloton::onSslErrors(QNetworkReply *reply, const QList<QSslError> &error) {
+
+    reply->ignoreSslErrors();
+    qDebug() << QStringLiteral("peloton::onSslErrors") << error;
+}
+
+void peloton::networkRequestFinished(QNetworkReply *reply) {
+
+    QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
+
+    // we can handle SSL handshake errors, if we got here then some kind of protocol was agreed
+    if (reply->error() == QNetworkReply::NoError || reply->error() == QNetworkReply::SslHandshakeFailedError) {
+
+        QByteArray payload = reply->readAll(); // JSON
+        QString refresh_token;
+        QString access_token;
+
+        // parse the response and extract the tokens, pretty much the same for all services
+        // although polar choose to also pass a user id, which is needed for future calls
+        QJsonParseError parseError;
+        QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
+        if (parseError.error == QJsonParseError::NoError) {
+            refresh_token = document[QStringLiteral("refresh_token")].toString();
+            access_token = document[QStringLiteral("access_token")].toString();
+        }
+
+        savePelotonTokenForUser(QZSettings::peloton_accesstoken, access_token, userId);
+        savePelotonTokenForUser(QZSettings::peloton_refreshtoken, refresh_token, userId);
+        savePelotonTokenForUser(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime(), userId);
+
+        qDebug() << access_token << refresh_token;
+
+    } else {
+
+        // general error getting response
+        QString error =
+            QString(tr("Error retrieving access token, %1 (%2)")).arg(reply->errorString()).arg(reply->error());
+        qDebug() << error << reply->url() << reply->readAll();
+    }
+}
+
+void peloton::callbackReceived(const QVariantMap &values) {
+    qDebug() << QStringLiteral("peloton::callbackReceived") << values;
+    if (!values.value(QZSettings::peloton_code).toString().isEmpty()) {
+        peloton_code = values.value(QZSettings::peloton_code).toString();
+
+        qDebug() << peloton_code;
+    }
+}
+
+QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
+    if (manager) {
+
+        delete manager;
+        manager = nullptr;
+    }
+    if (pelotonOAuth) {
+
+        delete pelotonOAuth;
+        pelotonOAuth = nullptr;
+    }
+    if (pelotonReplyHandler) {
+
+        delete pelotonReplyHandler;
+        pelotonReplyHandler = nullptr;
+    }
+    manager = new QNetworkAccessManager(this);
+    OAuth2Parameter parameter;
+    pelotonOAuth = new QOAuth2AuthorizationCodeFlow(manager, this);
+    pelotonOAuth->setScope(QStringLiteral("openid offline_access 3p.profile:r 3p.workout:r"));
+    pelotonOAuth->setClientIdentifier(QStringLiteral(PELOTON_CLIENT_ID_S));
+    pelotonOAuth->setAuthorizationUrl(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/authorize")));
+    pelotonOAuth->setAccessTokenUrl(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token")));
+    pelotonOAuth->setModifyParametersFunction(
+        buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String(""))));
+    pelotonReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 18080, this);
+    connect(pelotonReplyHandler, &QOAuthHttpServerReplyHandler::replyDataReceived, this, &peloton::replyDataReceived);
+    connect(pelotonReplyHandler, &QOAuthHttpServerReplyHandler::callbackReceived, this, &peloton::callbackReceived);
+
+    pelotonOAuth->setReplyHandler(pelotonReplyHandler);
+
+    return pelotonOAuth;
+}
+
+void peloton::peloton_connect_clicked() {
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
+
+    peloton_connect();
+    connect(pelotonOAuth, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, this, &peloton::onPelotonAuthorizeWithBrowser);
+    connect(pelotonOAuth, &QOAuth2AuthorizationCodeFlow::granted, this, &peloton::onPelotonGranted);
+
+    pelotonOAuth->grant();
+    // qDebug() <<
+    // QAbstractOAuth2::post("https://www.peloton.com/oauth/authorize?client_id=7976&scope=activity:read_all,activity:write&redirect_uri=http://127.0.0.1&response_type=code&approval_prompt=force");
+}
+
+QAbstractOAuth::ModifyParametersFunction peloton::buildModifyParametersFunction(const QUrl &clientIdentifier, const QUrl &clientIdentifierSharedKey) {
+    return [clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
+        if (stage == QAbstractOAuth::Stage::RequestingAuthorization) {
+            parameters->insert(QStringLiteral("audience"), QStringLiteral("https://api-3p.onepeloton.com/"));
+            parameters->insert(QStringLiteral("responseType"), QStringLiteral("code")); /* Request refresh token*/
+            parameters->insert(QStringLiteral("approval_prompt"),
+                               QStringLiteral("force")); /* force user check scope again */
+            QByteArray code = parameters->value(QStringLiteral("code")).toByteArray();
+            // DON'T TOUCH THIS LINE, THANKS Roberto Viola
+            (*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code); // NOTE: Old code replaced by
+        }
+        if (stage == QAbstractOAuth::Stage::RefreshingAccessToken) {
+            parameters->insert(QStringLiteral("client_id"), clientIdentifier);
+            parameters->insert(QStringLiteral("client_secret"), clientIdentifierSharedKey);
+        }
+    };
+}
+
+void peloton::peloton_refreshtoken() {
+
+    QSettings settings;
+    // QUrlQuery params; //NOTE: clazy-unuse-non-tirial-variable
+
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
+
+    // If no user is logged in yet, just use the regular method
+    if (userId.isEmpty()) {
+        if (settings.value(QZSettings::peloton_refreshtoken).toString().isEmpty()) {
+            peloton_connect();
+            return;
+        }
+    }
+
+    QNetworkRequest request(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token?")));
+    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    // set params
+    QString data;
+    data += QStringLiteral("client_id=" PELOTON_CLIENT_ID_S);
+    data += QStringLiteral("&refresh_token=") + getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString();
+    data += QStringLiteral("&grant_type=refresh_token");
+
+    // make request
+    if (manager) {
+
+        delete manager;
+        manager = nullptr;
+    }
+    manager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = manager->post(request, data.toLatin1());
+
+    // blocking request
+    QEventLoop loop;
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qDebug() << QStringLiteral("HTTP response code: ") << statusCode;
+
+    // oops, no dice
+    if (reply->error() != 0) {
+        homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        return;
+    }
+
+    // lets extract the access token, and possibly a new refresh token
+    QByteArray r = reply->readAll();
+    qDebug() << QStringLiteral("Got response:") << r.data();
+
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(r, &parseError);
+
+    // failed to parse result !?
+    if (parseError.error != QJsonParseError::NoError) {
+        qDebug() << tr("JSON parser error") << parseError.errorString();
+    }
+
+    QString access_token = document[QStringLiteral("access_token")].toString();
+    QString refresh_token = document[QStringLiteral("refresh_token")].toString();
+
+    qDebug() << "userid: " << userId;
+    savePelotonTokenForUser(QZSettings::peloton_accesstoken, access_token, userId);
+    savePelotonTokenForUser(QZSettings::peloton_refreshtoken, refresh_token, userId);
+    savePelotonTokenForUser(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime(), userId);
+
+    homeform::singleton()->setToastRequested("Peloton Login OK!");
+    
+}

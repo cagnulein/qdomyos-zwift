@@ -182,6 +182,10 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, true);
             waitForAPacket();
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...0%");
+            }
+
         init1:
             initPacketRecv = false;
 
@@ -271,6 +275,10 @@ void horizontreadmill::btinit() {
                 goto init1;
             }
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...15%");
+            }        
+
         init2:
             initPacketRecv = false;
 
@@ -357,6 +365,10 @@ void horizontreadmill::btinit() {
                 goto init2;
             }
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...25%");
+            }            
+
         init3:
             initPacketRecv = false;
 
@@ -441,6 +453,10 @@ void horizontreadmill::btinit() {
                 qDebug() << "init 3 not received";
                 waitForAPacket();
                 goto init3;
+            }
+
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...35%");
             }
 
         init4:
@@ -529,6 +545,10 @@ void horizontreadmill::btinit() {
                 goto init4;
             }
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...50%");
+            }            
+
         init5:
             initPacketRecv = false;
 
@@ -613,6 +633,10 @@ void horizontreadmill::btinit() {
                 qDebug() << "init 5 not received";
                 waitForAPacket();
                 goto init5;
+            }
+
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...65%");
             }
 
         init6:
@@ -701,6 +725,10 @@ void horizontreadmill::btinit() {
                 goto init6;
             }
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...80%");
+            }            
+
         init7:
             initPacketRecv = false;
 
@@ -787,6 +815,10 @@ void horizontreadmill::btinit() {
                 goto init7;
             }
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...90%");
+            }
+
         init8:
             initPacketRecv = false;
 
@@ -812,6 +844,10 @@ void horizontreadmill::btinit() {
                 waitForAPacket();
                 goto init8;
             }
+
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization completed!");
+            }            
         }
         messageID = 0x10;
     }
@@ -1467,7 +1503,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 1.60934); // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-        Inclination = treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0);
+        parseInclination(treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0));
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
         if (firstDistanceCalculated && watts(weight))
@@ -1493,7 +1529,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                        1.60934); // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-        Inclination = treadmillInclinationOverride((double)((uint8_t)newValue.at(63)) / 10.0);
+        parseInclination(treadmillInclinationOverride((double)((uint8_t)newValue.at(63)) / 10.0));
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
         if (firstDistanceCalculated && watts(weight))
@@ -1777,13 +1813,13 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.inclination) {
             if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill)
-                Inclination = treadmillInclinationOverride((double)(
+                parseInclination(treadmillInclinationOverride((double)(
                                   (int16_t)(
                                       ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
                                       (uint8_t)newValue.at(index)
                                       )
                                   ) /
-                              10.0);
+                                                              10.0));
             else if(ICONCEPT_FTMS_treadmill) {
                 uint8_t val1 = (uint8_t)newValue.at(index);
                 uint8_t val2 = (uint8_t)newValue.at(index + 1);
@@ -2384,6 +2420,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
+        QSettings settings;
         bluetoothDevice = device;
 
         if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
@@ -2407,6 +2444,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("TUNTURI T60 TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("F85"))) {
             sole_f85_treadmill = true;
+            settings.setValue(QZSettings::treadmill_step_incline, 1.0); // this treadmill doesn't handle 0.5 inclination
             minInclination = -5.0;
             qDebug() << QStringLiteral("SOLE F85 TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("F89"))) {
@@ -2448,6 +2486,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("MX-TM "))) {
             qDebug() << QStringLiteral("MX-TM found");
             MX_TM = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("FIT-"))) {
+            qDebug() << QStringLiteral("FIT- found");
+            FIT = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
@@ -3172,7 +3213,7 @@ void horizontreadmill::testProfileCRC() {
 double horizontreadmill::minStepInclination() {
     QSettings settings;
     bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
-    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill)
+    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill || FIT)
         return 1.0;
     else
         return 0.5;

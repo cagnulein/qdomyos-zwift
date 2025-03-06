@@ -5,6 +5,7 @@ import Qt.labs.settings 1.0
 
 Page {
     id: wizardPage
+    objectName: "wizardPage"
 
     property int currentStep: 0
     property var selectedOptions: ({})
@@ -335,7 +336,7 @@ Page {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Peloton Login")
+                        text: qsTr("Connect to Peloton")
                         font.pixelSize: 24
                         font.bold: true
                         color: "white"
@@ -343,54 +344,36 @@ Page {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Username")
+                        text: qsTr("Click the button below to connect your Peloton account")
                         font.pixelSize: 20
-                        font.bold: true
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        width: stackViewLocal.width * 0.8
+                        horizontalAlignment: Text.AlignHCenter
                         color: "white"
                     }
 
-                    TextField {
-                        id: pelotonUsernameTextField
-                        text: settings.peloton_username
-                        horizontalAlignment: Text.AlignHCenter
+                    Image {
                         Layout.alignment: Qt.AlignHCenter
-                        Layout.fillHeight: false
-                        onAccepted: settings.peloton_username = text
-                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                    }
+                        source: "icons/icons/Button_Connect_Rect_DarkMode.png"
+                        fillMode: Image.PreserveAspectFit
+                        width: parent.width * 0.8
 
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Password")
-                        font.pixelSize: 20
-                        font.bold: true
-                        color: "white"
-                    }
-
-                    TextField {
-                        id: pelotonPasswordTextField
-                        text: settings.peloton_password
-                        horizontalAlignment: Text.AlignHCenter
-                        Layout.fillHeight: false
-                        Layout.alignment: Qt.AlignHCenter
-                        inputMethodHints: Qt.ImhHiddenText
-                        echoMode: TextInput.PasswordEchoOnEdit
-                        onAccepted: settings.peloton_password = text
-                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                stackViewLocal.push("WebPelotonAuth.qml")
+                                stackViewLocal.currentItem.goBack.connect(function() {
+                                            stackViewLocal.pop();
+                                            stackViewLocal.push(pelotonDifficultyComponent)
+                                        })
+                                peloton_connect_clicked()
+                            }
+                        }
                     }
 
                     Item {
                         Layout.preferredHeight: 50
-                    }
-
-                    WizardButton {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Next")
-                        onClicked: {
-                            settings.peloton_username = pelotonUsernameTextField.text;
-                            settings.peloton_password = pelotonPasswordTextField.text;
-                            stackViewLocal.push(pelotonDifficultyComponent)
-                        }
                     }
 
                     WizardButton {

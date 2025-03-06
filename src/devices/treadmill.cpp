@@ -17,8 +17,14 @@ void treadmill::changeSpeed(double speed) {
     speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();    
     if(stryd_speed_instead_treadmill && Speed.value() > 0) {
         double delta = (Speed.value() - rawSpeed.value());
-        qDebug() << "stryd_speed_instead_treadmill so override speed by " << delta;
-        speed -= delta;
+        double maxAllowedDelta = speed * 0.20; // 20% of the speed request
+
+        if (std::abs(delta) <= maxAllowedDelta) {
+            qDebug() << "stryd_speed_instead_treadmill so override speed by " << delta;
+            speed -= delta;
+        } else {
+            qDebug() << "Delta" << delta << "exceeds 20% threshold of" << maxAllowedDelta << "- not applying correction";
+        }
     }
     qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset << m_lastRawSpeedRequested;
     RequestedSpeed = (speed * m_difficult) + m_difficult_offset;
@@ -30,6 +36,7 @@ void treadmill::changeInclination(double grade, double inclination) {
     double treadmill_incline_min = settings.value(QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min).toDouble();
     double treadmill_incline_max = settings.value(QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max).toDouble();
     double step = settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline).toDouble();
+    bool stryd_inclination_instead_treadmill = settings.value(QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill).toBool();
 
     if(grade < treadmill_incline_min) {
         grade = treadmill_incline_min;
@@ -37,6 +44,18 @@ void treadmill::changeInclination(double grade, double inclination) {
     } else if(grade > treadmill_incline_max) {
         grade = treadmill_incline_max;
         qDebug() << "grade override due to treadmill_incline_max" << grade;
+    }
+
+    if(stryd_inclination_instead_treadmill) {
+        double delta = (Inclination.value() - rawInclination.value());
+        double maxAllowedDelta = grade * 0.20; // 20% of the inclination request
+
+        if (std::abs(delta) <= maxAllowedDelta) {
+            qDebug() << "stryd_inclination_instead_treadmill so override inclination by " << delta;
+            grade -= delta;
+        } else {
+            qDebug() << "Delta" << delta << "exceeds 20% threshold of" << maxAllowedDelta << "- not applying correction";
+        }
     }
 
     m_lastRawInclinationRequested = grade;
@@ -145,6 +164,7 @@ void treadmill::clearStats() {
     elapsed.clear(true);
     Speed.clear(false);
     rawSpeed.clear(false);
+    rawInclination.clear(false);
     KCal.clear(true);
     Distance.clear(true);
     Distance1s.clear(true);
@@ -169,6 +189,7 @@ void treadmill::setPaused(bool p) {
     elapsed.setPaused(p);
     Speed.setPaused(p);
     rawSpeed.setPaused(p);
+    rawInclination.setPaused(p);
     KCal.setPaused(p);
     Distance.setPaused(p);
     Distance1s.setPaused(p);
@@ -190,6 +211,7 @@ void treadmill::setLap() {
     elapsed.setLap(true);
     Speed.setLap(false);
     rawSpeed.setLap(false);
+    rawInclination.setLap(false);
     KCal.setLap(true);
     Distance.setLap(true);
     Distance1s.setLap(true);
@@ -234,7 +256,17 @@ void treadmill::powerSensor(uint16_t power) {
     }
     m_watt.setValue(power + vwatts, false); 
 }
-void treadmill::speedSensor(double speed) { Speed.setValue(speed); }
+
+void treadmill::speedSensor(double speed) {
+    Speed.setValue(speed);
+    qDebug() << "Current speed: " << speed;
+}
+
+void treadmill::inclinationSensor(double grade, double inclination) {
+    Inclination.setValue(inclination);
+    qDebug() << "Current Inclination: " << inclination;
+}
+
 void treadmill::instantaneousStrideLengthSensor(double length) { InstantaneousStrideLengthCM.setValue(length); }
 void treadmill::groundContactSensor(double groundContact) { GroundContactMS.setValue(groundContact); }
 void treadmill::verticalOscillationSensor(double verticalOscillation) {
@@ -259,6 +291,69 @@ double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
         return treadmillInclinationOverride(0);
     else
         return treadmillInclinationOverride(15);
+}
+
+bool treadmill::areInclinationSettingsDefault() {
+    QSettings settings;
+    
+    // Check gain and offset settings first
+    if (settings.value(QZSettings::treadmill_inclination_ovveride_gain).toDouble() !=
+        QZSettings::default_treadmill_inclination_ovveride_gain) {
+        return false;
+    }
+    
+    if (settings.value(QZSettings::treadmill_inclination_ovveride_offset).toDouble() !=
+        QZSettings::default_treadmill_inclination_ovveride_offset) {
+        return false;
+    }
+    
+    // Array of settings to check - pairs of setting key and its default value
+    const struct {
+        QString setting;
+        double defaultValue;
+    } checkPairs[] = {
+        {QZSettings::treadmill_inclination_override_0, QZSettings::default_treadmill_inclination_override_0},
+        {QZSettings::treadmill_inclination_override_05, QZSettings::default_treadmill_inclination_override_05},
+        {QZSettings::treadmill_inclination_override_10, QZSettings::default_treadmill_inclination_override_10},
+        {QZSettings::treadmill_inclination_override_15, QZSettings::default_treadmill_inclination_override_15},
+        {QZSettings::treadmill_inclination_override_20, QZSettings::default_treadmill_inclination_override_20},
+        {QZSettings::treadmill_inclination_override_25, QZSettings::default_treadmill_inclination_override_25},
+        {QZSettings::treadmill_inclination_override_30, QZSettings::default_treadmill_inclination_override_30},
+        {QZSettings::treadmill_inclination_override_35, QZSettings::default_treadmill_inclination_override_35},
+        {QZSettings::treadmill_inclination_override_40, QZSettings::default_treadmill_inclination_override_40},
+        {QZSettings::treadmill_inclination_override_45, QZSettings::default_treadmill_inclination_override_45},
+        {QZSettings::treadmill_inclination_override_50, QZSettings::default_treadmill_inclination_override_50},
+        {QZSettings::treadmill_inclination_override_55, QZSettings::default_treadmill_inclination_override_55},
+        {QZSettings::treadmill_inclination_override_60, QZSettings::default_treadmill_inclination_override_60},
+        {QZSettings::treadmill_inclination_override_65, QZSettings::default_treadmill_inclination_override_65},
+        {QZSettings::treadmill_inclination_override_70, QZSettings::default_treadmill_inclination_override_70},
+        {QZSettings::treadmill_inclination_override_75, QZSettings::default_treadmill_inclination_override_75},
+        {QZSettings::treadmill_inclination_override_80, QZSettings::default_treadmill_inclination_override_80},
+        {QZSettings::treadmill_inclination_override_85, QZSettings::default_treadmill_inclination_override_85},
+        {QZSettings::treadmill_inclination_override_90, QZSettings::default_treadmill_inclination_override_90},
+        {QZSettings::treadmill_inclination_override_95, QZSettings::default_treadmill_inclination_override_95},
+        {QZSettings::treadmill_inclination_override_100, QZSettings::default_treadmill_inclination_override_100},
+        {QZSettings::treadmill_inclination_override_105, QZSettings::default_treadmill_inclination_override_105},
+        {QZSettings::treadmill_inclination_override_110, QZSettings::default_treadmill_inclination_override_110},
+        {QZSettings::treadmill_inclination_override_115, QZSettings::default_treadmill_inclination_override_115},
+        {QZSettings::treadmill_inclination_override_120, QZSettings::default_treadmill_inclination_override_120},
+        {QZSettings::treadmill_inclination_override_125, QZSettings::default_treadmill_inclination_override_125},
+        {QZSettings::treadmill_inclination_override_130, QZSettings::default_treadmill_inclination_override_130},
+        {QZSettings::treadmill_inclination_override_135, QZSettings::default_treadmill_inclination_override_135},
+        {QZSettings::treadmill_inclination_override_140, QZSettings::default_treadmill_inclination_override_140},
+        {QZSettings::treadmill_inclination_override_145, QZSettings::default_treadmill_inclination_override_145},
+        {QZSettings::treadmill_inclination_override_150, QZSettings::default_treadmill_inclination_override_150}
+    };
+    
+    // Check each setting against its default value
+    for (const auto& pair : checkPairs) {
+        if (settings.value(pair.setting).toDouble() != pair.defaultValue) {
+            return false;
+        }
+    }
+    
+    // If we got here, all settings match their defaults
+    return true;
 }
 
 double treadmill::treadmillInclinationOverride(double Inclination) {
@@ -537,13 +632,24 @@ QTime treadmill::lastRequestedPace() {
     }
 }
 
+void treadmill::parseInclination(double inclination) {
+    QSettings settings;
+    bool stryd_inclination_instead_treadmill = settings.value(QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill).toBool();
+    if(!stryd_inclination_instead_treadmill) {
+        Inclination = inclination;
+    } else {
+        qDebug() << "Inclination from the treadmill is discarded since we are using the one from the power sensor " << inclination;
+    }
+    rawInclination = inclination;
+}
+
 void treadmill::parseSpeed(double speed) {
     QSettings settings;
     bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
     if(!stryd_speed_instead_treadmill) {
         Speed = speed;
     } else {
-        qDebug() << "speed from the treadmill is discarded since we are using the one from the power sensor";
+        qDebug() << "speed from the treadmill is discarded since we are using the one from the power sensor " << speed;
     }
     rawSpeed = speed;
 }

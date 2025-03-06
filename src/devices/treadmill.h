@@ -58,6 +58,7 @@ class treadmill : public bluetoothdevice {
     void cadenceSensor(uint8_t cadence) override;
     void powerSensor(uint16_t power) override;
     void speedSensor(double speed) override;
+    void inclinationSensor(double grade, double inclination) override;
     void instantaneousStrideLengthSensor(double length) override;
     void groundContactSensor(double groundContact) override;
     void verticalOscillationSensor(double verticalOscillation) override;
@@ -72,6 +73,7 @@ class treadmill : public bluetoothdevice {
     double lastSpeed = 0.0;
     double lastInclination = 0;
     metric rawSpeed;
+    metric rawInclination;
     metric RequestedSpeed;
     metric RequestedInclination;
     metric InstantaneousStrideLengthCM;
@@ -83,6 +85,8 @@ class treadmill : public bluetoothdevice {
     treadmillErgTable _ergTable;
 
     void parseSpeed(double speed);
+    void parseInclination(double speed);
+    bool areInclinationSettingsDefault();
 
   private:
     bool simulateInclinationWithSpeed();

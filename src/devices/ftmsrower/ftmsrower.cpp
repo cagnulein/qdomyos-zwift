@@ -397,6 +397,7 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
         }
     }
 
+    notificationSubscribed = 0;
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
@@ -437,6 +438,7 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
                     if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                        notificationSubscribed++;
                         s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
@@ -452,6 +454,7 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
                     if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                        notificationSubscribed++;
                         s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
@@ -530,8 +533,15 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
 void ftmsrower::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + " " + newValue.toHex(' '));
 
-    initRequest = true;
-    emit connectedAndDiscovered();
+    if (notificationSubscribed)
+        notificationSubscribed--;
+
+    qDebug() << "notificationSubscribed=" << notificationSubscribed;
+
+    if (!notificationSubscribed) {
+        initRequest = true;
+        emit connectedAndDiscovered();
+    }
 }
 
 void ftmsrower::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
