@@ -557,6 +557,15 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
             }
             index += 2;
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        } else if(VANRYSEL_HT && newValue.length() > 7) {
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(7)) << 8) |
+                                    (uint16_t)((uint8_t)newValue.at(6)))) /
+                          10.0;
+            }
+            emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         }
 
         if (Flags.avgCadence) {
@@ -912,6 +921,9 @@ void tacxneo2::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if(device.name().toUpper().startsWith(QStringLiteral("THINK X"))) {
             THINK_X = true;
             qDebug() << "THINK X workaround enabled!";
+        } else if ((bluetoothDevice.name().toUpper().startsWith("VANRYSEL-HT"))) {
+            qDebug() << QStringLiteral("VANRYSEL-HT found");
+            VANRYSEL_HT = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

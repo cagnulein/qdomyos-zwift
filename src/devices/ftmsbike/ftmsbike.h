@@ -137,7 +137,6 @@ class ftmsbike : public bike {
     bool BIKE_ = false;
     bool SMB1 = false;
     bool LYDSTO = false;
-    bool VANRYSEL_HT = false;
 
     uint8_t battery_level = 0;
 
