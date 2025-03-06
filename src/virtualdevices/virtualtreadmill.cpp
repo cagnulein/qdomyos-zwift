@@ -546,7 +546,8 @@ void virtualtreadmill::treadmillProvider() {
         if (h->virtualtreadmill_updateFTMS(
                 normalizeSpeed, 0, (uint16_t)((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier,
                 (uint16_t)((treadmill *)treadMill)->wattsMetric().value(),
-                inclination * 10, (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0), ((treadmill *)treadMill)->calories().value())) {
+                inclination * 10, (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0), ((treadmill *)treadMill)->calories().value(),
+                ((treadmill *)treadMill)->currentStepCount().value())) {
             h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
             lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
             if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)

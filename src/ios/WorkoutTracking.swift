@@ -211,6 +211,43 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 }
         } else {
             
+            // Guard to check if steps quantity type is available
+            guard let quantityTypeSteps = HKQuantityType.quantityType(
+                forIdentifier: .stepCount) else {
+                return
+            }
+
+            let stepsQuantity = HKQuantity(unit: HKUnit.count(), doubleValue: Double(WorkoutTracking.steps))
+            
+            // Create a sample for total steps
+            let sampleSteps = HKCumulativeQuantitySeriesSample(
+                type: quantityTypeSteps,
+                quantity: stepsQuantity,  // Use your steps quantity here
+                start: workoutSession.startDate!,
+                end: Date())
+
+            // Add the steps sample to workout builder
+            workoutBuilder.add([sampleSteps]) { (success, error) in
+                if let error = error {
+                    print(error)
+                }
+                
+                // End the data collection
+                self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
+                    if let error = error {
+                        print(error)
+                    }
+                    
+                    // Finish the workout and save total steps
+                    self.workoutBuilder.finishWorkout { (workout, error) in
+                        if let error = error {
+                            print(error)
+                        }
+                        workout?.setValue(stepsQuantity, forKey: "totalSteps")
+                    }
+                }
+            }
+
             guard let quantityTypeDistance = HKQuantityType.quantityType(
                 forIdentifier: .distanceWalkingRunning) else {
               return
