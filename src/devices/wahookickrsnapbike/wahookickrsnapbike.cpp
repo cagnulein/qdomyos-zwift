@@ -209,7 +209,7 @@ void wahookickrsnapbike::update() {
         // required to the SS2K only one time
         Resistance = 0;
         emit resistanceRead(Resistance.value());
-        initRequest = false;               
+        initRequest = false;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
@@ -644,7 +644,7 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
-                    notificationSubscribed++;
+                    //notificationSubscribed++;
                     if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid()) {
                         s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
                     } else {
@@ -702,9 +702,9 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
 
 void wahookickrsnapbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     qDebug() << QStringLiteral("descriptorWritten ") << descriptor.name() << newValue.toHex(' ')
-             << notificationSubscribed;
+             << notificationSubscribed << initRequest << initDone;
 
-    if (notificationSubscribed)
+    if (notificationSubscribed && newValue[0] == 0x01)
         notificationSubscribed--;
 
     if (!notificationSubscribed) {
