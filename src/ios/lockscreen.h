@@ -19,7 +19,7 @@ class lockscreen {
     void startWorkout(unsigned short deviceType);
     void stopWorkout();
 
-    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories);
+    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType);
 
     // virtualbike
     void virtualbike_ios();

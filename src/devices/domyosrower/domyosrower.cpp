@@ -625,7 +625,6 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (ios_peloton_workaround && cadence && h && firstVirtual) {
 
                     h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-        h->workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), calories().value());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
         }
     #endif

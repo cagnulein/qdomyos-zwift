@@ -7,6 +7,7 @@
 #import <ConnectIQ/ConnectIQ.h>
 #import "qdomyoszwift-Swift2.h"
 #include "ios/lockscreen.h"
+#include "devices/bluetoothdevice.h"
 #include <QDebug>
 #include "ios/AdbClient.h"
 #include "ios/ios_eliteariafan.h"
@@ -152,9 +153,9 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
         [_virtualbike updateCadenceWithCrankRevolutions:crankRevolutions LastCrankEventTime:lastCrankEventTime];
 }
 
-void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories) {
+void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType) {
     if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:watt cadence:cadence*2 speed:speed * 100 kcal:currentCalories];
+        [workoutTracking addMetricsWithPower:watt cadence:cadence*2 speed:speed * 100 kcal:currentCalories, steps:currentSteps, deviceType:deviceType];
 }
 
 void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator)
@@ -206,7 +207,7 @@ double lockscreen::virtualbike_getPowerRequested()
 bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, signed short Gears, UInt16 currentCalories)
 {
     if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories];
+        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories, bluetoothdevice::BLUETOOTH_TYPE::BIKE];
 
     if(_virtualbike_zwift != nil)
         return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime Gears:Gears];
@@ -216,7 +217,7 @@ bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResi
 bool lockscreen::virtualrower_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, UInt16 StrokesCount, UInt32 Distance, UInt16 KCal, UInt16 Pace, UInt16 currentCalories)
 {
     if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories];
+        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories, bluetoothdevice::BLUETOOTH_TYPE::ROWER];
 
     if(_virtualrower != nil)
         return [_virtualrower updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime StrokesCount:StrokesCount Distance:Distance KCal:KCal Pace:Pace];
@@ -272,7 +273,7 @@ double lockscreen::virtualtreadmill_getPowerRequested()
 bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, UInt16 currentCalories, UInt32 currentSteps)
 {
     if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:currentSteps];
+        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:currentSteps, bluetoothdevice::BLUETOOTH_TYPE::TREADMILL];
 
     if(_virtualtreadmill_zwift != nil)
         return [_virtualtreadmill_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt currentInclination:currentInclination currentDistance:currentDistance];

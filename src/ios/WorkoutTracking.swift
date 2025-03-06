@@ -279,11 +279,11 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         workoutInProgress = false;
     }
     
-    @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double) {
+    @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8) {
         SwiftDebug.qtDebug("WorkoutTracking: GET DATA: \(Date())")
         
         if(workoutInProgress == false && power > 0) {
-            startWorkOut(deviceType: 2) // FORCING BIKE!!!!!
+            startWorkOut(deviceType: deviceType)
         } else if(workoutInProgress == false && power == 0) {
             return;
         }
@@ -291,6 +291,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         let Speed = speed / 100;
         
         WorkoutTracking.kcal = kcal
+        WorkoutTracking.steps = steps
 
         if(sport == 2) {
             if #available(watchOSApplicationExtension 10.0, *) {
@@ -357,6 +358,28 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             }
         } else if(sport == 1) {
             if #available(watchOSApplicationExtension 10.0, *) {
+                // Guard to check if steps quantity type is available
+                guard let quantityTypeSteps = HKQuantityType.quantityType(
+                    forIdentifier: .stepCount) else {
+                    return
+                }
+
+                let stepsQuantity = HKQuantity(unit: HKUnit.count(), doubleValue: Double(WorkoutTracking.steps))
+                
+                // Create a sample for total steps
+                let sampleSteps = HKCumulativeQuantitySeriesSample(
+                    type: quantityTypeSteps,
+                    quantity: stepsQuantity,  // Use your steps quantity here
+                    start: workoutSession.startDate!,
+                    end: Date())
+
+                // Add the steps sample to workout builder
+                workoutBuilder.add([sampleSteps]) { (success, error) in
+                    if let error = error {
+                        print(error)
+                    }                    
+                }
+
                 let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
                                                 doubleValue: power)
                 
