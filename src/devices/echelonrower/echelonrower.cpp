@@ -285,7 +285,7 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     bool virtual_device_rower =
         settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
     if (ios_peloton_workaround && cadence && !virtual_device_rower && h && firstStateChanged) {
-                h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
     }
 #endif
