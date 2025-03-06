@@ -728,7 +728,7 @@ jobs:
       #     add: 'src/moc_*.cpp --force'
       #   if: github.ref == 'refs/heads/master'
 
-  window-msvc2019-build:
+  window-msvc2022-build:
     runs-on: windows-latest
     strategy:
       matrix:
@@ -916,28 +916,28 @@ jobs:
         run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
 
       - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output windows-msvc2019-binary.zip
+        run: Compress-Archive src/debug/output windows-msvc2022-binary.zip
         if: matrix.config.python
 
       - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output windows-msvc2019-binary-no-python.zip
+        run: Compress-Archive src/debug/output windows-msvc2022-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v4
         with:
-          name: windows-msvc2019-binary
-          path: windows-msvc2019-binary.zip
+          name: windows-msvc2022-binary
+          path: windows-msvc2022-binary.zip
         if: matrix.config.python
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v4
         with:
-          name: windows-msvc2019-binary-no-python
-          path: windows-msvc2019-binary-no-python.zip
+          name: windows-msvc2022-binary-no-python
+          path: windows-msvc2022-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
-  window-msvc2019-aiserver-build:
+  window-msvc2022-aiserver-build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -1079,13 +1079,13 @@ jobs:
         run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
 
       - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output windows-msvc2019-ai-server-binary.zip
+        run: Compress-Archive src/debug/output windows-msvc2022-ai-server-binary.zip
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v4
         with:
-          name: windows-msvc2019-ai-server-binary
-          path: windows-msvc2019-ai-server-binary.zip
+          name: windows-msvc2022-ai-server-binary
+          path: windows-msvc2022-ai-server-binary.zip
 
   raspberry-pi-build:
     runs-on: ubuntu-latest
@@ -1199,7 +1199,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-20.04 
     if: github.event_name == 'schedule'
-    needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build, raspberry-pi-build]  # Specify the job dependencies
+    needs: [linux-x86-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]  # Specify the job dependencies
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -1222,9 +1222,9 @@ jobs:
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
           files: |
-            windows-msvc2019-binary-no-python/*
-            windows-msvc2019-binary/*
-            windows-msvc2019-ai-server-binary/*            
+            windows-msvc2022-binary-no-python/*
+            windows-msvc2022-binary/*
+            windows-msvc2022-ai-server-binary/*            
             windows-binary-no-python/*
             windows-binary/*
             fdroid-android-trial/*
