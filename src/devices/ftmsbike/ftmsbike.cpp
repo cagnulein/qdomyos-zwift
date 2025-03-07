@@ -129,6 +129,13 @@ void ftmsbike::init() {
     if (initDone)
         return;
 
+    if(ICSE) {
+        uint8_t write[] = {FTMS_REQUEST_CONTROL};
+        bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
+        write[0] = {FTMS_RESET};
+        ret = writeCharacteristic(write, sizeof(write), "reset", false, true);
+    }
+    
     uint8_t write[] = {FTMS_REQUEST_CONTROL};
     bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
     write[0] = {FTMS_START_RESUME};
