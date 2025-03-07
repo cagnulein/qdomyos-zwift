@@ -812,8 +812,7 @@ int main(int argc, char *argv[]) {
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(true));
 #else
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(false));
-#endif
-        engine.load(url);
+#endif        
         homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
                          &homeform::aboutToQuit); // NOTE: clazy-unneeded-cast

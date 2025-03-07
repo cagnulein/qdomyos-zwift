@@ -536,6 +536,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             &homeform::setActivityDescription);
     engine->rootContext()->setContextProperty(QStringLiteral("rootItem"), (QObject *)this);
 
+    const QUrl url(QStringLiteral("qrc:/main.qml"));
+    engine->load(url);
+
+
     this->trainProgram = new trainprogram(QList<trainrow>(), bl);
 
     timer = new QTimer(this);

@@ -138,7 +138,7 @@ HomeForm {
             stackView.push("ChartsEndWorkout.qml")
     }
 
-    start.onClicked: { start_clicked(); }
+    start.onClicked: { console.log("start clicked"); start_clicked(); }
     stop.onClicked: {
         inner_stop();
     }

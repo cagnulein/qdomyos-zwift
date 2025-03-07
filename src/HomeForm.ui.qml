@@ -85,7 +85,6 @@ Page {
                     id: start
                     width: 120
                     height: row.height - 4
-                    // Modifica diretta del colore del bottone
                     Material.foreground: rootItem.startColor === "red" ? "red" : Material.foreground
                 }
             }
@@ -104,7 +103,6 @@ Page {
                     id: stop
                     width: 120
                     height: row.height - 4
-                    // Modifica diretta del colore del bottone
                     Material.foreground: rootItem.stopColor === "red" ? "red" : Material.foreground
                 }
             }
