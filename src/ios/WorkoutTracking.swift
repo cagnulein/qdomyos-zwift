@@ -31,6 +31,7 @@ protocol WorkoutTrackingProtocol {
     public static var lastDateMetric = Date()
     public static var distance = Double()
     public static var kcal = Double()
+    public static var steps = Double()
     var sport: Int = 0
     let healthStore = HKHealthStore()
     let configuration = HKWorkoutConfiguration()
@@ -223,7 +224,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             let sampleSteps = HKCumulativeQuantitySeriesSample(
                 type: quantityTypeSteps,
                 quantity: stepsQuantity,  // Use your steps quantity here
-                start: workoutSession.startDate!,
+                start: workoutBuilder.startDate!,
                 end: Date())
 
             // Add the steps sample to workout builder
@@ -283,7 +284,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         SwiftDebug.qtDebug("WorkoutTracking: GET DATA: \(Date())")
         
         if(workoutInProgress == false && power > 0) {
-            startWorkOut(deviceType: deviceType)
+            startWorkOut(deviceType: UInt16(deviceType))
         } else if(workoutInProgress == false && power == 0) {
             return;
         }
@@ -370,7 +371,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 let sampleSteps = HKCumulativeQuantitySeriesSample(
                     type: quantityTypeSteps,
                     quantity: stepsQuantity,  // Use your steps quantity here
-                    start: workoutSession.startDate!,
+                    start: WorkoutTracking.lastDateMetric,
                     end: Date())
 
                 // Add the steps sample to workout builder
