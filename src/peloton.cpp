@@ -651,7 +651,7 @@ void peloton::startEngine() {
 
     RAWHEADER
     
-    qDebug() << getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toLatin1() << request.rawHeader(QByteArray("authorization"));
+    //qDebug() << getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toLatin1() << request.rawHeader(QByteArray("authorization"));
     
     mgr->get(request);
 }
@@ -669,6 +669,13 @@ void peloton::login_onfinish(QNetworkReply *reply) {
         qDebug() << QStringLiteral("login_onfinish") << document;
     } else {
         qDebug() << QStringLiteral("login_onfinish");
+    }
+    
+    // Check if document is empty, and if so, retry after 5 seconds
+    if (document.isEmpty()) {
+        qDebug() << QStringLiteral("login_onfinish: Empty document received, retrying in 5 seconds");
+        QTimer::singleShot(5000, this, &peloton::startEngine);
+        return;
     }
 
     if (status != 0) {
@@ -1290,9 +1297,14 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                 QJsonArray metrics = segmentObj["metrics"].toArray();
                 QJsonObject offsets = segmentObj["offsets"].toObject();
                 QString segment_type = segmentObj["segment_type"].toString();
+                bool floorSegment = false;
 
+                if(segment_type.startsWith("floor")) { // bootcamp
+                    floorSegment = true;
+                }
+                
                 // Skip if no metrics or invalid offsets
-                if (metrics.isEmpty() || offsets.isEmpty())
+                if ((metrics.isEmpty() || offsets.isEmpty()) && !floorSegment)
                     continue;
 
                 double speed_lower = -1;
