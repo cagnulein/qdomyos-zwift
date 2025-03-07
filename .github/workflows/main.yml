@@ -1199,10 +1199,30 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-20.04 
     if: github.event_name == 'schedule'
-    needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build, raspberry-pi-build]  # Specify the job dependencies
+    needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build, raspberry-pi-build]
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
       - name: Download artifacts
         uses: actions/download-artifact@v4
+        
+      - name: Download PR 1508 artifacts
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: CI
+          pr: 1508
+          name: windows-msvc2022-binary-no-python
+          path: windows-msvc2022-binary-no-python
+          
+      - name: Download PR 1508 artifacts (with python)
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: CI
+          pr: 1508
+          name: windows-msvc2022-binary
+          path: windows-msvc2022-binary
+          
       - name: Update nightly release
         uses: andelf/nightly-release@main
         env:
@@ -1220,6 +1240,15 @@ jobs:
             of new complex code, the stability of the program may suffer compared to
             official releases, so **use it with caution**!
 
+            ## Windows Builds:
+            - **windows-msvc2019**: Recommended for Windows 10
+            - **windows-msvc2022**: Recommended for Windows 11 (experimental)
+            - **windows**: MinGW build (alternative version)
+
+            ## Other Platforms:
+            - **fdroid-android-trial**: Android build
+            - **raspberry-pi-binary**: Raspberry Pi build
+
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
           files: |
             windows-msvc2019-binary-no-python/*
@@ -1229,5 +1258,5 @@ jobs:
             windows-binary/*
             fdroid-android-trial/*
             raspberry-pi-binary/qdomyos-zwift-32bit
-            #raspberry-pi-64bit-binary/qdomyos-zwift-64bit
-            #2024-10-22-raspios-bookworm-arm64-lite.img.xz
+            windows-msvc2022-binary-no-python/*
+            windows-msvc2022-binary/*
