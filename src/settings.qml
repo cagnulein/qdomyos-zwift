@@ -1117,6 +1117,16 @@ import Qt.labs.platform 1.1
 
             // 2.18.22
             property bool trainprogram_pid_ignore_inclination: false
+            property bool tile_hr_time_in_zone_1_enabled: false
+            property int  tile_hr_time_in_zone_1_order: 62
+            property bool tile_hr_time_in_zone_2_enabled: false
+            property int  tile_hr_time_in_zone_2_order: 63
+            property bool tile_hr_time_in_zone_3_enabled: false
+            property int  tile_hr_time_in_zone_3_order: 64
+            property bool tile_hr_time_in_zone_4_enabled: false
+            property int  tile_hr_time_in_zone_4_order: 65
+            property bool tile_hr_time_in_zone_5_enabled: false
+            property int  tile_hr_time_in_zone_5_order: 66
             property bool android_ant_bike: false
         }
 
@@ -11670,11 +11680,23 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
-                    Button {
-                        id: clearLogs
-                        text: "Clear History"
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: rootItem.clearFiles();
+                    RowLayout {
+                        Layout.fillWidth: true
+                        
+                        Button {
+                            id: clearLogs
+                            text: "Clear History"
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                            onClicked: rootItem.clearFiles();
+                        }
+                        
+                        Button {
+                            text: "Show Logs Folder"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                toast.show(rootItem.getProfileDir())
+                            }
+                        }
                     }
 
                     Label {
