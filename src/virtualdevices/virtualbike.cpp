@@ -1379,7 +1379,7 @@ void virtualbike::bikeProvider() {
         // really connected to a device
         if (h->virtualbike_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(),
                                       (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)normalizeWattage,
-                                      Bike->currentCrankRevolutions(), Bike->lastCrankEventTime(), ((bike*)Bike)->gears(), Bike->calories().value())) {
+                                      Bike->currentCrankRevolutions(), Bike->lastCrankEventTime(), ((bike*)Bike)->gears(), Bike->calories().value(), Bike->odometer() * 1000.0)) {
             h->virtualbike_setHeartRate(Bike->currentHeart().value());
 
             uint8_t ftms_message[255];

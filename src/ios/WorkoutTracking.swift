@@ -29,6 +29,7 @@ protocol WorkoutTrackingProtocol {
 @objc class WorkoutTracking: NSObject {
     static let shared = WorkoutTracking()
     public static var lastDateMetric = Date()
+    public static var lastStepCount = Double()
     public static var distance = Double()
     public static var kcal = Double()
     public static var steps = Double()
@@ -177,7 +178,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         workoutBuilder.add([sample]) {(success, error) in}
             
         let unitDistance = HKUnit.mile()
-        let miles = WorkoutTracking.distance
+        let miles = WorkoutTracking.distance * 0.000621371
         let quantityMiles = HKQuantity(unit: unitDistance,
                                   doubleValue: miles)
         
@@ -219,7 +220,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             }
 
             let stepsQuantity = HKQuantity(unit: HKUnit.count(), doubleValue: Double(WorkoutTracking.steps))
-            
+
             // Create a sample for total steps
             let sampleSteps = HKCumulativeQuantitySeriesSample(
                 type: quantityTypeSteps,
@@ -227,51 +228,50 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 start: workoutBuilder.startDate!,
                 end: Date())
 
-            // Add the steps sample to workout builder
-            workoutBuilder.add([sampleSteps]) { (success, error) in
+            // Guard to check if distance quantity type is available
+            guard let quantityTypeDistance = HKQuantityType.quantityType(
+                forIdentifier: .distanceWalkingRunning) else {
+                return
+            }
+
+            let sampleDistance = HKCumulativeQuantitySeriesSample(
+                type: quantityTypeDistance,
+                quantity: quantityMiles,
+                start: workoutBuilder.startDate!,
+                end: Date())
+
+            // Add both samples to the workout builder
+            workoutBuilder.add([sampleSteps, sampleDistance]) { (success, error) in
                 if let error = error {
                     print(error)
+                    SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                    return
                 }
                 
-                // End the data collection
+                // End the data collection - only do this once
                 self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                     if let error = error {
                         print(error)
+                        SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                        return
                     }
                     
-                    // Finish the workout and save total steps
+                    // Finish the workout - only do this once
                     self.workoutBuilder.finishWorkout { (workout, error) in
                         if let error = error {
                             print(error)
-                        }
-                        workout?.setValue(stepsQuantity, forKey: "totalSteps")
-                    }
-                }
-            }
-
-            guard let quantityTypeDistance = HKQuantityType.quantityType(
-                forIdentifier: .distanceWalkingRunning) else {
-              return
-            }
-      
-            let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
-                                                          quantity: quantityMiles,
-                                                          start: workoutBuilder.startDate!,
-                                                          end: Date())
-            
-            workoutBuilder.add([sampleDistance]) {(success, error) in
-                if let error = error {
-                    SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
-                }
-                self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
-                    if let error = error {
-                        SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
-                    }
-                    self.workoutBuilder.finishWorkout{ (workout, error) in
-                        if let error = error {
                             SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                            return
                         }
-                        workout?.setValue(quantityMiles, forKey: "totalDistance")
+                        
+                        // No need to manually set values - the builder has added the samples
+                        // and the workout now has steps and distance metrics built in
+                        
+                        // You can access the data if needed:
+                        if let workout = workout {
+                            // Here you can use the workout as needed
+                            // The steps and distance are now part of the workout's statistics
+                        }
                     }
                 }
             }
@@ -280,7 +280,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         workoutInProgress = false;
     }
     
-    @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8) {
+    @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8, distance: Double) {
         SwiftDebug.qtDebug("WorkoutTracking: GET DATA: \(Date())")
         
         if(workoutInProgress == false && power > 0) {
@@ -293,6 +293,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         
         WorkoutTracking.kcal = kcal
         WorkoutTracking.steps = steps
+        WorkoutTracking.distance = distance
 
         if(sport == 2) {
             if #available(watchOSApplicationExtension 10.0, *) {
@@ -365,7 +366,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     return
                 }
 
-                let stepsQuantity = HKQuantity(unit: HKUnit.count(), doubleValue: Double(WorkoutTracking.steps))
+                let stepsQuantity = HKQuantity(unit: HKUnit.count(), doubleValue: Double(WorkoutTracking.steps - WorkoutTracking.lastStepCount))
                 
                 // Create a sample for total steps
                 let sampleSteps = HKCumulativeQuantitySeriesSample(
@@ -449,6 +450,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         // TODO HANDLE WALKING, ROWING AND ELLIPTICAL
         
         WorkoutTracking.lastDateMetric = Date()
+        WorkoutTracking.lastStepCount = steps
     }
 }
 
