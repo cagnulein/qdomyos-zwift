@@ -1211,6 +1211,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: CI
+          workflow_conclusion: completed
           pr: 1508
           name: windows-msvc2022-binary-no-python
           path: windows-msvc2022-binary-no-python
@@ -1219,6 +1220,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: CI
+          workflow_conclusion: completed
           pr: 1508
           name: windows-msvc2022-binary
           path: windows-msvc2022-binary
@@ -1242,7 +1244,7 @@ jobs:
 
             ## Windows Builds:
             - **windows-msvc2019**: Recommended for Windows 10
-            - **windows-msvc2022**: Recommended for Windows 11 (experimental)
+            - **windows-msvc2022**: Recommended for Windows 11 (experimental, QT6)
             - **windows**: MinGW build (alternative version)
 
             ## Other Platforms:
