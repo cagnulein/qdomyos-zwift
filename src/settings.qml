@@ -11653,11 +11653,23 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
-                    Button {
-                        id: clearLogs
-                        text: "Clear History"
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: rootItem.clearFiles();
+                    RowLayout {
+                        Layout.fillWidth: true
+                        
+                        Button {
+                            id: clearLogs
+                            text: "Clear History"
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                            onClicked: rootItem.clearFiles();
+                        }
+                        
+                        Button {
+                            text: "Show Logs Folder"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                toast.show(rootItem.getProfileDir())
+                            }
+                        }
                     }
 
                     Label {
