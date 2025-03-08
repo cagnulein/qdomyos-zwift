@@ -1213,8 +1213,8 @@ jobs:
           workflow: CI
           workflow_conclusion: completed
           pr: 1508
-          name: windows-msvc2022-binary-no-python
-          path: windows-msvc2022-binary-no-python
+          name: windows-msvc2022-binary-no-python.zip
+          path: windows-msvc2022-binary-no-python.zip
           
       - name: Download PR 1508 artifacts (with python)
         uses: dawidd6/action-download-artifact@v2
@@ -1222,8 +1222,8 @@ jobs:
           workflow: CI
           workflow_conclusion: completed
           pr: 1508
-          name: windows-msvc2022-binary
-          path: windows-msvc2022-binary
+          name: windows-msvc2022-binary.zip
+          path: windows-msvc2022-binary.zip
           
       - name: Update nightly release
         uses: andelf/nightly-release@main
