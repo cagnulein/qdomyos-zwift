@@ -101,7 +101,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '5.15.2'
+          version: '6.5.1'
           host: 'windows'
           modules: 'qtnetworkauth qtcharts'
           target: "desktop"
@@ -409,12 +409,12 @@ jobs:
           path: "src/qthttpserver"
 
       - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+        run: sudo apt update -y && sudo apt-get install -y qt6-base-dev qtchooser qmake6 qt6-base-dev-tools qml6-module-qtquick-controls libqt6bluetooth6 libqt6widgets6 libqt6positioning6 libqt6xml6 qt6-connectivity-dev qt6-positioning-dev libqt6charts6-dev libqt6charts6 libqt6networkauth6-dev libqt6websockets6-dev libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '5.15.2'
+          version: '6.5.1'
           host: 'linux'
           modules: 'qtnetworkauth qtcharts'
           cache: 'true'
@@ -541,8 +541,8 @@ jobs:
           submodules: recursive # or 'true' if you want to check out only immediate submodules
 
       - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
-
+        run: sudo apt update -y && sudo apt-get install -y qt6-base-dev qtchooser qmake6 qt6-base-dev-tools qml6-module-qtquick-controls libqt6bluetooth6 libqt6widgets6 libqt6positioning6 libqt6xml6 qt6-connectivity-dev qt6-positioning-dev libqt6charts6-dev libqt6charts6 libqt6networkauth6-dev libqt6websockets6-dev libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+          
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
 #        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
@@ -575,7 +575,7 @@ jobs:
       - name: Install Qt Android
         uses: jurplel/install-qt-action@v3
         with:
-          version: '5.15.0'
+          version: '6.5.1'
           host: 'linux'
           target: 'android'
           arch: 'android'
@@ -590,8 +590,8 @@ jobs:
           distribution: 'temurin' # See 'Supported distributions' for available options
           java-version: '11.0.23+9'
           
-      - name: patching qt for bluetooth
-        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+#      - name: patching qt for bluetooth
+#        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
@@ -688,7 +688,7 @@ jobs:
       - name: Install Qt iOS
         uses: jurplel/install-qt-action@v3
         with:
-          version: '5.15.2'
+          version: '6.5.1'
           host: 'mac'
           target: 'ios'
           modules: 'qtcharts  qtnetworkauth'
@@ -728,7 +728,7 @@ jobs:
       #     add: 'src/moc_*.cpp --force'
       #   if: github.ref == 'refs/heads/master'
 
-  window-msvc2019-build:
+  window-msvc2022-build:
     runs-on: windows-latest
     strategy:
       matrix:
@@ -743,7 +743,6 @@ jobs:
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
-          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -789,11 +788,11 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '5.15.2'
+          version: '6.8.2'
           host: 'windows'
-          modules: 'qtnetworkauth qtcharts'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtspeech qtpositioning qtwebsockets qtlocation qtmultimedia'
           target: "desktop"
-          arch: win64_msvc2019_64
+          arch: win64_msvc2022_64
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
           cache: 'true'
@@ -803,20 +802,20 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with: 
           # 14.1 is for vs2017, 14.2 is vs2019, following the upstream vcpkg build from Qv2ray-deps repo
-          toolset: 14.2
+          #toolset: 14.2
           arch: x64
 
-      - name: download 3rd party files for qthttpserver
-        run: |
-            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+      # - name: download 3rd party files for qthttpserver
+      #   run: |
+      #       cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
-      - name: Build qthttpserver
-        run: |
-            cd src\qthttpserver 
-            qmake
-            nmake
-            nmake install
-            cd ../..          
+      # - name: Build qthttpserver
+      #   run: |
+      #       cd src\qthttpserver 
+      #       qmake
+      #       nmake
+      #       nmake install
+      #       cd ../..          
 
       - name: Secrets
         if: github.ref == 'refs/heads/master'
@@ -854,14 +853,14 @@ jobs:
       
       - name: Install dependencies
         run: |
-          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=D:\a\qdomyos-zwift\vcpkg\installed
+           .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=D:\a\qdomyos-zwift\vcpkg\installed
         working-directory: ${{ runner.workspace }}
   
       - name: Build
-        run: |
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+        run: |
             qmake            
             nmake
             cd src/debug
@@ -884,12 +883,13 @@ jobs:
             cd appx
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
         if: matrix.config.python
+
             
       - name: Build without python
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose     
         run: |          
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             qmake           
             nmake
             cd src/debug
@@ -916,28 +916,28 @@ jobs:
         run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
 
       - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output windows-msvc2019-binary.zip
+        run: Compress-Archive src/debug/output windows-msvc2022-binary.zip
         if: matrix.config.python
 
       - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output windows-msvc2019-binary-no-python.zip
+        run: Compress-Archive src/debug/output windows-msvc2022-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v4
         with:
-          name: windows-msvc2019-binary
-          path: windows-msvc2019-binary.zip
+          name: windows-msvc2022-binary
+          path: windows-msvc2022-binary.zip
         if: matrix.config.python
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v4
         with:
-          name: windows-msvc2019-binary-no-python
-          path: windows-msvc2019-binary-no-python.zip
+          name: windows-msvc2022-binary-no-python
+          path: windows-msvc2022-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
-  window-msvc2019-aiserver-build:
+  window-msvc2022-aiserver-build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -1079,13 +1079,13 @@ jobs:
         run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
 
       - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output windows-msvc2019-ai-server-binary.zip
+        run: Compress-Archive src/debug/output windows-msvc2022-ai-server-binary.zip
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v4
         with:
-          name: windows-msvc2019-ai-server-binary
-          path: windows-msvc2019-ai-server-binary.zip
+          name: windows-msvc2022-ai-server-binary
+          path: windows-msvc2022-ai-server-binary.zip
 
   raspberry-pi-build:
     runs-on: ubuntu-latest
@@ -1199,7 +1199,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-20.04 
     if: github.event_name == 'schedule'
-    needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build, raspberry-pi-build]
+    needs: [linux-x86-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]  # Specify the job dependencies
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -1253,9 +1253,9 @@ jobs:
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
           files: |
-            windows-msvc2019-binary-no-python/*
-            windows-msvc2019-binary/*
-            windows-msvc2019-ai-server-binary/*            
+            windows-msvc2022-binary-no-python/*
+            windows-msvc2022-binary/*
+            windows-msvc2022-ai-server-binary/*            
             windows-binary-no-python/*
             windows-binary/*
             fdroid-android-trial/*
