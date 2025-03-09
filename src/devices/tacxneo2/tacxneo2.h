@@ -82,6 +82,7 @@ class tacxneo2 : public bike {
     bool resistance_received = false;
 
     bool THINK_X = false;
+    bool VANRYSEL_HT = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
