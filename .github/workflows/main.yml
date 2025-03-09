@@ -1214,6 +1214,8 @@ jobs:
           workflow: CI
           workflow_conclusion: completed
           pr: 1508
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          verbose: true
           name: windows-msvc2022-binary-no-python.zip
           path: windows-msvc2022-binary-no-python.zip
           
@@ -1223,6 +1225,8 @@ jobs:
           workflow: CI
           workflow_conclusion: completed
           pr: 1508
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          verbose: true
           name: windows-msvc2022-binary.zip
           path: windows-msvc2022-binary.zip
           
