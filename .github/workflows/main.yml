@@ -1198,7 +1198,8 @@ jobs:
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-20.04 
-    if: github.event_name == 'schedule'
+    #if: github.event_name == 'schedule'
+    if: github.ref == 'refs/heads/master'
     needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build, raspberry-pi-build]
     steps:
       - name: Checkout code
@@ -1208,7 +1209,7 @@ jobs:
         uses: actions/download-artifact@v4
         
       - name: Download PR 1508 artifacts
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v9
         with:
           workflow: CI
           workflow_conclusion: completed
@@ -1217,7 +1218,7 @@ jobs:
           path: windows-msvc2022-binary-no-python.zip
           
       - name: Download PR 1508 artifacts (with python)
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v9
         with:
           workflow: CI
           workflow_conclusion: completed
