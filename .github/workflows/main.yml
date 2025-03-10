@@ -1208,22 +1208,26 @@ jobs:
         uses: actions/download-artifact@v4
         
       - name: Download PR 1508 artifacts
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v9
         with:
           workflow: CI
           workflow_conclusion: completed
           pr: 1508
-          name: windows-msvc2022-binary-no-python
-          path: windows-msvc2022-binary-no-python
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          verbose: true
+          name: windows-msvc2022-binary-no-python.zip
+          path: windows-msvc2022-binary-no-python.zip
           
       - name: Download PR 1508 artifacts (with python)
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v9
         with:
           workflow: CI
           workflow_conclusion: completed
           pr: 1508
-          name: windows-msvc2022-binary
-          path: windows-msvc2022-binary
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          verbose: true
+          name: windows-msvc2022-binary.zip
+          path: windows-msvc2022-binary.zip
           
       - name: Update nightly release
         uses: andelf/nightly-release@main
