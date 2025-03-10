@@ -79,9 +79,9 @@ ScrollView {
         }).join("\n")
     }
 
-    // Monitora i cambiamenti nelle gear e salva automaticamente
     onGearConfigurationChanged: {
-        settings.gear_configuration = gearRowsToString(gearRows)
+        var rows = gearRows; // Use the property directly
+        settings.gear_configuration = gearRowsToString(rows)
     }
 
     onSettingsChanged: {
@@ -92,7 +92,8 @@ ScrollView {
     Connections {
         target: gearSettingsWindow
         function onGearConfigurationChanged() {
-            gearTable.updateGearListModel()
+            // Use Qt.callLater to break potential signal cycles
+            Qt.callLater(gearTable.updateGearListModel)
         }
     }
 
@@ -117,7 +118,7 @@ ScrollView {
             var temp = gearRows
             gearRows = []
             gearRows = temp
-            gearConfigurationChanged(gearRows)
+            gearConfigurationChanged()
         }
     }
 
@@ -276,7 +277,7 @@ ScrollView {
         var temp = gearRows;
         gearRows = [];
         gearRows = temp;
-        gearConfigurationChanged(gearRows);
+        gearConfigurationChanged();
     }
 
     function clearGearsFromIndex(startIndex) {
@@ -287,10 +288,11 @@ ScrollView {
             var temp = gearRows
             gearRows = []
             gearRows = temp
-            gearConfigurationChanged(gearRows)
+            gearConfigurationChanged()
     }
 
     function initializeGearRows() {
+        // Create the basic set of gears
         gearRows = [
             { gear: 1, crankset: 38, cog: 44, active: true },
             { gear: 2, crankset: 38, cog: 38, active: true },
@@ -304,16 +306,26 @@ ScrollView {
             { gear: 10, crankset: 38, cog: 13, active: true },
             { gear: 11, crankset: 38, cog: 11, active: true },
             { gear: 12, crankset: 38, cog: 10, active: true }
-        ]
-        // Force update
-        var temp = gearRows
-        gearRows = []
-        gearRows = temp
+        ];
+
+        // Verify we have created rows
+        console.log("initializeGearRows: Created", gearRows.length, "rows");
+
+        // Force immediate update of the table
+        if (gearTable) {
+            console.log("Updating gear table directly");
+            gearTable.updateGearListModel();
+        } else {
+            console.log("gearTable not yet available");
+        }
+
+        // Also emit the change signal
+        gearConfigurationChanged();
     }
 
     // Signals to notify when values change
     signal settingsChanged()
-    signal gearConfigurationChanged(var gearRows)
+    signal gearConfigurationChanged()
 
     ColumnLayout {
         anchors.fill: parent
@@ -517,7 +529,6 @@ ScrollView {
             title: "Virtual Gear Table"
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.preferredHeight: parent.height
 
             ColumnLayout {
                 anchors.fill: parent
@@ -620,25 +631,70 @@ ScrollView {
                     Layout.fillHeight: true
                     clip: true
                     property int currentRow: -1
+
+                    // Add these explicit properties for height
+                    height: parent.height * 0.7  // Use a percentage of the parent height
+                    implicitHeight: 400          // Ensure a minimum height
+
+                    // Replace model binding with a direct ListModel
                     model: ListModel {
                         id: gearListModel
-                    }
-
-                    ScrollBar.vertical: ScrollBar {
-                        policy: ScrollBar.AlwaysOff
-                    }
-
-
-                    Component.onCompleted: {
-                        updateGearListModel()
-                    }
-
-                    function updateGearListModel() {
-                        gearListModel.clear()
-                        for (var i = 0; i < gearRows.length; i++) {
-                            if (gearRows[i].active) {
-                                gearListModel.append(gearRows[i])
+                        // Add initial items directly to ensure table is populated
+                        Component.onCompleted: {
+                            // Ensure we have some initial data
+                            if (count === 0) {
+                                for (var i = 0; i < gearRows.length; i++) {
+                                    if (gearRows[i] && gearRows[i].active) {
+                                        append(gearRows[i]);
+                                    }
+                                }
+                                console.log("Initial model population, count:", count);
                             }
+                        }
+                    }
+
+                    // Use standard ScrollBar that's always visible
+                    ScrollBar.vertical: ScrollBar {
+                        policy: ScrollBar.AlwaysOn
+                    }
+
+                    // Explicitly call updateModel on Component.onCompleted
+                    Component.onCompleted: {
+                        console.log("ListView onCompleted - current gearRows length:", gearRows.length);
+                        // Directly populate model here as well
+                        updateGearListModel();
+                    }
+
+                    // Simplified update function focused on reliability
+                    function updateGearListModel() {
+                        // Clear existing data
+                        gearListModel.clear();
+                        console.log("Updating model with gearRows:", gearRows.length);
+
+                        // Only add active rows
+                        var activeCount = 0;
+                        for (var i = 0; i < gearRows.length; i++) {
+                            if (gearRows[i] && gearRows[i].active === true) {
+                                gearListModel.append({
+                                    "gear": gearRows[i].gear,
+                                    "crankset": gearRows[i].crankset,
+                                    "cog": gearRows[i].cog,
+                                    "active": gearRows[i].active
+                                });
+                                activeCount++;
+                            }
+                        }
+                        console.log("Added", activeCount, "active rows to model");
+
+                        // If nothing was added, add a default row
+                        if (gearListModel.count === 0) {
+                            console.log("No active rows found, adding a default row");
+                            gearListModel.append({
+                                "gear": 1,
+                                "crankset": 38,
+                                "cog": 44,
+                                "active": true
+                            });
                         }
                     }
 
@@ -687,9 +743,13 @@ ScrollView {
                                     to: 999
                                     value: crankset
                                     onValueModified: {
-                                        gearRows[index].crankset = value
-                                        gearConfigurationChanged(gearRows)
+                                        // Use Qt.callLater to avoid immediate layout updates
+                                        Qt.callLater(function() {
+                                            gearRows[index].crankset = value
+                                            gearConfigurationChanged()
+                                        })
                                     }
+
 
                                     // Style the SpinBox
                                     contentItem: TextInput {
@@ -757,8 +817,10 @@ ScrollView {
                                     to: 999
                                     value: cog
                                     onValueModified: {
-                                        gearRows[index].cog = value
-                                        gearConfigurationChanged(gearRows)
+                                        Qt.callLater(function() {
+                                            gearRows[index].cog = value
+                                            gearConfigurationChanged()
+                                        })
                                     }
 
                                     // Style the SpinBox (same as cranksetSpinBox)

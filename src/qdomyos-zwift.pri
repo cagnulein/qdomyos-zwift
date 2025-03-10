@@ -1,5 +1,5 @@
 include(../defaults.pri)
-QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia
+QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia multimediawidgets network gui
 QTPLUGIN += qavfmediaplayer
 QT+= charts core-private
 
@@ -31,7 +31,8 @@ CONFIG += qmltypes
 #unix:!android: CONFIG += webengine
 
 win32:DEFINES += _ITERATOR_DEBUG_LEVEL=0
-win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -ldbghelp -L$$PWD 
+#win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -ldbghelp -L$$PWD
+win32:!mingw:LIBS += -ldbghelp -L$$PWD
 
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
@@ -78,6 +79,9 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    $$PWD/characteristics/characteristicnotifier0002.cpp \
+    $$PWD/characteristics/characteristicnotifier0004.cpp \
+    $$PWD/characteristics/characteristicwriteprocessor0003.cpp \
     $$PWD/devices/antbike/antbike.cpp \
     $$PWD/devices/crossrope/crossrope.cpp \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.cpp \
@@ -285,6 +289,12 @@ smtpclient/src/mimepart.cpp \
 smtpclient/src/mimetext.cpp \
 smtpclient/src/quotedprintable.cpp \
 smtpclient/src/smtpclient.cpp \
+smtpclient/src/mimebase64encoder.cpp \
+smtpclient/src/mimebase64formatter.cpp \
+smtpclient/src/mimebytearrayattachment.cpp \
+smtpclient/src/mimecontentencoder.cpp \
+smtpclient/src/mimeqpencoder.cpp \
+smtpclient/src/mimeqpformatter.cpp \
 devices/snodebike/snodebike.cpp \
 devices/solebike/solebike.cpp \
 devices/soleelliptical/soleelliptical.cpp \
@@ -335,6 +345,9 @@ INCLUDEPATH += fit-sdk/ devices/
 
 HEADERS += \
     $$PWD/EventHandler.h \
+    $$PWD/characteristics/characteristicnotifier0002.h \
+    $$PWD/characteristics/characteristicnotifier0004.h \
+    $$PWD/characteristics/characteristicwriteprocessor0003.h \
     $$PWD/OAuth2.h \
     $$PWD/devices/antbike/antbike.h \
     $$PWD/devices/crossrope/crossrope.h \
@@ -782,6 +795,13 @@ smtpclient/src/mimetext.h \
 smtpclient/src/quotedprintable.h \
 smtpclient/src/smtpclient.h \
 smtpclient/src/smtpexports.h \
+smtpclient/src/mimebase64encoder.h \
+smtpclient/src/mimebase64formatter.h \
+smtpclient/src/mimebytearrayattachment.h \
+smtpclient/src/mimecontentencoder.h \
+smtpclient/src/mimeqpencoder.h \
+smtpclient/src/mimeqpformatter.h \
+smtpclient/src/smtpmime_global.h \
 devices/snodebike/snodebike.h \
 devices/solebike/solebike.h \
 devices/soleelliptical/soleelliptical.h \

@@ -782,7 +782,7 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
 
         // qDebug() << gattCommunicationChannelService->characteristics();
 
@@ -797,7 +797,7 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &domyostreadmill::characteristicWritten);
         connect(gattCommunicationChannelService,
-                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                &QLowEnergyService::errorOccurred,
                 this, &domyostreadmill::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &domyostreadmill::descriptorWritten);
@@ -806,7 +806,7 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
-            gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattNotifyCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
@@ -857,12 +857,12 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &domyostreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &domyostreadmill::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, &domyostreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &domyostreadmill::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

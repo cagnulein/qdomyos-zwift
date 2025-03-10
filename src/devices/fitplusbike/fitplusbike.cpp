@@ -840,15 +840,15 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
     if (sportstech_sx600 && gattCommunicationChannelServiceFTMS) {
-        if (gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered ||
-            gattCommunicationChannelServiceFTMS->state() != QLowEnergyService::ServiceDiscovered) {
+        if (gattCommunicationChannelService->state() != QLowEnergyService::RemoteServiceDiscovered ||
+            gattCommunicationChannelServiceFTMS->state() != QLowEnergyService::RemoteServiceDiscovered) {
             qDebug() << "sportstech_sx600 not all services discovered" << gattCommunicationChannelService->state()
                      << gattCommunicationChannelServiceFTMS->state();
             return;
         }
     }
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
@@ -862,7 +862,7 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &fitplusbike::characteristicWritten);
         connect(gattCommunicationChannelService,
-                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                &QLowEnergyService::errorOccurred,
                 this, &fitplusbike::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &fitplusbike::descriptorWritten);
@@ -907,7 +907,7 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
-            gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattNotify1Characteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
 
         if (sportstech_sx600 && gattCommunicationChannelServiceFTMS) {
             QBluetoothUuid _gattNotifyFTMSCharacteristicId((quint16)0x2AD2);
@@ -921,7 +921,7 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
                     &fitplusbike::characteristicWritten);
             connect(
                 gattCommunicationChannelServiceFTMS,
-                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                &QLowEnergyService::errorOccurred,
                 this, &fitplusbike::errorService);
             connect(gattCommunicationChannelServiceFTMS, &QLowEnergyService::descriptorWritten, this,
                     &fitplusbike::descriptorWritten);
@@ -930,7 +930,7 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
             descriptor.append((char)0x01);
             descriptor.append((char)0x00);
             gattCommunicationChannelServiceFTMS->writeDescriptor(
-                gattNotifyFTMSCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                gattNotifyFTMSCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
         }
     }
 }
@@ -1010,12 +1010,12 @@ void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &fitplusbike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &fitplusbike::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, &fitplusbike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &fitplusbike::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
