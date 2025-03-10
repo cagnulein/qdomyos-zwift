@@ -101,7 +101,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '6.5.1'
+          version: '6.8.2'
           host: 'windows'
           modules: 'qtnetworkauth qtcharts'
           target: "desktop"
