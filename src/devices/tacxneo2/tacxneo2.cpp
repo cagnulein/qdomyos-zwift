@@ -561,9 +561,9 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(7)) << 8) |
-                                    (uint16_t)((uint8_t)newValue.at(6)))) /
-                          10.0;
+                Cadence = Speed.value() *
+                settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
+                    .toDouble();
             }
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         }
