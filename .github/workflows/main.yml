@@ -1207,29 +1207,7 @@ jobs:
         
       - name: Download artifacts
         uses: actions/download-artifact@v4
-        
-      - name: Download PR 1508 artifacts
-        uses: dawidd6/action-download-artifact@v9
-        with:
-          workflow: CI
-          workflow_conclusion: completed
-          pr: 1508
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          verbose: true
-          name: windows-msvc2022-binary-no-python.zip
-          path: windows-msvc2022-binary-no-python.zip
-          
-      - name: Download PR 1508 artifacts (with python)
-        uses: dawidd6/action-download-artifact@v9
-        with:
-          workflow: CI
-          workflow_conclusion: completed
-          pr: 1508
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          verbose: true
-          name: windows-msvc2022-binary.zip
-          path: windows-msvc2022-binary.zip
-          
+                  
       - name: Update nightly release
         uses: andelf/nightly-release@main
         env:
@@ -1265,5 +1243,3 @@ jobs:
             windows-binary/*
             fdroid-android-trial/*
             raspberry-pi-binary/qdomyos-zwift-32bit
-            windows-msvc2022-binary-no-python/*
-            windows-msvc2022-binary/*
