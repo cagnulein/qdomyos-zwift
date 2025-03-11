@@ -534,6 +534,14 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             }
             index += 2;
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        } else if(VANRYSEL_HT && newValue.length() > 7) {
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                Cadence = Speed.value() *
+                settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
+                    .toDouble();
+            }
         }
 
         if (Flags.avgCadence) {
@@ -1298,6 +1306,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("LYDSTO"))) {
             qDebug() << QStringLiteral("LYDSTO found");
             LYDSTO = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("VANRYSEL-HT"))) {
+            qDebug() << QStringLiteral("VANRYSEL-HT found");
+            VANRYSEL_HT = true;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
