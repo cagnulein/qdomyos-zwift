@@ -840,6 +840,7 @@ DISTFILES += \
    $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/ContentHelper.java \
     $$PWD/android/src/Garmin.java \
+   $$PWD/android/src/HealthConnect.java \
    $$PWD/android/src/HidBridge.java \
     $$PWD/android/src/IQMessageReceiverWrapper.java \
     $$PWD/android/src/LocationHelper.java \
