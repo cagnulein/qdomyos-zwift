@@ -1162,7 +1162,9 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && zwiftPlayService != nullptr && gears_zwift_ratio) {
             qDebug() << "discarding";
             return;
-        } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
+        }
+        // gears on erg mode is quite useless and it's confusing
+        /* else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
                 lastPacketFromFTMS.append(b.at(i));
@@ -1174,7 +1176,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             b[1] = power & 0xFF;
             b[2] = power >> 8;
             qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << power;
-        }
+        }*/
 
         writeCharacteristic((uint8_t*)b.data(), b.length(), "injectWrite ", false, true);
     }
