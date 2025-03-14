@@ -1383,8 +1383,7 @@ jobs:
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-20.04 
-    #if: github.event_name == 'schedule'
-    if: github.ref == 'refs/heads/master'
+    if: github.event_name == 'schedule'
     needs: [linux-x86-build, window-msvc2019-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]
     steps:
       - name: Checkout code
