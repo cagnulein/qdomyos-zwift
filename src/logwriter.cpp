@@ -12,4 +12,5 @@ void LogWriter::writeLog(const QString &path, const QString &txt) {
     QTextStream ts(&outFile);
     ts << txt;
     fprintf(stderr, "%s", txt.toLocal8Bit().constData());
+    outFile.close();
 }
