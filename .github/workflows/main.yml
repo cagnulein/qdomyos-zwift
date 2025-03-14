@@ -1195,7 +1195,7 @@ jobs:
       - name: Rename binary
         run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
 
-  window-msvc2022-build:
+window-msvc2022-build:
     runs-on: windows-latest
     strategy:
       matrix:
