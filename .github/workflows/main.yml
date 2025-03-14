@@ -1208,37 +1208,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: refs/pull/1508/head
+          submodules: recursive 
     
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
-        with:
-          repository: bluetiger9/SmtpClient-for-Qt
-          path: "src/smtpclient/"
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
-        with:
-          repository: cagnulein/qmdnsengine
-          path: "src/qmdnsengine/"
-          ref: "zwift"   
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
-        with:
-          repository: google/googletest
-          path: "tst/googletest/"
-          ref: "release-1.12.1"
-
-      - uses: actions/checkout@v2
-      - name: Checkout qHttpServer
-        uses: actions/checkout@v2
-        with:
-          repository: qt-labs/qthttpserver
-          path: "src/qthttpserver"
-
       - uses: actions/setup-python@v4
         with:
           python-version: 3.7
