@@ -1,6 +1,5 @@
 #include "QTelnet.h"
 
-#include "QTelnet.h"
 #include <QHostAddress>
 
 const char QTelnet::IACWILL[2] = { IAC, WILL };
