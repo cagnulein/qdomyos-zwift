@@ -508,6 +508,171 @@ jobs:
 
 
   # This workflow contains a single job called "build"
+  android-play-store-build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-20.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+#      - name: Cache Qt Linux Desktop
+#        id: cache-qt-linux-desktop
+#        uses: actions/cache@v1
+#        with:
+#          path: '${{ github.workspace }}/output/linux-desktop/'
+#          key: ${{ runner.os }}-QtCache-Linux-Desktop
+
+#      - name: Cache Qt Linux Android
+#        id: cache-qt-android
+#        uses: actions/cache@v1
+#        with:
+#          path: '${{ github.workspace }}/output/android/'
+#          key: ${{ runner.os }}-QtCache-Android
+
+      - name: Xvfb install and run
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          # This token is provided by Actions, you do not need to create your own token
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive # or 'true' if you want to check out only immediate submodules
+
+      - name: Install packages required to run QZ inside workflow
+        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+
+#      - name: Test Peloton API
+#        if: github.event_name == 'push' || github.event_name == 'schedule'
+#        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
+#        timeout-minutes: 2
+
+#      - name: Test Home Fitness Buddy API
+#        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-hfb
+#        timeout-minutes: 2
+
+#      - uses: actions/checkout@v2
+#        with:
+#          repository: nttld/setup-ndk
+#          path: setup-ndk
+      # The packages.json in nttld/setup-ndk has already been updated,
+      # https://github.com/nttld/setup-ndk/commit/831db5b02a0f0cab80614619efe461a3dcc140e6
+      # but `dist/*` has not been rebuilt yet. Build it.
+      # https://github.com/nttld/setup-ndk/tree/main/dist
+#      - name: Locally rebuilt setup-ndk
+#        run: |
+#          npm -prefix ./setup-ndk install
+#          npm -prefix ./setup-ndk run all
+      # Install using locally rebuilt setup-ndk
+#      - name: Setup Android NDK r21d
+#        uses: ./setup-ndk
+      #- uses: nttld/setup-ndk@v1
+#        with:
+#          ndk-version: r21d
+
+# waiting github.com/jurplel/install-qt-action/issues/63
+      - name: Install Qt Android
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '5.15.0'
+          host: 'linux'
+          target: 'android'
+          arch: 'android'
+          modules: 'qtcharts  qtnetworkauth'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android'                    
+
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '11.0.23+9'
+          
+      - name: patching qt for bluetooth
+        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+
+      - name: download 3rd party files for qthttpserver
+        run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+
+      - name: Set Android NDK 21 && build
+        run: |
+          # Install NDK 21 after GitHub update
+          # https://github.com/actions/virtual-environments/issues/5595
+          ANDROID_ROOT="/usr/local/lib/android"
+          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
+          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
+          export ANDROID_NDK_ROOT="${ANDROID_NDK}"
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          cd ..          
+
+          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
+          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+
+          # QTHTTPSERVER must use the same NDK
+          cd src/qthttpserver 
+          qmake
+          make -j8
+          make install
+          cd ../..          
+          
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
+          cat src/android-qdomyos-zwift-deployment-settings.json
+
+      - name: Build APK (not usable for production due to unpatched QT library)
+        run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab --release
+
+      - name: Setup build tool version variable
+        shell: bash
+        run: |
+          BUILD_TOOL_VERSION=$(ls /usr/local/lib/android/sdk/build-tools/ | tail -n 1)
+          echo "BUILD_TOOL_VERSION=$BUILD_TOOL_VERSION" >> $GITHUB_ENV
+          echo Last build tool version is: $BUILD_TOOL_VERSION
+
+      - uses: r0adkll/sign-android-release@v1
+        name: Sign app APK
+        # ID used to access action output
+        id: sign_app
+        with:
+          releaseDirectory: ${{ github.workspace }}/output/android/build/outputs/apk/release/
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: ${{ env.BUILD_TOOL_VERSION }}                 
+
+      - name: Deploy to Play Store
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: ${{ secrets.PLAY_STORE_CONFIG }}
+          packageName: org.cagnulen.qdomyoszwift
+          releaseFiles: ${{steps.sign_app.outputs.signedReleaseFile}}
+          track: internal
+
+      # - name: Exit if not on master branch
+      #   if: github.ref == 'refs/heads/master'
+      #   run: exit 1
+
+      # - name: upload windows artifact
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ github.token }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
+      #     asset_name: fdroid-android-trial.zip
+      #     asset_content_type: application/zip                  
+
   android-build:
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
@@ -632,26 +797,12 @@ jobs:
 
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
-
+    
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
         with:
           name: fdroid-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
-
-      # - name: Exit if not on master branch
-      #   if: github.ref == 'refs/heads/master'
-      #   run: exit 1
-
-      # - name: upload windows artifact
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ github.token }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
-      #     asset_name: fdroid-android-trial.zip
-      #     asset_content_type: application/zip                  
 
   ios-build:
     # The type of runner that the job will run on
