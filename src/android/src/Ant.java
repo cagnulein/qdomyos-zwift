@@ -110,7 +110,7 @@ public class Ant {
 	Log.v(TAG, "...doUnbindChannelService");
 	}
 
- public void setCadenceSpeedPower(float speed, int power, int cadence)
+ public void setCadenceSpeedPower(float speed, int power, int cadence, float inclination, int resistance)
  {
 	 if(mChannelService == null)
 	    return;
@@ -119,6 +119,8 @@ public class Ant {
 	 mChannelService.setSpeed(speed);
 	 mChannelService.setPower(power);
 	 mChannelService.setCadence(cadence);
+	 mChannelService.setResistance(resistance);
+	 mChannelService.setInclination(inclination);
  }
 
  public int getHeart()
