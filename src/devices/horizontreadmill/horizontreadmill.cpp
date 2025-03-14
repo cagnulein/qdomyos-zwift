@@ -2391,11 +2391,16 @@ void horizontreadmill::serviceScanDone(void) {
     auto services_list = m_control->services();
 
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
+       if (s == QBluetoothUuid(static_cast<quint16>(0x1826)) || 
+            s == QBluetoothUuid(QBluetoothUuid::ServiceClassUuid::RunningSpeedAndCadence)) {
             qDebug() << s << "discovering...";
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
             connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                     &horizontreadmill::stateChanged);
             gattCommunicationChannelService.constLast()->discoverDetails();
+        } else {
+           qDebug() << "skipping service " << s;
+       }
     }
 }
 
