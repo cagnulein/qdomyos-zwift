@@ -35,7 +35,7 @@ void TcpClientInfoSender::innerStop() {
 
 void TcpClientInfoSender::readyRead() {
     QByteArray read = tcpSocket->readAll();
-    qDebug() << QStringLiteral("Measage received") << read;
+    qDebug() << QStringLiteral("Message received") << read;
     emit onDataReceived(read);
 }
 

@@ -272,12 +272,10 @@ extern char*  adb_strtok_r(char *str, const char *delim, char **saveptr);
 
 #include <pthread.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include <stdarg.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <string.h>
-#include <unistd.h>
 
 /*
  * TEMP_FAILURE_RETRY is defined by some, but not all, versions of

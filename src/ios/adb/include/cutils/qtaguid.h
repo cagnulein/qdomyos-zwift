@@ -54,7 +54,7 @@ extern int qtaguid_setCounterSet(int counterSetNum, uid_t uid);
 extern int qtaguid_deleteTagData(int tag, uid_t uid);
 
 /*
- * Enable/disable qtaguid functionnality at a lower level.
+ * Enable/disable qtaguid functionality at a lower level.
  * When pacified, the kernel will accept commands but do nothing.
  */
 extern int qtaguid_setPacifier(int on);

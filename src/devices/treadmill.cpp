@@ -590,7 +590,7 @@ bool treadmill::followPowerBySpeed() {
             double newspeed = 0;
             double bestSpeed = 0.1;
 
-            // don't read the wattage directly from the m_watt because if you were using a power sensor, the power calcuated in the for will not match it
+            // don't read the wattage directly from the m_watt because if you were using a power sensor, the power calculated in the for will not match it
             double previousWatt = wattsCalc(w, currentSpeed().value(), lastInclination);
 
             double bestDifference = fabs(wattsCalc(w, bestSpeed, currentInclination().value()) - previousWatt);

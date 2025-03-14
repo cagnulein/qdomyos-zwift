@@ -950,7 +950,7 @@ void QMqttConnection::readMessageStatusProperties(QMqttMessageStatusProperties &
             properties.data->reasonString = content;
             break;
         }
-        case 0x26: { // 3.4.2.2.3 User Properites
+        case 0x26: { // 3.4.2.2.3 User Properties
             const QString propertyName = readBufferTyped<QString>(&propertyLength);
             const QString propertyValue = readBufferTyped<QString>(&propertyLength);
             properties.data->userProperties.append(QMqttStringPair(propertyName, propertyValue));

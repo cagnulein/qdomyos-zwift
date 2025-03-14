@@ -9030,7 +9030,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("By default QZ sends to the virtual bluetooth/dircon bridge the current inclination of the treadmill. Enabling this, it will send instead the one wihtout considering inclination gain or offset. Default: False.")
+                        text: qsTr("By default QZ sends to the virtual bluetooth/dircon bridge the current inclination of the treadmill. Enabling this, it will send instead the one without considering inclination gain or offset. Default: False.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

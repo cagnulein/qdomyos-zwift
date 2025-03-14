@@ -393,7 +393,7 @@ void trxappgateusbelliptical::deviceDiscovered(const QBluetoothDeviceInfo &devic
     emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
     if (device.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+"))) {
         elliptical_type = DCT2000I;
-        qDebug() << "DCT2000I workaround activacted!";
+        qDebug() << "DCT2000I workaround activated!";
     }
 
     {

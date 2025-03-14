@@ -49,7 +49,7 @@
 #define AID_CAMERA        1006  /* camera devices */
 #define AID_LOG           1007  /* log devices */
 #define AID_COMPASS       1008  /* compass device */
-#define AID_MOUNT         1009  /* mountd socket */
+#define AID_MOUNT         1009  /* mounted socket */
 #define AID_WIFI          1010  /* wifi subsystem */
 #define AID_ADB           1011  /* android debug bridge (adbd) */
 #define AID_INSTALL       1012  /* group for installing packages */

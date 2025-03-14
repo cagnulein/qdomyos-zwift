@@ -54,7 +54,7 @@ const static uint8_t rrc_command[56] = {
 };
 
 /* ----------------------------------------------------------------------
- * CONSTRUCTOR/DESRTUCTOR
+ * CONSTRUCTOR/DESTRUCTOR
  * ---------------------------------------------------------------------- */
 Computrainer::Computrainer(QObject *parent, QString devname) : QThread(parent) {
 
@@ -314,7 +314,7 @@ void Computrainer::unpackTelemetry(int &ss1, int &ss2, int &ss3, int &buttons, i
     static int pos = 0;
 
     // inbound data is in the 7 byte array Computrainer::buf[]
-    // for code clarity they hjave been put into these holdiing
+    // for code clarity they hjave been put into these holding
     // variables. the overhead is minimal and makes the code a
     // lot easier to decipher! :-)
 

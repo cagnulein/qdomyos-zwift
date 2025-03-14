@@ -183,7 +183,7 @@ void fitmetria_fanfit::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
 
     if (gattCommunicationChannelService == nullptr || gattWriteCharacteristic.isValid() == false) {
         qDebug() << QStringLiteral(
-            "fitmetria_fanfit trying to change the fan speed before the connection is estabilished");
+            "fitmetria_fanfit trying to change the fan speed before the connection is established");
         return;
     }
 
