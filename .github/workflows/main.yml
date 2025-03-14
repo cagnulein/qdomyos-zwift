@@ -1194,13 +1194,198 @@ jobs:
 
       - name: Rename binary
         run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
+
+  window-msvc2022-build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        config:
+          - {python: true}
+          - {python: false}    
+
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v2
+        with:
+          ref: refs/pull/1508/head
+          submodules: recursive 
+    
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
+      - name: download python and paddleocr
+        run: |
+          python -VV
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade setuptools
+          python -m pip install "protobuf<=3.20.2,>=3.1.0"
+          python -m pip install paddlepaddle==2.5.1
+          python -m pip install paddleocr
+          python -m pip install imutils
+          python -m pip install "Pillow<10.0.0"
+          python -m pip install opencv-python
+          python -m pip install numpy
+          python -m pip install pywin32
+        if: matrix.config.python          
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.8.2'
+          host: 'windows'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtspeech qtpositioning qtwebsockets qtlocation qtmultimedia'
+          target: "desktop"
+          arch: win64_msvc2022_64
+          dir: "${{github.workspace}}/qt/"
+          install-deps: "true"
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-windows'          
+
+      - name: Install MSVC compiler
+        uses: ilammy/msvc-dev-cmd@v1
+        with: 
+          # 14.1 is for vs2017, 14.2 is vs2019, following the upstream vcpkg build from Qv2ray-deps repo
+          #toolset: 14.2
+          arch: x64
+
+      # - name: download 3rd party files for qthttpserver
+      #   run: |
+      #       cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+
+      # - name: Build qthttpserver
+      #   run: |
+      #       cd src\qthttpserver 
+      #       qmake
+      #       nmake
+      #       nmake install
+      #       cd ../..          
+
+      - name: Secrets
+        if: github.ref == 'refs/heads/master'
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          cd ..        
+
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg.git
+        working-directory: ${{ runner.workspace }}
+  
+      - name: Bootstrap vcpkg
+        run: .\vcpkg\bootstrap-vcpkg.bat
+        working-directory: ${{ runner.workspace }}
+        
+      - name: Create vcpkg.json
+        working-directory: ${{ runner.workspace }}
+        run: |
+          echo '{
+            "name": "qdomyos-zwift",
+            "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+            "dependencies": [
+              "protobuf",
+              "protobuf-c",
+              "abseil"
+            ],
+            "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
+          }' > vcpkg.json
+      
+      - name: Install dependencies
+        run: |
+           .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=D:\a\qdomyos-zwift\vcpkg\installed
+        working-directory: ${{ runner.workspace }}
+  
+      - name: Build
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+        run: |
+            qmake            
+            nmake
+            cd src/debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.* output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .
+            cp ../../AppxManifest.xml .
+            cp ../../windows/*.py .
+            cp ../../windows/*.bat .
+            cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
+            mkdir adb
+            mkdir python
+            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
+            cp ../../adb/* adb/
+            cd ..
+            cd appx
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
+        if: matrix.config.python
+
+            
+      - name: Build without python
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose     
+        run: |          
+            qmake           
+            nmake
+            cd src/debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.* output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp "C:/mingw64/bin/libwinpthread-1.dll" .
+            cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
+            cp "C:/mingw64/bin/libstdc++-6.dll" .              
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .
+            cp ../../AppxManifest.xml .
+            cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
+            mkdir adb
+            cp ../../adb/* adb/
+            cd ..
+            cd appx
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
+        if: matrix.config.python == false            
+
+      - name: patching qt for bluetooth
+        run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-msvc2022-binary.zip
+        if: matrix.config.python
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-msvc2022-binary-no-python.zip
+        if:  ${{ ! matrix.config.python }}
+
+      - name: Archive windows binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msvc2022-binary
+          path: windows-msvc2022-binary.zip
+        if: matrix.config.python
+
+      - name: Archive windows binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msvc2022-binary-no-python
+          path: windows-msvc2022-binary-no-python.zip
+        if:  ${{ ! matrix.config.python }}
   
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-20.04 
     #if: github.event_name == 'schedule'
     if: github.ref == 'refs/heads/master'
-    needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build, raspberry-pi-build]
+    needs: [linux-x86-build, window-msvc2019-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -1238,6 +1423,8 @@ jobs:
           files: |
             windows-msvc2019-binary-no-python/*
             windows-msvc2019-binary/*
+            windows-msvc2022-binary-no-python/*
+            windows-msvc2022-binary/*
             windows-msvc2019-ai-server-binary/*            
             windows-binary-no-python/*
             windows-binary/*
