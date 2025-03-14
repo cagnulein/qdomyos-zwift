@@ -2129,7 +2129,7 @@ restart the app.</source>
     </message>
     <message>
         <location filename="settings.qml" line="5565"/>
-        <source>Simulate Inclinatin with Speed</source>
+        <source>Simulate Inclination with Speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

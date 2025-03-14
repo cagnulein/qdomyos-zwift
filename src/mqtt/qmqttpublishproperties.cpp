@@ -74,7 +74,7 @@ Q_DECLARE_LOGGING_CATEGORY(lcMqttClient)
     \value TopicAlias
            The topic alias for this message.
     \value ResponseTopic
-           The topic the receipient should respond to.
+           The topic the recipient should respond to.
     \value CorrelationData
            An identifier of the response message.
     \value UserProperty

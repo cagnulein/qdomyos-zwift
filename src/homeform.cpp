@@ -637,7 +637,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         setToastRequested("Bluetooth name too long, change it to a 4 letters one in the android settings and use only A-Z or 0-9 characters");
     }
     
-    // Android 14 restrics access to /Android/data folder
+    // Android 14 restricts access to /Android/data folder
     bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
     if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
         QDirIterator itAndroid(getAndroidDataAppDir(), QDirIterator::Subdirectories);
@@ -1855,8 +1855,8 @@ void homeform::sortTiles() {
             // the proform studio is the only bike managed with an inclination properties.
             // In order to don't break the tiles layout to all the bikes users, i enable this
             // only if this bike is selected
-            // since i'm adding the inclination from zwift in this tile, in order to preserve the
-            // layour for legacy users, i'm not showing this one if the peloton cadence sensor setting
+            // since I'm adding the inclination from zwift in this tile, in order to preserve the
+            // layout for legacy users, i'm not showing this one if the peloton cadence sensor setting
             // is enabled (assuming that if someone has it, he doesn't want an inclination tile)
             if (!pelotoncadence) {
                 if (settings.value(QZSettings::tile_inclination_enabled, true).toBool() &&
@@ -7671,7 +7671,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
             if (videoMustBeReset) {
                 double videoStartPos =
                     ((double)(QTime(0, 0, 0).secsTo(source)) + videoLengthSeconds - trainProgramLengthSeconds);
-                // if videoStartPos is negativ the Video is shorter then the GPX. Wait for the gpx to reach a point
+                // if videoStartPos is negative the Video is shorter then the GPX. Wait for the gpx to reach a point
                 // where the Video can be played
                 if (videoStartPos >= 0.0) {
                     videoTimeStampSeconds = (videoStartPos - videoLengthSeconds + trainProgramLengthSeconds);

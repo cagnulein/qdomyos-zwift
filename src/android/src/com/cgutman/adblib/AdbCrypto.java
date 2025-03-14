@@ -214,7 +214,7 @@ public class AdbCrypto {
 	/**
 	 * Gets the RSA public key in ADB format.
 	 * @return Byte array containing the RSA public key in ADB format.
-	 * @throws IOException If the key cannot be retrived
+	 * @throws IOException If the key cannot be retrieved
 	 */
 	public byte[] getAdbPublicKeyPayload() throws IOException
 	{

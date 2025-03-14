@@ -106,7 +106,7 @@ void wahookickrheadwind::writeCharacteristic(QLowEnergyService *service, QLowEne
 
     if (service == nullptr || writeChar->isValid() == false) {
         qDebug() << QStringLiteral(
-            "wahookickrheadwind trying to change the fan speed before the connection is estabilished");
+            "wahookickrheadwind trying to change the fan speed before the connection is established");
         return;
     }
 

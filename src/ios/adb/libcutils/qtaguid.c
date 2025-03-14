@@ -35,7 +35,7 @@ static const char *GLOBAL_PACIFIER_PARAM = "/sys/module/xt_qtaguid/parameters/pa
 static const char *TAG_PACIFIER_PARAM = "/sys/module/xt_qtaguid/parameters/tag_tracking_passive";
 
 /*
- * One per proccess.
+ * One per process.
  * Once the device is open, this process will have its socket tags tracked.
  * And on exit or untimely death, all socket tags will be removed.
  * A process can only open /dev/xt_qtaguid once.

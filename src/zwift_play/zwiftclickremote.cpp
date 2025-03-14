@@ -85,7 +85,7 @@ void zwiftclickremote::writeCharacteristic(QLowEnergyService *service, QLowEnerg
 
     if (service == nullptr || writeChar->isValid() == false) {
         qDebug() << QStringLiteral(
-            "zwiftclickremote trying to change the fan speed before the connection is estabilished");
+            "zwiftclickremote trying to change the fan speed before the connection is established");
         return;
     }
 

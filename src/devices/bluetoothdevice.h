@@ -654,7 +654,7 @@ class bluetoothdevice : public QObject {
     QList<MetersByInclination> NextInclination300Meters;
 
     /**
-     * @brief Inclination A metric to get and set the currently requested inclinaton. Units: degrees (0 = horizontal)
+     * @brief Inclination A metric to get and set the currently requested inclination. Units: degrees (0 = horizontal)
      */
     metric Inclination;
 

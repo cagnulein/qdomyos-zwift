@@ -198,7 +198,7 @@ public class SpeedChannelController {
                carousalTimer.scheduleAtFixedRate(new TimerTask() {
                    @Override
                    public void run() {
-                       Log.d(TAG, "Tx Unsollicited");
+                       Log.d(TAG, "Tx Unsolicited");
                        long realtimeMillis = SystemClock.elapsedRealtime();
 
                        if (lastTime != 0) {

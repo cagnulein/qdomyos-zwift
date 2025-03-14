@@ -174,7 +174,7 @@ read_central_directory_entry(Zipfile* file, Zipentry* entry,
  * just for the fun of it.
  *
  * This is all a little wobbly.  If the wrong value ends up in the EOCD
- * area, we're hosed.  This appears to be the way that everbody handles
+ * area, we're hosed.  This appears to be the way that everybody handles
  * it though, so we're in pretty good company if this fails.
  */
 int

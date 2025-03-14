@@ -91,7 +91,7 @@ void eliteariafan::writeCharacteristic(QLowEnergyService *service, QLowEnergyCha
 
     if (service == nullptr || writeChar->isValid() == false) {
         qDebug() << QStringLiteral(
-            "eliteariafan trying to change the fan speed before the connection is estabilished");
+            "eliteariafan trying to change the fan speed before the connection is established");
         return;
     }
 

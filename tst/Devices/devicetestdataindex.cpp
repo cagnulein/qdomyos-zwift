@@ -1379,7 +1379,7 @@ void DeviceTestDataIndex::Initialize() {
                                 {
                                     DeviceDiscoveryInfo config(info);
 
-                                    // TODO: revist because of all the settings this one needs to consider
+                                    // TODO: revisit because of all the settings this one needs to consider
 
                                     if(enable) {
                                         config.setValue(QZSettings::toorx_bike, false); // 1 of many possible

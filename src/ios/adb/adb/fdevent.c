@@ -318,7 +318,7 @@ static void dump_all_fds(const char *extra_msg)
 {
 int i;
     fdevent *fde;
-    // per fd: 4 digits (but really: log10(FD_SETSIZE)), 1 staus, 1 blank
+    // per fd: 4 digits (but really: log10(FD_SETSIZE)), 1 status, 1 blank
     char msg_buff[FD_SETSIZE*6 + 1], *pb=msg_buff;
     size_t max_chars = FD_SETSIZE * 6 + 1;
     int printed_out;

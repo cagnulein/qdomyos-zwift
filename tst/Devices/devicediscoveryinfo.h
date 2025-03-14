@@ -50,7 +50,7 @@ public :
     const QString DeviceName() const;
 
     /**
-     * @brief Utility to include/exclude a service from the blutooth device info.
+     * @brief Utility to include/exclude a service from the bluetooth device info.
      * @param serviceUuid
      * @param include True includes, False excludes
      */

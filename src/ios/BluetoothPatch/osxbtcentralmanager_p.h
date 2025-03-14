@@ -88,7 +88,7 @@ enum CentralManagerState
 };
 
 // In Qt we work with handles and UUIDs. Core Bluetooth
-// has NSArrays (and nested NSArrays inside servces/characteristics).
+// has NSArrays (and nested NSArrays inside services/characteristics).
 // To simplify a navigation, I need a simple way to map from a handle
 // to a Core Bluetooth object. These are weak pointers,
 // will probably require '__weak' with ARC.
@@ -96,7 +96,7 @@ typedef QHash<QLowEnergyHandle, CBService *> ServiceHash;
 typedef QHash<QLowEnergyHandle, CBCharacteristic *> CharHash;
 typedef QHash<QLowEnergyHandle, CBDescriptor *> DescHash;
 
-// Descriptor/charactesirstic read/write requests
+// Descriptor/characteristics read/write requests
 // - we have to serialize 'concurrent' requests.
 struct LERequest {
     enum RequestType {

@@ -22,7 +22,7 @@ static BLEUUID charUUID("2ad2"); // Indoor Bike (Fitness Machine)
 
 
 static BLEUUID HRserviceUUID("180D"); // HR Service
-static BLEUUID HRcharUUID("2a37"); // HR Measuremente
+static BLEUUID HRcharUUID("2a37"); // HR Measurement
 
 static boolean doConnect = false;
 static boolean connected = false;

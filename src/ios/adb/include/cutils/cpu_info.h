@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-/* returns a string contiaining an ASCII representation of the CPU serial number, 
+/* returns a string containing an ASCII representation of the CPU serial number, 
 ** or NULL if cpu info not available.
 ** The string is a static variable, so don't call free() on it.
 */

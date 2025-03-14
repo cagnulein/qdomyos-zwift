@@ -54,7 +54,7 @@ protected:
 		TELOPT_ECHO         = (char)1,    // Estando en la negociación, pide echo local.
 		TELOPT_SGA          = (char)2,    // Estando en la negociación, pide Supress Go Ahead.
 		TELOPT_EOR          = (char)25,   // Estando en la negociación, informa End Of Record.
-		TELOPT_NAWS         = (char)31,   // Estando en la negociación, Negotiate Abaut Window Size.
+		TELOPT_NAWS         = (char)31,   // Estando en la negociación, Negotiate About Window Size.
 		TELOPT_TTYPE        = (char)24    // Estando en la negociación, Terminal Type.
 	};
 	enum TelnetQualifiers

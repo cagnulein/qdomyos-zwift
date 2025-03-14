@@ -159,7 +159,7 @@ void  adb_trace_init(const char *spec)
 
 /*
  * Redefine open and write for qemu_pipe.h that contains inlined references
- * to those routines. We will redifine them back after qemu_pipe.h inclusion.
+ * to those routines. We will redefine them back after qemu_pipe.h inclusion.
  */
 
 #undef open

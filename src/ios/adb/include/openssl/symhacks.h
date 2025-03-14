@@ -374,7 +374,7 @@
 #  undef ec_GFp_simple_group_check_discriminant
 #  define ec_GFp_simple_group_check_discriminant  ec_GFp_simple_grp_chk_discrim
 
-/* Hack som long STORE names */
+/* Hack some long STORE names */
 #  undef STORE_method_set_initialise_function
 #  define STORE_method_set_initialise_function    STORE_meth_set_initialise_fn
 #  undef STORE_method_set_cleanup_function

@@ -32,7 +32,7 @@
 #include "adb_auth.h"
 
 /* HACK: we need the RSAPublicKey struct
- * but RSA_verify conflits with openssl */
+ * but RSA_verify conflicts with openssl */
 #define RSA_verify RSA_verify_mincrypt
 #include "mincrypt/rsa.h"
 #undef RSA_verify

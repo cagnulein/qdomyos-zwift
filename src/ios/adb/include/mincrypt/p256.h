@@ -46,7 +46,7 @@ typedef int32_t p256_sdigit;
 typedef uint64_t p256_ddigit;
 typedef int64_t p256_sddigit;
 
-// Defining p256_int as struct to leverage struct assigment.
+// Defining p256_int as struct to leverage struct assignment.
 typedef struct {
   p256_digit a[P256_NDIGITS];
 } p256_int;

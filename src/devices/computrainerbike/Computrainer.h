@@ -142,7 +142,7 @@ class Computrainer : public QThread {
     double getLoad();
 
   private:
-    void run() override; // called by start to kick off the CT comtrol thread
+    void run() override; // called by start to kick off the CT control thread
 
     // 56 bytes comprise of 8 7byte command messages, where
     // the last is the set load / gradient respectively

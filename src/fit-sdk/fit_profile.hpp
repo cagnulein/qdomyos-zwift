@@ -446,7 +446,7 @@ typedef FIT_ENUM FIT_DISPLAY_POSITION;
 #define FIT_DISPLAY_POSITION_DUTCH_GRID                                          ((FIT_DISPLAY_POSITION)5) // Dutch grid system
 #define FIT_DISPLAY_POSITION_HUNGARIAN_GRID                                      ((FIT_DISPLAY_POSITION)6) // Hungarian grid system
 #define FIT_DISPLAY_POSITION_FINNISH_GRID                                        ((FIT_DISPLAY_POSITION)7) // Finnish grid system Zone3 KKJ27
-#define FIT_DISPLAY_POSITION_GERMAN_GRID                                         ((FIT_DISPLAY_POSITION)8) // Gausss Krueger (German)
+#define FIT_DISPLAY_POSITION_GERMAN_GRID                                         ((FIT_DISPLAY_POSITION)8) // Gauss Krueger (German)
 #define FIT_DISPLAY_POSITION_ICELANDIC_GRID                                      ((FIT_DISPLAY_POSITION)9) // Icelandic Grid
 #define FIT_DISPLAY_POSITION_INDONESIAN_EQUATORIAL                               ((FIT_DISPLAY_POSITION)10) // Indonesian Equatorial LCO
 #define FIT_DISPLAY_POSITION_INDONESIAN_IRIAN                                    ((FIT_DISPLAY_POSITION)11) // Indonesian Irian LCO
