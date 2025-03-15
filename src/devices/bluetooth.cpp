@@ -12,6 +12,10 @@
 #include <QAndroidJniObject>
 #endif
 
+#ifdef Q_CC_MSVC
+#include <Windows.h> 
+#endif
+
 bluetooth::bluetooth(const discoveryoptions &options)
     : bluetooth(options.logs, options.deviceName, options.noWriteResistance, options.noHeartService,
                 options.pollDeviceTime, options.noConsole, options.testResistance, options.bikeResistanceOffset,
@@ -2998,6 +3002,13 @@ void bluetooth::gearUp() {
             return;
         }
     }
+    #ifdef Q_CC_MSVC
+        INPUT input = {};
+        input.type = INPUT_KEYBOARD;
+        input.ki.wVk = 'K';
+        
+        SendInput(1, &input, sizeof(INPUT));
+    #endif
 }
 
 void bluetooth::gearDown() {
@@ -3009,6 +3020,13 @@ void bluetooth::gearDown() {
             return;
         }
     }
+    #ifdef Q_CC_MSVC
+        INPUT input = {};
+        input.type = INPUT_KEYBOARD;
+        input.ki.wVk = 'I';
+        
+        SendInput(1, &input, sizeof(INPUT));
+    #endif    
 }
 
 void bluetooth::gearFailedUp() {
