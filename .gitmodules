@@ -4,7 +4,7 @@
 [submodule "src/smtpclient"]
 	path = src/smtpclient
 	url = https://github.com/bluetiger9/SmtpClient-for-Qt
-	branch = dev
+	branch = v2.0
 [submodule "src/qmdnsengine"]
 	path = src/qmdnsengine
 	url = https://github.com/cagnulein/qmdnsengine.git
