@@ -2994,14 +2994,6 @@ void bluetooth::connectedAndDiscovered() {
 }
 
 void bluetooth::gearUp() {
-    QSettings settings;
-    bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
-    foreach(zwiftclickremote* p, zwiftPlayDevice) {
-        if((p->typeZap == AbstractZapDevice::LEFT && !zwiftplay_swap) || (p->typeZap == AbstractZapDevice::RIGHT && zwiftplay_swap)) {
-            p->vibrate(0x20);
-            return;
-        }
-    }
     #ifdef Q_CC_MSVC
     INPUT input = {0};
     input.type = INPUT_KEYBOARD;
@@ -3011,9 +3003,9 @@ void bluetooth::gearUp() {
     if (result != 1) {
         // Ottenere il codice di errore
         DWORD error = GetLastError();
-        printf("Error sending key. Error code: %lu\n", error);
+        qDebug() << "Error sending key. Error code: " << error;
     } else {
-        printf("Key pressed sent with success\n");
+        qDebug() << "Key pressed sent with success";
     }
     
     input.ki.dwFlags = KEYEVENTF_KEYUP;
@@ -3021,14 +3013,49 @@ void bluetooth::gearUp() {
     result = SendInput(1, &input, sizeof(INPUT));
     if (result != 1) {
         DWORD error = GetLastError();
-        printf("Error sending key. Error code: %lu\n", error);
+        qDebug() << "Error sending key. Error code: " << error;
     } else {
-        printf("Key pressed sent with success\n");
+        qDebug() << "Key pressed sent with success";
     }
     #endif
+
+
+    QSettings settings;
+    bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
+    foreach(zwiftclickremote* p, zwiftPlayDevice) {
+        if((p->typeZap == AbstractZapDevice::LEFT && !zwiftplay_swap) || (p->typeZap == AbstractZapDevice::RIGHT && zwiftplay_swap)) {
+            p->vibrate(0x20);
+            return;
+        }
+    }
 }
 
 void bluetooth::gearDown() {
+    #ifdef Q_CC_MSVC
+    INPUT input = {0};
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = 'I';
+    
+    UINT result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        // Ottenere il codice di errore
+        DWORD error = GetLastError();
+        qDebug() << "Error sending key. Error code: " << error;
+    } else {
+        qDebug() << "Key pressed sent with success";
+    }
+    
+    input.ki.dwFlags = KEYEVENTF_KEYUP;
+    
+    result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        DWORD error = GetLastError();
+        qDebug() << "Error sending key. Error code: " << error;
+    } else {
+        qDebug() << "Key pressed sent with success";
+    }
+    #endif
+
     QSettings settings;
     bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
     foreach(zwiftclickremote* p, zwiftPlayDevice) {
@@ -3037,29 +3064,6 @@ void bluetooth::gearDown() {
             return;
         }
     }
-    #ifdef Q_CC_MSVC
-    INPUT input = {0};
-    input.type = INPUT_KEYBOARD;
-    input.ki.wVk = 'I';
-    
-    UINT result = SendInput(1, &input, sizeof(INPUT));
-    if (result != 1) {
-        DWORD error = GetLastError();
-        printf("Error sending key. Error code: %lu\n", error);
-    } else {
-        printf("Key pressed sent with success\n");
-    }
-    
-    input.ki.dwFlags = KEYEVENTF_KEYUP;
-    
-    result = SendInput(1, &input, sizeof(INPUT));
-    if (result != 1) {
-        DWORD error = GetLastError();
-        printf("Error sending key. Error code: %lu\n", error);
-    } else {
-        printf("Key pressed sent with success\n");
-    }
-    #endif    
 }
 
 void bluetooth::gearFailedUp() {
