@@ -3003,11 +3003,28 @@ void bluetooth::gearUp() {
         }
     }
     #ifdef Q_CC_MSVC
-        INPUT input = {};
-        input.type = INPUT_KEYBOARD;
-        input.ki.wVk = 'K';
-        
-        SendInput(1, &input, sizeof(INPUT));
+    INPUT input = {0};
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = 'K';
+    
+    UINT result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        // Ottenere il codice di errore
+        DWORD error = GetLastError();
+        printf("Error sending key. Error code: %lu\n", error);
+    } else {
+        printf("Key pressed sent with success\n");
+    }
+    
+    input.ki.dwFlags = KEYEVENTF_KEYUP;
+    
+    result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        DWORD error = GetLastError();
+        printf("Error sending key. Error code: %lu\n", error);
+    } else {
+        printf("Key pressed sent with success\n");
+    }
     #endif
 }
 
@@ -3021,11 +3038,27 @@ void bluetooth::gearDown() {
         }
     }
     #ifdef Q_CC_MSVC
-        INPUT input = {};
-        input.type = INPUT_KEYBOARD;
-        input.ki.wVk = 'I';
-        
-        SendInput(1, &input, sizeof(INPUT));
+    INPUT input = {0};
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = 'I';
+    
+    UINT result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        DWORD error = GetLastError();
+        printf("Error sending key. Error code: %lu\n", error);
+    } else {
+        printf("Key pressed sent with success\n");
+    }
+    
+    input.ki.dwFlags = KEYEVENTF_KEYUP;
+    
+    result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        DWORD error = GetLastError();
+        printf("Error sending key. Error code: %lu\n", error);
+    } else {
+        printf("Key pressed sent with success\n");
+    }
     #endif    
 }
 
