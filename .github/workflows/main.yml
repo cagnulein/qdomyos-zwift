@@ -1,6 +1,3 @@
-
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
 env:
@@ -101,7 +98,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '6.5.1'
+          version: '6.8.2'
           host: 'windows'
           modules: 'qtnetworkauth qtcharts'
           target: "desktop"
@@ -1194,7 +1191,7 @@ jobs:
 
       - name: Rename binary
         run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
-  
+
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-20.04 
@@ -1206,25 +1203,7 @@ jobs:
         
       - name: Download artifacts
         uses: actions/download-artifact@v4
-        
-      - name: Download PR 1508 artifacts
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: CI
-          workflow_conclusion: completed
-          pr: 1508
-          name: windows-msvc2022-binary-no-python
-          path: windows-msvc2022-binary-no-python
-          
-      - name: Download PR 1508 artifacts (with python)
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: CI
-          workflow_conclusion: completed
-          pr: 1508
-          name: windows-msvc2022-binary
-          path: windows-msvc2022-binary
-          
+                  
       - name: Update nightly release
         uses: andelf/nightly-release@main
         env:
@@ -1260,5 +1239,3 @@ jobs:
             windows-binary/*
             fdroid-android-trial/*
             raspberry-pi-binary/qdomyos-zwift-32bit
-            windows-msvc2022-binary-no-python/*
-            windows-msvc2022-binary/*

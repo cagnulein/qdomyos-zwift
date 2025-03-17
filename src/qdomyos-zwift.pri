@@ -3,26 +3,6 @@ QT += bluetooth widgets xml positioning quick networkauth websockets texttospeec
 QTPLUGIN += qavfmediaplayer
 QT+= charts core-private
 
-qtHaveModule(httpserver) {
-    QT += httpserver
-    DEFINES += Q_HTTPSERVER
-    SOURCES += webserverinfosender.cpp
-    HEADERS += webserverinfosender.h
-
-    # android and iOS are using ChartJS
-    unix:android: {
-        QT+= webview
-        DEFINES += CHARTJS
-    }
-    ios: {
-        QT+= webview
-        DEFINES += CHARTJS
-    }
-#	 win32: {
-#	     DEFINES += CHARTJS
-#		}
-}
-
 CONFIG += c++17 console app_bundle optimize_full ltcg
 
 CONFIG += qmltypes
@@ -31,7 +11,7 @@ CONFIG += qmltypes
 #unix:!android: CONFIG += webengine
 
 #win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -ldbghelp -L$$PWD
-win32:!mingw:LIBS += -ldbghelp -L$$PWD
+win32:!mingw:LIBS += -ldbghelp -luser32 -L$$PWD
 
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
@@ -76,6 +56,11 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 
 
 # include(../qtzeroconf/qtzeroconf.pri)
+
+qtHaveModule(httpserver) {
+    SOURCES += webserverinfosender.cpp
+    HEADERS += webserverinfosender.h
+}
 
 SOURCES += \
     $$PWD/characteristics/characteristicnotifier0002.cpp \
@@ -974,4 +959,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.18.21
+VERSION = 2.18.22

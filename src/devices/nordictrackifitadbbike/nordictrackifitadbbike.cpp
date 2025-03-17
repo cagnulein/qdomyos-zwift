@@ -212,6 +212,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
     uint16_t port;
     bool freemotion_coachbike_b22_7 = settings.value(QZSettings::freemotion_coachbike_b22_7, QZSettings::default_freemotion_coachbike_b22_7).toBool();
     while (socket->hasPendingDatagrams()) {
+        QDateTime now = QDateTime::currentDateTime();
         QByteArray datagram;
         datagram.resize(socket->pendingDatagramSize());
         socket->readDatagram(datagram.data(), datagram.size(), &sender, &port);
@@ -290,7 +291,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
-                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
 
         bool proform_studio_NTEX71021 =
@@ -344,8 +345,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             qDebug() << QString::number(ret) + " >> " + message;                
         }
         // since the motor of the bike is slow, let's filter the inclination changes to more than 4 seconds
-        else if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > inclination_delay_seconds) {
-            lastInclinationChanged = QDateTime::currentDateTime();
+        else if (lastInclinationChanged.secsTo(now) > inclination_delay_seconds) {
+            lastInclinationChanged = now;
             if (nordictrack_ifit_adb_remote) {
                 bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
                 if (requestInclination != -100 && erg_mode && requestResistance != -100) {
@@ -431,18 +432,18 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             KCal +=
                 ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
         // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
         if (Cadence.value() > 0) {
             CrankRevs++;
             LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
         }
 
-        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+        lastRefreshCharacteristicChanged = now;
 
 #ifdef Q_OS_ANDROID
         if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())

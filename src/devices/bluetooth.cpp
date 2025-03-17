@@ -12,6 +12,10 @@
 #include <QAndroidJniObject>
 #endif
 
+#ifdef Q_CC_MSVC
+#include <Windows.h> 
+#endif
+
 bluetooth::bluetooth(const discoveryoptions &options)
     : bluetooth(options.logs, options.deviceName, options.noWriteResistance, options.noHeartService,
                 options.pollDeviceTime, options.noConsole, options.testResistance, options.bikeResistanceOffset,
@@ -1403,6 +1407,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("WLT-EP-")) ||                             // Flow elliptical
                         (b.name().toUpper().startsWith("SCHWINN 810")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-MC")) ||    
+                         b.name().toUpper().startsWith(QStringLiteral("ANPIUS-")) || 
                         (b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D"))) ||                     // Kingsmith WalkingPad Z1
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("TT8")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -1649,6 +1654,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("LYDSTO")) ||
                         (b.name().toUpper().startsWith("CYCLO_")) ||
                         (b.name().toUpper().startsWith("LCR")) ||
+                        (b.name().toUpper().startsWith("XCX-")) ||
                         (b.name().toUpper().startsWith("L-") && b.name().length() == 11) ||
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||
                         (b.name().toUpper().startsWith("VFSPINBIKE")) ||
@@ -2988,6 +2994,32 @@ void bluetooth::connectedAndDiscovered() {
 }
 
 void bluetooth::gearUp() {
+    #ifdef Q_CC_MSVC
+    INPUT input = {0};
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = 'K';
+    
+    UINT result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        // Ottenere il codice di errore
+        DWORD error = GetLastError();
+        qDebug() << "Error sending key. Error code: " << error;
+    } else {
+        qDebug() << "Key pressed sent with success";
+    }
+    
+    input.ki.dwFlags = KEYEVENTF_KEYUP;
+    
+    result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        DWORD error = GetLastError();
+        qDebug() << "Error sending key. Error code: " << error;
+    } else {
+        qDebug() << "Key pressed sent with success";
+    }
+    #endif
+
+
     QSettings settings;
     bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
     foreach(zwiftclickremote* p, zwiftPlayDevice) {
@@ -2999,6 +3031,31 @@ void bluetooth::gearUp() {
 }
 
 void bluetooth::gearDown() {
+    #ifdef Q_CC_MSVC
+    INPUT input = {0};
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = 'I';
+    
+    UINT result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        // Ottenere il codice di errore
+        DWORD error = GetLastError();
+        qDebug() << "Error sending key. Error code: " << error;
+    } else {
+        qDebug() << "Key pressed sent with success";
+    }
+    
+    input.ki.dwFlags = KEYEVENTF_KEYUP;
+    
+    result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        DWORD error = GetLastError();
+        qDebug() << "Error sending key. Error code: " << error;
+    } else {
+        qDebug() << "Key pressed sent with success";
+    }
+    #endif
+
     QSettings settings;
     bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
     foreach(zwiftclickremote* p, zwiftPlayDevice) {
