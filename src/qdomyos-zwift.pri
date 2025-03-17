@@ -30,7 +30,6 @@ CONFIG += qmltypes
 #win32: CONFIG += webengine
 #unix:!android: CONFIG += webengine
 
-win32:DEFINES += _ITERATOR_DEBUG_LEVEL=0
 #win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -ldbghelp -L$$PWD
 win32:!mingw:LIBS += -ldbghelp -L$$PWD
 
