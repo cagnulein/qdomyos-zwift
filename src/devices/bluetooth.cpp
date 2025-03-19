@@ -1649,6 +1649,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("TITAN 7000")) ||
                         (b.name().toUpper().startsWith("LYDSTO")) ||
                         (b.name().toUpper().startsWith("CYCLO_")) ||
+                        (b.name().toUpper().startsWith("SL010-")) ||
                         (b.name().toUpper().startsWith("LCR")) ||
                         (b.name().toUpper().startsWith("XCX-")) ||
                         (b.name().toUpper().startsWith("L-") && b.name().length() == 11) ||
