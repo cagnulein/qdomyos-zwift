@@ -71,7 +71,11 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
         if (!echelon && !ifit) {
-            advertisingData.setLocalName(QStringLiteral("QZ"));
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+        advertisingData.setLocalName(QStringLiteral("QZPI"));
+#else            
+        advertisingData.setLocalName(QStringLiteral("QZ"));
+#endif
         } else if (ifit) {
             advertisingData.setLocalName(QStringLiteral("I_EB"));
         } else {
@@ -911,7 +915,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     //********************ZWIFT PLAY**************
 
     if(characteristic.uuid().toString().contains(QStringLiteral("00000003-19ca-4651-86e5-fa29dcdd09d1")) && zwift_play_emulator) {
-        static const QByteArray expectedHexArray = QByteArray::fromHex("52696465 4F6E0201");
+        static const QByteArray expectedHexArray = QByteArray::fromHex("52696465 4F6E02");
         static const QByteArray expectedHexArray2 = QByteArray::fromHex("410805");
         static const QByteArray expectedHexArray3 = QByteArray::fromHex("00088804");
         static const QByteArray expectedHexArray4 = QByteArray::fromHex("042A0A10 C0BB0120");
@@ -1138,7 +1142,7 @@ void virtualbike::handleZwiftGear(const QByteArray &array)
         if ((uint8_t)array[0] == (uint8_t)0xCC && (uint8_t)array[1] == (uint8_t)0x3A) g = 1;
         else if ((uint8_t)array[0] == (uint8_t)0xFC && (uint8_t)array[1] == (uint8_t)0x43) g = 2;
         else if ((uint8_t)array[0] == (uint8_t)0xAC && (uint8_t)array[1] == (uint8_t)0x4D) g = 3;
-        else if ((uint8_t)array[0] == (uint8_t)0xD5 && (uint8_t)array[1] == (uint8_t)0x56) g = 4;
+        else if ((uint8_t)array[0] == (uint8_t)0xDC && (uint8_t)array[1] == (uint8_t)0x56) g = 4;
         else if ((uint8_t)array[0] == (uint8_t)0x8C && (uint8_t)array[1] == (uint8_t)0x60) g = 5;
         else if ((uint8_t)array[0] == (uint8_t)0xE8 && (uint8_t)array[1] == (uint8_t)0x6B) g = 6;
         else if ((uint8_t)array[0] == (uint8_t)0xC4 && (uint8_t)array[1] == (uint8_t)0x77) g = 7;

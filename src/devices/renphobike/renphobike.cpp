@@ -1,5 +1,4 @@
 #include "renphobike.h"
-#include "CRC16IBM.h""
 #include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
 #include <QBluetoothLocalDevice>
@@ -61,39 +60,6 @@ void renphobike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString in
     loop.exec();
 }
 
-void renphobike::writeCharacteristicCustom(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
-                                     bool wait_for_response) {
-    QEventLoop loop;
-    QTimer timeout;
-
-    if (gattCustomService == nullptr) {
-        qDebug() << QStringLiteral("gattCustomService not found! skip writing...");
-        return;
-    }
-
-    if (wait_for_response) {
-        connect(gattCustomService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)), &loop,
-                SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
-    } else {
-        connect(gattCustomService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop,
-                SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
-    }
-
-    if (writeBuffer) {
-        delete writeBuffer;
-    }
-    writeBuffer = new QByteArray((const char *)data, data_len);
-
-    gattCustomService->writeCharacteristic(gattWriteCustomCharControlPointId, *writeBuffer);
-
-    if (!disable_log)
-        debug(" >> " + writeBuffer->toHex(' ') + " // " + info);
-
-    loop.exec();
-}
-
 void renphobike::forcePower(int16_t requestPower) {
     QSettings settings;
     double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
@@ -109,7 +75,6 @@ void renphobike::forcePower(int16_t requestPower) {
 
 void renphobike::forceResistance(resistance_t requestResistance) {
     // requestPower = powerFromResistanceRequest(requestResistance);
-    /*
     uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
     QSettings settings;
     bool renpho_bike_double_resistance =
@@ -122,20 +87,6 @@ void renphobike::forceResistance(resistance_t requestResistance) {
         write[1] = ((uint8_t)(requestResistance * 2));
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
-*/
-    uint8_t write[] = {0x00, 0x44, 0x11, 0x0f, 0x84, 0xc0};
-    write[2] = requestResistance;
-    Resistance = requestResistance;
-    quint16 crc = CRC16IBM::calculateCRC(QByteArray(reinterpret_cast<const char*>(write), 3));
-
-    // Log the calculated CRC (for debugging purposes)
-    qDebug() << "Calculated CRC:" << QString::number(crc, 16);
-
-    // Replace the last two bytes of the write array with the CRC
-    write[3] = static_cast<uint8_t>(crc >> 8);  // High byte of CRC
-    write[4] = static_cast<uint8_t>(crc & 0xFF); // Low byte of CRC
-
-    writeCharacteristicCustom(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 }
 
 void renphobike::update() {
@@ -145,48 +96,13 @@ void renphobike::update() {
     }
 
     if (initRequest) {
-        uint8_t init0[] = {0x00, 0x22, 0x19, 0x2f, 0xc0};
-        uint8_t init1[] = {0x00, 0x46, 0x00, 0x6b, 0xf6, 0xc0};
-        uint8_t init2[] = {0x00, 0x45, 0x00, 0x3e, 0xa5, 0xc0};
-        uint8_t init3[] = {0x00, 0x40, 0x00, 0x02, 0xb9, 0x2f, 0xc0};
-        uint8_t init4[] = {0x00, 0x40, 0x00, 0x04, 0xd9, 0xe9, 0xc0};
-        uint8_t init5[] = {0x00, 0x40, 0x00, 0x03, 0xa9, 0x0e, 0xc0};
-        uint8_t init6[] = {0x00, 0x40, 0x00, 0x05, 0xc9, 0xc8, 0xc0};
-        uint8_t init7[] = {0x00, 0x46, 0x00, 0x6b, 0xf6, 0xc0};
-        uint8_t init8[] = {0x00, 0x45, 0x01, 0x2e, 0x84, 0xc0};
-        uint8_t init9[] = {0x00, 0x40, 0x00, 0x02, 0xb9, 0x2f, 0xc0};
-        uint8_t init10[] = {0x00, 0x40, 0x00, 0x04, 0xd9, 0xe9, 0xc0};
-        writeCharacteristicCustom(init0, sizeof(init0), "init0", false, true);
-        QThread::msleep(1000);
-        writeCharacteristicCustom(init1, sizeof(init1), "init1", false, true);
-        QThread::msleep(1000);
-        writeCharacteristicCustom(init2, sizeof(init2), "init2", false, true);
-        QThread::msleep(1000);
-        writeCharacteristicCustom(init3, sizeof(init3), "init3", false, true);
-        QThread::msleep(1000);
-        writeCharacteristicCustom(init4, sizeof(init4), "init4", false, true);
-        QThread::msleep(1000);
-        writeCharacteristicCustom(init5, sizeof(init5), "init5", false, true);
-        QThread::msleep(1000);
-        writeCharacteristicCustom(init6, sizeof(init6), "init6", false, true);
-        QThread::msleep(1000);
-        writeCharacteristicCustom(init7, sizeof(init7), "init7", false, true);
-        QThread::msleep(1000);
-        writeCharacteristicCustom(init8, sizeof(init8), "init8", false, true);
-        QThread::msleep(1000);
-        writeCharacteristicCustom(init9, sizeof(init9), "init9", false, true);
-        QThread::msleep(1000);
-        writeCharacteristicCustom(init10, sizeof(init10), "init10", false, true);
-        /*
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(write, sizeof(write), "requestControl", false, true);
         write[0] = {FTMS_START_RESUME};
         writeCharacteristic(write, sizeof(write), "start simulation", false, true);
         uint8_t ftms[] = {0x11, 0x00, 0x00, 0xf3, 0x00, 0x28, 0x33};
-        writeCharacteristic(ftms, sizeof(ftms), "fake FTMS", false, true);*/
-
+        writeCharacteristic(ftms, sizeof(ftms), "fake FTMS", false, true);
         initRequest = false;
-
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
@@ -270,177 +186,6 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
             .toBool();
 
     debug(" << " + newValue.toHex(' '));
-
-    if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
-        lastPacket = newValue;
-
-        uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
-        bool cadence_present = false;
-        bool wheel_revs = false;
-        bool crank_rev_present = false;
-        uint16_t time_division = 1024;
-        uint8_t index = 4;
-
-        if (newValue.length() > 3) {
-            m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
-        }
-
-        emit powerChanged(m_watt.value());
-        emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
-
-        if ((flags & 0x1) == 0x01) // Pedal Power Balance Present
-        {
-            index += 1;
-        }
-        if ((flags & 0x2) == 0x02) // Pedal Power Balance Reference
-        {
-        }
-        if ((flags & 0x4) == 0x04) // Accumulated Torque Present
-        {
-            index += 2;
-        }
-        if ((flags & 0x8) == 0x08) // Accumulated Torque Source
-        {
-        }
-
-        if ((flags & 0x10) == 0x10) // Wheel Revolution Data Present
-        {
-            cadence_present = true;
-            wheel_revs = true;
-        }
-
-        if ((flags & 0x20) == 0x20) // Crank Revolution Data Present
-        {
-            cadence_present = true;
-            crank_rev_present = true;
-        }
-
-        if (cadence_present) {
-            if (wheel_revs && !crank_rev_present) {
-                time_division = 2048;
-                CrankRevs =
-                    (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) |
-                     ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                     ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
-                index += 4;
-
-                LastCrankEventTime =
-                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-
-                index += 2; // wheel event time
-
-            } else if (wheel_revs && crank_rev_present) {
-                index += 4; // wheel revs
-                index += 2; // wheel event time
-            }
-
-            if (crank_rev_present) {
-                CrankRevs =
-                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-                index += 2;
-
-                LastCrankEventTime =
-                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-                index += 2;
-            }
-
-            int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
-            if (deltaT < 0) {
-                deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
-            }
-
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled"))) {
-                if (CrankRevs != oldCrankRevs && deltaT) {
-                    double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
-                    if (!crank_rev_present)
-                        cadence =
-                            cadence /
-                            2; // I really don't like this, there is no relationship between wheel rev and crank rev
-                    if (cadence >= 0) {
-                        Cadence = cadence;
-                    }
-                    lastGoodCadence = now;
-                } else if (lastGoodCadence.msecsTo(now) > 2000) {
-                    Cadence = 0;
-                }
-            }
-
-            qDebug() << QStringLiteral("Current Cadence: ") << Cadence.value() << CrankRevs << oldCrankRevs << deltaT
-                     << time_division << LastCrankEventTime << oldLastCrankEventTime;
-
-            oldLastCrankEventTime = LastCrankEventTime;
-            oldCrankRevs = CrankRevs;
-
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                Speed = Cadence.value() * settings
-                                              .value(QZSettings::cadence_sensor_speed_ratio,
-                                                     QZSettings::default_cadence_sensor_speed_ratio)
-                                              .toDouble();
-            } else {
-                Speed = metric::calculateSpeedFromPower(
-                    watts(), Inclination.value(), Speed.value(),
-                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
-            }
-            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-
-            Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
-            emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
-
-                   // if we change this, also change the wattsFromResistance function. We can create a standard function in
-                   // order to have all the costants in one place (I WANT MORE TIME!!!)
-            double ac = 0.01243107769;
-            double bc = 1.145964912;
-            double cc = -23.50977444;
-
-            double ar = 0.1469553975;
-            double br = -5.841344538;
-            double cr = 97.62165482;
-
-            double res =
-                (((sqrt(pow(br, 2.0) - 4.0 * ar *
-                                           (cr - (m_watt.value() * 132.0 /
-                                                  (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
-                   br) /
-                  (2.0 * ar)) *
-                 settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-                settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-
-            if (isnan(res)) {
-                if (Cadence.value() > 0) {
-                    // let's keep the last good value
-                } else {
-                    m_pelotonResistance = 0;
-                }
-            } else {
-                m_pelotonResistance = res;
-            }
-
-            qDebug() << QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value());
-
-            {
-                if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
-                        .toBool())
-                    Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
-                else
-                    Resistance = m_pelotonResistance;
-                emit resistanceRead(Resistance.value());
-                qDebug() << QStringLiteral("Current Resistance Calculated: ") + QString::number(Resistance.value());
-            }
-
-            if (watts())
-                KCal +=
-                    ((((0.048 * ((double)watts()) + 1.19) *
-                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                      200.0) /
-                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                    now)))); //(( (0.048* Output in watts +1.19) * body weight
-                                             // in kg * 3.5) / 200 ) / 60
-            emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
-        }
-    }
 
     if (characteristic.uuid() != QBluetoothUuid((quint16)0x2AD2))
         return;
@@ -676,6 +421,13 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
 
             qDebug() << s->serviceUuid() << "connected!";
 
+            // zwift doesn't write the client configuration on services different from these ones
+            if (s->serviceUuid() != ((QBluetoothUuid)(quint16)0x1826) &&
+                s->serviceUuid() != ((QBluetoothUuid)(quint16)0x1816)) {
+                qDebug() << QStringLiteral("skipping service") << s->serviceUuid();
+                continue;
+            }
+
             foreach (QLowEnergyCharacteristic c, s->characteristics()) {
                 qDebug() << "char uuid" << c.uuid() << "handle" << c.handle();
                 foreach (QLowEnergyDescriptor d, c.descriptors())
@@ -718,13 +470,6 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << "FTMS service and Control Point found";
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
-                }
-
-                QBluetoothUuid _gattWriteCustomCharControlPointId(QStringLiteral("00000004-21a4-11e8-8812-000c2920efff"));
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCustomCharControlPointId) {
-                    qDebug() << "Custom service and Custom Control Point found";
-                    gattWriteCustomCharControlPointId = c;
-                    gattCustomService = s;
                 }
             }
         }

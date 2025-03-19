@@ -40,6 +40,7 @@ HomeForm {
         property bool theme_tile_shadow_enabled: true
         property string theme_tile_shadow_color: "#9C27B0"
         property int theme_tile_secondline_textsize: 12
+        property bool skipLocationServicesDialog: false
     }
 
     MessageDialog {
@@ -93,14 +94,31 @@ HomeForm {
         onTriggered: {if(rootItem.stopRequested) {rootItem.stopRequested = false; inner_stop(); }}
     }
 
-    property var locationServiceRequsted: false
+    property bool locationServiceRequsted: false
+
     MessageDialog {
+        id: locationServicesDialog
         text: "Permissions Required"
         informativeText: "QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?"
         buttons: (MessageDialog.Yes | MessageDialog.No)
-        onYesClicked: {locationServiceRequsted = true; rootItem.enableLocationServices()}
-        visible: !rootItem.locationServices() && !locationServiceRequsted
+        onYesClicked: {
+            locationServiceRequsted = true
+            rootItem.enableLocationServices()
+        }
+        onNoClicked: remindLocationServicesDialog.visible = true
+        visible: !rootItem.locationServices() && !locationServiceRequsted && !settings.skipLocationServicesDialog
     }
+
+    MessageDialog {
+        id: remindLocationServicesDialog
+        text: "Reminder Preference"
+        informativeText: "Would you like to be reminded about enabling Location Services next time?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: settings.skipLocationServicesDialog = false
+        onNoClicked: settings.skipLocationServicesDialog = true
+        visible: false
+    }
+
     MessageDialog {
         text: "Restart the app"
         informativeText: "To apply the changes, you need to restart the app.\nWould you like to do that now?"

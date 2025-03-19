@@ -31,7 +31,7 @@ public class Ant {
  private ChannelService.ChannelServiceComm mChannelService = null;
  private boolean mChannelServiceBound = false;
  private final String TAG = "Ant";
- private Activity activity = null;
+ public static Activity activity = null;
  static boolean speedRequest = false;
  static boolean heartRequest = false;
  static boolean garminKey = false;

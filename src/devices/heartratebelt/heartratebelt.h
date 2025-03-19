@@ -24,6 +24,7 @@
 
 #include <QObject>
 #include <QTime>
+#include <QDateTime>
 
 #include "treadmill.h"
 
@@ -31,11 +32,15 @@ class heartratebelt : public treadmill {
     Q_OBJECT
   public:
     heartratebelt();
+    ~heartratebelt();
     bool connected() override;
 
   private:
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
+    QDateTime connectingTime;  // Timestamp when entering connecting state
+    static const int CONNECTION_TIMEOUT = 10000; // 10 seconds in milliseconds
+    QTimer* updateTimer;  // Timer for periodic updates
 
   signals:
     void disconnected();
@@ -48,13 +53,11 @@ class heartratebelt : public treadmill {
     void disconnectBluetooth();
 
   private slots:
-
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
-
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
     void update();

@@ -26,6 +26,7 @@
 #include <QObject>
 #include <QString>
 
+#include "wheelcircumference.h"
 #include "devices/bike.h"
 #include "virtualdevices/virtualbike.h"
 
@@ -106,91 +107,13 @@ class wahookickrsnapbike : public bike {
 
     bool WAHOO_KICKR = false;
     bool KICKR_BIKE = false;
+    bool KICKR_SNAP = false;
+    
+    bool lastCommandErgMode = false;
 
     volatile int notificationSubscribed = 0;
 
     resistance_t lastForcedResistance = -1;    
-
-    double gearsToWheelDiameter(double gear);
-
-    class GearTable {
-      public:
-
-        int maxGears = 12;
-
-        struct GearInfo {
-            int gear;
-            int crankset;
-            int rearCog;
-        };
-
-        void loadGearSettings() {
-            QSettings settings;
-
-            QString gearConfig = settings.value("gear_configuration").toString();
-            if (gearConfig.isEmpty()) {
-
-                gearConfig = "1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n"
-                             "5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n"
-                             "9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true";
-            }
-
-            gears.clear();
-            maxGears = 0;
-
-                   // Parsa la configurazione
-            QStringList rows = gearConfig.split('\n');
-            for (const QString& row : rows) {
-                QStringList parts = row.split('|');
-                if (parts.size() >= 4 && (parts[3] == "true")) {
-                    GearInfo config;
-                    config.gear = parts[0].toInt();
-                    config.crankset = parts[1].toInt();
-                    config.rearCog = parts[2].toInt();
-
-                    gears.push_back(config);
-                    maxGears = qMax(maxGears, config.gear);
-                }
-            }
-        }
-
-        void addGear(int gear, int crankset, int rearCog) {
-            gears.push_back({gear, crankset, rearCog});
-        }
-
-        void removeGear(int gear) {
-            gears.erase(std::remove_if(gears.begin(), gears.end(),
-                                       [gear](const GearInfo& info) { return info.gear == gear; }),
-                        gears.end());
-        }
-
-        void printTable() const {
-            qDebug() << "| Gear | Crankset | Rear Cog |\n";
-            qDebug() << "|------|----------|----------|\n";
-            for (const auto& gear : gears) {
-                qDebug()  << "| " << gear.gear << " | " << gear.crankset
-                          << " | " << gear.rearCog << " |\n";
-            }
-        }
-
-        GearInfo getGear(int gearNumber) const {
-            auto it = std::find_if(gears.begin(), gears.end(),
-                                   [gearNumber](const GearInfo& info) { return info.gear == gearNumber; });
-
-            if (it != gears.end()) {
-                return *it;
-            }
-            return GearInfo();
-        }
-
-        GearTable() {
-            loadGearSettings();
-        }
-
-      private:
-        std::vector<GearInfo> gears;
-    };    
-
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

@@ -494,6 +494,10 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
             m_watt = watt;
             emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
         }
+    } else {
+        qDebug() << "watt to 0 due to cadence = 0";
+        m_watt = 0;
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
     }
 
     if (!values[QStringLiteral("Actual Incline")].isUndefined()) {

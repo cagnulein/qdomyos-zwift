@@ -15,6 +15,9 @@ extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
 
 volatile int8_t AbstractZapDevice::risingEdge = 0;
+QTimer* AbstractZapDevice::autoRepeatTimer = nullptr;
+bool AbstractZapDevice::lastButtonPlus = false;
+QDateTime AbstractZapDevice::lastFrame = QDateTime::currentDateTime();
 
 zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap) {
 #ifdef Q_OS_IOS
@@ -31,10 +34,10 @@ zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDev
 void zwiftclickremote::update() {
     if (initRequest && !initDone) {
         initRequest = false;
-        initDone = true;
         QByteArray s = playDevice->buildHandshakeStart();
         qDebug() << s.length();
         writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
+        initDone = true;
     } else if(initDone) {
         countRxTimeout++;
         if(countRxTimeout == 10) {
@@ -118,7 +121,8 @@ void zwiftclickremote::writeCharacteristic(QLowEnergyService *service, QLowEnerg
         qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info;
     }
 
-    loop.exec();
+    if(wait_for_response) // without this, it crashes on ios after sometimes
+        loop.exec();
 }
 
 void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
@@ -309,4 +313,11 @@ void zwiftclickremote::controllerStateChanged(QLowEnergyController::ControllerSt
 
         m_control->connectToDevice();
     }
+}
+
+void zwiftclickremote::vibrate(uint8_t pattern) {
+    if(!initDone) return;
+    QByteArray s = QByteArray::fromHex("1212080A060802100018");
+    s.append(pattern);
+    writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "vibrate", false, false);
 }

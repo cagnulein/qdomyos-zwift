@@ -90,7 +90,7 @@ void csaferower::onDistance(double distance) {
 
 }
 
-void csaferower::onStatus(uint16_t status) {
+void csaferower::onStatus(char status) {
     qDebug() << "Current Status received:" << status;
 }
 
@@ -98,8 +98,7 @@ csaferowerThread::csaferowerThread() {}
 
 void csaferowerThread::run() {
     QSettings settings;
-    /*devicePort =
-        settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();*/
+    deviceFilename = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
 
     openPort();
     csafe *aa = new csafe();
@@ -113,7 +112,7 @@ void csaferowerThread::run() {
         command << "CSAFE_GETHRCUR_CMD";
         command << "CSAFE_GETPACE_CMD";
         command << "CSAFE_GETSTATUS_CMD";
-        QByteArray ret = aa->write(command);
+        QByteArray ret = aa->write(command,true);
 
         qDebug() << " >> " << ret.toHex(' ');
         rawWrite((uint8_t *)ret.data(), ret.length());
@@ -144,7 +143,8 @@ void csaferowerThread::run() {
             emit onDistance(f["CSAFE_PM_GET_WORKDISTANCE"].value<QVariantList>()[0].toDouble());
         }
         if (f["CSAFE_GETSTATUS_CMD"].isValid()) {
-            emit onStatus(f["CSAFE_GETSTATUS_CMD"].value<QVariantList>()[0].toUInt());
+            char statusChar = static_cast<char>(f["CSAFE_GETSTATUS_CMD"].value<QVariantList>()[0].toUInt() & 0x0f);
+            emit onStatus(statusChar);
         }
 
         memset(rx, 0x00, sizeof(rx));
@@ -163,6 +163,9 @@ int csaferowerThread::closePort() {
 }
 
 int csaferowerThread::openPort() {
+
+qDebug() << "Opening serial port " << deviceFilename.toLatin1();
+
 #ifdef Q_OS_ANDROID
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "open",
                                               "(Landroid/content/Context;)V", QtAndroid::androidContext().object());

@@ -155,7 +155,7 @@ public class ChannelService extends Service {
 
     public void openAllChannels() throws ChannelNotAvailableException {
         if (Ant.heartRequest && heartChannelController == null)
-            heartChannelController = new HeartChannelController(acquireChannel());
+            heartChannelController = new HeartChannelController();
 
         if (Ant.speedRequest) {
             if(Ant.treadmill && sdmChannelController == null) {

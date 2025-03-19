@@ -459,7 +459,7 @@ void sportsplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         bluetoothDevice = device;
         if ((bluetoothDevice.name().toUpper().contains(QStringLiteral("CARE")) &&
-             bluetoothDevice.name().length() == 11)) // CARE9040177 - Carefitness CV-351)
+             bluetoothDevice.name().length() >= 11)) // CARE9040177 - Carefitness CV-351)
         {
             carefitness_bike = true;
         }

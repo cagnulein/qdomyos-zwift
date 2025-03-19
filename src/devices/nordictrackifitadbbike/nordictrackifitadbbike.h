@@ -69,11 +69,12 @@ class nordictrackifitadbbike : public bike {
     bool ifitCompatible() override;
 
   private:
-    const resistance_t max_resistance = 17; // max inclination for s22i
+    const resistance_t max_resistance = 20; // max inclination for s22i
     void forceResistance(double resistance);
     uint16_t watts() override;
     double getDouble(QString v);
     uint16_t wattsFromResistance(double inclination, double cadence);
+    double bikeResistanceToPeloton(resistance_t resistance);
 
     QTimer *refresh;
 

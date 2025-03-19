@@ -276,6 +276,16 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     QTime now = QTime::currentTime();
     if (!firstCharChanged) {
         DistanceCalculated += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
+        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+            kcal =
+                KCal.value() + ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                                    200.0) /
+                                (60000.0 / ((double)lastTimeCharChanged.msecsTo(
+                                                now)))); //(( (0.048* Output in watts +1.19) * body
+                                                                            // weight in kg * 3.5) / 200 ) / 60
+        else
+            kcal = KCal.value();
     }
     lastTimeCharChanged = now;
 

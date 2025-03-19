@@ -120,8 +120,14 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
 
     qDebug() << QStringLiteral(" << char ") << characteristic.uuid();
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
-
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B)) {
+    
+    
+    if(BIKE_DEVICE && characteristic.uuid() == QBluetoothUuid(QStringLiteral("6e400003-b5a3-f393-e0a9-e50e24dcca9e")) &&
+       newValue.length() == 20 && (uint8_t)newValue.at(0) == 0xFF && newValue.at(1) == 0x1F) {
+        Resistance = newValue.at(15);
+        emit resistanceRead(Resistance.value());
+        emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B)) {
         lastPacket = newValue;
 
         uint8_t index = 1;
@@ -600,6 +606,10 @@ void npecablebike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        if(bluetoothDevice.name().toUpper().startsWith("BIKE ")) {
+            qDebug() << "BIKE workaround enabled";
+            BIKE_DEVICE = true;
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &npecablebike::serviceDiscovered);
