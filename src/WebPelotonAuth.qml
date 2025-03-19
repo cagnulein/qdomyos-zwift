@@ -1,12 +1,11 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Controls.Material 2.12
-import QtQuick.Dialogs 1.0
-import QtQuick.Effects
-import Qt.labs.settings 1.0
-import QtMultimedia 5.15
-import QtQuick.Layouts 1.3
-import QtWebView 1.1
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Material
+import QtQuick.Dialogs
+import Qt.labs.settings
+import QtMultimedia
+import QtQuick.Layouts
+import QtWebView
 
 Item {
     id: pelotonAuthPage
@@ -14,7 +13,6 @@ Item {
     height: parent.height
     width: parent.width
     visible: true
-
     // Signal to notify the parent stack when we want to go back
     signal goBack()
 
@@ -36,7 +34,6 @@ Item {
             // Attempt to go back to the previous view after the popup is closed
             goBack();
         }
-
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
         width: 380
@@ -45,12 +42,12 @@ Item {
         focus: true
         palette.text: "white"
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-        enter: Transition
-        {
+
+        enter: Transition {
             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
         }
-        exit: Transition
-        {
+
+        exit: Transition {
             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
         }
 

@@ -555,7 +555,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     if(engine->rootObjects().count() > 0) {
         QObject *rootObject = engine->rootObjects().constFirst();
         QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
-        QObject *stack = rootObject;
+        stack = rootObject;
 
         engine->rootContext()->setContextProperty("pathController", &pathController);
         QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
