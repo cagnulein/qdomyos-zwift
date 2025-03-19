@@ -1,4 +1,4 @@
-import QtQuick 2.7
+import QtQuick 2.15
 import Qt.labs.folderlistmodel 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
@@ -10,10 +10,12 @@ ColumnLayout {
     FileDialog {
         id: fileDialogSettings
         title: "Please choose a file"
-        folder: shortcuts.home
+        // Changed from folder to currentFolder for Qt6 compatibility
+        currentFolder: StandardPaths.standardLocations(StandardPaths.HomeLocation)[0]
         onAccepted: {
-            console.log("You chose: " + fileDialogSettings.fileUrl)
-            loadSettings(fileDialogSettings.fileUrl)
+            console.log("You chose: " + fileDialogSettings.selectedFile)
+            // Changed from fileUrl to selectedFile for Qt6 compatibility
+            loadSettings(fileDialogSettings.selectedFile)
             fileDialogSettings.close()
         }
         onRejected: {
