@@ -1197,6 +1197,7 @@ jobs:
 
   window-msvc2022-build:
     runs-on: windows-latest
+    if: github.event_name == 'schedule'
     strategy:
       matrix:
         config:
