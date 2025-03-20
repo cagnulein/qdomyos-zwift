@@ -228,8 +228,8 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     QString numberStr = aValues.last();
-                    // Regular expression to match numbers like X.X or XX.X
-                    QRegularExpression regex(QStringLiteral("\\d+\\.\\d+"));
+                    // Regular expression to match both decimal numbers (X.X or XX.X) and integers
+                    QRegularExpression regex(QStringLiteral("\\d+(\\.\\d+)?"));
                     if (regex.match(numberStr).hasMatch()) {
                         speed = getDouble(numberStr);
                         parseSpeed(speed);

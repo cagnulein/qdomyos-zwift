@@ -1197,6 +1197,7 @@ jobs:
 
   window-msvc2022-build:
     runs-on: windows-latest
+    if: github.event_name == 'schedule'
     strategy:
       matrix:
         config:
@@ -1233,7 +1234,7 @@ jobs:
         with:
           version: '6.8.2'
           host: 'windows'
-          modules: 'qtnetworkauth qtcharts qtconnectivity qtspeech qtpositioning qtwebsockets qtlocation qtmultimedia'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtspeech qtpositioning qtwebsockets qtlocation qtmultimedia qtwebengine qtwebview qtwebchannel'
           target: "desktop"
           arch: win64_msvc2022_64
           dir: "${{github.workspace}}/qt/"
