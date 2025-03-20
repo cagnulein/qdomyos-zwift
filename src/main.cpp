@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
+#include "ConsoleReader.h"
 #include <unistd.h> // getuid
 #include "EventHandler.h"
 #endif
@@ -73,6 +74,7 @@ bool run_cadence_sensor = false;
 bool horizon_treadmill_7_8 = false;
 bool horizon_treadmill_force_ftms = false;
 bool nordictrack_10_treadmill = false;
+bool gpiotreadmill = false;
 bool reebok_fr30_treadmill = false;
 bool zwift_play = false;
 bool zwift_click = false;
@@ -290,6 +292,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             horizon_treadmill_force_ftms = true; 
         if (!qstrcmp(argv[i], "-nordictrack-10-treadmill"))
             nordictrack_10_treadmill = true;
+        if (!qstrcmp(argv[i], "-gpiotreadmill"))
+            gpiotreadmill = true;
         if (!qstrcmp(argv[i], "-reebok_fr30_treadmill"))
             reebok_fr30_treadmill = true;
         if (!qstrcmp(argv[i], "-zwift_play"))
@@ -568,6 +572,7 @@ int main(int argc, char *argv[]) {
     }
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     else {
+        settings.setValue(QStringLiteral("gpio_treadmill"), gpiotreadmill);
         settings.setValue(QZSettings::miles_unit, miles);
         settings.setValue(QZSettings::bluetooth_no_reconnection, bluetooth_no_reconnection);
         settings.setValue(QZSettings::bluetooth_relaxed, bluetooth_relaxed);
@@ -841,6 +846,11 @@ int main(int argc, char *argv[]) {
     else {
         bl.homeformLoaded = true;
     }
+#endif
+
+#ifdef Q_OS_LINUX
+    ConsoleReader *consoleReader = new ConsoleReader(&bl);
+    consoleReader->start();
 #endif
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
