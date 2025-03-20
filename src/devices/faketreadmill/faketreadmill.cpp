@@ -52,6 +52,8 @@ void faketreadmill::update() {
         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
         requestInclination = -100;
     }
+    
+    StepCount = StepCount.value() + 0.5;
 
     _ergTable.collectTreadmillData(Speed.value(), _watts, Inclination.value());
 

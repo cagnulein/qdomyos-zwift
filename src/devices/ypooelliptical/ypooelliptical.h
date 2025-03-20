@@ -79,6 +79,10 @@ class ypooelliptical : public elliptical {
     bool SCH_590E = false;
     bool E35 = false;
     bool KETTLER = false;
+    bool CARDIOPOWER_EEGO = false;
+    bool MYELLIPTICAL = false;
+    bool SKANDIKA = false;
+    bool DOMYOS = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

@@ -1,6 +1,8 @@
 #ifndef LOCKSCREEN_H
 #define LOCKSCREEN_H
 
+#include <QByteArray>
+
 class lockscreen {
   public:
     void setTimerDisabled();
@@ -9,6 +11,7 @@ class lockscreen {
     long stepCadence();
     void setKcal(double kcal);
     void setDistance(double distance);
+    void setSteps(double steps);
     void setSpeed(double speed);
     void setPower(double power);
     void setCadence(double cadence);
@@ -39,7 +42,7 @@ class lockscreen {
     int virtualrower_getLastFTMSMessage(unsigned char *message);
 
     // virtualtreadmill
-    void virtualtreadmill_zwift_ios();
+    void virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility);
     void virtualtreadmill_setHeartRate(unsigned char heartRate);
     double virtualtreadmill_getCurrentSlope();
     uint64_t virtualtreadmill_lastChangeCurrentSlope();
@@ -77,6 +80,12 @@ class lockscreen {
     int zwift_api_getdistance();
     float zwift_api_getlatitude();
     float zwift_api_getlongitude();
+    
+    // Zwift Hub Protobuf
+    static QByteArray zwift_hub_inclinationCommand(double inclination);
+    static QByteArray zwift_hub_setGearsCommand(unsigned int gears);
+    static uint32_t zwift_hub_getPowerFromBuffer(const QByteArray& buffer);
+    static uint32_t zwift_hub_getCadenceFromBuffer(const QByteArray& buffer);
     
     // quick actions    
     static void set_action_profile(const char* profile);

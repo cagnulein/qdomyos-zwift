@@ -15,6 +15,7 @@ void InitializeTrackedSettings()
     trackedSettings.insert(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike);
     trackedSettings.insert(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name);
     trackedSettings.insert(QZSettings::csafe_rower, QZSettings::default_csafe_rower);
+    trackedSettings.insert(QZSettings::csafe_elliptical_port, QZSettings::default_csafe_elliptical_port);
     trackedSettings.insert(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport);
     trackedSettings.insert(QZSettings::domyosbike_notfmts, QZSettings::default_domyosbike_notfmts);
     trackedSettings.insert(QZSettings::domyostreadmill_notfmts, QZSettings::default_domyostreadmill_notfmts);
