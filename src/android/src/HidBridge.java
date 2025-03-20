@@ -21,7 +21,7 @@ import android.os.Build;
 import androidx.core.content.ContextCompat;
  
 /**
- * This class is used for talking to hid of the dongle, connecting, disconnencting and enumerating the devices.
+ * This class is used for talking to hid of the dongle, connecting, disconnecting and enumerating the devices.
  * @author gai
  */
 public class HidBridge {

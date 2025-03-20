@@ -28,7 +28,7 @@ You need to provide the following:
 
 ### TestSettings
 
-The detection of many devices depends on settings that are accessed programmatically using the QSettings class and the constants in the QZSettings namespace. The TestSettings class stores a QSettings object with what is intended to be a unique application and organisation name, to keep the configuration it represents seperate from others in the system. It also makes the stored QSettings object the default by setting the QCoreApplication's organisation and application names to those of the QSettings object. The original values are restored by calling the deactivate() function or on object destruction.
+The detection of many devices depends on settings that are accessed programmatically using the QSettings class and the constants in the QZSettings namespace. The TestSettings class stores a QSettings object with what is intended to be a unique application and organisation name, to keep the configuration it represents separate from others in the system. It also makes the stored QSettings object the default by setting the QCoreApplication's organisation and application names to those of the QSettings object. The original values are restored by calling the deactivate() function or on object destruction.
 
 i.e. a test will 
 * apply a configuration from a TestSettings object

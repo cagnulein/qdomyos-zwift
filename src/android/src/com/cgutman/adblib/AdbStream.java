@@ -200,7 +200,7 @@ public class AdbStream implements Closeable {
 	}
 
 	/**
-	 * Retreives whether the stream is closed or not
+	 * Retrieves whether the stream is closed or not
 	 * @return True if the stream is close, false if not
 	 */
 	public boolean isClosed() {

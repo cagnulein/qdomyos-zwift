@@ -430,7 +430,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         if (par == FITSHOW_STATUS_START) {
             if (len > 2) {
                 COUNTDOWN_VALUE = array[2];
-                emit debug(QStringLiteral("CONTDOWN ") + QString::number(COUNTDOWN_VALUE));
+                emit debug(QStringLiteral("COUNTDOWN ") + QString::number(COUNTDOWN_VALUE));
             }
         } else if (par == FITSHOW_STATUS_RUNNING || par == FITSHOW_STATUS_STOP || par == FITSHOW_STATUS_PAUSED ||
                    par == FITSHOW_STATUS_END) {

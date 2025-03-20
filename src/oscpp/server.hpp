@@ -39,7 +39,7 @@ namespace OSCPP { namespace Server {
 /*!
  * Retrieve typed arguments from an incoming message.
  *
- * Supported tags and their correspondong types are:
+ * Supported tags and their corresponding types are:
  *
  *  i       -- 32 bit signed integer number<br>
  *  f       -- 32 bit floating point number<br>

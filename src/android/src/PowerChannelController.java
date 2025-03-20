@@ -189,7 +189,7 @@ public class PowerChannelController {
                carousalTimer.scheduleAtFixedRate(new TimerTask() {
                    @Override
                    public void run() {
-                       Log.d(TAG, "Tx Unsollicited");
+                       Log.d(TAG, "Tx Unsolicited");
                        byte[] payload = new byte[8];
                        eventCount = (eventCount + 1) & 0xFF;
                        cumulativePower = (cumulativePower + power) & 0xFFFF;
