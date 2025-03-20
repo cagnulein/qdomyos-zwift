@@ -274,11 +274,15 @@ void wahookickrsnapbike::update() {
         }
 
         if (lastGearValue != gears()) {
-            QByteArray a = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
-            uint8_t b[20];
-            memcpy(b, a.constData(), a.length());
-            writeCharacteristic(b, a.length(), "setWheelCircumference", false, false);
-            lastGrade = 999; // to force a change
+            if(KICKR_SNAP) {
+               inclinationChanged(lastGrade, lastGrade);
+            } else {
+                QByteArray a = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
+                uint8_t b[20];
+                memcpy(b, a.constData(), a.length());
+                writeCharacteristic(b, a.length(), "setWheelCircumference", false, false);
+                lastGrade = 999; // to force a change
+            }
         }
 
         lastGearValue = gears();
@@ -790,7 +794,11 @@ void wahookickrsnapbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("KICKR BIKE")) {
             KICKR_BIKE = true;
             qDebug() << "KICKR BIKE workaround activated";
+        } else if(device.name().toUpper().startsWith("KICKR SNAP")) {
+            KICKR_SNAP = true;
+            qDebug() << "KICKR SNAP workaround activated";
         }
+
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &wahookickrsnapbike::serviceDiscovered);
@@ -871,6 +879,10 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
     QSettings settings;
     double g = grade;
+    if(KICKR_SNAP) {
+        g += gears() * 0.5;
+        qDebug() << "adding gear offset so " << g;
+    }
     QByteArray a = setSimGrade(g);
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());

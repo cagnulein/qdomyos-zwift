@@ -258,13 +258,16 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
         } else {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
-            if(_3G_Cardio_RB)
+            if(_3G_Cardio_RB || SL010)
                 requestResistance = requestResistance * 10;
             write[1] = ((uint8_t)(requestResistance));
             writeCharacteristic(write, sizeof(write),
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
         }
     }
+
+    if(SL010)
+        Resistance = requestResistance;
 }
 
 void ftmsbike::update() {
@@ -579,7 +582,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if(Resistance.value() > 0) {
                 if(BIKE_)
                     d = d / 10.0;
-                Resistance = d;
+                // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
+                if(!SL010)
+                    Resistance = d;
                 emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
                 emit resistanceRead(Resistance.value());
                 resistance_received = true;
@@ -601,8 +606,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                        br) /
                       (2.0 * ar)) *
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
- settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-                if (!resistance_received && !DU30_bike) {
+settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+                if (!resistance_received && !DU30_bike && !SL010) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
                     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -1310,6 +1315,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("LYDSTO"))) {
             qDebug() << QStringLiteral("LYDSTO found");
             LYDSTO = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("SL010-"))) {
+            qDebug() << QStringLiteral("SL010 found");
+            SL010 = true;
+            max_resistance = 25;
+            resistance_lvl_mode = true;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {

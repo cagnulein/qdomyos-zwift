@@ -73,6 +73,7 @@ class ftmsrower : public rower {
     bool WATER_ROWER = false;
     bool DFIT_L_R = false;
     bool I_ROWER = false;
+    bool ROWER = false;
     QDateTime lastStroke = QDateTime::currentDateTime();
     double lastStrokesCount = 0;
 

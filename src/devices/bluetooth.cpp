@@ -1653,7 +1653,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("TITAN 7000")) ||
                         (b.name().toUpper().startsWith("LYDSTO")) ||
                         (b.name().toUpper().startsWith("CYCLO_")) ||
+                        (b.name().toUpper().startsWith("SL010-")) ||
                         (b.name().toUpper().startsWith("LCR")) ||
+                        (b.name().toUpper().startsWith("ROBX")) ||
                         (b.name().toUpper().startsWith("XCX-")) ||
                         (b.name().toUpper().startsWith("L-") && b.name().length() == 11) ||
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||
@@ -1798,6 +1800,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YOROTO-RW-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SF-RW")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("ROWER ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROGUE CONSOLE ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("DFIT-L-R")) ||
                         !b.name().compare(ftms_rower, Qt::CaseInsensitive) ||

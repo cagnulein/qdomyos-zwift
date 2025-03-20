@@ -15,27 +15,60 @@ QT_USE_NAMESPACE
 
 @implementation QT_MANGLE_NAMESPACE(OSXBTCentralManager) (SafeCache)
 
-- (bool)cacheWriteValue:(const QByteArray &)value for:(NSObject *)obj
+// Safe method to check if an object is valid without risking a crash
+- (bool)isObjectValid:(NSObject *)obj
 {
-    // Initial check for null object
+    // First check for nil
     if (!obj) {
-        qDebug() << "Error: Invalid object (nil)";
+        qDebug() << "Error: Object is nil";
         return false;
     }
     
-    @autoreleasepool {
-        // Safely verify that the object is valid without calling methods on it
-        Class objClass = [obj class];
-        if (!objClass) {
+    @try {
+        // Check if pointer is valid - this is safer than directly messaging the object
+        void *rawPtr = (__bridge void *)obj;
+        if (!rawPtr) {
+            qDebug() << "Error: Invalid raw pointer";
+            return false;
+        }
+        
+        // Indirectly verify by checking class with runtime functions
+        Class possibleClass = object_getClass(obj);
+        if (!possibleClass) {
             qDebug() << "Error: Cannot get class of the object, probably deallocated";
             return false;
         }
         
-        // Safe access to private variables
+        // Additional validation - verify that the class looks reasonable
+        const char *className = class_getName(possibleClass);
+        if (!className || strlen(className) == 0) {
+            qDebug() << "Error: Invalid class name";
+            return false;
+        }
+        
+        // The object appears to be valid
+        return true;
+    }
+    @catch (NSException *exception) {
+        // If any exception occurs, the object is invalid
+        qDebug() << "Exception when validating object:" << exception.reason;
+        return false;
+    }
+}
+
+- (bool)cacheWriteValue:(const QByteArray &)value for:(NSObject *)obj
+{
+    // Initial validity check using the safe method
+    if (![self isObjectValid:obj]) {
+        qDebug() << "Error: Invalid object passed to cacheWriteValue";
+        return false;
+    }
+    
+    @autoreleasepool {
         @try {
             // Safely access private variables through self
             QT_MANGLE_NAMESPACE(OSXBTCentralManager) *selfPtr = (QT_MANGLE_NAMESPACE(OSXBTCentralManager) *)self;
-            if (!selfPtr) {
+            if (![self isObjectValid:selfPtr]) {
                 qDebug() << "Error: Invalid self pointer";
                 return false;
             }
@@ -47,6 +80,9 @@ QT_USE_NAMESPACE
             // Safely verify object type
             BOOL isCharacteristic = NO;
             BOOL isDescriptor = NO;
+            
+            // Get class using the safe runtime method
+            Class objClass = object_getClass(obj);
             
             // Test with standard CoreBluetooth classes
             const char *className = class_getName(objClass);
@@ -69,7 +105,7 @@ QT_USE_NAMESPACE
                 }
             }
             
-            // Verify based on identified type
+            // Verify based on identified type using the hash tables
             if (isCharacteristic) {
                 CBCharacteristic *ch = (CBCharacteristic *)obj;
                 // Verify using only C functions to avoid Objective-C messages if possible

@@ -732,7 +732,7 @@ void proformbike::forceIncline(double incline) {
                         true);
 }
 
-void proformbike::innerWriteResistance() {
+bool proformbike::innerWriteResistance() {
     if (requestResistance != -1) {
         if (requestResistance > max_resistance) {
             requestResistance = max_resistance;
@@ -743,9 +743,11 @@ void proformbike::innerWriteResistance() {
         if (requestResistance != currentResistance().value()) {
             emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
             forceResistance(requestResistance);
+            return true;
         }
         requestResistance = -1;
     }
+    return false;
 }
 
 void proformbike::update() {
@@ -1013,9 +1015,7 @@ void proformbike::update() {
                                     QStringLiteral("noOp"));
             } else if(proform_bike_PFEVEX71316_0) {
                 writeCharacteristic(noOpData6_proform_bike_PFEVEX71316_0, sizeof(noOpData6_proform_bike_PFEVEX71316_0), QStringLiteral("noOp"), false, true);
-                if (requestResistance != -1)
-                    innerWriteResistance();          
-                else if (requestInclination != -100) {
+                if (!innerWriteResistance() && requestInclination != -100) {
                     writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
                     // only 0.5 steps ara available
                     double inc = qRound(requestInclination * 2.0) / 2.0;
