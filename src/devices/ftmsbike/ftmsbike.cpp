@@ -579,7 +579,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if(Resistance.value() > 0) {
                 if(BIKE_)
                     d = d / 10.0;
-                Resistance = d;
+                // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
+                if(!SL010)
+                    Resistance = d;
                 emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
                 emit resistanceRead(Resistance.value());
                 resistance_received = true;
