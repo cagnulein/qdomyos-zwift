@@ -6303,7 +6303,13 @@ QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 
 void homeform::profile_open_clicked(const QUrl &fileName) {
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+#ifdef Q_OS_ANDROID
     copyAndroidContentsURI(fileName, "profiles");
+#else
+    QFileInfo fileInfo(file);
+    bool r = file.copy(getWritableAppDir() + "profiles/" + fileInfo.fileName());
+    qDebug() << "profile copy" << r << getWritableAppDir() + "profiles/" + fileInfo.fileName();
+#endif
 }
 
 void homeform::trainprogram_open_other_folder(const QUrl &fileName) {
