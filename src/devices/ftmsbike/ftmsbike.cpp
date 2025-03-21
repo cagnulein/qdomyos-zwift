@@ -322,7 +322,9 @@ void ftmsbike::update() {
                 requestResistance = 1;
             }
 
-            if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
+            resistance_t rR = requestResistance + (gears() * 5);
+
+            if (rR != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
                 // FTMS bike. This condition handles the peloton requests                
@@ -330,7 +332,7 @@ void ftmsbike::update() {
                     (requestPower == 0 || requestPower == -1)) {
                     init();
 
-                    forceResistance(requestResistance + (gears() * 5));
+                    forceResistance(rR);
                 }
             }
             if(!ICSE)
