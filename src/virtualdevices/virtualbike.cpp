@@ -509,8 +509,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
     //! [Provide Heartbeat]
     QObject::connect(&bikeTimer, &QTimer::timeout, this, &virtualbike::bikeProvider);
-    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
-        bikeTimer.start(100ms);
+    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool() || zwift_play_emulator)
+        bikeTimer.start(50ms);
     else
         bikeTimer.start(1s);
 
@@ -991,7 +991,10 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             if (targetCharacteristic.isValid()) {
                 characteristicChanged(targetCharacteristic, QByteArray::fromHex("116901") + slope + QByteArray::fromHex("3228"));
 
-                QByteArray response = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
+                QByteArray response = CharacteristicWriteProcessor0003::encodeHubRidingData(Bike->wattsMetric().value(), Bike->currentCadence().value(), 0,
+                                                                      Bike->wattsMetric().value(),
+                                                                      CharacteristicWriteProcessor0003::calculateUnknown1(Bike->wattsMetric().value()),
+                                                                      0);
                 writeCharacteristic(serviceZwiftPlayBike, zwiftPlayIndicate, response);
             } else {
                 qDebug() << "ERROR! Zwift Play Ask 5 without answer!";
@@ -1043,9 +1046,11 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             if (targetCharacteristic.isValid()) {
                 characteristicChanged(targetCharacteristic, QByteArray::fromHex("05") + power);
 
-                QByteArray response = QByteArray::fromHex("030882011022181020002898523086ed01");
-                response[2] = (uint8_t)Bike->wattsMetric().value();
-                writeCharacteristic(serviceZwiftPlayBike, zwiftPlayRead, response);
+                QByteArray response = CharacteristicWriteProcessor0003::encodeHubRidingData(Bike->wattsMetric().value(), Bike->currentCadence().value(), 0,
+                                                                      Bike->wattsMetric().value(),
+                                                                      CharacteristicWriteProcessor0003::calculateUnknown1(Bike->wattsMetric().value()),
+                                                                      0);
+                writeCharacteristic(serviceZwiftPlayBike, zwiftPlayIndicate, response);
             } else {
                 qDebug() << "ERROR! Zwift Play Ask 8 without answer!";
             }
@@ -1470,9 +1475,11 @@ void virtualbike::bikeProvider() {
                     if(zwift_play_emulator) {
                         QLowEnergyCharacteristic characteristic1 =
                             serviceZwiftPlayBike->characteristic(QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")));
-                        const uint8_t v[] = {0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01};
-                        value = QByteArray::fromRawData((char*)v, 16);
-                        writeCharacteristic(serviceZwiftPlayBike, characteristic1, value);
+                        QByteArray response = CharacteristicWriteProcessor0003::encodeHubRidingData(Bike->wattsMetric().value(), Bike->currentCadence().value(), 0,
+                                                                              Bike->wattsMetric().value(),
+                                                                              CharacteristicWriteProcessor0003::calculateUnknown1(Bike->wattsMetric().value()),
+                                                                              0);
+                        writeCharacteristic(serviceZwiftPlayBike, characteristic1, response);
                     } else if (watt_bike_emulator) {
                         QLowEnergyCharacteristic characteristic1 =
                             serviceWattAtomBike->characteristic(QBluetoothUuid(QStringLiteral("b4cc1224-bc02-4cae-adb9-1217ad2860d1")));

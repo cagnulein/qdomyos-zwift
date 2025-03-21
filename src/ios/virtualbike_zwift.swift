@@ -379,7 +379,27 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     
   }
   
-    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {      
+    func calculateUnknown1(power: UInt16) -> UInt32 {
+       var lastUnknown1: UInt32 = 836
+       let baseValue: UInt32 = 19000
+       
+       var increment = 400 + (UInt32(power) * 2)
+       increment = min(increment, 800)
+       
+       if power > 0 {
+           lastUnknown1 += increment
+       } else {
+           lastUnknown1 += 600
+       }
+       
+       if lastUnknown1 > 24000 {
+           lastUnknown1 = baseValue
+       }
+       
+       return lastUnknown1
+    }
+    
+    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
     if let value = requests.first?.value {
           let hexString = value.map { String(format: "%02x", $0) }.joined(separator: " ")
         let debugMessage = "virtualbike_zwift didReceiveWrite: " + String(describing: requests.first!.characteristic) + " " + hexString + " " + ((requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic) ? "FTMS" : "NOFTMS") + " " + String(describing: self.FitnessMachineControlPointCharacteristic) + " " + self.FitnessMachineControlPointCharacteristic.uuid.uuidString + " " + requests.first!.characteristic.uuid.uuidString
@@ -493,7 +513,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         // 04 22 02 10 1a TODO
           var r = receivedBytes
           r.remove(at: 0)
-          var slopefloat = decodeSInt(r)
+          let slopefloat = decodeSInt(r)
           print("slopefloat \(slopefloat)")
           var slope: [UInt8] = [ 0x00, 0x00 ]
           self.CurrentSlope = Double(slopefloat)
@@ -501,10 +521,13 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           slope[1] = UInt8((Int16(self.CurrentSlope) >> 8) & 0x00FF)
           LastFTMSMessageReceived = Data([0x11, 0x69, 0x01, slope[0], slope[1], 0x32, 0x28])
           
-        var response: [UInt8] = [ 0x3c, 0x08, 0x88, 0x04, 0x12, 0x06, 0x0a, 0x04, 0x40, 0xc0, 0xbb, 0x01 ]
-        var responseData = Data(bytes: &response, count: 12)
-
-          updateQueue.append((ZwiftPlayIndicateCharacteristic, responseData))
+          do {
+              let response = try ZwiftHubBike.ridingData(power: UInt32(self.CurrentWatt), cadence: UInt32(self.CurrentCadence / 2), speed: 0, HR: UInt32(self.heartRate), unkown1: self.calculateUnknown1(power: self.CurrentWatt), unkown2: 0)
+              
+              updateQueue.append((ZwiftPlayIndicateCharacteristic, response))
+          } catch {
+              
+          }
       }
       let receivedBytes6 = [UInt8](receivedData.prefix(expectedHexArray6.count))
       
@@ -561,14 +584,13 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         self.PowerRequested = (Double)(power);
         LastFTMSMessageReceived = Data([0x05, UInt8(UInt16(power) & 0xff), UInt8(((UInt16(power) & 0xff00) >> 8) & 0x00ff)])
           
-        var response: [UInt8] = [ 0x03, 0x08, 0x82, 0x01, 0x10, 0x22, 0x18, 0x10, 0x20, 0x00, 0x28, 0x98, 0x52, 0x30, 0x86, 0xed, 0x01 ]
-        response[2] = receivedData[2]
-        if(receivedData.count == 4) {
-          response[3] = receivedData[3]
-        }
-        let  responseData = Data(bytes: &response, count: 17)
-
-          updateQueue.append((ZwiftPlayReadCharacteristic, responseData))
+          do {
+              let response = try ZwiftHubBike.ridingData(power: UInt32(power), cadence: UInt32(self.CurrentCadence / 2), speed: Double(self.NormalizeSpeed) / 100.0, HR: UInt32(self.heartRate), unkown1: self.calculateUnknown1(power: self.CurrentWatt), unkown2: 0)
+              
+              updateQueue.append((ZwiftPlayIndicateCharacteristic, response))
+          } catch {
+              
+          }
       }
 
     }
@@ -719,8 +741,12 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
 
   func startSendingDataToSubscribers() {
     if self.notificationTimer == nil {
-        self.notificationTimer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(self.updateSubscribers), userInfo: nil, repeats: true)
+        var t : Double = 0.2
+        if(zwift_play_emulator) {
+            t = 0.01
         }
+        self.notificationTimer = Timer.scheduledTimer(timeInterval: t, target: self, selector: #selector(self.updateSubscribers), userInfo: nil, repeats: true)
+    }
   }
 
   func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
@@ -855,22 +881,17 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
             }
           } else if(zwift_play_emulator) {
             if(!sendUpdates()) {
-                /*
                 do {
-                    let ZwiftPlayData = try ZwiftHubBike.ridingData(power: UInt32(self.CurrentWatt), cadence: UInt32(self.CurrentCadence), speed: Double(self.NormalizeSpeed), HR: UInt32(self.heartRate))
-                    let ok = self.peripheralManager.updateValue(ZwiftPlayData, for: self.ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
+                    let response = try ZwiftHubBike.ridingData(power: UInt32(self.CurrentWatt), cadence: UInt32(self.CurrentCadence / 2), speed: 0, HR: UInt32(self.heartRate), unkown1: self.calculateUnknown1(power: self.CurrentWatt), unkown2: 0)
+                    
+                    let ok = self.peripheralManager.updateValue(response, for: self.ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
                     if(ok) {
                         self.serviceToggle = self.serviceToggle + 1
                     }
+
                 } catch {
                     self.serviceToggle = self.serviceToggle + 1
-                }*/
-                let ZwiftPlayArray : [UInt8] = [ 0x03, 0x08, 0x00, 0x10, 0x00, 0x18, 0xe7, 0x02, 0x20, 0x00, 0x28, 0x00, 0x30, 0x9b, 0xed, 0x01 ]
-                              let ZwiftPlayData = Data(bytes: ZwiftPlayArray, count: 16)
-                                  let ok = self.peripheralManager.updateValue(ZwiftPlayData, for: self.ZwiftPlayReadCharacteristic, onSubscribedCentrals: nil)
-                                  if(ok) {
-                                      self.serviceToggle = self.serviceToggle + 1
-                                  }
+                }
             } else {
                 self.serviceToggle = self.serviceToggle + 1
             }
