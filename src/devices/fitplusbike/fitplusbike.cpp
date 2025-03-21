@@ -512,7 +512,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)newValue.at(index)))) / 10.0;
             emit resistanceRead(Resistance.value());
-            m_pelotonResistance = Resistance.value();
+            m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
             index += 2;
             qDebug() << QStringLiteral("Current Resistance: ") + QString::number(Resistance.value());
         }
@@ -633,7 +633,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
                     settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
             } else {
-                m_pelotonResistance = (100 * Resistance.value()) / max_resistance;
+                m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
             }
 
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
@@ -734,6 +734,19 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
+}
+
+resistance_t fitplusbike::pelotonToBikeResistance(int pelotonResistance) {
+    QSettings settings;
+    double adjustedPelotonResistance = (pelotonResistance - settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble()) /
+                                       settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble();
+    return (adjustedPelotonResistance * max_resistance) / 100;
+}
+
+double fitplusbike::bikeResistanceToPeloton(double resistance) {
+    QSettings settings;
+    return (((resistance * 100) / max_resistance) * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+           settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
 }
 
 void fitplusbike::btinit() {
@@ -1003,6 +1016,7 @@ void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             merach_MRK = true;
         } else if (device.name().toUpper().startsWith("H9110 OSAKA")) {
             qDebug() << QStringLiteral("H9110 OSAKA workaround enabled!");
+            max_resistance = 32;
             H9110_OSAKA = true;
         }
 
