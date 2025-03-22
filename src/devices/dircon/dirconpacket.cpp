@@ -171,22 +171,40 @@ QByteArray DirconPacket::encode(int last_seq_number) {
             this->Length = this->uuids.size() * 16;
             byteout.append((char)(this->Length >> 8)).append((char)(this->Length));
             foreach (u, this->uuids) {
-                this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
-                this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
-                byteout.append((char *)this->uuid_bytes, 16);
+                if(u >= 1 && u <= 4) {
+                    this->uuid_bytes_zwift_play[DPKT_POS_SH8] = (quint8)(u >> 8);
+                    this->uuid_bytes_zwift_play[DPKT_POS_SH0] = (quint8)(u);
+                    byteout.append((char *)this->uuid_bytes_zwift_play, 16);
+                } else {
+                    this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
+                    this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
+                    byteout.append((char *)this->uuid_bytes, 16);
+                }
             }
         }
     } else if (this->Identifier == DPKT_MSGID_DISCOVER_CHARACTERISTICS && !this->isRequest) {
         this->Length = 16 + this->uuids.size() * 17;
         byteout.append((char)(this->Length >> 8)).append((char)(this->Length));
         u = this->uuid;
-        this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
-        this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
-        byteout.append((char *)this->uuid_bytes, 16);
-        foreach (u, this->uuids) {
+        if(u >= 1 && u <= 4) {
+            this->uuid_bytes_zwift_play[DPKT_POS_SH8] = (quint8)(u >> 8);
+            this->uuid_bytes_zwift_play[DPKT_POS_SH0] = (quint8)(u);
+            byteout.append((char *)this->uuid_bytes_zwift_play, 16);
+        } else {
             this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
             this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
             byteout.append((char *)this->uuid_bytes, 16);
+        }
+        foreach (u, this->uuids) {
+            if(u >= 1 && u <= 4) {
+                this->uuid_bytes_zwift_play[DPKT_POS_SH8] = (quint8)(u >> 8);
+                this->uuid_bytes_zwift_play[DPKT_POS_SH0] = (quint8)(u);
+                byteout.append((char *)this->uuid_bytes_zwift_play, 16);
+            } else {
+                this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
+                this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
+                byteout.append((char *)this->uuid_bytes, 16);
+            }
             byteout.append(this->additional_data.at(i++));
         }
     } else if (((this->Identifier == DPKT_MSGID_READ_CHARACTERISTIC ||
@@ -196,9 +214,15 @@ QByteArray DirconPacket::encode(int last_seq_number) {
         this->Length = 16;
         byteout.append((char)(this->Length >> 8)).append((char)(this->Length));
         u = this->uuid;
-        this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
-        this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
-        byteout.append((char *)this->uuid_bytes, 16);
+        if(u >= 1 && u <= 4) {
+            this->uuid_bytes_zwift_play[DPKT_POS_SH8] = (quint8)(u >> 8);
+            this->uuid_bytes_zwift_play[DPKT_POS_SH0] = (quint8)(u);
+            byteout.append((char *)this->uuid_bytes_zwift_play, 16);
+        } else {
+            this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
+            this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
+            byteout.append((char *)this->uuid_bytes, 16);
+        }
     } else if (this->Identifier == DPKT_MSGID_WRITE_CHARACTERISTIC ||
                this->Identifier == DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION ||
                (this->Identifier == DPKT_MSGID_READ_CHARACTERISTIC && !this->isRequest) ||
@@ -206,9 +230,15 @@ QByteArray DirconPacket::encode(int last_seq_number) {
         this->Length = 16 + this->additional_data.size();
         byteout.append((char)(this->Length >> 8)).append((char)(this->Length));
         u = this->uuid;
-        this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
-        this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
-        byteout.append((char *)this->uuid_bytes, 16);
+        if(u >= 1 && u <= 4) {
+            this->uuid_bytes_zwift_play[DPKT_POS_SH8] = (quint8)(u >> 8);
+            this->uuid_bytes_zwift_play[DPKT_POS_SH0] = (quint8)(u);
+            byteout.append((char *)this->uuid_bytes_zwift_play, 16);
+        } else {
+            this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
+            this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
+            byteout.append((char *)this->uuid_bytes, 16);
+        }
         byteout.append(this->additional_data);
     }
     return byteout;

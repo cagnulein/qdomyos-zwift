@@ -513,14 +513,20 @@ void m3ibike::initScan() {
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
 void m3ibike::deviceUpdatedPriv(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields) {
-    emit debug(QStringLiteral("deviceUpdated ") + device.name() + " " + updateFields);
+    qDebug() << QStringLiteral("deviceUpdated ") << device.name() << " " << updateFields;
 }
 
 void m3ibike::deviceDiscoveredPriv(const QBluetoothDeviceInfo &device) {
     if (SAME_BLUETOOTH_DEVICE(device, bluetoothDevice)) {
         emit debug(QStringLiteral("NEW ADV ") + bluetoothDevice.name());
-        QHash<quint16, QByteArray> datas = device.manufacturerData();
-        QHashIterator<quint16, QByteArray> i(datas);
+        QMultiHash<quint16, QByteArray> datas = device.manufacturerData();
+        QHash<quint16, QByteArray> uniqueDatas;
+        for (auto it = datas.begin(); it != datas.end(); ++it) {
+            if (!uniqueDatas.contains(it.key())) {
+                uniqueDatas[it.key()] = it.value();
+            }
+        }
+        QHashIterator<quint16, QByteArray> i(uniqueDatas);
         while (i.hasNext()) {
             i.next();
             processAdvertising(i.value());
@@ -589,12 +595,11 @@ bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
         QSettings settings;
         keiser_m3i_out_t k3;
         int id = settings.value(QZSettings::m3i_bike_id, QZSettings::default_m3i_bike_id).toInt();
-        QHash<quint16, QByteArray> datas = device.manufacturerData();
-        QHashIterator<quint16, QByteArray> i(datas);
-        while (i.hasNext()) {
-            i.next();
-            if (parse_data(i.value(), &k3) && (!valid_id(id) || k3.system_id == id)) {
-                return true;
+        QMultiHash<quint16, QByteArray> datas = device.manufacturerData();
+        QHash<quint16, QByteArray> uniqueDatas;
+        for (auto it = datas.begin(); it != datas.end(); ++it) {
+            if (!uniqueDatas.contains(it.key())) {
+                uniqueDatas[it.key()] = it.value();
             }
         }
 #else

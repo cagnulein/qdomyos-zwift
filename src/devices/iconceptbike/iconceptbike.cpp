@@ -83,8 +83,9 @@ void iconceptbike::serviceDiscovered(const QBluetoothServiceInfo &service) {
             connect(socket, &QBluetoothSocket::readyRead, this, &iconceptbike::readSocket);
             connect(socket, &QBluetoothSocket::connected, this, QOverload<>::of(&iconceptbike::rfCommConnected));
             connect(socket, &QBluetoothSocket::disconnected, this, &iconceptbike::disconnected);
-            connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
-                    &iconceptbike::onSocketErrorOccurred);
+            connect(socket,
+                    QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::errorOccurred),
+                    this, &iconceptbike::onSocketErrorOccurred);
         } else {
             qDebug () << QStringLiteral("service ignored!");
         }
@@ -362,7 +363,7 @@ uint16_t iconceptbike::GetElapsedTimeFromPacket(const QByteArray &packet) {
 }
 
 void iconceptbike::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
-    emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
+    qDebug() << QStringLiteral("onSocketErrorOccurred ") << error;
 }
 
 uint16_t iconceptbike::watts() {

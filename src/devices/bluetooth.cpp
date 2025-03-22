@@ -12,6 +12,10 @@
 #include <QAndroidJniObject>
 #endif
 
+#ifdef Q_CC_MSVC
+#include <Windows.h> 
+#endif
+
 bluetooth::bluetooth(const discoveryoptions &options)
     : bluetooth(options.logs, options.deviceName, options.noWriteResistance, options.noHeartService,
                 options.pollDeviceTime, options.noConsole, options.testResistance, options.bikeResistanceOffset,
@@ -1011,7 +1015,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("SCH_590E")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER ")) ||
                         (b.name().startsWith(QStringLiteral("Domyos-EL")) && settings.value(QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts).toBool()) ||
-                        (b.name().toUpper().startsWith("SF-") && b.name().midRef(3).toInt() > 0) ||
+                        (b.name().toUpper().startsWith("SF-") && b.name().mid(3).toInt() > 0) ||
                         b.name().toUpper().startsWith(QStringLiteral("MYELLIPTICAL ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("CARDIOPOWER EEGO")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("E35")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -1693,7 +1697,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(wahooKickrSnapBike, &wahookickrsnapbike::debug, this, &bluetooth::debug);
                 wahooKickrSnapBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(wahooKickrSnapBike);
-            } else if (b.name().toUpper().startsWith("BIKE ") && b.name().midRef(5).toInt() > 0 &&
+            } else if (b.name().toUpper().startsWith("BIKE ") && b.name().mid(5).toInt() > 0 &&
                        !technogymBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -3002,6 +3006,32 @@ void bluetooth::connectedAndDiscovered() {
 }
 
 void bluetooth::gearUp() {
+    #ifdef Q_CC_MSVC
+    INPUT input = {0};
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = 'K';
+    
+    UINT result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        // Ottenere il codice di errore
+        DWORD error = GetLastError();
+        qDebug() << "Error sending key. Error code: " << error;
+    } else {
+        qDebug() << "Key pressed sent with success";
+    }
+    
+    input.ki.dwFlags = KEYEVENTF_KEYUP;
+    
+    result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        DWORD error = GetLastError();
+        qDebug() << "Error sending key. Error code: " << error;
+    } else {
+        qDebug() << "Key pressed sent with success";
+    }
+    #endif
+
+
     QSettings settings;
     bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
     foreach(zwiftclickremote* p, zwiftPlayDevice) {
@@ -3013,6 +3043,31 @@ void bluetooth::gearUp() {
 }
 
 void bluetooth::gearDown() {
+    #ifdef Q_CC_MSVC
+    INPUT input = {0};
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = 'I';
+    
+    UINT result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        // Ottenere il codice di errore
+        DWORD error = GetLastError();
+        qDebug() << "Error sending key. Error code: " << error;
+    } else {
+        qDebug() << "Key pressed sent with success";
+    }
+    
+    input.ki.dwFlags = KEYEVENTF_KEYUP;
+    
+    result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        DWORD error = GetLastError();
+        qDebug() << "Error sending key. Error code: " << error;
+    } else {
+        qDebug() << "Key pressed sent with success";
+    }
+    #endif
+
     QSettings settings;
     bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
     foreach(zwiftclickremote* p, zwiftPlayDevice) {
@@ -3989,6 +4044,6 @@ bool bluetooth::fitmetria_fanfit_isconnected(QString name) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
 void bluetooth::deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields) {
 
-    debug("deviceUpdated " + device.name() + " " + updateFields);
+    qDebug() << "deviceUpdated " << device.name() << " " << updateFields;
 }
 #endif
