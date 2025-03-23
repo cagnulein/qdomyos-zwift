@@ -209,7 +209,7 @@ smart_control_set_mode_brake_data smart_control_set_mode_brake_command(float per
 
  @param weightKG Weight of Rider and Bike in Kilograms (kg)
  @param rollingCoeff Rolling Resistance Coefficient (0.004 for asphault)
- @param windCoeff Wind Resistance Coeffienct (0.6 default)
+ @param windCoeff Wind Resistance Coefficient (0.6 default)
  @param grade Grade (-45 to 45) of simulated hill
  @param windSpeedMPS Head or Tail wind speed (meters / second)
 

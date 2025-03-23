@@ -199,7 +199,7 @@ public class SDMChannelController {
                carousalTimer.scheduleAtFixedRate(new TimerTask() {
                    @Override
                    public void run() {
-                       Log.d(TAG, "Tx Unsollicited");
+                       Log.d(TAG, "Tx Unsolicited");
                        long realtimeMillis = SystemClock.elapsedRealtime();
                        double speedM_s = speed / 3.6;
                        long deltaTime = (realtimeMillis - lastTime);

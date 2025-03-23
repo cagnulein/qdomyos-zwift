@@ -318,7 +318,7 @@ void csafeelliptical::changeResistance(resistance_t res) {
         res = 25;
     QStringList resistanceCommand = {"CSAFE_SETLEVEL", QString::number(res)};
     emit sendCsafeCommand(resistanceCommand);
-    qDebug() << "Send resistance update to device. Requested resitance: " << res;
+    qDebug() << "Send resistance update to device. Requested resistance: " << res;
     emit sendCsafeCommand(QStringList() << "CSAFE_GETPROGRAM_CMD");
 }
 

@@ -295,7 +295,7 @@ smart_control_set_mode_simulation_data smart_control_set_mode_simulation_command
     data.bytes[7] = wr10000;
     
     // Grade is between -45.0 and 45.0
-    // Mulitply by 100 to get 2 points of precision
+    // Multiply by 100 to get 2 points of precision
     int16_t grade100 = (int16_t) roundf(MAX(-45, MIN(45, grade)) * 100);
     data.bytes[8] = grade100 >> 8;
     data.bytes[9] = grade100;
