@@ -1114,9 +1114,8 @@ jobs:
       - name: Build for Raspberry Pi
         uses: docker://arm32v7/ubuntu:23.10
         with:
-          args: >
-            bash -c "
-            set -ex &&
+          args: |
+            bash -c "set -ex && 
             apt-get update && 
             apt-get install -y build-essential git cmake &&
             apt-get install -y qt6-base-dev qt6-base-private-dev qt6-tools-dev libqt6svg6-dev libqt6charts6-dev &&
@@ -1128,7 +1127,6 @@ jobs:
             export QT_SELECT=qt6 &&
             export PATH=/usr/lib/qt6/bin:$PATH &&
             cd /github/workspace &&
-            # Compila con qmake6
             qmake6 &&
             make -j$(nproc)
             "
@@ -1176,9 +1174,8 @@ jobs:
       - name: Build for Raspberry Pi 64-bit
         uses: docker://arm64v8/ubuntu:23.10
         with:
-          args: >
-            bash -c "
-            set -ex &&
+          args: |
+            bash -c "set -ex && 
             apt-get update && 
             apt-get install -y build-essential git cmake &&
             apt-get install -y qt6-base-dev qt6-base-private-dev qt6-tools-dev libqt6svg6-dev libqt6charts6-dev &&
@@ -1190,11 +1187,10 @@ jobs:
             export QT_SELECT=qt6 &&
             export PATH=/usr/lib/qt6/bin:$PATH &&
             cd /github/workspace &&
-            # Compila con qmake6
             qmake6 &&
             make -j$(nproc)
             "
-            
+
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-20.04 
