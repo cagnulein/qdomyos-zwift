@@ -1112,19 +1112,17 @@ jobs:
           cd ..
 
       - name: Build for Raspberry Pi
-        uses: docker://arm32v7/ubuntu:22.04
+        uses: docker://arm32v7/debian:bookworm
         with:
           args: |
             bash -c "set -ex && 
             apt-get update && 
             apt-get install -y build-essential git cmake &&
-            apt-get install -y software-properties-common &&
-            add-apt-repository ppa:ubuntustudio-ppa/qt6-backports -y &&
-            apt-get update &&
-            apt-get install -y qt6-base-dev qt6-base-private-dev qt6-tools-dev libqt6svg6-dev libqt6charts6-dev &&
-            apt-get install -y qt6-multimedia-dev libqt6websockets6-dev &&
-            apt-get install -y qml6-module-qtqml qml6-module-qtquick qml6-module-qtquick-controls &&
-            apt-get install -y libqt6network6 &&
+            apt-get install -y ca-certificates apt-transport-https &&
+            apt-get install -y qt6-base-dev qt6-declarative-dev libqt6charts6-dev libqt6svg6-dev &&
+            apt-get install -y qt6-multimedia-dev libqt6websockets6-dev qt6-tools-dev &&
+            apt-get install -y libqt6networkauth6-dev libqt6positioning6-dev qt6-connectivity-dev &&
+            apt-get install -y qml6-module-qtpositioning qml6-module-qtwebchannel qml6-module-qtwebview &&
             export QT_SELECT=qt6 &&
             export PATH=/usr/lib/qt6/bin:$PATH &&
             cd /github/workspace &&
@@ -1173,19 +1171,17 @@ jobs:
           cd ..
 
       - name: Build for Raspberry Pi 64-bit
-        uses: docker://arm64v8/ubuntu:22.04
+        uses: docker://arm64v8/debian:bookworm
         with:
           args: |
             bash -c "set -ex && 
             apt-get update && 
             apt-get install -y build-essential git cmake &&
-            apt-get install -y software-properties-common &&
-            add-apt-repository ppa:ubuntustudio-ppa/qt6-backports -y &&
-            apt-get update &&
-            apt-get install -y qt6-base-dev qt6-base-private-dev qt6-tools-dev libqt6svg6-dev libqt6charts6-dev &&
-            apt-get install -y qt6-multimedia-dev libqt6websockets6-dev &&
-            apt-get install -y qml6-module-qtqml qml6-module-qtquick qml6-module-qtquick-controls &&
-            apt-get install -y libqt6network6 &&
+            apt-get install -y ca-certificates apt-transport-https &&
+            apt-get install -y qt6-base-dev qt6-declarative-dev libqt6charts6-dev libqt6svg6-dev &&
+            apt-get install -y qt6-multimedia-dev libqt6websockets6-dev qt6-tools-dev &&
+            apt-get install -y libqt6networkauth6-dev libqt6positioning6-dev qt6-connectivity-dev &&
+            apt-get install -y qml6-module-qtpositioning qml6-module-qtwebchannel qml6-module-qtwebview &&
             export QT_SELECT=qt6 &&
             export PATH=/usr/lib/qt6/bin:$PATH &&
             cd /github/workspace &&
