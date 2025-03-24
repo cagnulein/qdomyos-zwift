@@ -596,9 +596,10 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     connect(PZP, &powerzonepack::loginState, this, &peloton::pzp_loginState);
     connect(HFB, &homefitnessbuddy::workoutStarted, this, &peloton::hfb_trainrows);
 
-    if (!settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken)
-             .toString()
-        .length()) {
+    QString userId = settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString();
+    qDebug() << "userId" << userId;
+    
+    if (!getPelotonSettingKey(QZSettings::peloton_accesstoken, userId).length()) {
         qDebug() << QStringLiteral("invalid peloton credentials");
         return;
     }

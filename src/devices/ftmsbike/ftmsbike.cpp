@@ -250,6 +250,9 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         writeCharacteristic(write, sizeof(write),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance));
     } else {
+        if(SL010)
+            Resistance = requestResistance;
+        
         if(JFBK5_0 || DIRETO_XR) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
@@ -265,9 +268,6 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
         }
     }
-
-    if(SL010)
-        Resistance = requestResistance;
 }
 
 void ftmsbike::update() {
@@ -318,15 +318,17 @@ void ftmsbike::update() {
                 requestResistance = 1;
             }
 
-            if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
+            resistance_t rR = requestResistance + (gears() * 5);
+
+            if (rR != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
                 // FTMS bike. This condition handles the peloton requests                
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike || resistance_lvl_mode) &&
-                    (requestPower == 0 || requestPower == -1)) {
+                    (requestPower == 0 || requestPower == -1 || resistance_lvl_mode)) {
                     init();
 
-                    forceResistance(requestResistance + (gears() * 5));
+                    forceResistance(rR);
                 }
             }
             if(!ICSE)

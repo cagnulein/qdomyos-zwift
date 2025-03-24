@@ -909,7 +909,7 @@ void tacxneo2::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
-        if(device.name().toUpper().startsWith(QStringLiteral("THINK X"))) {
+        if(device.name().toUpper().startsWith(QStringLiteral("THINK X")) || device.name().toUpper().startsWith(QStringLiteral("THINK-"))) {
             THINK_X = true;
             qDebug() << "THINK X workaround enabled!";
         }
