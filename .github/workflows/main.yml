@@ -1119,7 +1119,7 @@ jobs:
             apt-get update && 
             apt-get install -y build-essential git cmake &&
             apt-get install -y ca-certificates apt-transport-https &&
-            apt-get install -y '*qt6*' '!phonon4qt6*' &&
+            apt-get install -y $(apt-cache search --names-only 'qt6' | grep -v 'phonon4qt6' | awk '{print $1}') &&
             export QT_SELECT=qt6 &&
             export PATH=/usr/lib/qt6/bin:$PATH &&
             cd /github/workspace &&
@@ -1175,7 +1175,7 @@ jobs:
             apt-get update && 
             apt-get install -y build-essential git cmake &&
             apt-get install -y ca-certificates apt-transport-https &&
-            apt-get install -y '*qt6*' '!phonon4qt6*' &&
+            apt-get install -y $(apt-cache search --names-only 'qt6' | grep -v 'phonon4qt6' | awk '{print $1}') &&
             export QT_SELECT=qt6 &&
             export PATH=/usr/lib/qt6/bin:$PATH &&
             cd /github/workspace &&
