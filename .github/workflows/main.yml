@@ -1118,7 +1118,7 @@ jobs:
             bash -c "
             set -ex &&
             apt-get update && 
-            apt-get install -y build-essential git cmake qt6-base-dev qt6-base-private-dev qt6-tools-dev libqt6svg6-dev qt6-multimedia-dev libqt6charts6-dev libqt6positioning6-dev libqt6bluetooth6-dev libqt6websockets6-dev libqt6quick6-dev qml6-module-qtpositioning qml6-module-qtquick-controls &&
+            apt-get install -y build-essential git cmake qt6-base-dev qt6-base-private-dev qt6-tools-dev libqt6svg6-dev qt6-multimedia-dev libqt6charts6-dev libqt6websockets6-dev qml6-module-qtpositioning qml6-module-qtquick qml6-module-qtquick-controls &&
             export QT_SELECT=qt6 &&
             export PATH=/usr/lib/qt6/bin:$PATH &&
             cd /github/workspace &&
@@ -1174,7 +1174,7 @@ jobs:
             bash -c "
             set -ex &&
             apt-get update && 
-            apt-get install -y build-essential git cmake qt6-base-dev qt6-base-private-dev qt6-tools-dev libqt6svg6-dev qt6-multimedia-dev libqt6charts6-dev libqt6positioning6-dev libqt6bluetooth6-dev libqt6websockets6-dev libqt6quick6-dev qml6-module-qtpositioning qml6-module-qtquick-controls &&
+            apt-get install -y build-essential git cmake qt6-base-dev qt6-base-private-dev qt6-tools-dev libqt6svg6-dev qt6-multimedia-dev libqt6charts6-dev libqt6websockets6-dev qml6-module-qtpositioning qml6-module-qtquick qml6-module-qtquick-controls &&
             export QT_SELECT=qt6 &&
             export PATH=/usr/lib/qt6/bin:$PATH &&
             cd /github/workspace &&
