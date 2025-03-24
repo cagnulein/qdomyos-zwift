@@ -177,6 +177,151 @@ If everything is working as expected, **enable your service at boot time** :
 
 Then reboot to check operations (`sudo reboot`)
 
+### (optional) Treadmill Auto-Detection and Service Management
+This section provides a reliable way to manage the QZ service based on the treadmill's power state. Using a `bluetoothctl`-based Bash script, this solution ensures the QZ service starts when the treadmill is detected and stops when it is not.
+
+- **Bluetooth Discovery**: Monitors treadmill availability via `bluetoothctl`.
+- **Service Control**: Automatically starts and stops the QZ service.
+- **Logging**: Tracks treadmill status and actions in a log file.
+
+**Notes:**
+- Ensure `bluetoothctl` is installed and working on your system.
+- Replace `I_TL` in the script with your treadmill's Bluetooth name. You can find your device name via `bluetoothctl scan on`
+- Adjust the sleep interval (`sleep 30`) in the script as needed for your use case.
+
+Step 1: Save the following script as `/root/qz-treadmill-monitor.sh`:
+```bash
+#!/bin/bash
+
+LOG_FILE="/var/log/qz-treadmill-monitor.log"
+TARGET_DEVICE="I_TL"
+SCAN_INTERVAL=30  # Time in seconds between checks
+SERVICE_NAME="qz"
+DEBUG_LOG_DIR="/var/log"  # Directory where QZ debug logs are stored
+ERROR_MESSAGE="BTLE stateChanged InvalidService"
+
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+}
+
+is_service_running() {
+    systemctl is-active --quiet "$SERVICE_NAME"
+    return $?
+}
+
+scan_for_device() {
+    log "Starting Bluetooth scan for $TARGET_DEVICE..."
+
+    # Run bluetoothctl scan in the background and capture output
+    bluetoothctl scan on &>/dev/null &
+    SCAN_PID=$!
+
+    # Allow some time for devices to appear
+    sleep 5
+
+    # Check if the target device appears in the list
+    bluetoothctl devices | grep -q "$TARGET_DEVICE"
+    DEVICE_FOUND=$?
+
+    # Stop scanning
+    kill "$SCAN_PID"
+    bluetoothctl scan off &>/dev/null
+
+    if [ $DEVICE_FOUND -eq 0 ]; then
+        log "Device '$TARGET_DEVICE' found."
+        return 0
+    else
+        log "Device '$TARGET_DEVICE' not found."
+        return 1
+    fi
+}
+
+restart_qz_on_error() {
+    # Get the current date
+    CURRENT_DATE=$(date '+%a_%b_%d')
+    
+    # Find the latest QZ debug log file for today
+    LATEST_LOG=$(ls -t "$DEBUG_LOG_DIR"/debug-"$CURRENT_DATE"_*.log 2>/dev/null | head -n 1)
+    
+    if [ -z "$LATEST_LOG" ]; then
+        log "No QZ debug log found for today."
+        return 0
+    fi
+
+    log "Checking latest log file: $LATEST_LOG for errors..."
+
+    # Search the latest log for the error message
+    if grep -q "$ERROR_MESSAGE" "$LATEST_LOG"; then
+        log "***** Error detected in QZ log: $ERROR_MESSAGE *****"
+        log "Restarting QZ service..."
+        systemctl restart "$SERVICE_NAME"
+    else
+        log "No errors detected in $LATEST_LOG."
+    fi
+}
+
+manage_service() {
+    local device_found=$1
+    if $device_found; then
+        if ! is_service_running; then
+            log "***** Starting QZ service... *****"
+            systemctl start "$SERVICE_NAME"
+        else
+            log "QZ service is already running."
+            restart_qz_on_error  # Check the log for errors when QZ is already running
+        fi
+    else
+        if is_service_running; then
+            log "***** Stopping QZ service... *****"
+            systemctl stop "$SERVICE_NAME"
+        else
+            log "QZ service is already stopped."
+        fi
+    fi
+}
+
+while true; do
+    log "Checking for treadmill status..."
+    if scan_for_device; then
+        manage_service true
+    else
+        manage_service false
+    fi
+    log "Waiting for $SCAN_INTERVAL seconds before next check..."
+    sleep "$SCAN_INTERVAL"
+done
+```
+
+Step2: To ensure the script runs continuously, create a systemd service file at `/etc/systemd/system/qz-treadmill-monitor.service`
+```bash
+[Unit]
+Description=QZ Treadmill Monitor Service
+After=bluetooth.service
+
+[Service]
+Type=simple
+ExecStart=/root/qz-treadmill-monitor.sh
+Restart=always
+RestartSec=10
+User=root
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Step 3: Enable and Start the Service
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable qz-treadmill-monitor
+sudo systemctl start qz-treadmill-monitor
+```
+
+Monitor logs are written to `/var/log/qz-treadmill-monitor.log`. Use the following command to check logs in real-time:
+```bash
+sudo tail -f /var/log/qz-treadmill-monitor.log
+```
+
+
 
 ### (optional) Enable overlay FS
 

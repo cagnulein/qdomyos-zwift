@@ -51,8 +51,6 @@ using namespace std::chrono_literals;
 #pragma message "DEFINE STRAVA_CLIENT_ID!!!"
 #endif
 #endif
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
 #define STRAVA_CLIENT_ID_S STRINGIFY(STRAVA_CLIENT_ID)
 
 DataObject::DataObject(const QString &name, const QString &icon, const QString &value, bool writable, const QString &id,
@@ -407,6 +405,63 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             .toString(),
         settings.value(QZSettings::tile_preset_inclination_5_color, QZSettings::default_tile_preset_inclination_5_color)
             .toString());
+    preset_powerzone_1 = new DataObject(
+        "", "", "", false, QStringLiteral("preset_powerzone_1"), 48, labelFontSize, QStringLiteral("white"),
+        QLatin1String(""), 0, true,
+        settings.value(QZSettings::tile_preset_powerzone_1_label, QZSettings::default_tile_preset_powerzone_1_label).toString(),
+        settings.value(QZSettings::tile_preset_powerzone_1_color, QZSettings::default_tile_preset_powerzone_1_color).toString());
+
+    preset_powerzone_2 = new DataObject(
+        "", "", "", false, QStringLiteral("preset_powerzone_2"), 48, labelFontSize, QStringLiteral("white"),
+        QLatin1String(""), 0, true,
+        settings.value(QZSettings::tile_preset_powerzone_2_label, QZSettings::default_tile_preset_powerzone_2_label).toString(),
+        settings.value(QZSettings::tile_preset_powerzone_2_color, QZSettings::default_tile_preset_powerzone_2_color).toString());
+
+    preset_powerzone_3 = new DataObject(
+        "", "", "", false, QStringLiteral("preset_powerzone_3"), 48, labelFontSize, QStringLiteral("white"),
+        QLatin1String(""), 0, true,
+        settings.value(QZSettings::tile_preset_powerzone_3_label, QZSettings::default_tile_preset_powerzone_3_label).toString(),
+        settings.value(QZSettings::tile_preset_powerzone_3_color, QZSettings::default_tile_preset_powerzone_3_color).toString());
+
+    preset_powerzone_4 = new DataObject(
+        "", "", "", false, QStringLiteral("preset_powerzone_4"), 48, labelFontSize, QStringLiteral("white"),
+        QLatin1String(""), 0, true,
+        settings.value(QZSettings::tile_preset_powerzone_4_label, QZSettings::default_tile_preset_powerzone_4_label).toString(),
+        settings.value(QZSettings::tile_preset_powerzone_4_color, QZSettings::default_tile_preset_powerzone_4_color).toString());
+
+    preset_powerzone_5 = new DataObject(
+        "", "", "", false, QStringLiteral("preset_powerzone_5"), 48, labelFontSize, QStringLiteral("white"),
+        QLatin1String(""), 0, true,
+        settings.value(QZSettings::tile_preset_powerzone_5_label, QZSettings::default_tile_preset_powerzone_5_label).toString(),
+        settings.value(QZSettings::tile_preset_powerzone_5_color, QZSettings::default_tile_preset_powerzone_5_color).toString());
+
+    preset_powerzone_6 = new DataObject(
+        "", "", "", false, QStringLiteral("preset_powerzone_6"), 48, labelFontSize, QStringLiteral("white"),
+        QLatin1String(""), 0, true,
+        settings.value(QZSettings::tile_preset_powerzone_6_label, QZSettings::default_tile_preset_powerzone_6_label).toString(),
+        settings.value(QZSettings::tile_preset_powerzone_6_color, QZSettings::default_tile_preset_powerzone_6_color).toString());
+
+    preset_powerzone_7 = new DataObject(
+        "", "", "", false, QStringLiteral("preset_powerzone_7"), 48, labelFontSize, QStringLiteral("white"),
+        QLatin1String(""), 0, true,
+        settings.value(QZSettings::tile_preset_powerzone_7_label, QZSettings::default_tile_preset_powerzone_7_label).toString(),
+        settings.value(QZSettings::tile_preset_powerzone_7_color, QZSettings::default_tile_preset_powerzone_7_color).toString());
+
+    tile_hr_time_in_zone_1 = new DataObject(QStringLiteral("HR Zone 1+"), QStringLiteral("icons/icons/heart_red.png"),
+                                            QStringLiteral("0:00:00"), false, QStringLiteral("tile_hr_time_in_zone_1"), valueElapsedFontSize, labelFontSize);
+
+    tile_hr_time_in_zone_2 = new DataObject(QStringLiteral("HR Zone 2+"), QStringLiteral("icons/icons/heart_red.png"),
+                                            QStringLiteral("0:00:00"), false, QStringLiteral("tile_hr_time_in_zone_2"), valueElapsedFontSize, labelFontSize);
+
+    tile_hr_time_in_zone_3 = new DataObject(QStringLiteral("HR Zone 3+"), QStringLiteral("icons/icons/heart_red.png"),
+                                            QStringLiteral("0:00:00"), false, QStringLiteral("tile_hr_time_in_zone_3"), valueElapsedFontSize, labelFontSize);
+
+    tile_hr_time_in_zone_4 = new DataObject(QStringLiteral("HR Zone 4+"), QStringLiteral("icons/icons/heart_red.png"),
+                                            QStringLiteral("0:00:00"), false, QStringLiteral("tile_hr_time_in_zone_4"), valueElapsedFontSize, labelFontSize);
+
+    tile_hr_time_in_zone_5 = new DataObject(QStringLiteral("HR Zone 5"), QStringLiteral("icons/icons/heart_red.png"),
+                                            QStringLiteral("0:00:00"), false, QStringLiteral("tile_hr_time_in_zone_5"), valueElapsedFontSize, labelFontSize);
+
 
     if (!settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
 
@@ -550,6 +605,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(pelotonHandler, &peloton::workoutChanged, this, &homeform::pelotonWorkoutChanged);
     connect(pelotonHandler, &peloton::loginState, this, &homeform::pelotonLoginState);
     connect(pelotonHandler, &peloton::pzpLoginState, this, &homeform::pzpLoginState);
+    connect(pelotonHandler, &peloton::pelotonAuthUrlChanged, this, &homeform::pelotonAuthUrlChanged);
+    connect(pelotonHandler, &peloton::pelotonWebVisibleChanged, this, &homeform::pelotonWebVisibleChanged);
+    connect(stack, SIGNAL(peloton_connect_clicked()), pelotonHandler, SLOT(peloton_connect_clicked()));
 
     // copying bundles zwo files in the right path if necessary
     QDirIterator itZwo(":/zwo/");
@@ -1218,8 +1276,8 @@ void homeform::onToastRequested(QString message) {
 QStringList homeform::tile_order() {
 
     QStringList r;
-    r.reserve(43);
-    for (int i = 0; i < 43; i++) {
+    r.reserve(65);
+    for (int i = 0; i < 66; i++) {
         r.append(QString::number(i));
     }
     return r;
@@ -1563,6 +1621,42 @@ void homeform::sortTiles() {
                 target_power->setGridId(i);
                 dataList.append(target_power);
             }
+
+            if (settings.value(QZSettings::tile_target_zone_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_target_zone_order, 24).toInt() == i) {
+                target_zone->setGridId(i);
+                dataList.append(target_zone);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_1_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_1_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_1->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_1);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_2_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_2_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_2->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_2);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_3_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_3_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_3->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_3);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_4_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_4_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_4->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_4);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_5_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_5_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_5->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_5);
+            }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
         for (int i = 0; i < 100; i++) {
@@ -1898,15 +1992,88 @@ void homeform::sortTiles() {
             }
 
             if (settings.value(QZSettings::tile_biggears_enabled, false).toBool() &&
-                settings.value(QZSettings::tile_biggears_order, 54).toInt() == i) {
+                settings.value(QZSettings::tile_biggears_order, 54).toInt() == i + (settings.value(QZSettings::tile_biggears_swap, QZSettings::default_tile_biggears_swap).toBool() ? 1 : 0)) {
                 biggearsPlus->setGridId(i);
                 dataList.append(biggearsPlus);
             }
 
             if (settings.value(QZSettings::tile_biggears_enabled, false).toBool() &&
-                settings.value(QZSettings::tile_biggears_order, 54).toInt() + 1 == i) {
+                settings.value(QZSettings::tile_biggears_order, 54).toInt() == i + (settings.value(QZSettings::tile_biggears_swap, QZSettings::default_tile_biggears_swap).toBool() ? 0 : 1)) {
                 biggearsMinus->setGridId(i);
                 dataList.append(biggearsMinus);
+            }
+
+            if (settings.value(QZSettings::tile_preset_powerzone_1_enabled, QZSettings::default_tile_preset_powerzone_1_enabled).toBool() &&
+                settings.value(QZSettings::tile_preset_powerzone_1_order, QZSettings::default_tile_preset_powerzone_1_order).toInt() == i) {
+                preset_powerzone_1->setGridId(i);
+                dataList.append(preset_powerzone_1);
+            }
+
+            if (settings.value(QZSettings::tile_preset_powerzone_2_enabled, QZSettings::default_tile_preset_powerzone_2_enabled).toBool() &&
+                settings.value(QZSettings::tile_preset_powerzone_2_order, QZSettings::default_tile_preset_powerzone_2_order).toInt() == i) {
+                preset_powerzone_2->setGridId(i);
+                dataList.append(preset_powerzone_2);
+            }
+
+            if (settings.value(QZSettings::tile_preset_powerzone_3_enabled, QZSettings::default_tile_preset_powerzone_3_enabled).toBool() &&
+                settings.value(QZSettings::tile_preset_powerzone_3_order, QZSettings::default_tile_preset_powerzone_3_order).toInt() == i) {
+                preset_powerzone_3->setGridId(i);
+                dataList.append(preset_powerzone_3);
+            }
+
+            if (settings.value(QZSettings::tile_preset_powerzone_4_enabled, QZSettings::default_tile_preset_powerzone_4_enabled).toBool() &&
+                settings.value(QZSettings::tile_preset_powerzone_4_order, QZSettings::default_tile_preset_powerzone_4_order).toInt() == i) {
+                preset_powerzone_4->setGridId(i);
+                dataList.append(preset_powerzone_4);
+            }
+
+            if (settings.value(QZSettings::tile_preset_powerzone_5_enabled, QZSettings::default_tile_preset_powerzone_5_enabled).toBool() &&
+                settings.value(QZSettings::tile_preset_powerzone_5_order, QZSettings::default_tile_preset_powerzone_5_order).toInt() == i) {
+                preset_powerzone_5->setGridId(i);
+                dataList.append(preset_powerzone_5);
+            }
+
+            if (settings.value(QZSettings::tile_preset_powerzone_6_enabled, QZSettings::default_tile_preset_powerzone_6_enabled).toBool() &&
+                settings.value(QZSettings::tile_preset_powerzone_6_order, QZSettings::default_tile_preset_powerzone_6_order).toInt() == i) {
+                preset_powerzone_6->setGridId(i);
+                dataList.append(preset_powerzone_6);
+            }
+
+            if (settings.value(QZSettings::tile_preset_powerzone_7_enabled, QZSettings::default_tile_preset_powerzone_7_enabled).toBool() &&
+                settings.value(QZSettings::tile_preset_powerzone_7_order, QZSettings::default_tile_preset_powerzone_7_order).toInt() == i) {
+                preset_powerzone_7->setGridId(i);
+                dataList.append(preset_powerzone_7);
+            }
+
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_1_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_1_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_1->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_1);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_2_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_2_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_2->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_2);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_3_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_3_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_3->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_3);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_4_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_4_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_4->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_4);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_5_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_5_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_5->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_5);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
@@ -2200,7 +2367,38 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_gears_order, 51).toInt() == i) {
                 gears->setGridId(i);
                 dataList.append(gears);
-            }            
+            }
+
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_1_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_1_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_1->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_1);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_2_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_2_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_2->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_2);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_3_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_3_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_3->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_3);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_4_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_4_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_4->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_4);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_5_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_5_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_5->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_5);
+            }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::JUMPROPE) {
         for (int i = 0; i < 100; i++) {
@@ -2497,6 +2695,37 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_gears_order, 51).toInt() == i) {
                 gears->setGridId(i);
                 dataList.append(gears);
+            }
+
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_1_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_1_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_1->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_1);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_2_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_2_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_2->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_2);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_3_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_3_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_3->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_3);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_4_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_4_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_4->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_4);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_5_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_5_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_5->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_5);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
@@ -2805,6 +3034,37 @@ void homeform::sortTiles() {
                 pace->setGridId(i);
                 dataList.append(pace);
             }
+
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_1_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_1_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_1->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_1);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_2_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_2_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_2->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_2);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_3_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_3_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_3->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_3);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_4_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_4_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_4->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_4);
+            }
+
+            if (settings.value(QZSettings::tile_hr_time_in_zone_5_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_hr_time_in_zone_5_order, 0).toInt() == i) {
+                tile_hr_time_in_zone_5->setGridId(i);
+                dataList.append(tile_hr_time_in_zone_5);
+            }
         }
     }
 
@@ -2969,7 +3229,32 @@ void homeform::LargeButton(const QString &name) {
     if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || 
         bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL ||
         bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
-        if (name.contains(QStringLiteral("erg_mode"))) {
+        if (name.startsWith(QStringLiteral("preset_powerzone_"))) {
+            double ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+            int zoneNum = name.right(1).toInt(); // Gets last digit from preset_powerzone_X
+            QString zoneSetting = QString("tile_preset_powerzone_%1_value").arg(zoneNum);
+            double zoneValue = settings.value(zoneSetting, zoneNum).toDouble();
+
+            // Calculate target watts based on FTP and zone value
+            // Each zone represents a percentage of FTP
+            double targetWatts;
+            if (zoneValue <= 1.9) {
+                targetWatts = ftp * 0.55 * (zoneValue);
+            } else if (zoneValue <= 2.9) {
+                targetWatts = ftp * 0.75 * (zoneValue - 1);
+            } else if (zoneValue <= 3.9) {
+                targetWatts = ftp * 0.90 * (zoneValue - 2);
+            } else if (zoneValue <= 4.9) {
+                targetWatts = ftp * 1.05 * (zoneValue - 3);
+            } else if (zoneValue <= 5.9) {
+                targetWatts = ftp * 1.20 * (zoneValue - 4);
+            } else if (zoneValue <= 6.9) {
+                targetWatts = ftp * 1.50 * (zoneValue - 5);
+            } else {
+                targetWatts = ftp * 1.70 * (zoneValue - 6);
+            }
+            bluetoothManager->device()->changePower(targetWatts);
+        } else if (name.contains(QStringLiteral("erg_mode"))) {
             settings.setValue(QZSettings::zwift_erg, !settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool());
         } else if (name.contains(QStringLiteral("preset_resistance_1"))) {
             bluetoothManager->device()->changeResistance(settings
@@ -3346,6 +3631,9 @@ void homeform::Plus(const QString &name) {
                 zone++;
                 settings.setValue(QZSettings::treadmill_pid_heart_zone, QString::number(zone));
             }
+
+            if(trainProgram)
+                trainProgram->overrideZoneHRForCurrentRow(zone);
         }
     } else if (name.contains("gears")) {
         if (bluetoothManager->device()) {
@@ -3538,7 +3826,7 @@ void homeform::Minus(const QString &name) {
                          << requestedspeed << QStringLiteral("Current Target Speed") << targetspeed;
                 if (targetspeed != -1)
                     speed = targetspeed;
-                if (requestedspeed != -1)
+                if (requestedspeed != -1 && requestedspeed < speed)
                     speed = requestedspeed;
                 double minStepSpeed = ((treadmill *)bluetoothManager->device())->minStepSpeed();
                 double step = settings.value(QZSettings::treadmill_step_speed, QZSettings::default_treadmill_step_speed)
@@ -3600,6 +3888,9 @@ void homeform::Minus(const QString &name) {
             } else {
                 settings.setValue(QZSettings::treadmill_pid_heart_zone, QStringLiteral("Disabled"));
             }
+
+            if(trainProgram)
+                trainProgram->overrideZoneHRForCurrentRow(zone);
         }
     } else if (name.contains(QStringLiteral("gears"))) {
         if (bluetoothManager->device()) {
@@ -3940,10 +4231,16 @@ QString homeform::startIcon() {
 void homeform::updateGearsValue() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
-    if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0 || gears_zwift_ratio)
-        this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears()));
-    else
-        this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears(), 'f', 1));
+    double gear = ((bike *)bluetoothManager->device())->gears();
+    double maxGearDefault = ((bike *)bluetoothManager->device())->defaultMaxGears();
+    double maxGear = ((bike *)bluetoothManager->device())->maxGears();
+    if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0 || gears_zwift_ratio || maxGear < maxGearDefault) {
+        this->gears->setValue(QString::number(gear));
+        this->gears->setSecondLine(wheelCircumference::gearsInfo(gear));
+    } else {
+        this->gears->setValue(QString::number(gear, 'f', 1));
+        this->gears->setSecondLine(QStringLiteral(""));
+    }
 }
 
 QString homeform::signal() {
@@ -3970,6 +4267,8 @@ void homeform::update() {
     QSettings settings;
     double currentHRZone = 1;
     double ftpZone = 1;
+
+    qDebug() << "homeform::update fired!";
 
     if (settings.status() != QSettings::NoError) {
         qDebug() << "!!!!QSETTINGS ERROR!" << settings.status();
@@ -4007,8 +4306,7 @@ void homeform::update() {
         double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
         double unit_conversion = 1.0;
         double meter_feet_conversion = 1.0;
-        double cm_inches_conversion = 1.0;
-        bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
+        double cm_inches_conversion = 1.0;        
         uint8_t treadmill_pid_heart_zone =
             settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone)
                 .toString()
@@ -4026,6 +4324,34 @@ void homeform::update() {
             meter_feet_conversion = 3.28084;
             cm_inches_conversion = 0.393701;
         }
+
+        // Get the time spent in each zone
+        uint32_t seconds_zone1 = bluetoothManager->device()->secondsForHeartZone(0);
+        uint32_t seconds_zone2 = bluetoothManager->device()->secondsForHeartZone(1);
+        uint32_t seconds_zone3 = bluetoothManager->device()->secondsForHeartZone(2);
+        uint32_t seconds_zone4 = bluetoothManager->device()->secondsForHeartZone(3);
+        uint32_t seconds_zone5 = bluetoothManager->device()->secondsForHeartZone(4);
+
+               // Calculate cumulative times (time in this zone or higher)
+        uint32_t seconds_zone1_plus = seconds_zone1 + seconds_zone2 + seconds_zone3 + seconds_zone4 + seconds_zone5;
+        uint32_t seconds_zone2_plus = seconds_zone2 + seconds_zone3 + seconds_zone4 + seconds_zone5;
+        uint32_t seconds_zone3_plus = seconds_zone3 + seconds_zone4 + seconds_zone5;
+        uint32_t seconds_zone4_plus = seconds_zone4 + seconds_zone5;
+        uint32_t seconds_zone5_plus = seconds_zone5; // Zone 5 is already just zone 5
+
+               // Update the UI for each tile
+        tile_hr_time_in_zone_1->setValue(QTime(0, 0, 0).addSecs(seconds_zone1_plus).toString("h:mm:ss"));
+        tile_hr_time_in_zone_2->setValue(QTime(0, 0, 0).addSecs(seconds_zone2_plus).toString("h:mm:ss"));
+        tile_hr_time_in_zone_3->setValue(QTime(0, 0, 0).addSecs(seconds_zone3_plus).toString("h:mm:ss"));
+        tile_hr_time_in_zone_4->setValue(QTime(0, 0, 0).addSecs(seconds_zone4_plus).toString("h:mm:ss"));
+        tile_hr_time_in_zone_5->setValue(QTime(0, 0, 0).addSecs(seconds_zone5_plus).toString("h:mm:ss"));
+
+               // Set colors based on the zone
+        tile_hr_time_in_zone_1->setValueFontColor(QStringLiteral("lightsteelblue"));
+        tile_hr_time_in_zone_2->setValueFontColor(QStringLiteral("green"));
+        tile_hr_time_in_zone_3->setValueFontColor(QStringLiteral("yellow"));
+        tile_hr_time_in_zone_4->setValueFontColor(QStringLiteral("orange"));
+        tile_hr_time_in_zone_5->setValueFontColor(QStringLiteral("red"));
 
         emit signalChanged(signal());
         emit currentSpeedChanged(bluetoothManager->device()->currentSpeed().value());
@@ -4077,31 +4403,35 @@ void homeform::update() {
             targetMets->setValue(QString::number(trainProgram->currentTargetMets(), 'f', 1));
             trainrow next = trainProgram->getRowFromCurrent(1);
             trainrow next_1 = trainProgram->getRowFromCurrent(2);
-            if (next.duration.second() != 0 || next.duration.minute() != 0 || next.duration.hour() != 0) {
-                if (next.requested_peloton_resistance != -1)
-                    nextRows->setValue(QStringLiteral("PR") + QString::number(next.requested_peloton_resistance) +
-                                       QStringLiteral(" ") + next.duration.toString(QStringLiteral("mm:ss")));
-                else if (next.resistance != -1)
-                    nextRows->setValue(QStringLiteral("R") + QString::number(next.resistance) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));
-                else if (next.zoneHR != -1)
-                    nextRows->setValue(QStringLiteral("HR") + QString::number(next.zoneHR) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));
-                else if (next.HRmin != -1 && next.HRmax != -1)
+            if (next.duration.second() != 0 || next.duration.minute() != 0 || next.duration.hour() != 0 || next.distance != -1) {
+                QString duration = next.duration.toString(QStringLiteral("mm:ss"));
+                if(next.distance != -1) {
+                    duration = QString::number(next.distance, 'f' , 1);
+                }
+                if (next.requested_peloton_resistance != -1) {
+                    nextRows->setValue(QStringLiteral("PR") + QString::number(next.requested_peloton_resistance));
+                    nextRows->setSecondLine(duration);
+                } else if (next.resistance != -1) {
+                    nextRows->setValue(QStringLiteral("R") + QString::number(next.resistance));
+                    nextRows->setSecondLine(duration);
+                } else if (next.zoneHR != -1) {
+                    nextRows->setValue(QStringLiteral("HR") + QString::number(next.zoneHR));
+                    nextRows->setSecondLine(duration);
+                } else if (next.HRmin != -1 && next.HRmax != -1) {
                     nextRows->setValue(QStringLiteral("HR") + QString::number(next.HRmin) + QStringLiteral("-") +
-                                       QString::number(next.HRmax) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));
-                else if (next.speed != -1 && next.inclination != -200)
+                                       QString::number(next.HRmax));
+                    nextRows->setSecondLine(duration);
+                } else if (next.speed != -1 && next.inclination != -200) {
                     nextRows->setValue(QStringLiteral("S") + QString::number(next.speed, 'f' , 1) + QStringLiteral("I") +
-                                       QString::number(next.inclination, 'f' , 1) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));
-                else if (next.speed != -1)
-                    nextRows->setValue(QStringLiteral("S") + QString::number(next.speed, 'f' , 1) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));
-                else if (next.inclination != -200)
-                    nextRows->setValue(QStringLiteral("I") + QString::number(next.inclination, 'f' , 1) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));
-                else if (next.power != -1) {
+                                       QString::number(next.inclination, 'f' , 1));
+                    nextRows->setSecondLine(duration);
+                } else if (next.speed != -1) {
+                    nextRows->setValue(QStringLiteral("S") + QString::number(next.speed, 'f' , 1));
+                    nextRows->setSecondLine(duration);
+                } else if (next.inclination != -200) {
+                    nextRows->setValue(QStringLiteral("I") + QString::number(next.inclination, 'f' , 1));
+                    nextRows->setSecondLine(duration);
+                } else if (next.power != -1) {
                     double ftpPerc = (next.power / ftpSetting) * 100.0;
                     uint8_t ftpZone = 1;
                     if (ftpPerc < 56) {
@@ -4120,16 +4450,20 @@ void homeform::update() {
                         ftpZone = 7;
                     }
                     nextRows->setValue(QStringLiteral("Z") + QString::number(ftpZone) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));
-                    if (next_1.duration.second() != 0 || next_1.duration.minute() != 0 || next_1.duration.hour() != 0) {
+                                       duration);
+                    if (next_1.duration.second() != 0 || next_1.duration.minute() != 0 || next_1.duration.hour() != 0 || next_1.distance != -1) {
+                        QString duration_1 = next_1.duration.toString(QStringLiteral("mm:ss"));
+                        if(next_1.distance != -1) {
+                            duration_1 = QString::number(next_1.distance, 'f' , 1);
+                        }
                         if (next_1.requested_peloton_resistance != -1)
                             nextRows->setSecondLine(
                                 QStringLiteral("PR") + QString::number(next_1.requested_peloton_resistance) +
-                                QStringLiteral(" ") + next_1.duration.toString(QStringLiteral("mm:ss")));
+                                QStringLiteral(" ") + duration_1);
                         else if (next_1.resistance != -1)
                             nextRows->setSecondLine(QStringLiteral("R") + QString::number(next_1.resistance) +
                                                     QStringLiteral(" ") +
-                                                    next_1.duration.toString(QStringLiteral("mm:ss")));
+                                                    duration_1);
                         else if (next_1.power != -1) {
                             double ftpPerc = (next_1.power / ftpSetting) * 100.0;
                             uint8_t ftpZone = 1;
@@ -4150,7 +4484,7 @@ void homeform::update() {
                             }
                             nextRows->setSecondLine(QStringLiteral("Z") + QString::number(ftpZone) +
                                                     QStringLiteral(" ") +
-                                                    next_1.duration.toString(QStringLiteral("mm:ss")));
+                                                    duration_1);
                         }
                     } else {
                         nextRows->setSecondLine(QStringLiteral("N/A"));
@@ -4187,10 +4521,7 @@ void homeform::update() {
             formattedTime = currentTime.toString("H:mm:ss");
         }
         datetime->setValue(formattedTime);
-        if (power5s)
-            watts = bluetoothManager->device()->wattsMetric().average5s();
-        else
-            watts = bluetoothManager->device()->wattsMetric().value();
+        watts = bluetoothManager->device()->wattsMetricforUI();
         watt->setValue(QString::number(watts, 'f', 0));
         weightLoss->setValue(QString::number(miles ? bluetoothManager->device()->weightLoss() * 35.274
                                                    : bluetoothManager->device()->weightLoss(),
@@ -4336,17 +4667,23 @@ void homeform::update() {
                     this->pace->setValueFontColor(QStringLiteral("red"));
                 }
             } else {
-                if (bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed &&
-                    bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
+                // Round speeds to 1 decimal place before comparison to avoid overly strict matching
+                double currentSpeed = round(bluetoothManager->device()->currentSpeed().value() * 10.0) / 10.0;
+                double upperSpeed = round(trainProgram->currentRow().upper_speed * 10.0) / 10.0;
+                double lowerSpeed = round(trainProgram->currentRow().lower_speed * 10.0) / 10.0;
+
+                // Check if speed is in target zone (green)
+                if (currentSpeed <= upperSpeed && currentSpeed >= lowerSpeed) {
                     this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
                     this->pace->setValueFontColor(QStringLiteral("limegreen"));
-                } else if (bluetoothManager->device()->currentSpeed().value() <=
-                                (trainProgram->currentRow().upper_speed + 0.2) &&
-                            bluetoothManager->device()->currentSpeed().value() >=
-                                (trainProgram->currentRow().lower_speed - 0.2)) {
+                }
+                // Check if speed is close to target zone (orange)
+                else if (currentSpeed <= (upperSpeed + 0.2) && currentSpeed >= (lowerSpeed - 0.2)) {
                     this->target_zone->setValueFontColor(QStringLiteral("orange"));
                     this->pace->setValueFontColor(QStringLiteral("orange"));
-                } else {
+                }
+                // Speed is out of range (red)
+                else {
                     this->target_zone->setValueFontColor(QStringLiteral("red"));
                     this->pace->setValueFontColor(QStringLiteral("red"));
                 }
@@ -4379,8 +4716,21 @@ void homeform::update() {
                 break;
             }
 
-            this->target_pace->setValue(
-                ((treadmill *)bluetoothManager->device())->lastRequestedPace().toString(QStringLiteral("m:ss")));
+            if (trainProgram) {
+                // in order to see the target pace of a peloton workout even if the speed force for treadmill is disabled
+                this->target_pace->setValue(
+                            ((treadmill *)bluetoothManager->device())->speedToPace(trainProgram->currentRow().speed).toString(QStringLiteral("m:ss")));
+                this->target_pace->setSecondLine(((treadmill *)bluetoothManager->device())
+                                                     ->speedToPace(trainProgram->currentRow().lower_speed)
+                                                     .toString(QStringLiteral("m:ss")) +
+                                                 " - " +
+                                                 ((treadmill *)bluetoothManager->device())
+                                                     ->speedToPace(trainProgram->currentRow().upper_speed)
+                                                     .toString(QStringLiteral("m:ss")));
+            } else {
+                this->target_pace->setValue(
+                    ((treadmill *)bluetoothManager->device())->lastRequestedPace().toString(QStringLiteral("m:ss")));
+            }
             this->target_speed->setValue(QString::number(
                 ((treadmill *)bluetoothManager->device())->lastRequestedSpeed().value() * unit_conversion, 'f', 1));
             this->target_speed->setSecondLine(QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) +
@@ -4455,7 +4805,7 @@ void homeform::update() {
                 QString::number(
                     bluetoothManager->device()->difficult() *
                         settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
-                            .toDouble() *
+                            .toDouble() +
                         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
                             .toDouble(),
                     'f', 0));
@@ -5099,6 +5449,8 @@ void homeform::update() {
                 }
         */
 
+        qDebug() << "homeform::update tiles updated!";
+
 #ifdef Q_OS_ANDROID
         if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() &&
             KeepAwakeHelper::antObject(false)) {
@@ -5289,7 +5641,8 @@ void homeform::update() {
                 delta = trainProgram->currentRow().loopTimeHR;
             }
 
-            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL && 
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL &&
+                !settings.value(QZSettings::trainprogram_pid_ignore_inclination, QZSettings::default_trainprogram_pid_ignore_inclination).toBool() &&
                 bluetoothManager->device()->currentInclination().value() != lastInclination && lastWattage != 0) {
                 last_seconds_pid_heart_zone = seconds;
 
@@ -5325,7 +5678,7 @@ void homeform::update() {
                 if (fromTrainProgram) {
                     zone = trainProgram->currentRow().zoneHR;
                     if (zone > 0) {
-                        settings.setValue(QZSettings::treadmill_pid_heart_zone, QString::number(zone));
+                        settings.setValue(QZSettings::treadmill_pid_heart_zone, QString::number(zone));                        
                     } else {
                         settings.setValue(QZSettings::treadmill_pid_heart_zone, QStringLiteral("Disabled"));
                     }
@@ -5822,7 +6175,7 @@ void homeform::update() {
             if(bluetoothManager->device()->currentSpeed().value() > 0 && !isinf(bluetoothManager->device()->currentSpeed().value()))
                 bluetoothManager->device()->addCurrentDistance1s((bluetoothManager->device()->currentSpeed().value() / 3600.0));
             
-            qDebug() << "Current Distance 1s:" << bluetoothManager->device()->currentDistance1s().value() << bluetoothManager->device()->currentSpeed().value();
+            qDebug() << "Current Distance 1s:" << bluetoothManager->device()->currentDistance1s().value() << bluetoothManager->device()->currentSpeed().value() << watts;
 
             SessionLine s(
                 bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->currentDistance1s().value(),
@@ -5938,7 +6291,13 @@ QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 
 void homeform::profile_open_clicked(const QUrl &fileName) {
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+#ifdef Q_OS_ANDROID
     copyAndroidContentsURI(fileName, "profiles");
+#else
+    QFileInfo fileInfo(file);
+    bool r = file.copy(getWritableAppDir() + "profiles/" + fileInfo.fileName());
+    qDebug() << "profile copy" << r << getWritableAppDir() + "profiles/" + fileInfo.fileName();
+#endif
 }
 
 void homeform::trainprogram_open_other_folder(const QUrl &fileName) {
@@ -6090,6 +6449,7 @@ void homeform::fit_save_clicked() {
 }
 
 void homeform::strava_upload_file_prepare() {
+    qDebug() << lastFitFileSaved;
     QFile f(lastFitFileSaved);
     f.open(QFile::OpenModeFlag::ReadOnly);
     QByteArray fitfile = f.readAll();
@@ -6209,22 +6569,6 @@ QStringList homeform::bluetoothDevices() {
 
 QStringList homeform::metrics() { return bluetoothdevice::metrics(); }
 
-struct OAuth2Parameter {
-    QString responseType = QStringLiteral("code");
-    QString approval_prompt = QStringLiteral("force");
-
-    inline bool isEmpty() const { return responseType.isEmpty() && approval_prompt.isEmpty(); }
-
-    QString toString() const {
-        QString msg;
-        QTextStream out(&msg);
-        out << QStringLiteral("OAuth2Parameter{\n") << QStringLiteral("responseType: ") << this->responseType
-            << QStringLiteral("\n") << QStringLiteral("approval_prompt: ") << this->approval_prompt
-            << QStringLiteral("\n");
-        return msg;
-    }
-};
-
 QAbstractOAuth::ModifyParametersFunction
 homeform::buildModifyParametersFunction(const QUrl &clientIdentifier, const QUrl &clientIdentifierSharedKey) {
     return [clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
@@ -6319,6 +6663,9 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
 
     QSettings settings;
     QString token = settings.value(QZSettings::strava_accesstoken).toString();
+
+    qDebug() << "File size to upload:" << data.size() << "bytes";
+    qDebug() << "Remote filename:" << remotename;
 
     // The V3 API doc said "https://api.strava.com" but it is not working yet
     QUrl url = QUrl(QStringLiteral("https://www.strava.com/api/v3/uploads"));
@@ -6417,6 +6764,11 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
     manager = new QNetworkAccessManager(this);
     replyStrava = manager->post(request, multiPart);
 
+   connect(replyStrava, &QNetworkReply::uploadProgress,
+            [](qint64 bytesSent, qint64 bytesTotal) {
+                qDebug() << "Upload progress:" << bytesSent << "/" << bytesTotal;
+            });    
+
     // catch finished signal
     connect(replyStrava, &QNetworkReply::finished, this, &homeform::writeFileCompleted);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
@@ -6426,8 +6778,24 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
 }
 
 void homeform::errorOccurredUploadStrava(QNetworkReply::NetworkError code) {
-    qDebug() << QStringLiteral("strava upload error!") << code;
-    setToastRequested("Strava Upload Failed!");
+    qDebug() << "Strava upload error details:";
+    qDebug() << "Error code:" << code;
+    if(replyStrava) {
+        qDebug() << "Error string:" << replyStrava->errorString();
+        qDebug() << "HTTP status code:" << replyStrava->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+        QByteArray errorData = replyStrava->readAll();
+        qDebug() << "Error response body:" << QString(errorData);
+        
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(errorData);
+        if (!jsonResponse.isNull()) {
+            qDebug() << "JSON error message:" << jsonResponse.toJson();
+        }
+        
+        setToastRequested("Strava Upload Failed: " + replyStrava->errorString());        
+    } else {
+        setToastRequested("Strava Upload Failed");
+    }
 }
 
 void homeform::writeFileCompleted() {
@@ -6635,6 +7003,14 @@ void homeform::setGeneralPopupVisible(bool value) {
 
     m_generalPopupVisible = value;
     emit generalPopupVisibleChanged(m_generalPopupVisible);
+}
+
+bool homeform::pelotonPopupVisible() { return m_pelotonPopupVisible; }
+
+void homeform::setPelotonPopupVisible(bool value) {
+
+    m_pelotonPopupVisible = value;
+    emit pelotonPopupVisibleChanged(m_pelotonPopupVisible);
 }
 
 bool homeform::licensePopupVisible() { return m_LicensePopupVisible; }
@@ -7152,12 +7528,15 @@ void homeform::loadSettings(const QUrl &filename) {
     auto settings2LoadAllKeys = settings2Load.allKeys();
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
         if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
-            if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
-                settings.setValue(s, settings2Load.value(s));
-            } else {
-                SimpleCrypt crypt;
-                crypt.setKey(cryptoKeySettingsProfiles());
-                settings.setValue(s, crypt.decryptToString(settings2Load.value(s).toString()));
+            // peloton refresh token must not be changed because it has one refresh token for peloton user saved locally on the device
+            if(!s.contains(QStringLiteral("peloton_refreshtoken"))) {
+                if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
+                    settings.setValue(s, settings2Load.value(s));
+                } else {
+                    SimpleCrypt crypt;
+                    crypt.setKey(cryptoKeySettingsProfiles());
+                    settings.setValue(s, crypt.decryptToString(settings2Load.value(s).toString()));
+                }
             }
         }
     }

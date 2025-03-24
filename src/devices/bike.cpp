@@ -96,30 +96,51 @@ double bike::gears() {
     }
     return m_gears + gears_offset;
 }
+
 void bike::setGears(double gears) {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
     double gears_offset = settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble();
     gears -= gears_offset;
     qDebug() << "setGears" << gears;
+
+    // Check for boundaries and emit failure signals
     if(gears_zwift_ratio && (gears > 24 || gears < 1)) {
         qDebug() << "new gear value ignored because of gears_zwift_ratio setting!";
+        if(gears > 24) {
+            emit gearFailedUp();
+        } else {
+            emit gearFailedDown();
+        }
         return;
     }
+
     if(gears > maxGears()) {
         qDebug() << "new gear value ignored because of maxGears" << maxGears();
+        emit gearFailedUp();
         return;
     }
+
     if(gears < minGears()) {
         qDebug() << "new gear value ignored because of minGears" << minGears();
+        emit gearFailedDown();
         return;
     }
+
+    if(m_gears > gears) {
+        emit gearOkDown();
+    } else {
+        emit gearOkUp();
+    }
+
     m_gears = gears;
     if(homeform::singleton()) {
         homeform::singleton()->updateGearsValue();
     }
+
     if (settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool())
         settings.setValue(QZSettings::gears_current_value, m_gears);
+
     if (lastRawRequestedResistanceValue != -1) {
         changeResistance(lastRawRequestedResistanceValue);
     }

@@ -38,6 +38,7 @@ class fitplusbike : public bike {
   public:
     fitplusbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     resistance_t maxResistance() override { return max_resistance; }
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool connected() override;
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
 
@@ -49,6 +50,7 @@ class fitplusbike : public bike {
     void startDiscover();
     void forceResistance(resistance_t requestResistance);
     void sendPoll();
+    double bikeResistanceToPeloton(double resistance);
     uint16_t watts() override;
     uint16_t wattsFromResistance(double resistance);
 

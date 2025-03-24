@@ -97,6 +97,7 @@ class trainprogram : public QObject {
     double weightedInclination(int step);
     double medianInclination(int step);
     bool overridePowerForCurrentRow(double power);
+    bool overrideZoneHRForCurrentRow(uint8_t zone);
     bool powerzoneWorkout() {
         foreach(trainrow r, rows) {
             if(r.power != -1) return true;

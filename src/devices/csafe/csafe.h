@@ -34,7 +34,7 @@ class csafe {
 
   public:
     csafe();
-    QByteArray write(const QStringList &arguments);
+    QByteArray write(const QStringList &arguments , bool surround_msg = false); //surround_msg is for wrapping the communication in CSAFE non-standard way for some devices like PM3
     QVector<quint8> check_message(QVector<quint8> message);
     QVariantMap read(const QVector<quint8> &transmission);
 };

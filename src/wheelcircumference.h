@@ -37,6 +37,11 @@ class wheelCircumference : public QObject {
         return (((double)settings.value(QZSettings::gear_circumference, QZSettings::default_gear_circumference).toDouble()) / original_ratio) * ((double)current_ratio);
     }
 
+    static QString gearsInfo(int gear) {
+        GearTable table;
+        GearTable::GearInfo g = table.getGear((int)gear);
+        return QString::number(g.crankset, 'f' , 0) + "/" + QString::number(g.rearCog, 'f' , 0);
+    }
 
     class GearTable {
       public:

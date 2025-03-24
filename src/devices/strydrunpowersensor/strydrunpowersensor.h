@@ -71,6 +71,8 @@ class strydrunpowersensor : public treadmill {
 
     bool powerReceived = false;
 
+    bool FORERUNNER = false;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

@@ -446,7 +446,7 @@ void kingsmithr2treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteCharacteristicId((quint16)0xFED7);
     QBluetoothUuid _gattNotifyCharacteristicId((quint16)0xFED8);
 
-    if (KS_NACH_X21C) {
+    if (KS_NACH_X21C || KS_NGCH_G1C_2) {
         _gattWriteCharacteristicId = QBluetoothUuid(QStringLiteral("0002FED7-0000-1000-8000-00805f9b34fb"));
         _gattNotifyCharacteristicId = QBluetoothUuid(QStringLiteral("0002FED8-0000-1000-8000-00805f9b34fb"));
     } else if (KS_NGCH_G1C || KS_NACH_MXG || KS_NACH_X21C_2) {
@@ -514,6 +514,12 @@ void kingsmithr2treadmill::serviceScanDone(void) {
         KS_NACH_X21C = false;
         qDebug() << "KS_NACH_X21C default service id not found";
         _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00011234-0000-1000-8000-00805f9b34fb"));
+        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    } else if(gattCommunicationChannelService == nullptr && KS_NGCH_G1C) {
+        KS_NGCH_G1C_2 = true;
+        KS_NGCH_G1C = false;
+        qDebug() << "KS_NGCH_G1C default service id not found";
+        _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00021234-0000-1000-8000-00805f9b34fb"));
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,

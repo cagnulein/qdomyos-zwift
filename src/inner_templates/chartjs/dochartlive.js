@@ -130,9 +130,6 @@ function process_arr(arr) {
         distance = el.distance;
         calories = el.calories;
         maxEl = time;
-        wattel.x = time;
-        wattel.y = el.watts;
-        watts.push(wattel);
         if(el.watts < ftpZones[0])
             distributionPowerZones[0]++;
         else if(el.watts < ftpZones[1])
@@ -181,6 +178,15 @@ function process_arr(arr) {
         inclinationel.x = time;
         inclinationel.y = el.inclination;
         inclination.push(inclinationel);
+
+        if(el.target_power > 0) { // in order to add only metrics of the training program
+            if(firstElapsedTargetPower === 0) {
+                firstElapsedTargetPower = el.elapsed_s + (el.elapsed_m * 60) + (el.elapsed_h * 3600);
+            }
+            wattel.x = (el.elapsed_s + (el.elapsed_m * 60) + (el.elapsed_h * 3600)) - firstElapsedTargetPower;
+            wattel.y = el.watts;
+            watts.push(wattel);
+        }
     }
 
     const backgroundFill = {
