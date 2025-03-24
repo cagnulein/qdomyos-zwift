@@ -1112,7 +1112,7 @@ jobs:
           cd ..
 
       - name: Build for Raspberry Pi
-        uses: docker://arm32v7/debian:latest 
+        uses: docker://arm32v7/debian:bookworm-20241016
         with:
           args: |
             bash -c "set -ex && 
@@ -1168,7 +1168,7 @@ jobs:
           cd ..
 
       - name: Build for Raspberry Pi 64-bit
-        uses: docker://arm64v8/debian:latest 
+        uses: docker://arm64v8/debian:bookworm-20241016
         with:
           args: |
             bash -c "set -ex && 
