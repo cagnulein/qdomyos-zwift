@@ -329,7 +329,7 @@ void ftmsbike::update() {
                 // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
                 // FTMS bike. This condition handles the peloton requests                
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike || resistance_lvl_mode) &&
-                    (requestPower == 0 || requestPower == -1)) {
+                    (requestPower == 0 || requestPower == -1 || resistance_lvl_mode)) {
                     init();
 
                     forceResistance(rR);

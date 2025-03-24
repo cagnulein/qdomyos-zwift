@@ -77,6 +77,7 @@
 #include "devices/m3ibike/m3ibike.h"
 #include "devices/mcfbike/mcfbike.h"
 #include "devices/mepanelbike/mepanelbike.h"
+#include "devices/moxy5sensor/moxy5sensor.h"
 #include "devices/nautilusbike/nautilusbike.h"
 #include "devices/nautiluselliptical/nautiluselliptical.h"
 #include "devices/nautilustreadmill/nautilustreadmill.h"
@@ -208,6 +209,7 @@ class bluetooth : public QObject, public SignalHandler {
     echelonconnectsport *echelonConnectSport = nullptr;
     yesoulbike *yesoulBike = nullptr;
     flywheelbike *flywheelBike = nullptr;
+    moxy5sensor *moxy5Sensor = nullptr;
     nordictrackelliptical *nordictrackElliptical = nullptr;
     nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
     nordictrackifitadbbike *nordictrackifitadbBike = nullptr;
