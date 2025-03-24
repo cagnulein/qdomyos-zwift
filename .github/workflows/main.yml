@@ -1112,21 +1112,18 @@ jobs:
           cd ..
 
       - name: Build for Raspberry Pi
-        uses: docker://arm32v7/debian:bullseye-20241016
+        uses: docker://arm32v7/debian:bookworm-20241016
         with:
           args: >
             bash -c "
             set -ex &&
             apt-get update && 
-            apt-get install -y build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 &&
-            export QT_SELECT=qt5 &&
-            export PATH=/usr/lib/qt5/bin:$PATH &&
+            apt-get install -y build-essential git cmake qt6-base-dev qt6-base-private-dev qt6-tools-dev qt6-tools-dev-tools libqt6svg6-dev qt6-multimedia-dev libqt6charts6-dev qt6-positioning-dev qt6-connectivity-dev libqt6websockets6-dev libqt6texttospeech6-dev qt6-bluetooth-dev qt6-oauth-dev qml6-module-qtlocation qml6-module-qtpositioning qt6-location-dev libqt6quickcontrols2-6 qt6-quick-dev qml6-module-qtquick-controls &&
+            export QT_SELECT=qt6 &&
+            export PATH=/usr/lib/qt6/bin:$PATH &&
             cd /github/workspace &&
-            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
             cat qdomyos-zwift.pro &&
-            qmake &&
+            qmake6 &&
             make -j$(nproc)
             "
 
@@ -1171,21 +1168,18 @@ jobs:
           cd ..
 
       - name: Build for Raspberry Pi 64-bit
-        uses: docker://arm64v8/debian:bullseye-20241016
+        uses: docker://arm64v8/debian:bookworm-20241016
         with:
           args: >
             bash -c "
             set -ex &&
             apt-get update && 
-            apt-get install -y build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 &&
-            export QT_SELECT=qt5 &&
-            export PATH=/usr/lib/qt5/bin:$PATH &&
+            apt-get install -y build-essential git cmake qt6-base-dev qt6-base-private-dev qt6-tools-dev qt6-tools-dev-tools libqt6svg6-dev qt6-multimedia-dev libqt6charts6-dev qt6-positioning-dev qt6-connectivity-dev libqt6websockets6-dev libqt6texttospeech6-dev qt6-bluetooth-dev qt6-oauth-dev qml6-module-qtlocation qml6-module-qtpositioning qt6-location-dev libqt6quickcontrols2-6 qt6-quick-dev qml6-module-qtquick-controls &&
+            export QT_SELECT=qt6 &&
+            export PATH=/usr/lib/qt6/bin:$PATH &&
             cd /github/workspace &&
-            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
             cat qdomyos-zwift.pro &&
-            qmake &&
+            qmake6 &&
             make -j$(nproc)
             "
 
