@@ -377,7 +377,8 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             }
         }
 
-        if(!nordictrack_ifit_adb_remote) {
+        // sending only if there is a real command in order to don't send too much commands when on the companion there is the debug log enabled.
+        if(!nordictrack_ifit_adb_remote && (requestSpeed != -1 || currentRequestInclination != -100)) {
             QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(currentRequestInclination)).toLocal8Bit();
             // we have to separate the 2 commands
             if (requestSpeed == -1)
