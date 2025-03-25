@@ -1182,6 +1182,9 @@ jobs:
             qmake6 &&
             make -j$(nproc)
             "
+            
+      - name: Rename binary
+        run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
 
   upload_to_release:
     permissions: write-all
