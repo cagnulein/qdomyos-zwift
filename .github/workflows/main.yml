@@ -1186,6 +1186,12 @@ jobs:
       - name: Rename binary
         run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
 
+      - name: Archive Raspberry Pi binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberry-pi-binary
+          path: src/qdomyos-zwift-64bit        
+
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-20.04 
