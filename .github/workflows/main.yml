@@ -558,6 +558,13 @@ jobs:
           ref: "release-1.12.1"
 
       - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: KDAB/android_openssl
+          path: "android_openssl"
+
+      - uses: actions/checkout@v2
       - name: Checkout qHttpServer
         uses: actions/checkout@v2
         with:
