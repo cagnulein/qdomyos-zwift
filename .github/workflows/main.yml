@@ -533,16 +533,54 @@ jobs:
           sudo apt-get install -y xvfb
           Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
-      - name: Checkout repository
+      - name: Checkout repository (without submodules)
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
+          submodules: false
         
-      - name: Checkout submodules with specific branches
+      - name: Manual checkout of all submodules
         run: |
-          git submodule init
-          git submodule update --recursive --remote
+          # android_openssl
+          git clone https://github.com/KDAB/android_openssl.git android_openssl
+          cd android_openssl
+          git checkout 6b9ba2b962e96f437550b5197c130225dd416ddf
+          cd ..
+          
+          # qmdnsengine - usando lo SHA specifico che hai richiesto
+          git clone https://github.com/cagnulein/qmdnsengine.git src/qmdnsengine
+          cd src/qmdnsengine
+          git checkout 8114d702f1efa7cea5469e73ff76bf936e512495
+          cd ../..
+          
+          # qthttpserver
+          git clone https://github.com/qt-labs/qthttpserver.git src/qthttpserver
+          cd src/qthttpserver
+          git checkout 983e93c3b160c62e60b1755d075e959d4685d949
+          
+          # Clona anche il submodule di qthttpserver (http-parser)
+          git clone https://github.com/nodejs/http-parser.git src/3rdparty/http-parser
+          cd src/3rdparty/http-parser
+          git checkout 0d0a24e19eb5ba232d2ea8859aba2a7cc6c42bc4
+          cd ../../../..
+          
+          # smtpclient
+          git clone https://github.com/cagnulein/SmtpClient-for-Qt.git src/smtpclient
+          cd src/smtpclient
+          git checkout 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+          cd ../..
+          
+          # googletest
+          git clone https://github.com/google/googletest.git tst/googletest
+          cd tst/googletest
+          git checkout 58d77fa8070e8cec2dc1ed015d66b454c8d78850  # SHA del tag release-1.12.1
+          cd ../..
+          
+          # zwiftplay
+          git clone https://github.com/cagnulein/zwiftplay.git zwiftplay
+          cd zwiftplay
+          git checkout 8e839e500f93469129544d1a8808540b0d259de6
+          cd ..
 
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
