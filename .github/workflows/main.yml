@@ -533,11 +533,11 @@ jobs:
           sudo apt-get install -y xvfb
           Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
-          - name: Checkout repository
-          uses: actions/checkout@v3
-          with:
-            token: ${{ secrets.GITHUB_TOKEN }}
-            submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
         
       - name: Checkout submodules with specific branches
         run: |
