@@ -8,7 +8,7 @@
 [submodule "src/qmdnsengine"]
 	path = src/qmdnsengine
 	url = https://github.com/cagnulein/qmdnsengine.git
-	branch = zwift
+	branch = Dircon-doesn't-work-on-android-13-and-14-(Issue-#3325)
 [submodule "tst/googletest"]
 	path = tst/googletest
 	url = https://github.com/google/googletest.git
