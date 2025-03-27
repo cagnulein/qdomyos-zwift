@@ -1189,7 +1189,7 @@ jobs:
       - name: Archive Raspberry Pi binary
         uses: actions/upload-artifact@v4
         with:
-          name: raspberry-pi-binary
+          name: raspberry-pi-binary-64bit
           path: src/qdomyos-zwift-64bit        
 
   upload_to_release:
