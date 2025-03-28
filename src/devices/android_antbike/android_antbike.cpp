@@ -44,7 +44,7 @@ void android_antbike::update() {
     } else {
         Speed = KeepAwakeHelper::antObject(true)->callMethod<double>("getBikeSpeed", "()D");
     }
-    bool bikeConnected = KeepAwakeHelper::antObject(true)->callMethod<bool>("isBikeConnected", "()Z");
+    bool bikeConnected = KeepAwakeHelper::antObject(true)->callMethod<jboolean>("isBikeConnected", "()Z");
     qDebug() << QStringLiteral("Current ANT Cadence: ") << QString::number(Cadence.value());
     qDebug() << QStringLiteral("Current ANT Speed: ") << QString::number(Speed.value());
     qDebug() << QStringLiteral("Current ANT Power: ") << QString::number(m_watt.value());
