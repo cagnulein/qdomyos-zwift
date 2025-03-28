@@ -891,7 +891,7 @@ const QString QZSettings::peloton_current_user_id = QStringLiteral("peloton_curr
 const QString QZSettings::default_peloton_current_user_id = QStringLiteral("");
 const QString QZSettings::proform_225_csx_PFEX32925_INT_0 = QStringLiteral("proform_225_csx_PFEX32925_INT_0");
 const QString QZSettings::trainprogram_pid_ignore_inclination = QStringLiteral("trainprogram_pid_ignore_inclination");
-const QString QZSettings::android_ant_bike = QStringLiteral("android_ant_bike");
+const QString QZSettings::android_antbike = QStringLiteral("android_antbike");
 
 const QString QZSettings::tile_hr_time_in_zone_1_enabled = QStringLiteral("tile_hr_time_in_zone_1_enabled");
 const QString QZSettings::tile_hr_time_in_zone_1_order = QStringLiteral("tile_hr_time_in_zone_1_order");
@@ -1660,7 +1660,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_225_csx_PFEX32925_INT_0, QZSettings::proform_225_csx_PFEX32925_INT_0},
     {QZSettings::trainprogram_pid_ignore_inclination, QZSettings::default_trainprogram_pid_ignore_inclination},
 
-    {QZSettings::android_ant_bike, QZSettings::default_android_ant_bike},
+    {QZSettings::android_antbike, QZSettings::default_android_antbike},
 
     {QZSettings::tile_hr_time_in_zone_1_enabled, QZSettings::default_tile_hr_time_in_zone_1_enabled},
     {QZSettings::tile_hr_time_in_zone_1_order, QZSettings::default_tile_hr_time_in_zone_1_order},

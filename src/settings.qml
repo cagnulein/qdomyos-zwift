@@ -1127,7 +1127,7 @@ import Qt.labs.platform 1.1
             property int  tile_hr_time_in_zone_4_order: 65
             property bool tile_hr_time_in_zone_5_enabled: false
             property int  tile_hr_time_in_zone_5_order: 66
-            property bool android_ant_bike: false
+            property bool android_antbike: false
         }
 
         function paddingZeros(text, limit) {
@@ -3878,10 +3878,10 @@ import Qt.labs.platform 1.1
                         rightPadding: 0
                         leftPadding: 0
                         clip: false
-                        checked: settings.android_ant_bike
+                        checked: settings.android_antbike
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.android_ant_bike = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.android_antbike = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
