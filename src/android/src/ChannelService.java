@@ -143,6 +143,9 @@ public class ChannelService extends Service {
                 Log.v(TAG, "getHeart");
                 return heartChannelController.heart;
             }
+            if (null != bikeChannelController) {
+                return bikeChannelController.getHeartRate();
+            }
             return 0;
         }
 

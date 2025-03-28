@@ -22,6 +22,7 @@
 
 #include "devices/activiotreadmill/activiotreadmill.h"
 #include "devices/antbike/antbike.h"
+#include "devices/android_antbike/android_antbike.h"
 #include "devices/apexbike/apexbike.h"
 #include "devices/bhfitnesselliptical/bhfitnesselliptical.h"
 #include "devices/bkoolbike/bkoolbike.h"
@@ -174,6 +175,7 @@ class bluetooth : public QObject, public SignalHandler {
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
     antbike *antBike = nullptr;
+    android_antbike *android_antBike = nullptr;
     apexbike *apexBike = nullptr;
     bkoolbike *bkoolBike = nullptr;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
