@@ -599,7 +599,7 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     QString userId = settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString();
     qDebug() << "userId" << userId;
     
-    if (!getPelotonSettingKey(QZSettings::peloton_accesstoken, userId).length()) {
+    if (!getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().length()) {
         qDebug() << QStringLiteral("invalid peloton credentials");
         return;
     }
