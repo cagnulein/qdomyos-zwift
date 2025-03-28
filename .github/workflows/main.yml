@@ -1191,6 +1191,74 @@ jobs:
         with:
           name: raspberry-pi-binary-64bit
           path: src/qdomyos-zwift-64bit        
+          
+      # Create a full Raspbian image with the application
+      - name: Install required tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y coreutils quilt parted qemu-user-static debootstrap zerofree zip dosfstools bsdtar libcap2-bin grep rsync xz-utils file git curl bc kpartx pigz
+
+      - name: Clone pi-gen tool
+        run: |
+          git clone https://github.com/RPi-Distro/pi-gen.git
+          cd pi-gen
+          
+          # Configure pi-gen for minimal Raspbian with our application
+          echo "IMG_NAME=qdomyos-zwift-raspbian" > config
+          echo "TARGET_HOSTNAME=qdomyos-zwift" >> config
+          echo "ENABLE_SSH=1" >> config
+          echo "FIRST_USER_NAME=pi" >> config
+          echo "FIRST_USER_PASS=raspberry" >> config 
+          echo "STAGE_LIST=\"stage0 stage1 stage2\"" >> config
+          echo "DEPLOY_ZIP=1" >> config
+
+      - name: Prepare custom stage for qdomyos-zwift
+        run: |
+          mkdir -p pi-gen/stage3/01-qdomyos-zwift/00-packages
+          mkdir -p pi-gen/stage3/01-qdomyos-zwift/00-run-chroot
+          mkdir -p pi-gen/stage3/01-qdomyos-zwift/01-files
+          mkdir -p pi-gen/stage3/01-qdomyos-zwift/01-files/home/pi/qdomyos-zwift
+          
+          # Copy application binary
+          cp src/qdomyos-zwift-64bit pi-gen/stage3/01-qdomyos-zwift/01-files/home/pi/qdomyos-zwift/qdomyos-zwift
+          chmod +x pi-gen/stage3/01-qdomyos-zwift/01-files/home/pi/qdomyos-zwift/qdomyos-zwift
+          
+          # Create Qt dependencies package list
+          echo "qt6-base-dev qt6-base-dev-tools libqt6widgets6 libqt6bluetooth6 libqt6positioning6 libqt6xml6 qt6-connectivity-dev qt6-positioning-dev libqt6charts6-dev libqt6charts6 libqt6networkauth6-dev libqt6websockets6-dev" > pi-gen/stage3/01-qdomyos-zwift/00-packages/00-packages-nr
+          
+          # Create systemd service file to autostart the application
+          cat > pi-gen/stage3/01-qdomyos-zwift/01-files/etc/systemd/system/qdomyos-zwift.service << EOL
+          [Unit]
+          Description=QDomyos-Zwift Service
+          After=network.target
+          
+          [Service]
+          ExecStart=/home/pi/qdomyos-zwift/qdomyos-zwift
+          WorkingDirectory=/home/pi/qdomyos-zwift
+          User=pi
+          Environment=DISPLAY=:0
+          
+          [Install]
+          WantedBy=multi-user.target
+          EOL
+          
+          # Setup script for enabling the service
+          cat > pi-gen/stage3/01-qdomyos-zwift/00-run-chroot/01-setup-service << EOL
+          #!/bin/bash
+          systemctl enable qdomyos-zwift.service
+          EOL
+          chmod +x pi-gen/stage3/01-qdomyos-zwift/00-run-chroot/01-setup-service
+
+      - name: Build Raspbian image
+        run: |
+          cd pi-gen
+          sudo ./build.sh
+          
+      - name: Archive Raspberry Pi full image
+        uses: actions/upload-artifact@v4
+        with:
+          name: qdomyos-zwift-raspbian-image
+          path: pi-gen/deploy/*.zip
 
   upload_to_release:
     permissions: write-all
