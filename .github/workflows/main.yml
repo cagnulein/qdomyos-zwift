@@ -1218,6 +1218,7 @@ jobs:
           mkdir -p pi-gen/stage3/01-qdomyos-zwift/00-run-chroot
           mkdir -p pi-gen/stage3/01-qdomyos-zwift/01-files
           mkdir -p pi-gen/stage3/01-qdomyos-zwift/01-files/home/pi/qdomyos-zwift
+          mkdir -p pi-gen/stage3/01-qdomyos-zwift/01-files/etc/systemd/system
           
           # Copy application binary
           cp src/qdomyos-zwift-64bit pi-gen/stage3/01-qdomyos-zwift/01-files/home/pi/qdomyos-zwift/qdomyos-zwift
