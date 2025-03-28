@@ -14,7 +14,11 @@ void BluetoothDeviceTestSuite::tryDetectDevice(bluetooth &bt,
         // It is possible to use an EXPECT_NO_THROW here, but this
         // way is easier to place a breakpoint on the call to bt.deviceDiscovered.
         bt.homeformLoaded = true;
-        bt.deviceDiscovered(deviceInfo);
+
+        if(this->testParam->UseNonBluetoothDiscovery())
+            bt.nonBluetoothDeviceDiscovery();
+        else
+            bt.deviceDiscovered(deviceInfo);
     } catch (...) {
         FAIL() << "Failed to perform device detection.";
     }
@@ -63,7 +67,6 @@ void BluetoothDeviceTestSuite::testDeviceDetection(const BluetoothDeviceTestData
 
     BluetoothSignalReceiver signalReceiver(bt);
 
-
     this->tryDetectDevice(bt, deviceInfo);
 
     bluetoothdevice * device = bt.device();
@@ -92,6 +95,9 @@ void BluetoothDeviceTestSuite::SetUp() {
         GTEST_FAIL() << "Failed to get test data for: " << testParam.toStdString();
 
     QString skipMessage = nullptr;
+
+    qDebug() << "Got test data";
+
     if(!this->testParam->IsEnabled())
     {
         QString reason = this->testParam->DisabledReason();
@@ -112,16 +118,25 @@ void BluetoothDeviceTestSuite::SetUp() {
     if(skipMessage!=nullptr)
         GTEST_SKIP() << skipMessage.toStdString();
 
+    qDebug() << "Not disabled or skipped";
+
+    this->testParam->InitializeDevice();
+
+    qDebug() << "Test Data Device Initialization complete";
 
     this->defaultDiscoveryOptions = discoveryoptions{};
     this->defaultDiscoveryOptions.startDiscovery = false;
-    this->defaultDiscoveryOptions.logs = false;
+    this->defaultDiscoveryOptions.logs = true;
 
     this->names = this->testParam->NamePatternGroup()->DeviceNames();
+
+    qDebug() << "Got device names";
 
     EXPECT_GT(this->names.size(), 0) << "No bluetooth names configured for test";
 
     this->testSettings.activate();
+
+    qDebug() << "Test settings activated";
 }
 
 void BluetoothDeviceTestSuite::test_deviceDetection(const bool validNames, const bool enablingConfigs) {
