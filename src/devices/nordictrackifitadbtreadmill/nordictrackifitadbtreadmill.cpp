@@ -109,7 +109,7 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
 }
 
 double nordictrackifitadbtreadmill::getDouble(QString v) {
-    QChar d = QLocale().decimalPoint();
+    QString d = QLocale().decimalPoint();
     if (d == ',') {
         v = v.replace('.', ',');
     }
