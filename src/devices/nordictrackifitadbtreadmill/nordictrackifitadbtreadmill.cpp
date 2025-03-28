@@ -228,8 +228,8 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     QString numberStr = aValues.last();
-                    // Regular expression to match numbers like X.X or XX.X
-                    QRegularExpression regex(QStringLiteral("\\d+\\.\\d+"));
+                    // Regular expression to match both decimal numbers (X.X or XX.X) and integers
+                    QRegularExpression regex(QStringLiteral("\\d+(\\.\\d+)?"));
                     if (regex.match(numberStr).hasMatch()) {
                         speed = getDouble(numberStr);
                         parseSpeed(speed);
@@ -377,7 +377,8 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             }
         }
 
-        if(!nordictrack_ifit_adb_remote) {
+        // sending only if there is a real command in order to don't send too much commands when on the companion there is the debug log enabled.
+        if(!nordictrack_ifit_adb_remote && (requestSpeed != -1 || currentRequestInclination != -100)) {
             QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(currentRequestInclination)).toLocal8Bit();
             // we have to separate the 2 commands
             if (requestSpeed == -1)

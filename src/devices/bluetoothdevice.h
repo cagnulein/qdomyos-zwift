@@ -147,6 +147,11 @@ class bluetoothdevice : public QObject {
     virtual QTime lapElapsedTime();
 
     /**
+     * @brief lapOdometer Gets the distance elapsed on the current lap.
+     */
+    virtual double lapOdometer();
+
+    /**
      * @brief connected Gets a value to indicate if the device is connected.
      */
     virtual bool connected();

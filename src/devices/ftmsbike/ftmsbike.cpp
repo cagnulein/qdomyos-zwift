@@ -129,6 +129,13 @@ void ftmsbike::init() {
     if (initDone)
         return;
 
+    if(ICSE) {
+        uint8_t write[] = {FTMS_REQUEST_CONTROL};
+        bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
+        write[0] = {FTMS_RESET};
+        ret = writeCharacteristic(write, sizeof(write), "reset", false, true);
+    }
+    
     uint8_t write[] = {FTMS_REQUEST_CONTROL};
     bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
     write[0] = {FTMS_START_RESUME};
@@ -243,6 +250,9 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         writeCharacteristic(write, sizeof(write),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance));
     } else {
+        if(SL010)
+            Resistance = requestResistance;
+        
         if(JFBK5_0 || DIRETO_XR) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
@@ -251,7 +261,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
         } else {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
-            if(_3G_Cardio_RB)
+            if(_3G_Cardio_RB || SL010)
                 requestResistance = requestResistance * 10;
             write[1] = ((uint8_t)(requestResistance));
             writeCharacteristic(write, sizeof(write),
@@ -305,15 +315,20 @@ void ftmsbike::update() {
                 requestResistance = 1;
             }
 
-            if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
+            double gearMultiplier = 5;
+            if(REEBOK)
+                gearMultiplier = 1;
+            resistance_t rR = requestResistance + (gears() * gearMultiplier);
+
+            if (rR != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
                 // FTMS bike. This condition handles the peloton requests                
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike || resistance_lvl_mode) &&
-                    (requestPower == 0 || requestPower == -1)) {
+                    (requestPower == 0 || requestPower == -1 || resistance_lvl_mode)) {
                     init();
 
-                    forceResistance(requestResistance + (gears() * 5));
+                    forceResistance(rR);
                 }
             }
             if(!ICSE)
@@ -569,7 +584,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if(Resistance.value() > 0) {
                 if(BIKE_)
                     d = d / 10.0;
-                Resistance = d;
+                // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
+                if(!SL010)
+                    Resistance = d;
                 emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
                 emit resistanceRead(Resistance.value());
                 resistance_received = true;
@@ -591,8 +608,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                        br) /
                       (2.0 * ar)) *
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
- settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-                if (!resistance_received && !DU30_bike) {
+settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+                if (!resistance_received && !DU30_bike && !SL010) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
                     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -1155,7 +1172,9 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && zwiftPlayService != nullptr && gears_zwift_ratio) {
             qDebug() << "discarding";
             return;
-        } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
+        }
+        // gears on erg mode is quite useless and it's confusing
+        /* else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
                 lastPacketFromFTMS.append(b.at(i));
@@ -1167,7 +1186,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             b[1] = power & 0xFF;
             b[2] = power >> 8;
             qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << power;
-        }
+        }*/
 
         writeCharacteristic((uint8_t*)b.data(), b.length(), "injectWrite ", false, true);
     }
@@ -1298,6 +1317,16 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("LYDSTO"))) {
             qDebug() << QStringLiteral("LYDSTO found");
             LYDSTO = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("SL010-"))) {
+            qDebug() << QStringLiteral("SL010 found");
+            SL010 = true;
+            max_resistance = 25;
+            resistance_lvl_mode = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("REEBOK"))) {
+            qDebug() << QStringLiteral("REEBOK found");
+            REEBOK = true;
+            max_resistance = 32;
+            resistance_lvl_mode = true;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {

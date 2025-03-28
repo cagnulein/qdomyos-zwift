@@ -83,6 +83,9 @@ uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
     if (currentCadence().value() == 0)
         return 0;
 
+    if (proform_225_csx_PFEX32925_INT_0)
+        return _ergTable.estimateWattage(Cadence.value(), resistance);
+
     switch (resistance) {
     case 0:
     case 1:
@@ -732,7 +735,7 @@ void proformbike::forceIncline(double incline) {
                         true);
 }
 
-void proformbike::innerWriteResistance() {
+bool proformbike::innerWriteResistance() {
     if (requestResistance != -1) {
         if (requestResistance > max_resistance) {
             requestResistance = max_resistance;
@@ -743,9 +746,11 @@ void proformbike::innerWriteResistance() {
         if (requestResistance != currentResistance().value()) {
             emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
             forceResistance(requestResistance);
+            return true;
         }
         requestResistance = -1;
     }
+    return false;
 }
 
 void proformbike::update() {
@@ -1013,9 +1018,7 @@ void proformbike::update() {
                                     QStringLiteral("noOp"));
             } else if(proform_bike_PFEVEX71316_0) {
                 writeCharacteristic(noOpData6_proform_bike_PFEVEX71316_0, sizeof(noOpData6_proform_bike_PFEVEX71316_0), QStringLiteral("noOp"), false, true);
-                if (requestResistance != -1)
-                    innerWriteResistance();          
-                else if (requestInclination != -100) {
+                if (!innerWriteResistance() && requestInclination != -100) {
                     writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
                     // only 0.5 steps ara available
                     double inc = qRound(requestInclination * 2.0) / 2.0;
@@ -1274,7 +1277,94 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (m_watts > 3000) {
             m_watts = 0;
         } else {
-            if(nordictrack_GX4_5_bike || nordictrack_gx_44_pro) {
+            if(proform_225_csx_PFEX32925_INT_0) {
+                switch ((uint8_t)newValue.at(11)) {
+                case 0:
+                case 1:
+                    Resistance = 1;
+                    m_pelotonResistance = 1;
+                    break;
+                case 3:
+                    Resistance = 2;
+                    m_pelotonResistance = 4;
+                    break;
+                case 5:
+                    Resistance = 3;
+                    m_pelotonResistance = 9;
+                    break;
+                case 7:
+                    Resistance = 4;
+                    m_pelotonResistance = 13;
+                    break;
+                case 9:
+                    Resistance = 5;
+                    m_pelotonResistance = 18;
+                    break;
+                case 0x0b:
+                    Resistance = 6;
+                    m_pelotonResistance = 23;
+                    break;
+                case 0x0d:
+                    Resistance = 7;
+                    m_pelotonResistance = 27;
+                    break;
+                case 0x0f:
+                    Resistance = 8;
+                    m_pelotonResistance = 32;
+                    break;
+                case 0x11:
+                    Resistance = 9;
+                    m_pelotonResistance = 37;
+                    break;
+                case 0x13:
+                    Resistance = 10;
+                    m_pelotonResistance = 42;
+                    break;
+                case 0x15:
+                    Resistance = 11;
+                    m_pelotonResistance = 46;
+                    break;
+                case 0x17:
+                    Resistance = 12;
+                    m_pelotonResistance = 50;
+                    break;
+                case 0x19:
+                    Resistance = 13;
+                    m_pelotonResistance = 55;
+                    break;
+                case 0x1b:
+                    Resistance = 14;
+                    m_pelotonResistance = 59;
+                    break;
+                case 0x1d:
+                    Resistance = 15;
+                    m_pelotonResistance = 63;
+                    break;
+                case 0x1f:
+                    Resistance = 16;
+                    m_pelotonResistance = 68;
+                    break;
+                case 0x21:
+                    Resistance = 17;
+                    m_pelotonResistance = 73;
+                    break;
+                case 0x22:
+                case 0x23:
+                    Resistance = 18;
+                    m_pelotonResistance = 77;
+                    break;
+                case 0x24:
+                case 0x25:
+                    Resistance = 19;
+                    m_pelotonResistance = 82;
+                    break;
+                case 0x26:
+                case 0x27:
+                    Resistance = 20;
+                    m_pelotonResistance = 86;
+                    break;
+                }
+            } else if(nordictrack_GX4_5_bike || nordictrack_gx_44_pro) {
                 switch ((uint8_t)newValue.at(11)) {
                 case 0:
                 case 1:

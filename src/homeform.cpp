@@ -4499,6 +4499,7 @@ void homeform::update() {
             QStringLiteral("AVG: ") + QString::number(bluetoothManager->device()->currentMETS().average(), 'f', 1) +
             QStringLiteral("MAX: ") + QString::number(bluetoothManager->device()->currentMETS().max(), 'f', 1));
         lapElapsed->setValue(bluetoothManager->device()->lapElapsedTime().toString(QStringLiteral("h:mm:ss")));
+        lapElapsed->setSecondLine(QString::number(bluetoothManager->device()->lapOdometer() * unit_conversion, 'f', 2));
         avgWatt->setValue(QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0));
         avgWattLap->setValue(QString::number(bluetoothManager->device()->wattsMetric().lapAverage(), 'f', 0));
         wattKg->setValue(QString::number(bluetoothManager->device()->wattKg().value(), 'f', 1));
@@ -6291,7 +6292,13 @@ QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 
 void homeform::profile_open_clicked(const QUrl &fileName) {
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+#ifdef Q_OS_ANDROID
     copyAndroidContentsURI(fileName, "profiles");
+#else
+    QFileInfo fileInfo(file);
+    bool r = file.copy(getWritableAppDir() + "profiles/" + fileInfo.fileName());
+    qDebug() << "profile copy" << r << getWritableAppDir() + "profiles/" + fileInfo.fileName();
+#endif
 }
 
 void homeform::trainprogram_open_other_folder(const QUrl &fileName) {

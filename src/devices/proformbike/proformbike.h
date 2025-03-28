@@ -55,7 +55,7 @@ class proformbike : public bike {
     uint16_t watts() override;
     void forceResistance(resistance_t requestResistance);
     void forceIncline(double incline);
-    void innerWriteResistance();
+    bool innerWriteResistance();
 
     QTimer *refresh;
     uint8_t counterPoll = 0;
