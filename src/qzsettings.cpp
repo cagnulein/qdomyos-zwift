@@ -897,8 +897,27 @@ const QString QZSettings::real_inclination_to_virtual_treamill_bridge = QStringL
 const QString QZSettings::stryd_inclination_instead_treadmill = QStringLiteral("stryd_inclination_instead_treadmill");
 const QString QZSettings::domyos_elliptical_fmts = QStringLiteral("domyos_elliptical_fmts");
 const QString QZSettings::proform_xbike = QStringLiteral("proform_xbike");
+const QString QZSettings::peloton_current_user_id = QStringLiteral("peloton_current_user_id");
+const QString QZSettings::default_peloton_current_user_id = QStringLiteral("");
+const QString QZSettings::proform_225_csx_PFEX32925_INT_0 = QStringLiteral("proform_225_csx_PFEX32925_INT_0");
+const QString QZSettings::trainprogram_pid_ignore_inclination = QStringLiteral("trainprogram_pid_ignore_inclination");
 
-const uint32_t allSettingsCount = 733;
+const QString QZSettings::tile_hr_time_in_zone_1_enabled = QStringLiteral("tile_hr_time_in_zone_1_enabled");
+const QString QZSettings::tile_hr_time_in_zone_1_order = QStringLiteral("tile_hr_time_in_zone_1_order");
+
+const QString QZSettings::tile_hr_time_in_zone_2_enabled = QStringLiteral("tile_hr_time_in_zone_2_enabled");
+const QString QZSettings::tile_hr_time_in_zone_2_order = QStringLiteral("tile_hr_time_in_zone_2_order");
+
+const QString QZSettings::tile_hr_time_in_zone_3_enabled = QStringLiteral("tile_hr_time_in_zone_3_enabled");
+const QString QZSettings::tile_hr_time_in_zone_3_order = QStringLiteral("tile_hr_time_in_zone_3_order");
+
+const QString QZSettings::tile_hr_time_in_zone_4_enabled = QStringLiteral("tile_hr_time_in_zone_4_enabled");
+const QString QZSettings::tile_hr_time_in_zone_4_order = QStringLiteral("tile_hr_time_in_zone_4_order");
+
+const QString QZSettings::tile_hr_time_in_zone_5_enabled = QStringLiteral("tile_hr_time_in_zone_5_enabled");
+const QString QZSettings::tile_hr_time_in_zone_5_order = QStringLiteral("tile_hr_time_in_zone_5_order");
+
+const uint32_t allSettingsCount = 746;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1645,6 +1664,20 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill},
     {QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts},
     {QZSettings::proform_xbike, QZSettings::default_proform_xbike},
+    {QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id},
+    {QZSettings::proform_225_csx_PFEX32925_INT_0, QZSettings::proform_225_csx_PFEX32925_INT_0},
+    {QZSettings::trainprogram_pid_ignore_inclination, QZSettings::default_trainprogram_pid_ignore_inclination},
+
+    {QZSettings::tile_hr_time_in_zone_1_enabled, QZSettings::default_tile_hr_time_in_zone_1_enabled},
+    {QZSettings::tile_hr_time_in_zone_1_order, QZSettings::default_tile_hr_time_in_zone_1_order},
+    {QZSettings::tile_hr_time_in_zone_2_enabled, QZSettings::default_tile_hr_time_in_zone_2_enabled},
+    {QZSettings::tile_hr_time_in_zone_2_order, QZSettings::default_tile_hr_time_in_zone_2_order},
+    {QZSettings::tile_hr_time_in_zone_3_enabled, QZSettings::default_tile_hr_time_in_zone_3_enabled},
+    {QZSettings::tile_hr_time_in_zone_3_order, QZSettings::default_tile_hr_time_in_zone_3_order},
+    {QZSettings::tile_hr_time_in_zone_4_enabled, QZSettings::default_tile_hr_time_in_zone_4_enabled},
+    {QZSettings::tile_hr_time_in_zone_4_order, QZSettings::default_tile_hr_time_in_zone_4_order},
+    {QZSettings::tile_hr_time_in_zone_5_enabled, QZSettings::default_tile_hr_time_in_zone_5_enabled},
+    {QZSettings::tile_hr_time_in_zone_5_order, QZSettings::default_tile_hr_time_in_zone_5_order},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

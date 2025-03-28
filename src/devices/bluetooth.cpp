@@ -1488,6 +1488,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("WLT-EP-")) ||                             // Flow elliptical
                         (b.name().toUpper().startsWith("SCHWINN 810")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-MC")) ||    
+                         b.name().toUpper().startsWith(QStringLiteral("ANPIUS-")) || 
                         (b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D"))) ||                     // Kingsmith WalkingPad Z1
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("TT8")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -1601,6 +1602,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #endif
             } else if ((b.name().toUpper().startsWith("TACX ") ||                        
                         b.name().toUpper().startsWith(QStringLiteral("THINK X")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("THINK-")) ||
                         (b.name().toUpper().startsWith("VANRYSEL-HT")) ||
                         b.address() == QBluetoothAddress("C1:14:D9:9C:FB:01") || // specific TACX NEO 2 #1707
                         (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
@@ -1718,6 +1720,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("NEO BIKE SMART")) ||
                         (b.name().toUpper().startsWith("ZDRIVE")) ||
                         (b.name().toUpper().startsWith("TUNTURI E60-")) ||
+                        (b.name().toUpper().startsWith("TUNTURI F40-")) ||
                         (b.name().toUpper().startsWith("JFBK5.0")) ||
                         (b.name().toUpper().startsWith("NEO 3M ")) ||
                         (b.name().toUpper().startsWith("JFBK7.0")) ||
@@ -1732,7 +1735,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("TITAN 7000")) ||
                         (b.name().toUpper().startsWith("LYDSTO")) ||
                         (b.name().toUpper().startsWith("CYCLO_")) ||
+                        (b.name().toUpper().startsWith("SL010-")) ||
                         (b.name().toUpper().startsWith("LCR")) ||
+                        (b.name().toUpper().startsWith("ROBX")) ||
+                        (b.name().toUpper().startsWith("XCX-")) ||
+                        (b.name().toUpper().startsWith("L-") && b.name().length() == 11) ||
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||
                         (b.name().toUpper().startsWith("VFSPINBIKE")) ||
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -1875,6 +1882,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YOROTO-RW-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SF-RW")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("ROWER ")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("ROGUE CONSOLE ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("DFIT-L-R")) ||
                         !b.name().compare(ftms_rower, Qt::CaseInsensitive) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
@@ -2235,6 +2244,14 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 pafersTreadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(pafersTreadmill);
+
+
+            } else if (b.name().toUpper().startsWith(QStringLiteral("MOXY6")) && !moxy5Sensor) {
+                // *** SPECIAL DEVICE ****
+                moxy5Sensor = new moxy5sensor();
+                connect(moxy5Sensor, &moxy5sensor::debug, this, &bluetooth::debug);
+                moxy5Sensor->deviceDiscovered(b);
+
             } else if (b.name().toUpper().startsWith(QStringLiteral("BOWFLEX T")) && !bowflexT216Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();

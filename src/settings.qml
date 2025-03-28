@@ -1111,7 +1111,22 @@ import Qt.labs.platform 1.1
 
             // 2.18.20
             property bool domyos_elliptical_fmts: false
-            property bool proform_xbike: false
+            property bool proform_xbike: false            
+            property bool proform_225_csx_PFEX32925_INT_0: false
+            property string peloton_current_user_id: ""
+
+            // 2.18.22
+            property bool trainprogram_pid_ignore_inclination: false
+            property bool tile_hr_time_in_zone_1_enabled: false
+            property int  tile_hr_time_in_zone_1_order: 62
+            property bool tile_hr_time_in_zone_2_enabled: false
+            property int  tile_hr_time_in_zone_2_order: 63
+            property bool tile_hr_time_in_zone_3_enabled: false
+            property int  tile_hr_time_in_zone_3_order: 64
+            property bool tile_hr_time_in_zone_4_enabled: false
+            property int  tile_hr_time_in_zone_4_order: 65
+            property bool tile_hr_time_in_zone_5_enabled: false
+            property int  tile_hr_time_in_zone_5_order: 66
 
             // from version ?
             property bool trixter_xdream_v1_bike_enabled: false
@@ -3551,7 +3566,8 @@ import Qt.labs.platform 1.1
                                     "Proform SB",
                                     "Nordictrack GX 4.4 Pro",
                                     "TDF 1.0 PFEVEX71316.0",
-                                    "Proform XBike"
+                                    "Proform XBike",
+                                    "Proform 225 CSX PFEX32925 INT.0"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -3585,7 +3601,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_bike_sb ? 14 :
                                                     settings.nordictrack_gx_44_pro ? 15 :
                                                     settings.proform_bike_PFEVEX71316_0 ? 16 :
-                                                    settings.proform_xbike ? 17 : 0;
+                                                    settings.proform_xbike ? 17 :
+                                                    settings.proform_225_csx_PFEX32925_INT_0 ? 18 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -3617,6 +3634,7 @@ import Qt.labs.platform 1.1
                                     settings.nordictrack_gx_44_pro = false;
                                     settings.proform_bike_PFEVEX71316_0 = false;
                                     settings.proform_xbike = false;
+                                    settings.proform_225_csx_PFEX32925_INT_0 = false;
 
                                     // Set corresponding setting for selected model
                                     switch (currentIndex) {
@@ -3637,6 +3655,7 @@ import Qt.labs.platform 1.1
                                         case 15: settings.nordictrack_gx_44_pro = true; break;
                                         case 16: settings.proform_bike_PFEVEX71316_0 = true; break;
                                         case 17: settings.proform_xbike = true; break;
+                                        case 18: settings.proform_225_csx_PFEX32925_INT_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -5741,6 +5760,33 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("PID Ignore Inclination")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.trainprogram_pid_ignore_inclination
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.trainprogram_pid_ignore_inclination = checked
+                    }
+
+                    Label {
+                        text: qsTr("Enabling this the PID will ignore the inclination changes. Default: Disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -11797,11 +11843,23 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
-                    Button {
-                        id: clearLogs
-                        text: "Clear History"
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: rootItem.clearFiles();
+                    RowLayout {
+                        Layout.fillWidth: true
+                        
+                        Button {
+                            id: clearLogs
+                            text: "Clear History"
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                            onClicked: rootItem.clearFiles();
+                        }
+                        
+                        Button {
+                            text: "Show Logs Folder"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                toast.show(rootItem.getProfileDir())
+                            }
+                        }
                     }
 
                     Label {

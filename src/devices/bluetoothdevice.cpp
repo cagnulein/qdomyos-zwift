@@ -108,6 +108,7 @@ QTime bluetoothdevice::maxPace() {
 
 double bluetoothdevice::odometerFromStartup() { return Distance.valueRaw(); }
 double bluetoothdevice::odometer() { return Distance.value(); }
+double bluetoothdevice::lapOdometer() { return Distance.lapValue(); }
 metric bluetoothdevice::calories() { return KCal; }
 metric bluetoothdevice::jouls() { return m_jouls; }
 uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
@@ -475,9 +476,9 @@ void bluetoothdevice::setGPXFile(QString filename) {
     }
 }
 
-void bluetoothdevice::setHeartZone(double hz) { 
+void bluetoothdevice::setHeartZone(double hz) {
     HeartZone = hz;
-    if(isPaused() == false) {
+    if(isPaused() == false && currentHeart().value() > 0) {
         hz = hz - 1;
         if(hz >= maxHeartZone() ) {
             hrZonesSeconds[maxHeartZone() - 1].setValue(hrZonesSeconds[maxHeartZone() - 1].value() + 1);

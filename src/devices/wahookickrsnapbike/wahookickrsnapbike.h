@@ -107,6 +107,7 @@ class wahookickrsnapbike : public bike {
 
     bool WAHOO_KICKR = false;
     bool KICKR_BIKE = false;
+    bool KICKR_SNAP = false;
     
     bool lastCommandErgMode = false;
 
