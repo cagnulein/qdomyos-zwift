@@ -900,8 +900,13 @@ void tacxneo2::errorService(QLowEnergyService::ServiceError err) {
 
 void tacxneo2::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    emit debug(QStringLiteral("tacxneo2::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
-               m_control->errorString());
+    auto key = metaEnum.valueToKey(err);
+    // auto keyString = QString::fromLocal8Bit(key); // this seg faults when key=="UnknownRemoteDeviceError"
+    auto keyString = QString(key);
+    auto errorString = m_control->errorString();
+    emit debug(QStringLiteral("tacxneo2::error") +
+               keyString +
+               errorString);
 }
 
 void tacxneo2::deviceDiscovered(const QBluetoothDeviceInfo &device) {

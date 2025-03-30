@@ -304,7 +304,7 @@ void bluetooth::debug(const QString &text) {
 
 trixterxdreamv1bike * bluetooth::findTrixterXDreamV1Bike(const QSettings& settings)
 {
-    bool trixterxdreamv1bikeEnabled = settings.value(trixterxdreamv1settings::keys::Enabled, false).toBool();
+    bool trixterxdreamv1bikeEnabled = settings.value(QZSettings::trixter_xdream_v1_bike_enabled, false).toBool();
     trixterxdreamv1bike * result = nullptr;
     if(trixterxdreamv1bikeEnabled) {
         debug("Looking for Trixter X-Dream V1 Bike");

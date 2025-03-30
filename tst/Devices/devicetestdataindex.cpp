@@ -170,13 +170,15 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::CSafeRower)
         ->expectDevice<csaferower>()
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
-        ->configureSettingsWith(QZSettings::csafe_rower, "COMX", "");
+        ->configureSettingsWith(QZSettings::csafe_rower, "COMX", "")
+        ->skip("Not supported for testing");
 
     // CSafe Elliptical
     RegisterNewDeviceTestData(DeviceIndex::CSafeElliptical)
         ->expectDevice<csafeelliptical>()
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
-        ->configureSettingsWith(QZSettings::csafe_elliptical_port, "COMX", "");
+        ->configureSettingsWith(QZSettings::csafe_elliptical_port, "COMX", "")
+        ->skip("Not supported for testing");
 
     cscBikeName = "CyclingSpeedCadenceBike-";
     RegisterNewDeviceTestData(DeviceIndex::CSCBike)
@@ -1252,7 +1254,7 @@ void DeviceTestDataIndex::Initialize() {
             trixterxdreamv1serial::serialDataSourceFactory = TrixterXDreamV1BikeStub::create;
         })
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
-        ->configureSettingsWith(trixterxdreamv1settings::keys::Enabled)
+        ->configureSettingsWith(QZSettings::trixter_xdream_v1_bike_enabled)
         ->useNonBluetoothDiscovery();
 
     // True Treadmill

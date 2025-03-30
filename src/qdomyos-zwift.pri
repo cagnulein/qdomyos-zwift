@@ -94,6 +94,7 @@ SOURCES += \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
     $$PWD/devices/technogymbike/technogymbike.cpp \
+    $$PWD/devices/trixterxdreamv1bike/activationmonitor.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
     $$PWD/logwriter.cpp \
@@ -359,6 +360,7 @@ HEADERS += \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
     $$PWD/devices/sramAXSController/sramAXSController.h \
     $$PWD/devices/technogymbike/technogymbike.h \
+    $$PWD/devices/trixterxdreamv1bike/activationmonitor.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.h \
     $$PWD/ergtable.h \

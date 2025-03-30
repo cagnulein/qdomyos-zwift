@@ -28,24 +28,6 @@ public:
     constexpr static int8_t DefaultSteeringCalibrationCR = 2;
     constexpr static uint16_t DefaultConnectionTimeoutMilliseconds = 500;
 
-    /**
-     * @brief Defines QSettings keys relating to the Trixter X-Dream V1 bike.
-     */
-    class keys {
-    public:
-        /**
-         * @brief Enabled QSettings key to specify if the Trixter X-Dream V1 Bike is enabled in the application.
-         */
-        const static QString Enabled;
-        const static QString HeartRateEnabled;
-        const static QString SteeringEnabled;
-        const static QString SteeringCalibrationLeft;
-        const static QString SteeringCalibrationCenterLeft;
-        const static QString SteeringCalibrationCenterRight;
-        const static QString SteeringCalibrationRight;
-        const static QString SteeringCalibrationMAX;
-        const static QString ConnectionTimeoutMilliseconds;
-    };
 
     struct steeringCalibrationInfo {
 
