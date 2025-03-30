@@ -75,13 +75,18 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
         qDebug() << "adbLogCat STDOUT << " << output;
         QStringList lines = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
         bool wattFound = false;
+        bool cadenceFound = false;
         foreach (QString line, lines) {
-            if (line.contains("Changed KPH")) {
+            if (line.contains("Changed KPH") || line.contains("Changed Actual KPH")) {
                 emit debug(line);
                 speed = line.split(' ').last().toDouble();
             } else if (line.contains("Changed Grade")) {
                 emit debug(line);
                 inclination = line.split(' ').last().toDouble();
+            } else if (line.contains("Changed RPM")) {
+                emit debug(line);
+                cadence = line.split(' ').last().toDouble();
+                cadenceFound = true;
             } else if (line.contains("Changed Watts")) {
                 emit debug(line);
                 watt = line.split(' ').last().toDouble();
@@ -91,7 +96,9 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
         emit onSpeedInclination(speed, inclination);
         if (wattFound)
             emit onWatt(watt);
-#ifdef Q_OS_WINDOWS        
+        if (cadenceFound)
+            emit onCadence(cadence);
+#ifdef Q_OS_WINDOWS
         if(adbCommandPending.length() != 0) {
             runAdbCommand(adbCommandPending);
             adbCommandPending = "";
@@ -147,6 +154,8 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
                 &nordictrackifitadbtreadmill::onSpeedInclination);
         connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::onWatt, this,
                 &nordictrackifitadbtreadmill::onWatt);
+        connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::onCadence, this,
+                &nordictrackifitadbtreadmill::onCadence);
         connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::debug, this,
                 &nordictrackifitadbtreadmill::debug);
         logcatAdbThread->start();
@@ -452,6 +461,11 @@ void nordictrackifitadbtreadmill::onWatt(double watt) {
     wattReadFromTM = true;
 }
 
+void nordictrackifitadbtreadmill::onCadence(double cadence) {
+    Cadence = cadence;
+    cadenceReadFromTM = true;
+}
+
 void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclination) {
 
     parseSpeed(speed);
@@ -471,6 +485,7 @@ void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclin
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
+    
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
@@ -484,6 +499,7 @@ void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclin
         }
     }
 
+    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
     emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
