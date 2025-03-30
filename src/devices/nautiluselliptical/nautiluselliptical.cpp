@@ -432,8 +432,17 @@ void nautiluselliptical::serviceScanDone(void) {
 
                 gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
                 if (gattCommunicationChannelService == nullptr) {
-                    qDebug() << QStringLiteral("neither the fallback worked, exiting...");
-                    return;
+                    if (gattCommunicationChannelService == nullptr) {
+                        qDebug() << QStringLiteral("backup UUID not found, trying the 4th fallback...");
+                        bt_variant = 1;
+                        QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("7DF7A3F7-F013-492F-A58E-68A8F078AB96"));
+
+                        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+                        if (gattCommunicationChannelService == nullptr) {
+                            qDebug() << QStringLiteral("neither the fallback worked, exiting...");
+                            return;
+                        }
+                    }
                 }
             }
         }

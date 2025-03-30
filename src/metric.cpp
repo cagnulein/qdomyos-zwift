@@ -14,6 +14,7 @@ void metric::setType(_metric_type t) { m_type = t; }
 
 void metric::setValue(double v, bool applyGainAndOffset) {
     QSettings settings;
+    // these special cases are also in the valueRaw
     if (applyGainAndOffset) {
         if (m_type == METRIC_WATT) {
             if (v > 0) {
@@ -112,7 +113,25 @@ void metric::clear(bool accumulator) {
 }
 
 double metric::valueRaw() {
-    return m_value;
+    double v = m_value;
+    QSettings settings;
+
+    if (m_type == METRIC_WATT) {
+        if (v > 0) {
+            if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= 2.00) {
+                v /= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+            }
+            if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
+                v -= settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+            }
+        }
+    } else if (m_type == METRIC_SPEED) {
+        if (v > 0) {
+            v /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
+            v -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();
+        }
+    }
+    return v;
 }
 
 double metric::value() {

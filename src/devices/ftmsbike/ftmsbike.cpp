@@ -322,7 +322,10 @@ void ftmsbike::update() {
                 requestResistance = 1;
             }
 
-            resistance_t rR = requestResistance + (gears() * 5);
+            double gearMultiplier = 5;
+            if(REEBOK)
+                gearMultiplier = 1;
+            resistance_t rR = requestResistance + (gears() * gearMultiplier);
 
             if (rR != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
@@ -1326,6 +1329,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("SL010 found");
             SL010 = true;
             max_resistance = 25;
+            resistance_lvl_mode = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("REEBOK"))) {
+            qDebug() << QStringLiteral("REEBOK found");
+            REEBOK = true;
+            max_resistance = 32;
             resistance_lvl_mode = true;
         }
         
