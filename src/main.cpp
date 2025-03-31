@@ -41,7 +41,6 @@
 #include "ios/lockscreen.h"
 #endif
 
-#include "ergtable_test.h"
 #include "handleurl.h"
 
 bool logs = true;
@@ -336,8 +335,6 @@ int main(int argc, char *argv[]) {
     app->setOrganizationName(QStringLiteral("Roberto Viola"));
     app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
     app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
-
-    ergTableTester::runAllTests();
 
     QSettings settings;
 
