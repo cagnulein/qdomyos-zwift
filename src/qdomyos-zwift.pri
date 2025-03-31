@@ -31,7 +31,7 @@ CONFIG += qmltypes
 #unix:!android: CONFIG += webengine
 
 win32:DEFINES += _ITERATOR_DEBUG_LEVEL=0
-win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -L$$PWD
+win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -ldbghelp -L$$PWD 
 
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
@@ -46,6 +46,9 @@ win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc -llibcrypto-1_1-x
 
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
+msvc {
+   win32:QMAKE_CXXFLAGS_DEBUG += /RTC1
+}
 unix:android: {
     CONFIG -= optimize_size
     QMAKE_CFLAGS_OPTIMIZE_FULL -= -Oz
@@ -77,14 +80,23 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 SOURCES += \
     $$PWD/devices/antbike/antbike.cpp \
     $$PWD/devices/crossrope/crossrope.cpp \
+    $$PWD/devices/cycleopsphantombike/cycleopsphantombike.cpp \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.cpp \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
     $$PWD/devices/jumprope.cpp \
+    $$PWD/devices/kineticinroadbike/SmartControl.cpp \
+    $$PWD/devices/kineticinroadbike/kineticinroadbike.cpp \
+    $$PWD/devices/lifespantreadmill/lifespantreadmill.cpp \
+    $$PWD/devices/moxy5sensor/moxy5sensor.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
+    $$PWD/devices/pitpatbike/pitpatbike.cpp \
+    $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
     $$PWD/devices/technogymbike/technogymbike.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
+    $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
+    $$PWD/logwriter.cpp \
     $$PWD/mqtt/qmqttauthenticationproperties.cpp \
     $$PWD/mqtt/qmqttclient.cpp \
     $$PWD/mqtt/qmqttconnection.cpp \
@@ -97,6 +109,7 @@ SOURCES += \
     $$PWD/mqtt/qmqtttopicfilter.cpp \
     $$PWD/mqtt/qmqtttopicname.cpp \
     $$PWD/mqtt/qmqtttype.cpp \
+    $$PWD/osc.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
 devices/csafe/csafe.cpp \
@@ -323,17 +336,37 @@ INCLUDEPATH += fit-sdk/ devices/
 
 HEADERS += \
     $$PWD/EventHandler.h \
+    $$PWD/OAuth2.h \
     $$PWD/devices/antbike/antbike.h \
     $$PWD/devices/crossrope/crossrope.h \
+    $$PWD/devices/cycleopsphantombike/cycleopsphantombike.h \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/jumprope.h \
+    $$PWD/devices/kineticinroadbike/SmartControl.h \
+    $$PWD/devices/kineticinroadbike/kineticinroadbike.h \
+    $$PWD/devices/lifespantreadmill/lifespantreadmill.h \
+    $$PWD/devices/moxy5sensor/moxy5sensor.h \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
+    $$PWD/devices/pitpatbike/pitpatbike.h \
+    $$PWD/devices/sportsplusrower/sportsplusrower.h \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
     $$PWD/devices/sramAXSController/sramAXSController.h \
     $$PWD/devices/technogymbike/technogymbike.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
+    $$PWD/devices/trxappgateusbrower/trxappgateusbrower.h \
     $$PWD/ergtable.h \
+    $$PWD/logwriter.h \
+    $$PWD/osc.h \
+    $$PWD/oscpp/client.hpp \
+    $$PWD/oscpp/detail/endian.hpp \
+    $$PWD/oscpp/detail/host.hpp \
+    $$PWD/oscpp/detail/stream.hpp \
+    $$PWD/oscpp/error.hpp \
+    $$PWD/oscpp/print.hpp \
+    $$PWD/oscpp/server.hpp \
+    $$PWD/oscpp/types.hpp \
+    $$PWD/oscpp/util.hpp \
     $$PWD/mqtt/qmqttauthenticationproperties.h \
     $$PWD/mqtt/qmqttclient.h \
     $$PWD/mqtt/qmqttclient_p.h \
@@ -924,4 +957,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.18.9
+VERSION = 2.18.23

@@ -12,6 +12,7 @@
 #include <QThread>
 #include <chrono>
 #include <math.h>
+#include <QRegularExpression>
 
 using namespace std::chrono_literals;
 
@@ -74,13 +75,18 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
         qDebug() << "adbLogCat STDOUT << " << output;
         QStringList lines = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
         bool wattFound = false;
+        bool cadenceFound = false;
         foreach (QString line, lines) {
-            if (line.contains("Changed KPH")) {
+            if (line.contains("Changed KPH") || line.contains("Changed Actual KPH")) {
                 emit debug(line);
                 speed = line.split(' ').last().toDouble();
             } else if (line.contains("Changed Grade")) {
                 emit debug(line);
                 inclination = line.split(' ').last().toDouble();
+            } else if (line.contains("Changed RPM")) {
+                emit debug(line);
+                cadence = line.split(' ').last().toDouble();
+                cadenceFound = true;
             } else if (line.contains("Changed Watts")) {
                 emit debug(line);
                 watt = line.split(' ').last().toDouble();
@@ -90,7 +96,9 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
         emit onSpeedInclination(speed, inclination);
         if (wattFound)
             emit onWatt(watt);
-#ifdef Q_OS_WINDOWS        
+        if (cadenceFound)
+            emit onCadence(cadence);
+#ifdef Q_OS_WINDOWS
         if(adbCommandPending.length() != 0) {
             runAdbCommand(adbCommandPending);
             adbCommandPending = "";
@@ -139,12 +147,15 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
         connect(socket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
     }
 #ifdef Q_OS_WIN32
+    if (nordictrack_ifit_adb_remote)
     {
         logcatAdbThread = new nordictrackifitadbtreadmillLogcatAdbThread("logcatAdbThread");
         connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::onSpeedInclination, this,
                 &nordictrackifitadbtreadmill::onSpeedInclination);
         connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::onWatt, this,
                 &nordictrackifitadbtreadmill::onWatt);
+        connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::onCadence, this,
+                &nordictrackifitadbtreadmill::onCadence);
         connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::debug, this,
                 &nordictrackifitadbtreadmill::debug);
         logcatAdbThread->start();
@@ -225,8 +236,13 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             if (line.contains(QStringLiteral("Changed KPH"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    speed = getDouble(aValues.last());
-                    parseSpeed(speed);
+                    QString numberStr = aValues.last();
+                    // Regular expression to match both decimal numbers (X.X or XX.X) and integers
+                    QRegularExpression regex(QStringLiteral("\\d+(\\.\\d+)?"));
+                    if (regex.match(numberStr).hasMatch()) {
+                        speed = getDouble(numberStr);
+                        parseSpeed(speed);
+                    }
                 }
             } else if (line.contains(QStringLiteral("Changed Grade"))) {
                 QStringList aValues = line.split(" ");
@@ -261,7 +277,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             requestInclination = -100;
         }
 
-        int currentRequestInclination = requestInclination;
+        double currentRequestInclination = requestInclination;
 
         // since the motor of the treadmill is slow, let's filter the inclination changes to more than 1 second
         if (requestInclination != -100 && lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > 1) {
@@ -279,6 +295,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             bool nordictrack_treadmill_t8_5s = settings.value(QZSettings::nordictrack_treadmill_t8_5s, QZSettings::default_nordictrack_treadmill_t8_5s).toBool();
             bool nordictrack_treadmill_x14i = settings.value(QZSettings::nordictrack_treadmill_x14i, QZSettings::nordictrack_treadmill_x14i).toBool();
             bool proform_treadmill_carbon_t7 = settings.value(QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7).toBool();
+            bool nordictrack_treadmill_1750_adb = settings.value(QZSettings::nordictrack_treadmill_1750_adb, QZSettings::default_nordictrack_treadmill_1750_adb).toBool();
 
             if (requestSpeed != -1) {
                 int x1 = 1845;
@@ -298,6 +315,10 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                     // 458 0 183 10 mph
                     y1Speed = (int) (458 - (27.5 * ((Speed.value() * 0.621371) - 1)));
                     y2 = y1Speed - (int)(((requestSpeed - Speed.value()) * 0.621371) * 27.5);
+                } else if(nordictrack_treadmill_1750_adb) {
+                    x1 = 1206;
+                    y1Speed = (int) (603 - (34.0 * ((Speed.value() * 0.621371) - 0.5)));
+                    y2 = 603 - (int)(((requestSpeed * 0.621371) - 0.5) * 34.0);
                 }
 
                 lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Speed) + " " +
@@ -340,6 +361,10 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                     // 458 0 183 10%
                     y1Inclination = (int) (458 - (27.5 * (currentInclination().value())));
                     y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 27.5);
+                } else if(nordictrack_treadmill_1750_adb) {
+                    x1 = 75;
+                    y1Inclination = (int) (603 - (21.72222222 * (currentInclination().value() + 3.0)));
+                    y2 = 603 - (int)((requestInclination + 3.0) * 21.72222222);
                 }
 
                 lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Inclination) + " " +
@@ -361,7 +386,8 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             }
         }
 
-        if(!nordictrack_ifit_adb_remote) {
+        // sending only if there is a real command in order to don't send too much commands when on the companion there is the debug log enabled.
+        if(!nordictrack_ifit_adb_remote && (requestSpeed != -1 || currentRequestInclination != -100)) {
             QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(currentRequestInclination)).toLocal8Bit();
             // we have to separate the 2 commands
             if (requestSpeed == -1)
@@ -435,6 +461,11 @@ void nordictrackifitadbtreadmill::onWatt(double watt) {
     wattReadFromTM = true;
 }
 
+void nordictrackifitadbtreadmill::onCadence(double cadence) {
+    Cadence = cadence;
+    cadenceReadFromTM = true;
+}
+
 void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclination) {
 
     parseSpeed(speed);
@@ -454,6 +485,7 @@ void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclin
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
+    
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
@@ -467,6 +499,7 @@ void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclin
         }
     }
 
+    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
     emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));

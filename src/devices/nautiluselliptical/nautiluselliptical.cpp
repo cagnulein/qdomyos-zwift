@@ -251,7 +251,7 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
         return;
     }
 
-    if ((newValue.length() != 14 && bt_variant == 0) || (newValue.length() != 12 && bt_variant == 1)) {
+    if ((newValue.length() != 14 && (bt_variant == 0 || bt_variant == 2)) || (newValue.length() != 12 && bt_variant == 1)) {
         return;
     }
 
@@ -273,7 +273,11 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
-        Cadence = ((uint8_t)newValue.at(5));
+                if(bt_variant == 2) {
+                    Cadence = ((uint8_t)newValue.at(1));
+                } else {
+                    Cadence = ((uint8_t)newValue.at(5));
+                }
     }
     // m_watt = watt;
     Speed = speed;
@@ -304,11 +308,11 @@ double nautiluselliptical::GetSpeedFromPacket(const QByteArray &packet) {
 
     uint16_t convertedData = 0;
     double data = 0;
-    if (bt_variant == 0) {
-        convertedData = (packet.at(4) << 8) | packet.at(3);
+    if (bt_variant == 0 || bt_variant == 2) {
+        convertedData = (packet.at(4) << 8) | ((uint8_t)packet.at(3));
         data = (double)convertedData / 100.0f;
-    } else {
-        convertedData = (packet.at(8) << 8) | packet.at(7);
+    } else {        
+        convertedData = (packet.at(8) << 8) | ((uint8_t)packet.at(7));
         data = (double)convertedData / 10.0f;
     }
 
@@ -432,8 +436,17 @@ void nautiluselliptical::serviceScanDone(void) {
 
                 gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
                 if (gattCommunicationChannelService == nullptr) {
-                    qDebug() << QStringLiteral("neither the fallback worked, exiting...");
-                    return;
+                    if (gattCommunicationChannelService == nullptr) {
+                        qDebug() << QStringLiteral("backup UUID not found, trying the 4th fallback...");
+                        bt_variant = 2;
+                        QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("7DF7A3F7-F013-492F-A58E-68A8F078AB96"));
+
+                        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+                        if (gattCommunicationChannelService == nullptr) {
+                            qDebug() << QStringLiteral("neither the fallback worked, exiting...");
+                            return;
+                        }
+                    }
                 }
             }
         }

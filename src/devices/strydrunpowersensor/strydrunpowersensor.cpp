@@ -78,7 +78,10 @@ void strydrunpowersensor::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(false, watts());
+        QSettings settings;
+        bool power_as_treadmill =
+            settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+        update_metrics(false, watts(), !power_as_treadmill);
 
         if (requestInclination != -100) {
             Inclination = treadmillInclinationOverrideReverse(requestInclination);
@@ -238,10 +241,17 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
                 ((double)(((int16_t)((int8_t)newValue.at(index + 1)) << 8) | (int16_t)((uint8_t)newValue.at(index)))) /
                 10.0;
             // steps of 0.5 only to send to the Inclination override function
-            inc = qRound(inc * 2.0) / 2.0;
-            Inclination = treadmillInclinationOverride(inc);
+            if(!areInclinationSettingsDefault()) {
+                inc = qRound(inc * 2.0) / 2.0;
+                Inclination = treadmillInclinationOverride(inc);
+            } else {
+                Inclination = inc;
+            }
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
+            bool stryd_inclination_instead_treadmill = settings.value(QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill).toBool();
+            if(stryd_inclination_instead_treadmill)
+                emit inclinationChanged(Inclination.value(), Inclination.value());
         }
 
         if (Flags.elevation) {
@@ -520,6 +530,11 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::descriptorWritten, this, &strydrunpowersensor::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &strydrunpowersensor::descriptorRead);
 
+            if(FORERUNNER && s->serviceUuid() != QBluetoothUuid::HeartRate && s->serviceUuid() != QBluetoothUuid::RunningSpeedAndCadence) {
+                qDebug() << "skipping garmin services!" << s->serviceUuid();
+                continue;
+            }
+
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
             auto characteristics_list = s->characteristics();
@@ -664,6 +679,10 @@ void strydrunpowersensor::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        if(bluetoothDevice.name().toUpper().startsWith("FORERUNNER")) {
+            FORERUNNER = true;
+            qDebug() << "FORERUNNER WORKAROUND!";
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &strydrunpowersensor::serviceDiscovered);

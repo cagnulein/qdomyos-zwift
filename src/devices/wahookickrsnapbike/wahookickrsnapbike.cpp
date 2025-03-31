@@ -271,11 +271,15 @@ void wahookickrsnapbike::update() {
         }
 
         if (lastGearValue != gears()) {
-            QByteArray a = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
-            uint8_t b[20];
-            memcpy(b, a.constData(), a.length());
-            writeCharacteristic(b, a.length(), "setWheelCircumference", false, false);
-            lastGrade = 999; // to force a change
+            if(KICKR_SNAP) {
+               inclinationChanged(lastGrade, lastGrade);
+            } else {
+                QByteArray a = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
+                uint8_t b[20];
+                memcpy(b, a.constData(), a.length());
+                writeCharacteristic(b, a.length(), "setWheelCircumference", false, false);
+                lastGrade = 999; // to force a change
+            }
         }
 
         lastGearValue = gears();
@@ -306,17 +310,22 @@ resistance_t wahookickrsnapbike::pelotonToBikeResistance(int pelotonResistance) 
         settings.value(QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2).toBool();
     if (!schwinn_bike_resistance_v2) {
         if (pelotonResistance > 54)
-            return pelotonResistance;
+            return (pelotonResistance * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
         if (pelotonResistance < 26)
-            return pelotonResistance / 5;
+            return ((pelotonResistance / 5) * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
 
         // y = 0,04x2 - 1,32x + 11,8
-        return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
+        return (((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8) * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
     } else {
         if (pelotonResistance > 20)
-            return (((double)pelotonResistance - 20.0) * 1.25);
+            return ((((double)pelotonResistance - 20.0) * 1.25) * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
         else
-            return 1;
+            return (1  * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
     }
 }
 
@@ -782,7 +791,11 @@ void wahookickrsnapbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("KICKR BIKE")) {
             KICKR_BIKE = true;
             qDebug() << "KICKR BIKE workaround activated";
+        } else if(device.name().toUpper().startsWith("KICKR SNAP")) {
+            KICKR_SNAP = true;
+            qDebug() << "KICKR SNAP workaround activated";
         }
+
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &wahookickrsnapbike::serviceDiscovered);
@@ -863,6 +876,10 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
     QSettings settings;
     double g = grade;
+    if(KICKR_SNAP) {
+        g += gears() * 0.5;
+        qDebug() << "adding gear offset so " << g;
+    }
     QByteArray a = setSimGrade(g);
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());

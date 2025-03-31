@@ -147,6 +147,11 @@ class bluetoothdevice : public QObject {
     virtual QTime lapElapsedTime();
 
     /**
+     * @brief lapOdometer Gets the distance elapsed on the current lap.
+     */
+    virtual double lapOdometer();
+
+    /**
      * @brief connected Gets a value to indicate if the device is connected.
      */
     virtual bool connected();
@@ -445,6 +450,7 @@ class bluetoothdevice : public QObject {
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void speedSensor(double speed);
+    virtual void inclinationSensor(double grade, double inclination);
     virtual void changeResistance(resistance_t res);
     virtual void changePower(int32_t power);
     virtual void changeInclination(double grade, double percentage);
@@ -676,6 +682,11 @@ class bluetoothdevice : public QObject {
      * @brief _ergTable The current erg table
      */
     ergTable _ergTable;
+    
+    /**
+     * @brief StepCount A metric to get and set the step count. Unit: step
+     */
+    metric StepCount;
 
     /**
      * @brief Collect the number of seconds in each zone for the current heart rate
