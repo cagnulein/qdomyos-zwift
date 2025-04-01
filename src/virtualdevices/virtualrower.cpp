@@ -347,7 +347,7 @@ void virtualrower::rowerProvider() {
                 normalizeSpeed, (char)Rower->currentResistance().value(), (uint16_t)Rower->currentCadence().value() * 2,
                 (uint16_t)normalizeWattage, Rower->currentCrankRevolutions(), Rower->lastCrankEventTime(),
                 ((rower *)Rower)->currentStrokesCount().value(), Rower->odometer() * 1000, Rower->calories().value(),
-                QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace()))) {
+                QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace()), Rower->calories().value())) {
             h->virtualrower_setHeartRate(Rower->currentHeart().value());
 
             uint8_t ftms_message[255];
