@@ -40,12 +40,14 @@ class nordictrackifitadbellipticalLogcatAdbThread : public QThread {
     void debug(QString message);
     void onWatt(double watt);
     void onHRM(int hrm);
+    void onCadence(double cadence);
 
   private:
     QString adbCommandPending = "";
     QString runAdbCommand(QString command);
     double speed = 0;
     double inclination = 0;
+    double cadence = 0;
     double watt = 0;
     int hrm = 0;
     QString name;
@@ -79,6 +81,7 @@ class nordictrackifitadbelliptical : public elliptical {
     QDateTime lastInclinationChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
+    bool cadenceReadFromTM = false;
 
     bool initDone = false;
     bool initRequest = false;
@@ -110,6 +113,7 @@ class nordictrackifitadbelliptical : public elliptical {
     void processPendingDatagrams();
     void changeInclinationRequested(double grade, double percentage);
     void onHRM(int hrm);
+    void onCadence(double cadence);
 
     void update();
 };

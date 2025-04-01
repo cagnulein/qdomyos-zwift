@@ -20,7 +20,7 @@ nordictrackifitadbtreadmillLogcatAdbThread::nordictrackifitadbtreadmillLogcatAdb
 
 void nordictrackifitadbtreadmillLogcatAdbThread::run() {
     QSettings settings;
-    QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+    QString ip = settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
     runAdbCommand("connect " + ip);
 
     while (!stop) 
@@ -136,7 +136,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbtreadmill::update);
     connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &nordictrackifitadbtreadmill::stopLogcatAdbThread);
-    QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+    QString ip = settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
 
     refresh->start(200ms);
     {
@@ -220,7 +220,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
         qDebug() << "Message :: " << datagram;
 
         QString ip =
-            settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+            settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
         QString heartRateBeltName =
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();

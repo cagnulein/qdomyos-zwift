@@ -93,6 +93,8 @@ SOURCES += \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
+    $$PWD/devices/stairclimber.cpp \
+    $$PWD/devices/echelonstairclimber/echelonstairclimber.cpp \
     $$PWD/devices/technogymbike/technogymbike.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
@@ -341,6 +343,7 @@ HEADERS += \
     $$PWD/devices/crossrope/crossrope.h \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.h \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.h \
+    $$PWD/devices/echelonstairclimber/echelonstairclimber.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/jumprope.h \
     $$PWD/devices/kineticinroadbike/SmartControl.h \
@@ -352,6 +355,7 @@ HEADERS += \
     $$PWD/devices/sportsplusrower/sportsplusrower.h \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
     $$PWD/devices/sramAXSController/sramAXSController.h \
+    $$PWD/devices/stairclimber.h \
     $$PWD/devices/technogymbike/technogymbike.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.h \

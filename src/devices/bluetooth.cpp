@@ -1816,13 +1816,28 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(ftmsRower, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 ftmsRower->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(ftmsRower);
+            } else if ((b.name().toUpper().startsWith(QLatin1String("ECH-EC-SPT"))) &&
+                       !echelonStairclimber && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                echelonStairclimber = new echelonstairclimber(this->pollDeviceTime, noConsole, noHeartService);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(echelonStairclimber, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(echelonRower, SIGNAL(disconnected()), this, SLOT(restart())); connect(echelonStride,
+                connect(echelonStairclimber, &echelonstairclimber::debug, this, &bluetooth::debug);
+                connect(echelonStairclimber, &echelonstairclimber::speedChanged, this, &bluetooth::speedChanged);
+                connect(echelonStairclimber, &echelonstairclimber::inclinationChanged, this, &bluetooth::inclinationChanged);
+                echelonStairclimber->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(echelonStairclimber);
             } else if ((b.name().toUpper().startsWith(QLatin1String("ECH-STRIDE")) ||
                         b.name().toUpper().startsWith(QLatin1String("ECH-UK-")) ||
                         b.name().toUpper().startsWith(QLatin1String("ECH-FR-")) ||
                         b.name().toUpper().startsWith(QLatin1String("STRIDE")) ||
                         b.name().toUpper().startsWith(QLatin1String("STRIDE6S-")) ||
                         b.name().toUpper().startsWith(QLatin1String("ECH-SD-SPT"))) &&
-                       !echelonStride && filter) {
+                       !echelonStride && !echelonStairclimber && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 echelonStride = new echelonstride(this->pollDeviceTime, noConsole, noHeartService);
@@ -1912,7 +1927,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(echelonRower, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 echelonRower->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(echelonRower);
-            } else if (b.name().startsWith(QStringLiteral("ECH")) && !echelonRower && !echelonStride && !ftmsBike &&
+            } else if (b.name().startsWith(QStringLiteral("ECH")) && !echelonRower && !echelonStride && !echelonStairclimber && !ftmsBike &&
                        !echelonConnectSport && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -3352,6 +3367,11 @@ void bluetooth::restart() {
         delete echelonStride;
         echelonStride = nullptr;
     }
+    if (echelonStairclimber) {
+
+        delete echelonStairclimber;
+        echelonStairclimber = nullptr;
+    }
     if (octaneTreadmill) {
 
         delete octaneTreadmill;
@@ -3768,6 +3788,8 @@ bluetoothdevice *bluetooth::device() {
         return echelonRower;
     } else if (echelonStride) {
         return echelonStride;
+    } else if (echelonStairclimber) {
+        return echelonStairclimber;
     } else if (octaneTreadmill) {
         return octaneTreadmill;
     } else if (ziproTreadmill) {

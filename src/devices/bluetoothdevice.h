@@ -418,7 +418,7 @@ class bluetoothdevice : public QObject {
      */
     void setTargetPowerZone(double pz) { TargetPowerZone = pz; }
 
-    enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL, JUMPROPE };
+    enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL, JUMPROPE, STAIRCLIMBER };
     enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
 
     /**
