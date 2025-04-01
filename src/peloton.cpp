@@ -667,7 +667,7 @@ void peloton::login_onfinish(QNetworkReply *reply) {
     int status = json[QStringLiteral("status")].toInt();
 
     if (log_request) {
-        qDebug() << QStringLiteral("login_onfinish") << document;
+        qDebug() << QStringLiteral("login_onfinish") << document << payload;
     } else {
         qDebug() << QStringLiteral("login_onfinish");
     }
