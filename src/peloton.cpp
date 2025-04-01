@@ -1552,14 +1552,28 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         }
 
         QJsonArray targetMetricsList = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
-
+        
         bool atLeastOnePower = false;
         if (trainrows.empty() && !targetMetricsList.isEmpty() &&
             bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
             bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
 
             int lastEnd = 60;
-            for (QJsonValue metric : targetMetricsList) {
+            
+            // Convert QJsonArray in QList for sorting
+            QList<QJsonValue> sortedMetrics;
+            for (const QJsonValue &metric : targetMetricsList) {
+                sortedMetrics.append(metric);
+            }
+
+            // sort the list for "start"
+            std::sort(sortedMetrics.begin(), sortedMetrics.end(), [](const QJsonValue &a, const QJsonValue &b) {
+                int startA = a.toObject()[QStringLiteral("offsets")].toObject()[QStringLiteral("start")].toInt();
+                int startB = b.toObject()[QStringLiteral("offsets")].toObject()[QStringLiteral("start")].toInt();
+                return startA < startB;
+            });
+
+            for (QJsonValue metric : sortedMetrics) {
                 QJsonObject metricObj = metric.toObject();
                 QJsonObject offsets = metricObj[QStringLiteral("offsets")].toObject();
                 int start = offsets[QStringLiteral("start")].toInt();
