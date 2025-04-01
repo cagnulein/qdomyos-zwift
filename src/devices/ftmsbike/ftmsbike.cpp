@@ -1333,7 +1333,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             REEBOK = true;
             max_resistance = 32;
             resistance_lvl_mode = true;
-        } else if ((bluetoothDevice.name().toUpper().startsWith("Titan 7000"))) {
+        } else if ((bluetoothDevice.name().toUpper().startsWith("TITAN 7000"))) {
             qDebug() << QStringLiteral("Titan 7000 found");
             TITAN_7000 = true;
         }
