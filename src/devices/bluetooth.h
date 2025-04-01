@@ -46,6 +46,7 @@
 
 #include "devices/echelonconnectsport/echelonconnectsport.h"
 #include "devices/echelonrower/echelonrower.h"
+#include "devices/echelonstairclimber/echelonstairclimber.h"
 #include "devices/eliteariafan/eliteariafan.h"
 #include "devices/eliterizer/eliterizer.h"
 #include "devices/elitesterzosmart/elitesterzosmart.h"
@@ -258,6 +259,7 @@ class bluetooth : public QObject, public SignalHandler {
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;
     echelonstride *echelonStride = nullptr;
+    echelonstairclimber *echelonStairclimber = nullptr;
     lifefitnesstreadmill *lifefitnessTreadmill = nullptr;
     lifespantreadmill *lifespanTreadmill = nullptr;
     keepbike *keepBike = nullptr;

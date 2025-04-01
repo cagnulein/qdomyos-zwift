@@ -210,7 +210,7 @@ void fitshowtreadmill::update() {
             if (requestInclination != inc) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 inc = requestInclination;
-                double speed = currentSpeed().value();
+                double speed = currentSpeed().valueRaw();
                 if (requestSpeed != -1) {
                     speed = requestSpeed;
                     requestSpeed = -1;

@@ -18,7 +18,7 @@ nordictrackifitadbellipticalLogcatAdbThread::nordictrackifitadbellipticalLogcatA
 
 void nordictrackifitadbellipticalLogcatAdbThread::run() {
     QSettings settings;
-    QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+    QString ip = settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
     runAdbCommand("connect " + ip);
 
     while (1) {
@@ -66,13 +66,18 @@ void nordictrackifitadbellipticalLogcatAdbThread::runAdbTailCommand(QString comm
         QStringList lines = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
         bool wattFound = false;
         bool hrmFound = false;
+        bool cadenceFound = false;
         foreach (QString line, lines) {
-            if (line.contains("Changed KPH")) {
+            if (line.contains("Changed KPH") || line.contains("Changed Actual KPH")) {
                 emit debug(line);
                 speed = line.split(' ').last().toDouble();
             } else if (line.contains("Changed Grade")) {
                 emit debug(line);
                 inclination = line.split(' ').last().toDouble();
+            } else if (line.contains("Changed RPM")) {
+                emit debug(line);
+                cadence = line.split(' ').last().toDouble();
+                cadenceFound = true;
             } else if (line.contains("Changed Watts")) {
                 emit debug(line);
                 watt = line.split(' ').last().toDouble();
@@ -87,6 +92,8 @@ void nordictrackifitadbellipticalLogcatAdbThread::runAdbTailCommand(QString comm
             }
         }
         emit onSpeedInclination(speed, inclination);
+        if (cadenceFound)
+            emit onCadence(cadence);
         if (wattFound)
             emit onWatt(watt);
         if (hrmFound)
@@ -121,7 +128,7 @@ nordictrackifitadbelliptical::nordictrackifitadbelliptical(bool noWriteResistanc
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbelliptical::update);
-    ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+    ip = settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
     refresh->start(200ms);
 
     socket = new QUdpSocket(this);
@@ -173,6 +180,12 @@ nordictrackifitadbelliptical::nordictrackifitadbelliptical(bool noWriteResistanc
                 &nordictrackifitadbelliptical::onSpeedInclination);
         connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onWatt, this,
                 &nordictrackifitadbelliptical::onWatt);*/
+        connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onCadence, this,
+                &nordictrackifitadbelliptical::onCadence);
+        connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onSpeedInclination, this,
+                &nordictrackifitadbelliptical::onSpeedInclination);
+        connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onWatt, this,
+                &nordictrackifitadbelliptical::onWatt);
         connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onHRM, this, &nordictrackifitadbelliptical::onHRM);
         connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::debug, this, &nordictrackifitadbelliptical::debug);
         logcatAdbThread->start();
@@ -182,6 +195,21 @@ nordictrackifitadbelliptical::nordictrackifitadbelliptical(bool noWriteResistanc
 #endif
 #endif
     }
+}
+
+void nordictrackifitadbelliptical::onSpeedInclination(double speed, double inclination) {
+    Speed = speed;
+    Inclination = inclination;
+}
+
+void nordictrackifitadbelliptical::onWatt(double watt) {
+    m_watt = watt;
+    wattReadFromTM = true;
+}
+
+void nordictrackifitadbelliptical::onCadence(double cadence) {
+    Cadence = cadence;
+    cadenceReadFromTM = true;
 }
 
 bool nordictrackifitadbelliptical::inclinationAvailableByHardware() {
@@ -219,7 +247,7 @@ void nordictrackifitadbelliptical::processPendingDatagrams() {
         qDebug() << "Port From :: " << port;
         qDebug() << "Message :: " << datagram;
 
-        QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+        QString ip = settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
         QString heartRateBeltName =
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
@@ -464,6 +492,7 @@ void nordictrackifitadbelliptical::processPendingDatagrams() {
 #endif
 #endif
 
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
         emit debug(QStringLiteral("Current Gear: ") + QString::number(gear));
