@@ -3084,175 +3084,177 @@ import Qt.labs.platform 1.1
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent:
+                            ColumnLayout {
                             SwitchDelegate {
-                            id: trixterXDreamV1
-                            text: qsTr("Trixter X-Dream V1 Bike Enabled")
-                            hoverEnabled: true
-                            ToolTip.visible: hovered
-                            ToolTip.text: qsTr("Use this to enable or disable detection of the Trixter X-Dream V1 Bike. Not supported in iOS.")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.trixter_xdream_v1_bike_enabled
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: settings.trixter_xdream_v1_bike_enabled = checked
-                        }
-                        RowLayout {
-                            id: trixterXDreamV1BikeConnection
-                            spacing: 10
-                            Label {
-                                id: labelTrixterXDreamV1BikeConnectionTimeout
-                                text: qsTr("Initial connection timeout (ms)")
-                                Layout.fillWidth: true
-                            }
-                            SpinBox {
-                                id: trixterXDreamV1BikeConnectionTimeout
-                                value: settings.trixter_xdream_v1_bike_connection_timeout_ms
+                                id: trixterXDreamV1
+                                text: qsTr("Trixter X-Dream V1 Bike Enabled")
                                 hoverEnabled: true
                                 ToolTip.visible: hovered
-                                ToolTip.text: qsTr("The number of milliseconds the app will wait for data from the bike when searching a port.")
-                                Layout.fillHeight: false
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
-                                stepSize: 100
-                                from: 100
-                                to: 10000
-                                onValueChanged: settings.trixter_xdream_v1_bike_connection_timeout_ms = value
-                            }
-                        }
-                        SwitchDelegate {
-                            id: trixterXDreamV1HeartRate
-                            text: qsTr("Heart Rate Signal Enabled")
-                            hoverEnabled: true
-                            ToolTip.visible: hovered
-                            ToolTip.text: qsTr("Use this to enable or disable the heart rate signal.")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.trixter_xdream_v1_bike_heartrate_enabled
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: settings.trixter_xdream_v1_bike_heartrate_enabled = checked
-                        }
-                        SwitchDelegate {
-                            id: trixterXDreamV1Steering
-                            text: qsTr("Steering Enabled")
-                            hoverEnabled: true
-                            ToolTip.visible: hovered
-                            ToolTip.text: qsTr("Use this to enable or disable steering.")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.trixter_xdream_v1_bike_steering_enabled
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: settings.trixter_xdream_v1_bike_steering_enabled = checked
-                        }
-                        ColumnLayout {
-                            id: trixterXDreamV1Calibration
-                            spacing: 10
-                            Label {
-                                id: labelTrixterXDreamV1BikeSteeringBoundariesAngular
-                                text: qsTr("Steering Calibration (Use values from Steering Tile with default calibration)")
+                                ToolTip.text: qsTr("Use this to enable or disable detection of the Trixter X-Dream V1 Bike. Not supported in iOS.")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.trixter_xdream_v1_bike_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
+                                onClicked: settings.trixter_xdream_v1_bike_enabled = checked
                             }
                             RowLayout {
+                                id: trixterXDreamV1BikeConnection
+                                spacing: 10
                                 Label {
-                                    text: qsTr("Unadjusted steering angle that is 100% left.")
+                                    id: labelTrixterXDreamV1BikeConnectionTimeout
+                                    text: qsTr("Initial connection timeout (ms)")
                                     Layout.fillWidth: true
                                 }
                                 SpinBox {
-                                    id: trixterXDreamV1BikeSteeringAngleLeftSpinBox
-                                    value: settings.trixter_xdream_v1_bike_steering_l
+                                    id: trixterXDreamV1BikeConnectionTimeout
+                                    value: settings.trixter_xdream_v1_bike_connection_timeout_ms
                                     hoverEnabled: true
                                     ToolTip.visible: hovered
-                                    ToolTip.text: qsTr("Unadjusted steering angle that is 100% left.")
+                                    ToolTip.text: qsTr("The number of milliseconds the app will wait for data from the bike when searching a port.")
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-
-                                    from: -settings.trixter_xdream_v1_bike_steering_max
-                                    to: trixterXDreamV1BikeSteeringAngleCenterLeftSpinBox.value
-                                    onValueChanged: settings.trixter_xdream_v1_bike_steering_l = value
+                                    stepSize: 100
+                                    from: 100
+                                    to: 10000
+                                    onValueChanged: settings.trixter_xdream_v1_bike_connection_timeout_ms = value
                                 }
                             }
-                            RowLayout {
-                                Label {
-                                    text: qsTr("Leftmost unadjusted steering angle to be mapped to 0 degrees.")
-                                    Layout.fillWidth: true
-                                }
-                                SpinBox {
-                                    id: trixterXDreamV1BikeSteeringAngleCenterLeftSpinBox
-                                    value: settings.trixter_xdream_v1_bike_steering_cl
-                                    hoverEnabled: true
-                                    ToolTip.visible: hovered
-                                    ToolTip.text: qsTr("Leftmost unadjusted steering angle to be mapped to 0 degrees.")
-
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    inputMethodHints: Qt.ImhDigitsOnly
-
-                                    from: trixterXDreamV1BikeSteeringAngleLeftSpinBox.value
-                                    to: trixterXDreamV1BikeSteeringAngleCenterRightSpinBox.value
-                                    onValueChanged: settings.trixter_xdream_v1_bike_steering_cl = value
-                                }
+                            SwitchDelegate {
+                                id: trixterXDreamV1HeartRate
+                                text: qsTr("Heart Rate Signal Enabled")
+                                hoverEnabled: true
+                                ToolTip.visible: hovered
+                                ToolTip.text: qsTr("Use this to enable or disable the heart rate signal.")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.trixter_xdream_v1_bike_heartrate_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.trixter_xdream_v1_bike_heartrate_enabled = checked
                             }
-                            RowLayout {
+                            SwitchDelegate {
+                                id: trixterXDreamV1Steering
+                                text: qsTr("Steering Enabled")
+                                hoverEnabled: true
+                                ToolTip.visible: hovered
+                                ToolTip.text: qsTr("Use this to enable or disable steering.")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.trixter_xdream_v1_bike_steering_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.trixter_xdream_v1_bike_steering_enabled = checked
+                            }
+                            ColumnLayout {
+                                id: trixterXDreamV1Calibration
+                                spacing: 10
                                 Label {
-                                    text: qsTr("Rightmost unadjusted steering angle to be mapped to 0 degrees.")
+                                    id: labelTrixterXDreamV1BikeSteeringBoundariesAngular
+                                    text: qsTr("Steering Calibration (Use values from Steering Tile with default calibration)")
                                     Layout.fillWidth: true
                                 }
-                                SpinBox {
-                                    id: trixterXDreamV1BikeSteeringAngleCenterRightSpinBox
-                                    value: settings.trixter_xdream_v1_bike_steering_cr
-                                    hoverEnabled: true
-                                    ToolTip.visible: hovered
-                                    ToolTip.text: qsTr("Rightmost unadjusted steering angle to be mapped to 0 degrees.")
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    inputMethodHints: Qt.ImhDigitsOnly
-                                    from: trixterXDreamV1BikeSteeringAngleCenterLeftSpinBox.value
-                                    to: trixterXDreamV1BikeSteeringAngleRightSpinBox.value
-                                    onValueChanged: settings.trixter_xdream_v1_bike_steering_cr = value
-                                }}
-                            RowLayout {
-                                Label {
-                                    text: qsTr("Unadjusted steering angle that is 100% right.")
-                                    Layout.fillWidth: true
+                                RowLayout {
+                                    Label {
+                                        text: qsTr("Unadjusted steering angle that is 100% left.")
+                                        Layout.fillWidth: true
+                                    }
+                                    SpinBox {
+                                        id: trixterXDreamV1BikeSteeringAngleLeftSpinBox
+                                        value: settings.trixter_xdream_v1_bike_steering_l
+                                        hoverEnabled: true
+                                        ToolTip.visible: hovered
+                                        ToolTip.text: qsTr("Unadjusted steering angle that is 100% left.")
+                                        Layout.fillHeight: false
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        inputMethodHints: Qt.ImhDigitsOnly
+
+                                        from: -settings.trixter_xdream_v1_bike_steering_max
+                                        to: trixterXDreamV1BikeSteeringAngleCenterLeftSpinBox.value
+                                        onValueChanged: settings.trixter_xdream_v1_bike_steering_l = value
+                                    }
                                 }
-                                SpinBox {
-                                    id: trixterXDreamV1BikeSteeringAngleRightSpinBox
-                                    value: settings.trixter_xdream_v1_bike_steering_r
-                                    hoverEnabled: true
-                                    ToolTip.visible: hovered
-                                    ToolTip.text: qsTr("Unadjusted steering angle that is 100% right.")
-                                    Layout.fillHeight: false
+                                RowLayout {
+                                    Label {
+                                        text: qsTr("Leftmost unadjusted steering angle to be mapped to 0 degrees.")
+                                        Layout.fillWidth: true
+                                    }
+                                    SpinBox {
+                                        id: trixterXDreamV1BikeSteeringAngleCenterLeftSpinBox
+                                        value: settings.trixter_xdream_v1_bike_steering_cl
+                                        hoverEnabled: true
+                                        ToolTip.visible: hovered
+                                        ToolTip.text: qsTr("Leftmost unadjusted steering angle to be mapped to 0 degrees.")
+
+                                        Layout.fillHeight: false
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        inputMethodHints: Qt.ImhDigitsOnly
+
+                                        from: trixterXDreamV1BikeSteeringAngleLeftSpinBox.value
+                                        to: trixterXDreamV1BikeSteeringAngleCenterRightSpinBox.value
+                                        onValueChanged: settings.trixter_xdream_v1_bike_steering_cl = value
+                                    }
+                                }
+                                RowLayout {
+                                    Label {
+                                        text: qsTr("Rightmost unadjusted steering angle to be mapped to 0 degrees.")
+                                        Layout.fillWidth: true
+                                    }
+                                    SpinBox {
+                                        id: trixterXDreamV1BikeSteeringAngleCenterRightSpinBox
+                                        value: settings.trixter_xdream_v1_bike_steering_cr
+                                        hoverEnabled: true
+                                        ToolTip.visible: hovered
+                                        ToolTip.text: qsTr("Rightmost unadjusted steering angle to be mapped to 0 degrees.")
+                                        Layout.fillHeight: false
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        inputMethodHints: Qt.ImhDigitsOnly
+                                        from: trixterXDreamV1BikeSteeringAngleCenterLeftSpinBox.value
+                                        to: trixterXDreamV1BikeSteeringAngleRightSpinBox.value
+                                        onValueChanged: settings.trixter_xdream_v1_bike_steering_cr = value
+                                    }}
+                                RowLayout {
+                                    Label {
+                                        text: qsTr("Unadjusted steering angle that is 100% right.")
+                                        Layout.fillWidth: true
+                                    }
+                                    SpinBox {
+                                        id: trixterXDreamV1BikeSteeringAngleRightSpinBox
+                                        value: settings.trixter_xdream_v1_bike_steering_r
+                                        hoverEnabled: true
+                                        ToolTip.visible: hovered
+                                        ToolTip.text: qsTr("Unadjusted steering angle that is 100% right.")
+                                        Layout.fillHeight: false
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        inputMethodHints: Qt.ImhDigitsOnly
+                                        from: trixterXDreamV1BikeSteeringAngleCenterRightSpinBox.value
+                                        to: 45
+                                        onValueChanged: settings.trixter_xdream_v1_bike_steering_r = value
+                                    }}
+                                Button {
+                                    id: resetTrixterXDreamV1BikeSteeringAnglesReset
+                                    text: "RESET"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    inputMethodHints: Qt.ImhDigitsOnly
-                                    from: trixterXDreamV1BikeSteeringAngleCenterRightSpinBox.value
-                                    to: 45
-                                    onValueChanged: settings.trixter_xdream_v1_bike_steering_r = value
-                                }}
-                            Button {
-                                id: resetTrixterXDreamV1BikeSteeringAnglesReset
-                                text: "RESET"
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: {
-                                    settings.trixter_xdream_v1_bike_steering_l = -settings.trixter_xdream_v1_bike_steering_max
-                                    settings.trixter_xdream_v1_bike_steering_cl = -2
-                                    settings.trixter_xdream_v1_bike_steering_cr = 2
-                                    settings.trixter_xdream_v1_bike_steering_r = settings.trixter_xdream_v1_bike_steering_max
-                                    trixterXDreamV1Calibration.update()
+                                    onClicked: {
+                                        settings.trixter_xdream_v1_bike_steering_l = -settings.trixter_xdream_v1_bike_steering_max
+                                        settings.trixter_xdream_v1_bike_steering_cl = -2
+                                        settings.trixter_xdream_v1_bike_steering_cr = 2
+                                        settings.trixter_xdream_v1_bike_steering_r = settings.trixter_xdream_v1_bike_steering_max
+                                        trixterXDreamV1Calibration.update()
+                                    }
                                 }
                             }
                         }
