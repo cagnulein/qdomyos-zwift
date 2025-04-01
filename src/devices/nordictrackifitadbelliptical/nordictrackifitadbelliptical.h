@@ -82,6 +82,7 @@ class nordictrackifitadbelliptical : public elliptical {
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
     bool cadenceReadFromTM = false;
+    bool wattReadFromTM = false;
 
     bool initDone = false;
     bool initRequest = false;
@@ -113,7 +114,9 @@ class nordictrackifitadbelliptical : public elliptical {
     void processPendingDatagrams();
     void changeInclinationRequested(double grade, double percentage);
     void onHRM(int hrm);
+    void onWatt(double watt);
     void onCadence(double cadence);
+    void onSpeedInclination(double speed, double inclination);
 
     void update();
 };

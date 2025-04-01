@@ -182,6 +182,10 @@ nordictrackifitadbelliptical::nordictrackifitadbelliptical(bool noWriteResistanc
                 &nordictrackifitadbelliptical::onWatt);*/
         connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onCadence, this,
                 &nordictrackifitadbelliptical::onCadence);
+        connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onSpeedInclination, this,
+                &nordictrackifitadbelliptical::onSpeedInclination);
+        connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onWatt, this,
+                &nordictrackifitadbelliptical::onWatt);
         connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onHRM, this, &nordictrackifitadbelliptical::onHRM);
         connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::debug, this, &nordictrackifitadbelliptical::debug);
         logcatAdbThread->start();
@@ -191,6 +195,16 @@ nordictrackifitadbelliptical::nordictrackifitadbelliptical(bool noWriteResistanc
 #endif
 #endif
     }
+}
+
+void nordictrackifitadbelliptical::onSpeedInclination(double speed, double inclination) {
+    Speed = speed;
+    Inclination = inclination;
+}
+
+void nordictrackifitadbelliptical::onWatt(double watt) {
+    m_watt = watt;
+    wattReadFromTM = true;
 }
 
 void nordictrackifitadbelliptical::onCadence(double cadence) {
