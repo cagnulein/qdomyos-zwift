@@ -311,6 +311,9 @@ double nautiluselliptical::GetSpeedFromPacket(const QByteArray &packet) {
     if (bt_variant == 0 || bt_variant == 2) {
         convertedData = (packet.at(4) << 8) | ((uint8_t)packet.at(3));
         data = (double)convertedData / 100.0f;
+        if(bt_variant == 2) {
+            data = data * 1.60934f;
+        }
     } else {        
         convertedData = (packet.at(8) << 8) | ((uint8_t)packet.at(7));
         data = (double)convertedData / 10.0f;
