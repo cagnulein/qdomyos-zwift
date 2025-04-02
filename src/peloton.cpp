@@ -16,7 +16,7 @@ using namespace std::chrono_literals;
 
 const bool log_request = true;
 
-#define RAWHEADER request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift/") + QCoreApplication::applicationVersion());request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toUtf8());
+#define RAWHEADER request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift/") + QCoreApplication::applicationVersion());request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + (tempAccessToken.isEmpty() ?  getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toUtf8() : tempAccessToken.toUtf8()));
 
 peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
 
@@ -2024,8 +2024,10 @@ void peloton::onPelotonGranted() {
     peloton_refreshtoken();
     if(homeform::singleton())
         homeform::singleton()->setPelotonPopupVisible(true);
-    if(!timer->isActive())
+    if(!timer->isActive()) {
+        peloton_credentials_wrong = false;
         startEngine();
+    }
 }
 
 void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
@@ -2182,6 +2184,8 @@ QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
 }
 
 void peloton::peloton_connect_clicked() {
+    timer->stop();
+    
     QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
 
     peloton_connect();
@@ -2278,7 +2282,7 @@ void peloton::peloton_refreshtoken() {
     tempAccessToken = access_token;
     tempRefreshToken = refresh_token;
     tempExpiresAt = QDateTime::currentDateTime();
-
+    
     homeform::singleton()->setToastRequested("Peloton Login OK!");
     
 }
