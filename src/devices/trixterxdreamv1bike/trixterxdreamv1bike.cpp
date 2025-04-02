@@ -131,6 +131,13 @@ trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartSer
 
     // fake hardware support for ERG mode to avoid ERG filters preventing
     this->ergModeSupported = true;
+
+    // create the objects that monitor the activation of the gear buttons
+    this->gearUpButton = new ActivationMonitor(100, 0.8, 0.1);
+    this->gearUpButton->setActivationCallback([this](bool active){ if(active) this->gearUp();});
+
+    this->gearDownButton = new ActivationMonitor(100, 0.8, 0.1);
+    this->gearDownButton->setActivationCallback([this](bool active){ if(active) this->gearDown();});
 }
 
 bool trixterxdreamv1bike::connect(QString portName) {
@@ -388,7 +395,7 @@ void trixterxdreamv1bike::update() {
     // If there are no states waiting to be processed, clear the metrics and return.
     if(ups.empty()) {
         qDebug() << "no states in queue";
-        this->stopping = 0;
+        this->stopping = false;
         this->Speed.setValue(0);
         this->brakeLevel = 0;
         this->m_steeringAngle.setValue(0);
@@ -426,6 +433,14 @@ void trixterxdreamv1bike::update() {
         if(!this->noHeartRate) {
             heartRate += state.HeartRate;
         }
+
+        const auto gearUpButtons = trixterxdreamv1client::buttons::BackGearUp | trixterxdreamv1client::buttons::FrontGearUp;
+        const auto gearDownButtons = trixterxdreamv1client::buttons::BackGearDown | trixterxdreamv1client::buttons::FrontGearDown;
+
+        bool gearUpPressed = (state.Buttons & gearUpButtons)!=0;
+        bool gearDownPressed = (state.Buttons & gearDownButtons)!=0;
+        this->gearDownButton->update(gearDownPressed, state.LastEventTime);
+        this->gearUpButton->update(gearUpPressed, state.LastEventTime);
     }
 
     if(count>1) {
@@ -638,7 +653,7 @@ uint16_t trixterxdreamv1bike::watts() {
 
 void trixterxdreamv1bike::updateResistance() {
 
-    resistance_t actualResistance = this->stopping ?  (resistance_t)trixterxdreamv1client::MaxResistance : std::max((uint32_t)this->resistanceLevel,(uint32_t)trixterxdreamv1client::MaxResistance );
+    resistance_t actualResistance = this->stopping ?  (resistance_t)trixterxdreamv1client::MaxResistance : std::min((uint32_t)this->resistanceLevel,(uint32_t)trixterxdreamv1client::MaxResistance );
 
     // get the time the request is made
     uint32_t t = getTime();

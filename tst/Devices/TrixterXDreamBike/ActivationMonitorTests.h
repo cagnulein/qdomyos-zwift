@@ -1,28 +1,19 @@
-#include "ActivationMonitor.h"
+#include "devices/trixterxdreamv1bike/ActivationMonitor.h"
 #include <gtest/gtest.h>
 
 class ActivationMonitorTests : public ::testing::Test {
 protected:
-    int64_t currentTime = 0;
-
-    // Mock time provider function
-    int64_t mockTimeProvider() {
-        return currentTime;
-    }
-
-    void advanceTimeByMilliseconds(int64_t ms) {
-        currentTime += ms;
-    }
+    ActivationMonitorTests() {}
 };
 
 TEST_F(ActivationMonitorTests, InitiallyInactive) {
-    ActivationMonitor monitor([this]() { return mockTimeProvider(); });
+    ActivationMonitor monitor(1000, 0.8, 0.1);
 
     ASSERT_FALSE(monitor.isActive());
 }
 
 TEST_F(ActivationMonitorTests, TriggersActivationWhenThresholdExceeded) {
-    ActivationMonitor monitor([this]() { return mockTimeProvider(); });
+    ActivationMonitor monitor(1000, 0.6, 0.4);
 
     bool eventTriggered = false;
     bool eventState = false;
@@ -32,15 +23,22 @@ TEST_F(ActivationMonitorTests, TriggersActivationWhenThresholdExceeded) {
         eventState = state;
     });
 
-    monitor.setActivationThreshold(0.6);
-    monitor.setDeactivationThreshold(0.4);
-    monitor.setSamplingPeriod(1000);
+    int64_t now=0;
+    monitor.update(true, now+=10);
+    monitor.update(false, now+=10);
+    monitor.update(true, now+=10);
+    monitor.update(false, now+=10);
+    monitor.update(true, now+=10);
+    monitor.update(true, now+=10);
+    monitor.update(true, now+=10);
+    monitor.update(true, now+=10);
 
-    monitor.update(true);
-    monitor.update(true);
-    monitor.update(true);
+    ASSERT_FALSE(eventTriggered);
+    ASSERT_FALSE(eventState);
+    ASSERT_FALSE(monitor.isActive());
 
-    advanceTimeByMilliseconds(10);
+    monitor.update(true, now+=10);
+    monitor.update(true, now+=10);
 
     ASSERT_TRUE(eventTriggered);
     ASSERT_TRUE(eventState);
@@ -48,7 +46,7 @@ TEST_F(ActivationMonitorTests, TriggersActivationWhenThresholdExceeded) {
 }
 
 TEST_F(ActivationMonitorTests, TriggersDeactivationWhenThresholdFallsBelow) {
-    ActivationMonitor monitor([this]() { return mockTimeProvider(); });
+    ActivationMonitor monitor(1000, 0.8, 0.1);
 
     bool eventTriggered = false;
     bool eventState = false;
@@ -58,20 +56,18 @@ TEST_F(ActivationMonitorTests, TriggersDeactivationWhenThresholdFallsBelow) {
         eventState = state;
     });
 
-    monitor.update(true);
-    monitor.update(true);
-    monitor.update(true);
+    monitor.update(true, 10);
+    monitor.update(true, 20);
+    monitor.update(true, 30);
 
-    advanceTimeByMilliseconds(10);
+
     ASSERT_TRUE(monitor.isActive());
 
     eventTriggered = false;
     
-    monitor.update(false);
-    monitor.update(false);
-    monitor.update(false);
-
-    advanceTimeByMilliseconds(10);
+    monitor.update(false, 10);
+    monitor.update(false, 20);
+    monitor.update(false, 30);
 
     ASSERT_TRUE(eventTriggered);
     ASSERT_FALSE(eventState);
@@ -79,7 +75,7 @@ TEST_F(ActivationMonitorTests, TriggersDeactivationWhenThresholdFallsBelow) {
 }
 
 TEST_F(ActivationMonitorTests, NoEventIfStateUnchanged) {
-    ActivationMonitor monitor([this]() { return mockTimeProvider(); });
+    ActivationMonitor monitor(1000, 0.8, 0.1);
 
     bool eventTriggered = false;
 
@@ -87,44 +83,21 @@ TEST_F(ActivationMonitorTests, NoEventIfStateUnchanged) {
         eventTriggered = true;
     });
 
-    monitor.update(true);
-    monitor.update(true);
-    monitor.update(true);
-
-    advanceTimeByMilliseconds(10);
+    monitor.update(true, 10);
+    monitor.update(true, 20);
+    monitor.update(true, 30);
 
     ASSERT_TRUE(eventTriggered);
 
     eventTriggered = false;
 
     // Send more active samples, no state change
-    monitor.update(true);
-    monitor.update(true);
+    monitor.update(true, 40);
+    monitor.update(true, 50);
 
-    advanceTimeByMilliseconds(10);
 
     ASSERT_FALSE(eventTriggered);
     ASSERT_TRUE(monitor.isActive());
 }
 
-TEST_F(ActivationMonitorTests, ThresholdsCanBeModified) {
-    ActivationMonitor monitor([this]() { return mockTimeProvider(); });
 
-    monitor.setActivationThreshold(0.8);
-    monitor.setDeactivationThreshold(0.2);
-
-    monitor.update(true);
-    monitor.update(true);
-
-    advanceTimeByMilliseconds(10);
-
-    ASSERT_TRUE(monitor.isActive());
-}
-
-TEST_F(ActivationMonitorTests, SamplingPeriodCanBeModified) {
-    ActivationMonitor monitor([this]() { return mockTimeProvider(); });
-
-    monitor.setSamplingPeriod(500);
-
-    ASSERT_EQ(monitor.isActive(), false);
-}

@@ -3,6 +3,7 @@
 #include "trixterxdreamv1client.h"
 #include "trixterxdreamv1serial.h"
 #include "trixterxdreamv1settings.h"
+#include "ActivationMonitor.h"
 #include <optional>
 #include <queue>
 
@@ -122,6 +123,16 @@ private:
      * @brief The last time (from getTime()) a resistance packet was sent.
      */
     uint32_t lastResistancePacketTime = 0;
+
+    /**
+     * @brief gearUpButton Tracks the activation of the gear up buttons
+     */
+    ActivationMonitor *gearUpButton = nullptr;
+
+    /**
+     * @brief gearUpButton Tracks the activation of the gear down buttons.
+     */
+    ActivationMonitor *gearDownButton = nullptr;
 
     /**
      * @brief The application settings.

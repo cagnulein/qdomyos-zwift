@@ -1,10 +1,13 @@
 #include "activationmonitor.h"
 
-ActivationMonitor::ActivationMonitor(TimeProvider timeProvider)
-    : timeProvider(std::move(timeProvider)) {}
+ActivationMonitor::ActivationMonitor(const int64_t samplingPeriod, const double activationThreshold, const double deactivationThreshold) {
+    this->samplingPeriod = std::max<int64_t>(samplingPeriod, 1);
 
-void ActivationMonitor::update(bool isActive) {
-    int64_t now = timeProvider();
+    this->activationThreshold = std::clamp(activationThreshold, 0.0, 1.0);
+    this->deactivationThreshold = std::clamp(deactivationThreshold, 0.0, activationThreshold);
+}
+
+void ActivationMonitor::update(const bool isActive, const int64_t now) {
 
     // Add new sample
     samples.push({now, isActive});
@@ -13,7 +16,7 @@ void ActivationMonitor::update(bool isActive) {
     }
 
     // Remove outdated samples
-    cleanupOldSamples();
+    cleanupOldSamples(now);
 
     // Calculate mean activation
     double mean = calculateMeanActivation();
@@ -32,8 +35,8 @@ void ActivationMonitor::update(bool isActive) {
     }
 }
 
-void ActivationMonitor::cleanupOldSamples() {
-    int64_t cutoffTime = timeProvider() - samplingPeriod;
+void ActivationMonitor::cleanupOldSamples(const int64_t now) {
+    int64_t cutoffTime = now - samplingPeriod;
 
     while (!samples.empty() && samples.front().timestamp < cutoffTime) {
         if (samples.front().isActive) {
@@ -50,28 +53,11 @@ double ActivationMonitor::calculateMeanActivation() const {
     return static_cast<double>(activeSampleCount) / samples.size();
 }
 
-void ActivationMonitor::setActivationThreshold(double threshold) {
-    activationThreshold = std::clamp(threshold, 0.0, 1.0);
-}
-
-void ActivationMonitor::setDeactivationThreshold(double threshold) {
-    deactivationThreshold = std::clamp(threshold, 0.0, 1.0);
-}
-
-void ActivationMonitor::setSamplingPeriod(int64_t milliseconds) {
-    samplingPeriod = std::max<int64_t>(milliseconds, 1);
-}
-
 bool ActivationMonitor::isActive() const {
     return currentState;
 }
 
 void ActivationMonitor::setActivationCallback(ActivationCallback callback) {
-    activationCallback = std::move(callback);
+    this->activationCallback = callback;
 }
 
-int64_t ActivationMonitor::DefaultTimeProvider() {
-    return std::chrono::duration_cast<std::chrono::milliseconds>(
-               std::chrono::system_clock::now().time_since_epoch())
-        .count();
-}
