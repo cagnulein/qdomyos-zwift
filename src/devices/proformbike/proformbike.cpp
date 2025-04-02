@@ -83,6 +83,9 @@ uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
     if (currentCadence().value() == 0)
         return 0;
 
+    if (proform_225_csx_PFEX32925_INT_0)
+        return _ergTable.estimateWattage(Cadence.value(), resistance);
+
     switch (resistance) {
     case 0:
     case 1:

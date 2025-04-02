@@ -108,6 +108,7 @@ QTime bluetoothdevice::maxPace() {
 
 double bluetoothdevice::odometerFromStartup() { return Distance.valueRaw(); }
 double bluetoothdevice::odometer() { return Distance.value(); }
+double bluetoothdevice::lapOdometer() { return Distance.lapValue(); }
 metric bluetoothdevice::calories() { return KCal; }
 metric bluetoothdevice::jouls() { return m_jouls; }
 uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
