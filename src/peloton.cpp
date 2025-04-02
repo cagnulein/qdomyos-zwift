@@ -694,7 +694,7 @@ void peloton::login_onfinish(QNetworkReply *reply) {
     QSettings settings;
     // if it's a new user
     if(user_id.compare(settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString()) || !tempAccessToken.isEmpty()) {
-        qDebug() << "new peloton user id, saving information...";
+        qDebug() << "new peloton user id, saving information..." << user_id;
         settings.setValue(QZSettings::peloton_current_user_id, user_id);
         if (!tempAccessToken.isEmpty()) {
             savePelotonTokenForUser(QZSettings::peloton_accesstoken, tempAccessToken, user_id);
@@ -2228,7 +2228,7 @@ void peloton::peloton_refreshtoken() {
 
     QNetworkRequest request(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token?")));
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
-
+    
     // set params
     QString data;
     data += QStringLiteral("client_id=" PELOTON_CLIENT_ID_S);
