@@ -67,6 +67,7 @@ void nordictrackifitadbellipticalLogcatAdbThread::runAdbTailCommand(QString comm
         bool wattFound = false;
         bool hrmFound = false;
         bool cadenceFound = false;
+        bool resistanceFound = false;
         foreach (QString line, lines) {
             if (line.contains("Changed KPH") || line.contains("Changed Actual KPH")) {
                 emit debug(line);
@@ -82,6 +83,10 @@ void nordictrackifitadbellipticalLogcatAdbThread::runAdbTailCommand(QString comm
                 emit debug(line);
                 watt = line.split(' ').last().toDouble();
                 wattFound = true;
+            } else if (line.contains("Resistance changed")) {
+                emit debug(line);
+                resistance = line.split(' ').last().toDouble();
+                resistanceFound = true;
             } else if (line.contains("HeartRateDataUpdate")) {
                 emit debug(line);
                 QStringList splitted = line.split(' ', Qt::SkipEmptyParts);
@@ -98,6 +103,8 @@ void nordictrackifitadbellipticalLogcatAdbThread::runAdbTailCommand(QString comm
             emit onWatt(watt);
         if (hrmFound)
             emit onHRM(hrm);
+        if (resistanceFound)
+            emit onResistance(resistance);
 #ifdef Q_OS_WINDOWS        
         if(adbCommandPending.length() != 0) {
             runAdbCommand(adbCommandPending);
@@ -186,6 +193,8 @@ nordictrackifitadbelliptical::nordictrackifitadbelliptical(bool noWriteResistanc
                 &nordictrackifitadbelliptical::onSpeedInclination);
         connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onWatt, this,
                 &nordictrackifitadbelliptical::onWatt);
+        connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onResistance, this,
+                &nordictrackifitadbelliptical::onResistance);
         connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onHRM, this, &nordictrackifitadbelliptical::onHRM);
         connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::debug, this, &nordictrackifitadbelliptical::debug);
         logcatAdbThread->start();
@@ -210,6 +219,11 @@ void nordictrackifitadbelliptical::onWatt(double watt) {
 void nordictrackifitadbelliptical::onCadence(double cadence) {
     Cadence = cadence;
     cadenceReadFromTM = true;
+}
+
+void nordictrackifitadbelliptical::onResistance(double resistance) {
+    Resistance = resistance;
+    resistanceReadFromTM = true;
 }
 
 bool nordictrackifitadbelliptical::inclinationAvailableByHardware() {
