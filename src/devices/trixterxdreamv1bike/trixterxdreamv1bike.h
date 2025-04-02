@@ -3,7 +3,7 @@
 #include "trixterxdreamv1client.h"
 #include "trixterxdreamv1serial.h"
 #include "trixterxdreamv1settings.h"
-#include "ActivationMonitor.h"
+#include "activationmonitor.h"
 #include <optional>
 #include <queue>
 

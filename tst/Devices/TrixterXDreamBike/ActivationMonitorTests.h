@@ -1,4 +1,4 @@
-#include "devices/trixterxdreamv1bike/ActivationMonitor.h"
+#include "devices/trixterxdreamv1bike/activationmonitor.h"
 #include <gtest/gtest.h>
 
 class ActivationMonitorTests : public ::testing::Test {
