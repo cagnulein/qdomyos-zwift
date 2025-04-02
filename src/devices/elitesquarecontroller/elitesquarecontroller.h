@@ -72,7 +72,7 @@ class elitesquarecontroller : public bluetoothdevice {
     elitesquarecontroller(bluetoothdevice *parentDevice);
     bool connected() override;
 
-    // Function to handle button states
+           // Function to handle button states
     void processButtonEvent(int buttonId, EliteSquareButtonState state);
 
   private:
@@ -85,20 +85,20 @@ class elitesquarecontroller : public bluetoothdevice {
     bool connectionEstablished = false;
     QTimer *refresh;
 
-    // Last known state of each button (0-23)
+           // Last known state of each button (0-23)
     QVector<int> buttonState;
 
-    // Helper function to parse the button data
-    void parseButtonData(const QString &data);
+           // Helper function to parse the button data
+    void parseButtonData(const QByteArray &data);
 
-    // Function to handle button state changes
+           // Function to handle button state changes
     void handleButtonStateChange(int buttonId, int newValue);
 
   signals:
     void disconnected();
     void debug(QString string);
     void packetReceived();
-    
+
     // Match AbstractZapDevice signals
     void plus();                    // Gear up/increase
     void minus();                   // Gear down/decrease
