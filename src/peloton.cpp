@@ -696,8 +696,17 @@ void peloton::login_onfinish(QNetworkReply *reply) {
     if(user_id.compare(settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString())) {
         qDebug() << "new peloton user id, saving information...";
         settings.setValue(QZSettings::peloton_current_user_id, user_id);
-        settings.setValue(getPelotonSettingKey(QZSettings::peloton_refreshtoken, user_id), settings.value(QZSettings::peloton_refreshtoken, QZSettings::default_peloton_refreshtoken).toString());
-        settings.setValue(getPelotonSettingKey(QZSettings::peloton_accesstoken, user_id), settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString());
+        if (!tempAccessToken.isEmpty()) {
+            savePelotonTokenForUser(QZSettings::peloton_accesstoken, tempAccessToken, user_id);
+            savePelotonTokenForUser(QZSettings::peloton_refreshtoken, tempRefreshToken, user_id);
+            savePelotonTokenForUser(QZSettings::peloton_expires, tempExpiresAt, user_id);
+            tempAccessToken.clear();
+            tempRefreshToken.clear();
+            qDebug() << "Assigned temporary tokens to new user:" << user_id;
+        } else {
+            settings.setValue(getPelotonSettingKey(QZSettings::peloton_refreshtoken, user_id), settings.value(QZSettings::peloton_refreshtoken, QZSettings::default_peloton_refreshtoken).toString());
+            settings.setValue(getPelotonSettingKey(QZSettings::peloton_accesstoken, user_id), settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString());
+        }
     }
     
 
@@ -2007,9 +2016,10 @@ void peloton::onPelotonGranted() {
     emit pelotonWebVisibleChanged(pelotonAuthWebVisible);
     QSettings settings;
     QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
-    savePelotonTokenForUser(QZSettings::peloton_accesstoken, pelotonOAuth->token(), userId);
-    savePelotonTokenForUser(QZSettings::peloton_refreshtoken, pelotonOAuth->refreshToken(), userId);
-    savePelotonTokenForUser(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime(), userId);
+    tempAccessToken = pelotonOAuth->token();
+    tempRefreshToken = pelotonOAuth->refreshToken();
+    tempExpiresAt = QDateTime::currentDateTime();
+
     qDebug() << QStringLiteral("peloton authenticathed") << pelotonOAuth->token() << pelotonOAuth->refreshToken();
     peloton_refreshtoken();
     if(homeform::singleton())
@@ -2048,9 +2058,10 @@ void peloton::replyDataReceived(const QByteArray &v) {
     QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     QString s(v);
     QJsonDocument jsonResponse = QJsonDocument::fromJson(s.toUtf8());
-    savePelotonTokenForUser(QZSettings::peloton_accesstoken, jsonResponse[QStringLiteral("access_token")], userId);
-    savePelotonTokenForUser(QZSettings::peloton_refreshtoken, jsonResponse[QStringLiteral("refresh_token")], userId);
-    savePelotonTokenForUser(QZSettings::peloton_expires, jsonResponse[QStringLiteral("expires_at")], userId);
+
+    tempAccessToken = jsonResponse[QStringLiteral("access_token")].toString();
+    tempRefreshToken = jsonResponse[QStringLiteral("refresh_token")].toString();
+    tempExpiresAt = jsonResponse[QStringLiteral("expires_at")].toString();
 
     qDebug() << jsonResponse[QStringLiteral("access_token")] << jsonResponse[QStringLiteral("refresh_token")]
              << jsonResponse[QStringLiteral("expires_at")];
@@ -2113,9 +2124,9 @@ void peloton::networkRequestFinished(QNetworkReply *reply) {
             access_token = document[QStringLiteral("access_token")].toString();
         }
 
-        savePelotonTokenForUser(QZSettings::peloton_accesstoken, access_token, userId);
-        savePelotonTokenForUser(QZSettings::peloton_refreshtoken, refresh_token, userId);
-        savePelotonTokenForUser(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime(), userId);
+        tempAccessToken = access_token;
+        tempRefreshToken = refresh_token;
+        tempExpiresAt = QDateTime::currentDateTime();
 
         qDebug() << access_token << refresh_token;
 
@@ -2222,7 +2233,7 @@ void peloton::peloton_refreshtoken() {
     // set params
     QString data;
     data += QStringLiteral("client_id=" PELOTON_CLIENT_ID_S);
-    data += QStringLiteral("&refresh_token=") + getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString();
+    data += QStringLiteral("&refresh_token=") + (tempRefreshToken.isEmpty() ? getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString() : tempRefreshToken);
     data += QStringLiteral("&grant_type=refresh_token");
 
     // make request
@@ -2265,9 +2276,9 @@ void peloton::peloton_refreshtoken() {
     QString refresh_token = document[QStringLiteral("refresh_token")].toString();
 
     qDebug() << "userid: " << userId;
-    savePelotonTokenForUser(QZSettings::peloton_accesstoken, access_token, userId);
-    savePelotonTokenForUser(QZSettings::peloton_refreshtoken, refresh_token, userId);
-    savePelotonTokenForUser(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime(), userId);
+    tempAccessToken = access_token;
+    tempRefreshToken = refresh_token;
+    tempExpiresAt = QDateTime::currentDateTime();
 
     homeform::singleton()->setToastRequested("Peloton Login OK!");
     
