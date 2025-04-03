@@ -124,6 +124,9 @@ class peloton : public QObject {
         QSettings settings;
         return settings.value(getPelotonSettingKey(baseKey, userId), defaultValue).toString();
     }
+    QString tempAccessToken = QStringLiteral("");
+    QString tempRefreshToken = QStringLiteral("");
+    QDateTime tempExpiresAt;
 
     // rowers
     double rowerpaceToSpeed(double pace);
