@@ -703,6 +703,9 @@ void peloton::login_onfinish(QNetworkReply *reply) {
             tempAccessToken.clear();
             tempRefreshToken.clear();
             qDebug() << "Assigned temporary tokens to new user:" << user_id;
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Welcome " + document[QStringLiteral("username")].toString());
+            }
         } else {
             settings.setValue(getPelotonSettingKey(QZSettings::peloton_refreshtoken, user_id), settings.value(QZSettings::peloton_refreshtoken, QZSettings::default_peloton_refreshtoken).toString());
             settings.setValue(getPelotonSettingKey(QZSettings::peloton_accesstoken, user_id), settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString());
@@ -2020,8 +2023,10 @@ void peloton::onPelotonGranted() {
     tempRefreshToken = pelotonOAuth->refreshToken();
     tempExpiresAt = QDateTime::currentDateTime();
 
-    qDebug() << QStringLiteral("peloton authenticathed") << pelotonOAuth->token() << pelotonOAuth->refreshToken();
-    peloton_refreshtoken();
+    qDebug() << QStringLiteral("peloton authenticathed");
+    
+    peloton_connect();
+    
     if(homeform::singleton())
         homeform::singleton()->setPelotonPopupVisible(true);
     if(!timer->isActive()) {
