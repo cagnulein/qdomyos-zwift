@@ -216,6 +216,7 @@ class ergTable : public QObject {
                  << "C:" << pair.cadence
                  << "W:" << medianWattage
                  << "R:" << pair.resistance;
+        saveSettings();
     }
 
     void loadSettings() {
