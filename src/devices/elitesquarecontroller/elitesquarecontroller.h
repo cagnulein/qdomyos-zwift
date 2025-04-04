@@ -72,9 +72,6 @@ class elitesquarecontroller : public bluetoothdevice {
     elitesquarecontroller(bluetoothdevice *parentDevice);
     bool connected() override;
 
-    // Function to handle button states
-    void processButtonEvent(int buttonId, EliteSquareButtonState state);
-
   private:
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
@@ -90,14 +87,6 @@ class elitesquarecontroller : public bluetoothdevice {
 
     // Helper function to parse the button data
     void parseButtonData(const QByteArray &data);
-
-    // Map specific button patterns to actions
-    bool isRightShift1Pattern(const QByteArray &data);
-    bool isRightShift2Pattern(const QByteArray &data);
-    bool isLeftShift1Pattern(const QByteArray &data);
-    bool isLeftShift2Pattern(const QByteArray &data);
-    bool isLeftSteeringPattern(const QByteArray &data);
-    bool isRightSteeringPattern(const QByteArray &data);
 
   signals:
     void disconnected();

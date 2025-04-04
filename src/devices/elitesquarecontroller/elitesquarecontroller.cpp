@@ -73,7 +73,7 @@ void elitesquarecontroller::characteristicChanged(const QLowEnergyCharacteristic
 
 void elitesquarecontroller::parseButtonData(const QByteArray &data) {
     // The data comes as raw bytes, with 11 bytes total
-    if (data.size() != 11) {
+    if (data.size() < 11) {
         qDebug() << QStringLiteral("Invalid button data size: ") << data.size();
         return;
     }
@@ -81,103 +81,74 @@ void elitesquarecontroller::parseButtonData(const QByteArray &data) {
     // Log the hex data for better debugging
     qDebug() << QStringLiteral("Processing button data: ") << data.toHex(' ');
 
-    // Check for specific button patterns based on the logs
+    // Extract the important bytes (based on the provided Android code)
+    uint8_t leftByte = data[5];
+    uint8_t rightByte = data[10];
 
-    // Handle specific button patterns
-    if (isRightShift1Pattern(data)) {
-        qDebug() << QStringLiteral("Right shift button 1 detected");
-        emit plus();
-        return;
-    }
+    // Extract the nibbles from these bytes
+    uint8_t leftLargeValue = (leftByte >> 4) & 0xF;   // Left Shift Button 1
+    uint8_t leftSmallValue = leftByte & 0xF;          // Left Shift Button 2
+    uint8_t rightLargeValue = (rightByte >> 4) & 0xF; // Right Shift Button 1
+    uint8_t rightSmallValue = rightByte & 0xF;        // Right Shift Button 2
 
-    if (isRightShift2Pattern(data)) {
-        qDebug() << QStringLiteral("Right shift button 2 detected");
-        // Emit plus three times for triple shift
-        emit plus();
-        emit plus();
-        emit plus();
-        return;
-    }
+    qDebug() << QStringLiteral("Button values: leftLarge=") << leftLargeValue
+             << QStringLiteral(" leftSmall=") << leftSmallValue
+             << QStringLiteral(" rightLarge=") << rightLargeValue
+             << QStringLiteral(" rightSmall=") << rightSmallValue;
 
-    if (isLeftShift1Pattern(data)) {
-        qDebug() << QStringLiteral("Left shift button 1 detected");
+    // Check if the left large shift button (Left Shift Button 1) is pressed
+    // According to the code, odd values indicate press events
+    if (leftLargeValue != buttonState[BUTTON_LEFT_SHIFT_1] && leftLargeValue % 2 == 1) {
+        qDebug() << QStringLiteral("Left Shift Button 1 pressed (shift down 1)");
         emit minus();
-        return;
     }
+    buttonState[BUTTON_LEFT_SHIFT_1] = leftLargeValue;
 
-    if (isLeftShift2Pattern(data)) {
-        qDebug() << QStringLiteral("Left shift button 2 detected");
-        // Emit minus three times for triple shift
+    // Check if the left small shift button (Left Shift Button 2) is pressed
+    if (leftSmallValue != buttonState[BUTTON_LEFT_SHIFT_2] && leftSmallValue % 2 == 1) {
+        qDebug() << QStringLiteral("Left Shift Button 2 pressed (shift down 3)");
+        // Emit minus three times for triple downshift
         emit minus();
         emit minus();
         emit minus();
-        return;
     }
+    buttonState[BUTTON_LEFT_SHIFT_2] = leftSmallValue;
 
-    if (isLeftSteeringPattern(data)) {
-        qDebug() << QStringLiteral("Left steering detected");
+    // Check if the right large shift button (Right Shift Button 1) is pressed
+    if (rightLargeValue != buttonState[BUTTON_RIGHT_SHIFT_1] && rightLargeValue % 2 == 1) {
+        qDebug() << QStringLiteral("Right Shift Button 1 pressed (shift up 1)");
+        emit plus();
+    }
+    buttonState[BUTTON_RIGHT_SHIFT_1] = rightLargeValue;
+
+    // Check if the right small shift button (Right Shift Button 2) is pressed
+    if (rightSmallValue != buttonState[BUTTON_RIGHT_SHIFT_2] && rightSmallValue % 2 == 1) {
+        qDebug() << QStringLiteral("Right Shift Button 2 pressed (shift up 3)");
+        // Emit plus three times for triple upshift
+        emit plus();
+        emit plus();
+        emit plus();
+    }
+    buttonState[BUTTON_RIGHT_SHIFT_2] = rightSmallValue;
+
+    // Check for steering buttons and other controls
+    // Assuming byte 3 might contain steering information as in our previous implementation
+    uint8_t controlByte = data[3];
+
+    // These conditions would need to be adjusted based on actual behavior
+    if (controlByte == 0x60 && data[3] != buttonState[BUTTON_X]) {
         emit steeringLeft(true);
-        return;
-    }
-
-    if (isRightSteeringPattern(data)) {
-        qDebug() << QStringLiteral("Right steering detected");
+        buttonState[BUTTON_X] = controlByte;
+    } else if (controlByte == 0x20 && data[3] != buttonState[BUTTON_CIRCLE]) {
+        // Need to make sure this doesn't conflict with shift button detection
         emit steeringRight(true);
-        return;
-    }
-
-    // If no specific pattern was matched, check for release patterns
-    // This is simplified and may need to be adjusted based on additional logs
-    if (data[3] == 0x00 || (data[3] == 0x20 && data[5] == 0x00)) {
-        qDebug() << QStringLiteral("Button release detected");
+        buttonState[BUTTON_CIRCLE] = controlByte;
+    } else if (controlByte == 0x00) {
         emit steeringLeft(false);
         emit steeringRight(false);
+        buttonState[BUTTON_X] = 0;
+        buttonState[BUTTON_CIRCLE] = 0;
     }
-
-    // Emit the general button signal with the raw data
-    // This can be useful for debugging or additional processing
-    emit buttonActivated(data[3], true);
-}
-
-// Pattern detection methods
-bool elitesquarecontroller::isRightShift1Pattern(const QByteArray &data) {
-    // Example pattern: "00 00 00 20 00 46 00 00 00 00 94"
-    return (data.size() >= 11 &&
-            data[3] == 0x20 &&
-            data[5] == 0x46 &&
-            data[10] != 0xa5); // Not right shift 2
-}
-
-bool elitesquarecontroller::isRightShift2Pattern(const QByteArray &data) {
-    // Example pattern: "00 00 00 20 00 46 00 00 00 00 a5"
-    return (data.size() >= 11 &&
-            data[3] == 0x20 &&
-            data[5] == 0x46 &&
-            data[10] == 0xa5);
-}
-
-bool elitesquarecontroller::isLeftShift1Pattern(const QByteArray &data) {
-    // Example pattern: "00 00 00 20 00 76 00 00 00 00 a8"
-    return (data.size() >= 11 &&
-            data[3] == 0x20 &&
-            data[5] == 0x76);
-}
-
-bool elitesquarecontroller::isLeftShift2Pattern(const QByteArray &data) {
-    // Example pattern: "00 00 00 20 00 87 00 00 00 00 a8"
-    return (data.size() >= 11 &&
-            data[3] == 0x20 &&
-            data[5] == 0x87);
-}
-
-bool elitesquarecontroller::isLeftSteeringPattern(const QByteArray &data) {
-    // Assuming X button or Left Campagnolo: example pattern with 0x60 in position 3
-    return (data.size() >= 11 && data[3] == 0x60);
-}
-
-bool elitesquarecontroller::isRightSteeringPattern(const QByteArray &data) {
-    // Assuming Circle button or Right Campagnolo button: pattern with specific value
-    return (data.size() >= 11 && data[3] == 0x20 && data[5] != 0x46 && data[5] != 0x76 && data[5] != 0x87);
 }
 
 void elitesquarecontroller::stateChanged(QLowEnergyService::ServiceState state) {
@@ -326,15 +297,4 @@ void elitesquarecontroller::controllerStateChanged(QLowEnergyController::Control
         connectionEstablished = false;
         m_control->connectToDevice();
     }
-}
-
-void elitesquarecontroller::processButtonEvent(int buttonId, EliteSquareButtonState state) {
-    // This can be used to manually trigger button events (for testing)
-    bool isPressed = (state == PRESSED);
-
-    // Update the button state
-    buttonState[buttonId] = isPressed ? 1 : 0;
-
-    // Process the button event
-    handleButtonStateChange(buttonId, isPressed ? 1 : 0);
 }
