@@ -58,13 +58,13 @@ void elitesquarecontroller::disconnectBluetooth() {
 }
 
 void elitesquarecontroller::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
-                                                  const QByteArray &newValue) {
+                                               const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit packetReceived();
 
     qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << QString(newValue);
 
-           // Process the Elite Square button data
+    // Process the Elite Square button data
     if (characteristic.uuid() == CHARACTERISTIC_UUID) {
         // Process the raw bytes directly
         parseButtonData(newValue);
@@ -78,88 +78,106 @@ void elitesquarecontroller::parseButtonData(const QByteArray &data) {
         return;
     }
 
-    // Process each byte individually
-    for (int i = 0; i < data.size(); i++) {
-        int value = static_cast<unsigned char>(data[i]);
+    // Log the hex data for better debugging
+    qDebug() << QStringLiteral("Processing button data: ") << data.toHex(' ');
 
-        // Process the button value
-        // The position in the array determines which button(s) this value corresponds to
-        // For simplicity, we're mapping array position to button IDs directly:
-        // Position 0-10 in the array maps to buttonIds starting at multiples of 2
+    // Check for specific button patterns based on the logs
 
-        // Each button has 2 states - odd values for press, even values for release
-        int buttonIndex = i * 2 + 1; // Map to our button enum values
-
-        // Check if the value has changed from the previously known state
-        if (value != buttonState[buttonIndex]) {
-            handleButtonStateChange(buttonIndex, value);
-            buttonState[buttonIndex] = value;
-        }
-
-        // Check the next button in the pair if applicable
-        if (buttonIndex + 1 < buttonState.size()) {
-            if (value != buttonState[buttonIndex + 1]) {
-                handleButtonStateChange(buttonIndex + 1, value);
-                buttonState[buttonIndex + 1] = value;
-            }
-        }
+    // Handle specific button patterns
+    if (isRightShift1Pattern(data)) {
+        qDebug() << QStringLiteral("Right shift button 1 detected");
+        emit plus();
+        return;
     }
+
+    if (isRightShift2Pattern(data)) {
+        qDebug() << QStringLiteral("Right shift button 2 detected");
+        // Emit plus three times for triple shift
+        emit plus();
+        emit plus();
+        emit plus();
+        return;
+    }
+
+    if (isLeftShift1Pattern(data)) {
+        qDebug() << QStringLiteral("Left shift button 1 detected");
+        emit minus();
+        return;
+    }
+
+    if (isLeftShift2Pattern(data)) {
+        qDebug() << QStringLiteral("Left shift button 2 detected");
+        // Emit minus three times for triple shift
+        emit minus();
+        emit minus();
+        emit minus();
+        return;
+    }
+
+    if (isLeftSteeringPattern(data)) {
+        qDebug() << QStringLiteral("Left steering detected");
+        emit steeringLeft(true);
+        return;
+    }
+
+    if (isRightSteeringPattern(data)) {
+        qDebug() << QStringLiteral("Right steering detected");
+        emit steeringRight(true);
+        return;
+    }
+
+    // If no specific pattern was matched, check for release patterns
+    // This is simplified and may need to be adjusted based on additional logs
+    if (data[3] == 0x00 || (data[3] == 0x20 && data[5] == 0x00)) {
+        qDebug() << QStringLiteral("Button release detected");
+        emit steeringLeft(false);
+        emit steeringRight(false);
+    }
+
+    // Emit the general button signal with the raw data
+    // This can be useful for debugging or additional processing
+    emit buttonActivated(data[3], true);
 }
 
-void elitesquarecontroller::handleButtonStateChange(int buttonId, int newValue) {
-    // Determine if this is a press (odd value) or release (even value)
-    bool isPressed = (newValue % 2 == 1);
+// Pattern detection methods
+bool elitesquarecontroller::isRightShift1Pattern(const QByteArray &data) {
+    // Example pattern: "00 00 00 20 00 46 00 00 00 00 94"
+    return (data.size() >= 11 &&
+            data[3] == 0x20 &&
+            data[5] == 0x46 &&
+            data[10] != 0xa5); // Not right shift 2
+}
 
-    // Emit the general button signal
-    emit buttonActivated(buttonId, isPressed);
+bool elitesquarecontroller::isRightShift2Pattern(const QByteArray &data) {
+    // Example pattern: "00 00 00 20 00 46 00 00 00 00 a5"
+    return (data.size() >= 11 &&
+            data[3] == 0x20 &&
+            data[5] == 0x46 &&
+            data[10] == 0xa5);
+}
 
-    // Handle special button functionality
-    switch (buttonId) {
-    case BUTTON_LEFT_SHIFT_1:
-        if (isPressed) {
-            // Shift down 1 gear
-            emit minus();
-        }
-        break;
+bool elitesquarecontroller::isLeftShift1Pattern(const QByteArray &data) {
+    // Example pattern: "00 00 00 20 00 76 00 00 00 00 a8"
+    return (data.size() >= 11 &&
+            data[3] == 0x20 &&
+            data[5] == 0x76);
+}
 
-    case BUTTON_LEFT_SHIFT_2:
-        if (isPressed) {
-            // Shift down 3 gears (call minus() 3 times)
-            emit minus();
-            emit minus();
-            emit minus();
-        }
-        break;
+bool elitesquarecontroller::isLeftShift2Pattern(const QByteArray &data) {
+    // Example pattern: "00 00 00 20 00 87 00 00 00 00 a8"
+    return (data.size() >= 11 &&
+            data[3] == 0x20 &&
+            data[5] == 0x87);
+}
 
-    case BUTTON_RIGHT_SHIFT_1:
-        if (isPressed) {
-            // Shift up 1 gear
-            emit plus();
-        }
-        break;
+bool elitesquarecontroller::isLeftSteeringPattern(const QByteArray &data) {
+    // Assuming X button or Left Campagnolo: example pattern with 0x60 in position 3
+    return (data.size() >= 11 && data[3] == 0x60);
+}
 
-    case BUTTON_RIGHT_SHIFT_2:
-        if (isPressed) {
-            // Shift up 3 gears (call plus() 3 times)
-            emit plus();
-            emit plus();
-            emit plus();
-        }
-        break;
-
-    case BUTTON_X:
-    case BUTTON_LEFT_CAMPAGNOLO:
-        emit steeringLeft(isPressed); // Left steering (active while pressed)
-        break;
-
-    case BUTTON_CIRCLE:
-    case BUTTON_RIGHT_CAMPAGNOLO:
-        emit steeringRight(isPressed); // Right steering (active while pressed)
-        break;
-
-        // The rest of the buttons will use the general buttonActivated signal
-        // They will be mapped to Zwift functions elsewhere in the code
-    }
+bool elitesquarecontroller::isRightSteeringPattern(const QByteArray &data) {
+    // Assuming Circle button or Right Campagnolo button: pattern with specific value
+    return (data.size() >= 11 && data[3] == 0x20 && data[5] != 0x46 && data[5] != 0x76 && data[5] != 0x87);
 }
 
 void elitesquarecontroller::stateChanged(QLowEnergyService::ServiceState state) {
@@ -192,7 +210,7 @@ void elitesquarecontroller::stateChanged(QLowEnergyService::ServiceState state) 
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
-                   // Check if this is the Elite Square service
+            // Check if this is the Elite Square service
             if (s->serviceUuid() == SERVICE_UUID) {
                 gattService = s;
 
@@ -278,18 +296,18 @@ void elitesquarecontroller::deviceDiscovered(const QBluetoothDeviceInfo &device)
                     emit disconnected();
                 });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
-            Q_UNUSED(this);
-            emit debug(QStringLiteral("Elite Square controller connected. Searching services..."));
-            m_control->discoverServices();
-        });
+                    Q_UNUSED(this);
+                    emit debug(QStringLiteral("Elite Square controller connected. Searching services..."));
+                    m_control->discoverServices();
+                });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
-            Q_UNUSED(this);
-            emit debug(QStringLiteral("Elite Square controller disconnected"));
-            connectionEstablished = false;
-            emit disconnected();
-        });
+                    Q_UNUSED(this);
+                    emit debug(QStringLiteral("Elite Square controller disconnected"));
+                    connectionEstablished = false;
+                    emit disconnected();
+                });
 
-               // Connect to the device
+        // Connect to the device
         m_control->connectToDevice();
     }
 }
