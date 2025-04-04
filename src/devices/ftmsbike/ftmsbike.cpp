@@ -1327,6 +1327,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             REEBOK = true;
             max_resistance = 32;
             resistance_lvl_mode = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("T2 "))) {
+            qDebug() << QStringLiteral("T2 found");
+            T2 = true;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
