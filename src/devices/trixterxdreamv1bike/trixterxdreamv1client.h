@@ -172,8 +172,9 @@ public:
 
     /**
      * @brief The time interval between sending resistance requests to the device.
+     * This is intended to achieve 60 resistance packets sent per second.
      */
-    constexpr static uint8_t ResistancePulseIntervalMilliseconds = 10;
+    constexpr static uint8_t ResistancePulseIntervalMilliseconds = 16;
 
     trixterxdreamv1client();
 

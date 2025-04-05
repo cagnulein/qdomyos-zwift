@@ -282,6 +282,18 @@ public:
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
 
     /**
+     * @brief maxGears The maximum gear index.
+     * @return
+     */
+    double maxGears() override { return 12.0; }
+
+    /**
+     * @brief maxGears The minimum gear index.
+     * @return
+     */
+    double minGears() override { return 1.0; }
+
+    /**
      * @brief Attempt to connect to the specified port.
      * @param portName The name of the serial port to connect to.
      */

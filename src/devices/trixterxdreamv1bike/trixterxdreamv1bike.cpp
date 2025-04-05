@@ -129,14 +129,18 @@ trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartSer
     // Calculate the steering mapping
     this->calculateSteeringMap();
 
-    // fake hardware support for ERG mode to avoid ERG filters preventing
+    // fake hardware support for ERG mode
     this->ergModeSupported = true;
 
     // create the objects that monitor the activation of the gear buttons
-    this->gearUpButton = new ActivationMonitor(100, 0.8, 0.1);
+    const double buttonSamplePeriod = 50; // the sampling period for the button, in the units of the chronometer used for its updates
+    const double activationThreshold = 0.9; // button down for this proportion of the sampling period
+    const double deactivationThreshold = 0.1; // button released for this proportion of the sampling period
+
+    this->gearUpButton = new ActivationMonitor(buttonSamplePeriod, activationThreshold, deactivationThreshold);
     this->gearUpButton->setActivationCallback([this](bool active){ if(active) this->gearUp();});
 
-    this->gearDownButton = new ActivationMonitor(100, 0.8, 0.1);
+    this->gearDownButton = new ActivationMonitor(buttonSamplePeriod, activationThreshold, deactivationThreshold);
     this->gearDownButton->setActivationCallback([this](bool active){ if(active) this->gearDown();});
 }
 
@@ -383,6 +387,10 @@ void trixterxdreamv1bike::receiveBytes(const QByteArray &bytes) {
 
 void trixterxdreamv1bike::update() {
     QMutexLocker locker(&this->updateMutex);
+
+    // check that the gears have been engaged, because when this was written, this defaulted to 0
+    if(this->gears()==0.0)
+        this->gearUp();
 
     // get the current time
     auto currentTime = getTime();
