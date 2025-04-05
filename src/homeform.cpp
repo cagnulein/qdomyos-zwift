@@ -653,7 +653,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 #endif
 
-    m_speech.setLocale(QLocale::English);
+    //m_speech.setLocale(QLocale::English);
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QBluetoothDeviceInfo b;
@@ -4353,8 +4353,8 @@ void homeform::Start_inner(bool send_event_to_device) {
 
     m_overridePower = false;
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
-        m_speech.say("Start pressed");
+    /*if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
+        m_speech.say("Start pressed");*/
 
     if (!paused && !stopped) {
         paused = true;
@@ -4478,8 +4478,8 @@ void homeform::Stop() {
         this->innerTemplateManager->reinit();
 #endif
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
-        m_speech.say("Stop pressed");
+    /*if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
+        m_speech.say("Stop pressed");*/
 
     if (bluetoothManager->device()) {
 
@@ -6464,7 +6464,7 @@ void homeform::update() {
                         setToastRequested("AutoLap " + QString::number(settings.value(QZSettings::autolap_distance, QZSettings::default_autolap_distance).toDouble(), 'f', 1));
                 }
             }
-
+/*
             if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
                 static double tts_speed_played = 0;
                 bool description =
@@ -6513,7 +6513,7 @@ void homeform::update() {
                         if (settings.value(QZSettings::tts_avg_cadence, QZSettings::default_tts_avg_cadence).toBool())
                             s.append((description ? tr(", Average cadence ") : ",") +
                                      QString::number(bluetoothManager->device()->currentCadence().average(), 'f', 0));
-                        if (settings.value(QZSettings::tts_max_cadence, QZSettings::default_tts_max_cadence /* true */)
+                        if (settings.value(QZSettings::tts_max_cadence, QZSettings::default_tts_max_cadence)
                                 .toBool())
                             s.append((description ? tr(", Max cadence ") : ",") +
                                      QString::number(bluetoothManager->device()->currentCadence().max()));
@@ -6579,7 +6579,7 @@ void homeform::update() {
                         if (settings.value(QZSettings::tts_max_watt, QZSettings::default_tts_max_watt).toBool())
                             s.append((description ? tr(", max watt ") : ",") +
                                      QString::number(bluetoothManager->device()->wattsMetric().max(), 'f', 0));
-                        if (settings.value(QZSettings::tts_act_ftp, QZSettings::default_tts_act_ftp /* true */)
+                        if (settings.value(QZSettings::tts_act_ftp, QZSettings::default_tts_act_ftp )
                                 .toBool())
                             s.append((description ? tr(", ftp ") : ",") + QString::number(ftpZone, 'f', 1));
                         if (settings.value(QZSettings::tts_act_heart, QZSettings::default_tts_act_heart).toBool())
@@ -6701,7 +6701,7 @@ void homeform::update() {
                         m_speech.say(s);
                     }
                 }
-            }
+            }*/
 
             if(bluetoothManager->device()->currentSpeed().value() > 0 && !isinf(bluetoothManager->device()->currentSpeed().value()))
                 bluetoothManager->device()->addCurrentDistance1s((bluetoothManager->device()->currentSpeed().value() / 3600.0));

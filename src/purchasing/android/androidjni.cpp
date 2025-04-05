@@ -57,12 +57,14 @@
 QT_USE_NAMESPACE
 
 static void purchasedProductsQueried(JNIEnv *, jclass, jlong nativePointer) {
+    return;
     AndroidInAppPurchaseBackend *backend = reinterpret_cast<AndroidInAppPurchaseBackend *>(nativePointer);
     QMetaObject::invokeMethod(backend, "registerReady", Qt::AutoConnection);
 }
 
 static void registerProduct(JNIEnv *, jclass, jlong nativePointer, jstring productId, jstring price, jstring title,
                             jstring description) {
+    return;
     AndroidInAppPurchaseBackend *backend = reinterpret_cast<AndroidInAppPurchaseBackend *>(nativePointer);
     QMetaObject::invokeMethod(
         backend, "registerProduct", Qt::AutoConnection, Q_ARG(QString, QAndroidJniObject(productId).toString()),
@@ -72,6 +74,7 @@ static void registerProduct(JNIEnv *, jclass, jlong nativePointer, jstring produ
 
 static void registerPurchased(JNIEnv *, jclass, jlong nativePointer, jstring identifier, jstring signature,
                               jstring data, jstring purchaseToken, jstring orderId, jlong timestamp) {
+    return;
     QDateTime dateTime = QDateTime::fromMSecsSinceEpoch(qint64(timestamp));
     dateTime.setTimeSpec(Qt::LocalTime);
 
@@ -85,6 +88,7 @@ static void registerPurchased(JNIEnv *, jclass, jlong nativePointer, jstring ide
 
 static void purchaseSucceeded(JNIEnv *, jclass, jlong nativePointer, jint requestCode, jstring signature, jstring data,
                               jstring purchaseToken, jstring orderId, jlong timestamp) {
+    return;
     QDateTime dateTime = QDateTime::fromMSecsSinceEpoch(qint64(timestamp));
     dateTime.setTimeSpec(Qt::LocalTime);
 
@@ -98,6 +102,7 @@ static void purchaseSucceeded(JNIEnv *, jclass, jlong nativePointer, jint reques
 
 static void purchaseFailed(JNIEnv *, jclass, jlong nativePointer, jint requestCode, jint failureReason,
                            jstring errorString) {
+    return;
     AndroidInAppPurchaseBackend *backend = reinterpret_cast<AndroidInAppPurchaseBackend *>(nativePointer);
     QMetaObject::invokeMethod(backend, "purchaseFailed", Qt::AutoConnection, Q_ARG(int, int(requestCode)),
                               Q_ARG(int, int(failureReason)),
@@ -116,6 +121,7 @@ static JNINativeMethod methods[] = {
     {"purchaseFailed", "(JIILjava/lang/String;)V", (void *)purchaseFailed}};
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
+    return JNI_VERSION_1_6;
     static bool initialized = false;
     if (initialized) {
         return JNI_VERSION_1_6;

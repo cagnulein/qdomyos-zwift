@@ -791,7 +791,7 @@ class homeform : public QObject {
     bool getLap();
     void Start_inner(bool send_event_to_device);
 
-    QTextToSpeech m_speech;
+    //QTextToSpeech m_speech;
     int tts_summary_count = 0;
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
