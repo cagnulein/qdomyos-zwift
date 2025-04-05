@@ -134,8 +134,8 @@ trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartSer
 
     // create the objects that monitor the activation of the gear buttons
     const double buttonSamplePeriod = 50; // the sampling period for the button, in the units of the chronometer used for its updates
-    const double activationThreshold = 0.9; // button down for this proportion of the sampling period
-    const double deactivationThreshold = 0.1; // button released for this proportion of the sampling period
+    const double activationThreshold = 0.9; // button pressed for this proportion of the sampling period is interpreted as pressed
+    const double deactivationThreshold = 0.1; // button pressed for this proportion of the sampling period is interpreted as released
 
     this->gearUpButton = new ActivationMonitor(buttonSamplePeriod, activationThreshold, deactivationThreshold);
     this->gearUpButton->setActivationCallback([this](bool active){ if(active) this->gearUp();});

@@ -11,7 +11,9 @@ public:
 
     /**
      * @brief ActivationMonitor
-     * @param samplingPeriod The sampling period length in the units that will be used for th eupdate method.
+     * @param samplingPeriod The sampling period length in the units that will be used for the update method.
+     * @param activationThreshold Activation is when the flag is active for at least this proportion (0..1) of the samplingPeriod
+     * @param deactivationThreshold Deactivation is when the flag is active for at most this proportion of the sampling period.
      */
     explicit ActivationMonitor(const int64_t samplingPeriod, const double activationThreshold, const double deactivationThreshold);
 
