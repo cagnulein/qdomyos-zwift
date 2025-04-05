@@ -49,6 +49,7 @@
 #include "devices/echelonstairclimber/echelonstairclimber.h"
 #include "devices/eliteariafan/eliteariafan.h"
 #include "devices/eliterizer/eliterizer.h"
+#include "devices/elitesquarecontroller/elitesquarecontroller.h"
 #include "devices/elitesterzosmart/elitesterzosmart.h"
 #include "devices/eslinkertreadmill/eslinkertreadmill.h"
 #include "devices/fakebike/fakebike.h"
@@ -296,6 +297,7 @@ class bluetooth : public QObject, public SignalHandler {
     QList<zwiftclickremote* > zwiftPlayDevice;
     zwiftclickremote* zwiftClickRemote = nullptr;
     sramaxscontroller* sramAXSController = nullptr;
+    elitesquarecontroller* eliteSquareController = nullptr;
     QString filterDevice = QLatin1String("");
 
     bool testResistance = false;
