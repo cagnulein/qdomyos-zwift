@@ -119,16 +119,16 @@ void lifefitnesstreadmill::btinit() {
     QLowEnergyCharacteristic gattCrossTrainerData = gattFTMSService->characteristic(_gattCrossTrainerDataId);
     descriptor.append((char)0x01);
     descriptor.append((char)0x00);
-    gattFTMSService->writeDescriptor(gattTrainingStatus.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
+    gattFTMSService->writeDescriptor(gattTrainingStatus.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration),
                                      descriptor);
     if (gattTreadmillData.isValid()) {
         gattFTMSService->writeDescriptor(
-            gattTreadmillData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattTreadmillData.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
         gattFTMSService->writeDescriptor(
-            gattTreadmillData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattTreadmillData.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     } else if (gattCrossTrainerData.isValid()) {
         gattFTMSService->writeDescriptor(
-            gattCrossTrainerData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattCrossTrainerData.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     }
 
     initDone = true;
@@ -636,7 +636,7 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
         }
@@ -647,13 +647,13 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     notificationSubscribed = 0;
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &lifefitnesstreadmill::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &lifefitnesstreadmill::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &lifefitnesstreadmill::characteristicRead);
             connect(
-                s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                s, &QLowEnergyService::errorOccurred,
                 this, &lifefitnesstreadmill::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &lifefitnesstreadmill::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &lifefitnesstreadmill::descriptorRead);
@@ -662,7 +662,7 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                qDebug() << QStringLiteral("char uuid") << c.uuid();
 
                 if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
@@ -808,12 +808,12 @@ void lifefitnesstreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &lifefitnesstreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &lifefitnesstreadmill::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, &lifefitnesstreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &lifefitnesstreadmill::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
