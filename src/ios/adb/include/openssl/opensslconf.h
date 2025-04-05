@@ -192,7 +192,7 @@ extern "C" {
 #endif
 
 /* This helps C compiler generate the correct code for multiple functional
- * units.  It reduces register dependancies at the expense of 2 more
+ * units.  It reduces register dependencies at the expense of 2 more
  * registers */
 #ifndef DES_RISC1
 #undef DES_RISC1
@@ -207,7 +207,7 @@ extern "C" {
 #endif
 
 /* Unroll the inner loop, this sometimes helps, sometimes hinders.
- * Very mucy CPU dependant */
+ * Very mucy CPU dependent */
 #ifndef DES_UNROLL
 #define DES_UNROLL
 #endif

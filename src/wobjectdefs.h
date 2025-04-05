@@ -592,7 +592,7 @@ template <typename... Args> constexpr QOverload<Args...> qOverload = {};
 
 
 #ifdef Q_CC_MSVC
-// Workaround for MSVC: expension rules are different so we need some extra macro.
+// Workaround for MSVC: expansion rules are different so we need some extra macro.
 #define W_MACRO_MSVC_EXPAND(...) __VA_ARGS__
 #define W_MACRO_MSVC_DELAY(X,...) W_MACRO_MSVC_EXPAND(X(__VA_ARGS__))
 #define W_MACRO_MSVC_EMPTY /##* *##/
@@ -848,7 +848,7 @@ constexpr auto simple_hash(char const *p) {
  *
  * <type> can optionally be put in parentheses, if you have a type containing a comma
  */
-#define W_PROPERTY(...) W_MACRO_MSVC_EXPAND(W_PROPERTY2(__VA_ARGS__)) // expands the READ, WRITE, and other sub marcos
+#define W_PROPERTY(...) W_MACRO_MSVC_EXPAND(W_PROPERTY2(__VA_ARGS__)) // expands the READ, WRITE, and other sub macros
 #define W_PROPERTY2(TYPE, NAME, ...) \
     W_STATE_APPEND(w_PropertyState, \
         w_internal::makeMetaPropertyInfo<W_MACRO_REMOVEPAREN(TYPE)>(\
@@ -862,7 +862,7 @@ constexpr auto simple_hash(char const *p) {
 #define CONSTANT , W_Constant
 #define FINAL , W_Final
 
-#undef Q_PRIVATE_PROPERTY // the official macro is not a variadic macro, and the coma in READ would break it
+#undef Q_PRIVATE_PROPERTY // the official macro is not a variadic macro, and the comma in READ would break it
 #define Q_PRIVATE_PROPERTY(...)
 
 /** W_ENUM(<name>, <values>)

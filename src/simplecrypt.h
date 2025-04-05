@@ -75,7 +75,7 @@ class SimpleCrypt {
       appears to be valid after decryption.
     */
     enum IntegrityProtectionMode {
-        ProtectionNone, /*!< The integerity of the encrypted data is not protected. It is not really possible to detect
+        ProtectionNone, /*!< The integrity of the encrypted data is not protected. It is not really possible to detect
                            a wrong key, for instance. */
         ProtectionChecksum, /*!< A simple checksum is used to verify that the data is in order. If not, an empty string
                                is returned. */
