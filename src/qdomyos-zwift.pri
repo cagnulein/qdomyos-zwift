@@ -3,6 +3,9 @@ QT += bluetooth widgets xml positioning quick networkauth websockets texttospeec
 QTPLUGIN += qavfmediaplayer
 QT+= charts core-private
 
+win32: QT += serialport serialbus
+linux:!android: QT += serialport serialbus
+
 qtHaveModule(httpserver) {
     QT += httpserver
     DEFINES += Q_HTTPSERVER
@@ -323,6 +326,10 @@ zwiftworkout.cpp
    
 macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
+
+#gpio treadmill
+win32: SOURCES += gpiotreadmill.cpp
+linux:!android: SOURCES += gpiotreadmill.cpp
 
 #zwift api
 msvc {
@@ -824,6 +831,9 @@ scanrecordresult.h \
 windows_zwift_incline_paddleocr_thread.h \
 zwiftworkout.h
 
+
+win32: HEADERS += gpiotreadmill.h
+linux:!android: HEADERS += gpiotreadmill.h
 
 exists(secret.h): HEADERS += secret.h
 

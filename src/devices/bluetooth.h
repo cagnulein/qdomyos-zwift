@@ -103,6 +103,9 @@
 #include "devices/proformwifitreadmill/proformwifitreadmill.h"
 #include "devices/schwinn170bike/schwinn170bike.h"
 #include "devices/schwinnic4bike/schwinnic4bike.h"
+#if defined(Q_OS_WIN) || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID))
+#include "gpiotreadmill.h"
+#endif
 #include "signalhandler.h"
 #include "devices/skandikawiribike/skandikawiribike.h"
 #include "devices/smartrowrower/smartrowrower.h"
@@ -209,6 +212,9 @@ class bluetooth : public QObject, public SignalHandler {
     trxappgateusbelliptical *trxappgateusbElliptical = nullptr;
     echelonconnectsport *echelonConnectSport = nullptr;
     yesoulbike *yesoulBike = nullptr;
+#if defined(Q_OS_WIN) || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID))
+    gpiotreadmill *gpioTreadmill = nullptr;
+#endif
     flywheelbike *flywheelBike = nullptr;
     moxy5sensor *moxy5Sensor = nullptr;
     nordictrackelliptical *nordictrackElliptical = nullptr;

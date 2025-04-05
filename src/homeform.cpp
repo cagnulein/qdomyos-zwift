@@ -3511,6 +3511,7 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
     QObject::connect(home, SIGNAL(plus_clicked(QString)), this, SLOT(Plus(QString)));
     QObject::connect(home, SIGNAL(minus_clicked(QString)), this, SLOT(Minus(QString)));
     QObject::connect(home, SIGNAL(largeButton_clicked(QString)), this, SLOT(LargeButton(QString)));
+    QObject::connect(home, SIGNAL(keyPressed(int)), this, SLOT(keyPressed(int)));
 
     emit workoutNameChanged(workoutName());
     emit instructorNameChanged(instructorName());
@@ -3546,6 +3547,17 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
         }
 
     }
+}
+
+void homeform::keyPressed(int key) {
+    if(key == Qt::Key_A)
+        Plus("speed");
+    else if(key == Qt::Key_S)
+        Minus("speed");
+    else if(key == Qt::Key_D)
+        Plus("inclination");
+    else if(key == Qt::Key_F)
+        Minus("inclination");
 }
 
 void homeform::deviceFound(const QString &name) {
