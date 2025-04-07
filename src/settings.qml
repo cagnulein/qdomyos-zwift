@@ -10399,7 +10399,7 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("Use it to change the gears on QZ!")
+                                text: qsTr("Also for Elite Square. Use it to change the gears on QZ!")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
