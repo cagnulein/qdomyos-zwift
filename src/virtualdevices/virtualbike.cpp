@@ -1460,25 +1460,24 @@ void virtualbike::bikeProvider() {
 
     if (!echelon && !ifit) {
         if (!heart_only) {
-            if (!heart_only) {
-                if (garmin_bluetooth_compatibility) {
-                    // Always use power service for Garmin compatibility
-                    value.clear();
-                    if (notif2A63->notify(value) == CN_OK) {
-                        if (!service) {
-                            qDebug() << QStringLiteral("service not available");
-                            return;
-                        }
-
-                        QLowEnergyCharacteristic characteristic =
-                            service->characteristic(QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement);
-                        Q_ASSERT(characteristic.isValid());
-                        if (leController->state() != QLowEnergyController::ConnectedState) {
-                            qDebug() << QStringLiteral("virtual bike not connected");
-                            return;
-                        }
-                        writeCharacteristic(service, characteristic, value);
+            if (garmin_bluetooth_compatibility) {
+                // Always use power service for Garmin compatibility
+                value.clear();
+                if (notif2A63->notify(value) == CN_OK) {
+                    if (!service) {
+                        qDebug() << QStringLiteral("service not available");
+                        return;
                     }
+
+                    QLowEnergyCharacteristic characteristic =
+                        service->characteristic(QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement);
+                    Q_ASSERT(characteristic.isValid());
+                    if (leController->state() != QLowEnergyController::ConnectedState) {
+                        qDebug() << QStringLiteral("virtual bike not connected");
+                        return;
+                    }
+                    writeCharacteristic(service, characteristic, value);
+                }
             } else if (!cadence && !power) {
                 value.clear();
                 if (notif2AD2->notify(value) == CN_OK) {
