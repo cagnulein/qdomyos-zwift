@@ -12,7 +12,7 @@ int CharacteristicNotifier2A63::notify(QByteArray &value) {
     if (Bike->deviceType() == bluetoothdevice::BIKE) {
         QSettings settings;
         if (settings.value(QZSettings::garmin_bluetooth_compatibility,
-                           QZSettings::default_garmin_bluetooth_compatibility).toBool();) {
+                           QZSettings::default_garmin_bluetooth_compatibility).toBool()) {
             // Simplified format for Garmin compatibility, similar to iOS implementation
             // Convert RPM to timestamp
             uint64_t currentMillis = QDateTime::currentMSecsSinceEpoch();
