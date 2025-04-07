@@ -299,6 +299,8 @@
 		8762D5132601F89500F6F049 /* scanrecordresult.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8762D5112601F89500F6F049 /* scanrecordresult.cpp */; };
 		87646C2027B5064600F82131 /* bhfitnesselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87646C1E27B5064500F82131 /* bhfitnesselliptical.cpp */; };
 		87646C2227B5065100F82131 /* moc_bhfitnesselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87646C2127B5065100F82131 /* moc_bhfitnesselliptical.cpp */; };
+		8767CA552DA3C1FD0003001F /* elitesquarecontroller.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA532DA3C1FD0003001F /* elitesquarecontroller.cpp */; };
+		8767CA562DA3C1FD0003001F /* moc_elitesquarecontroller.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA542DA3C1FD0003001F /* moc_elitesquarecontroller.cpp */; };
 		8767EF1E29448D6700810C0F /* characteristicwriteprocessor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767EF1D29448D6700810C0F /* characteristicwriteprocessor.cpp */; };
 		8768C8BA2BBC11C80099DBE1 /* file_sync_client.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C89C2BBC11C70099DBE1 /* file_sync_client.c */; };
 		8768C8BB2BBC11C80099DBE1 /* protocol.txt in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8768C89D2BBC11C70099DBE1 /* protocol.txt */; };
@@ -1205,6 +1207,9 @@
 		87646C1E27B5064500F82131 /* bhfitnesselliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bhfitnesselliptical.cpp; path = ../src/devices/bhfitnesselliptical/bhfitnesselliptical.cpp; sourceTree = "<group>"; };
 		87646C1F27B5064500F82131 /* bhfitnesselliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bhfitnesselliptical.h; path = ../src/devices/bhfitnesselliptical/bhfitnesselliptical.h; sourceTree = "<group>"; };
 		87646C2127B5065100F82131 /* moc_bhfitnesselliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_bhfitnesselliptical.cpp; sourceTree = "<group>"; };
+		8767CA522DA3C1FD0003001F /* elitesquarecontroller.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = elitesquarecontroller.h; path = ../src/devices/elitesquarecontroller/elitesquarecontroller.h; sourceTree = SOURCE_ROOT; };
+		8767CA532DA3C1FD0003001F /* elitesquarecontroller.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = elitesquarecontroller.cpp; path = ../src/devices/elitesquarecontroller/elitesquarecontroller.cpp; sourceTree = SOURCE_ROOT; };
+		8767CA542DA3C1FD0003001F /* moc_elitesquarecontroller.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_elitesquarecontroller.cpp; sourceTree = "<group>"; };
 		8767EF1D29448D6700810C0F /* characteristicwriteprocessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicwriteprocessor.cpp; path = ../src/characteristics/characteristicwriteprocessor.cpp; sourceTree = "<group>"; };
 		8768C89C2BBC11C70099DBE1 /* file_sync_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = file_sync_client.c; path = ../src/ios/adb/adb/file_sync_client.c; sourceTree = "<group>"; };
 		8768C89D2BBC11C70099DBE1 /* protocol.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = protocol.txt; path = ../src/ios/adb/adb/protocol.txt; sourceTree = "<group>"; };
@@ -2194,6 +2199,9 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				8767CA522DA3C1FD0003001F /* elitesquarecontroller.h */,
+				8767CA532DA3C1FD0003001F /* elitesquarecontroller.cpp */,
+				8767CA542DA3C1FD0003001F /* moc_elitesquarecontroller.cpp */,
 				87DC27F02D9BDC43007A1B9D /* moc_moxy5sensor.cpp */,
 				87DC27F12D9BDC43007A1B9D /* moxy5sensor.h */,
 				87DC27F22D9BDC43007A1B9D /* moxy5sensor.cpp */,
@@ -3526,6 +3534,8 @@
 				87917A7328E768D200F8D9AC /* Browser.swift in Compile Sources */,
 				873CD20B27EF8D8A000131BC /* inapptransaction.cpp in Compile Sources */,
 				8727C7D52B3BF1E4005429EB /* moc_proformtelnetbike.cpp in Compile Sources */,
+				8767CA552DA3C1FD0003001F /* elitesquarecontroller.cpp in Compile Sources */,
+				8767CA562DA3C1FD0003001F /* moc_elitesquarecontroller.cpp in Compile Sources */,
 				873824EF27E647A9004F1B46 /* query.cpp in Compile Sources */,
 				876F45FF279350D9003CDA5A /* moc_concept2skierg.cpp in Compile Sources */,
 				BE93C6EF2C2A6BFEEC9EA565 /* fit_buffered_mesg_broadcaster.cpp in Compile Sources */,
