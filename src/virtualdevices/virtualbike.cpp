@@ -83,13 +83,16 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         }
         QList<QBluetoothUuid> services;
 
-        if (!echelon && !ifit) {
+        if (garmin_bluetooth_compatibility) {
+            // For Garmin compatibility, only advertise power service
+            services << (QBluetoothUuid::ServiceClassUuid::CyclingPower);
+            qDebug() << "Garmin Bluetooth compatibility activated - advertising only power service";
+        } else if (!echelon && !ifit) {
             if (!heart_only) {
                 if (!cadence && !power) {
                     services << ((QBluetoothUuid::ServiceClassUuid)0x1826);
                 } // FitnessMachineServiceUuid
                 else if (power) {
-
                     services << (QBluetoothUuid::ServiceClassUuid::CyclingPower);
                 } else {
                     services << (QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence);
@@ -438,7 +441,12 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         if (service_changed)
             serviceChanged = leController->addService(serviceDataChanged);
 
-        if (!echelon && !ifit) {
+        if (garmin_bluetooth_compatibility) {
+            // For Garmin compatibility, only add power service
+            service = leController->addService(serviceData);
+            QObject::connect(service, &QLowEnergyService::characteristicChanged, this,
+                             &virtualbike::characteristicChanged);
+        } else if (!echelon && !ifit) {
             if (!heart_only) {
                 if (!cadence && !power) {
 
@@ -458,7 +466,6 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         } else if (ifit) {
             service = leController->addService(serviceData);
         } else {
-
             service = leController->addService(serviceEchelon);
             QThread::msleep(100); // give time to Android to add the service async.ly
             service = leController->addService(serviceData);
@@ -1304,6 +1311,7 @@ void virtualbike::reconnect() {
     bool echelon =
         settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
+    bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
 
     qDebug() << QStringLiteral("virtualbike::reconnect");
     leController->disconnectFromDevice();
@@ -1313,7 +1321,10 @@ void virtualbike::reconnect() {
         serviceChanged = leController->addService(serviceDataChanged);
     }
 
-    if (!echelon && !ifit) {
+    if (garmin_bluetooth_compatibility) {
+        // For Garmin compatibility, only add power service
+        service = leController->addService(serviceData);
+    } else if (!echelon && !ifit) {
         if (!heart_only) {
             if (!cadence && !power) {
 
@@ -1333,11 +1344,11 @@ void virtualbike::reconnect() {
     } else if (ifit) {
         service = leController->addService(serviceData);
     } else {
-
         service = leController->addService(serviceEchelon);
         QThread::msleep(100); // give time to Android to add the service async.ly
         service = leController->addService(serviceData);
     }
+
     QThread::msleep(100); // give time to Android to add the service async.ly
 
     if (battery)
@@ -1366,6 +1377,7 @@ void virtualbike::bikeProvider() {
         settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+    bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
 
     double normalizeWattage = Bike->wattsMetric().value();
     if (normalizeWattage < 0)
@@ -1448,7 +1460,26 @@ void virtualbike::bikeProvider() {
 
     if (!echelon && !ifit) {
         if (!heart_only) {
-            if (!cadence && !power) {
+            if (!heart_only) {
+                if (garmin_bluetooth_compatibility) {
+                    // Always use power service for Garmin compatibility
+                    value.clear();
+                    if (notif2A63->notify(value) == CN_OK) {
+                        if (!service) {
+                            qDebug() << QStringLiteral("service not available");
+                            return;
+                        }
+
+                        QLowEnergyCharacteristic characteristic =
+                            service->characteristic(QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement);
+                        Q_ASSERT(characteristic.isValid());
+                        if (leController->state() != QLowEnergyController::ConnectedState) {
+                            qDebug() << QStringLiteral("virtual bike not connected");
+                            return;
+                        }
+                        writeCharacteristic(service, characteristic, value);
+                    }
+            } else if (!cadence && !power) {
                 value.clear();
                 if (notif2AD2->notify(value) == CN_OK) {
                     if (!serviceFIT) {
