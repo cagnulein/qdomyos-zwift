@@ -1195,10 +1195,10 @@ jobs:
       - name: Rename binary
         run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
 
-      - name: Archive Raspberry Pi binary
+      - name: Archive Raspberry Pi 64bit binary
         uses: actions/upload-artifact@v4
         with:
-          name: raspberry-pi-binary
+          name: raspberry-pi-binary-64bit
           path: src/qdomyos-zwift-64bit        
 
   window-msvc2022-build:
