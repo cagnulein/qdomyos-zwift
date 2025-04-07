@@ -137,7 +137,6 @@ localipaddress.cpp \
 devices/pelotonbike/pelotonbike.cpp \
 devices/schwinn170bike/schwinn170bike.cpp \
 devices/wahookickrheadwind/wahookickrheadwind.cpp \
-windows_zwift_workout_paddleocr_thread.cpp \
 devices/ypooelliptical/ypooelliptical.cpp \
 devices/ziprotreadmill/ziprotreadmill.cpp \
 zwift_play/zwiftclickremote.cpp \
@@ -406,7 +405,6 @@ devices/csafeelliptical/csafeelliptical.h \
 devices/csaferower/csaferower.h \
 devices/eliteariafan/eliteariafan.h \
 devices/proformtelnetbike/proformtelnetbike.h \
-windows_zwift_workout_paddleocr_thread.h \
 devices/fakerower/fakerower.h \
 zwift-api/PlayerStateWrapper.h \
 zwift-api/zwift_client_auth.h \

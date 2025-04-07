@@ -660,10 +660,8 @@ const QString QZSettings::csafe_elliptical_port = QStringLiteral("csafe_elliptic
 const QString QZSettings::default_csafe_elliptical_port = QStringLiteral("");
 const QString QZSettings::ftms_rower = QStringLiteral("ftms_rower");
 const QString QZSettings::default_ftms_rower = QStringLiteral("Disabled");
-const QString QZSettings::zwift_workout_ocr = QStringLiteral("zwift_workout_ocr");
 const QString QZSettings::proform_bike_sb = QStringLiteral("proform_bike_sb");
 const QString QZSettings::fakedevice_rower = QStringLiteral("fakedevice_rower");
-const QString QZSettings::zwift_ocr_climb_portal = QStringLiteral("zwift_ocr_climb_portal");
 const QString QZSettings::poll_device_time = QStringLiteral("poll_device_time");
 const QString QZSettings::proform_bike_PFEVEX71316_1 = QStringLiteral("proform_bike_PFEVEX71316_1");
 const QString QZSettings::schwinn_bike_resistance_v3 = QStringLiteral("schwinn_bike_resistance_v3");
@@ -1465,10 +1463,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::csafe_rower, QZSettings::default_csafe_rower},
     {QZSettings::csafe_elliptical_port, QZSettings::default_csafe_elliptical_port},
     {QZSettings::ftms_rower, QZSettings::default_ftms_rower},
-    {QZSettings::zwift_workout_ocr, QZSettings::default_zwift_workout_ocr},
     {QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb},
     {QZSettings::fakedevice_rower, QZSettings::default_fakedevice_rower},
-    {QZSettings::zwift_ocr_climb_portal, QZSettings::default_zwift_ocr_climb_portal},
     {QZSettings::poll_device_time, QZSettings::default_poll_device_time},
     {QZSettings::proform_bike_PFEVEX71316_1, QZSettings::default_proform_bike_PFEVEX71316_1},
     {QZSettings::schwinn_bike_resistance_v3, QZSettings::default_schwinn_bike_resistance_v3},

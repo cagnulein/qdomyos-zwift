@@ -22,11 +22,6 @@ on:
 jobs:
   window-build:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        config:
-          - {python: true}
-          - {python: false}
 
     steps:
       - uses: actions/checkout@v2
@@ -67,25 +62,6 @@ jobs:
         with:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
-
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.7
-      - name: download python and paddleocr
-        run: |
-          python -VV
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade setuptools
-          python -m pip install "protobuf<=3.20.2,>=3.1.0"
-          python -m pip install paddlepaddle==2.5.1
-          python -m pip install paddleocr
-          python -m pip install imutils
-          python -m pip install "Pillow<10.0.0"
-          python -m pip install opencv-python
-          python -m pip install numpy
-          python -m pip install pywin32
-        if: matrix.config.python
 
       - uses: msys2/setup-msys2@v2
         with:
@@ -134,35 +110,8 @@ jobs:
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..  
-
-      - name: Build
-        run: |
-            qmake
-            make -j8
-            cd src/debug
-            mkdir output
-            mkdir appx
-            cp qdomyos-zwift.* output/
-            cd output
-            windeployqt --qmldir ../../ qdomyos-zwift.exe
-            cp "C:/mingw64/bin/libwinpthread-1.dll" .
-            cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
-            cp "C:/mingw64/bin/libstdc++-6.dll" .
-            cp ../../../icons/iOS/iTunesArtwork@2x.png .
-            cp ../../AppxManifest.xml .
-            cp ../../windows/*.py .
-            cp ../../windows/*.bat .
-            cp ../../../windows_openssl/*.* .
-            mkdir adb
-            mkdir python
-            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
-            cp ../../adb/* adb/
-            cd ..
-            cd appx
-            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
-        if: matrix.config.python
             
-      - name: Build without python
+      - name: Build
         run: |
             qmake
             make -j8
@@ -183,32 +132,18 @@ jobs:
             cd ..
             cd appx
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
-        if: matrix.config.python == false
 
       - name: patching qt for bluetooth
         run: cp qt-patches/windows/5.15.2/binary/mingw64/*.* ${{ github.workspace }}/src/debug/output/
 
       - name: Zip artifact for deployment
         run: Compress-Archive src/debug/output windows-binary.zip
-        if: matrix.config.python
-
-      - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output windows-binary-no-python.zip
-        if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v4
         with:
           name: windows-binary
           path: windows-binary.zip
-        if: matrix.config.python
-
-      - name: Archive windows binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-binary-no-python
-          path: windows-binary-no-python.zip
-        if:  ${{ ! matrix.config.python }}
 
       # - name: Exit if not on master branch
       #   if: github.ref == 'refs/heads/master'
@@ -730,11 +665,6 @@ jobs:
 
   window-msvc2019-build:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        config:
-          - {python: true}
-          - {python: false}    
 
     steps:
       - uses: actions/checkout@v2
@@ -767,24 +697,6 @@ jobs:
         with:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.7
-      - name: download python and paddleocr
-        run: |
-          python -VV
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade setuptools
-          python -m pip install "protobuf<=3.20.2,>=3.1.0"
-          python -m pip install paddlepaddle==2.5.1
-          python -m pip install paddleocr
-          python -m pip install imutils
-          python -m pip install "Pillow<10.0.0"
-          python -m pip install opencv-python
-          python -m pip install numpy
-          python -m pip install pywin32
-        if: matrix.config.python          
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -856,36 +768,8 @@ jobs:
         run: |
           .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=D:\a\qdomyos-zwift\vcpkg\installed
         working-directory: ${{ runner.workspace }}
-  
-      - name: Build
-        run: |
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
-            qmake            
-            nmake
-            cd src/debug
-            mkdir output
-            mkdir appx
-            cp qdomyos-zwift.* output/
-            cd output
-            windeployqt --qmldir ../../ qdomyos-zwift.exe
-            cp ../../../icons/iOS/iTunesArtwork@2x.png .
-            cp ../../AppxManifest.xml .
-            cp ../../windows/*.py .
-            cp ../../windows/*.bat .
-            cp ../../../windows_openssl/*.* .
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
-            mkdir adb
-            mkdir python
-            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
-            cp ../../adb/* adb/
-            cd ..
-            cd appx
-            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
-        if: matrix.config.python
             
-      - name: Build without python
+      - name: Build
         run: |          
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
@@ -910,32 +794,18 @@ jobs:
             cd ..
             cd appx
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
-        if: matrix.config.python == false            
 
       - name: patching qt for bluetooth
         run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
 
       - name: Zip artifact for deployment
         run: Compress-Archive src/debug/output windows-msvc2019-binary.zip
-        if: matrix.config.python
-
-      - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output windows-msvc2019-binary-no-python.zip
-        if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v4
         with:
           name: windows-msvc2019-binary
           path: windows-msvc2019-binary.zip
-        if: matrix.config.python
-
-      - name: Archive windows binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-msvc2019-binary-no-python
-          path: windows-msvc2019-binary-no-python.zip
-        if:  ${{ ! matrix.config.python }}
 
   window-msvc2019-aiserver-build:
     runs-on: windows-latest
@@ -1204,36 +1074,13 @@ jobs:
   window-msvc2022-build:
     runs-on: windows-latest
     if: github.event_name == 'schedule'
-    strategy:
-      matrix:
-        config:
-          - {python: true}
-          - {python: false}    
 
     steps:
       - name: Checkout PR code
         uses: actions/checkout@v2
         with:
           ref: refs/pull/1508/head
-          submodules: recursive 
-    
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.7
-      - name: download python and paddleocr
-        run: |
-          python -VV
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade setuptools
-          python -m pip install "protobuf<=3.20.2,>=3.1.0"
-          python -m pip install paddlepaddle==2.5.1
-          python -m pip install paddleocr
-          python -m pip install imutils
-          python -m pip install "Pillow<10.0.0"
-          python -m pip install opencv-python
-          python -m pip install numpy
-          python -m pip install pywin32
-        if: matrix.config.python          
+          submodules: recursive       
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -1305,37 +1152,8 @@ jobs:
         run: |
            .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=D:\a\qdomyos-zwift\vcpkg\installed
         working-directory: ${{ runner.workspace }}
-  
+              
       - name: Build
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
-        run: |
-            qmake            
-            nmake
-            cd src/debug
-            mkdir output
-            mkdir appx
-            cp qdomyos-zwift.* output/
-            cd output
-            windeployqt --qmldir ../../ qdomyos-zwift.exe
-            cp ../../../icons/iOS/iTunesArtwork@2x.png .
-            cp ../../AppxManifest.xml .
-            cp ../../windows/*.py .
-            cp ../../windows/*.bat .
-            cp ../../../windows_openssl/*.* .
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
-            mkdir adb
-            mkdir python
-            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
-            cp ../../adb/* adb/
-            cd ..
-            cd appx
-            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
-        if: matrix.config.python
-
-            
-      - name: Build without python
 #            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
 #            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
 #            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose     
@@ -1359,33 +1177,19 @@ jobs:
             cp ../../adb/* adb/
             cd ..
             cd appx
-            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
-        if: matrix.config.python == false            
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz                 
 
       - name: patching qt for bluetooth
         run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
 
       - name: Zip artifact for deployment
         run: Compress-Archive src/debug/output windows-msvc2022-binary.zip
-        if: matrix.config.python
-
-      - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output windows-msvc2022-binary-no-python.zip
-        if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v4
         with:
           name: windows-msvc2022-binary
           path: windows-msvc2022-binary.zip
-        if: matrix.config.python
-
-      - name: Archive windows binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-msvc2022-binary-no-python
-          path: windows-msvc2022-binary-no-python.zip
-        if:  ${{ ! matrix.config.python }}
   
   upload_to_release:
     permissions: write-all
@@ -1427,12 +1231,8 @@ jobs:
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
           files: |
-            windows-msvc2019-binary-no-python/*
             windows-msvc2019-binary/*
-            windows-msvc2022-binary-no-python/*
             windows-msvc2022-binary/*
-            windows-msvc2019-ai-server-binary/*            
-            windows-binary-no-python/*
             windows-binary/*
             fdroid-android-trial/*
             raspberry-pi-binary/qdomyos-zwift-32bit
