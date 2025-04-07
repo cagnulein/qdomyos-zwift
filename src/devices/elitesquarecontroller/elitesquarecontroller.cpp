@@ -10,6 +10,10 @@
 
 using namespace std::chrono_literals;
 
+#ifdef Q_OS_IOS
+extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
+#endif
+
 // Define static constants
 const QString elitesquarecontroller::DEVICE_NAME = "SQUARE";
 const QBluetoothUuid elitesquarecontroller::SERVICE_UUID = QBluetoothUuid(QStringLiteral("347b0001-7635-408b-8918-8ff3949ce592"));
