@@ -126,6 +126,7 @@ class wahookickrsnapbike : public bike {
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void resistanceFromFTMSAccessory(resistance_t res) override;
+    void restoreDefaultWheelDiameter();
 
   private slots:
 
