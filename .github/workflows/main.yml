@@ -1195,6 +1195,12 @@ jobs:
       - name: Rename binary
         run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
 
+      - name: Archive Raspberry Pi 64bit binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberry-pi-binary-64bit
+          path: src/qdomyos-zwift-64bit        
+
   window-msvc2022-build:
     runs-on: windows-latest
     if: github.event_name == 'schedule'
@@ -1430,3 +1436,4 @@ jobs:
             windows-binary/*
             fdroid-android-trial/*
             raspberry-pi-binary/qdomyos-zwift-32bit
+            raspberry-pi-binary/qdomyos-zwift-64bit
