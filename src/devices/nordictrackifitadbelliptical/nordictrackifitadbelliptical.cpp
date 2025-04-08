@@ -70,7 +70,7 @@ void nordictrackifitadbellipticalLogcatAdbThread::runAdbTailCommand(QString comm
         bool resistanceFound = false;
         foreach (QString line, lines) {
             if (line.contains("Changed KPH") || line.contains("Changed Actual KPH")) {
-                emit debug(line);
+                emit debug(line);                
                 speed = line.split(' ').last().toDouble();
             } else if (line.contains("Changed Grade")) {
                 emit debug(line);
@@ -207,6 +207,8 @@ nordictrackifitadbelliptical::nordictrackifitadbelliptical(bool noWriteResistanc
 }
 
 void nordictrackifitadbelliptical::onSpeedInclination(double speed, double inclination) {
+    if(speed > 0)
+        speedReadFromTM = true;
     Speed = speed;
     Inclination = inclination;
 }
@@ -280,6 +282,7 @@ void nordictrackifitadbelliptical::processPendingDatagrams() {
             if (line.contains(QStringLiteral("Changed KPH")) && !settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
+                    speedReadFromTM = true;
                     speed = getDouble(aValues.last());
                     Speed = speed;
                 }
@@ -288,9 +291,11 @@ void nordictrackifitadbelliptical::processPendingDatagrams() {
                 if (aValues.length()) {
                     cadence = getDouble(aValues.last());
                     Cadence = cadence;
-                    Speed = Cadence.value() *
-                            settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
-                                .toDouble();
+                    if(!speedReadFromTM) {
+                        Speed = Cadence.value() *
+                                settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
+                                    .toDouble();
+                    }
                 }
             } else if (line.contains(QStringLiteral("Changed CurrentGear"))) {
                 QStringList aValues = line.split(" ");
@@ -343,13 +348,13 @@ void nordictrackifitadbelliptical::processPendingDatagrams() {
                 if (requestResistance != currentResistance().value()) {
                     bool nordictrack_fs10i = true; //settings.value(QZSettings::nordictrack_fs10i, QZSettings::default_nordictrack_fs10i).toBool();
                     int x1 = 1205; // Estimated x-coordinate of the resistance slider (right side)
-                    int y2 = (int)(590 - (15.65 * (requestResistance - 1)));
+                    int y2 = (int)(590 - (15.65 * requestResistance));
                     int y1Resistance = (int)(590 - (15.65 * currentResistance().value()));
 
                     // For resistance slider on NordicTrackFS10i
                     if(nordictrack_fs10i) {
                         x1 = 1205; // Estimated x-coordinate of the resistance slider (right side)
-                        y2 = (int)(590 - (15.65 * (requestResistance - 1)));
+                        y2 = (int)(590 - (15.65 * requestResistance));
                         y1Resistance = (int)(590 - (15.65 * currentResistance().value()));
                     }
 
