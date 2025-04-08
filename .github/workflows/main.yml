@@ -1386,6 +1386,106 @@ jobs:
           name: windows-msvc2022-binary-no-python
           path: windows-msvc2022-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
+
+# Add this job to your .github/workflows/main.yml
+
+  android-emulator-test:
+    name: Test Android App on Emulator
+    needs: android-build
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download Android APK from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: fdroid-android-trial
+          path: apk
+
+      - name: Display structure of downloaded files
+        run: ls -R apk/
+        
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Install emulator and system image
+        run: |
+          echo "y" | sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3" "emulator" "system-images;android-30;google_apis;x86_64"
+          echo "no" | avdmanager create avd --force --name test_avd --package "system-images;android-30;google_apis;x86_64" --tag "google_apis" --abi "x86_64"
+
+      - name: Start Android emulator
+        run: |
+          echo "Starting emulator..."
+          $ANDROID_HOME/emulator/emulator -avd test_avd -no-window -no-boot-anim -no-audio -gpu swiftshader_indirect &
+          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 3; done'
+          adb devices
+          echo "Emulator is ready!"
+
+      - name: Grant required permissions
+        run: |
+          # Grant Bluetooth permissions (required for your app)
+          adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_SCAN
+          adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_CONNECT
+          adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADVERTISE
+          adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_FINE_LOCATION
+
+      - name: Install and launch app
+        run: |
+          # Find the APK
+          APK_PATH=$(find apk -name "*.apk" | head -1)
+          echo "Installing APK: $APK_PATH"
+          
+          # Install
+          adb install $APK_PATH
+          
+          # Launch app
+          adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
+          
+          # Wait for app to fully start
+          sleep 15
+          
+          # Check if app is running
+          APP_PID=$(adb shell pidof org.cagnulen.qdomyoszwift)
+          if [ -z "$APP_PID" ]; then
+            echo "App is not running! Checking logs..."
+            adb logcat -d "*:E"
+            exit 1
+          else
+            echo "App is running with PID: $APP_PID"
+          fi
+
+      - name: Capture screenshot
+        run: |
+          adb shell screencap -p /sdcard/screenshot.png
+          adb pull /sdcard/screenshot.png
+
+      - name: Collect logs
+        if: always()
+        run: |
+          mkdir -p logs
+          adb logcat -d > logs/logcat.txt
+          
+      - name: Upload screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulator-screenshot
+          path: screenshot.png
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulator-logs
+          path: logs/
   
   upload_to_release:
     permissions: write-all
