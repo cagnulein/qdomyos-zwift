@@ -15,7 +15,7 @@ import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 import android.os.Bundle;
 import com.google.android.gms.common.api.Status;
 import java.io.InputStream;

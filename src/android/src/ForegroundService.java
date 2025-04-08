@@ -10,7 +10,7 @@ import android.os.Build;
 import android.os.IBinder;
 import androidx.core.app.NotificationCompat;
 import android.content.pm.ServiceInfo;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 
 public class ForegroundService extends Service {
 	 public static final String CHANNEL_ID = "ForegroundServiceChannel";

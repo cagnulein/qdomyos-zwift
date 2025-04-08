@@ -16,7 +16,7 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 import android.os.Build;
 import androidx.core.content.ContextCompat;
  

@@ -2,7 +2,7 @@ package org.cagnulen.qdomyoszwift;
 
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 
 import java.util.List;
 

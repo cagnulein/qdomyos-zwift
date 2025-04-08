@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 import android.os.Build;
 
 public class MediaButtonReceiver extends BroadcastReceiver {

@@ -55,7 +55,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 
 import com.android.billingclient.api.AcknowledgePurchaseParams;
 import com.android.billingclient.api.AcknowledgePurchaseResponseListener;

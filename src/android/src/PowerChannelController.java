@@ -17,7 +17,7 @@
 package org.cagnulen.qdomyoszwift;
 
 import android.os.RemoteException;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 
 import com.dsi.ant.channel.AntChannel;
 import com.dsi.ant.channel.AntCommandFailedException;

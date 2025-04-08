@@ -17,7 +17,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;

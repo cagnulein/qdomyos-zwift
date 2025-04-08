@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 
 public class ContentHelper {
 

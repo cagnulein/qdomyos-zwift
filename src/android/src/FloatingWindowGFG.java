@@ -24,7 +24,7 @@ import android.widget.Toast;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
 import android.webkit.WebViewClient;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 import android.content.SharedPreferences;
 
 public class FloatingWindowGFG extends Service {

@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.content.IntentFilter;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 import android.app.Service;
 import android.media.RingtoneManager;
 import android.net.Uri;

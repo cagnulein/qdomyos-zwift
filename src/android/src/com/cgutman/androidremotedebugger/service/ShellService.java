@@ -23,7 +23,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import androidx.core.app.NotificationCompat;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 
 public class ShellService extends Service implements DeviceConnectionListener {
 

@@ -8,7 +8,7 @@ import com.garmin.android.connectiq.IQDevice;
 
 import java.nio.BufferUnderflowException;
 
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 
 public class IQMessageReceiverWrapper extends BroadcastReceiver {
     private final BroadcastReceiver receiver;

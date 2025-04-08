@@ -17,7 +17,7 @@
 package org.qtproject.qt.android.purchasing;
 
 import android.text.TextUtils;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;

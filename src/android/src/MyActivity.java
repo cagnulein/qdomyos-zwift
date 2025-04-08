@@ -1,5 +1,5 @@
 package org.cagnulen.qdomyoszwift;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.qlog as Log;
 
 public class MyActivity extends org.qtproject.qt5.android.bindings.QtActivity {
 
