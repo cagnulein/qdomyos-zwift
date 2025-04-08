@@ -332,65 +332,58 @@ void nordictrackifitadbelliptical::processPendingDatagrams() {
                 fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), 20);
         }
 
-        bool proform_studio_NTEX71021 =
-            settings.value(QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021).toBool();
         bool nordictrack_ifit_adb_remote =
             settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
                 .toBool();
         double inclination_delay_seconds = settings.value(QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds).toDouble();
 
-        // only resistance
-        if(proform_studio_NTEX71021 || nordictrackadbbike_resistance) {
-            if (nordictrack_ifit_adb_remote) {
-                if (requestResistance != -1) {
-                    if (requestResistance != currentResistance().value()) {
-                        int x1 = 950;
-                        int y2 = (int)(493 - (13.57 * (requestResistance - 1)));
-                        int y1Resistance = (int)(493 - (13.57 * currentResistance().value()));
+        // resistance
+        if (nordictrack_ifit_adb_remote) {
+            if (requestResistance != -1) {
+                if (requestResistance != currentResistance().value()) {
+                    bool nordictrack_fs10i = true; //settings.value(QZSettings::nordictrack_fs10i, QZSettings::default_nordictrack_fs10i).toBool();
+                    int x1 = 1205; // Estimated x-coordinate of the resistance slider (right side)
+                    int y2 = (int)(590 - (15.65 * (requestResistance - 1)));
+                    int y1Resistance = (int)(590 - (15.65 * currentResistance().value()));
 
-                        if(!proform_studio_NTEX71021) { // s22i default
-                            x1 = 1920 - 75;
-                            y2 = (int)(803 - (23.777 * requestResistance));
-                            y1Resistance = (int)(803 - (23.777 * currentResistance().value()));
-                            Resistance = requestResistance;
-                        }
+                    // For resistance slider on NordicTrackFS10i
+                    if(nordictrack_fs10i) {
+                        x1 = 1205; // Estimated x-coordinate of the resistance slider (right side)
+                        y2 = (int)(590 - (15.65 * (requestResistance - 1)));
+                        y1Resistance = (int)(590 - (15.65 * currentResistance().value()));
+                    }
 
-                        lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
-                                      QString::number(x1) + " " + QString::number(y2) + " 200";
-                        qDebug() << " >> " + lastCommand;
+                    lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
+                                  QString::number(x1) + " " + QString::number(y2) + " 200";
+                    qDebug() << " >> " + lastCommand;
 #ifdef Q_OS_ANDROID
-                        QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-                        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
-                                                                  "sendCommand", "(Ljava/lang/String;)V",
-                                                                  command.object<jstring>());
+                    QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+                    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
+                                                              "sendCommand", "(Ljava/lang/String;)V",
+                                                              command.object<jstring>());
 #elif defined(Q_OS_WIN)
-                        if (logcatAdbThread)
-                            logcatAdbThread->runCommand("shell " + lastCommand);
+                    if (logcatAdbThread)
+                        logcatAdbThread->runCommand("shell " + lastCommand);
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
-                        h->adb_sendcommand(lastCommand.toStdString().c_str());
+                    h->adb_sendcommand(lastCommand.toStdString().c_str());
 #endif
 #endif
-                    }
                 }
+            }
 
-                requestResistance = -1;
-            }            
+            requestResistance = -1;
+        } else {
             QByteArray message = (QString::number(requestResistance).toLocal8Bit()) + ";";
             requestResistance = -1;
             int ret = socket->writeDatagram(message, message.size(), sender, 8003);
-            qDebug() << QString::number(ret) + " >> " + message;                
+            qDebug() << QString::number(ret) + " >> " + message;
         }
+
         // since the motor of the bike is slow, let's filter the inclination changes to more than 4 seconds
-        else if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > inclination_delay_seconds) {
+        if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > inclination_delay_seconds) {
             lastInclinationChanged = QDateTime::currentDateTime();
             if (nordictrack_ifit_adb_remote) {
-                bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
-                if (requestInclination != -100 && erg_mode && requestResistance != -100) {
-                    qDebug() << "forcing inclination based on the erg mode resistance request of" << requestResistance;
-                    requestInclination = requestResistance;
-                    requestResistance = -100;
-                }
                 if (requestInclination != -100) {
                     double inc = qRound(requestInclination / 0.5) * 0.5;
                     if (inc != currentInclination().value()) {
