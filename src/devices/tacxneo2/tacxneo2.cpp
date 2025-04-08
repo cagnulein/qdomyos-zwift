@@ -105,6 +105,15 @@ void tacxneo2::forceInclination(double inclination) {
     writeCharacteristic(inc, sizeof(inc), QStringLiteral("changeInclination"), false, false);
 }
 
+// The reason of this function is: "The only weird part is that when the offset in QZ is below 0 my Tacx Neo 2T thinks I am going down hill. And it keeps the flywheel motor moving."
+double tacxneo2::gearsFlywheelCheck(double inclination, double gears) {
+    if(inclination >= 0 && inclination + gears < 0) {
+        qDebug() << "inclination + gears are below 0, flatting to 0" << inclination << gears;
+        return 0;
+    }
+    return inclination + gears;
+}
+
 void tacxneo2::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -147,12 +156,12 @@ void tacxneo2::update() {
         }
         if (requestInclination != -100) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-            forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+            forceInclination(gearsFlywheelCheck(requestInclination, gears())); // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
             requestInclination = -100;            
         } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
             // in order to send the new gear value ASAP
-            forceInclination(lastRawRequestedInclinationValue + gears());   // since this bike doesn't have the concept of resistance,
+            forceInclination(gearsFlywheelCheck(lastRawRequestedInclinationValue, gears()));   // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
         }
 
