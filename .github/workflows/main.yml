@@ -1405,103 +1405,79 @@ jobs:
       - name: Display structure of downloaded files
         run: find apk -type f -name "*.apk" | sort
           
-      # Explicitly set up Java 17 to match the required version for the latest Android SDK
+      # Use the reactivecircus/android-emulator-runner which handles all the setup for us
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
-          
-      # Use a more direct approach to set up the Android SDK
-      - name: Set up Android SDK
-        run: |
-          # Install Android SDK via Homebrew (avoids using the android-actions/setup-android action)
-          brew install --cask android-commandlinetools
-          
-          # Set up environment variables
-          echo "ANDROID_HOME=/usr/local/share/android-commandlinetools" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=/usr/local/share/android-commandlinetools" >> $GITHUB_ENV
-          echo "$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
-          
-          # Accept licenses
-          yes | sdkmanager --licenses || true
-          
-          # Install required components
-          sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3" "emulator"
-          sdkmanager "system-images;android-30;google_apis;x86_64"
-          
-          # Create AVD
-          echo "no" | avdmanager create avd --force --name test_avd --package "system-images;android-30;google_apis;x86_64" --tag "google_apis" --abi "x86_64"
       
-      - name: Find APK path
-        id: find-apk
-        run: |
-          APK_PATH=$(find apk -name "*.apk" | head -1)
-          echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
-          echo "Using APK at: $APK_PATH"
-      
-      # Start and run the emulator directly rather than using the action
-      - name: Start emulator
-        run: |
-          # Start emulator in background
-          $ANDROID_HOME/emulator/emulator -avd test_avd -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -no-window &
-          
-          # Wait for device to be available
-          echo "Waiting for emulator to start..."
-          $ANDROID_HOME/platform-tools/adb wait-for-device
-          
-          # Wait for boot to complete
-          echo "Waiting for boot to complete..."
-          while [[ -z $($ANDROID_HOME/platform-tools/adb shell getprop sys.boot_completed 2>/dev/null) ]]; do
-            echo "Still waiting for boot..."
-            sleep 5
-          done
-          
-          echo "Emulator started"
-          $ANDROID_HOME/platform-tools/adb devices
-      
-      - name: Install and run app
-        run: |
-          # Grant permissions
-          adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH || true
-          adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADMIN || true
-          adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_FINE_LOCATION || true
-          
-          # Install APK
-          echo "Installing APK: $APK_PATH"
-          adb install -r -g $APK_PATH
-          
-          # Launch app
-          echo "Launching app..."
-          adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
-          
-          # Wait for app to start
-          echo "Waiting for app to start..."
-          sleep 30
-          
-          # Check if app is running
-          APP_PID=$(adb shell pidof org.cagnulen.qdomyoszwift || echo "")
-          if [ -z "$APP_PID" ]; then
-            echo "App is not running! Checking logs..."
-            adb logcat -d "*:E" | tail -n 200
-            echo "FAILED=true" >> $GITHUB_ENV
-          else
-            echo "App is running with PID: $APP_PID"
-            echo "FAILED=false" >> $GITHUB_ENV
-          fi
-      
-      - name: Capture screenshot
-        if: always()
-        run: |
-          # Capture screenshot
-          adb shell screencap -p /sdcard/screenshot.png
-          adb pull /sdcard/screenshot.png
-      
-      - name: Collect logs
-        if: always()
-        run: |
-          mkdir -p logs
-          adb logcat -d > logs/logcat.txt
+      # Use a specialized action that handles all the Android SDK setup and emulator configuration
+      - name: Run tests on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          script: |
+            # Find the APK
+            APK_PATH=$(find $GITHUB_WORKSPACE/apk -name "*.apk" | head -1)
+            echo "Using APK at: $APK_PATH"
+            
+            if [ -z "$APK_PATH" ]; then
+              echo "ERROR: No APK found!"
+              exit 1
+            fi
+            
+            # Grant permissions (might fail on Android 11+ but we try anyway)
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH || echo "BLUETOOTH permission not granted"
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADMIN || echo "BLUETOOTH_ADMIN permission not granted"
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_FINE_LOCATION || echo "ACCESS_FINE_LOCATION permission not granted"
+            
+            # Install APK with full trace
+            echo "Installing APK: $APK_PATH"
+            adb install -r -g $APK_PATH
+            
+            # Launch app
+            echo "Launching app..."
+            adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
+            
+            # Wait for app to start
+            echo "Waiting for app to start..."
+            sleep 30
+            
+            # Check if app is running
+            APP_PID=$(adb shell pidof org.cagnulen.qdomyoszwift || echo "")
+            if [ -z "$APP_PID" ]; then
+              echo "App is not running! Checking logs..."
+              adb logcat -d "*:E" | tail -n 200
+              
+              # Create logs directory
+              mkdir -p $GITHUB_WORKSPACE/logs
+              
+              # Capture logs
+              adb logcat -d > $GITHUB_WORKSPACE/logs/logcat.txt
+              
+              # We don't exit with error code here to allow artifacts to be saved
+              FAILED=true
+            else
+              echo "App is running with PID: $APP_PID"
+              FAILED=false
+            fi
+            
+            # Capture screenshot
+            adb shell screencap -p /sdcard/screenshot.png
+            adb pull /sdcard/screenshot.png $GITHUB_WORKSPACE/screenshot.png
+            
+            # Capture logs anyway
+            mkdir -p $GITHUB_WORKSPACE/logs
+            adb logcat -d > $GITHUB_WORKSPACE/logs/logcat.txt
+            
+            # Final exit code based on app status
+            if [ "$FAILED" = true ]; then
+              exit 1
+            fi
           
       - name: Upload screenshot
         if: always()
@@ -1518,12 +1494,6 @@ jobs:
           name: emulator-logs
           path: logs/
           if-no-files-found: ignore
-          
-      - name: Check app status
-        if: env.FAILED == 'true'
-        run: |
-          echo "App failed to start or run properly"
-          exit 1
     
   upload_to_release:
     permissions: write-all
