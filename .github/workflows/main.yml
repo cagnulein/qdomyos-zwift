@@ -1390,7 +1390,7 @@ jobs:
   android-emulator-test:
     name: Test Android App on Emulator
     needs: android-build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
@@ -1410,40 +1410,51 @@ jobs:
           find apk -type f -name "*.apk" | sort
           ls -la apk/
           mkdir -p logs
-      
-      - name: Pull and run Android emulator Docker container
+
+      # Using budtmo/docker-android which is well-maintained and reliable
+      - name: Pull and run Android emulator container
         run: |
-          # Pull the Android emulator Docker image
-          docker pull wontruefree/android-emulator:latest
+          # Pull the Docker image
+          docker pull budtmo/docker-android:emulator_11.0
           
-          # Run the container in detached mode
-          docker run -d --name android-emulator \
-            --privileged \
-            -v $(pwd)/apk:/apk \
-            -v $(pwd)/logs:/logs \
-            -e ANDROID_ARCH=x86_64 \
-            -e ANDROID_API=29 \
-            wontruefree/android-emulator:latest
+          # Run the emulator in Docker
+          docker run --privileged -d -p 6080:6080 -p 5554:5554 -p 5555:5555 \
+            -e DEVICE="Samsung Galaxy S10" \
+            -e APPIUM=false \
+            -e EMULATOR_ARGS="-no-snapshot-load -no-snapshot-save" \
+            -v $(pwd)/apk:/root/apk \
+            -v $(pwd)/logs:/root/logs \
+            --name android-container \
+            budtmo/docker-android:emulator_11.0
           
-          # Wait for the emulator to start (shows container logs in real-time)
-          echo "Waiting for emulator to start..."
-          timeout 300 sh -c 'until docker logs -f android-emulator 2>&1 | grep -q "emulator: INFO: boot completed"; do sleep 5; echo "Still waiting..."; done' || { 
-            echo "Emulator failed to start within timeout"; 
-            docker logs android-emulator; 
+          # Wait for container to be ready
+          echo "Waiting for container to initialize..."
+          timeout 300 bash -c 'until docker logs android-container 2>&1 | grep -q "Emulator is ready"; do sleep 10; echo "Still waiting..."; done' || { 
+            echo "Container failed to initialize within timeout"; 
+            docker logs android-container; 
             exit 1; 
           }
           
-          echo "Emulator started successfully!"
-
-      - name: Install and test app
+          echo "Container is ready!"
+      
+      - name: Install and test the app
         run: |
-          # Create a script to run inside the container
+          # Create test script
           cat > test_script.sh << 'EOF'
           #!/bin/bash
           set -e
           
+          # Connect to the emulator
+          adb connect localhost:5555
+          
+          # Wait for device to be available
+          echo "Waiting for ADB connection..."
+          timeout 60 bash -c 'until adb devices | grep -q "localhost:5555"; do sleep 5; echo "Waiting..."; done'
+          
+          adb devices
+          
           # Find the APK
-          APK_PATH=$(find /apk -name "*.apk" | head -1)
+          APK_PATH=$(find /root/apk -name "*.apk" | head -1)
           echo "Using APK: $APK_PATH"
           
           if [ -z "$APK_PATH" ]; then
@@ -1453,22 +1464,23 @@ jobs:
           
           # Install the APK
           echo "Installing APK..."
-          adb install -r $APK_PATH
+          adb -s localhost:5555 install -r -g $APK_PATH
           
           # Launch the app
           echo "Launching app..."
-          adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
+          adb -s localhost:5555 shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
           
           # Wait for app to start
           echo "Waiting for app to start..."
           sleep 30
           
           # Check if app is running
-          APP_RUNNING=$(adb shell "ps | grep org.cagnulen.qdomyoszwift" || echo "")
+          APP_RUNNING=$(adb -s localhost:5555 shell "ps -A | grep org.cagnulen.qdomyoszwift" || echo "")
           
           if [ -z "$APP_RUNNING" ]; then
             echo "App is not running! Checking logs..."
-            adb logcat -d "*:E" > /logs/error.log
+            adb -s localhost:5555 logcat -d "*:E" > /root/logs/error.log
+            adb -s localhost:5555 shell pm list packages > /root/logs/packages.txt
             exit 1
           else
             echo "App is running:"
@@ -1477,33 +1489,38 @@ jobs:
           
           # Capture screenshot
           echo "Taking screenshot..."
-          adb shell screencap -p /sdcard/screenshot.png
-          adb pull /sdcard/screenshot.png /logs/screenshot.png
+          adb -s localhost:5555 shell screencap -p /sdcard/screenshot.png
+          adb -s localhost:5555 pull /sdcard/screenshot.png /root/logs/screenshot.png
           
           # Collect logs
           echo "Collecting logs..."
-          adb logcat -d > /logs/logcat.log
+          adb -s localhost:5555 logcat -d > /root/logs/logcat.log
           
           echo "Test completed successfully!"
           EOF
           
           chmod +x test_script.sh
           
-          # Copy the script to the container and run it
-          docker cp test_script.sh android-emulator:/test_script.sh
-          docker exec android-emulator bash /test_script.sh
-        
-      - name: Capture screenshot from container
+          # Run the script inside the Docker container
+          docker cp test_script.sh android-container:/root/test_script.sh
+          docker exec android-container bash /root/test_script.sh || {
+            echo "Test script failed. Collecting logs..."
+            docker exec android-container adb -s localhost:5555 logcat -d > logs/failure_logcat.log
+            exit 1
+          }
+      
+      - name: Retrieve VNC information (for debugging)
         if: always()
         run: |
-          docker cp android-emulator:/logs/screenshot.png ./screenshot.png || echo "Screenshot not available"
-        
+          echo "VNC access is available at http://localhost:6080/ during the test"
+          echo "You can view the emulator UI through VNC if needed"
+      
       - name: Upload screenshot
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: emulator-screenshot
-          path: screenshot.png
+          path: logs/screenshot.png
           if-no-files-found: ignore
           
       - name: Upload logs
