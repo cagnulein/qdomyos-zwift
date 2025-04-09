@@ -1,7 +1,7 @@
 package org.cagnulen.qdomyoszwift;
 
 import android.content.Context;
-import org.cagnulen.qdomyoszwift.qlog as Log;
+import org.cagnulen.qdomyoszwift.QLog as Log;
 import android.app.Activity;
 
 // ANT+ Plugin imports

@@ -23,7 +23,7 @@ import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.cagnulen.qdomyoszwift.qlog as Log;
+import org.cagnulen.qdomyoszwift.QLog as Log;
 import android.content.Intent;
 
 public class Ant {

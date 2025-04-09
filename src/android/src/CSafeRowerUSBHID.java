@@ -25,7 +25,7 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
-import org.cagnulen.qdomyoszwift.qlog as Log;
+import org.cagnulen.qdomyoszwift.QLog as Log;
 
 public class CSafeRowerUSBHID {
 
