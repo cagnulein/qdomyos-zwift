@@ -1,4 +1,4 @@
-package org.cagnulen.qdomyoszwift;
+package org.cagnulen.qdomyoszwift.logging;
 
 import android.util.Log;
 
