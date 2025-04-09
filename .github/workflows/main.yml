@@ -1390,98 +1390,114 @@ jobs:
   android-emulator-test:
     name: Test Android App on Emulator
     needs: android-build
-    runs-on: macos-latest
-    
+    runs-on: ubuntu-20.04
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        
+
       - name: Download Android APK from build job
         uses: actions/download-artifact@v4
         with:
           name: fdroid-android-trial
           path: apk
-          
-      - name: Display structure of downloaded files
-        run: find apk -type f -name "*.apk" | sort
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Display APK files
+        run: |
+          find apk -type f -name "*.apk" | sort
+          ls -la apk/
+          mkdir -p logs
       
-      # Use reactivecircus/android-emulator-runner with ARM-compatible configuration
-      - name: Run tests on emulator
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 30
-          target: google_apis
-          arch: arm64-v8a  # Using ARM architecture instead of x86_64
-          profile: Nexus 6
-          script: |
-            # Find the APK
-            APK_PATH=$(find $GITHUB_WORKSPACE/apk -name "*.apk" | head -1)
-            echo "Using APK at: $APK_PATH"
-            
-            if [ -z "$APK_PATH" ]; then
-              echo "ERROR: No APK found!"
-              exit 1
-            fi
-            
-            # Install APK
-            echo "Installing APK: $APK_PATH"
-            adb install -r -g $APK_PATH
-            INSTALL_RESULT=$?
-            
-            if [ $INSTALL_RESULT -ne 0 ]; then
-              echo "Failed to install APK (exit code: $INSTALL_RESULT)"
-              adb logcat -d | tail -n 100
-              mkdir -p $GITHUB_WORKSPACE/logs
-              adb logcat -d > $GITHUB_WORKSPACE/logs/logcat.txt
-              exit 1
-            fi
-            
-            echo "APK installed successfully"
-            
-            # Launch app
-            echo "Launching app..."
-            adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
-            LAUNCH_RESULT=$?
-            
-            if [ $LAUNCH_RESULT -ne 0 ]; then
-              echo "Failed to launch app (exit code: $LAUNCH_RESULT)"
-              adb logcat -d | tail -n 100
-              mkdir -p $GITHUB_WORKSPACE/logs
-              adb logcat -d > $GITHUB_WORKSPACE/logs/logcat.txt
-              exit 1
-            fi
-            
-            # Wait for app to start
-            echo "Waiting for app to start..."
-            sleep 30
-            
-            # Check if app is running
-            APP_PID=$(adb shell pidof org.cagnulen.qdomyoszwift || echo "")
-            
-            if [ -z "$APP_PID" ]; then
-              echo "App is not running! Checking logs..."
-              adb logcat -d "*:E" | tail -n 200
-              
-              # Create logs directory and save logs
-              mkdir -p $GITHUB_WORKSPACE/logs
-              adb logcat -d > $GITHUB_WORKSPACE/logs/logcat.txt
-              
-              # Also capture installed packages
-              adb shell pm list packages > $GITHUB_WORKSPACE/logs/packages.txt
-              
-              exit 1
-            else
-              echo "App is running with PID: $APP_PID"
-            fi
-            
-            # Capture screenshot
-            adb shell screencap -p /sdcard/screenshot.png
-            adb pull /sdcard/screenshot.png $GITHUB_WORKSPACE/screenshot.png
-            
-            # Capture logs for successful run as well
-            mkdir -p $GITHUB_WORKSPACE/logs
-            adb logcat -d > $GITHUB_WORKSPACE/logs/logcat.txt
+      - name: Pull and run Android emulator Docker container
+        run: |
+          # Pull the Android emulator Docker image
+          docker pull wontruefree/android-emulator:latest
           
+          # Run the container in detached mode
+          docker run -d --name android-emulator \
+            --privileged \
+            -v $(pwd)/apk:/apk \
+            -v $(pwd)/logs:/logs \
+            -e ANDROID_ARCH=x86_64 \
+            -e ANDROID_API=29 \
+            wontruefree/android-emulator:latest
+          
+          # Wait for the emulator to start (shows container logs in real-time)
+          echo "Waiting for emulator to start..."
+          timeout 300 sh -c 'until docker logs -f android-emulator 2>&1 | grep -q "emulator: INFO: boot completed"; do sleep 5; echo "Still waiting..."; done' || { 
+            echo "Emulator failed to start within timeout"; 
+            docker logs android-emulator; 
+            exit 1; 
+          }
+          
+          echo "Emulator started successfully!"
+
+      - name: Install and test app
+        run: |
+          # Create a script to run inside the container
+          cat > test_script.sh << 'EOF'
+          #!/bin/bash
+          set -e
+          
+          # Find the APK
+          APK_PATH=$(find /apk -name "*.apk" | head -1)
+          echo "Using APK: $APK_PATH"
+          
+          if [ -z "$APK_PATH" ]; then
+            echo "ERROR: No APK found!"
+            exit 1
+          fi
+          
+          # Install the APK
+          echo "Installing APK..."
+          adb install -r $APK_PATH
+          
+          # Launch the app
+          echo "Launching app..."
+          adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
+          
+          # Wait for app to start
+          echo "Waiting for app to start..."
+          sleep 30
+          
+          # Check if app is running
+          APP_RUNNING=$(adb shell "ps | grep org.cagnulen.qdomyoszwift" || echo "")
+          
+          if [ -z "$APP_RUNNING" ]; then
+            echo "App is not running! Checking logs..."
+            adb logcat -d "*:E" > /logs/error.log
+            exit 1
+          else
+            echo "App is running:"
+            echo "$APP_RUNNING"
+          fi
+          
+          # Capture screenshot
+          echo "Taking screenshot..."
+          adb shell screencap -p /sdcard/screenshot.png
+          adb pull /sdcard/screenshot.png /logs/screenshot.png
+          
+          # Collect logs
+          echo "Collecting logs..."
+          adb logcat -d > /logs/logcat.log
+          
+          echo "Test completed successfully!"
+          EOF
+          
+          chmod +x test_script.sh
+          
+          # Copy the script to the container and run it
+          docker cp test_script.sh android-emulator:/test_script.sh
+          docker exec android-emulator bash /test_script.sh
+        
+      - name: Capture screenshot from container
+        if: always()
+        run: |
+          docker cp android-emulator:/logs/screenshot.png ./screenshot.png || echo "Screenshot not available"
+        
       - name: Upload screenshot
         if: always()
         uses: actions/upload-artifact@v4
