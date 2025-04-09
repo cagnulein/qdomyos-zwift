@@ -4,7 +4,6 @@
 #include "characteristicnotifier0002.h"
 #include "characteristicnotifier0004.h"
 #include "characteristicwriteprocessor.h"
-#include "bike.h"
 
 class CharacteristicWriteProcessor0003 : public CharacteristicWriteProcessor {
     Q_OBJECT
@@ -25,12 +24,7 @@ public:
                                     uint32_t unknown2);
     static uint32_t calculateUnknown1(uint16_t power);
     void handleZwiftGear(const QByteArray &array);
-    double currentGear() {
-        if(zwiftGearReceived)
-            return currentZwiftGear;
-        else
-            return ((bike*)Bike)->gears();
-    }
+    double currentGear();
 
 
 private:

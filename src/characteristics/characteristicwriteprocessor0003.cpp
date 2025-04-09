@@ -1,5 +1,6 @@
 #include "characteristicwriteprocessor0003.h"
 #include <QDebug>
+#include "bike.h"
 
 CharacteristicWriteProcessor0003::CharacteristicWriteProcessor0003(double bikeResistanceGain,
                                                                  int8_t bikeResistanceOffset,
@@ -27,6 +28,13 @@ CharacteristicWriteProcessor0003::VarintResult CharacteristicWriteProcessor0003:
     }
 
     return {result, bytesRead};
+}
+
+double CharacteristicWriteProcessor0003::currentGear() {
+    if(zwiftGearReceived)
+        return currentZwiftGear;
+    else
+        return ((bike*)Bike)->gears();
 }
 
 qint32 CharacteristicWriteProcessor0003::decodeSInt(const QByteArray& bytes) {
