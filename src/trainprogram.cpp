@@ -11,7 +11,6 @@
 #include <QAndroidJniObject>
 #elif defined(Q_OS_WINDOWS)
 #include "windows_zwift_incline_paddleocr_thread.h"
-#include "windows_zwift_workout_paddleocr_thread.h"
 #endif
 #ifdef Q_CC_MSVC
 #include "zwift-api/zwift_messages.pb.h"
@@ -723,8 +722,7 @@ void trainprogram::scheduler() {
 
         // in case no workout has been selected
         // Zwift OCR
-        if ((settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool() ||
-             settings.value(QZSettings::zwift_ocr_climb_portal, QZSettings::default_zwift_ocr_climb_portal).toBool()) &&
+        if ((settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool()) &&
             bluetoothManager && bluetoothManager->device() &&
             (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL ||
              bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)) {
@@ -788,25 +786,9 @@ void trainprogram::scheduler() {
                         &bluetooth::debug);
                 connect(windows_zwift_ocr_thread, &windows_zwift_incline_paddleocr_thread::onInclination, this,
                         &trainprogram::changeInclination);
-                windows_zwift_ocr_thread->start();
-            }
-#endif
-        } else if (settings.value(QZSettings::zwift_workout_ocr, QZSettings::default_zwift_workout_ocr).toBool() &&
-                   bluetoothManager && bluetoothManager->device() &&
-                   (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL ||
-                    bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)) {
-#ifdef Q_OS_WINDOWS
-            static windows_zwift_workout_paddleocr_thread *windows_zwift_workout_ocr_thread = nullptr;
-            if (!windows_zwift_workout_ocr_thread) {
-                windows_zwift_workout_ocr_thread =
-                    new windows_zwift_workout_paddleocr_thread(bluetoothManager->device());
-                connect(windows_zwift_workout_ocr_thread, &windows_zwift_workout_paddleocr_thread::debug,
-                        bluetoothManager, &bluetooth::debug);
-                connect(windows_zwift_workout_ocr_thread, &windows_zwift_workout_paddleocr_thread::onInclination, this,
-                        &trainprogram::changeInclination);
-                connect(windows_zwift_workout_ocr_thread, &windows_zwift_workout_paddleocr_thread::onSpeed, this,
+                connect(windows_zwift_ocr_thread, &windows_zwift_incline_paddleocr_thread::onSpeed, this,
                         &trainprogram::changeSpeed);
-                windows_zwift_workout_ocr_thread->start();
+                windows_zwift_ocr_thread->start();
             }
 #endif
         }
