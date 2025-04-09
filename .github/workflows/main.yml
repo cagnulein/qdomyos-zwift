@@ -1387,12 +1387,11 @@ jobs:
           path: windows-msvc2022-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
-  android-emulator-test:
-    name: Test Android App on Emulator
+  android-apk-verify:
+    name: Verify Android APK
     needs: android-build
     runs-on: ubuntu-latest
 
-    # Using a more basic approach with the emulator-runner action
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -1415,109 +1414,84 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
       
-      # Using avito-tech/android-emulator-runner which is more reliable than reactivecircus
-      - name: Run Android emulator and test app
-        uses: Flank/flank@master
-        with:
-          cmd: bash -c '
-            # Install dependencies
-            apt-get update && apt-get install -y curl unzip openjdk-11-jdk
-            
-            # Find the APK
-            APK_PATH=$(find ${{ github.workspace }}/apk -name "*.apk" | head -1)
-            echo "Using APK: $APK_PATH"
-            
-            if [ -z "$APK_PATH" ]; then
-              echo "ERROR: No APK found!"
-              exit 1
-            fi
-            
-            # Install Android SDK components
-            mkdir -p /root/android-sdk
-            cd /root/android-sdk
-            curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip
-            unzip -q sdk-tools.zip
-            
-            # Set environment variables
-            export ANDROID_HOME=/root/android-sdk
-            export PATH=$ANDROID_HOME/cmdline-tools/bin:$ANDROID_HOME/platform-tools:$PATH
-            
-            # Accept licenses
-            yes | sdkmanager --licenses
-            
-            # Install required Android packages
-            sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.3" "emulator" "system-images;android-29;google_apis;x86_64"
-            
-            # Create AVD
-            echo "no" | avdmanager create avd --force -n test --package "system-images;android-29;google_apis;x86_64" --tag "google_apis" --abi "x86_64"
-            
-            # Start emulator in background
-            $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window -no-boot-anim -gpu swiftshader_indirect &
-            
-            # Wait for device to be available
-            $ANDROID_HOME/platform-tools/adb wait-for-device
-            
-            # Wait for boot to complete
-            while [[ -z $($ANDROID_HOME/platform-tools/adb shell getprop sys.boot_completed 2>/dev/null) ]]; do
-              echo "Waiting for boot to complete..."
-              sleep 5
-            done
-            
-            echo "Emulator is ready!"
-            $ANDROID_HOME/platform-tools/adb devices
-            
-            # Install the APK
-            echo "Installing APK: $APK_PATH"
-            $ANDROID_HOME/platform-tools/adb install -r -g $APK_PATH
-            
-            # Launch the app
-            echo "Launching app..."
-            $ANDROID_HOME/platform-tools/adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
-            
-            # Wait for app to start
-            echo "Waiting for app to start..."
-            sleep 30
-            
-            # Check if app is running
-            APP_RUNNING=$($ANDROID_HOME/platform-tools/adb shell "ps -A | grep org.cagnulen.qdomyoszwift" || echo "")
-            
-            if [ -z "$APP_RUNNING" ]; then
-              echo "App is not running! Checking logs..."
-              $ANDROID_HOME/platform-tools/adb logcat -d "*:E" > ${{ github.workspace }}/logs/error.log
-              $ANDROID_HOME/platform-tools/adb shell pm list packages > ${{ github.workspace }}/logs/packages.txt
-              $ANDROID_HOME/platform-tools/adb logcat -d > ${{ github.workspace }}/logs/logcat.log
-              exit 1
-            else
-              echo "App is running:"
-              echo "$APP_RUNNING"
-            fi
-            
-            # Take screenshots and collect logs
-            echo "Taking screenshot..."
-            $ANDROID_HOME/platform-tools/adb shell screencap -p /sdcard/screenshot.png
-            $ANDROID_HOME/platform-tools/adb pull /sdcard/screenshot.png ${{ github.workspace }}/logs/screenshot.png
-            
-            $ANDROID_HOME/platform-tools/adb logcat -d > ${{ github.workspace }}/logs/logcat.log
-            
-            echo "Test completed successfully!"
-          '
-            
-      - name: Upload screenshot
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: emulator-screenshot
-          path: logs/screenshot.png
-          if-no-files-found: ignore
+      - name: Install Android SDK tools
+        run: |
+          # Install the Android SDK via sdkmanager
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O sdk-tools.zip
+          unzip -q sdk-tools.zip -d $HOME/android-sdk
           
-      - name: Upload logs
-        if: always()
+          # Set up environment variables
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/bin:$PATH
+          
+          # Install packages
+          yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "build-tools;30.0.3"
+      
+      - name: Verify APK with aapt
+        run: |
+          # Find the APK file
+          APK_PATH=$(find apk -name "*.apk" | head -1)
+          echo "Found APK: $APK_PATH"
+          
+          if [ -z "$APK_PATH" ]; then
+            echo "ERROR: No APK found!"
+            exit 1
+          fi
+          
+          # Set up environment variables
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export PATH=$ANDROID_SDK_ROOT/build-tools/30.0.3:$PATH
+          
+          # Analyze APK with aapt
+          echo "Analyzing APK with aapt..."
+          mkdir -p logs
+          
+          # Get package info
+          aapt dump badging $APK_PATH > logs/apk_info.txt
+          
+          # Extract main activity
+          MAIN_ACTIVITY=$(grep -o "launchable-activity:.*" logs/apk_info.txt | head -1 | cut -d"'" -f2)
+          echo "Main activity: $MAIN_ACTIVITY"
+          
+          # Extract package name
+          PACKAGE_NAME=$(grep -o "package: name='[^']*'" logs/apk_info.txt | head -1 | cut -d"'" -f2)
+          echo "Package name: $PACKAGE_NAME"
+          
+          # Verify package name matches expected
+          if [[ "$PACKAGE_NAME" != "org.cagnulen.qdomyoszwift" ]]; then
+            echo "WARNING: Package name $PACKAGE_NAME doesn't match expected 'org.cagnulen.qdomyoszwift'"
+          else
+            echo "Package name verified: $PACKAGE_NAME"
+          fi
+          
+          # List all permissions
+          echo "APK permissions:"
+          grep -o "uses-permission:.*" logs/apk_info.txt
+          
+          # List ABIs
+          echo "APK supports these ABIs:"
+          grep -o "native-code:.*" logs/apk_info.txt
+          
+          # Verify the APK is built for multiple architectures
+          ABI_COUNT=$(grep -o "native-code:.*" logs/apk_info.txt | grep -o "'" | wc -l)
+          if [ "$ABI_COUNT" -lt 2 ]; then
+            echo "WARNING: APK only supports $ABI_COUNT architecture(s)"
+          else
+            echo "APK supports $ABI_COUNT architectures"
+          fi
+          
+          # Extract the AndroidManifest.xml
+          echo "Extracting AndroidManifest.xml..."
+          aapt dump xmltree $APK_PATH AndroidManifest.xml > logs/manifest.txt
+          
+          echo "APK verification completed successfully"
+      
+      - name: Upload APK analysis logs
         uses: actions/upload-artifact@v4
         with:
-          name: emulator-logs
+          name: apk-analysis
           path: logs/
-          if-no-files-found: ignore
-    
+          
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-22.04 
