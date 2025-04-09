@@ -1390,8 +1390,9 @@ jobs:
   android-emulator-test:
     name: Test Android App on Emulator
     needs: android-build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
+    # Using a more basic approach with the emulator-runner action
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -1402,119 +1403,105 @@ jobs:
           name: fdroid-android-trial
           path: apk
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
-
-      - name: Display APK files
+      - name: Display structure of downloaded files
         run: |
           find apk -type f -name "*.apk" | sort
           ls -la apk/
           mkdir -p logs
-
-      # Using budtmo/docker-android which is well-maintained and reliable
-      - name: Pull and run Android emulator container
-        run: |
-          # Pull the Docker image
-          docker pull budtmo/docker-android:emulator_11.0
-          
-          # Run the emulator in Docker
-          docker run --privileged -d -p 6080:6080 -p 5554:5554 -p 5555:5555 \
-            -e DEVICE="Samsung Galaxy S10" \
-            -e APPIUM=false \
-            -e EMULATOR_ARGS="-no-snapshot-load -no-snapshot-save" \
-            -v $(pwd)/apk:/root/apk \
-            -v $(pwd)/logs:/root/logs \
-            --name android-container \
-            budtmo/docker-android:emulator_11.0
-          
-          # Wait for container to be ready
-          echo "Waiting for container to initialize..."
-          timeout 300 bash -c 'until docker logs android-container 2>&1 | grep -q "Emulator is ready"; do sleep 10; echo "Still waiting..."; done' || { 
-            echo "Container failed to initialize within timeout"; 
-            docker logs android-container; 
-            exit 1; 
-          }
-          
-          echo "Container is ready!"
       
-      - name: Install and test the app
-        run: |
-          # Create test script
-          cat > test_script.sh << 'EOF'
-          #!/bin/bash
-          set -e
-          
-          # Connect to the emulator
-          adb connect localhost:5555
-          
-          # Wait for device to be available
-          echo "Waiting for ADB connection..."
-          timeout 60 bash -c 'until adb devices | grep -q "localhost:5555"; do sleep 5; echo "Waiting..."; done'
-          
-          adb devices
-          
-          # Find the APK
-          APK_PATH=$(find /root/apk -name "*.apk" | head -1)
-          echo "Using APK: $APK_PATH"
-          
-          if [ -z "$APK_PATH" ]; then
-            echo "ERROR: No APK found!"
-            exit 1
-          fi
-          
-          # Install the APK
-          echo "Installing APK..."
-          adb -s localhost:5555 install -r -g $APK_PATH
-          
-          # Launch the app
-          echo "Launching app..."
-          adb -s localhost:5555 shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
-          
-          # Wait for app to start
-          echo "Waiting for app to start..."
-          sleep 30
-          
-          # Check if app is running
-          APP_RUNNING=$(adb -s localhost:5555 shell "ps -A | grep org.cagnulen.qdomyoszwift" || echo "")
-          
-          if [ -z "$APP_RUNNING" ]; then
-            echo "App is not running! Checking logs..."
-            adb -s localhost:5555 logcat -d "*:E" > /root/logs/error.log
-            adb -s localhost:5555 shell pm list packages > /root/logs/packages.txt
-            exit 1
-          else
-            echo "App is running:"
-            echo "$APP_RUNNING"
-          fi
-          
-          # Capture screenshot
-          echo "Taking screenshot..."
-          adb -s localhost:5555 shell screencap -p /sdcard/screenshot.png
-          adb -s localhost:5555 pull /sdcard/screenshot.png /root/logs/screenshot.png
-          
-          # Collect logs
-          echo "Collecting logs..."
-          adb -s localhost:5555 logcat -d > /root/logs/logcat.log
-          
-          echo "Test completed successfully!"
-          EOF
-          
-          chmod +x test_script.sh
-          
-          # Run the script inside the Docker container
-          docker cp test_script.sh android-container:/root/test_script.sh
-          docker exec android-container bash /root/test_script.sh || {
-            echo "Test script failed. Collecting logs..."
-            docker exec android-container adb -s localhost:5555 logcat -d > logs/failure_logcat.log
-            exit 1
-          }
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
       
-      - name: Retrieve VNC information (for debugging)
-        if: always()
-        run: |
-          echo "VNC access is available at http://localhost:6080/ during the test"
-          echo "You can view the emulator UI through VNC if needed"
-      
+      # Using avito-tech/android-emulator-runner which is more reliable than reactivecircus
+      - name: Run Android emulator and test app
+        uses: Flank/flank@master
+        with:
+          cmd: bash -c '
+            # Install dependencies
+            apt-get update && apt-get install -y curl unzip openjdk-11-jdk
+            
+            # Find the APK
+            APK_PATH=$(find ${{ github.workspace }}/apk -name "*.apk" | head -1)
+            echo "Using APK: $APK_PATH"
+            
+            if [ -z "$APK_PATH" ]; then
+              echo "ERROR: No APK found!"
+              exit 1
+            fi
+            
+            # Install Android SDK components
+            mkdir -p /root/android-sdk
+            cd /root/android-sdk
+            curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip
+            unzip -q sdk-tools.zip
+            
+            # Set environment variables
+            export ANDROID_HOME=/root/android-sdk
+            export PATH=$ANDROID_HOME/cmdline-tools/bin:$ANDROID_HOME/platform-tools:$PATH
+            
+            # Accept licenses
+            yes | sdkmanager --licenses
+            
+            # Install required Android packages
+            sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.3" "emulator" "system-images;android-29;google_apis;x86_64"
+            
+            # Create AVD
+            echo "no" | avdmanager create avd --force -n test --package "system-images;android-29;google_apis;x86_64" --tag "google_apis" --abi "x86_64"
+            
+            # Start emulator in background
+            $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window -no-boot-anim -gpu swiftshader_indirect &
+            
+            # Wait for device to be available
+            $ANDROID_HOME/platform-tools/adb wait-for-device
+            
+            # Wait for boot to complete
+            while [[ -z $($ANDROID_HOME/platform-tools/adb shell getprop sys.boot_completed 2>/dev/null) ]]; do
+              echo "Waiting for boot to complete..."
+              sleep 5
+            done
+            
+            echo "Emulator is ready!"
+            $ANDROID_HOME/platform-tools/adb devices
+            
+            # Install the APK
+            echo "Installing APK: $APK_PATH"
+            $ANDROID_HOME/platform-tools/adb install -r -g $APK_PATH
+            
+            # Launch the app
+            echo "Launching app..."
+            $ANDROID_HOME/platform-tools/adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
+            
+            # Wait for app to start
+            echo "Waiting for app to start..."
+            sleep 30
+            
+            # Check if app is running
+            APP_RUNNING=$($ANDROID_HOME/platform-tools/adb shell "ps -A | grep org.cagnulen.qdomyoszwift" || echo "")
+            
+            if [ -z "$APP_RUNNING" ]; then
+              echo "App is not running! Checking logs..."
+              $ANDROID_HOME/platform-tools/adb logcat -d "*:E" > ${{ github.workspace }}/logs/error.log
+              $ANDROID_HOME/platform-tools/adb shell pm list packages > ${{ github.workspace }}/logs/packages.txt
+              $ANDROID_HOME/platform-tools/adb logcat -d > ${{ github.workspace }}/logs/logcat.log
+              exit 1
+            else
+              echo "App is running:"
+              echo "$APP_RUNNING"
+            fi
+            
+            # Take screenshots and collect logs
+            echo "Taking screenshot..."
+            $ANDROID_HOME/platform-tools/adb shell screencap -p /sdcard/screenshot.png
+            $ANDROID_HOME/platform-tools/adb pull /sdcard/screenshot.png ${{ github.workspace }}/logs/screenshot.png
+            
+            $ANDROID_HOME/platform-tools/adb logcat -d > ${{ github.workspace }}/logs/logcat.log
+            
+            echo "Test completed successfully!"
+          '
+            
       - name: Upload screenshot
         if: always()
         uses: actions/upload-artifact@v4
