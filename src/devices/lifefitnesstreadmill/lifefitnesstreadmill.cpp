@@ -267,7 +267,7 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
     double heart = 0; // NOTE : Should be initialized with a value to shut clang-analyzer's
                       // UndefinedBinaryOperatorResult
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
-    Q_UNUSED(characteristic);
+
     bool distanceEval = false;
     QSettings settings;
     // bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x,
@@ -280,7 +280,32 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
+    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("4a8ff3f1-c933-11e3-9c1a-0800200c9a66")) && newValue.length() == 40) {
+        Speed = ((double)newValue.at(32)) / 10.0;
+        Inclination = ((double)newValue.at(27)) / 10.0;
+        distanceEval = true;
+        if (firstDistanceCalculated) {
+            Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+            if(watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+                KCal +=
+                    ((((0.048 *
+                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                        1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 /
+                      ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                            // kg * 3.5) / 200 ) / 60
+        }
+
+#ifdef Q_OS_ANDROID
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+#endif
+
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
         lastPacket = newValue;
 
         // default flags for this treadmill is 84 04

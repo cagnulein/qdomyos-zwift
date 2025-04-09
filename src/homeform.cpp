@@ -535,6 +535,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::activityDescriptionChanged, this,
             &homeform::setActivityDescription);
     engine->rootContext()->setContextProperty(QStringLiteral("rootItem"), (QObject *)this);
+    connect(this, &homeform::restoreDefaultWheelDiameter, this, &homeform::handleRestoreDefaultWheelDiameter);
 
     this->trainProgram = new trainprogram(QList<trainrow>(), bl);
 
@@ -4607,6 +4608,18 @@ QString homeform::signal() {
     }
 
     return QStringLiteral("icons/icons/signal-1.png");
+}
+
+void homeform::handleRestoreDefaultWheelDiameter() {
+    if (bluetoothManager && bluetoothManager->device() &&
+        bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+
+        // Controlla se il dispositivo è un wahookickrsnapbike
+        wahookickrsnapbike* kickrBike = dynamic_cast<wahookickrsnapbike*>(bluetoothManager->device());
+        if (kickrBike) {
+            kickrBike->restoreDefaultWheelDiameter();
+        }
+    }
 }
 
 void homeform::update() {
