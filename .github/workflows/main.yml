@@ -1390,159 +1390,78 @@ jobs:
   android-emulator-test:
     name: Test Android App on Emulator
     needs: android-build
-    runs-on: ubuntu-22.04
-
+    runs-on: macos-latest  # Using macOS runner for better emulator performance
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
+        
       - name: Download Android APK from build job
         uses: actions/download-artifact@v4
         with:
           name: fdroid-android-trial
           path: apk
-
-      - name: Display structure of downloaded files
-        run: ls -R apk/
-        
+          
       - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '11'
-
+          
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
-
-      # Using arm emulator instead of x86_64 since it doesn't require hardware acceleration
-      - name: Install ARM emulator and system image
+        
+      - name: Find APK path
+        id: find-apk
         run: |
-          echo "y" | sdkmanager --install "platform-tools" "platforms;android-30" "build-tools;30.0.3" "emulator" "system-images;android-30;google_apis;armeabi-v7a"
-          echo "no" | avdmanager create avd --force --name test_avd --package "system-images;android-30;google_apis;armeabi-v7a" --tag "google_apis" --abi "armeabi-v7a"
-          
-      # Modified emulator start command with proper flags for CI environment
-      - name: Start Android emulator
-        timeout-minutes: 10  # Adding timeout to prevent hanging
-        run: |
-          echo "Starting emulator..."
-          
-          # Create custom config.ini for the emulator to improve startup performance
-          echo 'hw.ramSize=2048' >> ~/.android/avd/test_avd.avd/config.ini
-          echo 'hw.lcd.density=240' >> ~/.android/avd/test_avd.avd/config.ini
-          echo 'hw.lcd.width=800' >> ~/.android/avd/test_avd.avd/config.ini
-          echo 'hw.lcd.height=1280' >> ~/.android/avd/test_avd.avd/config.ini
-          echo 'hw.gpu.enabled=yes' >> ~/.android/avd/test_avd.avd/config.ini
-          echo 'hw.gpu.mode=swiftshader' >> ~/.android/avd/test_avd.avd/config.ini
-          
-          # Start emulator with proper options for CI
-          $ANDROID_HOME/emulator/emulator -avd test_avd -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -noaudio -no-cache -no-accel -memory 2048 &
-          
-          # Wait for device to be available with timeout and progress indication
-          echo "Waiting for emulator to start..."
-          max_attempts=30
-          attempt=0
-          
-          while [ $attempt -lt $max_attempts ]; do
-            attempt=$((attempt+1))
-            echo "Checking emulator status (attempt $attempt/$max_attempts)..."
-            
-            if adb devices | grep -q "emulator-"; then
-              echo "Emulator device found, waiting for boot completion..."
-              break
-            fi
-            
-            sleep 10
-          done
-          
-          # Wait for boot to complete
-          max_boot_attempts=30
-          boot_attempt=0
-          
-          while [ $boot_attempt -lt $max_boot_attempts ]; do
-            boot_attempt=$((boot_attempt+1))
-            echo "Checking boot completion (attempt $boot_attempt/$max_boot_attempts)..."
-            
-            boot_completed=$(adb shell getprop sys.boot_completed 2>&1 || echo "error")
-            
-            if [ "$boot_completed" == "1" ]; then
-              echo "Boot completed!"
-              break
-            elif [ "$boot_completed" == "error" ]; then
-              echo "Error accessing emulator, will retry..."
-            else
-              echo "Still booting... (status: $boot_completed)"
-            fi
-            
-            sleep 10
-          done
-          
-          adb devices
-          echo "Emulator startup process finished"
-
-      - name: Grant required permissions
-        run: |
-          # Grant Bluetooth permissions (required for your app)
-          adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_SCAN || echo "Cannot grant BLUETOOTH_SCAN, may not be supported on this Android version"
-          adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_CONNECT || echo "Cannot grant BLUETOOTH_CONNECT, may not be supported on this Android version"
-          adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADVERTISE || echo "Cannot grant BLUETOOTH_ADVERTISE, may not be supported on this Android version"
-          adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_FINE_LOCATION || echo "Cannot grant ACCESS_FINE_LOCATION"
-          
-          # Granting older Bluetooth permissions for API compatibility
-          adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH || echo "Cannot grant BLUETOOTH"
-          adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADMIN || echo "Cannot grant BLUETOOTH_ADMIN"
-
-      - name: Install and launch app
-        run: |
-          # Find the APK
           APK_PATH=$(find apk -name "*.apk" | head -1)
-          echo "Installing APK: $APK_PATH"
+          echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
+          echo "Using APK at: $APK_PATH"
           
-          # Install
-          adb install -g $APK_PATH
-          
-          # Launch app
-          adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
-          
-          # Wait for app to fully start
-          echo "Waiting for app to start..."
-          sleep 30
-          
-          # Check if app is running
-          APP_PID=$(adb shell pidof org.cagnulen.qdomyoszwift)
-          if [ -z "$APP_PID" ]; then
-            echo "App is not running! Checking logs..."
-            adb logcat -d "*:E"
-            exit 1
-          else
-            echo "App is running with PID: $APP_PID"
-          fi
-
-      - name: Capture screenshot
-        if: always()
-        run: |
-          adb shell screencap -p /sdcard/screenshot.png
-          adb pull /sdcard/screenshot.png || echo "Failed to capture screenshot"
-
-      - name: Collect logs
-        if: always()
-        run: |
-          mkdir -p logs
-          adb logcat -d > logs/logcat.txt || echo "Failed to collect logs"
-          
+      - name: Run tests on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          target: default
+          arch: x86
+          profile: Nexus 6
+          script: |
+            adb install -g ${{ env.APK_PATH }}
+            adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
+            sleep 30
+            
+            # Check if app is running
+            APP_PID=$(adb shell pidof org.cagnulen.qdomyoszwift || echo "")
+            if [ -z "$APP_PID" ]; then
+              echo "App is not running! Checking logs..."
+              adb logcat -d "*:E"
+              exit 1
+            else
+              echo "App is running with PID: $APP_PID"
+            fi
+            
+            # Capture screenshot
+            adb shell screencap -p /sdcard/screenshot.png
+            adb pull /sdcard/screenshot.png
+            
+            # Collect logs
+            mkdir -p logs
+            adb logcat -d > logs/logcat.txt
+            
       - name: Upload screenshot
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: emulator-screenshot
           path: screenshot.png
-
+          
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: emulator-logs
           path: logs/
-  
+    
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-22.04 
