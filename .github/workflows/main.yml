@@ -510,7 +510,7 @@ jobs:
   # This workflow contains a single job called "build"
   android-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -1389,7 +1389,7 @@ jobs:
   
   upload_to_release:
     permissions: write-all
-    runs-on: ubuntu-20.04 
+    runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
     needs: [linux-x86-build, window-msvc2019-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]
     steps:
