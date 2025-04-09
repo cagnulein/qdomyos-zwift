@@ -1,4 +1,3 @@
-#include "bike.h"
 #include "characteristicwriteprocessor0003.h"
 #include <QDebug>
 
@@ -102,9 +101,10 @@ void CharacteristicWriteProcessor0003::handleZwiftGear(const QByteArray &array) 
             for (int i = 0; i < g - currentZwiftGear; ++i) {
                 ((bike*)Bike)->gearUp();
             }
-        }
-        currentZwiftGear = g;
+        }                
     }
+    currentZwiftGear = g;
+    zwiftGearReceived = true;
 }
 
 QByteArray CharacteristicWriteProcessor0003::encodeHubRidingData(

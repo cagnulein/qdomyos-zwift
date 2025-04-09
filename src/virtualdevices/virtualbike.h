@@ -42,6 +42,9 @@ class virtualbike : public virtualdevice {
         else
             return lastDirconFTMSFrameReceived;
     }
+    double currentGear() {
+        return writeP0003->currentGear();
+    }
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -64,11 +67,14 @@ class virtualbike : public virtualdevice {
     QTimer bikeTimer;
     bluetoothdevice *Bike;
     CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
+    CharacteristicWriteProcessor0003 *writeP0003 = 0;
     CharacteristicNotifier2AD2 *notif2AD2 = 0;
     CharacteristicNotifier2AD9 *notif2AD9 = 0;
     CharacteristicNotifier2A63 *notif2A63 = 0;
     CharacteristicNotifier2A37 *notif2A37 = 0;
     CharacteristicNotifier2A5B *notif2A5B = 0;
+    CharacteristicNotifier0002 *notif0002 = 0;
+    CharacteristicNotifier0004 *notif0004 = 0;
 
     qint64 lastFTMSFrameReceived = 0;
     qint64 lastDirconFTMSFrameReceived = 0;
@@ -77,7 +83,6 @@ class virtualbike : public virtualdevice {
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     DirconManager *dirconManager = 0;
-    uint8_t CurrentZwiftGear = 8;
     int iFit_pelotonToBikeResistance(int pelotonResistance);
     int iFit_resistanceToIfit(int ifitResistance);
     qint64 iFit_timer = 0;
@@ -85,8 +90,6 @@ class virtualbike : public virtualdevice {
     QByteArray iFit_LastFrameReceived;
     resistance_t iFit_LastResistanceRequested = 0;
     bool iFit_Stop = false;
-
-    void handleZwiftGear(const QByteArray &array);
 
     bool echelonInitDone = false;
     void echelonWriteResistance();
