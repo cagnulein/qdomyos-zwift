@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.provider.Settings;
-import org.cagnulen.qdomyoszwift.QLog as Log;
+import org.cagnulen.qdomyoszwift.Log;
 
 public class LocationHelper {
     private static final String TAG = "LocationHelper";

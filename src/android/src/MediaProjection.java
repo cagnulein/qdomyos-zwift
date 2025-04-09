@@ -12,7 +12,7 @@ import android.util.DisplayMetrics;
 import android.os.Build;
 import android.provider.Settings;
 import android.app.AppOpsManager;
-import org.cagnulen.qdomyoszwift.QLog as Log;
+import org.cagnulen.qdomyoszwift.Log;
 import android.annotation.TargetApi;
 
 import com.rvalerio.fgchecker.AppChecker;

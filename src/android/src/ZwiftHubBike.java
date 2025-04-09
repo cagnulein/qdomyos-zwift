@@ -17,7 +17,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.os.Looper;
 import android.os.Handler;
-import org.cagnulen.qdomyoszwift.QLog as Log;
+import org.cagnulen.qdomyoszwift.Log;
 import com.garmin.android.connectiq.ConnectIQ;
 import com.garmin.android.connectiq.ConnectIQAdbStrategy;
 import com.garmin.android.connectiq.IQApp;

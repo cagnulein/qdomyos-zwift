@@ -18,7 +18,7 @@ import android.media.projection.MediaProjectionManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import org.cagnulen.qdomyoszwift.QLog as Log;
+import org.cagnulen.qdomyoszwift.Log;
 import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.WindowManager;
@@ -43,7 +43,7 @@ import android.graphics.Rect;
 import android.graphics.Point;
 
 import androidx.core.util.Pair;
-import org.cagnulen.qdomyoszwift.QLog as Log;
+import org.cagnulen.qdomyoszwift.Log;
 import android.os.Build;
 
 public class ScreenCaptureService extends Service {

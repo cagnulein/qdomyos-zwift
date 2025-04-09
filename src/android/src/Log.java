@@ -1,12 +1,12 @@
 package org.cagnulen.qdomyoszwift;
 
-import org.cagnulen.qdomyoszwift.QLog as Log;
+import android.util.Log;
 
 /**
  * QLog - Wrapper for Android's Log class that redirects logs to Qt's logging system
- * Usage: import org.cagnulen.qdomyoszwift.QLog as Log;
+ * Usage: import org.cagnulen.qdomyoszwift.Log;
  */
-public class QLog {
+public class Log {
     public static native void sendToQt(int level, String tag, String message);
 
     static {

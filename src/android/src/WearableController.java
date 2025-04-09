@@ -17,7 +17,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.os.Looper;
 import android.os.Handler;
-import org.cagnulen.qdomyoszwift.QLog as Log;
+import org.cagnulen.qdomyoszwift.Log;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
