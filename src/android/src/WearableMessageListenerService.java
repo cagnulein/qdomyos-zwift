@@ -82,7 +82,7 @@ public class WearableMessageListenerService extends Service implements
                                                     + "\tExpected: 1\n"
                                                     + "\tActual: " + result.getCount());
                                        }
-                                   } else if (QLog.isLoggable(TAG, QLog.DEBUG)) {
+                                   } else {
                                        QLog.d(TAG, "onHandleIntent: failed to get current alarm state");
                                    }
                                 QLog.d(TAG, "Heart: " + heart_rate);
