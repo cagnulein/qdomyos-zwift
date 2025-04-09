@@ -10,7 +10,7 @@ import android.os.Build;
 import android.os.IBinder;
 import androidx.core.app.NotificationCompat;
 import android.content.pm.ServiceInfo;
-import org.cagnulen.qdomyoszwift.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 
 public class ForegroundService extends Service {
 	 public static final String CHANNEL_ID = "ForegroundServiceChannel";
@@ -43,7 +43,7 @@ public class ForegroundService extends Service {
                                                 startForeground(1, notification);
                                              }
                                          } catch (Exception e) {
-                                             Log.e("ForegroundService", "Failed to start foreground service", e);
+                                             QLog.e("ForegroundService", "Failed to start foreground service", e);
                                              return START_NOT_STICKY;
                                          }
 		  //do heavy work on a background thread

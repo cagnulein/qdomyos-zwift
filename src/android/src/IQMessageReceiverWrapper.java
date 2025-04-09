@@ -8,7 +8,7 @@ import com.garmin.android.connectiq.IQDevice;
 
 import java.nio.BufferUnderflowException;
 
-import org.cagnulen.qdomyoszwift.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 
 public class IQMessageReceiverWrapper extends BroadcastReceiver {
     private final BroadcastReceiver receiver;
@@ -20,7 +20,7 @@ public class IQMessageReceiverWrapper extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "onReceive intent " + intent.getAction());
+        QLog.d(TAG, "onReceive intent " + intent.getAction());
         if ("com.garmin.android.connectiq.SEND_MESSAGE_STATUS".equals(intent.getAction())) {
             replaceIQDeviceById(intent, "com.garmin.android.connectiq.EXTRA_REMOTE_DEVICE");
         } else if ("com.garmin.android.connectiq.OPEN_APPLICATION".equals(intent.getAction())) {
@@ -32,7 +32,7 @@ public class IQMessageReceiverWrapper extends BroadcastReceiver {
         try {
             receiver.onReceive(context, intent);
         } catch (IllegalArgumentException | BufferUnderflowException e) {
-            Log.d(TAG, e.toString());
+            QLog.d(TAG, e.toString());
         }
     }
 
@@ -44,7 +44,7 @@ public class IQMessageReceiverWrapper extends BroadcastReceiver {
                 intent.putExtra(extraName, device.getDeviceIdentifier());
             }
         } catch (ClassCastException e) {
-            Log.d(TAG, e.toString());
+            QLog.d(TAG, e.toString());
             // It's already a long, i.e. on the simulator.
         }
     }

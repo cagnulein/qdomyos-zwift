@@ -17,7 +17,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.os.Looper;
 import android.os.Handler;
-import org.cagnulen.qdomyoszwift.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.content.BroadcastReceiver;
 import android.content.ContextWrapper;
 import android.content.IntentFilter;
@@ -89,12 +89,12 @@ public class BleAdvertiser {
     private static AdvertiseCallback advertiseCallback = new AdvertiseCallback() {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
-          Log.d("BleAdvertiser", "Advertising started successfully");
+          QLog.d("BleAdvertiser", "Advertising started successfully");
         }
 
         @Override
         public void onStartFailure(int errorCode) {
-          Log.e("BleAdvertiser", "Advertising failed with error code: " + errorCode);
+          QLog.e("BleAdvertiser", "Advertising failed with error code: " + errorCode);
         }
     };
 }

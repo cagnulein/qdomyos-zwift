@@ -25,7 +25,7 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
-import org.cagnulen.qdomyoszwift.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 
 public class CSafeRowerUSBHID {
 
@@ -34,21 +34,21 @@ public class CSafeRowerUSBHID {
 	static int lastReadLen = 0;
 
 	public static void open(Context context) {
-		 Log.d("QZ","CSafeRowerUSBHID open");
+		 QLog.d("QZ","CSafeRowerUSBHID open");
          hidBridge = new HidBridge(context, 0x0002, 0x17A4);
 		 boolean ret = hidBridge.OpenDevice();
-		 Log.d("QZ","hidBridge.OpenDevice " + ret);
+		 QLog.d("QZ","hidBridge.OpenDevice " + ret);
 		 if(ret == false) {
 			hidBridge = new HidBridge(context, 0x0001, 0x17A4);
 			ret = hidBridge.OpenDevice();
-			Log.d("QZ","hidBridge.OpenDevice " + ret);			
+			QLog.d("QZ","hidBridge.OpenDevice " + ret);			
 		 }
 		 hidBridge.StartReadingThread();
-		 Log.d("QZ","hidBridge.StartReadingThread");
+		 QLog.d("QZ","hidBridge.StartReadingThread");
 	}
 
    public static void write (byte[] bytes) {
-                Log.d("QZ","CSafeRowerUSBHID writing " + new String(bytes, StandardCharsets.ISO_8859_1));
+                QLog.d("QZ","CSafeRowerUSBHID writing " + new String(bytes, StandardCharsets.ISO_8859_1));
 		hidBridge.WriteData(bytes);
 		}
 
@@ -60,10 +60,10 @@ public class CSafeRowerUSBHID {
             if(hidBridge.IsThereAnyReceivedData()) {
 		receiveData = hidBridge.GetReceivedDataFromQueue();
 		lastReadLen = receiveData.length;
-                Log.d("QZ","CSafeRowerUSBHID reading " + lastReadLen + new String(receiveData, StandardCharsets.ISO_8859_1));
+                QLog.d("QZ","CSafeRowerUSBHID reading " + lastReadLen + new String(receiveData, StandardCharsets.ISO_8859_1));
 		return receiveData;
             } else {
-                Log.d("QZ","CSafeRowerUSBHID empty data");
+                QLog.d("QZ","CSafeRowerUSBHID empty data");
                 lastReadLen = 0;
                 return null;
             }

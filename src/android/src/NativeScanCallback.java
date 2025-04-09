@@ -2,7 +2,7 @@ package org.cagnulen.qdomyoszwift;
 
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
-import org.cagnulen.qdomyoszwift.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ public class NativeScanCallback extends ScanCallback {
     public native void scanError(int code);
     @Override
     public void onScanResult(int callbackType, ScanResult result) {
-        Log.i(TAG, "Res " + result);
+        QLog.i(TAG, "Res " + result);
         newScanResult(new ScanRecordResult(result));
     }
 
@@ -24,7 +24,7 @@ public class NativeScanCallback extends ScanCallback {
 
     @Override
     public void onScanFailed(int errorCode) {
-        Log.i(TAG, "onScanFailed "+errorCode);
+        QLog.i(TAG, "onScanFailed "+errorCode);
         scanError(errorCode);
     }
 }

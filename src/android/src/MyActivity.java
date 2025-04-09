@@ -1,5 +1,5 @@
 package org.cagnulen.qdomyoszwift;
-import org.cagnulen.qdomyoszwift.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 
 public class MyActivity extends org.qtproject.qt5.android.bindings.QtActivity {
 
@@ -12,6 +12,6 @@ public class MyActivity extends org.qtproject.qt5.android.bindings.QtActivity {
 	 super.onCreate(savedInstanceState);
 	 this.getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	 activity_ = this;
-	 Log.v(TAG, "onCreate");
+	 QLog.v(TAG, "onCreate");
  }
 }

@@ -55,7 +55,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
-import org.cagnulen.qdomyoszwift.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 
 import com.android.billingclient.api.AcknowledgePurchaseParams;
 import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
@@ -119,7 +119,7 @@ public class InAppPurchase implements PurchasesUpdatedListener
 	 }
 
     public void initializeConnection(){
-		  Log.w(TAG, "initializeConnection start");
+		  QLog.w(TAG, "initializeConnection start");
         billingClient = BillingClient.newBuilder(m_context)
                 .enablePendingPurchases()
                 .setListener(this)
@@ -127,17 +127,17 @@ public class InAppPurchase implements PurchasesUpdatedListener
         billingClient.startConnection(new BillingClientStateListener() {
             @Override
             public void onBillingSetupFinished(BillingResult billingResult) {
-					Log.w(TAG, "onBillingSetupFinished");
+					QLog.w(TAG, "onBillingSetupFinished");
                 if (billingResult.getResponseCode() == RESULT_OK) {
                     purchasedProductsQueried(m_nativePointer);
 						} else {
-					     Log.w(TAG, "onBillingSetupFinished error!" + billingResult.getResponseCode());
+					     QLog.w(TAG, "onBillingSetupFinished error!" + billingResult.getResponseCode());
 					 }
             }
 
             @Override
             public void onBillingServiceDisconnected() {
-                Log.w(TAG, "Billing service disconnected");
+                QLog.w(TAG, "Billing service disconnected");
             }
         });
     }
@@ -191,7 +191,7 @@ public class InAppPurchase implements PurchasesUpdatedListener
                     @Override
                     public void onAcknowledgePurchaseResponse(BillingResult billingResult)
                     {
-                        Log.d(TAG, "Purchase acknowledged  ");
+                        QLog.d(TAG, "Purchase acknowledged  ");
                     }
                 }
             );
@@ -199,9 +199,9 @@ public class InAppPurchase implements PurchasesUpdatedListener
     }
 
     public void queryDetails(final String[] productIds) {
-		  Log.d(TAG, "queryDetails: start");
+		  QLog.d(TAG, "queryDetails: start");
         int index = 0;
-		  Log.d(TAG, "queryDetails: productIds.length " + productIds.length);
+		  QLog.d(TAG, "queryDetails: productIds.length " + productIds.length);
         while (index < productIds.length) {
             List<String> productIdList = new ArrayList<>();
             for (int i = index; i < Math.min(index + 20, productIds.length); ++i) {
@@ -216,18 +216,18 @@ public class InAppPurchase implements PurchasesUpdatedListener
                         @Override
                         public void onSkuDetailsResponse(BillingResult billingResult, List<SkuDetails> skuDetailsList) {
                             int responseCode = billingResult.getResponseCode();
-									 Log.d(TAG, "onSkuDetailsResponse: responseCode " + responseCode);
+									 QLog.d(TAG, "onSkuDetailsResponse: responseCode " + responseCode);
 
                             if (responseCode != RESULT_OK) {
-                                Log.e(TAG, "queryDetails: Couldn't retrieve sku details.");
+                                QLog.e(TAG, "queryDetails: Couldn't retrieve sku details.");
                                 return;
                             }
                             if (skuDetailsList == null) {
-                                Log.e(TAG, "queryDetails: No details list in response.");
+                                QLog.e(TAG, "queryDetails: No details list in response.");
                                 return;
                             }
 
-								    Log.d(TAG, "onSkuDetailsResponse: skuDetailsList " + skuDetailsList);
+								    QLog.d(TAG, "onSkuDetailsResponse: skuDetailsList " + skuDetailsList);
                             for (SkuDetails skuDetails : skuDetailsList) {
                                 try {
                                     String queriedProductId = skuDetails.getSku();
@@ -265,7 +265,7 @@ public class InAppPurchase implements PurchasesUpdatedListener
                     public void onSkuDetailsResponse(BillingResult billingResult, List<SkuDetails> skuDetailsList) {
 
                         if (billingResult.getResponseCode() != RESULT_OK) {
-                            Log.e(TAG, "Unable to launch Google Play purchase screen");
+                            QLog.e(TAG, "Unable to launch Google Play purchase screen");
                             String errorString = getErrorString(requestCode);
                             purchaseFailed(requestCode, FAILUREREASON_ERROR, errorString);
                             return;
@@ -291,7 +291,7 @@ public class InAppPurchase implements PurchasesUpdatedListener
             @Override
             public void onConsumeResponse(BillingResult billingResult, String purchaseToken) {
                 if (billingResult.getResponseCode() != RESULT_OK) {
-                    Log.e(TAG, "Unable to consume purchase. Response code: " + billingResult.getResponseCode());
+                    QLog.e(TAG, "Unable to consume purchase. Response code: " + billingResult.getResponseCode());
                 }
             }
         };
@@ -312,7 +312,7 @@ public class InAppPurchase implements PurchasesUpdatedListener
             @Override
             public void onAcknowledgePurchaseResponse(BillingResult billingResult) {
                 if (billingResult.getResponseCode() != RESULT_OK){
-                    Log.e(TAG, "Unable to acknowledge purchase. Response code: " + billingResult.getResponseCode());
+                    QLog.e(TAG, "Unable to acknowledge purchase. Response code: " + billingResult.getResponseCode());
                 }
             }
         };

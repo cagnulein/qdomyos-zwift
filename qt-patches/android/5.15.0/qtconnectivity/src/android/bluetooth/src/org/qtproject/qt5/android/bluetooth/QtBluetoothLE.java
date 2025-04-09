@@ -108,10 +108,10 @@ public class QtBluetoothLE {
         public void run() {
             boolean timeoutStillValid = handleForTimeout.compareAndSet(pendingJobHandle, HANDLE_FOR_RESET);
             if (timeoutStillValid) {
-                Log.w(TAG, "****** Timeout for request on handle " + (pendingJobHandle & 0xffff));
-                Log.w(TAG, "****** Looks like the peripheral does NOT act in " +
+                QLog.w(TAG, "****** Timeout for request on handle " + (pendingJobHandle & 0xffff));
+                QLog.w(TAG, "****** Looks like the peripheral does NOT act in " +
                            "accordance to Bluetooth 4.x spec.");
-                Log.w(TAG, "****** Please check server implementation. Continuing under " +
+                QLog.w(TAG, "****** Please check server implementation. Continuing under " +
                            "reservation.");
 
                 if (pendingJobHandle > HANDLE_FOR_RESET)
@@ -156,7 +156,7 @@ public class QtBluetoothLE {
             return true;
 
         if (isEnabled) {
-            Log.d(TAG, "New BTLE scanning API");
+            QLog.d(TAG, "New BTLE scanning API");
             ScanSettings.Builder settingsBuilder = new ScanSettings.Builder();
             settingsBuilder = settingsBuilder.setScanMode(ScanSettings.SCAN_MODE_BALANCED);
             ScanSettings settings = settingsBuilder.build();
@@ -171,7 +171,7 @@ public class QtBluetoothLE {
             } catch (IllegalStateException isex) {
                 // when trying to stop a scan while bluetooth is offline
                 // java.lang.IllegalStateException: BT Adapter is not turned ON
-                Log.d(TAG, "Stopping LE scan not possible: " + isex.getMessage());
+                QLog.d(TAG, "Stopping LE scan not possible: " + isex.getMessage());
             }
             mLeScanRunning = false;
         }
@@ -198,7 +198,7 @@ public class QtBluetoothLE {
         @Override
         public void onScanFailed(int errorCode) {
             super.onScanFailed(errorCode);
-            Log.d(TAG, "BTLE device scan failed with " + errorCode);
+            QLog.d(TAG, "BTLE device scan failed with " + errorCode);
         }
     };
 
@@ -244,19 +244,19 @@ public class QtBluetoothLE {
                 case BluetoothGatt.GATT_FAILURE: // Android's equivalent of "do not know what error it is"
                     errorCode = 1; break; //QLowEnergyController::UnknownError
                 case 8:  // BLE_HCI_CONNECTION_TIMEOUT
-                    Log.w(TAG, "Connection Error: Try to delay connect() call after previous activity");
+                    QLog.w(TAG, "Connection Error: Try to delay connect() call after previous activity");
                     errorCode = 5; break; //QLowEnergyController::ConnectionError
                 case 19: // BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION
                 case 20: // BLE_HCI_REMOTE_DEV_TERMINATION_DUE_TO_LOW_RESOURCES
                 case 21: // BLE_HCI_REMOTE_DEV_TERMINATION_DUE_TO_POWER_OFF
-                    Log.w(TAG, "The remote host closed the connection");
+                    QLog.w(TAG, "The remote host closed the connection");
                     errorCode = 7; //QLowEnergyController::RemoteHostClosedError
                     break;
                 case 22: // BLE_HCI_LOCAL_HOST_TERMINATED_CONNECTION
                     // Internally, Android maps PIN_OR_KEY_MISSING to GATT_CONN_TERMINATE_LOCAL_HOST
                     errorCode = 8; break; //QLowEnergyController::AuthorizationError
                 default:
-                    Log.w(TAG, "Unhandled error code on connectionStateChanged: " + status + " " + newState);
+                    QLog.w(TAG, "Unhandled error code on connectionStateChanged: " + status + " " + newState);
                     errorCode = status; break; //TODO deal with all errors
             }
             leConnectionStateChange(qtObject, errorCode, qLowEnergyController_State);
@@ -275,7 +275,7 @@ public class QtBluetoothLE {
                     }
                     break;
                 default:
-                    Log.w(TAG, "Unhandled error code on onServicesDiscovered: " + status);
+                    QLog.w(TAG, "Unhandled error code on onServicesDiscovered: " + status);
                     errorCode = status; break; //TODO deal with all errors
             }
             leServicesDiscovered(qtObject, errorCode, builder.toString());
@@ -291,7 +291,7 @@ public class QtBluetoothLE {
             synchronized (this) {
                 foundHandle = handleForCharacteristic(characteristic);
                 if (foundHandle == -1 || foundHandle >= entries.size() ) {
-                    Log.w(TAG, "Cannot find characteristic read request for read notification - handle: " +
+                    QLog.w(TAG, "Cannot find characteristic read request for read notification - handle: " +
                                foundHandle + " size: " + entries.size());
 
                     //unlock the queue for next item
@@ -307,7 +307,7 @@ public class QtBluetoothLE {
             boolean requestTimedOut = !handleForTimeout.compareAndSet(
                                         modifiedReadWriteHandle(foundHandle, IoJobType.Read), HANDLE_FOR_RESET);
             if (requestTimedOut) {
-                Log.w(TAG, "Late char read reply after timeout was hit for handle " + foundHandle);
+                QLog.w(TAG, "Late char read reply after timeout was hit for handle " + foundHandle);
                 // Timeout has hit before this response -> ignore the response
                 // no need to unlock pendingJob -> the timeout has done that already
                 return;
@@ -325,9 +325,9 @@ public class QtBluetoothLE {
                         characteristic.getProperties(), characteristic.getValue());
             } else {
                 if (isServiceDiscoveryRun) {
-                    Log.w(TAG, "onCharacteristicRead during discovery error: " + status);
+                    QLog.w(TAG, "onCharacteristicRead during discovery error: " + status);
 
-                    Log.d(TAG, "Non-readable characteristic " + characteristic.getUuid() +
+                    QLog.d(TAG, "Non-readable characteristic " + characteristic.getUuid() +
                                     " for service " + characteristic.getService().getUuid());
                     leCharacteristicRead(qtObject, characteristic.getService().getUuid().toString(),
                         foundHandle + 1, characteristic.getUuid().toString(),
@@ -360,18 +360,18 @@ public class QtBluetoothLE {
                                           int status)
         {
             if (status != BluetoothGatt.GATT_SUCCESS)
-                Log.w(TAG, "onCharacteristicWrite: error " + status);
+                QLog.w(TAG, "onCharacteristicWrite: error " + status);
 
             int handle = handleForCharacteristic(characteristic);
             if (handle == -1) {
-                Log.w(TAG,"onCharacteristicWrite: cannot find handle");
+                QLog.w(TAG,"onCharacteristicWrite: cannot find handle");
                 return;
             }
 
             boolean requestTimedOut = !handleForTimeout.compareAndSet(
                                             modifiedReadWriteHandle(handle, IoJobType.Write), HANDLE_FOR_RESET);
             if (requestTimedOut) {
-                Log.w(TAG, "Late char write reply after timeout was hit for handle " + handle);
+                QLog.w(TAG, "Late char write reply after timeout was hit for handle " + handle);
                 // Timeout has hit before this response -> ignore the response
                 // no need to unlock pendingJob -> the timeout has done that already
                 return;
@@ -400,7 +400,7 @@ public class QtBluetoothLE {
         {
             int handle = handleForCharacteristic(characteristic);
             if (handle == -1) {
-                Log.w(TAG,"onCharacteristicChanged: cannot find handle");
+                QLog.w(TAG,"onCharacteristicChanged: cannot find handle");
                 return;
             }
 
@@ -415,7 +415,7 @@ public class QtBluetoothLE {
             synchronized (this) {
                 foundHandle = handleForDescriptor(descriptor);
                 if (foundHandle == -1 || foundHandle >= entries.size() ) {
-                    Log.w(TAG, "Cannot find descriptor read request for read notification - handle: " +
+                    QLog.w(TAG, "Cannot find descriptor read request for read notification - handle: " +
                                foundHandle + " size: " + entries.size());
 
                     //unlock the queue for next item
@@ -430,7 +430,7 @@ public class QtBluetoothLE {
             boolean requestTimedOut = !handleForTimeout.compareAndSet(
                                         modifiedReadWriteHandle(foundHandle, IoJobType.Read), HANDLE_FOR_RESET);
             if (requestTimedOut) {
-                Log.w(TAG, "Late descriptor read reply after timeout was hit for handle " +
+                QLog.w(TAG, "Late descriptor read reply after timeout was hit for handle " +
                            foundHandle);
                 // Timeout has hit before this response -> ignore the response
                 // no need to unlock pendingJob -> the timeout has done that already
@@ -450,8 +450,8 @@ public class QtBluetoothLE {
                 if (isServiceDiscoveryRun) {
                     // Cannot read but still advertise the fact that we found a descriptor
                     // The value will be empty.
-                    Log.w(TAG, "onDescriptorRead during discovery error: " + status);
-                    Log.d(TAG, "Non-readable descriptor " + descriptor.getUuid() +
+                    QLog.w(TAG, "onDescriptorRead during discovery error: " + status);
+                    QLog.d(TAG, "Non-readable descriptor " + descriptor.getUuid() +
                           " for characteristic "  + descriptor.getCharacteristic().getUuid() +
                           " for service " + descriptor.getCharacteristic().getService().getUuid());
                     leDescriptorRead(qtObject, descriptor.getCharacteristic().getService().getUuid().toString(),
@@ -483,7 +483,7 @@ public class QtBluetoothLE {
                     final int value = (bytearray != null && bytearray.length > 0) ? bytearray[0] : 0;
                     // notification or indication bit set?
                     if ((value & 0x03) > 0) {
-                        Log.d(TAG, "Found descriptor with automatic notifications.");
+                        QLog.d(TAG, "Found descriptor with automatic notifications.");
                         mBluetoothGatt.setCharacteristicNotification(
                                 descriptor.getCharacteristic(), true);
                     }
@@ -503,14 +503,14 @@ public class QtBluetoothLE {
                                       int status)
         {
             if (status != BluetoothGatt.GATT_SUCCESS)
-                Log.w(TAG, "onDescriptorWrite: error " + status);
+                QLog.w(TAG, "onDescriptorWrite: error " + status);
 
             int handle = handleForDescriptor(descriptor);
 
             boolean requestTimedOut = !handleForTimeout.compareAndSet(
                                         modifiedReadWriteHandle(handle, IoJobType.Write), HANDLE_FOR_RESET);
             if (requestTimedOut) {
-                Log.w(TAG, "Late descriptor write reply after timeout was hit for handle " +
+                QLog.w(TAG, "Late descriptor write reply after timeout was hit for handle " +
                            handle);
                 // Timeout has hit before this response -> ignore the response
                 // no need to unlock pendingJob -> the timeout has done that already
@@ -548,17 +548,17 @@ public class QtBluetoothLE {
         public void onMtuChanged(android.bluetooth.BluetoothGatt gatt, int mtu, int status)
         {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.w(TAG, "MTU changed to " + mtu);
+                QLog.w(TAG, "MTU changed to " + mtu);
                 mSupportedMtu = mtu;
             } else {
-                Log.w(TAG, "MTU change error " + status + ". New MTU " + mtu);
+                QLog.w(TAG, "MTU change error " + status + ". New MTU " + mtu);
                 mSupportedMtu = DEFAULT_MTU;
             }
 
             boolean requestTimedOut = !handleForTimeout.compareAndSet(
                     modifiedReadWriteHandle(HANDLE_FOR_MTU_EXCHANGE, IoJobType.Mtu), HANDLE_FOR_RESET);
             if (requestTimedOut) {
-                Log.w(TAG, "Late mtu reply after timeout was hit");
+                QLog.w(TAG, "Late mtu reply after timeout was hit");
                 // Timeout has hit before this response -> ignore the response
                 // no need to unlock pendingJob -> the timeout has done that already
                 return;
@@ -579,7 +579,7 @@ public class QtBluetoothLE {
         try {
             mRemoteGattDevice = mBluetoothAdapter.getRemoteDevice(mRemoteGattAddress);
         } catch (IllegalArgumentException ex) {
-            Log.w(TAG, "Remote address is not valid: " + mRemoteGattAddress);
+            QLog.w(TAG, "Remote address is not valid: " + mRemoteGattAddress);
             return false;
         }
 
@@ -604,10 +604,10 @@ public class QtBluetoothLE {
                 if (connectMethod != null) {
                     mBluetoothGatt = (BluetoothGatt) connectMethod.invoke(mRemoteGattDevice, qtContext, false,
                             gattCallback, 2 /* TRANSPORT_LE */, 1 /*BluetoothDevice.PHY_LE_1M*/, mHandler);
-                    Log.w(TAG, "Using Android v26 BluetoothDevice.connectGatt()");
+                    QLog.w(TAG, "Using Android v26 BluetoothDevice.connectGatt()");
                 }
             } catch (Exception ex) {
-                Log.w(TAG, "connectGatt() v26 not available");
+                QLog.w(TAG, "connectGatt() v26 not available");
                 ex.printStackTrace();
             }
 
@@ -630,7 +630,7 @@ public class QtBluetoothLE {
                 mCharacteristicConstructor = BluetoothGattCharacteristic.class.getDeclaredConstructor(constr_args);
                 mCharacteristicConstructor.setAccessible(true);
             } catch (NoSuchMethodException ex) {
-                Log.w(TAG, "Unable get characteristic constructor. Buffer race condition are possible");
+                QLog.w(TAG, "Unable get characteristic constructor. Buffer race condition are possible");
                 /*  For some reason we don't get the private BluetoothGattCharacteristic ctor.
                     This means that we cannot protect ourselves from issues where concurrent
                     read and write operations on the same char can overwrite each others buffer.
@@ -657,7 +657,7 @@ public class QtBluetoothLE {
                 if (connectMethod != null) {
                     mBluetoothGatt = (BluetoothGatt) connectMethod.invoke(mRemoteGattDevice, qtContext, false,
                             gattCallback, 2 /* TRANSPORT_LE */);
-                    Log.w(TAG, "Using Android v23 BluetoothDevice.connectGatt()");
+                    QLog.w(TAG, "Using Android v23 BluetoothDevice.connectGatt()");
                 }
             } catch (Exception ex) {
                 // fallback to less reliable API 18 version
@@ -902,7 +902,7 @@ public class QtBluetoothLE {
                 UUID service = UUID.fromString(serviceUuid);
                 List<Integer> handles = uuidToEntry.get(service);
                 if (handles == null || handles.isEmpty()) {
-                    Log.w(TAG, "Unknown service uuid for current device: " + service.toString());
+                    QLog.w(TAG, "Unknown service uuid for current device: " + service.toString());
                     return false;
                 }
 
@@ -910,23 +910,23 @@ public class QtBluetoothLE {
                 serviceHandle = handles.get(0);
                 entry = entries.get(serviceHandle);
                 if (entry == null) {
-                    Log.w(TAG, "Service with UUID " + service.toString() + " not found");
+                    QLog.w(TAG, "Service with UUID " + service.toString() + " not found");
                     return false;
                 }
             } catch (IllegalArgumentException ex) {
                 //invalid UUID string passed
-                Log.w(TAG, "Cannot parse given UUID");
+                QLog.w(TAG, "Cannot parse given UUID");
                 return false;
             }
 
             if (entry.type != GattEntryType.Service) {
-                Log.w(TAG, "Given UUID is not a service UUID: " + serviceUuid);
+                QLog.w(TAG, "Given UUID is not a service UUID: " + serviceUuid);
                 return false;
             }
 
             // current service already discovered or under investigation
             if (entry.valueKnown || servicesToBeDiscovered.contains(serviceHandle)) {
-                Log.w(TAG, "Service already known or to be discovered");
+                QLog.w(TAG, "Service already known or to be discovered");
                 return true;
             }
 
@@ -978,14 +978,14 @@ public class QtBluetoothLE {
     //TODO function not yet used
     private void finishCurrentServiceDiscovery(int handleDiscoveredService)
     {
-        Log.w(TAG, "Finished current discovery for service handle " + handleDiscoveredService);
+        QLog.w(TAG, "Finished current discovery for service handle " + handleDiscoveredService);
         GattEntry discoveredService = entries.get(handleDiscoveredService);
         discoveredService.valueKnown = true;
         synchronized (this) {
             try {
                 servicesToBeDiscovered.removeFirst();
             } catch (NoSuchElementException ex) {
-                Log.w(TAG, "Expected queued service but didn't find any");
+                QLog.w(TAG, "Expected queued service but didn't find any");
             }
         }
 
@@ -1001,16 +1001,16 @@ public class QtBluetoothLE {
                 if (mtuMethod != null) {
                     Boolean success = (Boolean) mtuMethod.invoke(mBluetoothGatt, MAX_MTU);
                     if (success.booleanValue()) {
-                        Log.w(TAG, "MTU change initiated");
+                        QLog.w(TAG, "MTU change initiated");
                         return false;
                     } else {
-                        Log.w(TAG, "MTU change request failed");
+                        QLog.w(TAG, "MTU change request failed");
                     }
                 }
             } catch (Exception ex) {}
         }
 
-       Log.w(TAG, "Assuming default MTU value of 23 bytes");
+       QLog.w(TAG, "Assuming default MTU value of 23 bytes");
 
         mSupportedMtu = DEFAULT_MTU;
         return true;
@@ -1046,7 +1046,7 @@ public class QtBluetoothLE {
         final int endHandle = serviceEntry.endHandle;
 
         if (serviceHandle == endHandle) {
-            Log.w(TAG, "scheduleServiceDetailDiscovery: service is empty; nothing to discover");
+            QLog.w(TAG, "scheduleServiceDetailDiscovery: service is empty; nothing to discover");
             finishCurrentServiceDiscovery(serviceHandle);
             return;
         }
@@ -1070,7 +1070,7 @@ public class QtBluetoothLE {
                         break;
                     case Service:
                         // should not really happen unless endHandle is wrong
-                        Log.w(TAG, "scheduleServiceDetailDiscovery: wrong endHandle");
+                        QLog.w(TAG, "scheduleServiceDetailDiscovery: wrong endHandle");
                         return;
                 }
 
@@ -1081,7 +1081,7 @@ public class QtBluetoothLE {
 
                 final boolean result = readWriteQueue.add(newJob);
                 if (!result)
-                    Log.w(TAG, "Cannot add service discovery job for " + serviceEntry.service.getUuid()
+                    QLog.w(TAG, "Cannot add service discovery job for " + serviceEntry.service.getUuid()
                                 + " on item " + entry.type);
             }
         }
@@ -1129,7 +1129,7 @@ public class QtBluetoothLE {
         }
 
         if (!result) {
-            Log.w(TAG, "Cannot add characteristic write request for " + charHandle + " to queue" );
+            QLog.w(TAG, "Cannot add characteristic write request for " + charHandle + " to queue" );
             return false;
         }
 
@@ -1166,7 +1166,7 @@ public class QtBluetoothLE {
         }
 
         if (!result) {
-            Log.w(TAG, "Cannot add descriptor write request for " + descHandle + " to queue" );
+            QLog.w(TAG, "Cannot add descriptor write request for " + descHandle + " to queue" );
             return false;
         }
 
@@ -1201,7 +1201,7 @@ public class QtBluetoothLE {
         }
 
         if (!result) {
-            Log.w(TAG, "Cannot add characteristic read request for " + charHandle + " to queue" );
+            QLog.w(TAG, "Cannot add characteristic read request for " + charHandle + " to queue" );
             return false;
         }
 
@@ -1232,7 +1232,7 @@ public class QtBluetoothLE {
         }
 
         if (!result) {
-            Log.w(TAG, "Cannot add descriptor read request for " + descHandle + " to queue" );
+            QLog.w(TAG, "Cannot add descriptor read request for " + descHandle + " to queue" );
             return false;
         }
 
@@ -1270,7 +1270,7 @@ public class QtBluetoothLE {
                     finishCurrentServiceDiscovery(entry.associatedServiceHandle);
             }
         } catch (IndexOutOfBoundsException outOfBounds) {
-            Log.w(TAG, "interruptCurrentIO(): Unknown gatt entry, index: "
+            QLog.w(TAG, "interruptCurrentIO(): Unknown gatt entry, index: "
                     + handle + " size: " + entries.size());
         }
     }
@@ -1358,7 +1358,7 @@ public class QtBluetoothLE {
             }
 
             if (nextJob.jobType != IoJobType.Mtu) {
-                Log.w(TAG, "Performing queued job, handle: " + handle + " " + nextJob.jobType + " (" +
+                QLog.w(TAG, "Performing queued job, handle: " + handle + " " + nextJob.jobType + " (" +
                         (nextJob.requestedWriteType == BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE) +
                        ") ValueKnown: " + nextJob.entry.valueKnown + " Skipping: " + skip +
                        " " + nextJob.entry.type);
@@ -1385,7 +1385,7 @@ public class QtBluetoothLE {
                     entry.valueKnown = true;
                     switch (entry.type) {
                         case Characteristic:
-                            Log.d(TAG, "Non-readable characteristic " + entry.characteristic.getUuid() +
+                            QLog.d(TAG, "Non-readable characteristic " + entry.characteristic.getUuid() +
                                     " for service " + entry.characteristic.getService().getUuid());
                             leCharacteristicRead(qtObject, entry.characteristic.getService().getUuid().toString(),
                                     handle + 1, entry.characteristic.getUuid().toString(),
@@ -1393,7 +1393,7 @@ public class QtBluetoothLE {
                             break;
                         case Descriptor:
                             // atm all descriptor types are readable
-                            Log.d(TAG, "Non-readable descriptor " + entry.descriptor.getUuid() +
+                            QLog.d(TAG, "Non-readable descriptor " + entry.descriptor.getUuid() +
                                     " for service/char" + entry.descriptor.getCharacteristic().getService().getUuid() +
                                     "/" + entry.descriptor.getCharacteristic().getUuid());
                             leDescriptorRead(qtObject,
@@ -1406,7 +1406,7 @@ public class QtBluetoothLE {
                             // for more details see scheduleServiceDetailDiscovery(int)
                             break;
                         case Service:
-                            Log.w(TAG, "Scheduling of Service Gatt entry for service discovery should never happen.");
+                            QLog.w(TAG, "Scheduling of Service Gatt entry for service discovery should never happen.");
                             break;
                     }
 
@@ -1417,7 +1417,7 @@ public class QtBluetoothLE {
                             if (serviceEntry.endHandle == handle)
                                 finishCurrentServiceDiscovery(entry.associatedServiceHandle);
                         } catch (IndexOutOfBoundsException outOfBounds) {
-                            Log.w(TAG, "performNextIO(): Unknown service for entry, index: "
+                            QLog.w(TAG, "performNextIO(): Unknown service for entry, index: "
                                             + entry.associatedServiceHandle + " size: " + entries.size());
                         }
                     }
@@ -1446,7 +1446,7 @@ public class QtBluetoothLE {
             return (BluetoothGattCharacteristic) mCharacteristicConstructor.newInstance(other.getService(),
                     other.getUuid(), other.getInstanceId(), other.getProperties(), other.getPermissions());
         } catch (Exception ex) {
-            Log.w(TAG, "Cloning characteristic failed!" + ex);
+            QLog.w(TAG, "Cloning characteristic failed!" + ex);
             return null;
         }
     }
@@ -1501,12 +1501,12 @@ public class QtBluetoothLE {
                     result = mBluetoothGatt.setCharacteristicNotification(
                             nextJob.entry.descriptor.getCharacteristic(), enableNotifications);
                     if (!result) {
-                        Log.w(TAG, "Cannot set characteristic notification");
+                        QLog.w(TAG, "Cannot set characteristic notification");
                         //we continue anyway to ensure that we write the requested value
                         //to the device
                     }
 
-                    Log.d(TAG, "Enable notifications: " + enableNotifications);
+                    QLog.d(TAG, "Enable notifications: " + enableNotifications);
                 }
 
                 result = nextJob.entry.descriptor.setValue(nextJob.newValue);
@@ -1581,7 +1581,7 @@ public class QtBluetoothLE {
         int modifiedHandle = handle;
         // ensure we have 16bit handle only
         if (handle > 0xFFFF)
-            Log.w(TAG, "Invalid handle");
+            QLog.w(TAG, "Invalid handle");
 
         modifiedHandle = (modifiedHandle & 0xFFFF);
 

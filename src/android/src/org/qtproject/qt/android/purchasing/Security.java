@@ -17,7 +17,7 @@
 package org.qtproject.qt.android.purchasing;
 
 import android.text.TextUtils;
-import org.cagnulen.qdomyoszwift.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,7 +58,7 @@ public class Security {
      */
     public static boolean verifyPurchase(String base64PublicKey, String signedData, String signature) {
         if (signedData == null) {
-            Log.e(TAG, "data is null");
+            QLog.e(TAG, "data is null");
             return false;
         }
 
@@ -67,7 +67,7 @@ public class Security {
             PublicKey key = Security.generatePublicKey(base64PublicKey);
             verified = Security.verify(key, signedData, signature);
             if (!verified) {
-                Log.w(TAG, "signature does not match data.");
+                QLog.w(TAG, "signature does not match data.");
                 return false;
             }
         }
@@ -89,10 +89,10 @@ public class Security {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         } catch (InvalidKeySpecException e) {
-            Log.e(TAG, "Invalid key specification.");
+            QLog.e(TAG, "Invalid key specification.");
             throw new IllegalArgumentException(e);
         } catch (Base64DecoderException e) {
-            Log.e(TAG, "Base64 decoding failed.");
+            QLog.e(TAG, "Base64 decoding failed.");
             throw new IllegalArgumentException(e);
         }
     }
@@ -113,18 +113,18 @@ public class Security {
             sig.initVerify(publicKey);
             sig.update(signedData.getBytes());
             if (!sig.verify(Base64.decode(signature))) {
-                Log.e(TAG, "Signature verification failed.");
+                QLog.e(TAG, "Signature verification failed.");
                 return false;
             }
             return true;
         } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "NoSuchAlgorithmException.");
+            QLog.e(TAG, "NoSuchAlgorithmException.");
         } catch (InvalidKeyException e) {
-            Log.e(TAG, "Invalid key specification.");
+            QLog.e(TAG, "Invalid key specification.");
         } catch (SignatureException e) {
-            Log.e(TAG, "Signature exception.");
+            QLog.e(TAG, "Signature exception.");
         } catch (Base64DecoderException e) {
-            Log.e(TAG, "Base64 decoding failed.");
+            QLog.e(TAG, "Base64 decoding failed.");
         }
         return false;
     }

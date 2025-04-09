@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
-import org.cagnulen.qdomyoszwift.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.os.Build;
 
 public class MediaButtonReceiver extends BroadcastReceiver {
@@ -13,7 +13,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d("MediaButtonReceiver", "Received intent: " + intent.toString());
+        QLog.d("MediaButtonReceiver", "Received intent: " + intent.toString());
         String intentAction = intent.getAction();
         if ("android.media.VOLUME_CHANGED_ACTION".equals(intentAction)) {
             AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
@@ -21,7 +21,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
             int currentVolume = intent.getIntExtra("android.media.EXTRA_VOLUME_STREAM_VALUE", -1);
             int previousVolume = intent.getIntExtra("android.media.EXTRA_PREV_VOLUME_STREAM_VALUE", -1);
 
-            Log.d("MediaButtonReceiver", "Volume changed. Current: " + currentVolume + ", Max: " + maxVolume);
+            QLog.d("MediaButtonReceiver", "Volume changed. Current: " + currentVolume + ", Max: " + maxVolume);
             nativeOnMediaButtonEvent(previousVolume, currentVolume, maxVolume);
         }
     }
@@ -36,7 +36,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
             IntentFilter filter = new IntentFilter("android.media.VOLUME_CHANGED_ACTION");
             
             if (context == null) {
-                Log.e("MediaButtonReceiver", "Context is null, cannot register receiver");
+                QLog.e("MediaButtonReceiver", "Context is null, cannot register receiver");
                 return;
             }
     
@@ -44,21 +44,21 @@ public class MediaButtonReceiver extends BroadcastReceiver {
                 try {
                     context.registerReceiver(instance, filter, Context.RECEIVER_EXPORTED);
                 } catch (SecurityException se) {
-                    Log.e("MediaButtonReceiver", "Security exception while registering receiver: " + se.getMessage());
+                    QLog.e("MediaButtonReceiver", "Security exception while registering receiver: " + se.getMessage());
                 }
             } else {
                 try {
                     context.registerReceiver(instance, filter);
                 } catch (SecurityException se) {
-                    Log.e("MediaButtonReceiver", "Security exception while registering receiver: " + se.getMessage());
+                    QLog.e("MediaButtonReceiver", "Security exception while registering receiver: " + se.getMessage());
                 }
             }
-            Log.d("MediaButtonReceiver", "Receiver registered successfully");
+            QLog.d("MediaButtonReceiver", "Receiver registered successfully");
             
         } catch (IllegalArgumentException e) {
-            Log.e("MediaButtonReceiver", "Invalid arguments for receiver registration: " + e.getMessage());
+            QLog.e("MediaButtonReceiver", "Invalid arguments for receiver registration: " + e.getMessage());
         } catch (Exception e) {
-            Log.e("MediaButtonReceiver", "Unexpected error while registering receiver: " + e.getMessage());
+            QLog.e("MediaButtonReceiver", "Unexpected error while registering receiver: " + e.getMessage());
         }
     }
     

@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.provider.Settings;
-import org.cagnulen.qdomyoszwift.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 
 public class LocationHelper {
     private static final String TAG = "LocationHelper";
@@ -13,7 +13,7 @@ public class LocationHelper {
     private static boolean isBluetoothEnabled = false;
 
     public static boolean start(Context context) {
-        Log.d(TAG, "Starting LocationHelper check...");
+        QLog.d(TAG, "Starting LocationHelper check...");
 
         isLocationEnabled = isLocationEnabled(context);
         isBluetoothEnabled = isBluetoothEnabled();
@@ -23,7 +23,7 @@ public class LocationHelper {
 
     public static void requestPermissions(Context context) {
         if (!isLocationEnabled || !isBluetoothEnabled) {
-            Log.d(TAG, "Some services are disabled. Prompting user...");
+            QLog.d(TAG, "Some services are disabled. Prompting user...");
             if (!isLocationEnabled) {
                 promptEnableLocation(context);
             }
@@ -31,7 +31,7 @@ public class LocationHelper {
                 promptEnableBluetooth(context);
             }
         } else {
-            Log.d(TAG, "All services are already enabled.");
+            QLog.d(TAG, "All services are already enabled.");
         }
     }
 
@@ -50,14 +50,14 @@ public class LocationHelper {
     }
 
     private static void promptEnableLocation(Context context) {
-        Log.d(TAG, "Prompting to enable Location...");
+        QLog.d(TAG, "Prompting to enable Location...");
         Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
 
     private static void promptEnableBluetooth(Context context) {
-        Log.d(TAG, "Prompting to enable Bluetooth...");
+        QLog.d(TAG, "Prompting to enable Bluetooth...");
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);

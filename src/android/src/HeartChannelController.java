@@ -1,7 +1,7 @@
 package org.cagnulen.qdomyoszwift;
 
 import android.content.Context;
-import org.cagnulen.qdomyoszwift.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.app.Activity;
 
 // ANT+ Plugin imports
@@ -57,26 +57,26 @@ public class HeartChannelController {
                         case SUCCESS:
                             hrPcc = result;
                             isConnected = true;
-                            Log.d(TAG, "Connected to heart rate monitor: " + result.getDeviceName());
+                            QLog.d(TAG, "Connected to heart rate monitor: " + result.getDeviceName());
                             subscribeToHrEvents();
                             break;
                         case CHANNEL_NOT_AVAILABLE:
-                            Log.e(TAG, "Channel Not Available");
+                            QLog.e(TAG, "Channel Not Available");
                             break;
                         case ADAPTER_NOT_DETECTED:
-                            Log.e(TAG, "ANT Adapter Not Available");
+                            QLog.e(TAG, "ANT Adapter Not Available");
                             break;
                         case BAD_PARAMS:
-                            Log.e(TAG, "Bad request parameters");
+                            QLog.e(TAG, "Bad request parameters");
                             break;
                         case OTHER_FAILURE:
-                            Log.e(TAG, "RequestAccess failed");
+                            QLog.e(TAG, "RequestAccess failed");
                             break;
                         case DEPENDENCY_NOT_INSTALLED:
-                            Log.e(TAG, "Dependency not installed");
+                            QLog.e(TAG, "Dependency not installed");
                             break;
                         default:
-                            Log.e(TAG, "Unrecognized result: " + resultCode);
+                            QLog.e(TAG, "Unrecognized result: " + resultCode);
                             break;
                     }
                 }
@@ -84,7 +84,7 @@ public class HeartChannelController {
             new IDeviceStateChangeReceiver() {
                 @Override
                 public void onDeviceStateChange(DeviceState newDeviceState) {
-                    Log.d(TAG, "Device State Changed to: " + newDeviceState);
+                    QLog.d(TAG, "Device State Changed to: " + newDeviceState);
                     if (newDeviceState == DeviceState.DEAD) {
                         isConnected = false;
                     }
@@ -104,7 +104,7 @@ public class HeartChannelController {
                     BigDecimal heartBeatEventTime, DataState dataState) {
                     
                     heart = computedHeartRate;
-                    Log.d(TAG, "Heart Rate: " + heart);
+                    QLog.d(TAG, "Heart Rate: " + heart);
                 }
             });
         }
@@ -117,7 +117,7 @@ public class HeartChannelController {
         }
         hrPcc = null;
         isConnected = false;
-        Log.d(TAG, "Channel Closed");
+        QLog.d(TAG, "Channel Closed");
     }
 
     public int getHeartRate() {
