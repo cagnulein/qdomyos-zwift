@@ -1486,7 +1486,7 @@ jobs:
           
           echo "APK verification completed successfully"
       
-      - name: Upload APK analysis logs
+      - name: Upload APK analysis log
         uses: actions/upload-artifact@v4
         with:
           name: apk-analysis
