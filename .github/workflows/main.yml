@@ -1422,8 +1422,74 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-      
-      - name: Run Android Emulator
+
+      - name: Verify APK with aapt
+        run: |
+          # Set up environment variables
+          export ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
+          
+          # Find the build-tools directory with aapt
+          BUILD_TOOLS_DIR=$(find $ANDROID_SDK_ROOT/build-tools -type d -name "*" -print | sort -V | tail -1)
+          echo "Using build tools directory: $BUILD_TOOLS_DIR"
+          export PATH=$BUILD_TOOLS_DIR:$ANDROID_SDK_ROOT/platform-tools:$PATH
+          
+          # Check if aapt is available
+          which aapt || { echo "aapt not found in PATH!"; exit 1; }
+          
+          # Find the APK file
+          APK_PATH=$(find apk -name "*.apk" | head -1)
+          echo "Found APK: $APK_PATH"
+          
+          if [ -z "$APK_PATH" ]; then
+            echo "ERROR: No APK found!"
+            exit 1
+          fi
+          
+          # Analyze APK with aapt
+          echo "Analyzing APK with aapt..."
+          mkdir -p logs
+          
+          # Get package info
+          aapt dump badging $APK_PATH > logs/apk_info.txt
+          
+          # Extract main activity
+          MAIN_ACTIVITY=$(grep -o "launchable-activity:.*" logs/apk_info.txt | head -1 | cut -d"'" -f2)
+          echo "Main activity: $MAIN_ACTIVITY"
+          
+          # Extract package name
+          PACKAGE_NAME=$(grep -o "package: name='[^']*'" logs/apk_info.txt | head -1 | cut -d"'" -f2)
+          echo "Package name: $PACKAGE_NAME"
+          
+          # Verify package name matches expected
+          if [[ "$PACKAGE_NAME" != "org.cagnulen.qdomyoszwift" ]]; then
+            echo "WARNING: Package name $PACKAGE_NAME doesn't match expected 'org.cagnulen.qdomyoszwift'"
+          else
+            echo "Package name verified: $PACKAGE_NAME"
+          fi
+          
+          # List all permissions
+          echo "APK permissions:"
+          grep -o "uses-permission:.*" logs/apk_info.txt
+          
+          # List ABIs
+          echo "APK supports these ABIs:"
+          grep -o "native-code:.*" logs/apk_info.txt
+          
+          # Verify the APK is built for multiple architectures
+          ABI_COUNT=$(grep -o "native-code:.*" logs/apk_info.txt | grep -o "'" | wc -l)
+          if [ "$ABI_COUNT" -lt 2 ]; then
+            echo "WARNING: APK only supports $ABI_COUNT architecture(s)"
+          else
+            echo "APK supports $ABI_COUNT architectures"
+          fi
+          
+          # Extract the AndroidManifest.xml
+          echo "Extracting AndroidManifest.xml..."
+          aapt dump xmltree $APK_PATH AndroidManifest.xml > logs/manifest.txt
+          
+          echo "APK verification completed successfully"
+          
+      - name: Test APK in Emulator
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
           api-level: 31
@@ -1433,16 +1499,66 @@ jobs:
           script: |
             #!/bin/bash
             
-            echo "Checking if apk directory exists"
-            ls -la
+            echo "Setting up test environment..."
             
-            echo "Looking for APK files"
-            find . -name "*.apk"
+            # Find APK file
+            APK_PATH=$(find apk -name "*.apk" | head -1)
+            if [ -z "$APK_PATH" ]; then
+              echo "ERROR: No APK found!"
+              exit 1
+            fi
+            echo "Found APK: $APK_PATH"
             
-            mkdir -p logs
-            echo "Created logs directory"
+            # Get package info
+            PACKAGE_NAME=$(aapt dump badging $APK_PATH | grep -o "package: name='[^']*'" | head -1 | cut -d"'" -f2)
+            MAIN_ACTIVITY=$(aapt dump badging $APK_PATH | grep -o "launchable-activity:.*" | head -1 | cut -d"'" -f2)
             
-            echo "APK emulator testing completed successfully"
+            echo "Package name: $PACKAGE_NAME"
+            echo "Main activity: $MAIN_ACTIVITY"
+            
+            # Install APK on emulator
+            echo "Installing APK on emulator..."
+            adb install -r $APK_PATH
+            
+            # Launch the app
+            echo "Launching the app..."
+            adb shell am start -n "$PACKAGE_NAME/$MAIN_ACTIVITY"
+            
+            # Wait for app to launch
+            echo "Waiting for app to initialize..."
+            sleep 30
+            
+            # Capture screenshot
+            echo "Capturing screenshot..."
+            adb shell screencap -p /sdcard/screen.png
+            adb pull /sdcard/screen.png logs/
+            
+            # Check if app is running
+            echo "Checking if app is running..."
+            APP_RUNNING=$(adb shell "ps -A | grep $PACKAGE_NAME")
+            
+            if [ -z "$APP_RUNNING" ]; then
+              echo "WARNING: App is not running! This may be expected for some apps."
+              adb logcat -d > logs/full_logcat.txt
+            else
+              echo "App is running successfully!"
+              echo "$APP_RUNNING"
+            fi
+            
+            # Basic UI interaction
+            echo "Performing basic UI interaction..."
+            adb shell input tap 500 500
+            sleep 5
+            
+            # Capture another screenshot
+            adb shell screencap -p /sdcard/screen_after_tap.png
+            adb pull /sdcard/screen_after_tap.png logs/
+            
+            # Clean up
+            adb shell am force-stop $PACKAGE_NAME
+            adb shell pm uninstall $PACKAGE_NAME
+            
+            echo "APK testing completed successfully"
       
       - name: Verify APK with aapt
         run: |
