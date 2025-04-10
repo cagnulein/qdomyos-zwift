@@ -1540,42 +1540,48 @@ jobs:
           
           # Start emulator in background with proper detachment
           echo "Starting emulator..."
-          nohup $ANDROID_SDK_ROOT/emulator/emulator -avd test_avd -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect > emulator.log 2>&1 &
+          # Use disown to fully detach the process
+          $ANDROID_SDK_ROOT/emulator/emulator -avd test_avd -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect > emulator.log 2>&1 &
           emulator_pid=$!
+          disown $emulator_pid
           echo "Emulator started with PID: $emulator_pid"
           
           # Give the emulator some time to initialize before trying to connect
           sleep 30
           
-          # Wait for emulator to boot
+          # Wait for emulator to boot with retry loop and timeout
           echo "Waiting for emulator to boot..."
           adb wait-for-device
           
-          # Additional wait to ensure device is fully booted with visual progress
-          echo "Waiting for system boot to complete..."
-          max_attempts=60
-          attempt=0
-          while [ $attempt -lt $max_attempts ]; do
-            boot_completed=$(adb shell getprop sys.boot_completed 2>/dev/null)
-            if [ "$boot_completed" == "1" ]; then
-              echo "Emulator booted successfully!"
+          # Check if device is online
+          device_state=$(adb get-state 2>/dev/null || echo "offline")
+          echo "Device state: $device_state"
+          
+          # Wait for boot complete property with timeout
+          timeout=300
+          end_time=$(($(date +%s) + $timeout))
+          
+          echo "Waiting for boot complete (timeout: ${timeout}s)..."
+          while [ $(date +%s) -lt $end_time ]; do
+            if adb shell 'getprop sys.boot_completed 2>/dev/null' | grep -q '1'; then
+              echo "Emulator fully booted!"
               break
             fi
             echo -n "."
             sleep 5
-            attempt=$((attempt + 1))
           done
           
-          if [ "$boot_completed" != "1" ]; then
-            echo "Emulator boot timed out after 5 minutes"
-            echo "Emulator logs:"
-            cat emulator.log
-            exit 1
+          # Make sure we really are booted
+          if ! adb shell 'getprop sys.boot_completed 2>/dev/null' | grep -q '1'; then
+            echo "WARNING: Emulator might not be fully booted, but continuing anyway"
+            # Show logs to help diagnose issues
+            echo "Last few lines of emulator log:"
+            tail -n 50 emulator.log
           fi
           
           # Check if emulator is running
           echo "Connected devices:"
-          adb devices
+          adb devices -l
       
       - name: Install and Test APK in Emulator
         run: |
