@@ -35,8 +35,10 @@ class DirconManager : public QObject {
     DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_DEFINE_OP, 0, 0, 0)
     QList<DirconProcessor *> processors;
     static QString getMacAddress();
+    bluetoothdevice* bt = 0;
 
   public:
+    double currentGear();
     explicit DirconManager(bluetoothdevice *t, int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
                            QObject *parent = nullptr);
   private slots:

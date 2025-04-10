@@ -1,4 +1,5 @@
 #include "devices/dircon/dirconmanager.h"
+#include "devices/bike.h"
 #include <QNetworkInterface>
 #include <QSettings>
 #include <chrono>
@@ -162,7 +163,8 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
     QSettings settings;
     DirconProcessorService *service;
     QList<DirconProcessorService *> services, proc_services;
-    bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();    
+    bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
+    bt = Bike;
     uint8_t type = dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL ? DM_MACHINE_TYPE_TREADMILL
                                                                                          : DM_MACHINE_TYPE_BIKE;
     qDebug() << "Building Dircom Manager";
@@ -186,10 +188,11 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
     QObject::connect(&bikeTimer, &QTimer::timeout, this, &DirconManager::bikeProvider);
     QString mac = getMacAddress();
     DM_MACHINE_OP(DM_MACHINE_INIT_OP, services, proc_services, type)
-    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool() || settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool())
+    // 50ms always because even if the zwift_play_emulator is disabled, zwift, seeing the 0003 characateristic, it needs high speed metrics.
+    //if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool() || settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool())
         bikeTimer.start(50ms);
-    else
-        bikeTimer.start(1s);
+    /*else
+        bikeTimer.start(1s);*/
 }
 
 #define DM_CHAR_NOTIF_NOTIF1_OP(UUID, P1, P2, P3)                                                                      \
@@ -203,4 +206,12 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
 void DirconManager::bikeProvider() {
     DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_NOTIF1_OP, 0, 0, 0)
     foreach (DirconProcessor *processor, processors) { DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_NOTIF2_OP, processor, 0, 0) }
+}
+
+double DirconManager::currentGear() {
+    if(writeP0003)
+        return writeP0003->currentGear();
+    else if(bt && bt->deviceType() == bluetoothdevice::BIKE)
+        return ((bike*)bt)->gears();
+    return 0;
 }

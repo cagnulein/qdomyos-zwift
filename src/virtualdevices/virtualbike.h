@@ -43,6 +43,9 @@ class virtualbike : public virtualdevice {
             return lastDirconFTMSFrameReceived;
     }
     double currentGear() {
+        if(dirconManager) {
+            return dirconManager->currentGear();
+        }
         return writeP0003->currentGear();
     }
 
