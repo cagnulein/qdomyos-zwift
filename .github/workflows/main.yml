@@ -1431,8 +1431,14 @@ jobs:
           arch: x86_64
           profile: Nexus 6
           script: |
-            # Find the APK file
-            APK_PATH=$(find apk -name "*.apk" | head -1)
+            # Need to make sure the apk directory exists before looking for files
+            if [ ! -d "apk" ]; then
+              echo "ERROR: apk directory does not exist!"
+              exit 1
+            fi
+            
+            # Find the APK file with additional error checking
+            APK_PATH=$(find apk -type f -name "*.apk" | head -1 || echo "")
             echo "Found APK: $APK_PATH"
             
             if [ -z "$APK_PATH" ]; then
@@ -1447,15 +1453,26 @@ jobs:
             echo "Analyzing APK with aapt..."
             
             # Get package info
-            aapt dump badging $APK_PATH > logs/apk_info.txt
+            aapt dump badging $APK_PATH > logs/apk_info.txt || { echo "Failed to analyze APK with aapt"; exit 1; }
             
             # Extract main activity
-            MAIN_ACTIVITY=$(grep -o "launchable-activity:.*" logs/apk_info.txt | head -1 | cut -d"'" -f2)
+            MAIN_ACTIVITY=$(grep -o "launchable-activity:.*" logs/apk_info.txt | head -1 | cut -d"'" -f2 || echo "")
             echo "Main activity: $MAIN_ACTIVITY"
             
             # Extract package name
-            PACKAGE_NAME=$(grep -o "package: name='[^']*'" logs/apk_info.txt | head -1 | cut -d"'" -f2)
+            PACKAGE_NAME=$(grep -o "package: name='[^']*'" logs/apk_info.txt | head -1 | cut -d"'" -f2 || echo "")
             echo "Package name: $PACKAGE_NAME"
+            
+            # Safety check for package and activity
+            if [ -z "$PACKAGE_NAME" ]; then
+              echo "ERROR: Could not determine package name!"
+              exit 1
+            fi
+            
+            if [ -z "$MAIN_ACTIVITY" ]; then
+              echo "ERROR: Could not determine main activity!"
+              exit 1
+            fi
             
             # Verify package name matches expected
             if [[ "$PACKAGE_NAME" != "org.cagnulen.qdomyoszwift" ]]; then
@@ -1466,14 +1483,14 @@ jobs:
             
             # List all permissions
             echo "APK permissions:"
-            grep -o "uses-permission:.*" logs/apk_info.txt
+            grep -o "uses-permission:.*" logs/apk_info.txt || echo "No permissions found"
             
             # List ABIs
             echo "APK supports these ABIs:"
-            grep -o "native-code:.*" logs/apk_info.txt
+            grep -o "native-code:.*" logs/apk_info.txt || echo "No native code information found"
             
             # Verify the APK is built for multiple architectures
-            ABI_COUNT=$(grep -o "native-code:.*" logs/apk_info.txt | grep -o "'" | wc -l)
+            ABI_COUNT=$(grep -o "native-code:.*" logs/apk_info.txt | grep -o "'" | wc -l || echo 0)
             if [ "$ABI_COUNT" -lt 2 ]; then
               echo "WARNING: APK only supports $ABI_COUNT architecture(s)"
             else
@@ -1482,19 +1499,19 @@ jobs:
             
             # Extract the AndroidManifest.xml
             echo "Extracting AndroidManifest.xml..."
-            aapt dump xmltree $APK_PATH AndroidManifest.xml > logs/manifest.txt
+            aapt dump xmltree $APK_PATH AndroidManifest.xml > logs/manifest.txt || echo "Failed to extract manifest"
             
             # Install APK on emulator
             echo "Installing APK on emulator..."
-            adb install -r $APK_PATH
+            adb install -r $APK_PATH || { echo "Failed to install APK"; exit 1; }
             
             # Verify installation
             echo "Checking installed packages:"
-            adb shell pm list packages | grep "$PACKAGE_NAME"
+            adb shell pm list packages | grep "$PACKAGE_NAME" || { echo "Package not found after installation"; exit 1; }
             
             # Launch the app
             echo "Launching the app..."
-            adb shell am start -n "$PACKAGE_NAME/$MAIN_ACTIVITY"
+            adb shell am start -n "$PACKAGE_NAME/$MAIN_ACTIVITY" || { echo "Failed to launch app"; exit 1; }
             
             # Wait for app to launch
             echo "Waiting for app to initialize..."
@@ -1502,23 +1519,23 @@ jobs:
             
             # Capture screenshot as verification
             echo "Capturing screenshot..."
-            adb shell screencap -p /sdcard/screen.png
-            adb pull /sdcard/screen.png logs/
+            adb shell screencap -p /sdcard/screen.png || echo "Failed to capture screenshot"
+            adb pull /sdcard/screen.png logs/ || echo "Failed to pull screenshot"
             
             # Get app logs
             echo "Retrieving app logs..."
-            adb logcat -d > logs/full_logcat.txt
-            adb logcat -d | grep "$PACKAGE_NAME" > logs/app_logcat.txt
+            adb logcat -d > logs/full_logcat.txt || echo "Failed to retrieve full logs"
+            adb logcat -d | grep "$PACKAGE_NAME" > logs/app_logcat.txt || echo "Failed to filter logs for package"
             
             # Check if app is running
             echo "Checking if app is running..."
-            APP_RUNNING=$(adb shell "ps -A | grep $PACKAGE_NAME")
+            APP_RUNNING=$(adb shell "ps -A | grep $PACKAGE_NAME" || echo "")
             
             if [ -z "$APP_RUNNING" ]; then
               echo "ERROR: App is not running!"
               echo "Recent logs:"
-              tail -n 50 logs/full_logcat.txt
-              adb shell pm uninstall $PACKAGE_NAME
+              tail -n 50 logs/full_logcat.txt || echo "Could not display logs"
+              adb shell pm uninstall $PACKAGE_NAME || echo "Failed to uninstall package"
               exit 1
             else
               echo "App is running successfully!"
@@ -1527,16 +1544,16 @@ jobs:
             
             # Basic UI testing with UI Automator
             echo "Performing basic UI testing..."
-            adb shell input tap 500 500  # Example tap in the middle of the screen
+            adb shell input tap 500 500 || echo "Failed to perform tap"
             sleep 5
             
             # Capture another screenshot after interaction
-            adb shell screencap -p /sdcard/screen_after_tap.png
-            adb pull /sdcard/screen_after_tap.png logs/
+            adb shell screencap -p /sdcard/screen_after_tap.png || echo "Failed to capture second screenshot"
+            adb pull /sdcard/screen_after_tap.png logs/ || echo "Failed to pull second screenshot"
             
             # Force stop the app and clean up
-            adb shell am force-stop $PACKAGE_NAME
-            adb shell pm uninstall $PACKAGE_NAME
+            adb shell am force-stop $PACKAGE_NAME || echo "Failed to force stop app"
+            adb shell pm uninstall $PACKAGE_NAME || echo "Failed to uninstall package"
             
             echo "APK emulator testing completed successfully"
       
