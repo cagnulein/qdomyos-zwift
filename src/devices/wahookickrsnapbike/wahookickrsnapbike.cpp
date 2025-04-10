@@ -36,6 +36,15 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     g.printTable();
 }
 
+void wahookickrsnapbike::restoreDefaultWheelDiameter() {
+    // Default wheel circumference is 2070 (700 x 18C)
+    QByteArray a = setWheelCircumference(2070);
+    uint8_t b[20];
+    memcpy(b, a.constData(), a.length());
+    writeCharacteristic(b, a.length(), "setWheelCircumference (restore default)", false, true);
+    emit debug("Restored default wheel diameter (2070mm) to trainer");
+}
+
 bool wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
                                              bool wait_for_response) {
     QEventLoop loop;

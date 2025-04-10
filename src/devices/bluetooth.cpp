@@ -1334,7 +1334,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(soleF80);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("LF")) && b.name().length() == 18) &&
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("LF")) && (b.name().length() == 18 || b.name().length() == 15)) &&
                        !lifefitnessTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2907,6 +2907,25 @@ void bluetooth::connectedAndDiscovered() {
                 zwiftClickRemote->deviceDiscovered(b);
                 if(homeform::singleton())
                     homeform::singleton()->setToastRequested("Zwift Click Connected!");
+                break;
+            }
+        }
+    }
+
+    if(settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool()) {
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (((b.name().toUpper().startsWith("SQUARE"))) && !eliteSquareController && this->device() &&
+                this->device()->deviceType() == bluetoothdevice::BIKE) {
+
+                eliteSquareController = new elitesquarecontroller(this->device());
+                // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+                connect(eliteSquareController, &elitesquarecontroller::debug, this, &bluetooth::debug);
+                connect(eliteSquareController, &elitesquarecontroller::plus, (bike*)this->device(), &bike::gearUp);
+                connect(eliteSquareController, &elitesquarecontroller::minus, (bike*)this->device(), &bike::gearDown);
+                eliteSquareController->deviceDiscovered(b);
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested("Elite Square Connected!");
                 break;
             }
         }
