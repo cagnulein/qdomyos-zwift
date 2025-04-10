@@ -46,8 +46,10 @@
 
 #include "devices/echelonconnectsport/echelonconnectsport.h"
 #include "devices/echelonrower/echelonrower.h"
+#include "devices/echelonstairclimber/echelonstairclimber.h"
 #include "devices/eliteariafan/eliteariafan.h"
 #include "devices/eliterizer/eliterizer.h"
+#include "devices/elitesquarecontroller/elitesquarecontroller.h"
 #include "devices/elitesterzosmart/elitesterzosmart.h"
 #include "devices/eslinkertreadmill/eslinkertreadmill.h"
 #include "devices/fakebike/fakebike.h"
@@ -258,6 +260,7 @@ class bluetooth : public QObject, public SignalHandler {
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;
     echelonstride *echelonStride = nullptr;
+    echelonstairclimber *echelonStairclimber = nullptr;
     lifefitnesstreadmill *lifefitnessTreadmill = nullptr;
     lifespantreadmill *lifespanTreadmill = nullptr;
     keepbike *keepBike = nullptr;
@@ -294,6 +297,7 @@ class bluetooth : public QObject, public SignalHandler {
     QList<zwiftclickremote* > zwiftPlayDevice;
     zwiftclickremote* zwiftClickRemote = nullptr;
     sramaxscontroller* sramAXSController = nullptr;
+    elitesquarecontroller* eliteSquareController = nullptr;
     QString filterDevice = QLatin1String("");
 
     bool testResistance = false;
