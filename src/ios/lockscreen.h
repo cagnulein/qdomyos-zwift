@@ -78,6 +78,10 @@ class lockscreen {
     void echelonConnectSport(const char*  Name, void* deviceClass);
     void echelonConnectSport_WriteCharacteristic(unsigned char* qdata, unsigned char length);
     
+    // Wahoo KICKR/SNAP Bike
+    void wahooKickrSnapBike(const char* Name, void* deviceClass);
+    void writeCharacteristic(unsigned char* qdata, unsigned char length);
+    
     // Zwift API
     void zwift_api_decodemessage_player(const char* data, int len);
     float zwift_api_getaltitude();
@@ -91,7 +95,7 @@ class lockscreen {
     static uint32_t zwift_hub_getPowerFromBuffer(const QByteArray& buffer);
     static uint32_t zwift_hub_getCadenceFromBuffer(const QByteArray& buffer);
     
-    // quick actions    
+    // quick actions
     static void set_action_profile(const char* profile);
     static const char* get_action_profile();
 

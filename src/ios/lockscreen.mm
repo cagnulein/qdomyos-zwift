@@ -11,6 +11,7 @@
 #include "ios/AdbClient.h"
 #include "ios/ios_eliteariafan.h"
 #include "ios/ios_echelonconnectsport.h"
+#include "ios/ios_wahookickrsnapbike.h"
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
@@ -402,5 +403,20 @@ uint32_t lockscreen::zwift_hub_getCadenceFromBuffer(const QByteArray& buffer) {
     
     uint32_t cadence = [ZwiftHubBike getCadenceFromBufferWithBuffer:data];
     return cadence;
+}
+
+// Add these variables to the static declarations at the top of lockscreen.mm
+static ios_wahookickrsnapbike* ios_wahooKickrSnapBike = nil;
+
+// Add these methods to the lockscreen.mm file
+void lockscreen::wahooKickrSnapBike(const char* Name, void* deviceClass) {
+    NSString *deviceName = [NSString stringWithCString:Name encoding:NSASCIIStringEncoding];
+    ios_wahooKickrSnapBike = [[ios_wahookickrsnapbike alloc] init:deviceName qtDevice:deviceClass];
+}
+
+void lockscreen::writeCharacteristic(unsigned char* qdata, unsigned char length) {
+    if(ios_wahooKickrSnapBike) {
+        [ios_wahooKickrSnapBike writeCharacteristic:qdata length:length];
+    }
 }
 #endif
