@@ -77,10 +77,14 @@ class lockscreen {
     // Echelon Connect Sport
     void echelonConnectSport(const char*  Name, void* deviceClass);
     void echelonConnectSport_WriteCharacteristic(unsigned char* qdata, unsigned char length);
-    
+
     // Wahoo KICKR/SNAP Bike
     void wahooKickrSnapBike(const char* Name, void* deviceClass);
     void writeCharacteristic(unsigned char* qdata, unsigned char length);
+
+    // Zwift Click Remote
+    void zwiftClickRemote(const char* Name, const char* UUID, void* deviceClass);
+    void zwiftClickRemote_WriteCharacteristic(unsigned char* qdata, unsigned char length, void* deviceClass);
     
     // Zwift API
     void zwift_api_decodemessage_player(const char* data, int len);

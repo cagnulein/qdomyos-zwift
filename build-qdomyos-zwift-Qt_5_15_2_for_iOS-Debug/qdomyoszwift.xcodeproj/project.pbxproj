@@ -302,6 +302,7 @@
 		8767CA552DA3C1FD0003001F /* elitesquarecontroller.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA532DA3C1FD0003001F /* elitesquarecontroller.cpp */; };
 		8767CA562DA3C1FD0003001F /* moc_elitesquarecontroller.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA542DA3C1FD0003001F /* moc_elitesquarecontroller.cpp */; };
 		8767CA5D2DA7F5170003001F /* ios_wahookickrsnapbike.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA5C2DA7F5170003001F /* ios_wahookickrsnapbike.mm */; };
+		8767CA602DA800590003001F /* ios_zwiftclickremote.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA5F2DA800590003001F /* ios_zwiftclickremote.mm */; };
 		8767EF1E29448D6700810C0F /* characteristicwriteprocessor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767EF1D29448D6700810C0F /* characteristicwriteprocessor.cpp */; };
 		8768C8BA2BBC11C80099DBE1 /* file_sync_client.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C89C2BBC11C70099DBE1 /* file_sync_client.c */; };
 		8768C8BB2BBC11C80099DBE1 /* protocol.txt in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8768C89D2BBC11C70099DBE1 /* protocol.txt */; };
@@ -1214,6 +1215,8 @@
 		8767CA542DA3C1FD0003001F /* moc_elitesquarecontroller.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_elitesquarecontroller.cpp; sourceTree = "<group>"; };
 		8767CA5B2DA7F5170003001F /* ios_wahookickrsnapbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_wahookickrsnapbike.h; path = ../src/ios/ios_wahookickrsnapbike.h; sourceTree = SOURCE_ROOT; };
 		8767CA5C2DA7F5170003001F /* ios_wahookickrsnapbike.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_wahookickrsnapbike.mm; path = ../src/ios/ios_wahookickrsnapbike.mm; sourceTree = SOURCE_ROOT; };
+		8767CA5E2DA800590003001F /* ios_zwiftclickremote.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_zwiftclickremote.h; path = ../src/ios/ios_zwiftclickremote.h; sourceTree = SOURCE_ROOT; };
+		8767CA5F2DA800590003001F /* ios_zwiftclickremote.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_zwiftclickremote.mm; path = ../src/ios/ios_zwiftclickremote.mm; sourceTree = SOURCE_ROOT; };
 		8767EF1D29448D6700810C0F /* characteristicwriteprocessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicwriteprocessor.cpp; path = ../src/characteristics/characteristicwriteprocessor.cpp; sourceTree = "<group>"; };
 		8768C89C2BBC11C70099DBE1 /* file_sync_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = file_sync_client.c; path = ../src/ios/adb/adb/file_sync_client.c; sourceTree = "<group>"; };
 		8768C89D2BBC11C70099DBE1 /* protocol.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = protocol.txt; path = ../src/ios/adb/adb/protocol.txt; sourceTree = "<group>"; };
@@ -2205,6 +2208,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				8767CA5E2DA800590003001F /* ios_zwiftclickremote.h */,
+				8767CA5F2DA800590003001F /* ios_zwiftclickremote.mm */,
 				8767CA5B2DA7F5170003001F /* ios_wahookickrsnapbike.h */,
 				8767CA5C2DA7F5170003001F /* ios_wahookickrsnapbike.mm */,
 				87BFEA2D2CEDDEEE00BDD759 /* ios_echelonconnectsport.h */,
@@ -3541,6 +3546,7 @@
 				87F02E4229178545000DB52C /* moc_octaneelliptical.cpp in Compile Sources */,
 				87E2F85D291ED308002BDC65 /* lifefitnesstreadmill.cpp in Compile Sources */,
 				8752C0E82B15D85600C3D1A5 /* eliteariafan.cpp in Compile Sources */,
+				8767CA602DA800590003001F /* ios_zwiftclickremote.mm in Compile Sources */,
 				87917A7328E768D200F8D9AC /* Browser.swift in Compile Sources */,
 				873CD20B27EF8D8A000131BC /* inapptransaction.cpp in Compile Sources */,
 				8727C7D52B3BF1E4005429EB /* moc_proformtelnetbike.cpp in Compile Sources */,
