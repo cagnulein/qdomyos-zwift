@@ -1,5 +1,5 @@
-#ifdef Q_OS_ANDROID
 #include <QDebug>
+#ifdef Q_OS_ANDROID
 #include <QAndroidJniObject>
 #include <jni.h>
 
