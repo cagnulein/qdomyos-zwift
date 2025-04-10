@@ -1414,18 +1414,54 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
       
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Install Android SDK tools
         run: |
           # Use existing Android SDK on the runner
           export ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
-          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
+          
+          # List all Java installations for debugging
+          echo "Java installations:"
+          update-alternatives --list java || echo "No alternatives found"
+          echo "Current Java version:"
+          java -version
           
           # Check what's already available
           echo "Android SDK root: $ANDROID_SDK_ROOT"
           ls -la $ANDROID_SDK_ROOT
+          ls -la $ANDROID_SDK_ROOT/cmdline-tools || echo "cmdline-tools directory not found"
           
-          # Install additional required packages
-          echo "y" | sdkmanager "platform-tools" "build-tools;30.0.3" "platforms;android-31" "system-images;android-31;google_apis;x86_64" "emulator"
+          # We need to find the right sdkmanager executable
+          SDKMANAGER=""
+          if [ -d "$ANDROID_SDK_ROOT/cmdline-tools/latest" ]; then
+            SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          elif [ -d "$ANDROID_SDK_ROOT/cmdline-tools/tools" ]; then
+            SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/tools/bin/sdkmanager"
+          else
+            # Look for any version directory
+            for dir in $ANDROID_SDK_ROOT/cmdline-tools/*/; do
+              if [ -f "$dir/bin/sdkmanager" ]; then
+                SDKMANAGER="$dir/bin/sdkmanager"
+                break
+              fi
+            done
+          fi
+          
+          if [ -z "$SDKMANAGER" ]; then
+            echo "Could not find sdkmanager executable"
+            exit 1
+          fi
+          
+          echo "Using sdkmanager at: $SDKMANAGER"
+          echo "y" | $SDKMANAGER "platform-tools" "build-tools;30.0.3" "platforms;android-31" "system-images;android-31;google_apis;x86_64" "emulator"
+          
+          # Set PATH environment
+          export PATH=$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH
       
       - name: Verify APK with aapt
         run: |
