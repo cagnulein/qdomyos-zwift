@@ -1416,19 +1416,23 @@ jobs:
       
       - name: Install Android SDK tools
         run: |
-          # Install the Android SDK via sdkmanager
-          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O sdk-tools.zip
-          unzip -q sdk-tools.zip -d $HOME/android-sdk
+          # Use existing Android SDK on the runner
+          export ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
+          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
           
-          # Set up environment variables
-          export ANDROID_SDK_ROOT=$HOME/android-sdk
-          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/bin:$PATH
+          # Check what's already available
+          echo "Android SDK root: $ANDROID_SDK_ROOT"
+          ls -la $ANDROID_SDK_ROOT
           
-          # Install packages
-          yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "build-tools;30.0.3" "platforms;android-31" "system-images;android-31;google_apis;x86_64" "emulator"
+          # Install additional required packages
+          echo "y" | sdkmanager "platform-tools" "build-tools;30.0.3" "platforms;android-31" "system-images;android-31;google_apis;x86_64" "emulator"
       
       - name: Verify APK with aapt
         run: |
+          # Set up environment variables
+          export ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
+          export PATH=$ANDROID_SDK_ROOT/build-tools/30.0.3:$PATH
+          
           # Find the APK file
           APK_PATH=$(find apk -name "*.apk" | head -1)
           echo "Found APK: $APK_PATH"
@@ -1437,10 +1441,6 @@ jobs:
             echo "ERROR: No APK found!"
             exit 1
           fi
-          
-          # Set up environment variables
-          export ANDROID_SDK_ROOT=$HOME/android-sdk
-          export PATH=$ANDROID_SDK_ROOT/build-tools/30.0.3:$PATH
           
           # Analyze APK with aapt
           echo "Analyzing APK with aapt..."
@@ -1489,8 +1489,8 @@ jobs:
       - name: Setup Android Emulator
         run: |
           # Set up environment variables
-          export ANDROID_SDK_ROOT=$HOME/android-sdk
-          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH
+          export ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
+          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH
           
           # Create AVD
           echo "Creating AVD..."
@@ -1502,45 +1502,75 @@ jobs:
           echo "hw.gpu.enabled=yes" >> ~/.android/avd/test_avd.avd/config.ini
           echo "hw.gpu.mode=auto" >> ~/.android/avd/test_avd.avd/config.ini
           
-          # Start emulator in background
+          # Start emulator in background with proper detachment
           echo "Starting emulator..."
-          $ANDROID_SDK_ROOT/emulator/emulator -avd test_avd -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect &
+          nohup $ANDROID_SDK_ROOT/emulator/emulator -avd test_avd -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect > emulator.log 2>&1 &
+          emulator_pid=$!
+          echo "Emulator started with PID: $emulator_pid"
+          
+          # Give the emulator some time to initialize before trying to connect
+          sleep 30
           
           # Wait for emulator to boot
           echo "Waiting for emulator to boot..."
           adb wait-for-device
           
-          # Additional wait to ensure device is fully booted
-          timeout 300 bash -c 'while [[ "$(adb shell getprop sys.boot_completed 2>/dev/null)" != "1" ]]; do sleep 3; done'
+          # Additional wait to ensure device is fully booted with visual progress
+          echo "Waiting for system boot to complete..."
+          max_attempts=60
+          attempt=0
+          while [ $attempt -lt $max_attempts ]; do
+            boot_completed=$(adb shell getprop sys.boot_completed 2>/dev/null)
+            if [ "$boot_completed" == "1" ]; then
+              echo "Emulator booted successfully!"
+              break
+            fi
+            echo -n "."
+            sleep 5
+            attempt=$((attempt + 1))
+          done
+          
+          if [ "$boot_completed" != "1" ]; then
+            echo "Emulator boot timed out after 5 minutes"
+            echo "Emulator logs:"
+            cat emulator.log
+            exit 1
+          fi
           
           # Check if emulator is running
+          echo "Connected devices:"
           adb devices
       
       - name: Install and Test APK in Emulator
         run: |
           # Set up environment variables
-          export ANDROID_SDK_ROOT=$HOME/android-sdk
-          export PATH=$ANDROID_SDK_ROOT/platform-tools:$PATH
+          export ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
+          export PATH=$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/30.0.3:$PATH
           
           # Find APK
           APK_PATH=$(find apk -name "*.apk" | head -1)
           
-          # Install APK on emulator
-          echo "Installing APK on emulator..."
-          adb install -r $APK_PATH
-          
-          # Extract package name
+          # Extract package and activity info before installation
           PACKAGE_NAME=$(aapt dump badging $APK_PATH | grep -o "package: name='[^']*'" | head -1 | cut -d"'" -f2)
           MAIN_ACTIVITY=$(aapt dump badging $APK_PATH | grep -o "launchable-activity:.*" | head -1 | cut -d"'" -f2)
           
           echo "Package name: $PACKAGE_NAME"
           echo "Main activity: $MAIN_ACTIVITY"
           
+          # Install APK on emulator
+          echo "Installing APK on emulator..."
+          adb install -r $APK_PATH
+          
+          # Verify installation
+          echo "Checking installed packages:"
+          adb shell pm list packages | grep "$PACKAGE_NAME"
+          
           # Launch the app
           echo "Launching the app..."
           adb shell am start -n "$PACKAGE_NAME/$MAIN_ACTIVITY"
           
           # Wait for app to launch (adjust as needed)
+          echo "Waiting for app to initialize..."
           sleep 30
           
           # Capture screenshot as verification
@@ -1550,13 +1580,18 @@ jobs:
           
           # Get app logs
           echo "Retrieving app logs..."
+          adb logcat -d > logs/full_logcat.txt
           adb logcat -d | grep "$PACKAGE_NAME" > logs/app_logcat.txt
           
           # Check if app is running
+          echo "Checking if app is running..."
           APP_RUNNING=$(adb shell "ps -A | grep $PACKAGE_NAME")
           
           if [ -z "$APP_RUNNING" ]; then
             echo "ERROR: App is not running!"
+            echo "Recent logs:"
+            tail -n 50 logs/full_logcat.txt
+            adb shell pm uninstall $PACKAGE_NAME
             exit 1
           else
             echo "App is running successfully!"
@@ -1572,8 +1607,9 @@ jobs:
           adb shell screencap -p /sdcard/screen_after_tap.png
           adb pull /sdcard/screen_after_tap.png logs/
           
-          # Force stop the app
+          # Force stop the app and clean up
           adb shell am force-stop $PACKAGE_NAME
+          adb shell pm uninstall $PACKAGE_NAME
           
           echo "APK emulator testing completed successfully"
       
