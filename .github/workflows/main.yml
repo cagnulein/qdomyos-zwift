@@ -1420,48 +1420,125 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Android SDK tools
-        run: |
-          # Use existing Android SDK on the runner
-          export ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
-          
-          # List all Java installations for debugging
-          echo "Java installations:"
-          update-alternatives --list java || echo "No alternatives found"
-          echo "Current Java version:"
-          java -version
-          
-          # Check what's already available
-          echo "Android SDK root: $ANDROID_SDK_ROOT"
-          ls -la $ANDROID_SDK_ROOT
-          ls -la $ANDROID_SDK_ROOT/cmdline-tools || echo "cmdline-tools directory not found"
-          
-          # We need to find the right sdkmanager executable
-          SDKMANAGER=""
-          if [ -d "$ANDROID_SDK_ROOT/cmdline-tools/latest" ]; then
-            SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
-          elif [ -d "$ANDROID_SDK_ROOT/cmdline-tools/tools" ]; then
-            SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/tools/bin/sdkmanager"
-          else
-            # Look for any version directory
-            for dir in $ANDROID_SDK_ROOT/cmdline-tools/*/; do
-              if [ -f "$dir/bin/sdkmanager" ]; then
-                SDKMANAGER="$dir/bin/sdkmanager"
-                break
-              fi
-            done
-          fi
-          
-          if [ -z "$SDKMANAGER" ]; then
-            echo "Could not find sdkmanager executable"
-            exit 1
-          fi
-          
-          echo "Using sdkmanager at: $SDKMANAGER"
-          echo "y" | $SDKMANAGER "platform-tools" "build-tools;30.0.3" "platforms;android-31" "system-images;android-31;google_apis;x86_64" "emulator"
-          
-          # Set PATH environment
-          export PATH=$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      
+      - name: Run Android Emulator
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 31
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          script: |
+            # Find the APK file
+            APK_PATH=$(find apk -name "*.apk" | head -1)
+            echo "Found APK: $APK_PATH"
+            
+            if [ -z "$APK_PATH" ]; then
+              echo "ERROR: No APK found!"
+              exit 1
+            fi
+            
+            # Make logs directory
+            mkdir -p logs
+            
+            # Analyze APK with aapt
+            echo "Analyzing APK with aapt..."
+            
+            # Get package info
+            aapt dump badging $APK_PATH > logs/apk_info.txt
+            
+            # Extract main activity
+            MAIN_ACTIVITY=$(grep -o "launchable-activity:.*" logs/apk_info.txt | head -1 | cut -d"'" -f2)
+            echo "Main activity: $MAIN_ACTIVITY"
+            
+            # Extract package name
+            PACKAGE_NAME=$(grep -o "package: name='[^']*'" logs/apk_info.txt | head -1 | cut -d"'" -f2)
+            echo "Package name: $PACKAGE_NAME"
+            
+            # Verify package name matches expected
+            if [[ "$PACKAGE_NAME" != "org.cagnulen.qdomyoszwift" ]]; then
+              echo "WARNING: Package name $PACKAGE_NAME doesn't match expected 'org.cagnulen.qdomyoszwift'"
+            else
+              echo "Package name verified: $PACKAGE_NAME"
+            fi
+            
+            # List all permissions
+            echo "APK permissions:"
+            grep -o "uses-permission:.*" logs/apk_info.txt
+            
+            # List ABIs
+            echo "APK supports these ABIs:"
+            grep -o "native-code:.*" logs/apk_info.txt
+            
+            # Verify the APK is built for multiple architectures
+            ABI_COUNT=$(grep -o "native-code:.*" logs/apk_info.txt | grep -o "'" | wc -l)
+            if [ "$ABI_COUNT" -lt 2 ]; then
+              echo "WARNING: APK only supports $ABI_COUNT architecture(s)"
+            else
+              echo "APK supports $ABI_COUNT architectures"
+            fi
+            
+            # Extract the AndroidManifest.xml
+            echo "Extracting AndroidManifest.xml..."
+            aapt dump xmltree $APK_PATH AndroidManifest.xml > logs/manifest.txt
+            
+            # Install APK on emulator
+            echo "Installing APK on emulator..."
+            adb install -r $APK_PATH
+            
+            # Verify installation
+            echo "Checking installed packages:"
+            adb shell pm list packages | grep "$PACKAGE_NAME"
+            
+            # Launch the app
+            echo "Launching the app..."
+            adb shell am start -n "$PACKAGE_NAME/$MAIN_ACTIVITY"
+            
+            # Wait for app to launch
+            echo "Waiting for app to initialize..."
+            sleep 30
+            
+            # Capture screenshot as verification
+            echo "Capturing screenshot..."
+            adb shell screencap -p /sdcard/screen.png
+            adb pull /sdcard/screen.png logs/
+            
+            # Get app logs
+            echo "Retrieving app logs..."
+            adb logcat -d > logs/full_logcat.txt
+            adb logcat -d | grep "$PACKAGE_NAME" > logs/app_logcat.txt
+            
+            # Check if app is running
+            echo "Checking if app is running..."
+            APP_RUNNING=$(adb shell "ps -A | grep $PACKAGE_NAME")
+            
+            if [ -z "$APP_RUNNING" ]; then
+              echo "ERROR: App is not running!"
+              echo "Recent logs:"
+              tail -n 50 logs/full_logcat.txt
+              adb shell pm uninstall $PACKAGE_NAME
+              exit 1
+            else
+              echo "App is running successfully!"
+              echo "$APP_RUNNING"
+            fi
+            
+            # Basic UI testing with UI Automator
+            echo "Performing basic UI testing..."
+            adb shell input tap 500 500  # Example tap in the middle of the screen
+            sleep 5
+            
+            # Capture another screenshot after interaction
+            adb shell screencap -p /sdcard/screen_after_tap.png
+            adb pull /sdcard/screen_after_tap.png logs/
+            
+            # Force stop the app and clean up
+            adb shell am force-stop $PACKAGE_NAME
+            adb shell pm uninstall $PACKAGE_NAME
+            
+            echo "APK emulator testing completed successfully"
       
       - name: Verify APK with aapt
         run: |
