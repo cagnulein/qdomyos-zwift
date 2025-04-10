@@ -1428,13 +1428,28 @@ jobs:
           # Set up environment variables
           export ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
           
-          # Find the build-tools directory with aapt
-          BUILD_TOOLS_DIR=$(find $ANDROID_SDK_ROOT/build-tools -type d -name "*" -print | sort -V | tail -1)
-          echo "Using build tools directory: $BUILD_TOOLS_DIR"
+          # Directly find build-tools directories and look for aapt in them
+          echo "Looking for aapt in build-tools directories..."
+          for version_dir in $ANDROID_SDK_ROOT/build-tools/*/; do
+            if [ -f "$version_dir/aapt" ]; then
+              BUILD_TOOLS_DIR="$version_dir"
+              echo "Found aapt in: $BUILD_TOOLS_DIR"
+              break
+            fi
+          done
+          
+          if [ -z "$BUILD_TOOLS_DIR" ]; then
+            echo "ERROR: Could not find aapt in any build-tools directory!"
+            # List all build-tools directories for debugging
+            echo "Available build-tools directories:"
+            ls -la $ANDROID_SDK_ROOT/build-tools/
+            exit 1
+          fi
+          
           export PATH=$BUILD_TOOLS_DIR:$ANDROID_SDK_ROOT/platform-tools:$PATH
           
-          # Check if aapt is available
-          which aapt || { echo "aapt not found in PATH!"; exit 1; }
+          # Verify aapt is available
+          which aapt || { echo "ERROR: aapt not found in PATH!"; exit 1; }
           
           # Find the APK file
           APK_PATH=$(find apk -name "*.apk" | head -1)
