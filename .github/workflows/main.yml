@@ -1425,7 +1425,7 @@ jobs:
           export PATH=$ANDROID_SDK_ROOT/cmdline-tools/bin:$PATH
           
           # Install packages
-          yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "build-tools;30.0.3"
+          yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "build-tools;30.0.3" "platforms;android-31" "system-images;android-31;google_apis;x86_64" "emulator"
       
       - name: Verify APK with aapt
         run: |
@@ -1486,10 +1486,101 @@ jobs:
           
           echo "APK verification completed successfully"
       
-      - name: Upload APK analysis log
+      - name: Setup Android Emulator
+        run: |
+          # Set up environment variables
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH
+          
+          # Create AVD
+          echo "Creating AVD..."
+          echo "no" | avdmanager create avd --force --name test_avd --package "system-images;android-31;google_apis;x86_64" --tag "google_apis" --abi "x86_64"
+          
+          # Optimize emulator settings
+          mkdir -p ~/.android/avd/test_avd.avd/
+          echo "hw.ramSize=2048" >> ~/.android/avd/test_avd.avd/config.ini
+          echo "hw.gpu.enabled=yes" >> ~/.android/avd/test_avd.avd/config.ini
+          echo "hw.gpu.mode=auto" >> ~/.android/avd/test_avd.avd/config.ini
+          
+          # Start emulator in background
+          echo "Starting emulator..."
+          $ANDROID_SDK_ROOT/emulator/emulator -avd test_avd -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect &
+          
+          # Wait for emulator to boot
+          echo "Waiting for emulator to boot..."
+          adb wait-for-device
+          
+          # Additional wait to ensure device is fully booted
+          timeout 300 bash -c 'while [[ "$(adb shell getprop sys.boot_completed 2>/dev/null)" != "1" ]]; do sleep 3; done'
+          
+          # Check if emulator is running
+          adb devices
+      
+      - name: Install and Test APK in Emulator
+        run: |
+          # Set up environment variables
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export PATH=$ANDROID_SDK_ROOT/platform-tools:$PATH
+          
+          # Find APK
+          APK_PATH=$(find apk -name "*.apk" | head -1)
+          
+          # Install APK on emulator
+          echo "Installing APK on emulator..."
+          adb install -r $APK_PATH
+          
+          # Extract package name
+          PACKAGE_NAME=$(aapt dump badging $APK_PATH | grep -o "package: name='[^']*'" | head -1 | cut -d"'" -f2)
+          MAIN_ACTIVITY=$(aapt dump badging $APK_PATH | grep -o "launchable-activity:.*" | head -1 | cut -d"'" -f2)
+          
+          echo "Package name: $PACKAGE_NAME"
+          echo "Main activity: $MAIN_ACTIVITY"
+          
+          # Launch the app
+          echo "Launching the app..."
+          adb shell am start -n "$PACKAGE_NAME/$MAIN_ACTIVITY"
+          
+          # Wait for app to launch (adjust as needed)
+          sleep 30
+          
+          # Capture screenshot as verification
+          echo "Capturing screenshot..."
+          adb shell screencap -p /sdcard/screen.png
+          adb pull /sdcard/screen.png logs/
+          
+          # Get app logs
+          echo "Retrieving app logs..."
+          adb logcat -d | grep "$PACKAGE_NAME" > logs/app_logcat.txt
+          
+          # Check if app is running
+          APP_RUNNING=$(adb shell "ps -A | grep $PACKAGE_NAME")
+          
+          if [ -z "$APP_RUNNING" ]; then
+            echo "ERROR: App is not running!"
+            exit 1
+          else
+            echo "App is running successfully!"
+            echo "$APP_RUNNING"
+          fi
+          
+          # Basic UI testing with UI Automator
+          echo "Performing basic UI testing..."
+          adb shell input tap 500 500  # Example tap in the middle of the screen
+          sleep 5
+          
+          # Capture another screenshot after interaction
+          adb shell screencap -p /sdcard/screen_after_tap.png
+          adb pull /sdcard/screen_after_tap.png logs/
+          
+          # Force stop the app
+          adb shell am force-stop $PACKAGE_NAME
+          
+          echo "APK emulator testing completed successfully"
+      
+      - name: Upload APK analysis and test logs
         uses: actions/upload-artifact@v4
         with:
-          name: apk-analysis
+          name: apk-analysis-and-test-results
           path: logs/
           
   upload_to_release:
