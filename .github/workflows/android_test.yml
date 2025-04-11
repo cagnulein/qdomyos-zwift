@@ -66,14 +66,10 @@ jobs:
             sleep 20
             
             # Verify the app is running
-            APP_RUNNING=$(adb shell "ps -A | grep qdomyos || echo 'NOT_FOUND'")
-            if echo "$APP_RUNNING" | grep -q "NOT_FOUND"; then
-              echo "App process not found in process list"
-              echo "TEST FAILED: App process not running"
-              exit 1
-            else
-              echo "App is running successfully"
-            fi
+            echo "Checking if app is running..."
+            adb shell "ps -A" > process_list.txt
+            grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
+            echo "App is running successfully"
             
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
