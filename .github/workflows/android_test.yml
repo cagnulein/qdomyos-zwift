@@ -70,6 +70,12 @@ jobs:
             adb shell "ps -A" > process_list.txt
             grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
             echo "App is running successfully"
+
+            # Handle the permissions dialog - click "No" to decline
+            adb shell input tap 231 910
+            
+            # Wait for app to start properly
+            sleep 15
             
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
