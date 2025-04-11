@@ -29,7 +29,6 @@ jobs:
           java-version: '17'  # Java 17 per la compatibilità con gli strumenti Android più recenti
 
       - name: Download latest nightly release asset
-        id: download-release
         uses: robinraju/release-downloader@v1.8
         with:
           repository: "cagnulein/qdomyos-zwift"
@@ -42,7 +41,7 @@ jobs:
         run: ls -la apk-debug/
 
       - name: run tests on emulator
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: ReactiveCircus/android-emulator-runner@v2
         with:
           api-level: 29
           target: google_apis
@@ -104,4 +103,7 @@ jobs:
       
       - name: Upload test report
         if: always()
-        uses: actions/upload-artifac
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-test-report
+          path: test-report.md
