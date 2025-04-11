@@ -52,10 +52,6 @@ jobs:
             # Concedi automaticamente tutti i permessi richiesti
             # Permessi dal manifest
             echo "Granting permissions..."
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WAKE_LOCK
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.FOREGROUND_SERVICE
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.POST_NOTIFICATIONS || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.RECEIVE_MEDIA_BUTTON || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_FINE_LOCATION || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_SCAN || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADVERTISE || true
