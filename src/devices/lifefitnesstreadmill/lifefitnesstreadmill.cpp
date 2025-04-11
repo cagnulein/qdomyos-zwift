@@ -180,22 +180,22 @@ void lifefitnesstreadmill::btinit() {
         uint8_t initData16[6] = {0xf1, 0x00, 0x02, 0x0c, 0x3e, 0xb4}; // |.R.@....|
         
         // Write all the initialization data sequentially
-        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init lifet5 1"), false, true);
-        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init lifet5 2"), false, true);
-        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init lifet5 3"), false, true);
-        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init lifet5 4"), false, true);
-        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init lifet5 5"), false, true);
-        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init lifet5 6"), false, true);
-        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init lifet5 7"), false, true);
-        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init lifet5 8"), false, true);
-        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init lifet5 9"), false, true);
-        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init lifet5 10"), false, true);
-        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init lifet5 11"), false, true);
-        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init lifet5 12"), false, true);
-        writeCharacteristic(initData13, sizeof(initData13), QStringLiteral("init lifet5 13"), false, true);
-        writeCharacteristic(initData14, sizeof(initData14), QStringLiteral("init lifet5 14"), false, true);
-        writeCharacteristic(initData15, sizeof(initData15), QStringLiteral("init lifet5 15"), false, true);
-        writeCharacteristic(initData16, sizeof(initData16), QStringLiteral("init lifet5 16"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData1, sizeof(initData1), QStringLiteral("init lifet5 1"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData2, sizeof(initData2), QStringLiteral("init lifet5 2"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData3, sizeof(initData3), QStringLiteral("init lifet5 3"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData4, sizeof(initData4), QStringLiteral("init lifet5 4"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData5, sizeof(initData5), QStringLiteral("init lifet5 5"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData6, sizeof(initData6), QStringLiteral("init lifet5 6"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData7, sizeof(initData7), QStringLiteral("init lifet5 7"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData8, sizeof(initData8), QStringLiteral("init lifet5 8"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData9, sizeof(initData9), QStringLiteral("init lifet5 9"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData10, sizeof(initData10), QStringLiteral("init lifet5 10"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData11, sizeof(initData11), QStringLiteral("init lifet5 11"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData12, sizeof(initData12), QStringLiteral("init lifet5 12"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData13, sizeof(initData13), QStringLiteral("init lifet5 13"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData14, sizeof(initData14), QStringLiteral("init lifet5 14"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData15, sizeof(initData15), QStringLiteral("init lifet5 15"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData16, sizeof(initData16), QStringLiteral("init lifet5 16"), false, true);
     }
 
     QByteArray descriptor;
