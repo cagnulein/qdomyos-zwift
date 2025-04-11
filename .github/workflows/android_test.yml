@@ -26,19 +26,17 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'  # Java 17 per la compatibilità con gli strumenti Android più recenti
+          java-version: '17'
 
-      - name: Download latest nightly release asset
-        uses: robinraju/release-downloader@v1.8
-        with:
-          repository: "cagnulein/qdomyos-zwift"
-          latest: true
-          tag: "nightly"
-          fileName: "fdroid-android-trial/*"
-          out-file-path: "apk-debug/"
-
-      - name: List downloaded files
-        run: ls -la apk-debug/
+      # Scarica direttamente l'APK usando il link specifico
+      - name: Download APK directly
+        run: |
+          mkdir -p apk-debug
+          wget -O apk-debug/android-debug.apk https://github.com/cagnulein/qdomyos-zwift/releases/download/nightly/android-debug.apk
+          
+          # Lista i file scaricati
+          echo "Files in apk-debug directory:"
+          ls -la apk-debug/
 
       - name: run tests on emulator
         uses: ReactiveCircus/android-emulator-runner@v2
@@ -48,17 +46,8 @@ jobs:
           arch: x86
           profile: Nexus 6
           script: |
-            # Find the APK file
-            APK_FILE=$(find apk-debug/ -name "*.apk" | head -1)
-            echo "Testing APK file: $APK_FILE"
-            
-            if [ -z "$APK_FILE" ]; then
-              echo "No APK file found in the downloaded artifacts!"
-              exit 1
-            fi
-            
             # Install the APK
-            adb install "$APK_FILE"
+            adb install apk-debug/android-debug.apk
             
             # Start the main activity
             adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
