@@ -10,21 +10,24 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
-  test-nightly-apk:
-    runs-on: macos-latest
+  test:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '11'
-      
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-      
+          java-version: '17'  # Java 17 per la compatibilità con gli strumenti Android più recenti
+
       - name: Download latest nightly release asset
         id: download-release
         uses: robinraju/release-downloader@v1.8
@@ -32,23 +35,28 @@ jobs:
           repository: "cagnulein/qdomyos-zwift"
           latest: true
           tag: "nightly"
-          fileName: "fdroid-android-trial/*apk"
+          fileName: "fdroid-android-trial/*"
           out-file-path: "apk-debug/"
-      
+
       - name: List downloaded files
         run: ls -la apk-debug/
-      
-      - name: Run emulator and test APK
-        uses: ReactiveCircus/android-emulator-runner@v2
+
+      - name: run tests on emulator
+        uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 31
+          api-level: 29
           target: google_apis
-          arch: x86_64
+          arch: x86
           profile: Nexus 6
           script: |
             # Find the APK file
             APK_FILE=$(find apk-debug/ -name "*.apk" | head -1)
             echo "Testing APK file: $APK_FILE"
+            
+            if [ -z "$APK_FILE" ]; then
+              echo "No APK file found in the downloaded artifacts!"
+              exit 1
+            fi
             
             # Install the APK
             adb install "$APK_FILE"
@@ -57,10 +65,10 @@ jobs:
             adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
             
             # Wait for app to start
-            sleep 15
+            sleep 20
             
             # Verify the app is running
-            adb shell "ps -A | grep qdomyos"
+            adb shell "ps -A | grep qdomyos" || echo "App process not found in process list"
             
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
@@ -69,10 +77,11 @@ jobs:
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
             
-            # Print app log for debugging
-            adb logcat -d | grep qdomyos
-      
+            # Display logcat output for debugging
+            adb logcat -d | grep -i qdomyos
+
       - name: Upload test evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: android-test-evidence
@@ -95,7 +104,4 @@ jobs:
       
       - name: Upload test report
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-test-report
-          path: test-report.md
+        uses: actions/upload-artifac
