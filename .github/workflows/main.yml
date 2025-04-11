@@ -1387,329 +1387,61 @@ jobs:
           path: windows-msvc2022-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
-  android-apk-verify:
-    name: Verify Android APK
+  android-test:
+    runs-on: macos-latest
     needs: android-build
-    runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Download Android APK from build job
+      
+      - name: Download APK artifact
         uses: actions/download-artifact@v4
         with:
           name: fdroid-android-trial
-          path: apk
-
-      - name: Display structure of downloaded files
-        run: |
-          find apk -type f -name "*.apk" | sort
-          ls -la apk/
-          mkdir -p logs
+          path: apk-debug/
       
-      - name: Set up JDK 11
+      - name: Setup Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '11'
       
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Verify APK with aapt
-        run: |
-          # Set up environment variables
-          export ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
-          
-          # Directly find build-tools directories and look for aapt in them
-          echo "Looking for aapt in build-tools directories..."
-          for version_dir in $ANDROID_SDK_ROOT/build-tools/*/; do
-            if [ -f "$version_dir/aapt" ]; then
-              BUILD_TOOLS_DIR="$version_dir"
-              echo "Found aapt in: $BUILD_TOOLS_DIR"
-              break
-            fi
-          done
-          
-          if [ -z "$BUILD_TOOLS_DIR" ]; then
-            echo "ERROR: Could not find aapt in any build-tools directory!"
-            # List all build-tools directories for debugging
-            echo "Available build-tools directories:"
-            ls -la $ANDROID_SDK_ROOT/build-tools/
-            exit 1
-          fi
-          
-          export PATH=$BUILD_TOOLS_DIR:$ANDROID_SDK_ROOT/platform-tools:$PATH
-          
-          # Verify aapt is available
-          which aapt || { echo "ERROR: aapt not found in PATH!"; exit 1; }
-          
-          # Find the APK file
-          APK_PATH=$(find apk -name "*.apk" | head -1)
-          echo "Found APK: $APK_PATH"
-          
-          if [ -z "$APK_PATH" ]; then
-            echo "ERROR: No APK found!"
-            exit 1
-          fi
-          
-          # Analyze APK with aapt
-          echo "Analyzing APK with aapt..."
-          mkdir -p logs
-          
-          # Get package info
-          aapt dump badging $APK_PATH > logs/apk_info.txt
-          
-          # Extract main activity
-          MAIN_ACTIVITY=$(grep -o "launchable-activity:.*" logs/apk_info.txt | head -1 | cut -d"'" -f2)
-          echo "Main activity: $MAIN_ACTIVITY"
-          
-          # Extract package name
-          PACKAGE_NAME=$(grep -o "package: name='[^']*'" logs/apk_info.txt | head -1 | cut -d"'" -f2)
-          echo "Package name: $PACKAGE_NAME"
-          
-          # Verify package name matches expected
-          if [[ "$PACKAGE_NAME" != "org.cagnulen.qdomyoszwift" ]]; then
-            echo "WARNING: Package name $PACKAGE_NAME doesn't match expected 'org.cagnulen.qdomyoszwift'"
-          else
-            echo "Package name verified: $PACKAGE_NAME"
-          fi
-          
-          # List all permissions
-          echo "APK permissions:"
-          grep -o "uses-permission:.*" logs/apk_info.txt
-          
-          # List ABIs
-          echo "APK supports these ABIs:"
-          grep -o "native-code:.*" logs/apk_info.txt
-          
-          # Verify the APK is built for multiple architectures
-          ABI_COUNT=$(grep -o "native-code:.*" logs/apk_info.txt | grep -o "'" | wc -l)
-          if [ "$ABI_COUNT" -lt 2 ]; then
-            echo "WARNING: APK only supports $ABI_COUNT architecture(s)"
-          else
-            echo "APK supports $ABI_COUNT architectures"
-          fi
-          
-          # Extract the AndroidManifest.xml
-          echo "Extracting AndroidManifest.xml..."
-          aapt dump xmltree $APK_PATH AndroidManifest.xml > logs/manifest.txt
-          
-          echo "APK verification completed successfully"
-          
-      - name: Test APK in Emulator
+      - name: Run emulator and test APK
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
           api-level: 31
           target: google_apis
           arch: x86_64
           profile: Nexus 6
-          script: echo "Setting up test environment" && ls -la && find apk -name "*.apk" && adb devices && mkdir -p logs && adb logcat -d > logs/emulator_startup.txt && echo "APK testing completed"
+          script: |
+            # List downloaded files
+            ls -la apk-debug/
+            
+            # Install the APK
+            adb install apk-debug/android-debug.apk
+            
+            # Start the main activity
+            adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
+            
+            # Wait for app to start
+            sleep 10
+            
+            # Verify the app is running
+            adb shell "ps -A | grep qdomyos"
+            
+            # Take a screenshot for verification
+            adb shell screencap -p /sdcard/screenshot.png
+            adb pull /sdcard/screenshot.png
+            
+            # Check if the package is installed
+            adb shell pm list packages | grep org.cagnulen.qdomyoszwift
       
-      - name: Verify APK with aapt
-        run: |
-          # Set up environment variables
-          export ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
-          export PATH=$ANDROID_SDK_ROOT/build-tools/30.0.3:$PATH
-          
-          # Find the APK file
-          APK_PATH=$(find apk -name "*.apk" | head -1)
-          echo "Found APK: $APK_PATH"
-          
-          if [ -z "$APK_PATH" ]; then
-            echo "ERROR: No APK found!"
-            exit 1
-          fi
-          
-          # Analyze APK with aapt
-          echo "Analyzing APK with aapt..."
-          mkdir -p logs
-          
-          # Get package info
-          aapt dump badging $APK_PATH > logs/apk_info.txt
-          
-          # Extract main activity
-          MAIN_ACTIVITY=$(grep -o "launchable-activity:.*" logs/apk_info.txt | head -1 | cut -d"'" -f2)
-          echo "Main activity: $MAIN_ACTIVITY"
-          
-          # Extract package name
-          PACKAGE_NAME=$(grep -o "package: name='[^']*'" logs/apk_info.txt | head -1 | cut -d"'" -f2)
-          echo "Package name: $PACKAGE_NAME"
-          
-          # Verify package name matches expected
-          if [[ "$PACKAGE_NAME" != "org.cagnulen.qdomyoszwift" ]]; then
-            echo "WARNING: Package name $PACKAGE_NAME doesn't match expected 'org.cagnulen.qdomyoszwift'"
-          else
-            echo "Package name verified: $PACKAGE_NAME"
-          fi
-          
-          # List all permissions
-          echo "APK permissions:"
-          grep -o "uses-permission:.*" logs/apk_info.txt
-          
-          # List ABIs
-          echo "APK supports these ABIs:"
-          grep -o "native-code:.*" logs/apk_info.txt
-          
-          # Verify the APK is built for multiple architectures
-          ABI_COUNT=$(grep -o "native-code:.*" logs/apk_info.txt | grep -o "'" | wc -l)
-          if [ "$ABI_COUNT" -lt 2 ]; then
-            echo "WARNING: APK only supports $ABI_COUNT architecture(s)"
-          else
-            echo "APK supports $ABI_COUNT architectures"
-          fi
-          
-          # Extract the AndroidManifest.xml
-          echo "Extracting AndroidManifest.xml..."
-          aapt dump xmltree $APK_PATH AndroidManifest.xml > logs/manifest.txt
-          
-          echo "APK verification completed successfully"
-      
-      - name: Setup Android Emulator
-        run: |
-          # Set up environment variables
-          export ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
-          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH
-          
-          # Create AVD
-          echo "Creating AVD..."
-          echo "no" | avdmanager create avd --force --name test_avd --package "system-images;android-31;google_apis;x86_64" --tag "google_apis" --abi "x86_64"
-          
-          # Optimize emulator settings
-          mkdir -p ~/.android/avd/test_avd.avd/
-          echo "hw.ramSize=2048" >> ~/.android/avd/test_avd.avd/config.ini
-          echo "hw.gpu.enabled=yes" >> ~/.android/avd/test_avd.avd/config.ini
-          echo "hw.gpu.mode=auto" >> ~/.android/avd/test_avd.avd/config.ini
-          
-          # Start emulator in background with proper detachment
-          echo "Starting emulator..."
-          # Use disown to fully detach the process
-          $ANDROID_SDK_ROOT/emulator/emulator -avd test_avd -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect > emulator.log 2>&1 &
-          emulator_pid=$!
-          disown $emulator_pid
-          echo "Emulator started with PID: $emulator_pid"
-          
-          # Give the emulator some time to initialize before trying to connect
-          sleep 30
-          
-          # Wait for emulator to boot with retry loop and timeout
-          echo "Waiting for emulator to boot..."
-          adb wait-for-device
-          
-          # Check if device is online
-          device_state=$(adb get-state 2>/dev/null || echo "offline")
-          echo "Device state: $device_state"
-          
-          # Wait for boot complete property with timeout
-          timeout=300
-          end_time=$(($(date +%s) + $timeout))
-          
-          echo "Waiting for boot complete (timeout: ${timeout}s)..."
-          while [ $(date +%s) -lt $end_time ]; do
-            if adb shell 'getprop sys.boot_completed 2>/dev/null' | grep -q '1'; then
-              echo "Emulator fully booted!"
-              break
-            fi
-            echo -n "."
-            sleep 5
-          done
-          
-          # Make sure we really are booted
-          if ! adb shell 'getprop sys.boot_completed 2>/dev/null' | grep -q '1'; then
-            echo "WARNING: Emulator might not be fully booted, but continuing anyway"
-            # Show logs to help diagnose issues
-            echo "Last few lines of emulator log:"
-            tail -n 50 emulator.log
-          fi
-          
-          # Check if emulator is running
-          echo "Connected devices:"
-          adb devices -l
-      
-      - name: Install and Test APK in Emulator
-        run: |
-          # Set up environment variables
-          export ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
-          export PATH=$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/30.0.3:$PATH
-          
-          # Find APK
-          APK_PATH=$(find apk -name "*.apk" | head -1)
-          
-          # Extract package and activity info before installation
-          PACKAGE_NAME=$(aapt dump badging $APK_PATH | grep -o "package: name='[^']*'" | head -1 | cut -d"'" -f2)
-          MAIN_ACTIVITY=$(aapt dump badging $APK_PATH | grep -o "launchable-activity:.*" | head -1 | cut -d"'" -f2)
-          
-          echo "Package name: $PACKAGE_NAME"
-          echo "Main activity: $MAIN_ACTIVITY"
-          
-          # Install APK on emulator
-          echo "Installing APK on emulator..."
-          adb install -r $APK_PATH
-          
-          # Verify installation
-          echo "Checking installed packages:"
-          adb shell pm list packages | grep "$PACKAGE_NAME"
-          
-          # Launch the app
-          echo "Launching the app..."
-          adb shell am start -n "$PACKAGE_NAME/$MAIN_ACTIVITY"
-          
-          # Wait for app to launch (adjust as needed)
-          echo "Waiting for app to initialize..."
-          sleep 30
-          
-          # Capture screenshot as verification
-          echo "Capturing screenshot..."
-          adb shell screencap -p /sdcard/screen.png
-          adb pull /sdcard/screen.png logs/
-          
-          # Get app logs
-          echo "Retrieving app logs..."
-          adb logcat -d > logs/full_logcat.txt
-          adb logcat -d | grep "$PACKAGE_NAME" > logs/app_logcat.txt
-          
-          # Check if app is running
-          echo "Checking if app is running..."
-          APP_RUNNING=$(adb shell "ps -A | grep $PACKAGE_NAME")
-          
-          if [ -z "$APP_RUNNING" ]; then
-            echo "ERROR: App is not running!"
-            echo "Recent logs:"
-            tail -n 50 logs/full_logcat.txt
-            adb shell pm uninstall $PACKAGE_NAME
-            exit 1
-          else
-            echo "App is running successfully!"
-            echo "$APP_RUNNING"
-          fi
-          
-          # Basic UI testing with UI Automator
-          echo "Performing basic UI testing..."
-          adb shell input tap 500 500  # Example tap in the middle of the screen
-          sleep 5
-          
-          # Capture another screenshot after interaction
-          adb shell screencap -p /sdcard/screen_after_tap.png
-          adb pull /sdcard/screen_after_tap.png logs/
-          
-          # Force stop the app and clean up
-          adb shell am force-stop $PACKAGE_NAME
-          adb shell pm uninstall $PACKAGE_NAME
-          
-          echo "APK emulator testing completed successfully"
-      
-      - name: Upload APK analysis and test logs
+      - name: Upload test evidence
         uses: actions/upload-artifact@v4
         with:
-          name: apk-analysis-and-test-results
-          path: logs/
+          name: android-test-evidence
+          path: screenshot.png
+          if-no-files-found: warn
           
   upload_to_release:
     permissions: write-all
