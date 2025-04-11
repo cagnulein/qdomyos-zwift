@@ -814,8 +814,7 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("Custom service and Control Point 4 found");
                     gattWriteChar4CustomService2 = c;
                     gattCustomService2 = s;
-                } else if (c.properties() & QLowEnergyCharacteristic::Write &&
-                    c.uuid() == _gattWriteChar5CustomService3) {
+                } else if (c.uuid() == _gattWriteChar5CustomService3) {
                     qDebug() << QStringLiteral("Custom service and Control Point found");
                     gattWriteChar1CustomService1 = c;
                     gattCustomService1 = s;
