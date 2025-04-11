@@ -1,0 +1,101 @@
+name: Test Android Nightly APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master,  github-workflow-playground, android_emulator_actions ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  test-nightly-apk:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+      
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+      
+      - name: Download latest nightly release asset
+        id: download-release
+        uses: robinraju/release-downloader@v1.8
+        with:
+          repository: "cagnulein/qdomyos-zwift"
+          latest: true
+          tag: "nightly"
+          fileName: "fdroid-android-trial/*apk"
+          out-file-path: "apk-debug/"
+      
+      - name: List downloaded files
+        run: ls -la apk-debug/
+      
+      - name: Run emulator and test APK
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 31
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          script: |
+            # Find the APK file
+            APK_FILE=$(find apk-debug/ -name "*.apk" | head -1)
+            echo "Testing APK file: $APK_FILE"
+            
+            # Install the APK
+            adb install "$APK_FILE"
+            
+            # Start the main activity
+            adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
+            
+            # Wait for app to start
+            sleep 15
+            
+            # Verify the app is running
+            adb shell "ps -A | grep qdomyos"
+            
+            # Take a screenshot for verification
+            adb shell screencap -p /sdcard/screenshot.png
+            adb pull /sdcard/screenshot.png
+            
+            # Check if the package is installed
+            adb shell pm list packages | grep org.cagnulen.qdomyoszwift
+            
+            # Print app log for debugging
+            adb logcat -d | grep qdomyos
+      
+      - name: Upload test evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-test-evidence
+          path: |
+            screenshot.png
+          if-no-files-found: warn
+      
+      - name: Create test report
+        if: always()
+        run: |
+          echo "# Android Nightly Test Report" > test-report.md
+          echo "Date: $(date)" >> test-report.md
+          echo "" >> test-report.md
+          echo "## Test Results" >> test-report.md
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Test completed successfully" >> test-report.md
+          else
+            echo "❌ Test failed" >> test-report.md
+          fi
+      
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-test-report
+          path: test-report.md
