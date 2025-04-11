@@ -48,6 +48,23 @@ jobs:
           script: |
             # Install the APK
             adb install apk-debug/android-debug.apk
+
+            # Concedi automaticamente tutti i permessi richiesti
+            # Permessi dal manifest
+            echo "Granting permissions..."
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WAKE_LOCK
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.FOREGROUND_SERVICE
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.POST_NOTIFICATIONS || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.RECEIVE_MEDIA_BUTTON || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_FINE_LOCATION || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_SCAN || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADVERTISE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_CONNECT || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.INTERNET
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_WIFI_STATE
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.MODIFY_AUDIO_SETTINGS || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.READ_EXTERNAL_STORAGE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WRITE_EXTERNAL_STORAGE || true            
             
             # Start the main activity
             adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
