@@ -1130,6 +1130,7 @@ import Qt.labs.platform 1.1
 
             // 2.18.25
             property bool zwift_gear_ui_aligned: false
+            property bool tacxneo2_disable_negative_inclination: false
         }
 
         function paddingZeros(text, limit) {
@@ -3316,6 +3317,32 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.tacx_neo2_peloton = checked
+                        }
+
+                        IndicatorOnlySwitch {
+                            text: qsTr("Disable Negative Inclination due to gear")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.tacxneo2_disable_negative_inclination
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.tacxneo2_disable_negative_inclination = checked
+                        }
+                        Label {
+                            text: qsTr("Enabling this QZ will ignore changing gears if the value is too low for this trainer. Default: disabled.")
+                            font.bold: true
+                            font.italic: true
+                            font.pixelSize: Qt.application.font.pixelSize - 2
+                            textFormat: Text.PlainText
+                            wrapMode: Text.WordWrap
+                            verticalAlignment: Text.AlignVCenter
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            color: Material.color(Material.Lime)
                         }
                     }
                     AccordionElement {
