@@ -1647,6 +1647,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("T300P_")) ||
                         (b.name().toUpper().startsWith("T200_")) ||
                         (b.name().toUpper().startsWith("BZ9110 ")) ||
+                        (b.name().toUpper().startsWith("CFC") && b.name().length() == 14) || // CFC31231004349
                         (b.name().toUpper().startsWith("TITAN 7000")) ||
                         (b.name().toUpper().startsWith("LYDSTO")) ||
                         (b.name().toUpper().startsWith("CYCLO_")) ||
