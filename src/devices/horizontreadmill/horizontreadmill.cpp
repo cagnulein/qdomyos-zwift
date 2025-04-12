@@ -1216,7 +1216,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1286,7 +1286,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO) {
+        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -2489,6 +2489,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("FIT-"))) {
             qDebug() << QStringLiteral("FIT- found");
             FIT = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("3G PRO "))) {
+            qDebug() << QStringLiteral("3G PRO");
+            T3G_PRO = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
