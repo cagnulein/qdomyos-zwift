@@ -907,7 +907,9 @@ const QString QZSettings::tile_hr_time_in_zone_4_order = QStringLiteral("tile_hr
 const QString QZSettings::tile_hr_time_in_zone_5_enabled = QStringLiteral("tile_hr_time_in_zone_5_enabled");
 const QString QZSettings::tile_hr_time_in_zone_5_order = QStringLiteral("tile_hr_time_in_zone_5_order");
 
-const uint32_t allSettingsCount = 746;
+const QString QZSettings::zwift_gear_ui_aligned = QStringLiteral("zwift_gear_ui_aligned");
+
+const uint32_t allSettingsCount = 747;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1669,6 +1671,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_hr_time_in_zone_4_order, QZSettings::default_tile_hr_time_in_zone_4_order},
     {QZSettings::tile_hr_time_in_zone_5_enabled, QZSettings::default_tile_hr_time_in_zone_5_enabled},
     {QZSettings::tile_hr_time_in_zone_5_order, QZSettings::default_tile_hr_time_in_zone_5_order},
+
+    {QZSettings::zwift_gear_ui_aligned, QZSettings::default_zwift_gear_ui_aligned},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

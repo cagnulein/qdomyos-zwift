@@ -1396,6 +1396,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("YS_T1MPLUST")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BFX_T9_")) ||
+                        (b.name().toUpper().startsWith("3G PRO ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AB300S-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TF04-")) ||                           // Sport Synology Z5 Treadmill #2415
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-")) && !b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||                            // FIT-1596 and sports tech f37s treadmill #2412
@@ -1647,6 +1648,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("T300P_")) ||
                         (b.name().toUpper().startsWith("T200_")) ||
                         (b.name().toUpper().startsWith("BZ9110 ")) ||
+                        (b.name().toUpper().startsWith("CFC") && b.name().length() == 14) || // CFC31231004349
                         (b.name().toUpper().startsWith("TITAN 7000")) ||
                         (b.name().toUpper().startsWith("LYDSTO")) ||
                         (b.name().toUpper().startsWith("CYCLO_")) ||

@@ -81,6 +81,7 @@ SOURCES += \
     $$PWD/characteristics/characteristicnotifier0002.cpp \
     $$PWD/characteristics/characteristicnotifier0004.cpp \
     $$PWD/characteristics/characteristicwriteprocessor0003.cpp \
+    $$PWD/androidqlog.cpp \
     $$PWD/devices/antbike/antbike.cpp \
     $$PWD/devices/crossrope/crossrope.cpp \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.cpp \
@@ -860,6 +861,7 @@ DISTFILES += \
     $$PWD/android/src/MediaButtonReceiver.java \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
+    $$PWD/android/src/QLog.java \
     $$PWD/android/src/ScreenCaptureService.java \
     $$PWD/android/src/Shortcuts.java \
     $$PWD/android/src/WearableController.java \
