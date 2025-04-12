@@ -82,6 +82,10 @@ void lifefitnesstreadmill::waitForAPacket() {
 }
 
 void lifefitnesstreadmill::btinit() {
+    QByteArray descriptor;
+    descriptor.append((char)0x01);
+    descriptor.append((char)0x00);
+
     if (gattWriteChar4CustomService2.isValid()) {
 
         uint8_t initData1[1] = {0x01};
@@ -196,9 +200,15 @@ void lifefitnesstreadmill::btinit() {
         writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData14, sizeof(initData14), QStringLiteral("init lifet5 14"), false, true);
         writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData15, sizeof(initData15), QStringLiteral("init lifet5 15"), false, true);
         writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData16, sizeof(initData16), QStringLiteral("init lifet5 16"), false, true);
+
+        QLowEnergyCharacteristic gattTreadmillData1 = gattCustomService1->characteristic(QBluetoothUuid(QStringLiteral("4a8ff3f1-c933-11e3-9c1a-0800200c9a66")));
+        if (gattTreadmillData1.isValid()) {
+            gattCustomService1->writeDescriptor(
+                gattTreadmillData1.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        }
+
     }
 
-    QByteArray descriptor;
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattTrainingStatusId((quint16)0x2AD3);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
@@ -209,8 +219,6 @@ void lifefitnesstreadmill::btinit() {
     QLowEnergyCharacteristic gattTreadmillData = gattFTMSService->characteristic(_gattTreadmillDataId);
     QLowEnergyCharacteristic gattTrainingStatus = gattFTMSService->characteristic(_gattTrainingStatusId);
     QLowEnergyCharacteristic gattCrossTrainerData = gattFTMSService->characteristic(_gattCrossTrainerDataId);
-    descriptor.append((char)0x01);
-    descriptor.append((char)0x00);
     gattFTMSService->writeDescriptor(gattTrainingStatus.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
                                      descriptor);
     if (gattTreadmillData.isValid()) {
