@@ -192,10 +192,12 @@ QByteArray wahookickrsnapbike::setWheelCircumference(double millimeters) {
 }
 
 void wahookickrsnapbike::update() {
+#ifndef Q_OS_IOS
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
     }
+#endif
 
     if (initRequest) {
         lastCommandErgMode = false;
@@ -226,8 +228,14 @@ void wahookickrsnapbike::update() {
         Resistance = 0;
         emit resistanceRead(Resistance.value());
         initRequest = false;               
-    } else if (bluetoothDevice.isValid() &&
-               m_control->state() == QLowEnergyController::DiscoveredState //&&
+    } else if (
+#ifndef Q_OS_IOS
+               bluetoothDevice.isValid() &&
+               m_control->state() == QLowEnergyController::DiscoveredState
+#else
+               1
+#endif
+               //&&
                                                                            // gattCommunicationChannelService &&
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
@@ -597,9 +605,11 @@ void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
     emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
 
+#ifndef Q_OS_IOS
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
+#endif
 }
 
 void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {

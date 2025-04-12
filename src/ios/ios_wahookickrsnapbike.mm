@@ -24,8 +24,8 @@
 }
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *,id> *)advertisementData RSSI:(NSNumber *)RSSI {
+    qDebug() << _targetDeviceName << peripheral.name;
     if (peripheral && _targetDeviceName && peripheral.name) {
-        qDebug() << _targetDeviceName;
         if ([peripheral.name isEqualToString:_targetDeviceName]) {
             self.connectedPeripheral = peripheral;
             [self.centralManager stopScan];
