@@ -205,6 +205,7 @@ void lifefitnesstreadmill::btinit() {
         if (gattTreadmillData1.isValid()) {
             gattCustomService1->writeDescriptor(
                 gattTreadmillData1.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        }
 
     }
 
