@@ -1127,6 +1127,9 @@ import Qt.labs.platform 1.1
             property int  tile_hr_time_in_zone_4_order: 65
             property bool tile_hr_time_in_zone_5_enabled: false
             property int  tile_hr_time_in_zone_5_order: 66
+
+            // 2.18.25
+            property bool zwift_gear_ui_aligned: false
         }
 
         function paddingZeros(text, limit) {
@@ -5163,6 +5166,33 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 */
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Align Gear Value on Both Zwift and QZ")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_gear_ui_aligned
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.zwift_gear_ui_aligned = checked; if(checked) { settings.zwift_gear_ui_aligned = false; } }
+                    }
+
+                    Label {
+                        text: qsTr("By default QZ is showing the actual gears from the bike. Enabling this, QZ will show the same gears that you see on Zwift. This doesn't affect the real gear value one the bike. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
                     RowLayout {
                         spacing: 10
