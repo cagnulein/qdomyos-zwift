@@ -5206,7 +5206,7 @@ import Qt.labs.platform 1.1
                         checked: settings.zwift_gear_ui_aligned
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_gear_ui_aligned = checked; if(checked) { settings.zwift_gear_ui_aligned = false; } }
+                        onClicked: { settings.zwift_gear_ui_aligned = checked; }
                     }
 
                     Label {
