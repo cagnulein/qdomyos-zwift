@@ -640,12 +640,18 @@ jobs:
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
 
   android-emulator-test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     needs: android-build
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
         
       # Download the APK from the previous job
       - name: Download APK Artifact
@@ -668,7 +674,6 @@ jobs:
           arch: x86
           api-level: 29
           profile: Nexus 6
-          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           disable-animations: true
           script: |
             # Display available space
@@ -693,7 +698,7 @@ jobs:
             adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
             
             # Wait for app to start
-            sleep 30
+            sleep 40
             
             # Verify the app is running
             echo "Checking if app is running..."
