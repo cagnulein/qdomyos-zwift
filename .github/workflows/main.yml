@@ -693,7 +693,7 @@ jobs:
             adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
             
             # Wait for app to start
-            sleep 20
+            sleep 30
             
             # Verify the app is running
             echo "Checking if app is running..."
