@@ -80,18 +80,25 @@
         NSData *receivedData = characteristic.value;
         NSLog(@"UUID: %@ Received data: %@", characteristic.UUID, receivedData);
         
-        // Converti l'UUID CoreBluetooth in QBluetoothUuid
-        QString uuidString = QString::fromNSString([characteristic.UUID UUIDString]);
-        QBluetoothUuid uuid(uuidString);
+        // Handle both 16-bit and 128-bit UUIDs correctly
+        QBluetoothUuid uuid;
+        if ([characteristic.UUID.UUIDString length] <= 8) {
+            // For short 16-bit UUIDs like "2AD2"
+            unsigned int shortUUID;
+            [[NSScanner scannerWithString:[characteristic.UUID UUIDString]] scanHexInt:&shortUUID];
+            uuid = QBluetoothUuid((uint16_t)shortUUID);
+        } else {
+            // For full 128-bit UUIDs
+            QString uuidString = QString::fromNSString([characteristic.UUID UUIDString]);
+            uuid = QBluetoothUuid(uuidString);
+        }
         
-        // Converti i dati da NSData a QByteArray
         QByteArray b;
         const uint8_t* d = (const uint8_t*)[receivedData bytes];
         for(int i=0; i<receivedData.length; i++) {
             b.append(d[i]);
         }
         
-        // Passa UUID e dati al wrapper
         self.qtDevice->handleCharacteristicValueChanged(uuid, b);
     }
 }
