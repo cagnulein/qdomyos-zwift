@@ -282,6 +282,7 @@ void bluetoothdevice::clearStats() {
     m_jouls.clear(true);
     elevationAcc = 0;
     m_watt.clear(false);
+    m_rawWatt.clear(false);
     WeightLoss.clear(false);
     WattKg.clear(false);
     Cadence.clear(false);
@@ -302,6 +303,7 @@ void bluetoothdevice::setPaused(bool p) {
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
+    m_rawWatt.setPaused(p);
     WeightLoss.setPaused(p);
     WattKg.setPaused(p);
     Cadence.setPaused(p);
@@ -321,6 +323,7 @@ void bluetoothdevice::setLap() {
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);
+    m_rawWatt.setLap(false);
     WeightLoss.setLap(false);
     WattKg.setLap(false);
     Cadence.setLap(false);
