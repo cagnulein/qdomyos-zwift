@@ -586,9 +586,14 @@ class bluetoothdevice : public QObject {
     metric elevationAcc;
 
     /**
-     * @brief m_watt Metric to get and set the power expended in the session. Unit: watts
+     * @brief m_watt Metric to get and set the power read from the trainer or from the power sensor Unit: watts
      */
     metric m_watt;
+    
+    /**
+     * @brief m_rawWatt Metric to get and set the power from the trainer only. Unit: watts
+     */
+    metric m_rawWatt;
 
     /**
      * @brief WattKg Metric to get and set the watt kg for the session (what's this?). Unit: watt kg
