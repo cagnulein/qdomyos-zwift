@@ -71,14 +71,14 @@ void bike::changePower(int32_t power) {
     double erg_filter_lower =
         settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
 
+    requestPower = power; // used by some bikes that have ERG mode builtin
+    
     if(power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0 && fabs(requestPower - m_watt.average5s()) < qMax(erg_filter_upper, erg_filter_lower)) {
         qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s() << "watt" << m_watt.average5s() << "req" << requestPower;
         // the concept here is to trying to add or decrease the delta from the power sensor
         requestPower += (requestPower - m_watt.average5s());
     }
-
-    
-    requestPower = power; // used by some bikes that have ERG mode builtin
+        
     bool force_resistance =
         settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
             .toBool();
