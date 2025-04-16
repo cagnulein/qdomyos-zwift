@@ -1656,6 +1656,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("LCR")) ||
                         (b.name().toUpper().startsWith("ROBX")) ||
                         (b.name().toUpper().startsWith("XCX-")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("PM5")) && !b.name().toUpper().endsWith(QStringLiteral("SKI")) && !b.name().toUpper().endsWith(QStringLiteral("ROW"))) || 
                         (b.name().toUpper().startsWith("L-") && b.name().length() == 11) ||
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||
                         (b.name().toUpper().startsWith("VFSPINBIKE")) ||
@@ -1775,7 +1776,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 smartrowRower->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(smartrowRower);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
-                        !b.name().toUpper().endsWith(QStringLiteral("ROW"))) &&
+                        b.name().toUpper().endsWith(QStringLiteral("SKI"))) &&
                        !concept2Skierg && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
