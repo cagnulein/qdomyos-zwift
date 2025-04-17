@@ -1432,6 +1432,41 @@ void horizontreadmill::forceIncline(double requestIncline) {
                 writeS[1] = 0x00;
                 writeS[2] = 0x00;
             }
+        } else if(T3G_PRO) {
+            if(requestInclination > 0 && requestInclination < 1) {
+                writeS[1] = 0x10;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 1 && requestInclination < 2) {
+                writeS[1] = 0x1a;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 2 && requestInclination < 3) {
+                writeS[1] = 0x24;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 3 && requestInclination < 4) {
+                writeS[1] = 0x2e;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 4 && requestInclination < 5) {
+                writeS[1] = 0x38;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 5 && requestInclination < 6) {
+                writeS[1] = 0x42;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 6 && requestInclination < 7) {
+                writeS[1] = 0x4c;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 7 && requestInclination < 8) {
+                writeS[1] = 0x56;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 8 && requestInclination < 9) {
+                writeS[1] = 0x60;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 9 && requestInclination < 10) {
+                writeS[1] = 0x6A;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 10 && requestInclination < 11) {
+                writeS[1] = 0x74;
+                writeS[2] = 0x00;
+            }
         } else {
             if(HORIZON_78AT_treadmill)
                 requestIncline = requestIncline / 2.0;
