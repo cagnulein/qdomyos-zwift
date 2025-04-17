@@ -1466,6 +1466,9 @@ void horizontreadmill::forceIncline(double requestIncline) {
             } else if(requestInclination >= 10 && requestInclination < 11) {
                 writeS[1] = 0x74;
                 writeS[2] = 0x00;
+            } else {
+                writeS[1] = 0x00;
+                writeS[2] = 0x00;
             }
         } else {
             if(HORIZON_78AT_treadmill)
