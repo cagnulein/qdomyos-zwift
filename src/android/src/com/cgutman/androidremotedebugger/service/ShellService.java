@@ -23,7 +23,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import androidx.core.app.NotificationCompat;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 
 public class ShellService extends Service implements DeviceConnectionListener {
 
@@ -113,7 +113,7 @@ public class ShellService extends Service implements DeviceConnectionListener {
                             startForeground(FOREGROUND_PLACEHOLDER_ID, createForegroundPlaceholderNotification());
                         }
                     } catch (Exception e) {
-                        Log.e("ForegroundService", "Failed to start foreground service", e);
+                        QLog.e("ForegroundService", "Failed to start foreground service", e);
                         return START_NOT_STICKY;
                     }
 		}

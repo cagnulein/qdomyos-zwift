@@ -891,6 +891,7 @@ class homeform : public QObject {
     void bluetoothDeviceDisconnected();
     void onToastRequested(QString message);
     void strava_upload_file_prepare();
+    void handleRestoreDefaultWheelDiameter();
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
     void licenseReply(QNetworkReply *reply);
@@ -948,6 +949,8 @@ class homeform : public QObject {
     void stravaWebVisibleChanged(bool value);
     void pelotonAuthUrlChanged(QString value);
     void pelotonWebVisibleChanged(bool value);
+
+    void restoreDefaultWheelDiameter();
 
     void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 

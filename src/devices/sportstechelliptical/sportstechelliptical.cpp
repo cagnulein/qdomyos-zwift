@@ -2,7 +2,7 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
-#include "virtualdevices/virtualtreadmill.h".h"
+#include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QEventLoop>

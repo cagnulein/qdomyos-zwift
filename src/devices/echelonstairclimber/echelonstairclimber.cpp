@@ -392,9 +392,20 @@ void echelonstairclimber::characteristicWritten(const QLowEnergyCharacteristic &
 void echelonstairclimber::serviceScanDone(void) {
     qDebug() << QStringLiteral("serviceScanDone");
 
+    auto services_list = m_control->services();
+    for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        qDebug() << s << "service found!";
+    }
+
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("0bf669f1-45f2-11e7-9598-0800200c9a66"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+
+    if(gattCommunicationChannelService == nullptr) {
+        qDebug() << "invalid service";
+        return;
+    }
+
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &echelonstairclimber::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }

@@ -82,15 +82,15 @@ void lifefitnesstreadmill::waitForAPacket() {
 }
 
 void lifefitnesstreadmill::btinit() {
-    uint8_t initData1[1] = {0x01};
-    uint8_t initData2a[20] = {0x38, 0x66, 0x65, 0x64, 0x61, 0x38, 0x38, 0x39, 0x31, 0x64,
-                              0x62, 0x61, 0x34, 0x30, 0x31, 0x66, 0x38, 0x39, 0x39, 0x30};
-    uint8_t initData2b[12] = {0x30, 0x32, 0x33, 0x30, 0x37, 0x39, 0x35, 0x66, 0x30, 0x38, 0x36, 0x30};
-    uint8_t initData3[1] = {0x00};
-    uint8_t initData4[7] = {0x00, 0x00, 0x00, 0x01, 0xb8, 0x5b, 0x5d};
-    uint8_t initData5[1] = {0x02};
-
     if (gattWriteChar4CustomService2.isValid()) {
+
+        uint8_t initData1[1] = {0x01};
+        uint8_t initData2a[20] = {0x38, 0x66, 0x65, 0x64, 0x61, 0x38, 0x38, 0x39, 0x31, 0x64,
+                                  0x62, 0x61, 0x34, 0x30, 0x31, 0x66, 0x38, 0x39, 0x39, 0x30};
+        uint8_t initData2b[12] = {0x30, 0x32, 0x33, 0x30, 0x37, 0x39, 0x35, 0x66, 0x30, 0x38, 0x36, 0x30};
+        uint8_t initData3[1] = {0x00};
+        uint8_t initData4[7] = {0x00, 0x00, 0x00, 0x01, 0xb8, 0x5b, 0x5d};
+        uint8_t initData5[1] = {0x02};
 
         writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData1, sizeof(initData1),
                             QStringLiteral("init"), false, false);
@@ -104,9 +104,101 @@ void lifefitnesstreadmill::btinit() {
                             QStringLiteral("init"), false, false);
         writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData5, sizeof(initData5),
                             QStringLiteral("init"), false, false);
+    } else if(lifet5) {
+
+        // From pkt5841 (after first 12 bytes)
+        uint8_t initData1[5] = {0xf1, 0x00, 0x01, 0x11, 0xee}; // |.@....|
+
+        // From pkt5849 (after first 12 bytes)
+        uint8_t initData2[7] = {0xf1, 0x00, 0x03, 0x02, 0x00, 0x08, 0xf3}; // |.@....|
+
+        // From pkt5851 (after first 12 bytes)
+        uint8_t initData3[21] = {0xf1, 0x00, 0x11, 0x04, 0x00, 0x00, 0x4e, 0x6f, 0x72, 0x77, 0x65, 
+                                0x67, 0x69, 0x61, 0x6e, 0x20, 0x34, 0x78, 0x34, 0x00, 0x41}; // |.@....Norweg|, |ian 4x4.A|
+
+        // From pkt5854 (after first 12 bytes)
+        uint8_t initData4[28] = {0xf1, 0x00, 0x18, 0x04, 0x00, 0x01, 0x54, 0x72, 0x65, 0x61, 0x64, 
+                                0x6d, 0x69, 0x6c, 0x6c, 0x20, 0x30, 0x33, 0x2f, 0x30, 0x38, 0x2f, 
+                                0x32, 0x30, 0x32, 0x34, 0x00, 0x34}; // |.@....Treadm|, |ill 03/0|, |8/2024.4|
+
+        // From pkt5856 (after first 12 bytes)
+        uint8_t initData5[20] = {0xf1, 0x00, 0x10, 0x04, 0x00, 0x02, 0x35, 0x20, 0x78, 0x20, 0x31, 
+                                0x6b, 0x6d, 0x20, 0x61, 0x74, 0x20, 0x39, 0x00, 0xa6}; // |.@....5 x 1k|, |m at 9..|
+
+        // From pkt5859 (after first 12 bytes)
+        uint8_t initData6[19] = {0xf1, 0x00, 0x0f, 0x04, 0x00, 0x03, 0x35, 0x20, 0x78, 0x20, 0x31, 
+                                0x6b, 0x6d, 0x20, 0x40, 0x20, 0x39, 0x00, 0x3b}; // |.@....5 x 1k|, |m @ 9.;|
+
+        // From pkt5861 (after first 12 bytes)
+        uint8_t initData7[21] = {0xf1, 0x00, 0x11, 0x04, 0x00, 0x04, 0x36, 0x20, 0x78, 0x20, 0x35, 
+                                0x30, 0x30, 0x6d, 0x20, 0x40, 0x20, 0x31, 0x30, 0x00, 0x16}; // |.@....6 x 50|, |0m @ 10.|
+
+        // From pkt5864 (after first 12 bytes)
+        uint8_t initData8[20] = {0xf1, 0x00, 0x10, 0x04, 0x00, 0x05, 0x36, 0x20, 0x78, 0x20, 0x38, 
+                                0x30, 0x30, 0x6d, 0x20, 0x40, 0x20, 0x39, 0x00, 0x3b}; // |.@....6 x 80|, |0m @ 9.;|
+
+        // From pkt5866 (after first 12 bytes)
+        uint8_t initData9[33] = {0xf1, 0x00, 0x1d, 0x04, 0x00, 0x06, 0x32, 0x30, 0x6d, 0x69, 0x6e, 
+                                0x20, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x73, 0x20, 
+                                0x28, 0x31, 0x30, 0x20, 0x72, 0x75, 0x6e, 0x73, 0x29, 0x00, 0x81}; // |.@....20min |, |intervals|, |s (10 ru|, |ns)..|
+
+        // From pkt5869 (after first 12 bytes)
+        uint8_t initData10[20] = {0xf1, 0x00, 0x10, 0x04, 0x00, 0x07, 0x36, 0x20, 0x78, 0x20, 0x32, 
+                                    0x20, 0x6d, 0x69, 0x6e, 0x20, 0x40, 0x39, 0x00, 0xc8}; // |.@....6 x 2 |, |min @9..|
+
+        // From pkt5876 (after first 12 bytes)
+        uint8_t initData11[5] = {0x6e, 0x64, 0x65, 0x72, 0xa6}; // |.@nder.|
+
+        // From pkt5888 (after first 12 bytes)
+        uint8_t initData12[5] = {0x4c, 0x49, 0x42, 0x52, 0x8d}; // |.@LIBR.|
+
+        // From pkt5894 (after first 12 bytes)
+        uint8_t initData13[5] = {0x5f, 0x4c, 0x49, 0x42, 0x22}; // |.@_LIB"|
+
+        // From pkt5895 (after first 12 bytes)
+        uint8_t initData14[202] = {0xf1, 0x00, 0xc6, 0x27, 0x02, 0x03, 0x52, 0x41, 0x52, 0x59, 0x22, 0x7d,
+                                    0x2c, 0x7b, 0x22, 0x77, 0x6f, 0x72, 0x6b, 0x6f, 0x75, 0x74, 0x49, 0x64, 
+                                    0x22, 0x3a, 0x37, 0x2c, 0x22, 0x66, 0x69, 0x6c, 0x65, 0x4e, 0x61, 0x6d, 
+                                    0x65, 0x22, 0x3a, 0x22, 0x36, 0x20, 0x78, 0x20, 0x32, 0x20, 0x6d, 0x69, 
+                                    0x6e, 0x20, 0x40, 0x39, 0x2e, 0x35, 0x6d, 0x70, 0x68, 0x20, 0x31, 0x20, 
+                                    0x6d, 0x69, 0x6e, 0x20, 0x77, 0x61, 0x6c, 0x6b, 0x20, 0x72, 0x65, 0x73, 
+                                    0x74, 0x22, 0x2c, 0x22, 0x77, 0x6f, 0x72, 0x6b, 0x6f, 0x75, 0x74, 0x4e, 
+                                    0x61, 0x6d, 0x65, 0x22, 0x3a, 0x22, 0x36, 0x20, 0x78, 0x20, 0x32, 0x20, 
+                                    0x6d, 0x69, 0x6e, 0x20, 0x40, 0x39, 0x2e, 0x35, 0x6d, 0x70, 0x68, 0x20, 
+                                    0x31, 0x20, 0x6d, 0x69, 0x6e, 0x20, 0x77, 0x61, 0x6c, 0x6b, 0x20, 0x72, 
+                                    0x65, 0x73, 0x74, 0x22, 0x2c, 0x22, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x22, 
+                                    0x3a, 0x37, 0x2c, 0x22, 0x77, 0x6f, 0x72, 0x6b, 0x6f, 0x75, 0x74, 0x54, 
+                                    0x79, 0x70, 0x65, 0x22, 0x3a, 0x22, 0x57, 0x4f, 0x52, 0x4b, 0x4f, 0x55, 
+                                    0x54, 0x5f, 0x4c, 0x49, 0x42, 0x52, 0x41, 0x52, 0x59, 0x22, 0x7d, 0x5d, 
+                                    0x7d, 0x3c, 0x2f, 0x77, 0x6f, 0x72, 0x6b, 0x6f, 0x75, 0x74, 0x53, 0x75, 
+                                    0x6d, 0x6d, 0x61, 0x72, 0x69, 0x65, 0x73, 0x3e, 0x0a, 0x3c, 0x2f, 0x64, 
+                                    0x69, 0x73, 0x63, 0x6f, 0x76, 0x65, 0x72, 0x3e, 0x0a, 0xe6}; // |.R.@...'|, |..RARY"}|, |,{"worko|, and many more lines
+
+        // From pkt6713 (after first 12 bytes)
+        //uint8_t initData15[5] = {0xf1, 0x00, 0x01, 0x0a, 0xf5}; // |.R.@....|
+
+        // From pkt6929 (after first 12 bytes)
+        //uint8_t initData16[6] = {0xf1, 0x00, 0x02, 0x0c, 0x3e, 0xb4}; // |.R.@....|
+        
+        // Write all the initialization data sequentially
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData1, sizeof(initData1), QStringLiteral("init lifet5 1"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData2, sizeof(initData2), QStringLiteral("init lifet5 2"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData3, sizeof(initData3), QStringLiteral("init lifet5 3"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData4, sizeof(initData4), QStringLiteral("init lifet5 4"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData5, sizeof(initData5), QStringLiteral("init lifet5 5"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData6, sizeof(initData6), QStringLiteral("init lifet5 6"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData7, sizeof(initData7), QStringLiteral("init lifet5 7"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData8, sizeof(initData8), QStringLiteral("init lifet5 8"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData9, sizeof(initData9), QStringLiteral("init lifet5 9"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData10, sizeof(initData10), QStringLiteral("init lifet5 10"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData11, sizeof(initData11), QStringLiteral("init lifet5 11"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData12, sizeof(initData12), QStringLiteral("init lifet5 12"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData13, sizeof(initData13), QStringLiteral("init lifet5 13"), false, true);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData14, sizeof(initData14), QStringLiteral("init lifet5 14"), false, true);
+        //writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData15, sizeof(initData15), QStringLiteral("init lifet5 15"), false, true);
+        //writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData16, sizeof(initData16), QStringLiteral("init lifet5 16"), false, true);
     }
 
-    QByteArray descriptor;
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattTrainingStatusId((quint16)0x2AD3);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
@@ -114,6 +206,10 @@ void lifefitnesstreadmill::btinit() {
         qDebug() << "gattFTMSService is empty!";
         return;
     }
+    QByteArray descriptor;
+    descriptor.append((char)0x01);
+    descriptor.append((char)0x00);
+
     QLowEnergyCharacteristic gattTreadmillData = gattFTMSService->characteristic(_gattTreadmillDataId);
     QLowEnergyCharacteristic gattTrainingStatus = gattFTMSService->characteristic(_gattTrainingStatusId);
     QLowEnergyCharacteristic gattCrossTrainerData = gattFTMSService->characteristic(_gattCrossTrainerDataId);
@@ -267,7 +363,7 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
     double heart = 0; // NOTE : Should be initialized with a value to shut clang-analyzer's
                       // UndefinedBinaryOperatorResult
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
-    Q_UNUSED(characteristic);
+
     bool distanceEval = false;
     QSettings settings;
     // bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x,
@@ -280,7 +376,32 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
+    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("4a8ff3f1-c933-11e3-9c1a-0800200c9a66")) && newValue.length() == 40) {
+        Speed = ((double)newValue.at(32)) / 10.0;
+        Inclination = ((double)newValue.at(27)) / 10.0;
+        distanceEval = true;
+        if (firstDistanceCalculated) {
+            Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+            if(watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+                KCal +=
+                    ((((0.048 *
+                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                        1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 /
+                      ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                            // kg * 3.5) / 200 ) / 60
+        }
+
+#ifdef Q_OS_ANDROID
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+#endif
+
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
         lastPacket = newValue;
 
         // default flags for this treadmill is 84 04
@@ -629,6 +750,7 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteChar2CustomService1(QStringLiteral("5da569e2-9cb2-11e5-8994-feff819cdc9f"));
     QBluetoothUuid _gattWriteChar3CustomService2(QStringLiteral("5da54cf2-9cb2-11e5-8994-feff819cdc9f"));
     QBluetoothUuid _gattWriteChar4CustomService2(QStringLiteral("ce78e85e-9cb6-11e5-8994-feff819cdc9f"));
+    QBluetoothUuid _gattWriteChar5CustomService3(QStringLiteral("c52d3161-d1a1-11e3-9c1a-0800200c9a66"));
     QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
@@ -696,6 +818,12 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("Custom service and Control Point 4 found");
                     gattWriteChar4CustomService2 = c;
                     gattCustomService2 = s;
+                } else if (c.uuid() == _gattWriteChar5CustomService3) {
+                    qDebug() << QStringLiteral("Custom service and Control Point found");
+                    gattWriteChar1CustomService1 = c;
+                    gattCustomService1 = s;
+                    lifet5 = true;
+                    qDebug() << "Life Fitness T5 workaround enabled!";
                 }
             }
         }
@@ -734,6 +862,23 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         }
         firstStateChanged = 1;
         // ********************************************************************************************************
+    }
+
+    if(lifet5) {
+        QByteArray descriptor;
+        descriptor.append((char)0x01);
+        descriptor.append((char)0x00);
+
+        QLowEnergyCharacteristic gattTreadmillData1 = gattCustomService1->characteristic(QBluetoothUuid(QStringLiteral("4a8ff3f1-c933-11e3-9c1a-0800200c9a66")));
+        qDebug() << gattTreadmillData1.isValid();
+        foreach(QLowEnergyCharacteristic c, gattCustomService1->characteristics()) {
+            qDebug() << c.uuid();
+        }
+
+        if (gattTreadmillData1.isValid()) {
+            qDebug() << "writing descriptor";
+            gattCustomService1->writeDescriptor(gattTreadmillData1.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        }
     }
 
     initRequest = true;

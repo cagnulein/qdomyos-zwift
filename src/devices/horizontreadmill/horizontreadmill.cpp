@@ -1219,7 +1219,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1289,7 +1289,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO) {
+        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1431,6 +1431,44 @@ void horizontreadmill::forceIncline(double requestIncline) {
             } else if(requestInclination >= 14 && requestInclination < 15) {
                 writeS[1] = 0xE8;
                 writeS[2] = 0x03;
+            } else {
+                writeS[1] = 0x00;
+                writeS[2] = 0x00;
+            }
+        } else if(T3G_PRO) {
+            if(requestInclination > 0 && requestInclination < 1) {
+                writeS[1] = 0x10;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 1 && requestInclination < 2) {
+                writeS[1] = 0x1a;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 2 && requestInclination < 3) {
+                writeS[1] = 0x24;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 3 && requestInclination < 4) {
+                writeS[1] = 0x2e;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 4 && requestInclination < 5) {
+                writeS[1] = 0x38;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 5 && requestInclination < 6) {
+                writeS[1] = 0x42;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 6 && requestInclination < 7) {
+                writeS[1] = 0x4c;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 7 && requestInclination < 8) {
+                writeS[1] = 0x56;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 8 && requestInclination < 9) {
+                writeS[1] = 0x60;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 9 && requestInclination < 10) {
+                writeS[1] = 0x6A;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 10 && requestInclination < 11) {
+                writeS[1] = 0x74;
+                writeS[2] = 0x00;
             } else {
                 writeS[1] = 0x00;
                 writeS[2] = 0x00;
@@ -2498,6 +2536,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("FIT-"))) {
             qDebug() << QStringLiteral("FIT- found");
             FIT = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("3G PRO "))) {
+            qDebug() << QStringLiteral("3G PRO");
+            T3G_PRO = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
@@ -3222,7 +3263,7 @@ void horizontreadmill::testProfileCRC() {
 double horizontreadmill::minStepInclination() {
     QSettings settings;
     bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
-    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill || FIT)
+    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill || FIT || T3G_PRO)
         return 1.0;
     else
         return 0.5;

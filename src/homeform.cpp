@@ -535,6 +535,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::activityDescriptionChanged, this,
             &homeform::setActivityDescription);
     engine->rootContext()->setContextProperty(QStringLiteral("rootItem"), (QObject *)this);
+    connect(this, &homeform::restoreDefaultWheelDiameter, this, &homeform::handleRestoreDefaultWheelDiameter);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     engine->load(url);
@@ -4621,6 +4622,18 @@ QString homeform::signal() {
     return QStringLiteral("icons/icons/signal-1.png");
 }
 
+void homeform::handleRestoreDefaultWheelDiameter() {
+    if (bluetoothManager && bluetoothManager->device() &&
+        bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+
+        // Controlla se il dispositivo è un wahookickrsnapbike
+        wahookickrsnapbike* kickrBike = dynamic_cast<wahookickrsnapbike*>(bluetoothManager->device());
+        if (kickrBike) {
+            kickrBike->restoreDefaultWheelDiameter();
+        }
+    }
+}
+
 void homeform::update() {
 
     QSettings settings;
@@ -5114,76 +5127,36 @@ void homeform::update() {
                 Start_inner(false);
             }
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::STAIRCLIMBER) {
-            double _rss = ((treadmill *)bluetoothManager->device())->runningStressScore();
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
-            if (bluetoothManager->device()->currentSpeed().value()) {
-                pace = 10000 / (((treadmill *)bluetoothManager->device())->currentPace().second() +
-                                (((treadmill *)bluetoothManager->device())->currentPace().minute() * 60));
-                if (pace < 0) {
-                    pace = 0;
-                }
-            } else {
-
-                pace = 0;
-            }
-            strideLength =
-                ((treadmill *)bluetoothManager->device())->currentStrideLength().value() * cm_inches_conversion;
-            groundContact = ((treadmill *)bluetoothManager->device())->currentGroundContact().value();
-            verticalOscillation = ((treadmill *)bluetoothManager->device())->currentVerticalOscillation().value();
-            stepCount = ((treadmill *)bluetoothManager->device())->currentStepCount().value();
-            inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
-            if (((treadmill *)bluetoothManager->device())->currentSpeed().value() > 2)
+            stepCount = ((stairclimber *)bluetoothManager->device())->currentStepCount().value();
+            inclination = ((stairclimber *)bluetoothManager->device())->currentInclination().value();
+            if (((stairclimber *)bluetoothManager->device())->currentSpeed().value() > 2)
                 this->pace->setValue(
-                    ((treadmill *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
+                    ((stairclimber *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
             else
                 this->pace->setValue("N/A");
             this->pace->setSecondLine(
                 QStringLiteral("AVG: ") +
-                ((treadmill *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
+                ((stairclimber *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
                 QStringLiteral(" MAX: ") +
-                ((treadmill *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
-            this->target_power->setValue(
-                QString::number(((treadmill *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
+                ((stairclimber *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine(
                 QStringLiteral("AVG: ") +
-                QString::number(((treadmill *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
+                QString::number(((stairclimber *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
-                QString::number(((treadmill *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
-            elevation->setValue(QString::number(((treadmill *)bluetoothManager->device())->elevationGain().value() *
+                QString::number(((stairclimber *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
+            elevation->setValue(QString::number(((stairclimber *)bluetoothManager->device())->elevationGain().value() *
                                                     meter_feet_conversion,
                                                 'f', (miles ? 0 : 1)));
             elevation->setSecondLine(
-                QString::number(((treadmill *)bluetoothManager->device())->elevationGain().rate1s() * 60.0 *
+                QString::number(((stairclimber *)bluetoothManager->device())->elevationGain().rate1s() * 60.0 *
                                     meter_feet_conversion,
                                 'f', (miles ? 0 : 1)) +
                 " /min");
 
             this->stepCount->setValue(QString::number(
-                ((treadmill *)bluetoothManager->device())->currentStepCount().value(), 'f', 0));
-            this->rss->setValue(QString::number(_rss, 'f', 0));
-
-            this->instantaneousStrideLengthCM->setValue(QString::number(strideLength, 'f', 0));
-            this->instantaneousStrideLengthCM->setSecondLine(
-                QStringLiteral("AVG: ") +
-                QString::number(((treadmill *)bluetoothManager->device())->currentStrideLength().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
-                QString::number(((treadmill *)bluetoothManager->device())->currentStrideLength().max(), 'f', 0));
-
-            this->groundContactMS->setValue(QString::number(groundContact, 'f', 0));
-            this->groundContactMS->setSecondLine(
-                QStringLiteral("AVG: ") +
-                QString::number(((treadmill *)bluetoothManager->device())->currentGroundContact().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
-                QString::number(((treadmill *)bluetoothManager->device())->currentGroundContact().max(), 'f', 0));
-
-            this->verticalOscillationMM->setValue(QString::number(verticalOscillation, 'f', 0));
-            this->verticalOscillationMM->setSecondLine(
-                QStringLiteral("AVG: ") +
-                QString::number(((treadmill *)bluetoothManager->device())->currentVerticalOscillation().average(), 'f',
-                                0) +
-                QStringLiteral(" MAX: ") +
-                QString::number(((treadmill *)bluetoothManager->device())->currentVerticalOscillation().max(), 'f', 0));
+                ((stairclimber *)bluetoothManager->device())->currentStepCount().value(), 'f', 0));
 
                    // if there is no training program, the color is based on presets
             if (!trainProgram || trainProgram->currentRow().speed == -1 || trainProgram->currentRow().upper_speed == -1) {
@@ -5258,45 +5231,6 @@ void homeform::update() {
                 this->target_zone->setValue(tr("N/A"));
                 break;
             }
-
-            if (trainProgram) {
-                // in order to see the target pace of a peloton workout even if the speed force for treadmill is disabled
-                this->target_pace->setValue(
-                    ((treadmill *)bluetoothManager->device())->speedToPace(trainProgram->currentRow().speed).toString(QStringLiteral("m:ss")));
-                this->target_pace->setSecondLine(((treadmill *)bluetoothManager->device())
-                                                     ->speedToPace(trainProgram->currentRow().lower_speed)
-                                                     .toString(QStringLiteral("m:ss")) +
-                                                 " - " +
-                                                 ((treadmill *)bluetoothManager->device())
-                                                     ->speedToPace(trainProgram->currentRow().upper_speed)
-                                                     .toString(QStringLiteral("m:ss")));
-            } else {
-                this->target_pace->setValue(
-                    ((treadmill *)bluetoothManager->device())->lastRequestedPace().toString(QStringLiteral("m:ss")));
-            }
-            this->target_speed->setValue(QString::number(
-                ((treadmill *)bluetoothManager->device())->lastRequestedSpeed().value() * unit_conversion, 'f', 1));
-            this->target_speed->setSecondLine(QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) +
-                                              QStringLiteral("% @0%=") +
-                                              QString::number(bluetoothManager->device()->difficult(), 'f', 0));
-            this->target_incline->setValue(
-                QString::number(((treadmill *)bluetoothManager->device())->lastRequestedInclination().value(), 'f', 1));
-            this->target_incline->setSecondLine(
-                QString::number(bluetoothManager->device()->inclinationDifficult() * 100.0, 'f', 0) +
-                QStringLiteral("% @0%=") + QString::number(bluetoothManager->device()->inclinationDifficult(), 'f', 0));
-
-                   // originally born for #470. When the treadmill reaches the 0 speed it enters in the pause mode
-                   // so this logic should care about sync the treadmill state to the UI state
-            if (((treadmill *)bluetoothManager->device())->autoPauseWhenSpeedIsZero() &&
-                bluetoothManager->device()->currentSpeed().value() == 0 && paused == false && stopped == false) {
-                qDebug() << QStringLiteral("autoPauseWhenSpeedIsZero!");
-                Start_inner(false);
-            } else if (((treadmill *)bluetoothManager->device())->autoStartWhenSpeedIsGreaterThenZero() &&
-                       bluetoothManager->device()->currentSpeed().value() > 0 && (paused == true || stopped == true)) {
-                qDebug() << QStringLiteral("autoStartWhenSpeedIsGreaterThenZero!");
-                Start_inner(false);
-            }
-
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
 
             bool pelotoncadence =

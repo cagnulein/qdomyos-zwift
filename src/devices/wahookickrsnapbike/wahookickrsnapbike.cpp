@@ -36,6 +36,15 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     g.printTable();
 }
 
+void wahookickrsnapbike::restoreDefaultWheelDiameter() {
+    // Default wheel circumference is 2070 (700 x 18C)
+    QByteArray a = setWheelCircumference(2070);
+    uint8_t b[20];
+    memcpy(b, a.constData(), a.length());
+    writeCharacteristic(b, a.length(), "setWheelCircumference (restore default)", false, true);
+    emit debug("Restored default wheel diameter (2070mm) to trainer");
+}
+
 bool wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
                                              bool wait_for_response) {
     QEventLoop loop;
@@ -382,7 +391,10 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
         uint8_t index = 4;
 
         if (newValue.length() > 3) {
-            m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled")))
+                m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
         }
 
         emit powerChanged(m_watt.value());
@@ -449,9 +461,8 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                 deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
             }
 
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled"))) {
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString().startsWith(QStringLiteral("Disabled")) && 
+                    settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name).toString().startsWith(QStringLiteral("Disabled"))) {
                 if (CrankRevs != oldCrankRevs && deltaT) {
                     double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
                     if (!crank_rev_present)

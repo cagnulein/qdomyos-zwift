@@ -260,7 +260,7 @@ void proformwifibike::innerWriteResistance() {
             requestResistance = 1;
         }
 
-        if (requestResistance != currentResistance().value()) {
+        if (requestResistance != currentResistance().value() && !inclinationAvailableByHardware() && requestInclination == -100) {
             emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
             auto virtualBike = this->VirtualBike();
             if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
