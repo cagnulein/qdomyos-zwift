@@ -86,12 +86,12 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &bluetooth::finished);
 #else
         connect(&discoveryTimeout, &QTimer::timeout, this, &bluetooth::finished);
-        discoveryTimeout.start(10000);
+        discoveryTimeout.start(3000);
 #endif
 
         // Start a discovery
 #ifndef Q_OS_WIN
-        discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
+        discoveryAgent->setLowEnergyDiscoveryTimeout(3000);
 #endif
         this->startDiscovery();
     }
@@ -162,6 +162,7 @@ void bluetooth::finished() {
     bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
     bool ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
+    static int scanRetry = 0;
 
     if (ss2k_peloton)
         ftmsAccessoryFound = true;
@@ -184,7 +185,8 @@ void bluetooth::finished() {
         (!sramDeviceFound && !sramDeviceAvaiable())) {
 
         // force heartRateBelt off
-        forceHeartBeltOffForTimeout = true;
+        if(scanRetry++>4)
+            forceHeartBeltOffForTimeout = true;
     }
 
     this->startDiscovery();
