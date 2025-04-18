@@ -268,6 +268,67 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     }
                 }
             }
+        } else if(sport == 4) { // Rowing
+             // Guard to check if steps quantity type is available
+             guard let quantityTypeSteps = HKQuantityType.quantityType(
+                 forIdentifier: .stepCount) else {
+                 return
+             }
+
+             let stepsQuantity = HKQuantity(unit: HKUnit.count(), doubleValue: Double(WorkoutTracking.steps))
+             
+             // Create a sample for total steps
+             let sampleSteps = HKCumulativeQuantitySeriesSample(
+                 type: quantityTypeSteps,
+                 quantity: stepsQuantity,
+                 start: workoutSession.startDate!,
+                 end: Date())
+
+             // Add the steps sample to workout builder
+             workoutBuilder.add([sampleSteps]) { (success, error) in
+                 if let error = error {
+                     print(error)
+                 }
+             }
+             
+             // Per il rowing, HealthKit utilizza un tipo specifico di distanza
+             // Se non esiste un tipo specifico per il rowing, possiamo usare un tipo generico di distanza
+             var quantityTypeDistance: HKQuantityType?
+             
+             // In watchOS 10 e versioni successive, possiamo usare un tipo specifico se disponibile
+             if #available(watchOSApplicationExtension 10.0, *) {
+                 // Verifica se esiste un tipo specifico per il rowing, altrimenti utilizza un tipo generico
+                 quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceSwimming)
+             } else {
+                 // Nelle versioni precedenti, usa il tipo generico
+                 quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)
+             }
+             
+             guard let typeDistance = quantityTypeDistance else {
+                 return
+             }
+       
+             let sampleDistance = HKCumulativeQuantitySeriesSample(type: typeDistance,
+                                                           quantity: quantityMiles,
+                                                           start: workoutSession.startDate!,
+                                                           end: Date())
+             
+             workoutBuilder.add([sampleDistance]) {(success, error) in
+                 if let error = error {
+                     print(error)
+                 }
+                 self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
+                     if let error = error {
+                         print(error)
+                     }
+                     self.workoutBuilder.finishWorkout{ (workout, error) in
+                         if let error = error {
+                             print(error)
+                         }
+                         workout?.setValue(quantityMiles, forKey: "totalDistance")
+                     }
+                 }
+             }
         } else {
             
             // Guard to check if steps quantity type is available
