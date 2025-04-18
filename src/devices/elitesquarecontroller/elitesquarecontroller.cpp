@@ -161,13 +161,13 @@ void elitesquarecontroller::stateChanged(QLowEnergyService::ServiceState state) 
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
         }
     }
 
-    if (state != QLowEnergyService::ServiceState::ServiceDiscovered) {
+    if (state != QLowEnergyService::ServiceState::RemoteServiceDiscovered) {
         qDebug() << QStringLiteral("ignoring this state");
         return;
     }
@@ -175,7 +175,7 @@ void elitesquarecontroller::stateChanged(QLowEnergyService::ServiceState state) 
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &elitesquarecontroller::characteristicChanged);
             
@@ -201,8 +201,8 @@ void elitesquarecontroller::stateChanged(QLowEnergyService::ServiceState state) 
                             QByteArray descriptor;
                             descriptor.append((char)0x01);
                             descriptor.append((char)0x00);
-                            if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                                s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                            if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid()) {
+                                s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
                                 connectionEstablished = true;
                                 qDebug() << QStringLiteral("Elite Square notification subscribed!");
                             } else {
