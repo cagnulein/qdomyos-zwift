@@ -1114,7 +1114,7 @@ jobs:
           name: windows-msvc2022-binary
           path: windows-msvc2022-binary.zip
 
-upload_to_release:
+  upload_to_release:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
