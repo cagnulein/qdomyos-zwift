@@ -877,7 +877,7 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
         if (gattTreadmillData1.isValid()) {
             qDebug() << "writing descriptor";
-            gattCustomService1->writeDescriptor(gattTreadmillData1.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattCustomService1->writeDescriptor(gattTreadmillData1.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
         }
     }
 
