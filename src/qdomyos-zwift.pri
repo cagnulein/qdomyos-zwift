@@ -2,10 +2,13 @@ include(../defaults.pri)
 QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia multimediawidgets network gui webview webenginequick
 QTPLUGIN += qavfmediaplayer
 QT+= charts core-private
+DEFINES += CHARTJS
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
 
 CONFIG += qmltypes
+
+QT_DEBUG_PLUGINS=1
 
 #win32: CONFIG += webengine
 #unix:!android: CONFIG += webengine
