@@ -86,6 +86,7 @@ class nordictrackifitadbelliptical : public elliptical {
     bool cadenceReadFromTM = false;
     bool resistanceReadFromTM = false;
     bool wattReadFromTM = false;
+    bool speedReadFromTM = false;
 
     bool initDone = false;
     bool initRequest = false;

@@ -23,7 +23,7 @@ import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.content.Intent;
 
 public class Ant {
@@ -38,7 +38,7 @@ public class Ant {
  static boolean treadmill = false;
 
  public void antStart(Activity a, boolean SpeedRequest, boolean HeartRequest, boolean GarminKey, boolean Treadmill) {
-	 Log.v(TAG, "antStart");
+	 QLog.v(TAG, "antStart");
 	 speedRequest = SpeedRequest;
 	 heartRequest = HeartRequest;
 	 treadmill = Treadmill;
@@ -46,10 +46,10 @@ public class Ant {
 
 	 activity = a;
 	 if(a != null)
-	    Log.v(TAG, "antStart activity is valid");
+	    QLog.v(TAG, "antStart activity is valid");
 	 else
 	 {
-		 Log.v(TAG, "antStart activity is invalid");
+		 QLog.v(TAG, "antStart activity is invalid");
 		 return;
 	 }
     if(!mChannelServiceBound) doBindChannelService();
@@ -60,29 +60,29 @@ public class Ant {
 	@Override
 	public void onServiceConnected(ComponentName name, IBinder serviceBinder)
 	{
-		Log.v(TAG, "mChannelServiceConnection.onServiceConnected...");
+		QLog.v(TAG, "mChannelServiceConnection.onServiceConnected...");
 
 		mChannelService = (ChannelService.ChannelServiceComm) serviceBinder;
 
 
-		Log.v(TAG, "...mChannelServiceConnection.onServiceConnected");
+		QLog.v(TAG, "...mChannelServiceConnection.onServiceConnected");
 		}
 
 	@Override
 	public void onServiceDisconnected(ComponentName arg0)
 	{
-		Log.v(TAG, "mChannelServiceConnection.onServiceDisconnected...");
+		QLog.v(TAG, "mChannelServiceConnection.onServiceDisconnected...");
 
 		// Clearing and disabling when disconnecting from ChannelService
 		mChannelService = null;
 
-		Log.v(TAG, "...mChannelServiceConnection.onServiceDisconnected");
+		QLog.v(TAG, "...mChannelServiceConnection.onServiceDisconnected");
 		}
 	};
 
  private void doBindChannelService()
  {
-	Log.v(TAG, "doBindChannelService...");
+	QLog.v(TAG, "doBindChannelService...");
 
 	// Binds to ChannelService. ChannelService binds and manages connection between the
 	// app and the ANT Radio Service
@@ -91,14 +91,14 @@ public class Ant {
 	if(!mChannelServiceBound)   //If the bind returns false, run the unbind method to update the GUI
 	doUnbindChannelService();
 
-	Log.i(TAG, "  Channel Service binding = "+ mChannelServiceBound);
+	QLog.i(TAG, "  Channel Service binding = "+ mChannelServiceBound);
 
-	Log.v(TAG, "...doBindChannelService");
+	QLog.v(TAG, "...doBindChannelService");
 	}
 
  public void doUnbindChannelService()
  {
-	Log.v(TAG, "doUnbindChannelService...");
+	QLog.v(TAG, "doUnbindChannelService...");
 
 	if(mChannelServiceBound)
 	{
@@ -107,7 +107,7 @@ public class Ant {
 		mChannelServiceBound = false;
 		}
 
-	Log.v(TAG, "...doUnbindChannelService");
+	QLog.v(TAG, "...doUnbindChannelService");
 	}
 
  public void setCadenceSpeedPower(float speed, int power, int cadence)
@@ -115,7 +115,7 @@ public class Ant {
 	 if(mChannelService == null)
 	    return;
 
-	 Log.v(TAG, "setCadenceSpeedPower " + speed + " " + power + " " + cadence);
+	 QLog.v(TAG, "setCadenceSpeedPower " + speed + " " + power + " " + cadence);
 	 mChannelService.setSpeed(speed);
 	 mChannelService.setPower(power);
 	 mChannelService.setCadence(cadence);
@@ -126,7 +126,7 @@ public class Ant {
 	if(mChannelService == null)
 	   return 0;
 
-	Log.v(TAG, "getHeart");
+	QLog.v(TAG, "getHeart");
 	return mChannelService.getHeart();
  }
 }

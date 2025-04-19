@@ -445,7 +445,7 @@ jobs:
   # This workflow contains a single job called "build"
   android-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -508,7 +508,7 @@ jobs:
 
 # waiting github.com/jurplel/install-qt-action/issues/63
       - name: Install Qt Android
-        uses: jurplel/install-qt-action@v3
+        uses: jdpurcell/install-qt-action@v5
         with:
           version: '5.15.0'
           host: 'linux'
@@ -574,19 +574,92 @@ jobs:
           name: fdroid-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
 
-      # - name: Exit if not on master branch
-      #   if: github.ref == 'refs/heads/master'
-      #   run: exit 1
+  android-emulator-test:
+    runs-on: ubuntu-latest
+    needs: android-build
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      # - name: upload windows artifact
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ github.token }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
-      #     asset_name: fdroid-android-trial.zip
-      #     asset_content_type: application/zip                  
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+        
+      # Download the APK from the previous job
+      - name: Download APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fdroid-android-trial
+          path: apk-debug
+          
+      - name: Setup Java for Android Emulator
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      # Use a smaller emulator configuration
+      - name: Run tests on emulator
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          target: default  # Use default instead of Google APIs
+          arch: x86
+          api-level: 29
+          profile: Nexus 6
+          disable-animations: true
+          script: |
+            # Display available space
+            df -h
+            
+            # List available files
+            echo "Files in apk-debug directory:"
+            ls -la apk-debug/
+            
+            # Install the APK
+            adb install apk-debug/android-debug.apk
+            
+            # Grant necessary permissions for API 25
+            echo "Granting permissions..."
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_FINE_LOCATION || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADMIN || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.READ_EXTERNAL_STORAGE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WRITE_EXTERNAL_STORAGE || true
+            
+            # Start the main activity
+            adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
+            
+            # Wait for app to start
+            sleep 40
+            
+            # Verify the app is running
+            echo "Checking if app is running..."
+            adb shell "ps -A" > process_list.txt
+            grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
+            echo "App is running successfully"
+            
+            # Take a screenshot for verification
+            adb shell screencap -p /sdcard/screenshot.png
+            adb pull /sdcard/screenshot.png
+            
+            # Check if the package is installed
+            adb shell pm list packages | grep org.cagnulen.qdomyoszwift
+            
+            # Display logcat output for debugging (just the last 100 lines)
+            adb logcat -d | grep -i qdomyos | tail -n 100
+
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-emulator-test-evidence
+          path: |
+            screenshot.png
+            process_list.txt
+          if-no-files-found: warn                
 
   ios-build:
     # The type of runner that the job will run on
@@ -1040,10 +1113,10 @@ jobs:
         with:
           name: windows-msvc2022-binary
           path: windows-msvc2022-binary.zip
-  
-  upload_to_release:
+
+upload_to_release:
     permissions: write-all
-    runs-on: ubuntu-20.04 
+    runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
     needs: [linux-x86-build, window-msvc2019-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]
     steps:
