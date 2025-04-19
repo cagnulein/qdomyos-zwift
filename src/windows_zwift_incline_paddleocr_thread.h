@@ -32,6 +32,7 @@ class windows_zwift_incline_paddleocr_thread : public QThread {
 
   private slots:
     void processOutput();
+    void processError();
     void handleError(QProcess::ProcessError error);
 
   private:

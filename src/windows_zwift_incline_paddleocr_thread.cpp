@@ -21,6 +21,7 @@ windows_zwift_incline_paddleocr_thread::windows_zwift_incline_paddleocr_thread(b
     emit debug("windows_zwift_incline_paddleocr_thread created!");
     process = new QProcess(this);
     connect(process, &QProcess::readyReadStandardOutput, this, &windows_zwift_incline_paddleocr_thread::processOutput);
+    connect(process, &QProcess::readyReadStandardError, this, &windows_zwift_incline_paddleocr_thread::processError);
     connect(process, &QProcess::errorOccurred, this, &windows_zwift_incline_paddleocr_thread::handleError);
 }
 
@@ -35,6 +36,14 @@ windows_zwift_incline_paddleocr_thread::~windows_zwift_incline_paddleocr_thread(
     delete process;
 }
 
+void windows_zwift_incline_paddleocr_thread::processError() {
+    QByteArray error = process->readAllStandardError();
+    if (!error.isEmpty()) {
+        QString errorStr = QString::fromUtf8(error.trimmed());
+        emit debug("Error from process: " + errorStr);
+    }
+}
+
 void windows_zwift_incline_paddleocr_thread::run() {
 #ifdef Q_OS_WINDOWS
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
@@ -43,14 +52,28 @@ void windows_zwift_incline_paddleocr_thread::run() {
     env.insert("PATH", updatedPath);
     process->setProcessEnvironment(env);
 
-    emit debug("Starting zwift-metrics-server.exe");
+    QString exePath = QCoreApplication::applicationDirPath() + "/zwift-metrics-server.exe";
+    QFile exe(exePath);
+    if (!exe.exists()) {
+        emit debug("ERROR: zwift-metrics-server.exe not found at: " + exePath);
+        return; // Exit the thread if the executable doesn't exist
+    }
+
+    emit debug("Starting zwift-metrics-server.exe with path: " + updatedPath);
     process->start("zwift-metrics-server.exe", QStringList());
 
     // Main thread loop - keep checking if process is still running
     while (true) {
         if (process->state() != QProcess::Running) {
-            emit debug("zwift-metrics-server.exe stopped, restarting...");
+            emit debug("zwift-metrics-server.exe stopped with exit code: " + 
+                        QString::number(process->exitCode()) + 
+                        ", exit status: " + (process->exitStatus() == QProcess::NormalExit ? "Normal" : "Crashed"));
             process->start("zwift-metrics-server.exe", QStringList());
+            
+            // Check immediately if restart failed
+            if (process->state() != QProcess::Running && !process->waitForStarted(3000)) {
+                emit debug("Failed to restart zwift-metrics-server.exe: " + process->errorString());
+            }
         }
         msleep(1000); // Check once per second if process is still running
     }
