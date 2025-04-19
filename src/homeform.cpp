@@ -537,6 +537,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     engine->rootContext()->setContextProperty(QStringLiteral("rootItem"), (QObject *)this);
     connect(this, &homeform::restoreDefaultWheelDiameter, this, &homeform::handleRestoreDefaultWheelDiameter);
 
+    const QUrl url(QStringLiteral("qrc:/main.qml"));
+    engine->load(url);
+
+
     this->trainProgram = new trainprogram(QList<trainrow>(), bl);
 
     timer = new QTimer(this);
@@ -547,44 +551,51 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(backupTimer, &QTimer::timeout, this, &homeform::backup);
     backupTimer->start(1min);
 
-    QObject *rootObject = engine->rootObjects().constFirst();
-    QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
-    QObject *stack = rootObject;
-    engine->rootContext()->setContextProperty("pathController", &pathController);
-    QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
-    QObject::connect(home, SIGNAL(stop_clicked()), this, SLOT(Stop()));
-    QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)), this, SLOT(trainprogram_open_clicked(QUrl)));
-    QObject::connect(stack, SIGNAL(trainprogram_open_other_folder(QUrl)), this, SLOT(trainprogram_open_other_folder(QUrl)));
-    QObject::connect(stack, SIGNAL(gpx_open_other_folder(QUrl)), this, SLOT(gpx_open_other_folder(QUrl)));
-    QObject::connect(stack, SIGNAL(profile_open_clicked(QUrl)), this, SLOT(profile_open_clicked(QUrl)));
-    QObject::connect(stack, SIGNAL(trainprogram_preview(QUrl)), this, SLOT(trainprogram_preview(QUrl)));
-    QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
-    QObject::connect(stack, SIGNAL(trainprogram_zwo_loaded(QString)), this, SLOT(trainprogram_zwo_loaded(QString)));
-    QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)), this, SLOT(gpx_open_clicked(QUrl)));
-    QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
-    QObject::connect(stack, SIGNAL(fit_save_clicked()), this, SLOT(fit_save_clicked()));
-    QObject::connect(stack, SIGNAL(strava_connect_clicked()), this, SLOT(strava_connect_clicked()));
-    QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()), this,
-                     SLOT(refresh_bluetooth_devices_clicked()));
-    QObject::connect(home, SIGNAL(lap_clicked()), this, SLOT(Lap()));
-    QObject::connect(home, SIGNAL(peloton_start_workout()), this, SLOT(peloton_start_workout()));
-    QObject::connect(home, SIGNAL(peloton_abort_workout()), this, SLOT(peloton_abort_workout()));
-    QObject::connect(stack, SIGNAL(loadSettings(QUrl)), this, SLOT(loadSettings(QUrl)));
-    QObject::connect(stack, SIGNAL(saveSettings(QUrl)), this, SLOT(saveSettings(QUrl)));
-    QObject::connect(stack, SIGNAL(deleteSettings(QUrl)), this, SLOT(deleteSettings(QUrl)));
-    QObject::connect(stack, SIGNAL(restoreSettings()), this, SLOT(restoreSettings()));
-    QObject::connect(stack, SIGNAL(saveProfile(QString)), this, SLOT(saveProfile(QString)));
-    QObject::connect(stack, SIGNAL(restart()), this, SLOT(restart()));
+    QObject *stack = nullptr;
 
-    QObject::connect(stack, SIGNAL(volumeUp()), this, SLOT(volumeUp()));
-    QObject::connect(stack, SIGNAL(volumeDown()), this, SLOT(volumeDown()));
-    QObject::connect(stack, SIGNAL(keyMediaPrevious()), this, SLOT(keyMediaPrevious()));
-    QObject::connect(stack, SIGNAL(keyMediaNext()), this, SLOT(keyMediaNext()));
-    QObject::connect(stack, SIGNAL(floatingOpen()), this, SLOT(floatingOpen()));
-    QObject::connect(stack, SIGNAL(openFloatingWindowBrowser()), this, SLOT(openFloatingWindowBrowser()));
-    QObject::connect(stack, SIGNAL(strava_upload_file_prepare()), this, SLOT(strava_upload_file_prepare()));
+    if(engine->rootObjects().count() > 0) {
+        QObject *rootObject = engine->rootObjects().constFirst();
+        QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
+        stack = rootObject;
 
-    qDebug() << "homeform constructor events linked";
+        engine->rootContext()->setContextProperty("pathController", &pathController);
+        QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
+        QObject::connect(home, SIGNAL(stop_clicked()), this, SLOT(Stop()));
+        QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)), this, SLOT(trainprogram_open_clicked(QUrl)));
+        QObject::connect(stack, SIGNAL(trainprogram_open_other_folder(QUrl)), this, SLOT(trainprogram_open_other_folder(QUrl)));
+        QObject::connect(stack, SIGNAL(gpx_open_other_folder(QUrl)), this, SLOT(gpx_open_other_folder(QUrl)));
+        QObject::connect(stack, SIGNAL(profile_open_clicked(QUrl)), this, SLOT(profile_open_clicked(QUrl)));
+        QObject::connect(stack, SIGNAL(trainprogram_preview(QUrl)), this, SLOT(trainprogram_preview(QUrl)));
+        QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
+        QObject::connect(stack, SIGNAL(trainprogram_zwo_loaded(QString)), this, SLOT(trainprogram_zwo_loaded(QString)));
+        QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)), this, SLOT(gpx_open_clicked(QUrl)));
+        QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
+        QObject::connect(stack, SIGNAL(fit_save_clicked()), this, SLOT(fit_save_clicked()));
+        QObject::connect(stack, SIGNAL(strava_connect_clicked()), this, SLOT(strava_connect_clicked()));
+        QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()), this,
+                         SLOT(refresh_bluetooth_devices_clicked()));
+        QObject::connect(home, SIGNAL(lap_clicked()), this, SLOT(Lap()));
+        QObject::connect(home, SIGNAL(peloton_start_workout()), this, SLOT(peloton_start_workout()));
+        QObject::connect(home, SIGNAL(peloton_abort_workout()), this, SLOT(peloton_abort_workout()));
+        QObject::connect(stack, SIGNAL(loadSettings(QUrl)), this, SLOT(loadSettings(QUrl)));
+        QObject::connect(stack, SIGNAL(saveSettings(QUrl)), this, SLOT(saveSettings(QUrl)));
+        QObject::connect(stack, SIGNAL(deleteSettings(QUrl)), this, SLOT(deleteSettings(QUrl)));
+        QObject::connect(stack, SIGNAL(restoreSettings()), this, SLOT(restoreSettings()));
+        QObject::connect(stack, SIGNAL(saveProfile(QString)), this, SLOT(saveProfile(QString)));
+        QObject::connect(stack, SIGNAL(restart()), this, SLOT(restart()));
+
+        QObject::connect(stack, SIGNAL(volumeUp()), this, SLOT(volumeUp()));
+        QObject::connect(stack, SIGNAL(volumeDown()), this, SLOT(volumeDown()));
+        QObject::connect(stack, SIGNAL(keyMediaPrevious()), this, SLOT(keyMediaPrevious()));
+        QObject::connect(stack, SIGNAL(keyMediaNext()), this, SLOT(keyMediaNext()));
+        QObject::connect(stack, SIGNAL(floatingOpen()), this, SLOT(floatingOpen()));
+        QObject::connect(stack, SIGNAL(openFloatingWindowBrowser()), this, SLOT(openFloatingWindowBrowser()));
+        QObject::connect(stack, SIGNAL(strava_upload_file_prepare()), this, SLOT(strava_upload_file_prepare()));
+
+        qDebug() << "homeform constructor events linked";
+    } else {
+        qDebug() << "error on QML engine UI";
+    }
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QObject::connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
@@ -608,7 +619,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(pelotonHandler, &peloton::pzpLoginState, this, &homeform::pzpLoginState);
     connect(pelotonHandler, &peloton::pelotonAuthUrlChanged, this, &homeform::pelotonAuthUrlChanged);
     connect(pelotonHandler, &peloton::pelotonWebVisibleChanged, this, &homeform::pelotonWebVisibleChanged);
-    connect(stack, SIGNAL(peloton_connect_clicked()), pelotonHandler, SLOT(peloton_connect_clicked()));
+    if(stack)
+        connect(stack, SIGNAL(peloton_connect_clicked()), pelotonHandler, SLOT(peloton_connect_clicked()));
 
     // copying bundles zwo files in the right path if necessary
     QDirIterator itZwo(":/zwo/");
@@ -5938,8 +5950,8 @@ void homeform::update() {
                                    (bluetoothManager->device()->elapsedTime().hour() * 3600);
                 if ((seconds / 60) <
                     settings.value(QZSettings::trainprogram_total, QZSettings::default_trainprogram_total).toUInt()) {
-                    qDebug() << QStringLiteral("trainprogram random seconds ") + QString::number(seconds) +
-                                    QStringLiteral(" last_change ") + last_seconds + QStringLiteral(" period ") +
+                    qDebug() << QStringLiteral("trainprogram random seconds ") << QString::number(seconds) <<
+                                    QStringLiteral(" last_change ") << last_seconds << QStringLiteral(" period ") <<
                                     settings
                                         .value(QZSettings::trainprogram_period_seconds,
                                                QZSettings::default_trainprogram_period_seconds)
@@ -7036,14 +7048,13 @@ QStringList homeform::metrics() { return bluetoothdevice::metrics(); }
 
 QAbstractOAuth::ModifyParametersFunction
 homeform::buildModifyParametersFunction(const QUrl &clientIdentifier, const QUrl &clientIdentifierSharedKey) {
-    return [clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
+    return [clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QMultiMap<QString, QVariant> *parameters) {
         if (stage == QAbstractOAuth::Stage::RequestingAuthorization) {
-            parameters->insert(QStringLiteral("responseType"), QStringLiteral("code")); /* Request refresh token*/
-            parameters->insert(QStringLiteral("approval_prompt"),
-                               QStringLiteral("force")); /* force user check scope again */
+            parameters->insert(QStringLiteral("responseType"), QStringLiteral("code"));
+            parameters->insert(QStringLiteral("approval_prompt"), QStringLiteral("force"));
             QByteArray code = parameters->value(QStringLiteral("code")).toByteArray();
-            // DON'T TOUCH THIS LINE, THANKS Roberto Viola
-            (*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code); // NOTE: Old code replaced by
+            parameters->remove(QStringLiteral("code"));
+            parameters->insert(QStringLiteral("code"), QUrl::fromPercentEncoding(code));
         }
         if (stage == QAbstractOAuth::Stage::RefreshingAccessToken) {
             parameters->insert(QStringLiteral("client_id"), clientIdentifier);
@@ -7571,32 +7582,16 @@ void homeform::sendMail() {
     return;
 #endif
 
-// We need to set the username (your email address) and the password
-// for smtp authentication.
-#ifdef SMTP_PASSWORD
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-    smtp.setUser(STRINGIFY(SMTP_USERNAME));
-#else
-#pragma message "smtp username is unset!"
-    return;
-#endif
-#ifdef SMTP_PASSWORD
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-    smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
-#else
-#pragma message "smtp password is unset!"
-    return;
-#endif
-
     // Now we create a MimeMessage object. This will be the email.
 
     MimeMessage message;
-
-    message.setSender(new EmailAddress(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ")));
-    message.addRecipient(new EmailAddress(settings.value(QZSettings::user_email, QLatin1String("")).toString(),
-                                          settings.value(QZSettings::user_email, QLatin1String("")).toString()));
+    EmailAddress sender(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ"));
+    message.setSender(sender);
+    
+    EmailAddress recipient(settings.value(QZSettings::user_email, QLatin1String("")).toString(),
+                           settings.value(QZSettings::user_email, QLatin1String("")).toString());
+    message.addRecipient(recipient);
+  
     if (!Session.isEmpty()) {
         QString title = Session.constFirst().time.toString();
         if (!stravaPelotonActivityName.isEmpty()) {
@@ -7874,14 +7869,19 @@ void homeform::sendMail() {
 
     bool r = false;
     uint8_t i = 0;
-    while (!r) {
-        qDebug() << "trying to send email #" << i;
-        r = smtp.connectToHost();
-        r = smtp.login();
-        r = smtp.sendMail(message);
-        if (i++ == 3)
-            break;
-    }
+    
+      qDebug() << "trying to send email #" << i;
+      smtp.connectToHost();
+      
+      // Use the public login method with parameters instead of the protected one
+      
+         smtp.login(STRINGIFY(SMTP_USERNAME), STRINGIFY(SMTP_PASSWORD)); // Replace with actual credentials
+      
+      
+     
+          smtp.sendMail(message);
+      
+        
     smtp.quit();
 
     // delete image variable
