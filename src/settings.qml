@@ -1132,8 +1132,9 @@ import Qt.labs.platform 1.1
             property bool zwift_gear_ui_aligned: false
             property bool tacxneo2_disable_negative_inclination: false
 
-            // 2.XX.yy
+            // 2.18.26
             property bool proform_performance_300i: false
+            property bool android_antbike: false
         }
 
         function paddingZeros(text, limit) {
@@ -3893,6 +3894,33 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("This setting enables receiving the heart rate from an external HRM over ANT+ instead of from QZ.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Ant+ Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.android_antbike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.android_antbike = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Use this to connect to your bike using ANT+ instead bluetooth. Default: Disabled")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
