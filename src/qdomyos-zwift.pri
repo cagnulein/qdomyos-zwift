@@ -2,7 +2,7 @@ include(../defaults.pri)
 QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia multimediawidgets network gui webview webenginequick
 QTPLUGIN += qavfmediaplayer
 QT+= charts core-private
-DEFINES += CHARTJS
+#DEFINES += CHARTJS
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
 
