@@ -1127,6 +1127,13 @@ import Qt.labs.platform 1.1
             property int  tile_hr_time_in_zone_4_order: 65
             property bool tile_hr_time_in_zone_5_enabled: false
             property int  tile_hr_time_in_zone_5_order: 66
+
+            // 2.18.25
+            property bool zwift_gear_ui_aligned: false
+            property bool tacxneo2_disable_negative_inclination: false
+
+            // 2.XX.yy
+            property bool proform_performance_300i: false
         }
 
         function paddingZeros(text, limit) {
@@ -3301,18 +3308,46 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
-                        IndicatorOnlySwitch {
-                            text: qsTr("Peloton Configuration")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.tacx_neo2_peloton
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: settings.tacx_neo2_peloton = checked
+                        accordionContent: ColumnLayout {
+                            IndicatorOnlySwitch {
+                                text: qsTr("Peloton Configuration")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.tacx_neo2_peloton
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.tacx_neo2_peloton = checked
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Disable Negative Inclination due to gear")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.tacxneo2_disable_negative_inclination
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.tacxneo2_disable_negative_inclination = checked
+                            }
+                            Label {
+                                text: qsTr("Enabling this QZ will ignore changing gears if the value is too low for this trainer. Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
                         }
                     }
                     AccordionElement {
@@ -5163,6 +5198,32 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
+                    IndicatorOnlySwitch {
+                        text: qsTr("Align Gear Value on Both Zwift and QZ")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_gear_ui_aligned
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.zwift_gear_ui_aligned = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("By default QZ is showing the actual gears from the bike. Enabling this, QZ will show the same gears that you see on Zwift. This doesn't affect the real gear value one the bike. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
                     RowLayout {
                         spacing: 10
@@ -6489,6 +6550,7 @@ import Qt.labs.platform 1.1
                                     "Proform Trainer 8.0",
                                     "Proform 705 CST v.80.44",
                                     "Nordictrack 1750",
+                                    "Proform Performance 300i",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -6551,7 +6613,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_505_cst_80_44 ? 43 :
                                                     settings.proform_trainer_8_0 ? 44 :
                                                     settings.proform_treadmill_705_cst_V80_44 ? 45 :
-                                                    settings.nordictrack_treadmill_1750_adb ? 46 : 0;
+                                                    settings.nordictrack_treadmill_1750_adb ? 46 : 
+                                                    settings.proform_performance_300i ? 47 :0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -6602,6 +6665,7 @@ import Qt.labs.platform 1.1
                                     settings.proform_carbon_tl_PFTL59720 = false;
                                     settings.proform_treadmill_sport_70 = false;
                                     settings.proform_treadmill_575i = false;
+                                    settings.proform_performance_300i = false;
                                     settings.proform_performance_400i = false;
                                     settings.proform_treadmill_c700 = false;
                                     settings.proform_treadmill_c960i = false;
@@ -6661,6 +6725,7 @@ import Qt.labs.platform 1.1
                                         case 44: settings.proform_trainer_8_0 = true; break;
                                         case 45: settings.proform_treadmill_705_cst_V80_44 = true; break;
                                         case 46: settings.nordictrack_treadmill_1750_adb = true; break;
+                                        case 47: settings.proform_performance_300i = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -10399,7 +10464,7 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("Use it to change the gears on QZ!")
+                                text: qsTr("Also for Elite Square. Use it to change the gears on QZ!")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2

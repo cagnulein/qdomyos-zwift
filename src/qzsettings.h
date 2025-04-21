@@ -2201,6 +2201,9 @@ class QZSettings {
     static const QString min_inclination;
     static constexpr double default_min_inclination = -999.0;
 
+    static const QString proform_performance_300i;
+    static constexpr bool default_proform_performance_300i = false;
+
     static const QString proform_performance_400i;
     static constexpr bool default_proform_performance_400i = false;
 
@@ -2435,6 +2438,12 @@ class QZSettings {
 
     static const QString tile_hr_time_in_zone_5_order;
     static constexpr int default_tile_hr_time_in_zone_5_order = 66;
+
+    static const QString zwift_gear_ui_aligned;
+    static constexpr bool default_zwift_gear_ui_aligned = false;
+
+    static const QString tacxneo2_disable_negative_inclination;
+    static constexpr bool default_tacxneo2_disable_negative_inclination = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

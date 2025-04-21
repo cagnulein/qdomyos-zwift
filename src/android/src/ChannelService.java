@@ -34,7 +34,7 @@ import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.util.SparseArray;
 import android.os.Build;
 import androidx.core.content.ContextCompat;
@@ -57,7 +57,7 @@ public class ChannelService extends Service {
     private ServiceConnection mAntRadioServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.v(TAG, "onServiceConnected");
+            QLog.v(TAG, "onServiceConnected");
             // Must pass in the received IBinder object to correctly construct an AntService object
             mAntRadioService = new AntService(service);
 
@@ -72,7 +72,7 @@ public class ChannelService extends Service {
                 // radio by attempting to acquire a channel.
                 boolean legacyInterfaceInUse = mAntChannelProvider.isLegacyInterfaceInUse();
 
-                Log.v(TAG, "onServiceConnected mChannelAvailable=" + mChannelAvailable + " legacyInterfaceInUse=" + legacyInterfaceInUse);
+                QLog.v(TAG, "onServiceConnected mChannelAvailable=" + mChannelAvailable + " legacyInterfaceInUse=" + legacyInterfaceInUse);
 
                 // If there are channels OR legacy interface in use, allow adding channels
                 if (mChannelAvailable || legacyInterfaceInUse) {
@@ -85,7 +85,7 @@ public class ChannelService extends Service {
                 try {
                     openAllChannels();
                 } catch (ChannelNotAvailableException exception) {
-                    Log.e(TAG, "Channel not available!!");
+                    QLog.e(TAG, "Channel not available!!");
                 }
             } catch (RemoteException e) {
                 // TODO Auto-generated catch block
@@ -139,7 +139,7 @@ public class ChannelService extends Service {
 
         int getHeart() {
             if (null != heartChannelController) {
-                Log.v(TAG, "getHeart");
+                QLog.v(TAG, "getHeart");
                 return heartChannelController.heart;
             }
             return 0;
@@ -200,13 +200,13 @@ public class ChannelService extends Service {
                 else {
                     NetworkKey mNK = new NetworkKey(new byte[]{(byte) 0xb9, (byte) 0xa5, (byte) 0x21, (byte) 0xfb,
                             (byte) 0xbd, (byte) 0x72, (byte) 0xc3, (byte) 0x45});
-                    Log.v(TAG, mNK.toString());
+                    QLog.v(TAG, mNK.toString());
                     mAntChannel = mAntChannelProvider.acquireChannelOnPrivateNetwork(this, mNK);
                 }
             } catch (RemoteException e) {
-                Log.v(TAG, "ACP Remote Ex");
+                QLog.v(TAG, "ACP Remote Ex");
             } catch (UnsupportedFeatureException e) {
-                Log.v(TAG, "ACP UnsupportedFeature Ex");
+                QLog.v(TAG, "ACP UnsupportedFeature Ex");
             }
         }
         return mAntChannel;
@@ -223,14 +223,14 @@ public class ChannelService extends Service {
     private final BroadcastReceiver mChannelProviderStateChangedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "onReceive");
+            QLog.d(TAG, "onReceive");
             if (AntChannelProvider.ACTION_CHANNEL_PROVIDER_STATE_CHANGED.equals(intent.getAction())) {
                 boolean update = false;
                 // Retrieving the data contained in the intent
                 int numChannels = intent.getIntExtra(AntChannelProvider.NUM_CHANNELS_AVAILABLE, 0);
                 boolean legacyInterfaceInUse = intent.getBooleanExtra(AntChannelProvider.LEGACY_INTERFACE_IN_USE, false);
 
-                Log.d(TAG, "onReceive" + mAllowAddChannel + " " +  numChannels + " " + legacyInterfaceInUse);
+                QLog.d(TAG, "onReceive" + mAllowAddChannel + " " +  numChannels + " " + legacyInterfaceInUse);
 
                 if (mAllowAddChannel) {
                     // Was a acquire channel allowed
@@ -249,7 +249,7 @@ public class ChannelService extends Service {
                         try {
                             openAllChannels();
                         } catch (ChannelNotAvailableException exception) {
-                            Log.e(TAG, "Channel not available!!");
+                            QLog.e(TAG, "Channel not available!!");
                         }
                     }
                 }
@@ -258,7 +258,7 @@ public class ChannelService extends Service {
     };
 
     private void doBindAntRadioService() {
-        if (BuildConfig.DEBUG) Log.v(TAG, "doBindAntRadioService");
+        if (BuildConfig.DEBUG) QLog.v(TAG, "doBindAntRadioService");
 
         ContextCompat.registerReceiver(
             this,
@@ -273,14 +273,14 @@ public class ChannelService extends Service {
     }
 
     private void doUnbindAntRadioService() {
-        if (BuildConfig.DEBUG) Log.v(TAG, "doUnbindAntRadioService");
+        if (BuildConfig.DEBUG) QLog.v(TAG, "doUnbindAntRadioService");
 
         // Stop listing for channel available intents
         try {
             unregisterReceiver(mChannelProviderStateChangedReceiver);
         } catch (IllegalArgumentException exception) {
             if (BuildConfig.DEBUG)
-                Log.d(TAG, "Attempting to unregister a never registered Channel Provider State Changed receiver.");
+                QLog.d(TAG, "Attempting to unregister a never registered Channel Provider State Changed receiver.");
         }
 
         if (mAntRadioServiceBound) {
@@ -315,7 +315,7 @@ public class ChannelService extends Service {
     }
 
     static void die(String error) {
-        Log.e(TAG, "DIE: " + error);
+        QLog.e(TAG, "DIE: " + error);
     }
 
 }
