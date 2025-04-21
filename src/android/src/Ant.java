@@ -22,7 +22,7 @@ import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.content.Intent;
 
 public class Ant {
@@ -38,7 +38,7 @@ public class Ant {
 
  // Updated antStart method with BikeRequest parameter at the end
  public void antStart(Activity a, boolean SpeedRequest, boolean HeartRequest, boolean GarminKey, boolean Treadmill, boolean BikeRequest) {
-     Log.v(TAG, "antStart");
+     QLog.v(TAG, "antStart");
      speedRequest = SpeedRequest;
      heartRequest = HeartRequest;
      treadmill = Treadmill;
@@ -46,12 +46,13 @@ public class Ant {
      bikeRequest = BikeRequest; // Set bike request flag
      activity = a;
      if(a != null)
-        Log.v(TAG, "antStart activity is valid");
+        QLog.v(TAG, "antStart activity is valid");
      else
      {
-         Log.v(TAG, "antStart activity is invalid");
+         QLog.v(TAG, "antStart activity is invalid");
          return;
      }
+
     if(!mChannelServiceBound) doBindChannelService();
  }
 
@@ -60,49 +61,49 @@ public class Ant {
     @Override
     public void onServiceConnected(ComponentName name, IBinder serviceBinder)
     {
-        Log.v(TAG, "mChannelServiceConnection.onServiceConnected...");
+        QLog.v(TAG, "mChannelServiceConnection.onServiceConnected...");
         mChannelService = (ChannelService.ChannelServiceComm) serviceBinder;
-        Log.v(TAG, "...mChannelServiceConnection.onServiceConnected");
+        QLog.v(TAG, "...mChannelServiceConnection.onServiceConnected");
     }
 
     @Override
     public void onServiceDisconnected(ComponentName arg0)
     {
-        Log.v(TAG, "mChannelServiceConnection.onServiceDisconnected...");
+        QLog.v(TAG, "mChannelServiceConnection.onServiceDisconnected...");
         // Clearing and disabling when disconnecting from ChannelService
         mChannelService = null;
-        Log.v(TAG, "...mChannelServiceConnection.onServiceDisconnected");
+        QLog.v(TAG, "...mChannelServiceConnection.onServiceDisconnected");
     }
  };
 
  private void doBindChannelService()
  {
-    Log.v(TAG, "doBindChannelService...");
+    QLog.v(TAG, "doBindChannelService...");
     // Binds to ChannelService. ChannelService binds and manages connection between the
     // app and the ANT Radio Service
     mChannelServiceBound = activity.bindService(new Intent(activity, ChannelService.class), mChannelServiceConnection, Context.BIND_AUTO_CREATE);
     if(!mChannelServiceBound)   //If the bind returns false, run the unbind method to update the GUI
         doUnbindChannelService();
-    Log.i(TAG, "  Channel Service binding = "+ mChannelServiceBound);
-    Log.v(TAG, "...doBindChannelService");
+    QLog.i(TAG, "  Channel Service binding = "+ mChannelServiceBound);
+    QLog.v(TAG, "...doBindChannelService");
  }
 
  public void doUnbindChannelService()
  {
-    Log.v(TAG, "doUnbindChannelService...");
+    QLog.v(TAG, "doUnbindChannelService...");
     if(mChannelServiceBound)
     {
         activity.unbindService(mChannelServiceConnection);
         mChannelServiceBound = false;
     }
-    Log.v(TAG, "...doUnbindChannelService");
+    QLog.v(TAG, "...doUnbindChannelService");
  }
 
  public void setCadenceSpeedPower(float speed, int power, int cadence)
  {
      if(mChannelService == null)
         return;
-     Log.v(TAG, "setCadenceSpeedPower " + speed + " " + power + " " + cadence);
+     QLog.v(TAG, "setCadenceSpeedPower " + speed + " " + power + " " + cadence);
      mChannelService.setSpeed(speed);
      mChannelService.setPower(power);
      mChannelService.setCadence(cadence);
@@ -112,7 +113,7 @@ public class Ant {
  {
     if(mChannelService == null)
        return 0;
-    Log.v(TAG, "getHeart");
+    QLog.v(TAG, "getHeart");
     return mChannelService.getHeart();
  }
 
@@ -120,35 +121,35 @@ public class Ant {
  public int getBikeCadence() {
     if(mChannelService == null)
        return 0;
-    Log.v(TAG, "getBikeCadence");
+    QLog.v(TAG, "getBikeCadence");
     return mChannelService.getBikeCadence();
  }
 
  public int getBikePower() {
     if(mChannelService == null)
        return 0;
-    Log.v(TAG, "getBikePower");
+    QLog.v(TAG, "getBikePower");
     return mChannelService.getBikePower();
  }
 
  public double getBikeSpeed() {
     if(mChannelService == null)
        return 0.0;
-    Log.v(TAG, "getBikeSpeed");
+    QLog.v(TAG, "getBikeSpeed");
     return mChannelService.getBikeSpeed();
  }
 
  public long getBikeDistance() {
     if(mChannelService == null)
        return 0;
-    Log.v(TAG, "getBikeDistance");
+    QLog.v(TAG, "getBikeDistance");
     return mChannelService.getBikeDistance();
  }
 
  public boolean isBikeConnected() {
     if(mChannelService == null)
        return false;
-    Log.v(TAG, "isBikeConnected");
+    QLog.v(TAG, "isBikeConnected");
     return mChannelService.isBikeConnected();
  }
 }

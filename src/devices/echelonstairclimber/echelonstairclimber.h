@@ -1,5 +1,5 @@
-#ifndef TACXNEO2_H
-#define TACXNEO2_H
+#ifndef ECHELONSTAIRCLIMBER_H
+#define ECHELONSTAIRCLIMBER_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -26,63 +26,51 @@
 #include <QObject>
 #include <QString>
 
-#include "devices/bike.h"
+#include "stairclimber.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 
-class tacxneo2 : public bike {
+class echelonstairclimber : public stairclimber {
     Q_OBJECT
   public:
-    tacxneo2(bool noWriteResistance, bool noHeartService);
-    void changePower(int32_t power) override;
+    echelonstairclimber(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
+                  double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
-    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
 
   private:
+    double GetSpeedFromPacket(QByteArray packet);
+    double GetInclinationFromPacket(QByteArray packet);
+    double GetKcalFromPacket(QByteArray packet);
+    double GetDistanceFromPacket(QByteArray packet);
+    void forceSpeed(double requestSpeed);
+    void forceIncline(double requestIncline);
+    void updateDisplay(uint16_t elapsed);
+    void btinit();
+    void sendPoll();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    void forceInclination(double inclination);
-    uint16_t watts() override;
-    double bikeResistanceToPeloton(double resistance);
-    void setUserConfiguration(double wheelDiameter, double gearRatio);
-    double gearsFlywheelCheck(double inclination, double gears);
+    bool noConsole = false;
+    bool noHeartService = false;
+    uint32_t pollDeviceTime = 200;
+    uint8_t sec1Update = 0;
+    uint8_t firstInit = 0;
+    uint8_t counterPoll = 1;
+    QByteArray lastPacket;
+    QDateTime lastTimeCharacteristicChanged;
+    bool firstCharacteristicChanged = true;
 
     QTimer *refresh;
 
-    const int max_resistance = 100;
-
-    QList<QLowEnergyService *> gattCommunicationChannelService;
-    QLowEnergyCharacteristic gattWriteCharControlPointId;
-    QLowEnergyCharacteristic gattWriteCharCustomId;
-    QLowEnergyService *gattPowerService = nullptr;
-    QLowEnergyService *gattCustomService;
-    // QLowEnergyCharacteristic gattNotify1Characteristic;
-
-    uint8_t sec1Update = 0;
-    QByteArray lastPacket;
-    QDateTime lastRefreshCharacteristicChanged2A5B = QDateTime::currentDateTime();
-    QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
-    QDateTime lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
-    QDateTime lastGoodCadence = QDateTime::currentDateTime();
-    uint8_t firstStateChanged = 0;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
+    QLowEnergyCharacteristic gattWriteCharacteristic;
+    QLowEnergyCharacteristic gattNotify1Characteristic;
+    QLowEnergyCharacteristic gattNotify2Characteristic;
 
     bool initDone = false;
     bool initRequest = false;
-
-    bool noWriteResistance = false;
-    bool noHeartService = false;
-
-    uint16_t oldLastCrankEventTime = 0;
-    uint16_t oldCrankRevs = 0;
-    uint16_t CrankRevsRead = 0;
-
-    double lastGearValue = -1;
-    bool resistance_received = false;
-
-    bool THINK_X = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -91,6 +79,8 @@ class tacxneo2 : public bike {
   signals:
     void disconnected();
     void debug(QString string);
+    void speedChanged(double speed);
+    void packetReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
@@ -100,18 +90,15 @@ class tacxneo2 : public bike {
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
-    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
-
-    void powerPacketReceived(const QByteArray &b);
 };
 
-#endif // TACXNEO2_H
+#endif // ECHELONSTAIRCLIMBER_H

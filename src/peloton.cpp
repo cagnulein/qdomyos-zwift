@@ -16,7 +16,7 @@ using namespace std::chrono_literals;
 
 const bool log_request = true;
 
-#define RAWHEADER request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toUtf8());
+#define RAWHEADER request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift/") + QCoreApplication::applicationVersion());request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + (tempAccessToken.isEmpty() ?  getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toUtf8() : tempAccessToken.toUtf8()));
 
 peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
 
@@ -599,7 +599,7 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     QString userId = settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString();
     qDebug() << "userId" << userId;
     
-    if (!getPelotonSettingKey(QZSettings::peloton_accesstoken, userId).length()) {
+    if (!getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().length()) {
         qDebug() << QStringLiteral("invalid peloton credentials");
         return;
     }
@@ -693,11 +693,23 @@ void peloton::login_onfinish(QNetworkReply *reply) {
 
     QSettings settings;
     // if it's a new user
-    if(user_id.compare(settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString())) {
-        qDebug() << "new peloton user id, saving information...";
+    if(user_id.compare(settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString()) || !tempAccessToken.isEmpty()) {
+        qDebug() << "new peloton user id, saving information..." << user_id;
         settings.setValue(QZSettings::peloton_current_user_id, user_id);
-        settings.setValue(getPelotonSettingKey(QZSettings::peloton_refreshtoken, user_id), settings.value(QZSettings::peloton_refreshtoken, QZSettings::default_peloton_refreshtoken).toString());
-        settings.setValue(getPelotonSettingKey(QZSettings::peloton_accesstoken, user_id), settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString());
+        if (!tempAccessToken.isEmpty()) {
+            savePelotonTokenForUser(QZSettings::peloton_accesstoken, tempAccessToken, user_id);
+            savePelotonTokenForUser(QZSettings::peloton_refreshtoken, tempRefreshToken, user_id);
+            savePelotonTokenForUser(QZSettings::peloton_expires, tempExpiresAt, user_id);
+            tempAccessToken.clear();
+            tempRefreshToken.clear();
+            qDebug() << "Assigned temporary tokens to new user:" << user_id;
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Welcome " + document[QStringLiteral("username")].toString());
+            }
+        } else {
+            settings.setValue(getPelotonSettingKey(QZSettings::peloton_refreshtoken, user_id), settings.value(QZSettings::peloton_refreshtoken, QZSettings::default_peloton_refreshtoken).toString());
+            settings.setValue(getPelotonSettingKey(QZSettings::peloton_accesstoken, user_id), settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString());
+        }
     }
     
 
@@ -1552,14 +1564,28 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         }
 
         QJsonArray targetMetricsList = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
-
+        
         bool atLeastOnePower = false;
         if (trainrows.empty() && !targetMetricsList.isEmpty() &&
             bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
             bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
 
             int lastEnd = 60;
-            for (QJsonValue metric : targetMetricsList) {
+            
+            // Convert QJsonArray in QList for sorting
+            QList<QJsonValue> sortedMetrics;
+            for (const QJsonValue &metric : targetMetricsList) {
+                sortedMetrics.append(metric);
+            }
+
+            // sort the list for "start"
+            std::sort(sortedMetrics.begin(), sortedMetrics.end(), [](const QJsonValue &a, const QJsonValue &b) {
+                int startA = a.toObject()[QStringLiteral("offsets")].toObject()[QStringLiteral("start")].toInt();
+                int startB = b.toObject()[QStringLiteral("offsets")].toObject()[QStringLiteral("start")].toInt();
+                return startA < startB;
+            });
+
+            for (QJsonValue metric : sortedMetrics) {
                 QJsonObject metricObj = metric.toObject();
                 QJsonObject offsets = metricObj[QStringLiteral("offsets")].toObject();
                 int start = offsets[QStringLiteral("start")].toInt();
@@ -1993,15 +2019,20 @@ void peloton::onPelotonGranted() {
     emit pelotonWebVisibleChanged(pelotonAuthWebVisible);
     QSettings settings;
     QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
-    savePelotonTokenForUser(QZSettings::peloton_accesstoken, pelotonOAuth->token(), userId);
-    savePelotonTokenForUser(QZSettings::peloton_refreshtoken, pelotonOAuth->refreshToken(), userId);
-    savePelotonTokenForUser(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime(), userId);
-    qDebug() << QStringLiteral("peloton authenticathed") << pelotonOAuth->token() << pelotonOAuth->refreshToken();
-    peloton_refreshtoken();
+    tempAccessToken = pelotonOAuth->token();
+    tempRefreshToken = pelotonOAuth->refreshToken();
+    tempExpiresAt = QDateTime::currentDateTime();
+
+    qDebug() << QStringLiteral("peloton authenticathed");
+    
+    peloton_connect();
+    
     if(homeform::singleton())
         homeform::singleton()->setPelotonPopupVisible(true);
-    if(!timer->isActive())
+    if(!timer->isActive()) {
+        peloton_credentials_wrong = false;
         startEngine();
+    }
 }
 
 void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
@@ -2034,9 +2065,9 @@ void peloton::replyDataReceived(const QByteArray &v) {
     QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     QString s(v);
     QJsonDocument jsonResponse = QJsonDocument::fromJson(s.toUtf8());
-    savePelotonTokenForUser(QZSettings::peloton_accesstoken, jsonResponse[QStringLiteral("access_token")], userId);
-    savePelotonTokenForUser(QZSettings::peloton_refreshtoken, jsonResponse[QStringLiteral("refresh_token")], userId);
-    savePelotonTokenForUser(QZSettings::peloton_expires, jsonResponse[QStringLiteral("expires_at")], userId);
+
+    tempAccessToken = jsonResponse[QStringLiteral("access_token")].toString();
+    tempRefreshToken = jsonResponse[QStringLiteral("refresh_token")].toString();
 
     qDebug() << jsonResponse[QStringLiteral("access_token")] << jsonResponse[QStringLiteral("refresh_token")]
              << jsonResponse[QStringLiteral("expires_at")];
@@ -2099,9 +2130,9 @@ void peloton::networkRequestFinished(QNetworkReply *reply) {
             access_token = document[QStringLiteral("access_token")].toString();
         }
 
-        savePelotonTokenForUser(QZSettings::peloton_accesstoken, access_token, userId);
-        savePelotonTokenForUser(QZSettings::peloton_refreshtoken, refresh_token, userId);
-        savePelotonTokenForUser(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime(), userId);
+        tempAccessToken = access_token;
+        tempRefreshToken = refresh_token;
+        tempExpiresAt = QDateTime::currentDateTime();
 
         qDebug() << access_token << refresh_token;
 
@@ -2158,6 +2189,8 @@ QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
 }
 
 void peloton::peloton_connect_clicked() {
+    timer->stop();
+    
     QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
 
     peloton_connect();
@@ -2204,13 +2237,13 @@ void peloton::peloton_refreshtoken() {
 
     QNetworkRequest request(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token?")));
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
-
+    
     // set params
     QString data;
     data += QStringLiteral("client_id=" PELOTON_CLIENT_ID_S);
-    data += QStringLiteral("&refresh_token=") + getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString();
+    data += QStringLiteral("&refresh_token=") + (tempRefreshToken.isEmpty() ? getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString() : tempRefreshToken);
     data += QStringLiteral("&grant_type=refresh_token");
-
+    
     // make request
     if (manager) {
 
@@ -2251,10 +2284,10 @@ void peloton::peloton_refreshtoken() {
     QString refresh_token = document[QStringLiteral("refresh_token")].toString();
 
     qDebug() << "userid: " << userId;
-    savePelotonTokenForUser(QZSettings::peloton_accesstoken, access_token, userId);
-    savePelotonTokenForUser(QZSettings::peloton_refreshtoken, refresh_token, userId);
-    savePelotonTokenForUser(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime(), userId);
-
+    tempAccessToken = access_token;
+    tempRefreshToken = refresh_token;
+    tempExpiresAt = QDateTime::currentDateTime();
+    
     homeform::singleton()->setToastRequested("Peloton Login OK!");
     
 }

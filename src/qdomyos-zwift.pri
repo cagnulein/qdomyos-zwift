@@ -79,10 +79,12 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 
 SOURCES += \
     $$PWD/devices/android_antbike/android_antbike.cpp \
+    $$PWD/androidqlog.cpp \
     $$PWD/devices/antbike/antbike.cpp \
     $$PWD/devices/crossrope/crossrope.cpp \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.cpp \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.cpp \
+    $$PWD/devices/elitesquarecontroller/elitesquarecontroller.cpp \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
     $$PWD/devices/jumprope.cpp \
     $$PWD/devices/kineticinroadbike/SmartControl.cpp \
@@ -94,6 +96,8 @@ SOURCES += \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
+    $$PWD/devices/stairclimber.cpp \
+    $$PWD/devices/echelonstairclimber/echelonstairclimber.cpp \
     $$PWD/devices/technogymbike/technogymbike.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
@@ -343,6 +347,8 @@ HEADERS += \
     $$PWD/devices/crossrope/crossrope.h \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.h \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.h \
+    $$PWD/devices/echelonstairclimber/echelonstairclimber.h \
+    $$PWD/devices/elitesquarecontroller/elitesquarecontroller.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/jumprope.h \
     $$PWD/devices/kineticinroadbike/SmartControl.h \
@@ -354,6 +360,7 @@ HEADERS += \
     $$PWD/devices/sportsplusrower/sportsplusrower.h \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
     $$PWD/devices/sramAXSController/sramAXSController.h \
+    $$PWD/devices/stairclimber.h \
     $$PWD/devices/technogymbike/technogymbike.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.h \
@@ -851,6 +858,7 @@ DISTFILES += \
     $$PWD/android/src/MediaButtonReceiver.java \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
+    $$PWD/android/src/QLog.java \
     $$PWD/android/src/ScreenCaptureService.java \
     $$PWD/android/src/Shortcuts.java \
     $$PWD/android/src/WearableController.java \
@@ -960,4 +968,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.18.23
+VERSION = 2.18.24

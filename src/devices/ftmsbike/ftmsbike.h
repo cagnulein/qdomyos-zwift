@@ -139,6 +139,10 @@ class ftmsbike : public bike {
     bool LYDSTO = false;
     bool SL010 = false;
     bool REEBOK = false;
+    bool TITAN_7000 = false;
+    bool T2 = false;
+
+    int16_t T2_lastGear = 0;
 
     uint8_t battery_level = 0;
 

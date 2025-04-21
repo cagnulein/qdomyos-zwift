@@ -311,6 +311,8 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                 }
             }
 
+            emit cadenceChanged(Cadence.value());
+
             qDebug() << QStringLiteral("Current Cadence: ") << Cadence.value() << CrankRevs << oldCrankRevs << deltaT
                      << time_division << LastCrankEventTime << oldLastCrankEventTime;
 
