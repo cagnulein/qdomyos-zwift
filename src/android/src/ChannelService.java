@@ -53,6 +53,7 @@ public class ChannelService extends Service {
     PowerChannelController powerChannelController = null;
     SpeedChannelController speedChannelController = null;
     SDMChannelController sdmChannelController = null;
+    BikeChannelController bikeChannelController = null; // Added BikeChannelController reference
 
     private ServiceConnection mAntRadioServiceConnection = new ServiceConnection() {
         @Override
@@ -142,7 +143,43 @@ public class ChannelService extends Service {
                 QLog.v(TAG, "getHeart");
                 return heartChannelController.heart;
             }
+            if (null != bikeChannelController) {
+                return bikeChannelController.getHeartRate();
+            }
             return 0;
+        }
+
+        // Added getters for bike channel data
+        int getBikeCadence() {
+            if (null != bikeChannelController) {
+                return bikeChannelController.getCadence();
+            }
+            return 0;
+        }
+
+        int getBikePower() {
+            if (null != bikeChannelController) {
+                return bikeChannelController.getPower();
+            }
+            return 0;
+        }
+
+        double getBikeSpeed() {
+            if (null != bikeChannelController) {
+                return bikeChannelController.getSpeedKph();
+            }
+            return 0.0;
+        }
+
+        long getBikeDistance() {
+            if (null != bikeChannelController) {
+                return bikeChannelController.getDistance();
+            }
+            return 0;
+        }
+
+        boolean isBikeConnected() {
+            return (bikeChannelController != null && bikeChannelController.isConnected());
         }
 
         /**
@@ -165,6 +202,11 @@ public class ChannelService extends Service {
                 speedChannelController = new SpeedChannelController(acquireChannel());
             }
         }
+
+        // Add initialization for BikeChannelController
+        if (Ant.bikeRequest && bikeChannelController == null) {
+            bikeChannelController = new BikeChannelController();
+        }
     }
 
     private void closeAllChannels() {
@@ -176,10 +218,14 @@ public class ChannelService extends Service {
             speedChannelController.close();
         if (sdmChannelController != null)
             sdmChannelController.close();
+        if (bikeChannelController != null)  // Added closing bikeChannelController
+            bikeChannelController.close();
+
         heartChannelController = null;
         powerChannelController = null;
         speedChannelController = null;
         sdmChannelController = null;
+        bikeChannelController = null;  // Added nullifying bikeChannelController
     }
 
     AntChannel acquireChannel() throws ChannelNotAvailableException {

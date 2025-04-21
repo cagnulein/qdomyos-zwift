@@ -193,7 +193,7 @@ void ftmsbike::zwiftPlayInit() {
 }
 
 void ftmsbike::forcePower(int16_t requestPower) {
-    if(resistance_lvl_mode) { 
+    if(resistance_lvl_mode || TITAN_7000) {
         forceResistance(resistanceFromPowerRequest(requestPower));
     } else {
         uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
@@ -239,10 +239,14 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
     if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
         resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false) {
+
         uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
         requestResistance = fr;
+
+        if(TITAN_7000)
+            Resistance = requestResistance;
 
         write[3] = ((uint16_t)requestResistance * 10) & 0xFF;
         write[4] = ((uint16_t)requestResistance * 10) >> 8;
@@ -608,7 +612,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 if(BIKE_)
                     d = d / 10.0;
                 // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
-                if(!SL010)
+                if(!SL010 && !TITAN_7000)
                     Resistance = d;
                 emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
                 emit resistanceRead(Resistance.value());
@@ -815,9 +819,11 @@ settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).t
         }
 
         if (Flags.resistanceLvl) {
-            Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)newValue.at(index))));
-            emit resistanceRead(Resistance.value());
+            if(!TITAN_7000) {
+                Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                       (uint16_t)((uint8_t)newValue.at(index))));
+                emit resistanceRead(Resistance.value());
+            }
             index += 2;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
         } else if(!DU30_bike) {
@@ -1350,6 +1356,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             REEBOK = true;
             max_resistance = 32;
             resistance_lvl_mode = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("TITAN 7000"))) {
+            qDebug() << QStringLiteral("Titan 7000 found");
+            TITAN_7000 = true;
         } else if ((bluetoothDevice.name().toUpper().startsWith("T2 "))) {
             qDebug() << QStringLiteral("T2 found");
             T2 = true;
