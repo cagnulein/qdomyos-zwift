@@ -1,7 +1,7 @@
 package org.cagnulen.qdomyoszwift;
 
 import android.content.Context;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.app.Activity;
 
 // ANT+ Plugin imports
@@ -53,7 +53,7 @@ public class BikeChannelController {
                                                  EquipmentState state) {
                 equipmentType = type;
                 equipmentState = state;
-                Log.d(TAG, "Equipment type: " + type + ", State: " + state);
+                QLog.d(TAG, "Equipment type: " + type + ", State: " + state);
 
                 // Only subscribe to bike specific data if this is actually a bike
                 if (type == EquipmentType.BIKE && !isSubscribedToBikeData) {
@@ -81,29 +81,29 @@ public class BikeChannelController {
                         case SUCCESS:
                             fePcc = result;
                             isConnected = true;
-                            Log.d(TAG, "Connected to fitness equipment: " + result.getDeviceName());
+                            QLog.d(TAG, "Connected to fitness equipment: " + result.getDeviceName());
                             subscribeToBikeEvents();
                             break;
                         case CHANNEL_NOT_AVAILABLE:
-                            Log.e(TAG, "Channel Not Available");
+                            QLog.e(TAG, "Channel Not Available");
                             break;
                         case ADAPTER_NOT_DETECTED:
-                            Log.e(TAG, "ANT Adapter Not Available");
+                            QLog.e(TAG, "ANT Adapter Not Available");
                             break;
                         case BAD_PARAMS:
-                            Log.e(TAG, "Bad request parameters");
+                            QLog.e(TAG, "Bad request parameters");
                             break;
                         case OTHER_FAILURE:
-                            Log.e(TAG, "RequestAccess failed");
+                            QLog.e(TAG, "RequestAccess failed");
                             break;
                         case DEPENDENCY_NOT_INSTALLED:
-                            Log.e(TAG, "Dependency not installed");
+                            QLog.e(TAG, "Dependency not installed");
                             break;
                         case USER_CANCELLED:
-                            Log.e(TAG, "User cancelled");
+                            QLog.e(TAG, "User cancelled");
                             break;
                         default:
-                            Log.e(TAG, "Unrecognized result: " + resultCode);
+                            QLog.e(TAG, "Unrecognized result: " + resultCode);
                             break;
                     }
                 }
@@ -111,7 +111,7 @@ public class BikeChannelController {
             new IDeviceStateChangeReceiver() {
                 @Override
                 public void onDeviceStateChange(DeviceState newDeviceState) {
-                    Log.d(TAG, "Device State Changed to: " + newDeviceState);
+                    QLog.d(TAG, "Device State Changed to: " + newDeviceState);
                     if (newDeviceState == DeviceState.DEAD) {
                         isConnected = false;
                     }
@@ -150,7 +150,7 @@ public class BikeChannelController {
                         heartRateSource = source;
                     }
 
-                    Log.d(TAG, "General Data - Time: " + elapsedTime + "s, Distance: " +
+                    QLog.d(TAG, "General Data - Time: " + elapsedTime + "s, Distance: " +
                           distance + "m, Speed: " + speed + "m/s, HR: " + heartRate + "bpm");
                 }
             });
@@ -175,7 +175,7 @@ public class BikeChannelController {
                         power = instantaneousPower;
                     }
 
-                    Log.d(TAG, "Bike Data - Cadence: " + cadence + "rpm, Power: " + power + "W");
+                    QLog.d(TAG, "Bike Data - Cadence: " + cadence + "rpm, Power: " + power + "W");
                 }
             });
         }
@@ -188,7 +188,7 @@ public class BikeChannelController {
         }
         fePcc = null;
         isConnected = false;
-        Log.d(TAG, "Channel Closed");
+        QLog.d(TAG, "Channel Closed");
     }
 
     // Getter methods for bike data
