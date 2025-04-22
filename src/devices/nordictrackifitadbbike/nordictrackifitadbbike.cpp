@@ -253,7 +253,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     gear = getDouble(aValues.last());
-                    if(!nordictrackadbbike_resistance)
+                    #if(!nordictrackadbbike_resistance)
                         Resistance = gear;
                     emit resistanceRead(Resistance.value());
                     gearsAvailable = true;
