@@ -121,7 +121,7 @@ jobs:
             cd ../..
 
       - name: Secrets
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/qt6'
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
@@ -208,7 +208,7 @@ jobs:
         if:  ${{ ! matrix.config.python }}
 
       # - name: Exit if not on master branch
-      #   if: github.ref == 'refs/heads/master'
+      #   if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/qt6'
       #   run: exit 1
 
       # - uses: actions/checkout@v3
@@ -796,7 +796,7 @@ jobs:
       #   with:
       #     message: 'moc files added'
       #     add: 'src/moc_*.cpp --force'
-      #   if: github.ref == 'refs/heads/master'
+      #   if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/qt6'
 
   window-msvc2022-build:
     runs-on: windows-latest
@@ -888,7 +888,7 @@ jobs:
       #       cd ../..          
 
       - name: Secrets
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/qt6'
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
@@ -1077,7 +1077,7 @@ jobs:
             cd ../..          
 
       - name: Secrets
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/qt6'
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
