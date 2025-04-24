@@ -3,7 +3,6 @@ QT += bluetooth widgets xml positioning quick networkauth websockets texttospeec
 !win32:QT+=webenginequick
 QTPLUGIN += qavfmediaplayer
 QT+= charts core-private
-DEFINES += CHARTJS
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
 

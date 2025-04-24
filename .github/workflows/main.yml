@@ -875,17 +875,17 @@ jobs:
           #toolset: 14.2
           arch: x64
 
-      - name: download 3rd party files for qthttpserver
-        run: |
-            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+      # - name: download 3rd party files for qthttpserver
+      #   run: |
+      #       cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
-      - name: Build qthttpserver
-        run: |
-            cd src\qthttpserver 
-            qmake
-            nmake
-            nmake install
-            cd ../..          
+      # - name: Build qthttpserver
+      #   run: |
+      #       cd src\qthttpserver 
+      #       qmake
+      #       nmake
+      #       nmake install
+      #       cd ../..          
 
       - name: Secrets
         if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/qt6'

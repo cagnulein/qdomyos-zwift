@@ -2,7 +2,6 @@ QT += gui bluetooth widgets xml positioning quick networkauth websockets texttos
 QTPLUGIN += qavfmediaplayer
 QT+= charts
 
-qtHaveModule(httpserver) {
     QT += httpserver
     DEFINES += Q_HTTPSERVER
 
@@ -15,10 +14,9 @@ qtHaveModule(httpserver) {
         QT+= webview
         DEFINES += CHARTJS
     }
-#	 win32: {
-#	     DEFINES += CHARTJS
-#		}
-}
+         win32: {
+             DEFINES += CHARTJS
+                }
 
 unix:android: QT += androidextras gui-private
 
