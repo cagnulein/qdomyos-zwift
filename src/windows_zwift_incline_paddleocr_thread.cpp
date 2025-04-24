@@ -18,11 +18,12 @@ using namespace std::chrono_literals;
 
 windows_zwift_incline_paddleocr_thread::windows_zwift_incline_paddleocr_thread(bluetoothdevice *device) {
     this->device = device;
-    emit debug("windows_zwift_incline_paddleocr_thread created!");
+    qDebug() << "windows_zwift_incline_paddleocr_thread created!";
     process = new QProcess(this);
-    connect(process, &QProcess::readyReadStandardOutput, this, &windows_zwift_incline_paddleocr_thread::processOutput);
-    connect(process, &QProcess::readyReadStandardError, this, &windows_zwift_incline_paddleocr_thread::processError);
-    connect(process, &QProcess::errorOccurred, this, &windows_zwift_incline_paddleocr_thread::handleError);
+    process->moveToThread(this); // Move to this thread
+    connect(process, &QProcess::readyReadStandardOutput, this, &windows_zwift_incline_paddleocr_thread::processOutput, Qt::QueuedConnection);
+    connect(process, &QProcess::readyReadStandardError, this, &windows_zwift_incline_paddleocr_thread::processError, Qt::QueuedConnection);
+    connect(process, &QProcess::errorOccurred, this, &windows_zwift_incline_paddleocr_thread::handleError, Qt::QueuedConnection);
 }
 
 windows_zwift_incline_paddleocr_thread::~windows_zwift_incline_paddleocr_thread() {
