@@ -1973,7 +1973,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     last_local_elapsed_change = QDateTime::currentDateTime();
                 QDateTime current_time = QDateTime::currentDateTime();
                  // Only if more than 2 seconds have passed since the last update
-                 if(mobvoi_tmp_treadmill && last_local_elapsed_change.secsTo(current_time) >= 2) { {
+                 if(mobvoi_tmp_treadmill && last_local_elapsed_change.secsTo(current_time) >= 2) {
                     Speed = 0;
                     qDebug() << "Forcing Speed to 0 since the treadmill saws that the user is not really running";
                 }
