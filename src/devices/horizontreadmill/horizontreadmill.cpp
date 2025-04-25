@@ -927,6 +927,10 @@ void horizontreadmill::update() {
             // updateDisplay(elapsed);
         }
 
+        // this treadmill can't go below 1
+        if(mobvoi_tmp_treadmill && requestSpeed < 1)
+            requestSpeed = -1;
+        
         if (requestSpeed != -1) {
             bool minSpeed =
                 fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() - 0.09);
@@ -2481,6 +2485,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
             mobvoi_tmp_treadmill = true;
+            disableAutoPause = true;
             qDebug() << QStringLiteral("MOBVOI TMP workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
             mobvoi_treadmill = true;
