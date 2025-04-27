@@ -22,6 +22,7 @@
 
 #include "devices/activiotreadmill/activiotreadmill.h"
 #include "devices/antbike/antbike.h"
+#include "devices/android_antbike/android_antbike.h"
 #include "devices/apexbike/apexbike.h"
 #include "devices/bhfitnesselliptical/bhfitnesselliptical.h"
 #include "devices/bkoolbike/bkoolbike.h"
@@ -49,6 +50,7 @@
 #include "devices/echelonstairclimber/echelonstairclimber.h"
 #include "devices/eliteariafan/eliteariafan.h"
 #include "devices/eliterizer/eliterizer.h"
+#include "devices/elitesquarecontroller/elitesquarecontroller.h"
 #include "devices/elitesterzosmart/elitesterzosmart.h"
 #include "devices/eslinkertreadmill/eslinkertreadmill.h"
 #include "devices/fakebike/fakebike.h"
@@ -191,6 +193,7 @@ private:
     bool discoveringNonBluetooth = false;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent=nullptr;
     antbike *antBike = nullptr;
+    android_antbike *android_antBike = nullptr;
     apexbike *apexBike = nullptr;
     bkoolbike *bkoolBike = nullptr;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
@@ -312,6 +315,7 @@ private:
     QList<zwiftclickremote* > zwiftPlayDevice;
     zwiftclickremote* zwiftClickRemote = nullptr;
     sramaxscontroller* sramAXSController = nullptr;
+    elitesquarecontroller* eliteSquareController = nullptr;
     QString filterDevice = QLatin1String("");
     trixterxdreamv1bike * trixterXDreamV1Bike = nullptr;
 

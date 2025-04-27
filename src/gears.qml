@@ -43,6 +43,7 @@ ScrollView {
         if (settings.gear_configuration) {
             gearRows = stringToGearRows(settings.gear_configuration)
         }
+        restoreDefaultWheelDiameter.connect(rootItem.restoreDefaultWheelDiameter)
         console.log("Component.onCompleted " + settings.gear_crankset_size + " " + settings.gear_cog_size + " " + settings.gear_wheel_size + " " + settings.gear_circumference)
         wheelSizeCombo.currentIndex = initialWheelSizeIndex
         selectedCranksetSize = settings.gear_crankset_size
@@ -314,6 +315,7 @@ ScrollView {
     // Signals to notify when values change
     signal settingsChanged()
     signal gearConfigurationChanged(var gearRows)
+    signal restoreDefaultWheelDiameter()
 
     ColumnLayout {
         anchors.fill: parent
@@ -377,107 +379,132 @@ ScrollView {
             title: "Virtual Wheel Size"
             Layout.fillWidth: true
 
-            ComboBox {
-                   id: wheelSizeCombo
-                   width: parent.width
-                   currentIndex: initialWheelSizeIndex
-                   textRole: "text"
-                   model: ListModel {
-                   id: wheelSizes
-                    ListElement { text: "700 x 18C"; circumference: 2070 }
-                    ListElement { text: "700 x 19C"; circumference: 2080 }
-                    ListElement { text: "700 x 20C"; circumference: 2086 }
-                    ListElement { text: "700 x 23C"; circumference: 2096 }
-                    ListElement { text: "700 x 25C"; circumference: 2109 }
-                    ListElement { text: "700 x 28C"; circumference: 2127 }
-                    ListElement { text: "700 x 30C"; circumference: 2140 }
-                    ListElement { text: "700 x 32C"; circumference: 2152 }
-                    ListElement { text: "700 x 35C"; circumference: 2171 }
-                    ListElement { text: "700 x 38C"; circumference: 2190 }
-                    ListElement { text: "700 x 40C"; circumference: 2203 }
-                    ListElement { text: "700 x 44C"; circumference: 2230 }
-                    ListElement { text: "700 x 45C"; circumference: 2234 }
-                    ListElement { text: "700 x 47C"; circumference: 2247 }
-                    ListElement { text: "700 x 50C"; circumference: 2265 }
-                    ListElement { text: "650 x 20C"; circumference: 1938 }
-                    ListElement { text: "650 x 23C"; circumference: 1944 }
-                    ListElement { text: "650 x 35A"; circumference: 2090 }
-                    ListElement { text: "650 x 38B"; circumference: 2105 }
-                    ListElement { text: "650 x 38A"; circumference: 2125 }
-                    ListElement { text: "12\" x 1.75\""; circumference: 935 }
-                    ListElement { text: "12\" x 1.95\""; circumference: 940 }
-                    ListElement { text: "14\" x 1.50\""; circumference: 1020 }
-                    ListElement { text: "14\" x 1.75\""; circumference: 1055 }
-                    ListElement { text: "16\" x 1.50\""; circumference: 1185 }
-                    ListElement { text: "16\" x 1.75\""; circumference: 1195 }
-                    ListElement { text: "16\" x 2.00\""; circumference: 1245 }
-                    ListElement { text: "16\" x 1-1/8\""; circumference: 1290 }
-                    ListElement { text: "16\" x 1-3/8\""; circumference: 1300 }
-                    ListElement { text: "18\" x 1.50\""; circumference: 1340 }
-                    ListElement { text: "18\" x 1.75\""; circumference: 1350 }
-                    ListElement { text: "20\" x 1.25\""; circumference: 1450 }
-                    ListElement { text: "20\" x 1.35\""; circumference: 1460 }
-                    ListElement { text: "20\" x 1.50\""; circumference: 1490 }
-                    ListElement { text: "20\" x 1.75\""; circumference: 1515 }
-                    ListElement { text: "20\" x 1.95\""; circumference: 1565 }
-                    ListElement { text: "20\" x 1-1/8\""; circumference: 1545 }
-                    ListElement { text: "20\" x 1-3/8\""; circumference: 1615 }
-                    ListElement { text: "22\" x 1-3/8\""; circumference: 1770 }
-                    ListElement { text: "22\" x 1-1/2\""; circumference: 1785 }
-                    ListElement { text: "24\" x 3/4\" Tubular"; circumference: 1785 }
-                    ListElement { text: "24\" x 1\""; circumference: 1753 }
-                    ListElement { text: "24\" x 1-1/8\""; circumference: 1795 }
-                    ListElement { text: "24\" x 1-1/4\""; circumference: 1905 }
-                    ListElement { text: "24\" x 1.75\""; circumference: 1890 }
-                    ListElement { text: "24\" x 2.00\""; circumference: 1925 }
-                    ListElement { text: "24\" x 2.125\""; circumference: 1965 }
-                    ListElement { text: "26\" x 7/8\" Tubular"; circumference: 1920 }
-                    ListElement { text: "26\" x 1.25\""; circumference: 1950 }
-                    ListElement { text: "26\" x 1.40\""; circumference: 2005 }
-                    ListElement { text: "26\" x 1.50\""; circumference: 2010 }
-                    ListElement { text: "26\" x 1.75\""; circumference: 2023 }
-                    ListElement { text: "26\" x 1.95\""; circumference: 2050 }
-                    ListElement { text: "26\" x 2.00\""; circumference: 2055 }
-                    ListElement { text: "26\" x 2.10\""; circumference: 2068 }
-                    ListElement { text: "26\" x 2.125\""; circumference: 2070 }
-                    ListElement { text: "26\" x 2.35\""; circumference: 2083 }
-                    ListElement { text: "26\" x 3.00\""; circumference: 2170 }
-                    ListElement { text: "26\" x 1-1.0\""; circumference: 1913 }
-                    ListElement { text: "26\" x 1\""; circumference: 1952 }
-                    ListElement { text: "26\" x 1-1/8\""; circumference: 1970 }
-                    ListElement { text: "26\" x 1-3/8\""; circumference: 2068 }
-                    ListElement { text: "26\" x 1-1/2\""; circumference: 2100 }
-                    ListElement { text: "27\" x 1\""; circumference: 2145 }
-                    ListElement { text: "27\" x 1-1/8\""; circumference: 2155 }
-                    ListElement { text: "27\" x 1-1/4\""; circumference: 2161 }
-                    ListElement { text: "27\" x 1-3/8\""; circumference: 2169 }
-                    ListElement { text: "27.5\" / 650B x 1.50\""; circumference: 2079 }
-                    ListElement { text: "27.5\" / 650B x 1.95\""; circumference: 2090 }
-                    ListElement { text: "27.5\" / 650B x 2.10\""; circumference: 2148 }
-                    ListElement { text: "27.5\" / 650B x 2.25\""; circumference: 2182 }
-                    ListElement { text: "27.5\" / 650B x 2.3\""; circumference: 2199 }
-                    ListElement { text: "27.5\" / 650B x 2.35\""; circumference: 2207 }
-                    ListElement { text: "27.5\" / 650B x 2.4\""; circumference: 2213 }
-                    ListElement { text: "27.5\" / 650B x 2.5\""; circumference: 2231 }
-                    ListElement { text: "27.5\" / 650B x 2.6\""; circumference: 2247 }
-                    ListElement { text: "27.5\" / 650B x 2.8\""; circumference: 2279 }
-                    ListElement { text: "29\" x 2.1\""; circumference: 2286 }
-                    ListElement { text: "29\" x 2.2\""; circumference: 2302 }
-                    ListElement { text: "29\" x 2.25\""; circumference: 2310 }
-                    ListElement { text: "29\" x 2.3\""; circumference: 2326 }
-                    ListElement { text: "29\" x 2.35\""; circumference: 2326 }
-                    ListElement { text: "29\" x 2.4\""; circumference: 2333 }
-                    ListElement { text: "29\" x 2.5\""; circumference: 2350 }
-                    ListElement { text: "29\" x 2.6\""; circumference: 2366 }
-                }
-                onCurrentIndexChanged: {
-                    if (currentIndex >= 0) {
-                      selectedWheelSize = model.get(currentIndex).text
-                      selectedCircumference = model.get(currentIndex).circumference
-                      console.log("wheelSizeCombo changed");
-                      settingsChanged()
+            ColumnLayout {
+                ComboBox {
+                       id: wheelSizeCombo
+                       width: parent.width
+                       currentIndex: initialWheelSizeIndex
+                       textRole: "text"
+                       model: ListModel {
+                       id: wheelSizes
+                        ListElement { text: "700 x 18C"; circumference: 2070 }
+                        ListElement { text: "700 x 19C"; circumference: 2080 }
+                        ListElement { text: "700 x 20C"; circumference: 2086 }
+                        ListElement { text: "700 x 23C"; circumference: 2096 }
+                        ListElement { text: "700 x 25C"; circumference: 2109 }
+                        ListElement { text: "700 x 28C"; circumference: 2127 }
+                        ListElement { text: "700 x 30C"; circumference: 2140 }
+                        ListElement { text: "700 x 32C"; circumference: 2152 }
+                        ListElement { text: "700 x 35C"; circumference: 2171 }
+                        ListElement { text: "700 x 38C"; circumference: 2190 }
+                        ListElement { text: "700 x 40C"; circumference: 2203 }
+                        ListElement { text: "700 x 44C"; circumference: 2230 }
+                        ListElement { text: "700 x 45C"; circumference: 2234 }
+                        ListElement { text: "700 x 47C"; circumference: 2247 }
+                        ListElement { text: "700 x 50C"; circumference: 2265 }
+                        ListElement { text: "650 x 20C"; circumference: 1938 }
+                        ListElement { text: "650 x 23C"; circumference: 1944 }
+                        ListElement { text: "650 x 35A"; circumference: 2090 }
+                        ListElement { text: "650 x 38B"; circumference: 2105 }
+                        ListElement { text: "650 x 38A"; circumference: 2125 }
+                        ListElement { text: "12\" x 1.75\""; circumference: 935 }
+                        ListElement { text: "12\" x 1.95\""; circumference: 940 }
+                        ListElement { text: "14\" x 1.50\""; circumference: 1020 }
+                        ListElement { text: "14\" x 1.75\""; circumference: 1055 }
+                        ListElement { text: "16\" x 1.50\""; circumference: 1185 }
+                        ListElement { text: "16\" x 1.75\""; circumference: 1195 }
+                        ListElement { text: "16\" x 2.00\""; circumference: 1245 }
+                        ListElement { text: "16\" x 1-1/8\""; circumference: 1290 }
+                        ListElement { text: "16\" x 1-3/8\""; circumference: 1300 }
+                        ListElement { text: "18\" x 1.50\""; circumference: 1340 }
+                        ListElement { text: "18\" x 1.75\""; circumference: 1350 }
+                        ListElement { text: "20\" x 1.25\""; circumference: 1450 }
+                        ListElement { text: "20\" x 1.35\""; circumference: 1460 }
+                        ListElement { text: "20\" x 1.50\""; circumference: 1490 }
+                        ListElement { text: "20\" x 1.75\""; circumference: 1515 }
+                        ListElement { text: "20\" x 1.95\""; circumference: 1565 }
+                        ListElement { text: "20\" x 1-1/8\""; circumference: 1545 }
+                        ListElement { text: "20\" x 1-3/8\""; circumference: 1615 }
+                        ListElement { text: "22\" x 1-3/8\""; circumference: 1770 }
+                        ListElement { text: "22\" x 1-1/2\""; circumference: 1785 }
+                        ListElement { text: "24\" x 3/4\" Tubular"; circumference: 1785 }
+                        ListElement { text: "24\" x 1\""; circumference: 1753 }
+                        ListElement { text: "24\" x 1-1/8\""; circumference: 1795 }
+                        ListElement { text: "24\" x 1-1/4\""; circumference: 1905 }
+                        ListElement { text: "24\" x 1.75\""; circumference: 1890 }
+                        ListElement { text: "24\" x 2.00\""; circumference: 1925 }
+                        ListElement { text: "24\" x 2.125\""; circumference: 1965 }
+                        ListElement { text: "26\" x 7/8\" Tubular"; circumference: 1920 }
+                        ListElement { text: "26\" x 1.25\""; circumference: 1950 }
+                        ListElement { text: "26\" x 1.40\""; circumference: 2005 }
+                        ListElement { text: "26\" x 1.50\""; circumference: 2010 }
+                        ListElement { text: "26\" x 1.75\""; circumference: 2023 }
+                        ListElement { text: "26\" x 1.95\""; circumference: 2050 }
+                        ListElement { text: "26\" x 2.00\""; circumference: 2055 }
+                        ListElement { text: "26\" x 2.10\""; circumference: 2068 }
+                        ListElement { text: "26\" x 2.125\""; circumference: 2070 }
+                        ListElement { text: "26\" x 2.35\""; circumference: 2083 }
+                        ListElement { text: "26\" x 3.00\""; circumference: 2170 }
+                        ListElement { text: "26\" x 1-1.0\""; circumference: 1913 }
+                        ListElement { text: "26\" x 1\""; circumference: 1952 }
+                        ListElement { text: "26\" x 1-1/8\""; circumference: 1970 }
+                        ListElement { text: "26\" x 1-3/8\""; circumference: 2068 }
+                        ListElement { text: "26\" x 1-1/2\""; circumference: 2100 }
+                        ListElement { text: "27\" x 1\""; circumference: 2145 }
+                        ListElement { text: "27\" x 1-1/8\""; circumference: 2155 }
+                        ListElement { text: "27\" x 1-1/4\""; circumference: 2161 }
+                        ListElement { text: "27\" x 1-3/8\""; circumference: 2169 }
+                        ListElement { text: "27.5\" / 650B x 1.50\""; circumference: 2079 }
+                        ListElement { text: "27.5\" / 650B x 1.95\""; circumference: 2090 }
+                        ListElement { text: "27.5\" / 650B x 2.10\""; circumference: 2148 }
+                        ListElement { text: "27.5\" / 650B x 2.25\""; circumference: 2182 }
+                        ListElement { text: "27.5\" / 650B x 2.3\""; circumference: 2199 }
+                        ListElement { text: "27.5\" / 650B x 2.35\""; circumference: 2207 }
+                        ListElement { text: "27.5\" / 650B x 2.4\""; circumference: 2213 }
+                        ListElement { text: "27.5\" / 650B x 2.5\""; circumference: 2231 }
+                        ListElement { text: "27.5\" / 650B x 2.6\""; circumference: 2247 }
+                        ListElement { text: "27.5\" / 650B x 2.8\""; circumference: 2279 }
+                        ListElement { text: "29\" x 2.1\""; circumference: 2286 }
+                        ListElement { text: "29\" x 2.2\""; circumference: 2302 }
+                        ListElement { text: "29\" x 2.25\""; circumference: 2310 }
+                        ListElement { text: "29\" x 2.3\""; circumference: 2326 }
+                        ListElement { text: "29\" x 2.35\""; circumference: 2326 }
+                        ListElement { text: "29\" x 2.4\""; circumference: 2333 }
+                        ListElement { text: "29\" x 2.5\""; circumference: 2350 }
+                        ListElement { text: "29\" x 2.6\""; circumference: 2366 }
+                    }
+                    onCurrentIndexChanged: {
+                        if (currentIndex >= 0) {
+                          selectedWheelSize = model.get(currentIndex).text
+                          selectedCircumference = model.get(currentIndex).circumference
+                          console.log("wheelSizeCombo changed");
+                          settingsChanged()
+                      }
                   }
-              }
+                }
+
+                // Restore Default Wheel Diameter Button
+                Button {
+                    text: "Restore Default Setting to the Trainer"
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 50
+                    font.bold: true
+                    background: Rectangle {
+                        color: "#9C27B0"
+                        radius: 4
+                    }
+                    contentItem: Text {
+                        text: parent.text
+                        font: parent.font
+                        color: "white"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                    onClicked: {
+                        // Emit signal to restore default wheel diameter in the trainer
+                        restoreDefaultWheelDiameter()
+                    }
+                }
             }
         }
 

@@ -15,6 +15,7 @@ class stairclimber : public bluetoothdevice {
     void clearStats() override;
     void setLap() override;
     void setPaused(bool p) override;
+    metric currentStepCount() { return StepCount; }
 
   public slots:
 
