@@ -1313,7 +1313,7 @@ jobs:
         with:
           version: '6.8.2'
           host: 'windows'
-          modules: 'qtnetworkauth qtcharts qtconnectivity qtspeech qtpositioning qtwebsockets qtlocation qtmultimedia qtwebengine qtwebview qtwebchannel'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtspeech qtpositioning qtwebsockets qtlocation qtmultimedia qtwebengine qtwebview qthttpserver qtwebchannel'
           target: "desktop"
           arch: win64_msvc2022_64
           dir: "${{github.workspace}}/qt/"
