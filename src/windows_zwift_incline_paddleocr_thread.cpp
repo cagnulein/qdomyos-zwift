@@ -19,7 +19,7 @@ using namespace std::chrono_literals;
 windows_zwift_incline_paddleocr_thread::windows_zwift_incline_paddleocr_thread(bluetoothdevice *device) {
     this->device = device;
     qDebug() << "windows_zwift_incline_paddleocr_thread created!";
-    process = null;
+    process = nullptr;
 }
 
 windows_zwift_incline_paddleocr_thread::~windows_zwift_incline_paddleocr_thread() {
