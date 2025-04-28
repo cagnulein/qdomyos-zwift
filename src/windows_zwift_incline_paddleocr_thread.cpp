@@ -19,11 +19,7 @@ using namespace std::chrono_literals;
 windows_zwift_incline_paddleocr_thread::windows_zwift_incline_paddleocr_thread(bluetoothdevice *device) {
     this->device = device;
     qDebug() << "windows_zwift_incline_paddleocr_thread created!";
-    process = new QProcess(this);
-    process->moveToThread(this); // Move to this thread
-    connect(process, &QProcess::readyReadStandardOutput, this, &windows_zwift_incline_paddleocr_thread::processOutput, Qt::QueuedConnection);
-    connect(process, &QProcess::readyReadStandardError, this, &windows_zwift_incline_paddleocr_thread::processError, Qt::QueuedConnection);
-    connect(process, &QProcess::errorOccurred, this, &windows_zwift_incline_paddleocr_thread::handleError, Qt::QueuedConnection);
+    process = null;
 }
 
 windows_zwift_incline_paddleocr_thread::~windows_zwift_incline_paddleocr_thread() {
@@ -47,6 +43,13 @@ void windows_zwift_incline_paddleocr_thread::processError() {
 
 void windows_zwift_incline_paddleocr_thread::run() {
 #ifdef Q_OS_WINDOWS
+    process = new QProcess();
+    
+    // Connect signals
+    connect(process, &QProcess::readyReadStandardOutput, this, &windows_zwift_incline_paddleocr_thread::processOutput);
+    connect(process, &QProcess::readyReadStandardError, this, &windows_zwift_incline_paddleocr_thread::processError);
+    connect(process, &QProcess::errorOccurred, this, &windows_zwift_incline_paddleocr_thread::handleError);
+
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     QString currentPath = env.value("PATH");
     QString updatedPath = currentPath + ";" + QCoreApplication::applicationDirPath();
