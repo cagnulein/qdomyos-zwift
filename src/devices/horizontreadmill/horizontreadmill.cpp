@@ -927,6 +927,10 @@ void horizontreadmill::update() {
             // updateDisplay(elapsed);
         }
 
+        // this treadmill can't go below 1
+        if(mobvoi_tmp_treadmill && requestSpeed < 1)
+            requestSpeed = -1;
+        
         if (requestSpeed != -1) {
             bool minSpeed =
                 fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() - 0.09);
@@ -1466,6 +1470,9 @@ void horizontreadmill::forceIncline(double requestIncline) {
             } else if(requestInclination >= 10 && requestInclination < 11) {
                 writeS[1] = 0x74;
                 writeS[2] = 0x00;
+            } else {
+                writeS[1] = 0x00;
+                writeS[2] = 0x00;
             }
         } else {
             if(HORIZON_78AT_treadmill)
@@ -1949,16 +1956,34 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 } else {
                     emit debug(QStringLiteral("Error on parsing heart!"));
                 }
-                // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
+                index += 1;
             }
         }
 
         if (Flags.metabolic) {
+            index += 1;
             // todo
         }
 
         if (Flags.elapsedTime) {
-            // todo
+            if (index + 1 < newValue.length()) {
+                static uint16_t old_local_elapsed = 0;
+                static QDateTime last_local_elapsed_change = QDateTime::currentDateTime();
+                uint16_t local_elapsed = ((((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));
+                qDebug() << QStringLiteral("Local Time Elapsed") << local_elapsed;
+                // this treadmill sends here if the user is really running
+                if(old_local_elapsed != local_elapsed)
+                    last_local_elapsed_change = QDateTime::currentDateTime();
+                QDateTime current_time = QDateTime::currentDateTime();
+                 // Only if more than 2 seconds have passed since the last update
+                 if(mobvoi_tmp_treadmill && last_local_elapsed_change.secsTo(current_time) >= 2) {
+                    Speed = 0;
+                    qDebug() << "Forcing Speed to 0 since the treadmill saws that the user is not really running";
+                }
+                old_local_elapsed = local_elapsed;
+            }
+            index += 2;
         }
 
         if (Flags.remainingTime) {
@@ -2460,6 +2485,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
             mobvoi_tmp_treadmill = true;
+            disableAutoPause = true;
             qDebug() << QStringLiteral("MOBVOI TMP workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
             mobvoi_treadmill = true;

@@ -81,6 +81,7 @@ SOURCES += \
     $$PWD/characteristics/characteristicnotifier0002.cpp \
     $$PWD/characteristics/characteristicnotifier0004.cpp \
     $$PWD/characteristics/characteristicwriteprocessor0003.cpp \
+    $$PWD/devices/android_antbike/android_antbike.cpp \
     $$PWD/androidqlog.cpp \
     $$PWD/devices/antbike/antbike.cpp \
     $$PWD/devices/crossrope/crossrope.cpp \
@@ -347,6 +348,7 @@ HEADERS += \
     $$PWD/characteristics/characteristicnotifier0004.h \
     $$PWD/characteristics/characteristicwriteprocessor0003.h \
     $$PWD/OAuth2.h \
+    $$PWD/devices/android_antbike/android_antbike.h \
     $$PWD/devices/antbike/antbike.h \
     $$PWD/devices/crossrope/crossrope.h \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.h \
@@ -851,6 +853,7 @@ DISTFILES += \
     $$PWD/android/libs/ciq-companion-app-sdk-2.0.3.aar \
     $$PWD/android/libs/zaplibrary-debug.aar \
     $$PWD/android/res/xml/device_filter.xml \
+    $$PWD/android/src/BikeChannelController.java \
     $$PWD/android/src/BleAdvertiser.java \
    $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/ContentHelper.java \

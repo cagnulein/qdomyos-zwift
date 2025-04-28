@@ -2201,6 +2201,9 @@ class QZSettings {
     static const QString min_inclination;
     static constexpr double default_min_inclination = -999.0;
 
+    static const QString proform_performance_300i;
+    static constexpr bool default_proform_performance_300i = false;
+
     static const QString proform_performance_400i;
     static constexpr bool default_proform_performance_400i = false;
 
@@ -2405,6 +2408,8 @@ class QZSettings {
     static constexpr bool default_proform_225_csx_PFEX32925_INT_0 = false;
     static const QString trainprogram_pid_ignore_inclination;
     static constexpr bool default_trainprogram_pid_ignore_inclination = false;
+    static const QString android_antbike;
+    static constexpr bool default_android_antbike = false;
 
     static const QString tile_hr_time_in_zone_1_enabled;
     static constexpr bool default_tile_hr_time_in_zone_1_enabled = false;
