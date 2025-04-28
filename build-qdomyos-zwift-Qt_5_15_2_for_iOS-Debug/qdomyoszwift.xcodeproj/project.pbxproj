@@ -584,6 +584,8 @@
 		87F02E4029178524000DB52C /* octaneelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F02E3E29178523000DB52C /* octaneelliptical.cpp */; };
 		87F02E4229178545000DB52C /* moc_octaneelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F02E4129178545000DB52C /* moc_octaneelliptical.cpp */; };
 		87F1179E26A5FBDE00541B3A /* libqtwebview_darwin.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87420DF7269D7CE1000C5EC6 /* libqtwebview_darwin.a */; };
+		87F1BD682DBFBCE700416506 /* moc_android_antbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F1BD672DBFBCE700416506 /* moc_android_antbike.cpp */; };
+		87F1BD692DBFBCE700416506 /* android_antbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F1BD662DBFBCE700416506 /* android_antbike.cpp */; };
 		87F4FB5A29D550C00061BB4A /* schwinn170bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F4FB5829D550BF0061BB4A /* schwinn170bike.cpp */; };
 		87F4FB5C29D550E00061BB4A /* moc_schwinn170bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F4FB5B29D550DF0061BB4A /* moc_schwinn170bike.cpp */; };
 		87F527BE28EEB5AA00A9F8D5 /* qzsettings.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F527BC28EEB5AA00A9F8D5 /* qzsettings.cpp */; };
@@ -1650,6 +1652,9 @@
 		87F02E3E29178523000DB52C /* octaneelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = octaneelliptical.cpp; path = ../src/devices/octaneelliptical/octaneelliptical.cpp; sourceTree = "<group>"; };
 		87F02E3F29178524000DB52C /* octaneelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = octaneelliptical.h; path = ../src/devices/octaneelliptical/octaneelliptical.h; sourceTree = "<group>"; };
 		87F02E4129178545000DB52C /* moc_octaneelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_octaneelliptical.cpp; sourceTree = "<group>"; };
+		87F1BD652DBFBCE700416506 /* android_antbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = android_antbike.h; path = ../src/devices/android_antbike/android_antbike.h; sourceTree = SOURCE_ROOT; };
+		87F1BD662DBFBCE700416506 /* android_antbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = android_antbike.cpp; path = ../src/devices/android_antbike/android_antbike.cpp; sourceTree = SOURCE_ROOT; };
+		87F1BD672DBFBCE700416506 /* moc_android_antbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_android_antbike.cpp; sourceTree = "<group>"; };
 		87F4FB5829D550BF0061BB4A /* schwinn170bike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = schwinn170bike.cpp; path = ../src/devices/schwinn170bike/schwinn170bike.cpp; sourceTree = "<group>"; };
 		87F4FB5929D550BF0061BB4A /* schwinn170bike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = schwinn170bike.h; path = ../src/devices/schwinn170bike/schwinn170bike.h; sourceTree = "<group>"; };
 		87F4FB5B29D550DF0061BB4A /* moc_schwinn170bike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_schwinn170bike.cpp; sourceTree = "<group>"; };
@@ -2733,6 +2738,9 @@
 				87DC27E72D9BDB53007A1B9D /* echelonstairclimber.cpp */,
 				87DC27E82D9BDB53007A1B9D /* stairclimber.h */,
 				87DC27E92D9BDB53007A1B9D /* stairclimber.cpp */,
+				87F1BD652DBFBCE700416506 /* android_antbike.h */,
+				87F1BD662DBFBCE700416506 /* android_antbike.cpp */,
+				87F1BD672DBFBCE700416506 /* moc_android_antbike.cpp */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -3955,6 +3963,8 @@
 				87A0771029B641D600A368BF /* wahookickrheadwind.cpp in Compile Sources */,
 				87EAC3D32D1D8D1D004FE975 /* moc_pitpatbike.cpp in Compile Sources */,
 				8791A8AB25C861BD003B50B2 /* inspirebike.cpp in Compile Sources */,
+				87F1BD682DBFBCE700416506 /* moc_android_antbike.cpp in Compile Sources */,
+				87F1BD692DBFBCE700416506 /* android_antbike.cpp in Compile Sources */,
 				876BFC9D27BE35C5001D7645 /* bowflext216treadmill.cpp in Compile Sources */,
 				871235C126B297720012D0F2 /* moc_kingsmithr1protreadmill.cpp in Compile Sources */,
 				87061397286D8CFE00D2446E /* PathController.cpp in Compile Sources */,
@@ -4345,7 +4355,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1078;
+				CURRENT_PROJECT_VERSION = 1079;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = "ADB_HOST=1";
@@ -4539,7 +4549,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1078;
+				CURRENT_PROJECT_VERSION = 1079;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -4769,7 +4779,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1078;
+				CURRENT_PROJECT_VERSION = 1079;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -4865,7 +4875,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1078;
+				CURRENT_PROJECT_VERSION = 1079;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -4957,7 +4967,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1078;
+				CURRENT_PROJECT_VERSION = 1079;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -5073,7 +5083,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1078;
+				CURRENT_PROJECT_VERSION = 1079;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
