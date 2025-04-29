@@ -443,6 +443,11 @@ class bluetoothdevice : public QObject {
      */
     virtual resistance_t maxResistance();
 
+    // Metrics for core temperature data
+    metric CoreBodyTemperature;  // Core body temperature in °C or °F
+    metric SkinTemperature;      // Skin temperature in °C or °F
+    metric HeatStrainIndex;      // Heat Strain Index (0-25.4, scaled by 10)
+
   public Q_SLOTS:
     virtual void start();
     virtual void stop(bool pause);

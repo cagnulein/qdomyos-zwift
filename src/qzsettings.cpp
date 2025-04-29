@@ -913,7 +913,10 @@ const QString QZSettings::tile_hr_time_in_zone_5_order = QStringLiteral("tile_hr
 const QString QZSettings::zwift_gear_ui_aligned = QStringLiteral("zwift_gear_ui_aligned");
 const QString QZSettings::tacxneo2_disable_negative_inclination = QStringLiteral("tacxneo2_disable_negative_inclination");
 
-const uint32_t allSettingsCount = 750;
+const QString QZSettings::tile_coretemperature_enabled = QStringLiteral("tile_coretemperature_enabled");
+const QString QZSettings::tile_coretemperature_order = QStringLiteral("tile_coretemperature_order");
+
+const uint32_t allSettingsCount = 752;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1681,6 +1684,9 @@ QVariant allSettings[allSettingsCount][2] = {
 
     {QZSettings::zwift_gear_ui_aligned, QZSettings::default_zwift_gear_ui_aligned},
     {QZSettings::tacxneo2_disable_negative_inclination, QZSettings::default_tacxneo2_disable_negative_inclination},
+
+    {QZSettings::tile_coretemperature_enabled, QZSettings::default_tile_coretemperature_enabled},
+    {QZSettings::tile_coretemperature_order, QZSettings::default_tile_coretemperature_order},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

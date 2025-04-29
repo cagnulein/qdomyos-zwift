@@ -2447,6 +2447,12 @@ class QZSettings {
     static const QString tacxneo2_disable_negative_inclination;
     static constexpr bool default_tacxneo2_disable_negative_inclination = false;
 
+    static const QString tile_coretemperature_enabled;
+    static constexpr bool default_tile_coretemperature_enabled = false;
+
+    static const QString tile_coretemperature_order;
+    static constexpr int default_tile_coretemperature_order = 67;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
