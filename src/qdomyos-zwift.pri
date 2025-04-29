@@ -84,6 +84,7 @@ SOURCES += \
     $$PWD/devices/android_antbike/android_antbike.cpp \
     $$PWD/androidqlog.cpp \
     $$PWD/devices/antbike/antbike.cpp \
+    $$PWD/devices/coresensor/coresensor.cpp \
     $$PWD/devices/crossrope/crossrope.cpp \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.cpp \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.cpp \
@@ -350,6 +351,7 @@ HEADERS += \
     $$PWD/OAuth2.h \
     $$PWD/devices/android_antbike/android_antbike.h \
     $$PWD/devices/antbike/antbike.h \
+    $$PWD/devices/coresensor/coresensor.h \
     $$PWD/devices/crossrope/crossrope.h \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.h \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.h \
