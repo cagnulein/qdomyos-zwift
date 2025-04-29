@@ -341,6 +341,13 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             newRecord.SetStanceTime(sl.groundContactMS);
         }
 
+        if (sl.coreTemp)
+            newRecord.SetCoreTemperature(sl.coreTemp);
+        if (sl.bodyTemp)
+            newRecord.SetTemperature(sl.bodyTemp);
+        /*if (sl.heatStrainIndex)
+            newRecord.SetHeatStrain(sl.heatStrainIndex);*/
+
         // if a gps track contains a point without the gps information, it has to be discarded, otherwise the database
         // structure is corrupted and 2 tracks are saved in the FIT file causing mapping issue.
         if (!sl.coordinate.isValid() && gps_data) {

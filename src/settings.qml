@@ -1135,6 +1135,9 @@ import Qt.labs.platform 1.1
             // 2.18.26
             property bool proform_performance_300i: false
             property bool android_antbike: false
+
+            property bool tile_coretemperature_enabled: false
+            property int  tile_coretemperature_order: 67
         }
 
         function paddingZeros(text, limit) {
