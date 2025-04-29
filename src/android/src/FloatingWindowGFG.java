@@ -24,7 +24,7 @@ import android.widget.Toast;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
 import android.webkit.WebViewClient;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.content.SharedPreferences;
 
 public class FloatingWindowGFG extends Service {
@@ -89,7 +89,7 @@ public class FloatingWindowGFG extends Service {
                   settings.setBuiltInZoomControls(true);
                   settings.setUseWideViewPort(true);
                   settings.setDomStorageEnabled(true);
-                  Log.d("QZ","loadurl");
+                  QLog.d("QZ","loadurl");
 
 
 		  // WindowManager.LayoutParams takes a lot of parameters to set the
@@ -153,7 +153,7 @@ public class FloatingWindowGFG extends Service {
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
 
-                                         Log.d("QZ","onTouch");
+                                         QLog.d("QZ","onTouch");
 
 					 switch (event.getAction()) {
 						  // When the window will be touched,

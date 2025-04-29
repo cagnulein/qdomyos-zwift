@@ -78,10 +78,13 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    $$PWD/devices/android_antbike/android_antbike.cpp \
+    $$PWD/androidqlog.cpp \
     $$PWD/devices/antbike/antbike.cpp \
     $$PWD/devices/crossrope/crossrope.cpp \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.cpp \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.cpp \
+    $$PWD/devices/elitesquarecontroller/elitesquarecontroller.cpp \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
     $$PWD/devices/jumprope.cpp \
     $$PWD/devices/kineticinroadbike/SmartControl.cpp \
@@ -339,11 +342,13 @@ INCLUDEPATH += fit-sdk/ devices/
 HEADERS += \
     $$PWD/EventHandler.h \
     $$PWD/OAuth2.h \
+    $$PWD/devices/android_antbike/android_antbike.h \
     $$PWD/devices/antbike/antbike.h \
     $$PWD/devices/crossrope/crossrope.h \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.h \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.h \
     $$PWD/devices/echelonstairclimber/echelonstairclimber.h \
+    $$PWD/devices/elitesquarecontroller/elitesquarecontroller.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/jumprope.h \
     $$PWD/devices/kineticinroadbike/SmartControl.h \
@@ -842,6 +847,7 @@ DISTFILES += \
     $$PWD/android/libs/ciq-companion-app-sdk-2.0.3.aar \
     $$PWD/android/libs/zaplibrary-debug.aar \
     $$PWD/android/res/xml/device_filter.xml \
+    $$PWD/android/src/BikeChannelController.java \
     $$PWD/android/src/BleAdvertiser.java \
    $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/ContentHelper.java \
@@ -852,6 +858,7 @@ DISTFILES += \
     $$PWD/android/src/MediaButtonReceiver.java \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
+    $$PWD/android/src/QLog.java \
     $$PWD/android/src/ScreenCaptureService.java \
     $$PWD/android/src/Shortcuts.java \
     $$PWD/android/src/WearableController.java \
@@ -961,4 +968,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.18.23
+VERSION = 2.18.24
