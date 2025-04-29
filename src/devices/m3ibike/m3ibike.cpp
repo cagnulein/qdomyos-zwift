@@ -600,6 +600,9 @@ bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
         for (auto it = datas.begin(); it != datas.end(); ++it) {
             if (!uniqueDatas.contains(it.key())) {
                 uniqueDatas[it.key()] = it.value();
+                if (parse_data(it.value(), &k3) && (!valid_id(id) || k3.system_id == id)) {
+                    return true;
+                }
             }
         }
 #else
