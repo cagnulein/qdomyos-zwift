@@ -114,7 +114,7 @@ void coresensor::serviceScanDone() {
             connect(m_coreService, &QLowEnergyService::stateChanged, this,
                     &coresensor::serviceStateChanged);
             connect(m_coreService,
-                    &QLowEnergyService::error,
+                    &QLowEnergyService::errorOccurred,
                     this, &coresensor::handleServiceError);
             m_coreService->discoverDetails();
             return;
