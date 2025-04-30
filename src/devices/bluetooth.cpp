@@ -2209,7 +2209,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 moxy5Sensor = new moxy5sensor();
                 connect(moxy5Sensor, &moxy5sensor::debug, this, &bluetooth::debug);
                 moxy5Sensor->deviceDiscovered(b);
-
+            } else if (b.name().toUpper().startsWith(QStringLiteral("CORE ")) && !coreSensor) {
+                // *** SPECIAL DEVICE ****
+                coreSensor = new coresensor();
+                connect(coreSensor, &coresensor::debug, this, &bluetooth::debug);
+                coreSensor->deviceDiscovered(b);
             } else if (b.name().toUpper().startsWith(QStringLiteral("BOWFLEX T")) && !bowflexT216Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();

@@ -249,6 +249,9 @@ ScrollView {
         property int  tile_hr_time_in_zone_4_order: 65
         property bool tile_hr_time_in_zone_5_enabled: false
         property int  tile_hr_time_in_zone_5_order: 66
+
+        property bool tile_coretemperature_enabled: false
+        property int  tile_coretemperature_order: 67
     }
 
 
@@ -4997,6 +5000,51 @@ ScrollView {
 
         Label {
             text: qsTr("Displays total time spent in heart rate Zone 5 or higher during the session.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: coreTemperatureAccordion
+            title: qsTr("Core Temperature")
+            linkedBoolSetting: "tile_coretemperature_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelcoretemperatureOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: coretemperatureOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_coretemperature_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = coretemperatureOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okcoretemperatureOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_coretemperature_order = coretemperatureOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Shows Core, Body Temperature and Heat Strain Index from a Core Temperature sensor.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2
