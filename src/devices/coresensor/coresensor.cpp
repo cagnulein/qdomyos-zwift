@@ -61,20 +61,18 @@ void coresensor::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if(homeform::singleton())
         homeform::singleton()->setToastRequested(device.name() + QStringLiteral(" connected!"));
 
-    // We might filter the device name if needed
-    // For example: if (device.name().contains("CORE") || device.name().contains("CoreTemp"))
     {
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &coresensor::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &coresensor::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, &coresensor::handleError);
         connect(m_control, &QLowEnergyController::stateChanged, this, &coresensor::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
@@ -92,7 +90,7 @@ void coresensor::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             emit disconnected();
         });
 
-        // Connect
+               // Connect
         m_control->connectToDevice();
         return;
     }
@@ -116,7 +114,7 @@ void coresensor::serviceScanDone() {
             connect(m_coreService, &QLowEnergyService::stateChanged, this,
                     &coresensor::serviceStateChanged);
             connect(m_coreService,
-                    static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                    &QLowEnergyService::error,
                     this, &coresensor::handleServiceError);
             m_coreService->discoverDetails();
             return;
@@ -168,7 +166,7 @@ void coresensor::serviceStateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         m_coreService->writeDescriptor(
-            m_coreTemperatureCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
+            m_coreTemperatureCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration),
             descriptor);
 
         // For Control Point, we need to enable indications (not notifications)
@@ -177,7 +175,7 @@ void coresensor::serviceStateChanged(QLowEnergyService::ServiceState state) {
             cpDescriptor.append((char)0x02);  // 0x02 for indications (different from notifications)
             cpDescriptor.append((char)0x00);
             m_coreService->writeDescriptor(
-                m_coreControlPointCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
+                m_coreControlPointCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration),
                 cpDescriptor);
         }
     }
