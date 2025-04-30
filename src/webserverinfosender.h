@@ -5,13 +5,14 @@
 #include <QNetworkAccessManager>
 #include <QNetworkCookie>
 #include <QNetworkCookieJar>
+#include <QtWebSockets/QWebSocketServer>
+#include <QTcpServer>
 
 class QNoCookieJar : public QNetworkCookieJar {
     Q_OBJECT
   public:
     QNoCookieJar(QObject *parent = nullptr) : QNetworkCookieJar(parent) {}
     virtual ~QNoCookieJar() {}
-
     QList<QNetworkCookie> cookiesForUrl(const QUrl &url) const { return QList<QNetworkCookie>(); }
     bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl &url) { return false; }
 };
@@ -23,28 +24,28 @@ class WebServerInfoSender : public TemplateInfoSender {
     virtual ~WebServerInfoSender();
     virtual bool isRunning() const;
     virtual bool send(const QString &data);
-
   private:
-    QHttpServer *httpServer = 0;
+    QHttpServer *httpServer = nullptr;
+    QWebSocketServer *webSocketServer = nullptr;
+    QTcpServer *tcpServer = nullptr;  // Used for HTTP server binding
     QStringList folders;
-    bool listen();
+    bool listenHttp();
+    bool listenWebSocket();
     void processFetcher(QWebSocket *sender, const QByteArray &data);
     QTimer watchdogTimer;
-
   protected:
     virtual void innerStop();
     int port = 0;
-    QTcpServer *innerTcpServer = 0;
+    int wsPort = 0;
     virtual bool init();
     QList<QSharedPointer<QWebSocket>> clients;
-    QNetworkAccessManager *fetcher = 0;
+    QNetworkAccessManager *fetcher = nullptr;
     QList<QWebSocket *> sendToClients;
     QHash<QString, QString> relative2Absolute;
     QHash<QNetworkReply *, QPair<QJsonObject, QWebSocket *>> reply2Req;
   private slots:
-    void acceptError(QAbstractSocket::SocketError socketError);
     void watchdogEvent();
-    void onNewConnection();
+    void onNewWebSocketConnection();
     void handleFetcherRequest(QNetworkReply *reply);
     void processTextMessage(QString message);
     void processFetcherRawRequest(QByteArray message);
@@ -53,5 +54,4 @@ class WebServerInfoSender : public TemplateInfoSender {
     void socketDisconnected();
     void ignoreSSLErrors(QNetworkReply *, const QList<QSslError> &);
 };
-
 #endif // WEBSERVERINFOSENDER_H
