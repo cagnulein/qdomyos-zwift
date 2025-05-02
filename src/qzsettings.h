@@ -2453,6 +2453,9 @@ class QZSettings {
     static const QString tile_coretemperature_order;
     static constexpr int default_tile_coretemperature_order = 67;
 
+    static const QString nordictrack_t65s_treadmill_81_miles;
+    static constexpr bool default_nordictrack_t65s_treadmill_81_miles = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

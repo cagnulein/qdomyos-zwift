@@ -916,7 +916,9 @@ const QString QZSettings::tacxneo2_disable_negative_inclination = QStringLiteral
 const QString QZSettings::tile_coretemperature_enabled = QStringLiteral("tile_coretemperature_enabled");
 const QString QZSettings::tile_coretemperature_order = QStringLiteral("tile_coretemperature_order");
 
-const uint32_t allSettingsCount = 752;
+const QString QZSettings::nordictrack_t65s_treadmill_81_miles = QStringLiteral("nordictrack_t65s_treadmill_81_miles");
+
+const uint32_t allSettingsCount = 753;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1687,6 +1689,8 @@ QVariant allSettings[allSettingsCount][2] = {
 
     {QZSettings::tile_coretemperature_enabled, QZSettings::default_tile_coretemperature_enabled},
     {QZSettings::tile_coretemperature_order, QZSettings::default_tile_coretemperature_order},
+
+    {QZSettings::nordictrack_t65s_treadmill_81_miles, QZSettings::default_nordictrack_t65s_treadmill_81_miles},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
