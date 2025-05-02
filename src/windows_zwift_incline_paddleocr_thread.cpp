@@ -37,7 +37,7 @@ void windows_zwift_incline_paddleocr_thread::processError() {
     QByteArray error = process->readAllStandardError();
     if (!error.isEmpty()) {
         QString errorStr = QString::fromUtf8(error.trimmed());
-        emit debug("Error from process: " + errorStr);
+        qDebug() << "Error from process: " + errorStr;
     }
 }
 
@@ -59,11 +59,19 @@ void windows_zwift_incline_paddleocr_thread::run() {
     QString exePath = QCoreApplication::applicationDirPath() + "/zwift-metrics-server.exe";
     QFile exe(exePath);
     if (!exe.exists()) {
-        emit debug("ERROR: zwift-metrics-server.exe not found at: " + exePath);
+        qDebug() << "ERROR: zwift-metrics-server.exe not found at: " + exePath;
         return; // Exit the thread if the executable doesn't exist
     }
 
-    emit debug("Starting zwift-metrics-server.exe with path: " + updatedPath);
+    QString logPath = QCoreApplication::applicationDirPath() + "/zwift-server-output.log";
+    QString errPath = QCoreApplication::applicationDirPath() + "/zwift-server-error.log";
+
+    process->setStandardOutputFile(logPath);
+    process->setStandardErrorFile(errPath);
+
+    qDebug() << "Redirecting output to: " + logPath;
+
+    qDebug() << "Starting zwift-metrics-server.exe with path: " + updatedPath;
     process->start("zwift-metrics-server.exe", QStringList());
 
     // Create a timer to periodically check the process
@@ -73,14 +81,14 @@ void windows_zwift_incline_paddleocr_thread::run() {
     // Connect timer timeout to our process check
     connect(processCheckTimer, &QTimer::timeout, this, [this]() {
         if (process->state() != QProcess::Running) {
-            emit debug("zwift-metrics-server.exe stopped with exit code: " +
+            qDebug() << "zwift-metrics-server.exe stopped with exit code: " +
                        QString::number(process->exitCode()) +
-                       ", exit status: " + (process->exitStatus() == QProcess::NormalExit ? "Normal" : "Crashed"));
+                       ", exit status: " + (process->exitStatus() == QProcess::NormalExit ? "Normal" : "Crashed");
             process->start("zwift-metrics-server.exe", QStringList());
 
             // Check immediately if restart failed
             if (process->state() != QProcess::Running && !process->waitForStarted(3000)) {
-                emit debug("Failed to restart zwift-metrics-server.exe: " + process->errorString());
+                qDebug() << "Failed to restart zwift-metrics-server.exe: " + process->errorString();
             }
         }
     });
@@ -100,13 +108,14 @@ void windows_zwift_incline_paddleocr_thread::run() {
 
 void windows_zwift_incline_paddleocr_thread::processOutput() {
     QByteArray output = process->readAllStandardOutput();
+    qDebug() << "Raw output received (length: " + QString::number(output.length()) + "): " + QString::fromUtf8(output);
     QList<QByteArray> lines = output.split('\n');
 
     for (const QByteArray &line : lines) {
         if (line.trimmed().isEmpty()) continue;
 
         QString lineStr = QString::fromUtf8(line.trimmed());
-        emit debug("Received: " + lineStr);
+        qDebug() << "Received: " + lineStr;
 
         QStringList parts = lineStr.split(';');
         if (parts.size() == 2) {
@@ -118,7 +127,7 @@ void windows_zwift_incline_paddleocr_thread::processOutput() {
                 bool ok;
                 double speedValue = speedStr.toDouble(&ok);
                 if (ok) {
-                    emit debug("Emitting speed: " + QString::number(speedValue));
+                    qDebug() << "Emitting speed: " + QString::number(speedValue);
                     emit onSpeed(speedValue);
                     speed = speedValue;
                 }
@@ -129,7 +138,7 @@ void windows_zwift_incline_paddleocr_thread::processOutput() {
                 bool ok;
                 double inclinationValue = inclinationStr.toDouble(&ok);
                 if (ok) {
-                    emit debug("Emitting inclination: " + QString::number(inclinationValue));
+                    qDebug() << "Emitting inclination: " + QString::number(inclinationValue);
                     emit onInclination(inclinationValue, inclinationValue);
                     inclination = inclinationValue;
                 }
@@ -160,5 +169,5 @@ void windows_zwift_incline_paddleocr_thread::handleError(QProcess::ProcessError 
         errorMessage = "Unknown error";
         break;
     }
-    emit debug("Process error: " + errorMessage);
+    qDebug() << "Process error: " + errorMessage;
 }
