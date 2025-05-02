@@ -110,6 +110,8 @@ class proformtreadmill : public treadmill {
     bool proform_505_cst_80_44 = false;
     bool proform_trainer_8_0 = false;
     bool proform_treadmill_705_cst_V80_44 = false;
+    bool nordictrack_t65s_treadmill_81_miles = false;
+    bool nordictrack_elite_800 = false;
     
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

@@ -1138,6 +1138,9 @@ import Qt.labs.platform 1.1
 
             property bool tile_coretemperature_enabled: false
             property int  tile_coretemperature_order: 67
+
+            property bool nordictrack_t65s_treadmill_81_miles: false
+            property bool nordictrack_elite_800: false
         }
 
         function paddingZeros(text, limit) {
@@ -6583,6 +6586,8 @@ import Qt.labs.platform 1.1
                                     "Proform 705 CST v.80.44",
                                     "Nordictrack 1750",
                                     "Proform Performance 300i",
+                                    "Nordictrack T6.5S v81 Miles",
+                                    "Nordictrack Elite 800",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -6646,7 +6651,9 @@ import Qt.labs.platform 1.1
                                                     settings.proform_trainer_8_0 ? 44 :
                                                     settings.proform_treadmill_705_cst_V80_44 ? 45 :
                                                     settings.nordictrack_treadmill_1750_adb ? 46 : 
-                                                    settings.proform_performance_300i ? 47 :0;
+                                                    settings.proform_performance_300i ? 47 :
+                                                    settings.nordictrack_t65s_treadmill_81_miles ? 48 : 
+                                                    settings.nordictrack_elite_800 ? 49 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -6708,6 +6715,8 @@ import Qt.labs.platform 1.1
                                     settings.proform_trainer_8_0 = false;
                                     settings.proform_treadmill_705_cst_V80_44 = false;
                                     settings.nordictrack_treadmill_1750_adb = false;
+                                    settings.nordictrack_t65s_treadmill_81_miles = false;
+                                    settings.nordictrack_elite_800 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -6758,6 +6767,8 @@ import Qt.labs.platform 1.1
                                         case 45: settings.proform_treadmill_705_cst_V80_44 = true; break;
                                         case 46: settings.nordictrack_treadmill_1750_adb = true; break;
                                         case 47: settings.proform_performance_300i = true; break;
+                                        case 48: settings.nordictrack_t65s_treadmill_81_miles = true; break;
+                                        case 49: settings.nordictrack_elite_800 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
