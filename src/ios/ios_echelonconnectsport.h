@@ -17,6 +17,7 @@
 
 - (instancetype)init:(NSString *)deviceName qtDevice:(void*)qtDevice;
 - (void)writeCharacteristc:(uint8_t *)data length:(NSUInteger)length;
+- (void)disconnectPeripheral;
 
 @end
 
