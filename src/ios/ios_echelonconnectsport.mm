@@ -2,7 +2,9 @@
 #import "ios_echelonconnectsport.h"
 #import <UIKit/UIKit.h>
 
-@implementation ios_echelonconnectsport
+@implementation ios_echelonconnectsport {
+    BOOL _isShuttingDown; // Private flag to track shutdown state
+}
 
 - (instancetype)init:(NSString *)deviceName qtDevice:(void*)qtDevice {
     self = [super init];
@@ -11,6 +13,7 @@
         qDebug() << _targetDeviceName;
         _qtDevice = (echelonconnectsport*)qtDevice;
         _centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
+        _isShuttingDown = NO; // Initialize flag
 
         // Register for application lifecycle notifications
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -26,6 +29,8 @@
     // Remove notification observers
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
+    _isShuttingDown = YES;
+    
     // Disconnect if still connected
     [self disconnectPeripheral];
     
@@ -35,6 +40,7 @@
 // Handle app termination
 - (void)applicationWillTerminate:(NSNotification *)notification {
     qDebug() << "Application will terminate - disconnecting peripheral";
+    _isShuttingDown = YES;
     [self disconnectPeripheral];
 }
 
@@ -79,9 +85,12 @@
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     qDebug() << "Peripheral disconnected:" << peripheral << error;
-    if ([peripheral.name isEqualToString:self.targetDeviceName]) {
+    // Only attempt to reconnect if we're not shutting down
+    if (!_isShuttingDown && [peripheral.name isEqualToString:self.targetDeviceName]) {
         _qtDevice->controllerStateChanged(QLowEnergyController::UnconnectedState);
         [self.centralManager connectPeripheral:peripheral options:nil];
+    } else {
+        qDebug() << "Not reconnecting because app is shutting down";
     }
 }
 
