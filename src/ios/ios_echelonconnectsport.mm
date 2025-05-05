@@ -68,12 +68,12 @@
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *,id> *)advertisementData RSSI:(NSNumber *)RSSI {
     if (peripheral && _targetDeviceName && peripheral.name) {
-        qDebug() << _targetDeviceName;
+        qDebug() << _targetDeviceName << peripheral.name;
         if ([peripheral.name isEqualToString:_targetDeviceName]) {
+            qDebug() << "didDiscoverPeripheral";
             self.connectedPeripheral = peripheral;
             [self.centralManager stopScan];
             [self.centralManager connectPeripheral:peripheral options:nil];
-            qDebug() << "didDiscoverPeripheral";
         }
     }
 }
@@ -85,12 +85,28 @@
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     qDebug() << "Peripheral disconnected:" << peripheral << error;
+    
+    // Debug current state of variables
+    qDebug() << "Current shutdown state:" << (_isShuttingDown ? "YES" : "NO");
+    qDebug() << "Peripheral name comparison:"
+             << "Target:" << self.targetDeviceName
+             << "Actual:" << peripheral.name
+             << "Match:" << ([peripheral.name isEqualToString:self.targetDeviceName] ? "YES" : "NO");
+    qDebug() << "Central manager state:" << central.state;
+    
     // Only attempt to reconnect if we're not shutting down
     if (!_isShuttingDown && [peripheral.name isEqualToString:self.targetDeviceName]) {
+        qDebug() << "Attempting to reconnect...";
         _qtDevice->controllerStateChanged(QLowEnergyController::UnconnectedState);
-        [self.centralManager connectPeripheral:peripheral options:nil];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.centralManager scanForPeripheralsWithServices:nil options:nil];
+        });
     } else {
-        qDebug() << "Not reconnecting because app is shutting down";
+        if (_isShuttingDown) {
+            qDebug() << "Not reconnecting because app is shutting down";
+        } else {
+            qDebug() << "Not reconnecting because peripheral name doesn't match target";
+        }
     }
 }
 
