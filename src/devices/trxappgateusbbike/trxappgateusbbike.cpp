@@ -148,7 +148,7 @@ void trxappgateusbbike::update() {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x03, 0x01, 0x96};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-        } else if (bike_type == TYPE::CHANGYOW || bike_type == TYPE::ENERFIT_SPX_9500 || bike_type == TYPE::ENERFIT_SPX_9500_2) {
+        } else if (bike_type == TYPE::CHANGYOW || bike_type == TYPE::ENERFIT_SPX_9500 || bike_type == TYPE::ENERFIT_SPX_9500_2 || bike_type == HAMMER_SPEED_BIKE_S) {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x23, 0x01, 0xb6};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
@@ -225,8 +225,10 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     lastPacket = newValue;
     if ((newValue.length() != 21 && (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08 &&
-                                     bike_type != TUNTURI && bike_type != TUNTURI_2 && bike_type != TOORX_SRX_500 && bike_type != FAL_SPORTS)) ||
-        (newValue.length() != 19 && (bike_type == JLL_IC400 || bike_type == ASVIVA || bike_type == FYTTER_RI08 || bike_type == PASYOU)) ||
+                                     bike_type != TUNTURI && bike_type != TUNTURI_2 && bike_type != TOORX_SRX_500 &&
+                                     bike_type != FAL_SPORTS && bike_type != HAMMER_SPEED_BIKE_S)) ||
+        (newValue.length() != 19 && (bike_type == JLL_IC400 || bike_type == ASVIVA || bike_type == FYTTER_RI08 ||
+                                     bike_type == PASYOU || bike_type == HAMMER_SPEED_BIKE_S)) ||
         (newValue.length() != 20 && newValue.length() != 21 &&
          (bike_type == TUNTURI || bike_type == TYPE::TUNTURI_2))) {
         return;
@@ -258,7 +260,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
                                    (60000.0 / ((double)lastTimeCharChanged.msecsTo(
                                                   now)))); //(( (0.048* Output in watts +1.19) *
                                                                             // body weight in kg * 3.5) / 200 ) / 60
-    } else if (bike_type != JLL_IC400 && bike_type != ASVIVA) {
+    } else if (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != HAMMER_SPEED_BIKE_S) {
 
         speed = GetSpeedFromPacket(newValue);
         resistance = GetResistanceFromPacket(newValue);
@@ -582,7 +584,7 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-    } else if (bike_type == TYPE::CHANGYOW || bike_type == TYPE::ENERFIT_SPX_9500 || bike_type == TYPE::ENERFIT_SPX_9500_2) {
+    } else if (bike_type == TYPE::CHANGYOW || bike_type == TYPE::ENERFIT_SPX_9500 || bike_type == TYPE::ENERFIT_SPX_9500_2 || bike_type == HAMMER_SPEED_BIKE_S) {
 
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x23, 0x01, 0xb4};
@@ -852,7 +854,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
             bike_type == TYPE::JLL_IC400 || bike_type == TYPE::DKN_MOTION_2 || bike_type == TYPE::FYTTER_RI08 ||
             bike_type == TYPE::HERTZ_XR_770_2 || bike_type == TYPE::VIRTUFIT_2 || bike_type == TYPE::TUNTURI ||
             bike_type == TYPE::FITHIWAY || bike_type == TYPE::ENERFIT_SPX_9500_2 || bike_type == TYPE::REEBOK_2 ||
-            bike_type == TYPE::FAL_SPORTS) {
+            bike_type == TYPE::FAL_SPORTS || bike_type == HAMMER_SPEED_BIKE_S) {
             uuidWrite = QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3");
             uuidNotify1 = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
             uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
@@ -943,7 +945,7 @@ void trxappgateusbbike::serviceScanDone(void) {
     QString uuid3 = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
     if (bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE ||
         bike_type == TYPE::JLL_IC400 || bike_type == TYPE::FYTTER_RI08 || bike_type == TYPE::TUNTURI ||
-        bike_type == TYPE::FITHIWAY || bike_type == TYPE::FAL_SPORTS) {
+        bike_type == TYPE::FITHIWAY || bike_type == TYPE::FAL_SPORTS || bike_type == HAMMER_SPEED_BIKE_S) {
         uuid = uuid2;
     }
 
@@ -1115,9 +1117,13 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("HERTZ_XR_770 bike found");
         } else if (enerfit_SPX_9500) {
             refresh->start(500ms);
-
-            bike_type = TYPE::ENERFIT_SPX_9500;
-            qDebug() << QStringLiteral("ENERFIT_SPX_9500 bike found");            
+            if(device.name().toUpper().startsWith(QStringLiteral("IBIKING+"))) {
+                bike_type = TYPE::HAMMER_SPEED_BIKE_S;
+                qDebug() << QStringLiteral("HAMMER_SPEED_BIKE_S bike found");
+            } else {
+                bike_type = TYPE::ENERFIT_SPX_9500;
+                qDebug() << QStringLiteral("ENERFIT_SPX_9500 bike found");
+            }
         } else if (JLL_IC400_bike) {
             refresh->start(500ms);
 
