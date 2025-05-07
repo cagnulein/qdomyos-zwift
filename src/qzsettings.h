@@ -2436,6 +2436,9 @@ class QZSettings {
     static const QString tile_hr_time_in_zone_5_order;
     static constexpr int default_tile_hr_time_in_zone_5_order = 66;
 
+    static const QString ios_btdevice_native;
+    static constexpr bool default_ios_btdevice_native = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
