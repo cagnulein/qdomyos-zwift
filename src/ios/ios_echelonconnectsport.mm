@@ -1,6 +1,5 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "ios_echelonconnectsport.h"
-#import <UIKit/UIKit.h>
 
 @implementation ios_echelonconnectsport
 
@@ -28,8 +27,6 @@
     
     // Disconnect if still connected
     [self disconnectPeripheral];
-    
-    [super dealloc];
 }
 
 // Handle app termination
@@ -38,20 +35,6 @@
     [self disconnectPeripheral];
 }
 
-- (void)disconnectPeripheral {
-    if (self.connectedPeripheral && self.centralManager) {
-        if (self.connectedPeripheral.state == CBPeripheralStateConnected) {
-            qDebug() << "Disconnecting from peripheral:" << self.connectedPeripheral;
-            [self.centralManager cancelPeripheralConnection:self.connectedPeripheral];
-            
-            // Notify Qt side about disconnection
-            /*
-            if (self.qtDevice) {
-                self.qtDevice->controllerStateChanged(QLowEnergyController::UnconnectedState);
-            }*/
-        }
-    }
-}
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
     if (central.state == CBManagerStatePoweredOn) {
