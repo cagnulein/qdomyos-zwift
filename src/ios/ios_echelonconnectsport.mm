@@ -10,31 +10,9 @@
         qDebug() << _targetDeviceName;
         _qtDevice = (echelonconnectsport*)qtDevice;
         _centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
-
-        // Register for application lifecycle notifications
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(applicationWillTerminate:)
-                                                     name:UIApplicationWillTerminateNotification
-                                                   object:nil];
     }
     return self;
 }
-
-// Add dealloc method to clean up resources
-- (void)dealloc {
-    // Remove notification observers
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    
-    // Disconnect if still connected
-    [self disconnectPeripheral];
-}
-
-// Handle app termination
-- (void)applicationWillTerminate:(NSNotification *)notification {
-    qDebug() << "Application will terminate - disconnecting peripheral";
-    [self disconnectPeripheral];
-}
-
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
     if (central.state == CBManagerStatePoweredOn) {
