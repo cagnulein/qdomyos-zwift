@@ -107,7 +107,9 @@ void tacxneo2::forceInclination(double inclination) {
 
 // The reason of this function is: "The only weird part is that when the offset in QZ is below 0 my Tacx Neo 2T thinks I am going down hill. And it keeps the flywheel motor moving."
 double tacxneo2::gearsFlywheelCheck(double inclination, double gears) {
-    if(inclination >= 0 && inclination + gears < 0) {
+    QSettings settings;
+    bool tacxneo2_disable_negative_inclination = settings.value(QZSettings::tacxneo2_disable_negative_inclination, QZSettings::default_tacxneo2_disable_negative_inclination).toBool();
+    if(tacxneo2_disable_negative_inclination && inclination >= 0 && inclination + gears < 0) {
         qDebug() << "inclination + gears are below 0, flatting to 0" << inclination << gears;
         return 0;
     }
