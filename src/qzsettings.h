@@ -2458,6 +2458,8 @@ class QZSettings {
 
     static const QString nordictrack_elite_800;
     static constexpr bool default_nordictrack_elite_800 = false;
+    static const QString ios_btdevice_native;
+    static constexpr bool default_ios_btdevice_native = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
