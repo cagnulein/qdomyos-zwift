@@ -1,11 +1,14 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "ios_zwiftclickremote.h"
 
-@implementation ios_zwiftclickremote
+@implementation ios_zwiftclickremote {
+    BOOL _firstConnection;
+}
 
 - (instancetype)initWithNameAndUUID:(NSString *)deviceName uuid:(NSString *)uuid qtDevice:(void*)qtDevice {
     self = [super init];
     if (self) {
+        _firstConnection = NO;
         _targetDeviceName = [deviceName copy];
         _targetDeviceUUID = [uuid copy];
         qDebug() << _targetDeviceName << "UUID:" << _targetDeviceUUID;
@@ -32,7 +35,7 @@
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
     if (central.state == CBManagerStatePoweredOn) {
-        qDebug() << "centralManagerDidUpdateState" << central.state;
+        qDebug() << "centralManagerDidUpdateState" << central.state << _targetDeviceUUID;
         [self.centralManager scanForPeripheralsWithServices:nil options:nil];
     }
 }
@@ -46,7 +49,10 @@
                 self.connectedPeripheral = peripheral;
                 [self.centralManager stopScan];
                 [self.centralManager connectPeripheral:peripheral options:nil];
-                qDebug() << "Connected to device by UUID";
+                qDebug() << "Connected to device by UUID" << _targetDeviceUUID;
+                if(_firstConnection == YES)
+                    _qtDevice->controllerStateChanged(QLowEnergyController::UnconnectedState); // simulate a disconnection
+                _firstConnection = YES;
                 return;
             }
         }

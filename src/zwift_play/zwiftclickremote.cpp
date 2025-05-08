@@ -340,12 +340,13 @@ bool zwiftclickremote::connected() {
 
 void zwiftclickremote::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
-    if (state == QLowEnergyController::UnconnectedState && m_control) {
+    if (state == QLowEnergyController::UnconnectedState) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initRequest = false;
         initDone = false;
 
-        m_control->connectToDevice();
+        if(m_control)
+            m_control->connectToDevice();
     }
 }
 
