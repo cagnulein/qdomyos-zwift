@@ -330,7 +330,6 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     }
 
 #ifdef Q_OS_IOS
-    if (useNativeIOS) {
 #ifndef IO_UNDER_QT
         bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround =
@@ -340,7 +339,6 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
         }
 #endif
-    }
 #endif
 
            // these useless lines are needed to calculate the AVG resistance and AVG peloton resistance since
@@ -446,7 +444,9 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
-        && (!useNativeIOS || (useNativeIOS && !h))
+#ifndef IO_UNDER_QT
+        && !h
+#endif
 #endif
         ) {
         QSettings settings;
@@ -454,46 +454,34 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         bool virtual_device_rower =
             settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
-
 #ifdef Q_OS_IOS
-        if (useNativeIOS) {
 #ifndef IO_UNDER_QT
-            bool cadence =
-                settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-            bool ios_peloton_workaround =
-                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-            if (ios_peloton_workaround && cadence && !h) {
-                qDebug() << "ios_peloton_workaround activated!";
-                h = new lockscreen();
-                h->virtualbike_ios();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        if (ios_peloton_workaround && cadence) {
+            qDebug() << "ios_peloton_workaround activated!";
+            h = new lockscreen();
+            h->virtualbike_ios();
+        } else
+#endif
+#endif
+            if (virtual_device_enabled) {
+                if (virtual_device_rower) {
+                    qDebug() << QStringLiteral("creating virtual rower interface...");
+                    auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                    this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
+                } else {
+                    qDebug() << QStringLiteral("creating virtual bike interface...");
+                    auto virtualBike =
+                        new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                    // connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
+                    connect(virtualBike, &virtualbike::changeInclination, this, &echelonconnectsport::changeInclination);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                }
             }
-#endif
-        }
-#endif
-
-        // Single virtual device creation section for all platforms/modes
-        // Only execute this if not using iOS peloton workaround (which creates h)
-        if (virtual_device_enabled &&
-#ifdef Q_OS_IOS
-            (!useNativeIOS || (useNativeIOS && !h))
-#else
-            true
-#endif
-            ) {
-            if (virtual_device_rower) {
-                qDebug() << QStringLiteral("creating virtual rower interface...");
-                auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
-                // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
-                this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
-            } else {
-                qDebug() << QStringLiteral("creating virtual bike interface...");
-                auto virtualBike =
-                    new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                // connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
-                connect(virtualBike, &virtualbike::changeInclination, this, &echelonconnectsport::changeInclination);
-                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
-            }
-        }
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
