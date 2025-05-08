@@ -6107,7 +6107,13 @@ void proformtreadmill::btinit() {
             uint8_t noOpData10[] = {0xfe, 0x02, 0x14, 0x03};
             uint8_t noOpData11[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x1b, 0x94, 0x30, 0x00, 0x00, 0x40, 0x50, 0x00, 0x80};
             uint8_t noOpData12[] = {0xff, 0x02, 0x18, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            
+            uint8_t noOpData13[] = {0xfe, 0x02, 0x13, 0x03};
+            uint8_t noOpData14[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x0f, 0x04, 0x0f, 0x02, 0x00, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20};
+            uint8_t noOpData15[] = {0xff, 0x01, 0x3e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData16[] = {0xfe, 0x02, 0x13, 0x03};
+            uint8_t noOpData17[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x0f, 0x04, 0x0f, 0x02, 0x00, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40};
+            uint8_t noOpData18[] = {0xff, 0x01, 0x5e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
             writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
             writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
@@ -6163,6 +6169,18 @@ void proformtreadmill::btinit() {
             writeCharacteristic(noOpData11, sizeof(noOpData11), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
             writeCharacteristic(noOpData12, sizeof(noOpData12), QStringLiteral("init"), false, false);
+            QThread::msleep(sleepms);
+            writeCharacteristic(noOpData13, sizeof(noOpData13), QStringLiteral("init"), false, false);
+            QThread::msleep(sleepms);
+            writeCharacteristic(noOpData14, sizeof(noOpData14), QStringLiteral("init"), false, false);
+            QThread::msleep(sleepms);
+            writeCharacteristic(noOpData15, sizeof(noOpData15), QStringLiteral("init"), false, false);
+            QThread::msleep(sleepms);
+            writeCharacteristic(noOpData16, sizeof(noOpData16), QStringLiteral("init"), false, false);
+            QThread::msleep(sleepms);
+            writeCharacteristic(noOpData17, sizeof(noOpData17), QStringLiteral("init"), false, false);
+            QThread::msleep(sleepms);
+            writeCharacteristic(noOpData18, sizeof(noOpData18), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
     } else if (nordictrack_t65s_treadmill) {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
