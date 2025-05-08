@@ -299,7 +299,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            if (bike_type != JLL_IC400 && bike_type != ASVIVA) {
+            if (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != HAMMER_SPEED_BIKE_S) {
 
                 heart = ((uint8_t)(newValue.at(15)) - 1) + ((uint8_t)((newValue.at(14)) - 1) * 100); // #454
             } else {
@@ -432,7 +432,7 @@ double trxappgateusbbike::GetWattFromPacket(const QByteArray &packet) {
 double trxappgateusbbike::GetCadenceFromPacket(const QByteArray &packet) {
 
     uint16_t convertedData;
-    if (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08) {
+    if (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08 && bike_type != HAMMER_SPEED_BIKE_S) {
         convertedData = (packet.at(9) - 1) + ((packet.at(8) - 1) * 100);
     } else {
         convertedData = ((uint16_t)packet.at(9)) + ((uint16_t)packet.at(8) * 100);
