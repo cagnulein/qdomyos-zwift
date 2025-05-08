@@ -60,12 +60,10 @@ class echelonconnectsport : public bike {
 
     QTimer *refresh;
 
-#ifndef Q_OS_IOS
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
-#endif
 
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
