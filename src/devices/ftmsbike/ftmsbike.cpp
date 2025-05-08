@@ -628,14 +628,18 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             double cr = 97.62165482;
 
             if (Cadence.value() && m_watt.value()) {
-                m_pelotonResistance =
-                    (((sqrt(pow(br, 2.0) - 4.0 * ar *
-                                               (cr - (m_watt.value() * 132.0 /
-                                                      (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
-                       br) /
-                      (2.0 * ar)) *
-                     settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+                if(YS_G1MPLUS) {
+                    m_pelotonResistance = Resistance.value();  // 1:1 ratio
+                } else {
+                    m_pelotonResistance =
+                        (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                                   (cr - (m_watt.value() * 132.0 /
+                                                          (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                           br) /
+                          (2.0 * ar)) *
+                         settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+                }
                 if (!resistance_received && !DU30_bike && !SL010) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
@@ -1366,6 +1370,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("FIT-BK found");
             FIT_BK = true;
             ergModeSupported = false; // this bike doesn't have ERG mode natively
+        } else if (((bluetoothDevice.name().toUpper().startsWith("YS_G1MPLUS")))) {
+            qDebug() << QStringLiteral("YS_G1MPLUS found");
+            YS_G1MPLUS = true;
+            max_resistance = 100;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
