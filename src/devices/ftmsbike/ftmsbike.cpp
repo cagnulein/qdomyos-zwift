@@ -608,7 +608,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             double d = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)newValue.at(index))));            
             index += 2;            
-            if(Resistance.value() > 0) {
+            if(d > 0) {
                 if(BIKE_)
                     d = d / 10.0;
                 // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
