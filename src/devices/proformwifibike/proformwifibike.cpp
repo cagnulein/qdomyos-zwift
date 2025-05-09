@@ -18,6 +18,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, in
                                  double bikeResistanceGain) {
     QSettings settings;
     m_watt.setType(metric::METRIC_WATT);
+    m_rawWatt.setType(metric::METRIC_WATT);
     target_watts.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -483,11 +484,11 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     // some buggy TDF1 bikes send spurious wattage at the end with cadence = 0
     if (Cadence.value() > 0) {
         if (!values[QStringLiteral("Current Watts")].isUndefined()) {
-            double watt = values[QStringLiteral("Current Watts")].toString().toDouble();
+            m_rawWatt = values[QStringLiteral("Current Watts")].toString().toDouble();
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
-                m_watt = watt;
+                m_watt = m_rawWatt.value();
             emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
         } else if (!values[QStringLiteral("Watt attuali")].isUndefined()) {
             double watt = values[QStringLiteral("Watt attuali")].toString().toDouble();
