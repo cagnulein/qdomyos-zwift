@@ -97,16 +97,18 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
     // Attempt to find the interface that corresponds with the provided
     // address and determine this device's address from the interface
 
-    const auto interfaces = QNetworkInterface::allInterfaces();
-    for (const QNetworkInterface &networkInterface : interfaces) {
-        const auto entries = networkInterface.addressEntries();
-        for (const QNetworkAddressEntry &entry : entries) {
-            if (srcAddress.isInSubnet(entry.ip(), entry.prefixLength())) {
-                for (const QNetworkAddressEntry &newEntry : entries) {
-                    QHostAddress address = newEntry.ip();
-                    if ((address.protocol() == QAbstractSocket::IPv4Protocol && !address.isLoopback())) {
-                        qDebug() << "getIP" << address;
-                        return address;
+    if(!srcAddress.isNull()) {
+        const auto interfaces = QNetworkInterface::allInterfaces();
+        for (const QNetworkInterface &networkInterface : interfaces) {
+            const auto entries = networkInterface.addressEntries();
+            for (const QNetworkAddressEntry &entry : entries) {
+                if (srcAddress.isInSubnet(entry.ip(), entry.prefixLength())) {
+                    for (const QNetworkAddressEntry &newEntry : entries) {
+                        QHostAddress address = newEntry.ip();
+                        if ((address.protocol() == QAbstractSocket::IPv4Protocol && !address.isLoopback())) {
+                            qDebug() << "getIP" << address;
+                            return address;
+                        }
                     }
                 }
             }
