@@ -37,6 +37,7 @@ class proformtreadmill : public treadmill {
   public:
     proformtreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
+    double minStepSpeed() override { return 0.1; }
 
   private:
     double GetDistanceFromPacket(QByteArray packet);
