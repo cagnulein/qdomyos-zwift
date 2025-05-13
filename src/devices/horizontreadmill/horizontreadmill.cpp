@@ -1823,7 +1823,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 // this treadmill sends the speed in miles!
                 speed *= miles_conversion;
             }
-            parseSpeed(speed);
+            if(!mobvoi_tmp_treadmill || (mobvoi_tmp_treadmill && !horizonPaused))
+                parseSpeed(speed);
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
@@ -1973,12 +1974,15 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                              (uint16_t)((uint8_t)newValue.at(index))));
                 qDebug() << QStringLiteral("Local Time Elapsed") << local_elapsed;
                 // this treadmill sends here if the user is really running
-                if(old_local_elapsed != local_elapsed)
+                if(old_local_elapsed != local_elapsed) {
                     last_local_elapsed_change = QDateTime::currentDateTime();
+                    horizonPaused = false;
+                }
                 QDateTime current_time = QDateTime::currentDateTime();
                  // Only if more than 2 seconds have passed since the last update
                  if(mobvoi_tmp_treadmill && last_local_elapsed_change.secsTo(current_time) >= 2) {
                     Speed = 0;
+                    horizonPaused = true;
                     qDebug() << "Forcing Speed to 0 since the treadmill saws that the user is not really running";
                 }
                 old_local_elapsed = local_elapsed;
@@ -2485,7 +2489,6 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
             mobvoi_tmp_treadmill = true;
-            disableAutoPause = true;
             qDebug() << QStringLiteral("MOBVOI TMP workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
             mobvoi_treadmill = true;
