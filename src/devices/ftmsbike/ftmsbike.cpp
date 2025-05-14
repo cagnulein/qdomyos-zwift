@@ -240,12 +240,17 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
     bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
     if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
-        resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false && ergModeNotSupported == false) {
+        resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false) {
 
         uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
-        requestResistance = fr;
+        if(ergModeNotSupported) {
+            requestResistance = inclinationResistanceTable.estimateInclination(requestResistance);
+            qDebug() << "ergMode Not Supported so the resistance will be" << requestResistance;
+        } else {
+            requestResistance = fr;
+        }    
 
         if(TITAN_7000)
             Resistance = requestResistance;
@@ -827,6 +832,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                        (uint16_t)((uint8_t)newValue.at(index))));
                 emit resistanceRead(Resistance.value());
+                resistance_received = true;
             }
             index += 2;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -936,6 +942,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         (!heart || Heart.value() == 0 || disable_hr_frommachinery)) {
         update_hr_from_external();
     }
+
+    if(resistance_received)
+        inclinationResistanceTable.collectData(Inclination.value(), Resistance.value());
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT

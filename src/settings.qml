@@ -1141,6 +1141,7 @@ import Qt.labs.platform 1.1
 
             property bool nordictrack_t65s_treadmill_81_miles: false
             property bool nordictrack_elite_800: false
+            property string inclinationResistancePoints: ""
         }
 
         function paddingZeros(text, limit) {
