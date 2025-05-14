@@ -367,7 +367,7 @@ HEADERS += \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.h \
     $$PWD/ergtable.h \
-    $$PWD/src/inclinationresistancetable.h \
+    $$PWD/inclinationresistancetable.h \
     $$PWD/logwriter.h \
     $$PWD/osc.h \
     $$PWD/oscpp/client.hpp \
