@@ -2201,6 +2201,9 @@ class QZSettings {
     static const QString min_inclination;
     static constexpr double default_min_inclination = -999.0;
 
+    static const QString proform_performance_300i;
+    static constexpr bool default_proform_performance_300i = false;
+
     static const QString proform_performance_400i;
     static constexpr bool default_proform_performance_400i = false;
 
@@ -2405,6 +2408,8 @@ class QZSettings {
     static constexpr bool default_proform_225_csx_PFEX32925_INT_0 = false;
     static const QString trainprogram_pid_ignore_inclination;
     static constexpr bool default_trainprogram_pid_ignore_inclination = false;
+    static const QString android_antbike;
+    static constexpr bool default_android_antbike = false;
 
     static const QString tile_hr_time_in_zone_1_enabled;
     static constexpr bool default_tile_hr_time_in_zone_1_enabled = false;
@@ -2438,6 +2443,24 @@ class QZSettings {
 
     static const QString zwift_gear_ui_aligned;
     static constexpr bool default_zwift_gear_ui_aligned = false;
+
+    static const QString tacxneo2_disable_negative_inclination;
+    static constexpr bool default_tacxneo2_disable_negative_inclination = false;
+
+    static const QString tile_coretemperature_enabled;
+    static constexpr bool default_tile_coretemperature_enabled = false;
+
+    static const QString tile_coretemperature_order;
+    static constexpr int default_tile_coretemperature_order = 67;
+
+    static const QString nordictrack_t65s_treadmill_81_miles;
+    static constexpr bool default_nordictrack_t65s_treadmill_81_miles = false;
+
+    static const QString nordictrack_elite_800;
+    static constexpr bool default_nordictrack_elite_800 = false;
+
+    static const QString inclinationResistancePoints;
+    static const QString default_inclinationResistancePoints;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
