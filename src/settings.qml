@@ -1143,6 +1143,7 @@ import Qt.labs.platform 1.1
             property bool nordictrack_elite_800: false
             
             property bool ios_btdevice_native: false
+            property string inclinationResistancePoints: ""
         }
 
         function paddingZeros(text, limit) {

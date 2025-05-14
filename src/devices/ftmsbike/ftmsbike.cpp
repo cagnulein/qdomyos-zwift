@@ -240,12 +240,17 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
     bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
     if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
-        resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false && ergModeNotSupported == false) {
+        resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false) {
 
         uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
-        requestResistance = fr;
+        if(ergModeNotSupported) {
+            requestResistance = inclinationResistanceTable.estimateInclination(requestResistance);
+            qDebug() << "ergMode Not Supported so the resistance will be" << requestResistance;
+        } else {
+            requestResistance = fr;
+        }    
 
         if(TITAN_7000)
             Resistance = requestResistance;
@@ -616,7 +621,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             double d = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)newValue.at(index))));            
             index += 2;            
-            if(Resistance.value() > 0) {
+            if(d > 0) {
                 if(BIKE_)
                     d = d / 10.0;
                 // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
@@ -636,14 +641,18 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             double cr = 97.62165482;
 
             if (Cadence.value() && m_watt.value()) {
-                m_pelotonResistance =
-                    (((sqrt(pow(br, 2.0) - 4.0 * ar *
-                                               (cr - (m_watt.value() * 132.0 /
-                                                      (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
-                       br) /
-                      (2.0 * ar)) *
-                     settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+                if(YS_G1MPLUS) {
+                    m_pelotonResistance = Resistance.value();  // 1:1 ratio
+                } else {
+                    m_pelotonResistance =
+                        (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                                   (cr - (m_watt.value() * 132.0 /
+                                                          (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                           br) /
+                          (2.0 * ar)) *
+                         settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+                }
                 if (!resistance_received && !DU30_bike && !SL010) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
@@ -831,6 +840,7 @@ settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).t
                 Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                        (uint16_t)((uint8_t)newValue.at(index))));
                 emit resistanceRead(Resistance.value());
+                resistance_received = true;
             }
             index += 2;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -940,6 +950,9 @@ settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).t
         (!heart || Heart.value() == 0 || disable_hr_frommachinery)) {
         update_hr_from_external();
     }
+
+    if(resistance_received)
+        inclinationResistanceTable.collectData(Inclination.value(), Resistance.value());
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -1375,6 +1388,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("FIT-BK found");
             FIT_BK = true;
             ergModeSupported = false; // this bike doesn't have ERG mode natively
+        } else if (((bluetoothDevice.name().toUpper().startsWith("YS_G1MPLUS")))) {
+            qDebug() << QStringLiteral("YS_G1MPLUS found");
+            YS_G1MPLUS = true;
+            max_resistance = 100;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
