@@ -525,6 +525,12 @@
 		87D5DC4228230496008CCDE7 /* moc_truetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D5DC4128230496008CCDE7 /* moc_truetreadmill.cpp */; };
 		87D91F9A2800B9970026D43C /* proformwifibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D91F992800B9970026D43C /* proformwifibike.cpp */; };
 		87D91F9C2800B9B90026D43C /* moc_proformwifibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D91F9B2800B9B90026D43C /* moc_proformwifibike.cpp */; };
+		87DA62A42D2305E4008ADA0F /* moc_characteristicnotifier0002.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62A22D2305E4008ADA0F /* moc_characteristicnotifier0002.cpp */; };
+		87DA62A52D2305E4008ADA0F /* moc_characteristicwriteprocessor0003.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62A32D2305E4008ADA0F /* moc_characteristicwriteprocessor0003.cpp */; };
+		87DA62AA2D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62A92D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp */; };
+		87DA62AB2D2305F5008ADA0F /* characteristicnotifier0002.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62A72D2305F5008ADA0F /* characteristicnotifier0002.cpp */; };
+		87DA62AF2D2426F2008ADA0F /* characteristicnotifier0004.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62AD2D2426F2008ADA0F /* characteristicnotifier0004.cpp */; };
+		87DA62B02D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62AE2D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp */; };
 		87DA76502848F98200A71B64 /* libQt5TextToSpeech.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */; };
 		87DA8465284933D200B550E9 /* fakeelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA8464284933D200B550E9 /* fakeelliptical.cpp */; };
 		87DA8467284933DE00B550E9 /* moc_fakeelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA8466284933DE00B550E9 /* moc_fakeelliptical.cpp */; };
@@ -1561,6 +1567,12 @@
 		87D91F982800B9970026D43C /* proformwifibike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformwifibike.h; path = ../src/devices/proformwifibike/proformwifibike.h; sourceTree = "<group>"; };
 		87D91F992800B9970026D43C /* proformwifibike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformwifibike.cpp; path = ../src/devices/proformwifibike/proformwifibike.cpp; sourceTree = "<group>"; };
 		87D91F9B2800B9B90026D43C /* moc_proformwifibike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformwifibike.cpp; sourceTree = "<group>"; };
+		87DA62A22D2305E4008ADA0F /* moc_characteristicnotifier0002.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_characteristicnotifier0002.cpp; sourceTree = "<group>"; };
+		87DA62A32D2305E4008ADA0F /* moc_characteristicwriteprocessor0003.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_characteristicwriteprocessor0003.cpp; sourceTree = "<group>"; };
+		87DA62A72D2305F5008ADA0F /* characteristicnotifier0002.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicnotifier0002.cpp; path = ../src/characteristics/characteristicnotifier0002.cpp; sourceTree = SOURCE_ROOT; };
+		87DA62A92D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicwriteprocessor0003.cpp; path = ../src/characteristics/characteristicwriteprocessor0003.cpp; sourceTree = SOURCE_ROOT; };
+		87DA62AD2D2426F2008ADA0F /* characteristicnotifier0004.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicnotifier0004.cpp; path = ../src/characteristics/characteristicnotifier0004.cpp; sourceTree = SOURCE_ROOT; };
+		87DA62AE2D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_characteristicnotifier0004.cpp; sourceTree = "<group>"; };
 		87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5TextToSpeech.a; path = ../../Qt/5.15.2/ios/lib/libQt5TextToSpeech.a; sourceTree = "<group>"; };
 		87DA8463284933D200B550E9 /* fakeelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fakeelliptical.h; path = ../src/devices/fakeelliptical/fakeelliptical.h; sourceTree = "<group>"; };
 		87DA8464284933D200B550E9 /* fakeelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fakeelliptical.cpp; path = ../src/devices/fakeelliptical/fakeelliptical.cpp; sourceTree = "<group>"; };
@@ -2881,6 +2893,19 @@
 			name = AppleWatchToIpad;
 			sourceTree = "<group>";
 		};
+		8798FDCA2D6F338200CF8EE8 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				87DA62A92D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp */,
+				87DA62A72D2305F5008ADA0F /* characteristicnotifier0002.cpp */,
+				87DA62A22D2305E4008ADA0F /* moc_characteristicnotifier0002.cpp */,
+				87DA62A32D2305E4008ADA0F /* moc_characteristicwriteprocessor0003.cpp */,
+				87DA62AD2D2426F2008ADA0F /* characteristicnotifier0004.cpp */,
+				87DA62AE2D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		87DF60DE337FB58864343E39 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -3299,6 +3324,7 @@
 				AF39DD055C3EF8226FBE929D /* Frameworks */,
 				858FCAB0EB1F29CF8B07677C /* Bundle Data */,
 				FE0A091FDBFB3E9C31B7A1BD /* Products */,
+				8798FDCA2D6F338200CF8EE8 /* Recovered References */,
 			);
 			name = qdomyoszwift;
 			sourceTree = "<group>";
@@ -3517,6 +3543,8 @@
 				873824BC27E64707004F1B46 /* moc_resolver.cpp in Compile Sources */,
 				87FA11AD27C5ECE4008AC5D1 /* moc_ultrasportbike.cpp in Compile Sources */,
 				871235BF26B297670012D0F2 /* kingsmithr1protreadmill.cpp in Compile Sources */,
+				87DA62AA2D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp in Compile Sources */,
+				87DA62AB2D2305F5008ADA0F /* characteristicnotifier0002.cpp in Compile Sources */,
 				8772B7F72CB55E98004AB8E9 /* deerruntreadmill.cpp in Compile Sources */,
 				20A50533946A39CBD2C89104 /* bluetoothdevice.cpp in Compile Sources */,
 				87C5F0D126285E7E0067A1B5 /* moc_stagesbike.cpp in Compile Sources */,
@@ -3784,6 +3812,8 @@
 				0317752B0C295CAB82D37E45 /* virtualtreadmill.cpp in Compile Sources */,
 				8742C2B427C92C48007D3FA0 /* moc_wahookickrsnapbike.cpp in Compile Sources */,
 				878531692711A3EC004B153D /* moc_fakebike.cpp in Compile Sources */,
+				87DC27D82D9199BD007A1B9D /* moc_moxy5sensor.cpp in Compile Sources */,
+				87DC27D92D9199BD007A1B9D /* moxy5sensor.cpp in Compile Sources */,
 				870A5DB32CEF8FB100839641 /* moc_technogymbike.cpp in Compile Sources */,
 				873824B027E64706004F1B46 /* moc_cache_p.cpp in Compile Sources */,
 				87EB918627EE5FE7002535E1 /* moc_inapppurchasebackend.cpp in Compile Sources */,
@@ -3864,6 +3894,8 @@
 				1FBBC7C86C436CAAAFD37E56 /* moc_domyostreadmill.cpp in Compile Sources */,
 				876BFCA027BE35D8001D7645 /* moc_proformelliptical.cpp in Compile Sources */,
 				873824BD27E64707004F1B46 /* moc_resolver_p.cpp in Compile Sources */,
+				87DA62A42D2305E4008ADA0F /* moc_characteristicnotifier0002.cpp in Compile Sources */,
+				87DA62A52D2305E4008ADA0F /* moc_characteristicwriteprocessor0003.cpp in Compile Sources */,
 				876ED21A25C3E9010065F3DC /* moc_material.cpp in Compile Sources */,
 				87DC27EA2D9BDB53007A1B9D /* echelonstairclimber.cpp in Compile Sources */,
 				87DC27EB2D9BDB53007A1B9D /* stairclimber.cpp in Compile Sources */,
@@ -3909,6 +3941,8 @@
 				873824B227E64706004F1B46 /* moc_hostname.cpp in Compile Sources */,
 				873824EB27E647A8004F1B46 /* prober.cpp in Compile Sources */,
 				875CA9462D0C740000667EE6 /* moc_kineticinroadbike.cpp in Compile Sources */,
+				87DA62AF2D2426F2008ADA0F /* characteristicnotifier0004.cpp in Compile Sources */,
+				87DA62B02D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp in Compile Sources */,
 				8767EF1E29448D6700810C0F /* characteristicwriteprocessor.cpp in Compile Sources */,
 				87B617F425F260150094A1CB /* moc_screencapture.cpp in Compile Sources */,
 				87B617ED25F25FED0094A1CB /* fitshowtreadmill.cpp in Compile Sources */,
