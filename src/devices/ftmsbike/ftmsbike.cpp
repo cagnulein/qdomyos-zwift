@@ -34,6 +34,7 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
+    ergModeSupported = true; // by default ftms devices SHOULD have ergMode supported
     connect(refresh, &QTimer::timeout, this, &ftmsbike::update);
     refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
     wheelCircumference::GearTable g;
@@ -237,8 +238,9 @@ resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
 void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
+    bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
     if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
-        resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false) {
+        resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false && ergModeNotSupported == false) {
 
         uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
 
@@ -325,11 +327,12 @@ void ftmsbike::update() {
             resistance_t rR = requestResistance + (gears() * gearMultiplier);
 
             if (rR != currentResistance().value() || lastGearValue != gears()) {
-                emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
+                qDebug() << QStringLiteral("writing resistance ") << requestResistance << ergModeNotSupported << requestPower << resistance_lvl_mode;
                 // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
-                // FTMS bike. This condition handles the peloton requests                
-                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike || resistance_lvl_mode) &&
-                    (requestPower == 0 || requestPower == -1 || resistance_lvl_mode)) {
+                // FTMS bike. This condition handles the peloton requests
+                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike || resistance_lvl_mode || ergModeNotSupported) &&
+                    (requestPower == 0 || requestPower == -1 || resistance_lvl_mode || ergModeNotSupported)) {
                     init();
 
                     forceResistance(rR);
@@ -605,7 +608,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             double d = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)newValue.at(index))));            
             index += 2;            
-            if(Resistance.value() > 0) {
+            if(d > 0) {
                 if(BIKE_)
                     d = d / 10.0;
                 // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
@@ -625,14 +628,18 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             double cr = 97.62165482;
 
             if (Cadence.value() && m_watt.value()) {
-                m_pelotonResistance =
-                    (((sqrt(pow(br, 2.0) - 4.0 * ar *
-                                               (cr - (m_watt.value() * 132.0 /
-                                                      (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
-                       br) /
-                      (2.0 * ar)) *
-                     settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+                if(YS_G1MPLUS) {
+                    m_pelotonResistance = Resistance.value();  // 1:1 ratio
+                } else {
+                    m_pelotonResistance =
+                        (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                                   (cr - (m_watt.value() * 132.0 /
+                                                          (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                           br) /
+                          (2.0 * ar)) *
+                         settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+                }
                 if (!resistance_received && !DU30_bike && !SL010) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
@@ -1195,7 +1202,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 #endif
             writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
             return;
-        } else if(b.at(0) == FTMS_SET_TARGET_POWER && zwiftPlayService != nullptr && gears_zwift_ratio) {
+        } else if(b.at(0) == FTMS_SET_TARGET_POWER && ((zwiftPlayService != nullptr && gears_zwift_ratio) || !ergModeSupported)) {
             qDebug() << "discarding";
             return;
         }
@@ -1362,6 +1369,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith(QStringLiteral("FIT-BK-")))) {
             qDebug() << QStringLiteral("FIT-BK found");
             FIT_BK = true;
+            ergModeSupported = false; // this bike doesn't have ERG mode natively
+        } else if (((bluetoothDevice.name().toUpper().startsWith("YS_G1MPLUS")))) {
+            qDebug() << QStringLiteral("YS_G1MPLUS found");
+            YS_G1MPLUS = true;
+            max_resistance = 100;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {

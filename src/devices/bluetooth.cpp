@@ -1422,6 +1422,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("SCHWINN 810")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-MC")) ||    
                          b.name().toUpper().startsWith(QStringLiteral("ANPIUS-")) || 
+                        b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM-01")) ||                 
                         (b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D"))) ||                     // Kingsmith WalkingPad Z1
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("TT8")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -2380,10 +2381,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("BIKZU_")) ||
                         b.name().toUpper().startsWith(QStringLiteral("PASYOU-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("VIRTUFIT")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("IBIKING+")) ||
                         ((b.name().startsWith(QStringLiteral("TOORX")) ||
                           b.name().toUpper().startsWith(QStringLiteral("I-CONSOIE+")) ||
-                          b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
-                          b.name().toUpper().startsWith(QStringLiteral("IBIKING+")) ||
+                          b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||                          
                           b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("VIFHTR2.1")) ||
                           (b.name().toUpper().startsWith(QStringLiteral("REEBOK"))) ||
