@@ -246,7 +246,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
         if(ergModeNotSupported) {
-            requestResistance = inclinationResistanceTable.estimateInclination(requestResistance);
+            requestResistance = _inclinationResistanceTable.estimateInclination(requestResistance);
             qDebug() << "ergMode Not Supported so the resistance will be" << requestResistance;
         } else {
             requestResistance = fr;
@@ -944,7 +944,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     }
 
     if(resistance_received)
-        inclinationResistanceTable.collectData(Inclination.value(), Resistance.value());
+        _inclinationResistanceTable.collectData(Inclination.value(), Resistance.value());
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT

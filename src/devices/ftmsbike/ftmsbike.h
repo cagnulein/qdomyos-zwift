@@ -123,7 +123,7 @@ class ftmsbike : public bike {
 
     bool resistance_lvl_mode = false;
     bool resistance_received = false;
-    inclinationResistanceTable inclinationResistanceTable;
+    inclinationResistanceTable _inclinationResistanceTable;
 
     bool DU30_bike = false;
     bool ICSE = false;
