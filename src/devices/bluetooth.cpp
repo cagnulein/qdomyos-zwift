@@ -1673,6 +1673,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("LYDSTO")) ||
                         (b.name().toUpper().startsWith("CYCLO_")) ||
                         (b.name().toUpper().startsWith("SL010-")) ||
+                        (b.name().toUpper().startsWith("EXPERT-SX9")) ||                         
                         (b.name().toUpper().startsWith("LCR")) ||
                         (b.name().toUpper().startsWith("ROBX")) ||
                         (b.name().toUpper().startsWith("XCX-")) ||

@@ -1388,6 +1388,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("FIT-BK found");
             FIT_BK = true;
             ergModeSupported = false; // this bike doesn't have ERG mode natively
+        } else if ((bluetoothDevice.name().toUpper().startsWith(QStringLiteral("EXPERT-SX9")))) {
+            qDebug() << QStringLiteral("EXPERT-SX9 found");
+            EXPERT_SX9 = true;
+            ergModeSupported = false; // this bike doesn't have ERG mode natively            
         } else if (((bluetoothDevice.name().toUpper().startsWith("YS_G1MPLUS")))) {
             qDebug() << QStringLiteral("YS_G1MPLUS found");
             YS_G1MPLUS = true;
