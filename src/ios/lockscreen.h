@@ -73,6 +73,18 @@ class lockscreen {
     // Elite Aria Fan
     void eliteAriaFan();
     void eliteAriaFan_fanSpeedRequest(unsigned char speed);
+
+    // Echelon Connect Sport
+    void echelonConnectSport(const char*  Name, void* deviceClass);
+    void echelonConnectSport_WriteCharacteristic(unsigned char* qdata, unsigned char length);
+
+    // Wahoo KICKR/SNAP Bike
+    void wahooKickrSnapBike(const char* Name, void* deviceClass);
+    void writeCharacteristic(unsigned char* qdata, unsigned char length);
+
+    // Zwift Click Remote
+    void zwiftClickRemote(const char* Name, const char* UUID, void* deviceClass);
+    void zwiftClickRemote_WriteCharacteristic(unsigned char* qdata, unsigned char length, void* deviceClass);
     
     // Zwift API
     void zwift_api_decodemessage_player(const char* data, int len);
@@ -87,7 +99,7 @@ class lockscreen {
     static uint32_t zwift_hub_getPowerFromBuffer(const QByteArray& buffer);
     static uint32_t zwift_hub_getCadenceFromBuffer(const QByteArray& buffer);
     
-    // quick actions    
+    // quick actions
     static void set_action_profile(const char* profile);
     static const char* get_action_profile();
 
