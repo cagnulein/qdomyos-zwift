@@ -2462,6 +2462,9 @@ class QZSettings {
     static const QString nordictrack_elite_800;
     static constexpr bool default_nordictrack_elite_800 = false;
 
+    static const QString inclinationResistancePoints;
+    static const QString default_inclinationResistancePoints;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

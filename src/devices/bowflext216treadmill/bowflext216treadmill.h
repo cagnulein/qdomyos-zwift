@@ -75,6 +75,7 @@ class bowflext216treadmill : public treadmill {
     bool bowflex_t6 = false;
     bool bowflex_btx116 = false;
     bool bowflex_t8j = false;
+    bool bowflex_T128 = false;
 
   Q_SIGNALS:
     void disconnected();

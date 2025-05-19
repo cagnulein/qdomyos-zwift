@@ -1141,8 +1141,8 @@ import Qt.labs.platform 1.1
 
             property bool nordictrack_t65s_treadmill_81_miles: false
             property bool nordictrack_elite_800: false
-
             property bool ios_btdevice_native: false
+            property string inclinationResistancePoints: ""
         }
 
         function paddingZeros(text, limit) {
@@ -5206,7 +5206,7 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-
+/*
                     IndicatorOnlySwitch {
                         text: qsTr("Show Gears to Zwift Only")
                         spacing: 0
@@ -5233,6 +5233,7 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+*/
 
                     IndicatorOnlySwitch {
                         text: qsTr("Align Gear Value on Both Zwift and QZ")
@@ -11042,6 +11043,7 @@ import Qt.labs.platform 1.1
                                 settings: settings
                                 accordionContent: ColumnLayout {
                                     spacing: 0
+                                    /*
                                     IndicatorOnlySwitch {
                                         id: wahooRGTDirconDelegate
                                         text: qsTr("MyWhoosh Compatibility")
@@ -11055,7 +11057,7 @@ import Qt.labs.platform 1.1
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
                                         onClicked: { settings.wahoo_rgt_dircon = checked; window.settings_restart_to_apply = true; }
-                                    }
+                                    }*/
 
                                     Label {
                                         text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to Wahoo RGT app. Leave the RGT compatibility disabled in order to use Zwift.")
