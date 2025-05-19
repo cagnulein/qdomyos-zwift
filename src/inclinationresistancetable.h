@@ -104,7 +104,7 @@ public:
         QDateTime currentTime = QDateTime::currentDateTime();
         
         // Check if values have changed
-        bool inclinationChanged = qAbs(inclination - lastInclinationValue) > 0.01;
+        bool inclinationChanged = qAbs(inclination - lastInclinationValue) > 0.1;
         bool resistanceChanged = resistance != lastResistanceValue;
         
         if (inclinationChanged) {
