@@ -233,17 +233,50 @@ public:
         }
 
         // Interpolate if possible
-        if (lowerResistance > 0 && upperResistance < 65535) {
-            double ratio = static_cast<double>(givenResistance - lowerResistance) / 
-                          static_cast<double>(upperResistance - lowerResistance);
-            double result = lowerInclination + ratio * (upperInclination - lowerInclination);
-            
-            qDebug() << "estimateInclination: Interpolating between points -"
-                     << "Lower Resistance:" << lowerResistance << "Lower Inclination:" << lowerInclination
-                     << "Upper Resistance:" << upperResistance << "Upper Inclination:" << upperInclination
-                     << "Ratio:" << ratio << "Result:" << result;
-            
-            return result;
+        if (lowerResistance > 0) {
+            if (upperResistance < 65535) {
+                // Standard interpolation between two points
+                double ratio = static_cast<double>(givenResistance - lowerResistance) /
+                               static_cast<double>(upperResistance - lowerResistance);
+                double result = lowerInclination + ratio * (upperInclination - lowerInclination);
+
+                qDebug() << "estimateInclination: Interpolating between points -"
+                         << "Lower Resistance:" << lowerResistance << "Lower Inclination:" << lowerInclination
+                         << "Upper Resistance:" << upperResistance << "Upper Inclination:" << upperInclination
+                         << "Ratio:" << ratio << "Result:" << result;
+
+                return result;
+            } else {
+                // Extrapolation based on the last known point
+                // We use a linear rate based on the inclination of the last point
+                double estimatedIncreaseRate;
+                if (dataPoints.size() >= 2) {
+                    // Calculate an increase rate based on the two points with highest resistance
+                    QList<inclinationResistanceDataPoint> sortedPoints = dataPoints;
+                    std::sort(sortedPoints.begin(), sortedPoints.end(),
+                              [](const inclinationResistanceDataPoint& a, const inclinationResistanceDataPoint& b) {
+                                  return a.resistance > b.resistance;
+                              });
+
+                    if (sortedPoints[0].resistance != sortedPoints[1].resistance) {
+                        estimatedIncreaseRate = (sortedPoints[0].inclination - sortedPoints[1].inclination) /
+                                                (sortedPoints[0].resistance - sortedPoints[1].resistance);
+                    } else {
+                        estimatedIncreaseRate = 0.1; // default value if we can't calculate it
+                    }
+                } else {
+                    estimatedIncreaseRate = 0.1; // default value
+                }
+
+                // Linear extrapolation
+                double result = lowerInclination + (givenResistance - lowerResistance) * estimatedIncreaseRate;
+
+                qDebug() << "estimateInclination: No upper bound found, using extrapolation -"
+                         << "Lower Resistance:" << lowerResistance << "Lower Inclination:" << lowerInclination
+                         << "Increase Rate:" << estimatedIncreaseRate << "Result:" << result;
+
+                return result;
+            }
         }
         
         // Otherwise use the closest value
