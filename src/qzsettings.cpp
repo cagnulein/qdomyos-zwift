@@ -1698,7 +1698,6 @@ QVariant allSettings[allSettingsCount][2] = {
 
     {QZSettings::nordictrack_t65s_treadmill_81_miles, QZSettings::default_nordictrack_t65s_treadmill_81_miles},
     {QZSettings::nordictrack_elite_800, QZSettings::default_nordictrack_elite_800},
-    {QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native},
     {QZSettings::inclinationResistancePoints, QZSettings::default_inclinationResistancePoints},
 };
 
