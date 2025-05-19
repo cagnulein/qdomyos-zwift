@@ -918,7 +918,6 @@ const QString QZSettings::tile_coretemperature_order = QStringLiteral("tile_core
 const QString QZSettings::nordictrack_t65s_treadmill_81_miles = QStringLiteral("nordictrack_t65s_treadmill_81_miles");
 const QString QZSettings::nordictrack_elite_800 = QStringLiteral("nordictrack_elite_800");
 
-
 const QString QZSettings::ios_btdevice_native = QStringLiteral("ios_btdevice_native");
 
 const QString QZSettings::inclinationResistancePoints = QStringLiteral("inclinationResistancePoints");
@@ -1699,6 +1698,7 @@ QVariant allSettings[allSettingsCount][2] = {
 
     {QZSettings::nordictrack_t65s_treadmill_81_miles, QZSettings::default_nordictrack_t65s_treadmill_81_miles},
     {QZSettings::nordictrack_elite_800, QZSettings::default_nordictrack_elite_800},
+    {QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native},
     {QZSettings::inclinationResistancePoints, QZSettings::default_inclinationResistancePoints},
 };
 

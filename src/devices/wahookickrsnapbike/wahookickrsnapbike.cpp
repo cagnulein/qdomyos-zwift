@@ -22,6 +22,7 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     ergModeSupported = true; // IMPORTANT, only for this bike
 
     m_watt.setType(metric::METRIC_WATT);
+    m_rawWatt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -255,6 +256,7 @@ void wahookickrsnapbike::update() {
             bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                                      .toString()
                                      .startsWith(QStringLiteral("Disabled"));
+            
             QByteArray a = setErgMode(requestPower);
             uint8_t b[20];
             memcpy(b, a.constData(), a.length());
@@ -410,10 +412,11 @@ void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &
         uint8_t index = 4;
 
         if (newValue.length() > 3) {
+            m_rawWatt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
-                m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+                m_watt = m_rawWatt.value();
         }
 
         emit powerChanged(m_watt.value());

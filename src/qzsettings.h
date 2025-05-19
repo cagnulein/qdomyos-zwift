@@ -2461,6 +2461,8 @@ class QZSettings {
 
     static const QString nordictrack_elite_800;
     static constexpr bool default_nordictrack_elite_800 = false;
+    static const QString ios_btdevice_native;
+    static constexpr bool default_ios_btdevice_native = false;
 
     static const QString inclinationResistancePoints;
     static const QString default_inclinationResistancePoints;
