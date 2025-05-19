@@ -739,16 +739,21 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
 
 void echelonconnectsport::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
-    if (state == QLowEnergyController::UnconnectedState
-#ifndef Q_OS_IOS
-        && m_control
+    QSettings settings;
+    bool useNativeIOS = false;
+    
+#ifdef Q_OS_IOS
+    useNativeIOS = settings.value(QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native).toBool();
 #endif
+    
+    if (state == QLowEnergyController::UnconnectedState
+        && (m_control || useNativeIOS)
         ) {
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-#ifndef Q_OS_IOS
-        m_control->connectToDevice();
-#endif
+        if(!useNativeIOS)
+            m_control->connectToDevice();
+
     }
 }
