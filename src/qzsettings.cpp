@@ -919,6 +919,7 @@ const QString QZSettings::nordictrack_t65s_treadmill_81_miles = QStringLiteral("
 const QString QZSettings::nordictrack_elite_800 = QStringLiteral("nordictrack_elite_800");
 
 const QString QZSettings::ios_btdevice_native = QStringLiteral("ios_btdevice_native");
+
 const QString QZSettings::inclinationResistancePoints = QStringLiteral("inclinationResistancePoints");
 const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("");
 
@@ -1687,6 +1688,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_hr_time_in_zone_4_order, QZSettings::default_tile_hr_time_in_zone_4_order},
     {QZSettings::tile_hr_time_in_zone_5_enabled, QZSettings::default_tile_hr_time_in_zone_5_enabled},
     {QZSettings::tile_hr_time_in_zone_5_order, QZSettings::default_tile_hr_time_in_zone_5_order},
+    {QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native},
 
     {QZSettings::zwift_gear_ui_aligned, QZSettings::default_zwift_gear_ui_aligned},
     {QZSettings::tacxneo2_disable_negative_inclination, QZSettings::default_tacxneo2_disable_negative_inclination},

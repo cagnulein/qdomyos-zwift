@@ -3830,6 +3830,8 @@
 				0317752B0C295CAB82D37E45 /* virtualtreadmill.cpp in Compile Sources */,
 				8742C2B427C92C48007D3FA0 /* moc_wahookickrsnapbike.cpp in Compile Sources */,
 				878531692711A3EC004B153D /* moc_fakebike.cpp in Compile Sources */,
+				87DC27D82D9199BD007A1B9D /* moc_moxy5sensor.cpp in Compile Sources */,
+				87DC27D92D9199BD007A1B9D /* moxy5sensor.cpp in Compile Sources */,
 				870A5DB32CEF8FB100839641 /* moc_technogymbike.cpp in Compile Sources */,
 				873824B027E64706004F1B46 /* moc_cache_p.cpp in Compile Sources */,
 				87EB918627EE5FE7002535E1 /* moc_inapppurchasebackend.cpp in Compile Sources */,

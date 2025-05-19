@@ -28,6 +28,8 @@ class inclinationResistanceTable : public QObject {
 public:
     inclinationResistanceTable(QObject *parent = nullptr) : QObject(parent) {
         loadSettings();
+        // Clean any invalid points on initialization
+        cleanInvalidPoints();
     }
 
     ~inclinationResistanceTable() {
@@ -49,8 +51,56 @@ public:
         settings.sync();
     }
 
+    // Clean any invalid points in the table
+    void cleanInvalidPoints() {
+        // Remove points with zero inclination or resistance
+        auto it = dataPoints.begin();
+        while (it != dataPoints.end()) {
+            if (it->inclination == 0 || it->resistance == 0) {
+                qDebug() << "Removing invalid point:" << "Incl:" << it->inclination 
+                         << "Res:" << it->resistance;
+                it = dataPoints.erase(it);
+            } else {
+                ++it;
+            }
+        }
+
+        // Create a map to handle duplicate resistance values
+        QMap<uint16_t, inclinationResistanceDataPoint> uniqueResistanceMap;
+        for (const auto& point : dataPoints) {
+            // If this resistance already exists, keep the point with the larger absolute inclination
+            if (uniqueResistanceMap.contains(point.resistance)) {
+                if (qAbs(point.inclination) > qAbs(uniqueResistanceMap[point.resistance].inclination)) {
+                    qDebug() << "Replacing duplicate resistance point:" 
+                             << "Old Incl:" << uniqueResistanceMap[point.resistance].inclination
+                             << "New Incl:" << point.inclination
+                             << "Res:" << point.resistance;
+                    uniqueResistanceMap[point.resistance] = point;
+                }
+            } else {
+                uniqueResistanceMap[point.resistance] = point;
+            }
+        }
+
+        // Rebuild dataPoints list from the unique resistance map
+        dataPoints.clear();
+        for (auto it = uniqueResistanceMap.constBegin(); it != uniqueResistanceMap.constEnd(); ++it) {
+            dataPoints.append(it.value());
+        }
+        
+        // Save the cleaned data
+        saveSettings();
+    }
+
     // Add a new data point if values are stable for 5 seconds
     void collectData(double inclination, uint16_t resistance) {
+        // Skip invalid data points (zero inclination or resistance)
+        if (inclination == 0 || resistance == 0) {
+            qDebug() << "Skipping invalid data point:" << "Incl:" << inclination 
+                     << "Res:" << resistance;
+            return;
+        }
+
         QDateTime currentTime = QDateTime::currentDateTime();
         
         // Check if values have changed
@@ -77,20 +127,43 @@ public:
                 resistanceStable = true;
                 
                 // Check if a point with similar inclination already exists
-                bool found = false;
+                bool foundInclination = false;
                 for (int i = 0; i < dataPoints.size(); i++) {
                     if (qAbs(dataPoints[i].inclination - inclination) < 0.1) {
                         // Update existing point
                         dataPoints[i].resistance = resistance;
-                        found = true;
-                        qDebug() << "Updated existing point:" << "Incl:" << inclination 
+                        foundInclination = true;
+                        qDebug() << "Updated existing inclination point:" << "Incl:" << inclination 
                                  << "Res:" << resistance;
                         break;
                     }
                 }
                 
+                // Check if a point with the same resistance already exists
+                bool foundResistance = false;
+                if (!foundInclination) {
+                    for (int i = 0; i < dataPoints.size(); i++) {
+                        if (dataPoints[i].resistance == resistance) {
+                            // Update existing point with new inclination
+                            qDebug() << "Found duplicate resistance:" << resistance
+                                     << "Old Incl:" << dataPoints[i].inclination
+                                     << "New Incl:" << inclination;
+                            
+                            // Only update if the new inclination has larger absolute value
+                            if (qAbs(inclination) > qAbs(dataPoints[i].inclination)) {
+                                dataPoints[i].inclination = inclination;
+                                qDebug() << "Updated existing resistance point with larger inclination";
+                            } else {
+                                qDebug() << "Kept existing point with larger inclination value";
+                            }
+                            foundResistance = true;
+                            break;
+                        }
+                    }
+                }
+                
                 // If it doesn't exist, add a new point
-                if (!found) {
+                if (!foundInclination && !foundResistance) {
                     dataPoints.append(inclinationResistanceDataPoint(inclination, resistance));
                     qDebug() << "Added new point:" << "Incl:" << inclination 
                              << "Res:" << resistance;
@@ -103,9 +176,15 @@ public:
     }
 
     // Estimate inclination based on given resistance
-        double estimateInclination(uint16_t givenResistance) {
+    double estimateInclination(uint16_t givenResistance) {
         if (dataPoints.isEmpty()) {
             qDebug() << "estimateInclination: No data points available, returning 0.0";
+            return 0.0;
+        }
+
+        // Skip invalid resistance
+        if (givenResistance == 0) {
+            qDebug() << "estimateInclination: Invalid resistance 0, returning 0.0";
             return 0.0;
         }
 
@@ -177,6 +256,12 @@ public:
     // Estimate resistance based on given inclination
     uint16_t estimateResistance(double givenInclination) {
         if (dataPoints.isEmpty()) return 0;
+
+        // Skip invalid inclination
+        if (qAbs(givenInclination) < 0.01) {
+            qDebug() << "estimateResistance: Invalid inclination (near zero), returning 0";
+            return 0;
+        }
 
         // Find the closest point or interpolate if possible
         double minInclinationDiff = 9999.0;
