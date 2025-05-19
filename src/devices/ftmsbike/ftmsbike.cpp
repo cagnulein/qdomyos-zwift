@@ -1139,9 +1139,10 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
 void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
 
-    if (!autoResistance() || resistance_lvl_mode) {
-        qDebug() << "ignoring routing FTMS packet to the bike from virtualbike because of auto resistance OFF or resistance lvl mode is on"
-                 << characteristic.uuid() << newValue.toHex(' ');
+    bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
+    if (!autoResistance() || resistance_lvl_mode || ergModeNotSupported) {
+        qDebug() << "ignoring routing FTMS packet to the bike from virtualbike because of auto resistance OFF or resistance lvl mode is on or ergModeNotSupported"
+                 << characteristic.uuid() << newValue.toHex(' ') << ergModeNotSupported << resistance_lvl_mode;
         return;
     }
 
