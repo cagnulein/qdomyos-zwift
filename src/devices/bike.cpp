@@ -88,7 +88,6 @@ void bike::changePower(int32_t power) {
         return;
     }
 
-    QSettings settings;
     bool force_resistance =
         settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
             .toBool();
