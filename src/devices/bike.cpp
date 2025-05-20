@@ -64,7 +64,23 @@ void bike::changePower(int32_t power) {
         return;
     }
 
+    QSettings settings;
+    bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                             .toString()
+                             .startsWith(QStringLiteral("Disabled"));
+    double erg_filter_upper =
+        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+    double erg_filter_lower =
+        settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+
     requestPower = power; // used by some bikes that have ERG mode builtin
+    
+    if(power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0 && fabs(requestPower - m_watt.average5s()) < qMax(erg_filter_upper, erg_filter_lower)) {
+        qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s() << "watt" << m_watt.average5s() << "req" << requestPower;
+        // the concept here is to trying to add or decrease the delta from the power sensor
+        requestPower += (requestPower - m_watt.average5s());
+    }
+        
 
     if(this->ergModeSupported)
     {
@@ -82,10 +98,6 @@ void bike::changePower(int32_t power) {
         return;
     }
 
-    double erg_filter_upper =
-        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
-    double erg_filter_lower =
-        settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
     double watts = this->wattsMetric().value();
     double deltaDown = watts - ((double)power);
     double deltaUp = -deltaDown;
@@ -191,6 +203,7 @@ void bike::clearStats() {
     m_jouls.clear(true);
     elevationAcc = 0;
     m_watt.clear(false);
+    m_rawWatt.clear(false);
     WeightLoss.clear(false);
 
     RequestedPelotonResistance.clear(false);
@@ -218,6 +231,7 @@ void bike::setPaused(bool p) {
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
+    m_rawWatt.setPaused(p);
     WeightLoss.setPaused(p);
     m_pelotonResistance.setPaused(p);
     Cadence.setPaused(p);
@@ -243,6 +257,7 @@ void bike::setLap() {
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);
+    m_rawWatt.setLap(false);
     WeightLoss.setLap(false);
     WattKg.setLap(false);
 

@@ -128,11 +128,13 @@ void proformwifitreadmill::update() {
             }
             requestInclination = -100;
         }
-
-        // updating the treadmill console every second
-        if (sec1Update++ == (500 / refresh->interval())) {
+    
+        if (sec1Update++ == (2000 / refresh->interval())) {
             sec1Update = 0;
-            // updateDisplay(elapsed);
+            if(waitStatePkg == false) {
+                // keeping the connection alive
+                forceSpeed(currentSpeed().value());
+            }
         }
 
         if (requestStart != -1) {

@@ -1289,7 +1289,7 @@ void DeviceTestDataIndex::Initialize() {
     // Toorx AppGate USB Bike
     RegisterNewDeviceTestData(DeviceIndex::ToorxAppGateUSBBike)
         ->expectDevice<trxappgateusbbike>()        
-        ->acceptDeviceNames({"TUN ","PASYOU-"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"TUN ","PASYOU-","IBIKING+",}, DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(
             [](const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations) -> void
             {
@@ -1315,7 +1315,6 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("TOORX", DeviceNameComparison::StartsWith)
         ->acceptDeviceNames({"I-CONSOIE+",
                              "I-CONSOLE+",
-                             "IBIKING+",
                              "ICONSOLE+",
                              "VIFHTR2.1",
                              "REEBOK",
