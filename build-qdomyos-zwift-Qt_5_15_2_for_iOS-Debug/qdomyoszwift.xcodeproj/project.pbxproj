@@ -3830,8 +3830,6 @@
 				0317752B0C295CAB82D37E45 /* virtualtreadmill.cpp in Compile Sources */,
 				8742C2B427C92C48007D3FA0 /* moc_wahookickrsnapbike.cpp in Compile Sources */,
 				878531692711A3EC004B153D /* moc_fakebike.cpp in Compile Sources */,
-				87DC27D82D9199BD007A1B9D /* moc_moxy5sensor.cpp in Compile Sources */,
-				87DC27D92D9199BD007A1B9D /* moxy5sensor.cpp in Compile Sources */,
 				870A5DB32CEF8FB100839641 /* moc_technogymbike.cpp in Compile Sources */,
 				873824B027E64706004F1B46 /* moc_cache_p.cpp in Compile Sources */,
 				87EB918627EE5FE7002535E1 /* moc_inapppurchasebackend.cpp in Compile Sources */,
@@ -4373,7 +4371,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1087;
+				CURRENT_PROJECT_VERSION = 1088;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = "ADB_HOST=1";
@@ -4567,7 +4565,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1087;
+				CURRENT_PROJECT_VERSION = 1088;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -4797,7 +4795,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1087;
+				CURRENT_PROJECT_VERSION = 1088;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -4893,7 +4891,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1087;
+				CURRENT_PROJECT_VERSION = 1088;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -4985,7 +4983,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1087;
+				CURRENT_PROJECT_VERSION = 1088;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -5101,7 +5099,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1087;
+				CURRENT_PROJECT_VERSION = 1088;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
