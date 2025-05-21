@@ -52,6 +52,55 @@ public class FloatingWindowGFG extends Service {
         return null;
     }
 
+    // Define an array of window types to try in order of preference
+    private int[] getWindowTypesToTry(boolean isExternalDisplay) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // Android 8.0+
+            if (isExternalDisplay) {
+                // Window types to try for external displays (DeX mode)
+                return new int[] {
+                    WindowManager.LayoutParams.TYPE_APPLICATION,                // Try regular application window first
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,        // Then try overlay
+                    WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,          // Then try panel
+                    WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG // Finally try attached dialog
+                };
+            } else {
+                // Window types for the primary display
+                return new int[] {
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                    WindowManager.LayoutParams.TYPE_APPLICATION
+                };
+            }
+        } else { // Pre-Android 8.0
+            return new int[] {
+                WindowManager.LayoutParams.TYPE_TOAST,
+                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+            };
+        }
+    }
+
+    // Helper method to convert window type integer to descriptive string for logging
+    private String windowTypeToString(int windowType) {
+        switch (windowType) {
+            case WindowManager.LayoutParams.TYPE_APPLICATION:
+                return "TYPE_APPLICATION";
+            case WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY:
+                return "TYPE_APPLICATION_OVERLAY";
+            case WindowManager.LayoutParams.TYPE_APPLICATION_PANEL:
+                return "TYPE_APPLICATION_PANEL";
+            case WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG:
+                return "TYPE_APPLICATION_ATTACHED_DIALOG";
+            case WindowManager.LayoutParams.TYPE_TOAST:
+                return "TYPE_TOAST";
+            case WindowManager.LayoutParams.TYPE_PHONE:
+                return "TYPE_PHONE";
+            case WindowManager.LayoutParams.TYPE_SYSTEM_ALERT:
+                return "TYPE_SYSTEM_ALERT";
+            default:
+                return "TYPE_" + windowType;
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -59,51 +108,54 @@ public class FloatingWindowGFG extends Service {
         // Initialize SharedPreferences for position
         sharedPreferences = getSharedPreferences("FloatingWindowGFG", MODE_PRIVATE);
 
-        // Get DisplayManager to access all connected displays
-        DisplayManager displayManager = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
-        
-        // Get ALL displays, not just presentation displays
-        Display[] displays = displayManager.getDisplays();
-        
-        // Log all available displays for debugging
-        for (int i = 0; i < displays.length; i++) {
-            QLog.d("QZ", "Display " + i + ": " + displays[i].getName() + 
-                   " (ID: " + displays[i].getDisplayId() + ")");
-        }
-        
-        // Choose which display to use - use external if available
-        Display targetDisplay;
-        
-        if (displays.length > 1) {
-            // Use the second display (index 1), which is typically the external one
-            targetDisplay = displays[1];
-            QLog.d("QZ", "Using external display: " + targetDisplay.getName());
-        } else {
-            // No external displays, use the default display
-            targetDisplay = displays[0];
-            QLog.d("QZ", "Using default display: " + targetDisplay.getName());
-        }
-        
-        // Get display metrics for the chosen display
-        DisplayMetrics metrics = new DisplayMetrics();
-        targetDisplay.getMetrics(metrics);
-        QLog.d("QZ", "Selected display metrics - Width: " + metrics.widthPixels + 
-               ", Height: " + metrics.heightPixels);
-        
         try {
+            // Get DisplayManager to access all connected displays
+            DisplayManager displayManager = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
+
+            // Get ALL displays, not just presentation displays
+            Display[] displays = displayManager.getDisplays();
+
+            // Log all available displays for debugging
+            QLog.d("QZ", "Number of displays: " + displays.length);
+            for (int i = 0; i < displays.length; i++) {
+                QLog.d("QZ", "Display " + i + ": " + displays[i].getDisplayId() +
+                       (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 ?
+                       " - Name: " + displays[i].getName() : ""));
+            }
+
+            // Choose which display to use - use external if available
+            Display targetDisplay;
+
+            if (displays.length > 1) {
+                // Use the second display (index 1), which is typically the external one in DeX mode
+                targetDisplay = displays[1];
+                QLog.d("QZ", "Using external display (ID: " + targetDisplay.getDisplayId() + ")");
+            } else {
+                // No external displays, use the default display
+                targetDisplay = displays[0];
+                QLog.d("QZ", "Using default display (ID: " + targetDisplay.getDisplayId() + ")");
+            }
+
+            // Get display metrics for the chosen display
+            DisplayMetrics metrics = new DisplayMetrics();
+            targetDisplay.getMetrics(metrics);
+            QLog.d("QZ", "Selected display metrics - Width: " + metrics.widthPixels +
+                   ", Height: " + metrics.heightPixels);
+
             // Create a context specific to the chosen display
             Context displayContext = createDisplayContext(targetDisplay);
-            
+
             // Get WindowManager for the specific display
             windowManager = (WindowManager) displayContext.getSystemService(Context.WINDOW_SERVICE);
-            
+
             // A LayoutInflater instance is created to retrieve the
             // LayoutInflater for the floating_layout xml
             LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-    
+
             // inflate a new view hierarchy from the floating_layout xml
             floatView = (ViewGroup) inflater.inflate(R.layout.floating_layout, null);
-    
+
+            // Set up the WebView
             WebView wv = (WebView)floatView.findViewById(R.id.webview);
             wv.setWebViewClient(new WebViewClient(){
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -121,74 +173,92 @@ public class FloatingWindowGFG extends Service {
             settings.setUseWideViewPort(true);
             settings.setDomStorageEnabled(true);
             QLog.d("QZ", "loadurl");
-    
-            // WindowManager.LayoutParams takes a lot of parameters to set the
-            // the parameters of the layout. One of them is Layout_type.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                // Try different window types for API 26+ depending on the display
-                if (targetDisplay.getDisplayId() == Display.DEFAULT_DISPLAY) {
-                    // For primary display, use APPLICATION_OVERLAY
-                    LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-                } else {
-                    // For external displays, try PRESENTATION
-                    LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-                    // Fallback options if needed:
-                    // LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_APPLICATION;
-                    // LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+
+            // Determine if we're using an external display
+            boolean isExternalDisplay = targetDisplay.getDisplayId() != Display.DEFAULT_DISPLAY;
+            QLog.d("QZ", "Is external display: " + isExternalDisplay);
+
+            // Get array of window types to try
+            int[] windowTypesToTry = getWindowTypesToTry(isExternalDisplay);
+
+            // Try each window type until one works
+            Exception lastException = null;
+            boolean windowCreated = false;
+
+            for (int windowType : windowTypesToTry) {
+                try {
+                    // Set the current window type
+                    LAYOUT_TYPE = windowType;
+                    QLog.d("QZ", "Trying window type: " + windowTypeToString(windowType));
+
+                    // Create layout params with current window type
+                    floatWindowLayoutParam = new WindowManager.LayoutParams(
+                        (int) (FloatingHandler._width),
+                        (int) (FloatingHandler._height),
+                        LAYOUT_TYPE,
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                        PixelFormat.TRANSLUCENT
+                    );
+
+                    // The Gravity of the Floating Window is set.
+                    floatWindowLayoutParam.gravity = Gravity.CENTER;
+
+                    // X and Y value of the window is set - retrieve from preferences if available
+                    floatWindowLayoutParam.x = sharedPreferences.getInt(PREF_NAME_X, 0);
+                    floatWindowLayoutParam.y = sharedPreferences.getInt(PREF_NAME_Y, 0);
+
+                    // Add additional flags that might help with visibility and placement on external displays
+                    if (isExternalDisplay) {
+                        // Try various flags that might help with external display visibility
+                        floatWindowLayoutParam.flags |= WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
+                        floatWindowLayoutParam.flags |= WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
+                        floatWindowLayoutParam.flags |= WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR;
+
+                        // Additional flags that might help with DeX mode
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // Android 9.0+
+                            floatWindowLayoutParam.flags |= WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
+                        }
+                    }
+
+                    // Log before adding the view
+                    QLog.d("QZ", "About to add view with window type: " + windowTypeToString(windowType));
+
+                    // Add the view to the window manager
+                    windowManager.addView(floatView, floatWindowLayoutParam);
+
+                    // If we get here, adding the view was successful
+                    QLog.d("QZ", "Successfully added view with window type: " + windowTypeToString(windowType));
+                    windowCreated = true;
+                    break; // Exit the loop since we found a working window type
+
+                } catch (Exception e) {
+                    // Log the exception and try the next window type
+                    lastException = e;
+                    QLog.d("QZ", "Failed to add view with window type " + windowTypeToString(windowType) +
+                           ": " + e.getMessage());
                 }
-            } else {
-                // For older Android versions
-                LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_TOAST;
             }
-    
-            // Now the Parameter of the floating-window layout is set.
-            floatWindowLayoutParam = new WindowManager.LayoutParams(
-                (int) (FloatingHandler._width),
-                (int) (FloatingHandler._height),
-                LAYOUT_TYPE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT
-            );
-    
-            // The Gravity of the Floating Window is set.
-            // The Window will appear in the center of the screen
-            floatWindowLayoutParam.gravity = Gravity.CENTER;
-    
-            // X and Y value of the window is set - retrieve from preferences if available
-            floatWindowLayoutParam.x = sharedPreferences.getInt(PREF_NAME_X, 0);
-            floatWindowLayoutParam.y = sharedPreferences.getInt(PREF_NAME_Y, 0);
-    
-            // Add flags needed for external displays
-            if (targetDisplay.getDisplayId() != Display.DEFAULT_DISPLAY) {
-                floatWindowLayoutParam.flags |= WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
-                // More flags that might help:
-                // floatWindowLayoutParam.flags |= WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON;
-                // floatWindowLayoutParam.flags |= WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
+
+            // If we couldn't create a window with any of the types, log the error
+            if (!windowCreated) {
+                QLog.d("QZ", "Failed to create floating window with any window type. Last error: " +
+                       (lastException != null ? lastException.getMessage() : "unknown"));
+                // Return from onCreate to prevent further execution
+                return;
             }
-            
-            // Log before adding the view
-            QLog.d("QZ", "About to add view to display: " + targetDisplay.getName());
-    
-            // The ViewGroup that inflates the floating_layout.xml is
-            // added to the WindowManager with all the parameters
-            windowManager.addView(floatView, floatWindowLayoutParam);
-            
-            // Log after adding the view
-            QLog.d("QZ", "View added successfully");
-    
-            // Another feature of the floating window is, the window is movable.
-            // The window can be moved at any position on the screen.
+
+            // Set up the touch listener for moving the window
             floatView.setOnTouchListener(new View.OnTouchListener() {
                 final WindowManager.LayoutParams floatWindowLayoutUpdateParam = floatWindowLayoutParam;
                 double x;
                 double y;
                 double px;
                 double py;
-    
+
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    QLog.d("QZ","onTouch");
-    
+                    QLog.d("QZ", "onTouch");
+
                     switch (event.getAction()) {
                         // When the window will be touched,
                         // the x and y position of that position
@@ -196,11 +266,11 @@ public class FloatingWindowGFG extends Service {
                         case MotionEvent.ACTION_DOWN:
                             x = floatWindowLayoutUpdateParam.x;
                             y = floatWindowLayoutUpdateParam.y;
-    
+
                             // returns the original raw X
                             // coordinate of this event
                             px = event.getRawX();
-    
+
                             // returns the original raw Y
                             // coordinate of this event
                             py = event.getRawY();
@@ -210,12 +280,12 @@ public class FloatingWindowGFG extends Service {
                         case MotionEvent.ACTION_MOVE:
                             floatWindowLayoutUpdateParam.x = (int) ((x + event.getRawX()) - px);
                             floatWindowLayoutUpdateParam.y = (int) ((y + event.getRawY()) - py);
-    
+
                             SharedPreferences.Editor myEdit = sharedPreferences.edit();
                             myEdit.putInt(PREF_NAME_X, floatWindowLayoutUpdateParam.x);
                             myEdit.putInt(PREF_NAME_Y, floatWindowLayoutUpdateParam.y);
                             myEdit.commit();
-    
+
                             // updated parameter is applied to the WindowManager
                             windowManager.updateViewLayout(floatView, floatWindowLayoutUpdateParam);
                             break;
@@ -224,8 +294,8 @@ public class FloatingWindowGFG extends Service {
                 }
             });
         } catch (Exception e) {
-            // Log any exceptions that might occur
-            QLog.d("QZ", "Error creating floating window: " + e.getMessage());
+            // Log any exceptions that might occur at the top level
+            QLog.d("QZ", "Error in onCreate: " + e.getMessage());
             e.printStackTrace();
         }
     }
