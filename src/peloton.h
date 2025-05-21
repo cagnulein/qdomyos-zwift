@@ -65,6 +65,7 @@ class peloton : public QObject {
 
     void setTestMode(bool test);
 
+    bool hasIntro();
     bool isWorkoutInProgress() {
         return current_workout_status.contains(QStringLiteral("IN_PROGRESS"), Qt::CaseInsensitive);
     }

@@ -884,6 +884,10 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     getInstructor(current_instructor_id);
 }
 
+bool peloton::hasIntro() {
+    return !(current_workout_name.toUpper().contains("WARM UP") || current_workout_name.toUpper().contains("COOL DOWN"));
+}
+
 void peloton::ride_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::ride_onfinish);
 
