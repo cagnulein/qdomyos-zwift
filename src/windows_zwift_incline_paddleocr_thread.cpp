@@ -12,6 +12,7 @@
 #include <QProcessEnvironment>
 #include <QSettings>
 #include <QThread>
+#include <QTextStream>
 #include <chrono>
 #include <math.h>
 using namespace std::chrono_literals;
@@ -20,134 +21,163 @@ windows_zwift_incline_paddleocr_thread::windows_zwift_incline_paddleocr_thread(b
     this->device = device;
     qDebug() << "windows_zwift_incline_paddleocr_thread created!";
     process = nullptr;
+    fileWatcher = nullptr;
+    lastFilePosition = 0;
 }
 
 windows_zwift_incline_paddleocr_thread::~windows_zwift_incline_paddleocr_thread() {
-    if (process->state() == QProcess::Running) {
+    // Clean up file watcher and timer if they exist
+    if (fileWatcher) {
+        delete fileWatcher;
+    }
+
+    // Clean up process if it exists (keeping original process logic for compatibility)
+    if (process && process->state() == QProcess::Running) {
         process->terminate();
         process->waitForFinished(3000);
         if (process->state() == QProcess::Running) {
             process->kill();
         }
+        delete process;
     }
-    delete process;
 }
 
 void windows_zwift_incline_paddleocr_thread::processError() {
-    QByteArray error = process->readAllStandardError();
-    if (!error.isEmpty()) {
-        QString errorStr = QString::fromUtf8(error.trimmed());
-        qDebug() << "Error from process: " + errorStr;
+    // Keep original method for compatibility
+    if (process) {
+        QByteArray error = process->readAllStandardError();
+        if (!error.isEmpty()) {
+            QString errorStr = QString::fromUtf8(error.trimmed());
+            qDebug() << "Error from process: " + errorStr;
+        }
     }
 }
 
 void windows_zwift_incline_paddleocr_thread::run() {
 #ifdef Q_OS_WINDOWS
-    process = new QProcess();
+    // Initialize file monitoring instead of external process
+    QString filePath = QCoreApplication::applicationDirPath() + "/zwift-metrics.txt";
 
-    // Connect signals
-    connect(process, &QProcess::readyReadStandardOutput, this, &windows_zwift_incline_paddleocr_thread::processOutput);
-    connect(process, &QProcess::readyReadStandardError, this, &windows_zwift_incline_paddleocr_thread::processError);
-    connect(process, &QProcess::errorOccurred, this, &windows_zwift_incline_paddleocr_thread::handleError);
+    QFile file(filePath);
+    if (!file.exists()) {
+        qDebug() << "ERROR: zwift-metrics.txt not found at: " + filePath;
+        qDebug() << "Creating empty zwift-metrics.txt file...";
 
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    QString currentPath = env.value("PATH");
-    QString updatedPath = currentPath + ";" + QCoreApplication::applicationDirPath();
-    env.insert("PATH", updatedPath);
-    process->setProcessEnvironment(env);
-
-    QString exePath = QCoreApplication::applicationDirPath() + "/zwift-metrics-server.exe";
-    QFile exe(exePath);
-    if (!exe.exists()) {
-        qDebug() << "ERROR: zwift-metrics-server.exe not found at: " + exePath;
-        return; // Exit the thread if the executable doesn't exist
+        // Create empty file if it doesn't exist
+        if (file.open(QIODevice::WriteOnly)) {
+            file.close();
+        } else {
+            qDebug() << "Failed to create zwift-metrics.txt file";
+            return;
+        }
     }
 
-    QString logPath = QCoreApplication::applicationDirPath() + "/zwift-server-output.log";
-    QString errPath = QCoreApplication::applicationDirPath() + "/zwift-server-error.log";
+           // Create timer to periodically check file for new content
+    QTimer *fileCheckTimer = new QTimer();
+    fileCheckTimer->setInterval(100); // Check every 100ms for responsiveness
 
-    process->setStandardOutputFile(logPath);
-    process->setStandardErrorFile(errPath);
-
-    qDebug() << "Redirecting output to: " + logPath;
-
-    qDebug() << "Starting zwift-metrics-server.exe with path: " + updatedPath;
-    process->start("zwift-metrics-server.exe", QStringList());
-
-    // Create a timer to periodically check the process
-    QTimer *processCheckTimer = new QTimer();
-    processCheckTimer->setInterval(1000);
-
-    // Connect timer timeout to our process check
-    connect(processCheckTimer, &QTimer::timeout, this, [this]() {
-        if (process->state() != QProcess::Running) {
-            qDebug() << "zwift-metrics-server.exe stopped with exit code: " +
-                       QString::number(process->exitCode()) +
-                       ", exit status: " + (process->exitStatus() == QProcess::NormalExit ? "Normal" : "Crashed");
-            process->start("zwift-metrics-server.exe", QStringList());
-
-            // Check immediately if restart failed
-            if (process->state() != QProcess::Running && !process->waitForStarted(3000)) {
-                qDebug() << "Failed to restart zwift-metrics-server.exe: " + process->errorString();
-            }
-        }
+           // Connect timer timeout to file reading function
+    connect(fileCheckTimer, &QTimer::timeout, this, [this, filePath]() {
+        readFileContent(filePath);
     });
 
-    // Start the timer
-    processCheckTimer->start();
+    qDebug() << "Starting file monitoring for: " + filePath;
 
-    // Use exec() to start the thread's event loop
-    // This will process events, including signals and slots
+    // Start the timer
+    fileCheckTimer->start();
+
+           // Use exec() to start the thread's event loop
+           // This will process events, including signals and slots
     exec();
 
-    // Clean up when thread exits
-    processCheckTimer->stop();
-    delete processCheckTimer;
+           // Clean up when thread exits
+    fileCheckTimer->stop();
+    delete fileCheckTimer;
 #endif
 }
 
+void windows_zwift_incline_paddleocr_thread::readFileContent(const QString &filePath) {
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return; // Silently return if file can't be opened
+    }
+
+    // Seek to last known position to only read new content
+    file.seek(lastFilePosition);
+
+    QTextStream in(&file);
+    QString newContent = in.readAll();
+
+    if (!newContent.isEmpty()) {
+        // Update last file position
+        lastFilePosition = file.pos();
+
+        // Process new lines
+        QStringList lines = newContent.split('\n', Qt::SkipEmptyParts);
+
+        for (const QString &line : lines) {
+            if (line.trimmed().isEmpty()) continue;
+
+            QString lineStr = line.trimmed();
+            qDebug() << "File content received: " + lineStr;
+
+            processDataLine(lineStr);
+        }
+    }
+
+    file.close();
+}
+
+void windows_zwift_incline_paddleocr_thread::processDataLine(const QString &line) {
+    QStringList parts = line.split(';');
+    if (parts.size() == 2) {
+        QString speedStr = parts[0].trimmed();
+        QString inclinationStr = parts[1].trimmed();
+
+               // Process speed if not "None"
+        if (speedStr.toUpper() != "NONE") {
+            bool ok;
+            double speedValue = speedStr.toDouble(&ok);
+            if (ok) {
+                qDebug() << "Emitting speed: " + QString::number(speedValue);
+                emit onSpeed(speedValue);
+                speed = speedValue;
+            }
+        }
+
+               // Process inclination if not "None"
+        if (inclinationStr.toUpper() != "NONE") {
+            bool ok;
+            double inclinationValue = inclinationStr.toDouble(&ok);
+            if (ok) {
+                qDebug() << "Emitting inclination: " + QString::number(inclinationValue);
+                emit onInclination(inclinationValue, inclinationValue);
+                inclination = inclinationValue;
+            }
+        }
+    }
+}
+
 void windows_zwift_incline_paddleocr_thread::processOutput() {
-    QByteArray output = process->readAllStandardOutput();
-    qDebug() << "Raw output received (length: " + QString::number(output.length()) + "): " + QString::fromUtf8(output);
-    QList<QByteArray> lines = output.split('\n');
+    // Keep original method for compatibility but adapt for file-based approach
+    // This method is no longer used in file-based mode but kept for backward compatibility
+    if (process) {
+        QByteArray output = process->readAllStandardOutput();
+        qDebug() << "Raw output received (length: " + QString::number(output.length()) + "): " + QString::fromUtf8(output);
+        QList<QByteArray> lines = output.split('\n');
 
-    for (const QByteArray &line : lines) {
-        if (line.trimmed().isEmpty()) continue;
+        for (const QByteArray &line : lines) {
+            if (line.trimmed().isEmpty()) continue;
 
-        QString lineStr = QString::fromUtf8(line.trimmed());
-        qDebug() << "Received: " + lineStr;
-
-        QStringList parts = lineStr.split(';');
-        if (parts.size() == 2) {
-            QString speedStr = parts[0].trimmed();
-            QString inclinationStr = parts[1].trimmed();
-
-            // Process speed if not "None"
-            if (speedStr.toUpper() != "NONE") {
-                bool ok;
-                double speedValue = speedStr.toDouble(&ok);
-                if (ok) {
-                    qDebug() << "Emitting speed: " + QString::number(speedValue);
-                    emit onSpeed(speedValue);
-                    speed = speedValue;
-                }
-            }
-
-            // Process inclination if not "None"
-            if (inclinationStr.toUpper() != "NONE") {
-                bool ok;
-                double inclinationValue = inclinationStr.toDouble(&ok);
-                if (ok) {
-                    qDebug() << "Emitting inclination: " + QString::number(inclinationValue);
-                    emit onInclination(inclinationValue, inclinationValue);
-                    inclination = inclinationValue;
-                }
-            }
+            QString lineStr = QString::fromUtf8(line.trimmed());
+            qDebug() << "Received: " + lineStr;
+            processDataLine(lineStr);
         }
     }
 }
 
 void windows_zwift_incline_paddleocr_thread::handleError(QProcess::ProcessError error) {
+    // Keep original error handling for process compatibility
     QString errorMessage;
     switch (error) {
     case QProcess::FailedToStart:
