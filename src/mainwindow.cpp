@@ -178,7 +178,9 @@ void MainWindow::update() {
 
                       false, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
                       bluetoothManager->device()->currentCordinate(), strideLength, groundContact,
-                      verticalOscillation, stepCount // TODO add lap
+                      verticalOscillation, stepCount,
+                      bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(),
+                      bluetoothManager->device()->HeatStrainIndex.value() // TODO add lap
         );
 
         Session.append(s);

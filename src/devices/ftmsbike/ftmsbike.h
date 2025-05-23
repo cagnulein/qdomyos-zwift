@@ -28,6 +28,7 @@
 
 #include "wheelcircumference.h"
 #include "devices/bike.h"
+#include "inclinationresistancetable.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -122,6 +123,7 @@ class ftmsbike : public bike {
 
     bool resistance_lvl_mode = false;
     bool resistance_received = false;
+    inclinationResistanceTable _inclinationResistanceTable;
 
     bool DU30_bike = false;
     bool ICSE = false;
@@ -139,7 +141,11 @@ class ftmsbike : public bike {
     bool LYDSTO = false;
     bool SL010 = false;
     bool REEBOK = false;
+    bool TITAN_7000 = false;
     bool T2 = false;
+    bool FIT_BK = false;
+    bool YS_G1MPLUS = false;
+    bool EXPERT_SX9 = false;
 
     int16_t T2_lastGear = 0;
 

@@ -10,17 +10,20 @@
 #include <QDebug>
 #include "ios/AdbClient.h"
 #include "ios/ios_eliteariafan.h"
+#include "ios/ios_echelonconnectsport.h"
+#include "ios/ios_wahookickrsnapbike.h"
+#include "ios/ios_zwiftclickremote.h"
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
-@class virtualrower;
+@class virtualrower_zwift;
 @class virtualtreadmill_zwift;
 @class healthkit;
 
 static healthkit* h = 0;
 static virtualbike_ios_swift* _virtualbike = nil;
 static virtualbike_zwift* _virtualbike_zwift = nil;
-static virtualrower* _virtualrower = nil;
+static virtualrower_zwift* _virtualrower = nil;
 static virtualtreadmill_zwift* _virtualtreadmill_zwift = nil;
 
 static GarminConnect* Garmin = 0;
@@ -28,6 +31,7 @@ static GarminConnect* Garmin = 0;
 static AdbClient *_adb = 0;
 
 static ios_eliteariafan* ios_eliteAriaFan = nil;
+static ios_echelonconnectsport* ios_echelonConnectSport = nil;
 
 static zwift_protobuf_layer* zwiftProtobufLayer = nil;
 
@@ -113,7 +117,7 @@ void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_co
 
 void lockscreen::virtualrower_ios()
 {
-    _virtualrower = [[virtualrower alloc] init];
+    _virtualrower = [[virtualrower_zwift alloc] init];
 }
 
 double lockscreen::virtualbike_getCurrentSlope()
@@ -326,6 +330,17 @@ void lockscreen::eliteAriaFan_fanSpeedRequest(unsigned char speed) {
     }
 }
 
+void lockscreen::echelonConnectSport(const char*  Name, void* deviceClass) {
+    NSString *deviceName = [NSString stringWithCString:Name encoding:NSASCIIStringEncoding];
+    ios_echelonConnectSport = [[ios_echelonconnectsport alloc] init:deviceName qtDevice:deviceClass];
+}
+
+void lockscreen::echelonConnectSport_WriteCharacteristic(unsigned char* qdata, unsigned char length) {
+    if(ios_echelonConnectSport) {
+        [ios_echelonConnectSport writeCharacteristc:qdata length:length ];
+    }
+}
+
 void lockscreen::zwift_api_decodemessage_player(const char* data, int len) {
     NSData *d = [NSData dataWithBytes:data length:len];
     [zwiftProtobufLayer getPlayerStateWithValue:d];
@@ -389,5 +404,52 @@ uint32_t lockscreen::zwift_hub_getCadenceFromBuffer(const QByteArray& buffer) {
     
     uint32_t cadence = [ZwiftHubBike getCadenceFromBufferWithBuffer:data];
     return cadence;
+}
+
+static ios_wahookickrsnapbike* ios_wahooKickrSnapBike = nil;
+
+void lockscreen::wahooKickrSnapBike(const char* Name, void* deviceClass) {
+    NSString *deviceName = [NSString stringWithCString:Name encoding:NSASCIIStringEncoding];
+    ios_wahooKickrSnapBike = [[ios_wahookickrsnapbike alloc] init:deviceName qtDevice:deviceClass];
+}
+
+void lockscreen::writeCharacteristic(unsigned char* qdata, unsigned char length) {
+    if(ios_wahooKickrSnapBike) {
+        [ios_wahooKickrSnapBike writeCharacteristic:qdata length:length];
+    }
+}
+
+static NSMutableDictionary<NSValue*, ios_zwiftclickremote*>* ios_zwiftClickRemotes = nil;
+
+void lockscreen::zwiftClickRemote(const char* Name, const char* UUID, void* deviceClass) {
+    NSString *deviceName = [NSString stringWithCString:Name encoding:NSASCIIStringEncoding];
+    NSString *deviceUUID = [NSString stringWithCString:UUID encoding:NSASCIIStringEncoding];
+    
+    // Initialize the dictionary if needed
+    if (ios_zwiftClickRemotes == nil) {
+        ios_zwiftClickRemotes = [[NSMutableDictionary alloc] init];
+    }
+    
+    // Create a key using the pointer value
+    NSValue *key = [NSValue valueWithPointer:deviceClass];
+    
+    // Create a new instance for this device, passing both name and UUID
+    ios_zwiftclickremote *remote = [[ios_zwiftclickremote alloc] initWithNameAndUUID:deviceName uuid:deviceUUID qtDevice:deviceClass];
+    
+    // Store in dictionary using the device pointer as key
+    [ios_zwiftClickRemotes setObject:remote forKey:key];
+}
+
+
+void lockscreen::zwiftClickRemote_WriteCharacteristic(unsigned char* qdata, unsigned char length, void* deviceClass) {
+    if (ios_zwiftClickRemotes == nil) return;
+    
+    // Get the specific remote for this device
+    NSValue *key = [NSValue valueWithPointer:deviceClass];
+    ios_zwiftclickremote *remote = [ios_zwiftClickRemotes objectForKey:key];
+    
+    if(remote) {
+        [remote writeCharacteristic:qdata length:length];
+    }
 }
 #endif

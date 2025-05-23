@@ -890,6 +890,7 @@ const QString QZSettings::peloton_current_user_id = QStringLiteral("peloton_curr
 const QString QZSettings::default_peloton_current_user_id = QStringLiteral("");
 const QString QZSettings::proform_225_csx_PFEX32925_INT_0 = QStringLiteral("proform_225_csx_PFEX32925_INT_0");
 const QString QZSettings::trainprogram_pid_ignore_inclination = QStringLiteral("trainprogram_pid_ignore_inclination");
+const QString QZSettings::android_antbike = QStringLiteral("android_antbike");
 
 const QString QZSettings::tile_hr_time_in_zone_1_enabled = QStringLiteral("tile_hr_time_in_zone_1_enabled");
 const QString QZSettings::tile_hr_time_in_zone_1_order = QStringLiteral("tile_hr_time_in_zone_1_order");
@@ -909,7 +910,18 @@ const QString QZSettings::tile_hr_time_in_zone_5_order = QStringLiteral("tile_hr
 const QString QZSettings::zwift_gear_ui_aligned = QStringLiteral("zwift_gear_ui_aligned");
 const QString QZSettings::tacxneo2_disable_negative_inclination = QStringLiteral("tacxneo2_disable_negative_inclination");
 
-const uint32_t allSettingsCount = 749;
+const QString QZSettings::tile_coretemperature_enabled = QStringLiteral("tile_coretemperature_enabled");
+const QString QZSettings::tile_coretemperature_order = QStringLiteral("tile_coretemperature_order");
+
+const QString QZSettings::nordictrack_t65s_treadmill_81_miles = QStringLiteral("nordictrack_t65s_treadmill_81_miles");
+const QString QZSettings::nordictrack_elite_800 = QStringLiteral("nordictrack_elite_800");
+
+const QString QZSettings::ios_btdevice_native = QStringLiteral("ios_btdevice_native");
+
+const QString QZSettings::inclinationResistancePoints = QStringLiteral("inclinationResistancePoints");
+const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("");
+
+const uint32_t allSettingsCount = 756;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1660,6 +1672,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_225_csx_PFEX32925_INT_0, QZSettings::proform_225_csx_PFEX32925_INT_0},
     {QZSettings::trainprogram_pid_ignore_inclination, QZSettings::default_trainprogram_pid_ignore_inclination},
 
+    {QZSettings::android_antbike, QZSettings::default_android_antbike},
+
     {QZSettings::tile_hr_time_in_zone_1_enabled, QZSettings::default_tile_hr_time_in_zone_1_enabled},
     {QZSettings::tile_hr_time_in_zone_1_order, QZSettings::default_tile_hr_time_in_zone_1_order},
     {QZSettings::tile_hr_time_in_zone_2_enabled, QZSettings::default_tile_hr_time_in_zone_2_enabled},
@@ -1670,9 +1684,17 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_hr_time_in_zone_4_order, QZSettings::default_tile_hr_time_in_zone_4_order},
     {QZSettings::tile_hr_time_in_zone_5_enabled, QZSettings::default_tile_hr_time_in_zone_5_enabled},
     {QZSettings::tile_hr_time_in_zone_5_order, QZSettings::default_tile_hr_time_in_zone_5_order},
+    {QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native},
 
     {QZSettings::zwift_gear_ui_aligned, QZSettings::default_zwift_gear_ui_aligned},
     {QZSettings::tacxneo2_disable_negative_inclination, QZSettings::default_tacxneo2_disable_negative_inclination},
+
+    {QZSettings::tile_coretemperature_enabled, QZSettings::default_tile_coretemperature_enabled},
+    {QZSettings::tile_coretemperature_order, QZSettings::default_tile_coretemperature_order},
+
+    {QZSettings::nordictrack_t65s_treadmill_81_miles, QZSettings::default_nordictrack_t65s_treadmill_81_miles},
+    {QZSettings::nordictrack_elite_800, QZSettings::default_nordictrack_elite_800},
+    {QZSettings::inclinationResistancePoints, QZSettings::default_inclinationResistancePoints},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

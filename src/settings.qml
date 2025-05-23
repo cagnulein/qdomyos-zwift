@@ -1132,8 +1132,17 @@ import Qt.labs.platform 1.1
             property bool zwift_gear_ui_aligned: false
             property bool tacxneo2_disable_negative_inclination: false
 
-            // 2.XX.yy
+            // 2.18.26
             property bool proform_performance_300i: false
+            property bool android_antbike: false
+
+            property bool tile_coretemperature_enabled: false
+            property int  tile_coretemperature_order: 67
+
+            property bool nordictrack_t65s_treadmill_81_miles: false
+            property bool nordictrack_elite_800: false
+            property bool ios_btdevice_native: false
+            property string inclinationResistancePoints: ""
         }
 
         function paddingZeros(text, limit) {
@@ -3903,6 +3912,33 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Ant+ Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.android_antbike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.android_antbike = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Use this to connect to your bike using ANT+ instead bluetooth. Default: Disabled")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
                 }
             }
 /*
@@ -5170,7 +5206,7 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-
+/*
                     IndicatorOnlySwitch {
                         text: qsTr("Show Gears to Zwift Only")
                         spacing: 0
@@ -5197,6 +5233,7 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+*/
 
                     IndicatorOnlySwitch {
                         text: qsTr("Align Gear Value on Both Zwift and QZ")
@@ -6510,6 +6547,8 @@ import Qt.labs.platform 1.1
                                     "Proform 705 CST v.80.44",
                                     "Nordictrack 1750",
                                     "Proform Performance 300i",
+                                    "Nordictrack T6.5S v81 Miles",
+                                    "Nordictrack Elite 800",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -6573,7 +6612,9 @@ import Qt.labs.platform 1.1
                                                     settings.proform_trainer_8_0 ? 44 :
                                                     settings.proform_treadmill_705_cst_V80_44 ? 45 :
                                                     settings.nordictrack_treadmill_1750_adb ? 46 : 
-                                                    settings.proform_performance_300i ? 47 :0;
+                                                    settings.proform_performance_300i ? 47 :
+                                                    settings.nordictrack_t65s_treadmill_81_miles ? 48 : 
+                                                    settings.nordictrack_elite_800 ? 49 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -6635,6 +6676,8 @@ import Qt.labs.platform 1.1
                                     settings.proform_trainer_8_0 = false;
                                     settings.proform_treadmill_705_cst_V80_44 = false;
                                     settings.nordictrack_treadmill_1750_adb = false;
+                                    settings.nordictrack_t65s_treadmill_81_miles = false;
+                                    settings.nordictrack_elite_800 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -6685,6 +6728,8 @@ import Qt.labs.platform 1.1
                                         case 45: settings.proform_treadmill_705_cst_V80_44 = true; break;
                                         case 46: settings.nordictrack_treadmill_1750_adb = true; break;
                                         case 47: settings.proform_performance_300i = true; break;
+                                        case 48: settings.nordictrack_t65s_treadmill_81_miles = true; break;
+                                        case 49: settings.nordictrack_elite_800 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -10957,6 +11002,7 @@ import Qt.labs.platform 1.1
                                 settings: settings
                                 accordionContent: ColumnLayout {
                                     spacing: 0
+                                    /*
                                     IndicatorOnlySwitch {
                                         id: wahooRGTDirconDelegate
                                         text: qsTr("MyWhoosh Compatibility")
@@ -10970,7 +11016,7 @@ import Qt.labs.platform 1.1
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
                                         onClicked: { settings.wahoo_rgt_dircon = checked; window.settings_restart_to_apply = true; }
-                                    }
+                                    }*/
 
                                     Label {
                                         text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to Wahoo RGT app. Leave the RGT compatibility disabled in order to use Zwift.")
@@ -11443,6 +11489,33 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("This MUST be always ON on an iOS device. Turning it OFF will lead to unexpected crashes of QZ. Default is on.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("iOS Bluetooth Device Native")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_btdevice_native
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.ios_btdevice_native = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("If you are experiencing crash on iOS midride, try to turn this on. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
