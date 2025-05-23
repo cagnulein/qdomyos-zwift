@@ -923,7 +923,10 @@ const QString QZSettings::ios_btdevice_native = QStringLiteral("ios_btdevice_nat
 const QString QZSettings::inclinationResistancePoints = QStringLiteral("inclinationResistancePoints");
 const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("");
 
-const uint32_t allSettingsCount = 756;
+const QString QZSettings::floatingwindow_type = QStringLiteral("floatingwindow_type");
+
+
+const uint32_t allSettingsCount = 757;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1699,6 +1702,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_t65s_treadmill_81_miles, QZSettings::default_nordictrack_t65s_treadmill_81_miles},
     {QZSettings::nordictrack_elite_800, QZSettings::default_nordictrack_elite_800},
     {QZSettings::inclinationResistancePoints, QZSettings::default_inclinationResistancePoints},
+    {QZSettings::floatingwindow_type, QZSettings::default_floatingwindow_type},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

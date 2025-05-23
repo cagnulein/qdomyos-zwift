@@ -82,7 +82,7 @@ public class FloatingWindowGFG extends Service {
 		  });
                   WebSettings settings = wv.getSettings();
                   settings.setJavaScriptEnabled(true);
-                  wv.loadUrl("http://localhost:" + FloatingHandler._port + "/floating/floating.htm");
+                  wv.loadUrl("http://localhost:" + FloatingHandler._port + "/floating/" + FloatingHandler._htmlPage);
                   wv.clearView();
                   wv.measure(100, 100);
                   wv.setAlpha(Float.valueOf(FloatingHandler._alpha) / 100.0f);

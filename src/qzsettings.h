@@ -2465,6 +2465,12 @@ class QZSettings {
     static const QString default_inclinationResistancePoints;
 
     /**
+     * @brief Type of floating window to use. 0 = classic, 1 = horizontal
+     */
+    static const QString floatingwindow_type;
+    static constexpr int default_floatingwindow_type = 0;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
