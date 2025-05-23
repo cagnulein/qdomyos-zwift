@@ -29,7 +29,7 @@ public class FloatingHandler {
     static public int _width;
     static public int _height;
     static public int _alpha;
-    static public String _htmlPage = "floating/floating.htm";
+    static public String _htmlPage = "floating.htm";
 
     public static void show(Context context, int port, int width, int height, int transparency, String htmlPage) {
         _context = context;
