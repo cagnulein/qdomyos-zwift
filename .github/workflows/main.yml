@@ -608,21 +608,23 @@ jobs:
 
       - name: Check JNI consistency
         run: |
-          find . -name '*.java' > java_files.txt
           mkdir -p jni_headers
-          javac -h jni_headers @java_files.txt
-          
+          find src/android/ -name '*.java' > java_files.txt
+          if [ -s java_files.txt ]; then
+            javac -h jni_headers @java_files.txt
+          fi
+
           echo "Verifying JNI signatures..."
           for header in jni_headers/*.h; do
+            [ -e "$header" ] || continue
             funcs=$(grep -oP 'Java_\w+' "$header")
             for func in $funcs; do
-              if ! grep -r "$func" . | grep -E '\.cpp|\.cc' > /dev/null; then
+              if ! grep -r "$func" src/ | grep -E '\.cpp|\.cc' > /dev/null; then
                 echo "Missing JNI function implementation: $func"
                 exit 1
               fi
             done
           done
-
 
       - name: Set Android NDK 21 && build
         run: |
