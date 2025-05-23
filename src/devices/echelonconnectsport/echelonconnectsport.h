@@ -82,6 +82,7 @@ class echelonconnectsport : public bike {
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
+    lockscreen* iOS_echelonConnectSport = nullptr;
 #endif
 
   Q_SIGNALS:
@@ -89,14 +90,14 @@ class echelonconnectsport : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void stateChanged(QLowEnergyService::ServiceState state);
+    void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
+    void controllerStateChanged(QLowEnergyController::ControllerState state);
 
   private slots:
 
-    void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
-    void stateChanged(QLowEnergyService::ServiceState state);
-    void controllerStateChanged(QLowEnergyController::ControllerState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

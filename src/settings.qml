@@ -1141,6 +1141,8 @@ import Qt.labs.platform 1.1
 
             property bool nordictrack_t65s_treadmill_81_miles: false
             property bool nordictrack_elite_800: false
+            property bool ios_btdevice_native: false
+            property string inclinationResistancePoints: ""
         }
 
         function paddingZeros(text, limit) {
@@ -5204,7 +5206,7 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-
+/*
                     IndicatorOnlySwitch {
                         text: qsTr("Show Gears to Zwift Only")
                         spacing: 0
@@ -5231,6 +5233,7 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+*/
 
                     IndicatorOnlySwitch {
                         text: qsTr("Align Gear Value on Both Zwift and QZ")
@@ -11040,6 +11043,7 @@ import Qt.labs.platform 1.1
                                 settings: settings
                                 accordionContent: ColumnLayout {
                                     spacing: 0
+                                    /*
                                     IndicatorOnlySwitch {
                                         id: wahooRGTDirconDelegate
                                         text: qsTr("MyWhoosh Compatibility")
@@ -11053,7 +11057,7 @@ import Qt.labs.platform 1.1
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
                                         onClicked: { settings.wahoo_rgt_dircon = checked; window.settings_restart_to_apply = true; }
-                                    }
+                                    }*/
 
                                     Label {
                                         text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to Wahoo RGT app. Leave the RGT compatibility disabled in order to use Zwift.")
@@ -11526,6 +11530,33 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("This MUST be always ON on an iOS device. Turning it OFF will lead to unexpected crashes of QZ. Default is on.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("iOS Bluetooth Device Native")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_btdevice_native
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.ios_btdevice_native = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("If you are experiencing crash on iOS midride, try to turn this on. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

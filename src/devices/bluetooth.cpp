@@ -1414,6 +1414,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BFX_T9_")) ||
                         (b.name().toUpper().startsWith("3G PRO ")) ||
+                        (b.name().toUpper().startsWith("3G ELITE ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AB300S-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TF04-")) ||                           // Sport Synology Z5 Treadmill #2415
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-")) && !b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||                            // FIT-1596 and sports tech f37s treadmill #2412
@@ -1663,6 +1664,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("POOBOO")) ||
                         (b.name().toUpper().startsWith("ZYCLE ZPRO")) ||
                         (b.name().toUpper().startsWith("SM720I")) ||
+                        (b.name().toUpper().startsWith("H9115 LYON")) ||
                         (b.name().toUpper().startsWith("AVANTI")) ||
                         (b.name().toUpper().startsWith("T300P_")) ||
                         (b.name().toUpper().startsWith("T200_")) ||
@@ -1672,6 +1674,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("LYDSTO")) ||
                         (b.name().toUpper().startsWith("CYCLO_")) ||
                         (b.name().toUpper().startsWith("SL010-")) ||
+                        (b.name().toUpper().startsWith("EXPERT-SX9")) ||                         
                         (b.name().toUpper().startsWith("LCR")) ||
                         (b.name().toUpper().startsWith("ROBX")) ||
                         (b.name().toUpper().startsWith("XCX-")) ||
@@ -2381,10 +2384,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("BIKZU_")) ||
                         b.name().toUpper().startsWith(QStringLiteral("PASYOU-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("VIRTUFIT")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("IBIKING+")) ||
                         ((b.name().startsWith(QStringLiteral("TOORX")) ||
                           b.name().toUpper().startsWith(QStringLiteral("I-CONSOIE+")) ||
-                          b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
-                          b.name().toUpper().startsWith(QStringLiteral("IBIKING+")) ||
+                          b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||                          
                           b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("VIFHTR2.1")) ||
                           (b.name().toUpper().startsWith(QStringLiteral("REEBOK"))) ||
