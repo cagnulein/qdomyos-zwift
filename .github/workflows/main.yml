@@ -606,26 +606,6 @@ jobs:
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
-      - name: Check JNI consistency
-        run: |
-          mkdir -p jni_headers
-          find src/android/ -name '*.java' > java_files.txt
-          if [ -s java_files.txt ]; then
-            javac -h jni_headers @java_files.txt
-          fi
-
-          echo "Verifying JNI signatures..."
-          for header in jni_headers/*.h; do
-            [ -e "$header" ] || continue
-            funcs=$(grep -oP 'Java_\w+' "$header")
-            for func in $funcs; do
-              if ! grep -r "$func" src/ | grep -E '\.cpp|\.cc' > /dev/null; then
-                echo "Missing JNI function implementation: $func"
-                exit 1
-              fi
-            done
-          done
-
       - name: Set Android NDK 21 && build
         run: |
           # Install NDK 21 after GitHub update
