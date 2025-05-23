@@ -65,7 +65,7 @@ class peloton : public QObject {
 
     void setTestMode(bool test);
 
-    bool hasIntro();
+    int getIntroOffset();
     bool isWorkoutInProgress() {
         return current_workout_status.contains(QStringLiteral("IN_PROGRESS"), Qt::CaseInsensitive);
     }
@@ -162,6 +162,8 @@ class peloton : public QObject {
     } _peloton_treadmill_pace_intensities;
 
     _peloton_treadmill_pace_intensities treadmill_pace[7];
+
+    int first_target_metrics_start_offset = 60;
 
   public slots:
     void peloton_connect_clicked();

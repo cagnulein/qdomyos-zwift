@@ -884,12 +884,14 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     getInstructor(current_instructor_id);
 }
 
-bool peloton::hasIntro() {
-    return !(current_workout_name.toUpper().contains("WARM UP") || current_workout_name.toUpper().contains("COOL DOWN"));
+int peloton::getIntroOffset() {
+    return first_target_metrics_start_offset;
 }
 
 void peloton::ride_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::ride_onfinish);
+
+    first_target_metrics_start_offset = 60; // default value
 
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
@@ -1216,6 +1218,17 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     }
 
     QJsonObject target_metrics_data_list = ride[QStringLiteral("target_metrics_data")].toObject();
+    if (!target_metrics_data_list.isEmpty()) {
+        QJsonArray target_metrics = target_metrics_data_list["target_metrics"].toArray();
+        if (!target_metrics.isEmpty()) {
+            QJsonObject first_metric = target_metrics[0].toObject();
+            QJsonObject offsets = first_metric["offsets"].toObject();
+            if (!offsets.isEmpty()) {
+                first_target_metrics_start_offset = offsets["start"].toInt();
+                qDebug() << "First target metrics start offset:" << first_target_metrics_start_offset;
+            }
+        }
+    }
     if (trainrows.empty() && !target_metrics_data_list.isEmpty() &&
         bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
         bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
