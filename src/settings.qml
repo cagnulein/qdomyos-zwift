@@ -1143,6 +1143,7 @@ import Qt.labs.platform 1.1
             property bool nordictrack_elite_800: false
             property bool ios_btdevice_native: false
             property string inclinationResistancePoints: ""
+            property int floatingwindow_type: 0
         }
 
         function paddingZeros(text, limit) {
@@ -1570,7 +1571,7 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
+                    }                    
                 }
             }
 
@@ -3990,6 +3991,44 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.top_bar_enabled = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelFloatingWindowType
+                            text: qsTr("Floating Window Type:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: floatingWindowTypeComboBox
+                            model: ["Classic", "Horizontal"]
+                            currentIndex: settings.floatingwindow_type
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("floatingwindow_type activated" + floatingWindowTypeComboBox.currentIndex)
+                            }
+                        }
+                        Button {
+                            id: okFloatingWindowTypeButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.floatingwindow_type = floatingWindowTypeComboBox.currentIndex; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     Label {

@@ -865,12 +865,22 @@ void homeform::floatingOpen() {
     if (!floating_open) {
 
         QSettings settings;
+        // Get the floating window type setting (0 = classic, 1 = horizontal)
+        int floatingWindowType = settings.value(QZSettings::floatingwindow_type, QZSettings::default_floatingwindow_type).toInt();
+        
+        // Determine which HTML file to use based on the setting
+        QString htmlFile = (floatingWindowType == 0) ? "floating.htm" : "hfloating.htm";
+        
+        QAndroidJniObject javaHtmlFile = QAndroidJniObject::fromString(htmlFile);
+        
         QAndroidJniObject::callStaticMethod<void>(
-            "org/cagnulen/qdomyoszwift/FloatingHandler", "show", "(Landroid/content/Context;IIII)V",
-            QtAndroid::androidContext().object(), settings.value("template_inner_QZWS_port", 6666).toInt(),
+            "org/cagnulen/qdomyoszwift/FloatingHandler", "show", "(Landroid/content/Context;IIIILjava/lang/String;)V",
+            QtAndroid::androidContext().object(), 
+            settings.value("template_inner_QZWS_port", 6666).toInt(),
             settings.value(QZSettings::floating_width, QZSettings::default_floating_width).toInt(),
             settings.value(QZSettings::floating_height, QZSettings::default_floating_height).toInt(),
-            settings.value(QZSettings::floating_transparency, QZSettings::default_floating_transparency).toInt());
+            settings.value(QZSettings::floating_transparency, QZSettings::default_floating_transparency).toInt(),
+            javaHtmlFile.object<jstring>());
     } else {
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "hide", "()V");
     }
