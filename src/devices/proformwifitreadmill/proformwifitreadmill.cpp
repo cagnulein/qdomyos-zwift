@@ -133,7 +133,12 @@ void proformwifitreadmill::update() {
             sec1Update = 0;
             if(waitStatePkg == false) {
                 // keeping the connection alive
-                forceSpeed(currentSpeed().value());
+                qint64 msSinceLastMetrics = lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime());
+                if (msSinceLastMetrics >= 2000) {
+                    // keeping the connection alive - no metrics received for 2+ seconds
+                    qDebug() << QStringLiteral("Keep-alive: No metrics for ") << msSinceLastMetrics << "ms";
+                    forceSpeed(currentSpeed().value());
+                }
             }
         }
 
