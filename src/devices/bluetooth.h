@@ -60,7 +60,7 @@
 #include "devices/faketreadmill/faketreadmill.h"
 #include "devices/fitmetria_fanfit/fitmetria_fanfit.h"
 #include "devices/fitplusbike/fitplusbike.h"
-
+#include "nordictrackusbtreadmill.h"
 #include "devices/fitshowtreadmill/fitshowtreadmill.h"
 #include "devices/flywheelbike/flywheelbike.h"
 #include "devices/ftmsbike/ftmsbike.h"
@@ -218,6 +218,7 @@ class bluetooth : public QObject, public SignalHandler {
     moxy5sensor *moxy5Sensor = nullptr;
     nordictrackelliptical *nordictrackElliptical = nullptr;
     nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
+    nordictrackusbtreadmill *nordictrackusbTreadmill = nullptr;
     nordictrackifitadbbike *nordictrackifitadbBike = nullptr;
     nordictrackifitadbelliptical *nordictrackifitadbElliptical = nullptr;
     octaneelliptical *octaneElliptical = nullptr;

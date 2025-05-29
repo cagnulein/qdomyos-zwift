@@ -29,6 +29,9 @@
     <usb-device vendor-id="17A4" product-id="0002" />
     <usb-device vendor-id="17A4" product-id="0001" />
 
+    <!-- ICON Fitness, Nordictrack treadmill -->
+	 <usb-device vendor-id="213c" product-id="0002" />
+
     <!-- CDC driver -->
     <usb-device vendor-id="9025" />                   <!-- 0x2341 / ......: Arduino -->
     <usb-device vendor-id="5824" product-id="1155" /> <!-- 0x16C0 / 0x0483: Teensyduino  -->
