@@ -952,7 +952,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     }
 
     if(resistance_received)
-        _inclinationResistanceTable.collectData(Inclination.value(), Resistance.value(), m_watt);
+        _inclinationResistanceTable.collectData(Inclination.value(), Resistance.value(), m_watt.value());
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
