@@ -455,6 +455,9 @@ class bluetoothdevice : public QObject {
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void speedSensor(double speed);
+    virtual void coreBodyTemperature(double coreBodyTemperature);
+    virtual void skinTemperature(double skinTemperature);
+    virtual void heatStrainIndex(double heatStrainIndex);
     virtual void inclinationSensor(double grade, double inclination);
     virtual void changeResistance(resistance_t res);
     virtual void changePower(int32_t power);
