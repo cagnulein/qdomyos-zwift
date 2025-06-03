@@ -2449,7 +2449,6 @@ void horizontreadmill::serviceScanDone(void) {
 
     initRequest = false;
     firstStateChanged = 0;
-    auto services_list = m_control->services();
 
     auto services_list = m_control->services();
     QBluetoothUuid ftmsService((quint16)0x1826);
