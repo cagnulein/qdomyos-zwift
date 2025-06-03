@@ -2451,12 +2451,16 @@ void horizontreadmill::serviceScanDone(void) {
     firstStateChanged = 0;
     auto services_list = m_control->services();
 
+    auto services_list = m_control->services();
+    QBluetoothUuid ftmsService((quint16)0x1826);
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        if (s == ftmsService) {
             qDebug() << s << "discovering...";
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
             connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                     &horizontreadmill::stateChanged);
             gattCommunicationChannelService.constLast()->discoverDetails();
+        }
     }
 }
 
