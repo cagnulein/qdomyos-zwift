@@ -1351,6 +1351,26 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(soleF80);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM01")) && !speraXTreadmill && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                speraXTreadmill = new speraxtreadmill(this->pollDeviceTime, noConsole, noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                stateFileRead();
+#endif
+                emit deviceConnected(b);
+                connect(speraXTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(speraXTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(speraXTreadmill, &speraxtreadmill::debug, this, &bluetooth::debug);
+                connect(speraXTreadmill, &speraxtreadmill::speedChanged, this, &bluetooth::speedChanged);
+                connect(speraXTreadmill, &speraxtreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
+                speraXTreadmill->deviceDiscovered(b);
+                connect(this, &bluetooth::searchingStop, speraXTreadmill, &speraxtreadmill::searchingStop);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(speraXTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("LF")) && (b.name().length() == 18 || b.name().length() == 15)) &&
                        !lifefitnessTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1421,9 +1441,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("LJJ-")) ||                            // LJJ-02351A
                         b.name().toUpper().startsWith(QStringLiteral("WLT-EP-")) ||                             // Flow elliptical
                         (b.name().toUpper().startsWith("SCHWINN 810")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("KS-MC")) ||    
-                         b.name().toUpper().startsWith(QStringLiteral("ANPIUS-")) || 
-                        b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM-01")) ||                 
+                        b.name().toUpper().startsWith(QStringLiteral("KS-MC")) ||
+                         b.name().toUpper().startsWith(QStringLiteral("ANPIUS-")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM-01")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D"))) ||                     // Kingsmith WalkingPad Z1
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("TT8")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -3159,6 +3179,11 @@ void bluetooth::restart() {
         delete horizonTreadmill;
         horizonTreadmill = nullptr;
     }
+    if (speraXTreadmill) {
+
+        delete speraXTreadmill;
+        speraXTreadmill = nullptr;
+    }
     if (lifefitnessTreadmill) {
 
         delete lifefitnessTreadmill;
@@ -3824,6 +3849,8 @@ bluetoothdevice *bluetooth::device() {
         return horizonTreadmill;
     } else if (lifefitnessTreadmill) {
         return lifefitnessTreadmill;
+    } else if (speraXTreadmill) {
+        return speraXTreadmill;
     } else if (technogymmyrunTreadmill) {
         return technogymmyrunTreadmill;
 #ifndef Q_OS_IOS
