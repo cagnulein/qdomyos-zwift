@@ -1452,6 +1452,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||                        // FTMS
                             b.name().toUpper().startsWith(QStringLiteral("LB600")) ||                        // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-")) ||                     // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TUNTURI T80-")) ||                     // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T90-")) ||                     // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) ||                // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("ASSAULTRUNNER")) ||                    // FTMS
@@ -2232,6 +2233,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 coreSensor = new coresensor();
                 connect(coreSensor, &coresensor::debug, this, &bluetooth::debug);
                 coreSensor->deviceDiscovered(b);
+                connect(coreSensor, &coresensor::coreBodyTemperatureChanged, this->device(), &bluetoothdevice::coreBodyTemperature);
+                connect(coreSensor, &coresensor::skinTemperatureChanged, this->device(), &bluetoothdevice::skinTemperature);
+                connect(coreSensor, &coresensor::heatStrainIndexChanged, this->device(), &bluetoothdevice::heatStrainIndex);
             } else if (b.name().toUpper().startsWith(QStringLiteral("BOWFLEX T")) && !bowflexT216Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
