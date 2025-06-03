@@ -2451,7 +2451,7 @@ void horizontreadmill::serviceScanDone(void) {
     firstStateChanged = 0;
 
     auto services_list = m_control->services();
-    QBluetoothUuid ftmsService((quint16)0x1826);
+    QBluetoothUuid ftmsService((quint16)0xFFF0);
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         if (s == ftmsService) {
             qDebug() << s << "discovering...";
