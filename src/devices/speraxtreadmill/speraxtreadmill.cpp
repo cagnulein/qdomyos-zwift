@@ -230,7 +230,7 @@ void speraxtreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     // lastState = value.at(0);
 
     double speed = GetSpeedFromPacket(value);
-    double incline = GetInclinationFromPacket(value);
+    double incline = 0;
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -303,7 +303,7 @@ void speraxtreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 double speraxtreadmill::GetSpeedFromPacket(const QByteArray &packet) {
 
     uint8_t convertedData = (uint8_t)packet.at(17);
-    double data = ((double)(convertedData));
+    double data = ((double)(convertedData) / 10.0);
     return data;
 }
 
