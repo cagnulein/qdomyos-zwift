@@ -14,6 +14,7 @@ import com.dsi.ant.message.fromant.BroadcastDataMessage;
 import com.dsi.ant.message.fromant.ChannelEventMessage;
 import com.dsi.ant.message.fromant.MessageFromAntType;
 import com.dsi.ant.message.ipc.AntMessageParcel;
+import android.os.RemoteException;
 
 // Java imports
 import java.math.BigDecimal;
