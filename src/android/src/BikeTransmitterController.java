@@ -2,25 +2,8 @@ package org.cagnulen.qdomyoszwift;
 
 import android.content.Context;
 import org.cagnulen.qdomyoszwift.QLog;
-import android.app.Activity;
 
-// ANT+ Plugin imports for transmitting
-import com.dsi.ant.plugins.antplus.pcc.AntPlusFitnessEquipmentPcc;
-import com.dsi.ant.plugins.antplus.pcc.AntPlusFitnessEquipmentPcc.IFitnessEquipmentStateReceiver;
-import com.dsi.ant.plugins.antplus.pcc.AntPlusFitnessEquipmentPcc.IBikeDataReceiver;
-import com.dsi.ant.plugins.antplus.pcc.AntPlusFitnessEquipmentPcc.IGeneralFitnessEquipmentDataReceiver;
-import com.dsi.ant.plugins.antplus.pcc.AntPlusFitnessEquipmentPcc.ITrainerDataReceiver;
-import com.dsi.ant.plugins.antplus.pcc.AntPlusFitnessEquipmentPcc.EquipmentState;
-import com.dsi.ant.plugins.antplus.pcc.AntPlusFitnessEquipmentPcc.EquipmentType;
-import com.dsi.ant.plugins.antplus.pcc.AntPlusFitnessEquipmentPcc.HeartRateDataSource;
-import com.dsi.ant.plugins.antplus.pcc.defines.DeviceState;
-import com.dsi.ant.plugins.antplus.pcc.defines.EventFlag;
-import com.dsi.ant.plugins.antplus.pcc.defines.RequestAccessResult;
-import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc.IDeviceStateChangeReceiver;
-import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc.IPluginAccessResultReceiver;
-import com.dsi.ant.plugins.antplus.pccbase.PccReleaseHandle;
-
-// ANT+ low-level API imports for transmitting data
+// ANT+ Channel imports following PowerChannelController pattern
 import com.dsi.ant.channel.AntChannel;
 import com.dsi.ant.channel.AntCommandFailedException;
 import com.dsi.ant.channel.IAntChannelEventHandler;
@@ -34,14 +17,12 @@ import com.dsi.ant.message.ipc.AntMessageParcel;
 
 // Java imports
 import java.math.BigDecimal;
-import java.util.EnumSet;
 import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * ANT+ FTMS Transmitter Controller
- * This class simulates a fitness equipment (bike) and transmits data via ANT+
- * while also receiving control commands from connected ANT+ devices
+ * ANT+ Bike Transmitter Controller
+ * Follows the same pattern as PowerChannelController but for transmitting bike data
  */
 public class BikeTransmitterController {
     private static final String TAG = BikeTransmitterController.class.getSimpleName();
@@ -51,6 +32,7 @@ public class BikeTransmitterController {
     private static final int TRANSMISSION_TYPE = 5;
     private static final int CHANNEL_PERIOD = 8192; // 32768/4 = 8192 (4Hz)
     private static final int RADIO_FREQUENCY = 57; // 2457 MHz
+    private static final int DEVICE_NUMBER = 12345; // Should be unique device number
     
     // ANT+ Data Page IDs for Fitness Equipment
     private static final byte DATA_PAGE_GENERAL_FE = 0x10;
@@ -59,11 +41,9 @@ public class BikeTransmitterController {
     private static final byte DATA_PAGE_BIKE_DATA = 0x19;
     private static final byte DATA_PAGE_TRAINER_DATA = 0x1A;
 
-    private Context context;
-    private AntChannel antChannel = null;
+    private AntChannel mAntChannel = null;
     private boolean isTransmitting = false;
     private Timer transmissionTimer = null;
-    private int deviceNumber = 12345; // Should be unique device number
     
     // Current bike metrics to transmit
     private int currentCadence = 0;           // Current cadence in RPM
@@ -90,7 +70,7 @@ public class BikeTransmitterController {
     
     private ControlCommandListener controlListener = null;
     
-    // ANT+ Channel event handler
+    // ANT+ Channel event handler - following PowerChannelController pattern
     private final IAntChannelEventHandler mChannelEventHandler = new IAntChannelEventHandler() {
         @Override
         public void onChannelDeath() {
@@ -116,8 +96,10 @@ public class BikeTransmitterController {
         }
     };
 
-    public BikeTransmitterController() {
-        this.context = Ant.activity;
+    // Constructor following PowerChannelController pattern - takes AntChannel
+    public BikeTransmitterController(AntChannel antChannel) {
+        this.mAntChannel = antChannel;
+        QLog.v(TAG, "BikeTransmitterController created with channel");
     }
     
     /**
@@ -131,32 +113,30 @@ public class BikeTransmitterController {
      * Start transmitting bike data via ANT+
      */
     public boolean startTransmission() {
+        if (mAntChannel == null) {
+            QLog.e(TAG, "Cannot start transmission - no ANT+ channel available");
+            return false;
+        }
+        
         try {
-            // Request ANT+ channel
-            antChannel = AntChannel.requestChannel(context, mChannelEventHandler);
+            // Configure channel for fitness equipment transmission - following existing pattern
+            ChannelId channelId = new ChannelId(DEVICE_NUMBER, DEVICE_TYPE_FITNESS_EQUIPMENT, TRANSMISSION_TYPE);
             
-            if (antChannel == null) {
-                QLog.e(TAG, "Failed to get ANT+ channel");
-                return false;
-            }
-            
-            // Configure channel for fitness equipment transmission
-            ChannelId channelId = new ChannelId(deviceNumber, DEVICE_TYPE_FITNESS_EQUIPMENT, TRANSMISSION_TYPE);
-            
-            antChannel.assign(ChannelType.BIDIRECTIONAL_MASTER);
-            antChannel.setChannelId(channelId);
-            antChannel.setPeriod(CHANNEL_PERIOD);
-            antChannel.setRfFrequency(RADIO_FREQUENCY);
+            mAntChannel.assign(ChannelType.BIDIRECTIONAL_MASTER);
+            mAntChannel.setChannelId(channelId);
+            mAntChannel.setPeriod(CHANNEL_PERIOD);
+            mAntChannel.setRfFrequency(RADIO_FREQUENCY);
+            mAntChannel.setChannelEventHandler(mChannelEventHandler);
             
             // Open the channel
-            antChannel.open();
+            mAntChannel.open();
             
             isTransmitting = true;
             
             // Start periodic data transmission (every 250ms for smooth updates)
             startPeriodicTransmission();
             
-            QLog.d(TAG, "ANT+ bike transmission started successfully on channel " + antChannel.getChannelNumber());
+            QLog.d(TAG, "ANT+ bike transmission started successfully");
             return true;
             
         } catch (AntCommandFailedException e) {
@@ -179,17 +159,22 @@ public class BikeTransmitterController {
             transmissionTimer = null;
         }
         
-        if (antChannel != null) {
+        if (mAntChannel != null) {
             try {
-                antChannel.close();
-                antChannel.release();
+                mAntChannel.close();
             } catch (AntCommandFailedException e) {
                 QLog.w(TAG, "Error closing ANT+ channel: " + e.getMessage());
             }
-            antChannel = null;
         }
         
         QLog.d(TAG, "ANT+ bike transmission stopped");
+    }
+
+    /**
+     * Close the channel - following PowerChannelController pattern
+     */
+    public void close() {
+        stopTransmission();
     }
 
     /**
@@ -204,7 +189,7 @@ public class BikeTransmitterController {
         transmissionTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                if (isTransmitting && bikeSimulator != null) {
+                if (isTransmitting && mAntChannel != null) {
                     transmitCurrentData();
                 }
             }
@@ -215,7 +200,7 @@ public class BikeTransmitterController {
      * Transmit current bike data via ANT+
      */
     private void transmitCurrentData() {
-        if (!isTransmitting || antChannel == null) {
+        if (!isTransmitting || mAntChannel == null) {
             return;
         }
         
@@ -245,8 +230,8 @@ public class BikeTransmitterController {
                     break;
             }
             
-            // Send the data page
-            antChannel.broadcastData(dataPage);
+            // Send the data page using correct method name
+            mAntChannel.setBroadcastData(dataPage);
             
             QLog.v(TAG, "Transmitted ANT+ data page: " + pageIndex);
                        
@@ -287,9 +272,9 @@ public class BikeTransmitterController {
      */
     private void buildBikeDataPage(byte[] dataPage) {
         dataPage[0] = DATA_PAGE_BIKE_DATA;
-        dataPage[1] = 0xFF; // Reserved
-        dataPage[2] = 0xFF; // Reserved
-        dataPage[3] = 0xFF; // Reserved
+        dataPage[1] = (byte) 0xFF; // Reserved
+        dataPage[2] = (byte) 0xFF; // Reserved
+        dataPage[3] = (byte) 0xFF; // Reserved
         
         // Instantaneous cadence
         dataPage[4] = (byte) currentCadence;
@@ -298,7 +283,7 @@ public class BikeTransmitterController {
         dataPage[5] = (byte) (currentPower & 0xFF);
         dataPage[6] = (byte) ((currentPower >> 8) & 0xFF);
         
-        dataPage[7] = 0xFF; // Reserved
+        dataPage[7] = (byte) 0xFF; // Reserved
     }
     
     /**
@@ -331,7 +316,7 @@ public class BikeTransmitterController {
      */
     private void buildMetabolicDataPage(byte[] dataPage) {
         dataPage[0] = DATA_PAGE_GENERAL_METABOLIC;
-        dataPage[1] = 0xFF; // Reserved
+        dataPage[1] = (byte) 0xFF; // Reserved
         
         // Metabolic equivalent (METs) - 0.1 MET resolution
         // Estimate METs based on power and weight (assuming 75kg rider)
@@ -348,7 +333,7 @@ public class BikeTransmitterController {
         dataPage[5] = (byte) (totalCalories & 0xFF);
         dataPage[6] = (byte) ((totalCalories >> 8) & 0xFF);
         
-        dataPage[7] = 0xFF; // Reserved
+        dataPage[7] = (byte) 0xFF; // Reserved
     }
     
     /**

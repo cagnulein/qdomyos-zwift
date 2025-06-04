@@ -333,46 +333,52 @@ public class ChannelService extends Service {
         if (!Ant.treadmill && bikeTransmitterController == null) {
             QLog.v(TAG, "Initializing BikeTransmitterController (not treadmill mode)");
             try {
-                bikeTransmitterController = new BikeTransmitterController();
-                
-                // Set up control command listener to handle requests from ANT+ devices
-                bikeTransmitterController.setControlCommandListener(new BikeTransmitterController.ControlCommandListener() {
-                    @Override
-                    public void onResistanceChangeRequested(int resistance) {
-                        QLog.d(TAG, "ChannelService: ANT+ Resistance change requested: " + resistance);
-                        // Send broadcast intent to notify the main application
-                        Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_RESISTANCE_CHANGE");
-                        intent.putExtra("resistance", resistance);
-                        sendBroadcast(intent);
-                    }
+                // Acquire channel like other controllers
+                AntChannel transmitterChannel = acquireChannel();
+                if (transmitterChannel != null) {
+                    bikeTransmitterController = new BikeTransmitterController(transmitterChannel);
+                    
+                    // Set up control command listener to handle requests from ANT+ devices
+                    bikeTransmitterController.setControlCommandListener(new BikeTransmitterController.ControlCommandListener() {
+                        @Override
+                        public void onResistanceChangeRequested(int resistance) {
+                            QLog.d(TAG, "ChannelService: ANT+ Resistance change requested: " + resistance);
+                            // Send broadcast intent to notify the main application
+                            Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_RESISTANCE_CHANGE");
+                            intent.putExtra("resistance", resistance);
+                            sendBroadcast(intent);
+                        }
 
-                    @Override
-                    public void onPowerChangeRequested(int power) {
-                        QLog.d(TAG, "ChannelService: ANT+ Power change requested: " + power + "W");
-                        // Send broadcast intent to notify the main application
-                        Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_POWER_CHANGE");
-                        intent.putExtra("power", power);
-                        sendBroadcast(intent);
-                    }
+                        @Override
+                        public void onPowerChangeRequested(int power) {
+                            QLog.d(TAG, "ChannelService: ANT+ Power change requested: " + power + "W");
+                            // Send broadcast intent to notify the main application
+                            Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_POWER_CHANGE");
+                            intent.putExtra("power", power);
+                            sendBroadcast(intent);
+                        }
 
-                    @Override
-                    public void onInclinationChangeRequested(double inclination) {
-                        QLog.d(TAG, "ChannelService: ANT+ Inclination change requested: " + inclination + "%");
-                        // Send broadcast intent to notify the main application
-                        Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_INCLINATION_CHANGE");
-                        intent.putExtra("inclination", inclination);
-                        sendBroadcast(intent);
+                        @Override
+                        public void onInclinationChangeRequested(double inclination) {
+                            QLog.d(TAG, "ChannelService: ANT+ Inclination change requested: " + inclination + "%");
+                            // Send broadcast intent to notify the main application
+                            Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_INCLINATION_CHANGE");
+                            intent.putExtra("inclination", inclination);
+                            sendBroadcast(intent);
+                        }
+                    });
+                    
+                    QLog.i(TAG, "BikeTransmitterController initialized successfully (bike mode)");
+                    
+                    // Start the bike transmitter immediately after initialization
+                    boolean transmissionStarted = bikeTransmitterController.startTransmission();
+                    if (transmissionStarted) {
+                        QLog.i(TAG, "BikeTransmitterController transmission started automatically");
+                    } else {
+                        QLog.w(TAG, "Failed to start BikeTransmitterController transmission");
                     }
-                });
-                
-                QLog.i(TAG, "BikeTransmitterController initialized successfully (bike mode)");
-                
-                // Start the bike transmitter immediately after initialization
-                boolean transmissionStarted = bikeTransmitterController.startTransmission();
-                if (transmissionStarted) {
-                    QLog.i(TAG, "BikeTransmitterController transmission started automatically");
                 } else {
-                    QLog.w(TAG, "Failed to start BikeTransmitterController transmission");
+                    QLog.e(TAG, "Failed to acquire channel for BikeTransmitterController");
                 }
                 
             } catch (Exception e) {
@@ -394,8 +400,7 @@ public class ChannelService extends Service {
         if (bikeChannelController != null)  // Added closing bikeChannelController
             bikeChannelController.close();
         if (bikeTransmitterController != null) {  // Added closing bikeTransmitterController
-            bikeTransmitterController.stopTransmission();
-            bikeTransmitterController = null;
+            bikeTransmitterController.close();  // Use close() method like other controllers
         }
 
         heartChannelController = null;
@@ -403,6 +408,7 @@ public class ChannelService extends Service {
         speedChannelController = null;
         sdmChannelController = null;
         bikeChannelController = null;  // Added nullifying bikeChannelController
+        bikeTransmitterController = null;  // Added nullifying bikeTransmitterController
     }
 
     AntChannel acquireChannel() throws ChannelNotAvailableException {
