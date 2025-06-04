@@ -162,8 +162,10 @@ public class BikeTransmitterController {
         if (mAntChannel != null) {
             try {
                 mAntChannel.close();
+            } catch (RemoteException e) {
+                QLog.w(TAG, "RemoteException closing ANT+ channel: " + e.getMessage());
             } catch (AntCommandFailedException e) {
-                QLog.w(TAG, "Error closing ANT+ channel: " + e.getMessage());
+                QLog.w(TAG, "AntCommandFailedException closing ANT+ channel: " + e.getMessage());
             }
         }
         
@@ -235,8 +237,8 @@ public class BikeTransmitterController {
             
             QLog.v(TAG, "Transmitted ANT+ data page: " + pageIndex);
                        
-        } catch (AntCommandFailedException e) {
-            QLog.e(TAG, "Error transmitting ANT+ data: " + e.getMessage());
+        } catch (RemoteException e) {
+            QLog.e(TAG, "RemoteException transmitting ANT+ data: " + e.getMessage());
         } catch (Exception e) {
             QLog.e(TAG, "Unexpected error transmitting ANT+ data: " + e.getMessage());
         }
