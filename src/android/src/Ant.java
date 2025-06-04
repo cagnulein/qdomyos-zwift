@@ -99,14 +99,17 @@ public class Ant {
     QLog.v(TAG, "...doUnbindChannelService");
  }
 
- public void setCadenceSpeedPower(float speed, int power, int cadence)
+ public void setCadenceSpeedPower(float speed, int power, int cadence, float inclination, int resistance)
  {
-     if(mChannelService == null)
-        return;
-     QLog.v(TAG, "setCadenceSpeedPower " + speed + " " + power + " " + cadence);
-     mChannelService.setSpeed(speed);
-     mChannelService.setPower(power);
-     mChannelService.setCadence(cadence);
+	 if(mChannelService == null)
+	    return;
+
+	 QLog.v(TAG, "setCadenceSpeedPower " + speed + " " + power + " " + cadence);
+	 mChannelService.setSpeed(speed);
+	 mChannelService.setPower(power);
+	 mChannelService.setCadence(cadence);
+	 mChannelService.setResistance(resistance);
+	 mChannelService.setInclination(inclination);
  }
 
  public int getHeart()
