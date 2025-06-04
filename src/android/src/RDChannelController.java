@@ -17,7 +17,7 @@ package org.cagnulen.qdomyoszwift;
 
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 
 import com.dsi.ant.channel.AntChannel;
 import com.dsi.ant.channel.AntCommandFailedException;
@@ -69,7 +69,7 @@ public class RDChannelController {
     boolean openChannel() {
         if (null != mAntChannel) {
             if (mIsOpen) {
-                Log.w(TAG, "Channel was already open");
+                QLog.w(TAG, "Channel was already open");
             } else {
                 // Channel ID message contains device number, type and transmission type. In
                 // order for master (TX) channels and slave (RX) channels to connect, they
@@ -100,7 +100,7 @@ public class RDChannelController {
                     mAntChannel.open();
                     mIsOpen = true;
 
-                    Log.d(TAG, "Opened channel with device number: " + SPEED_SENSOR_ID);
+                    QLog.d(TAG, "Opened channel with device number: " + SPEED_SENSOR_ID);
                 } catch (RemoteException e) {
                     channelError(e);
                 } catch (AntCommandFailedException e) {
@@ -109,7 +109,7 @@ public class RDChannelController {
                 }
             }
         } else {
-            Log.w(TAG, "No channel available");
+            QLog.w(TAG, "No channel available");
         }
 
         return mIsOpen;
@@ -118,7 +118,7 @@ public class RDChannelController {
     void channelError(RemoteException e) {
         String logString = "Remote service communication failed.";
 
-        Log.e(TAG, logString);
+        QLog.e(TAG, logString);
     }
 
     void channelError(String error, AntCommandFailedException e) {
@@ -147,11 +147,11 @@ public class RDChannelController {
                     .append(failureReason);
         }
 
-        Log.e(TAG, logString.toString());
+        QLog.e(TAG, logString.toString());
 
         mAntChannel.release();
 
-        Log.e(TAG, "ANT Command Failed");
+        QLog.e(TAG, "ANT Command Failed");
     }
 
     public void close() {
@@ -165,7 +165,7 @@ public class RDChannelController {
             mAntChannel = null;
         }
 
-        Log.e(TAG, "Channel Closed");
+        QLog.e(TAG, "Channel Closed");
     }
 
     /**
@@ -187,20 +187,20 @@ public class RDChannelController {
         @Override
         public void onChannelDeath() {
             // Display channel death message when channel dies
-            Log.e(TAG, "Channel Death");
+            QLog.e(TAG, "Channel Death");
         }
 
         @Override
         public void onReceiveMessage(MessageFromAntType messageType, AntMessageParcel antParcel) {
-            Log.d(TAG, "Rx: " + antParcel);
-            Log.d(TAG, "Message Type: " + messageType);
+            QLog.d(TAG, "Rx: " + antParcel);
+            QLog.d(TAG, "Message Type: " + messageType);
 
             if(carousalTimer == null) {
                carousalTimer = new Timer(); // At this line a new Thread will be created
                carousalTimer.scheduleAtFixedRate(new TimerTask() {
                    @Override
                    public void run() {
-                       Log.d(TAG, "Tx Unsollicited");
+                       QLog.d(TAG, "Tx Unsollicited");
                        long realtimeMillis = SystemClock.elapsedRealtime();
                        double speedM_s = speed / 3.6;
                        long deltaTime = (realtimeMillis - lastTime);
@@ -261,7 +261,7 @@ public class RDChannelController {
                     // Constructing channel event message from parcel
                     ChannelEventMessage eventMessage = new ChannelEventMessage(antParcel);
                     EventCode code = eventMessage.getEventCode();
-                    Log.d(TAG, "Event Code: " + code);
+                    QLog.d(TAG, "Event Code: " + code);
 
                     // Switching on event code to handle the different types of channel events
                     switch (code) {
@@ -312,7 +312,7 @@ public class RDChannelController {
                             break;
                         case RX_SEARCH_TIMEOUT:
                             // TODO May want to keep searching
-                            Log.e(TAG, "No Device Found");
+                            QLog.e(TAG, "No Device Found");
                             break;
                         case CHANNEL_CLOSED:
                         case RX_FAIL:
