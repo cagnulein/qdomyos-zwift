@@ -34,7 +34,7 @@
 class iconceptelliptical : public elliptical {
     Q_OBJECT
   public:
-    explicit iconceptelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    explicit iconceptelliptical(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                 double bikeResistanceGain);
 
   public slots:
@@ -52,7 +52,7 @@ class iconceptelliptical : public elliptical {
   private:
     bool noWriteResistance = false;
     bool noHeartService = false;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
 
     QBluetoothServiceDiscoveryAgent *discoveryAgent;

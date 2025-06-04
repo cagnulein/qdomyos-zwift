@@ -55,6 +55,18 @@ var pedometer = CMPedometer()
     {
         return WatchKitConnection.stepCadence;
     }
+
+    @objc public func setSteps(steps: Int) -> Void
+    {
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        WatchKitConnection.steps = steps;
+        Server.server?.send(createString(sender: sender))
+    }
     
     @objc public func setDistance(distance: Double) -> Void
     {

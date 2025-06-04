@@ -11,9 +11,9 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
 @objc public class virtualtreadmill_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerTreadmillZwift!
     
-    @objc public override init() {
+    @objc public init(garmin_bluetooth_compatibility: Bool) {
       super.init()
-      peripheralManager = BLEPeripheralManagerTreadmillZwift()
+        peripheralManager = BLEPeripheralManagerTreadmillZwift(garmin_bluetooth_compatibility: garmin_bluetooth_compatibility)
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -50,6 +50,7 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
 }
 
 class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate {
+  private var garmin_bluetooth_compatibility: Bool = false
   private var peripheralManager: CBPeripheralManager!
 
   private var heartRateService: CBMutableService!
@@ -87,8 +88,9 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   private var notificationTimer: Timer! = nil
   //var delegate: BLEPeripheralManagerDelegate?
 
-  override init() {
+  init(garmin_bluetooth_compatibility: Bool) {
     super.init()
+      self.garmin_bluetooth_compatibility = garmin_bluetooth_compatibility
     peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
   }
   
@@ -97,78 +99,79 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     case .poweredOn:
       print("Peripheral manager is up and running")
       
-      
-      self.heartRateService = CBMutableService(type: heartRateServiceUUID, primary: true)
-      let characteristicProperties: CBCharacteristicProperties = [.notify, .read, .write]
-      let characteristicPermissions: CBAttributePermissions = [.readable]
-      self.heartRateCharacteristic = CBMutableCharacteristic(type:          heartRateCharacteristicUUID,
-                                                            properties: characteristicProperties,
-                                                            value: nil,
-                                                            permissions: characteristicPermissions)
-      
-      heartRateService.characteristics = [heartRateCharacteristic]
-      self.peripheralManager.add(heartRateService)
-
-      self.FitnessMachineService = CBMutableService(type: FitnessMachineServiceUuid, primary: true)
-
-      let FitnessMachineFeatureProperties: CBCharacteristicProperties = [.read]
-        let FitnessMachineFeaturePermissions: CBAttributePermissions = [.readable]
-        self.FitnessMachineFeatureCharacteristic = CBMutableCharacteristic(type: FitnessMachineFeatureCharacteristicUuid,
-                                                               properties: FitnessMachineFeatureProperties,
-                                                                                                      value: Data (bytes: [0x83, 0x14, 0x00, 0x00, 0x0c, 0xe0, 0x00, 0x00]),
-                                                                                 permissions: FitnessMachineFeaturePermissions)
-        
-      let supported_resistance_level_rangeProperties: CBCharacteristicProperties = [.read]
-        let supported_resistance_level_rangePermissions: CBAttributePermissions = [.readable]
-        self.supported_resistance_level_rangeCharacteristic = CBMutableCharacteristic(type: supported_resistance_level_rangeCharacteristicUuid,
-                                                         properties: supported_resistance_level_rangeProperties,
-                                                                         value: Data (bytes: [0x0A, 0x00, 0x96, 0x00, 0x0A, 0x00]),
-                                                                         permissions: supported_resistance_level_rangePermissions)
-
-        let FitnessMachineControlPointProperties: CBCharacteristicProperties = [.indicate, .write]
-        let FitnessMachineControlPointPermissions: CBAttributePermissions = [.writeable]
-        self.FitnessMachineControlPointCharacteristic = CBMutableCharacteristic(type: FitnessMachineControlPointUuid,
-                                                   properties: FitnessMachineControlPointProperties,
-                                                                 value: nil,
-                                                                 permissions: FitnessMachineControlPointPermissions)
-
-      let indoorbikeProperties: CBCharacteristicProperties = [.notify, .read]
-        let indoorbikePermissions: CBAttributePermissions = [.readable]
-        self.indoorbikeCharacteristic = CBMutableCharacteristic(type: indoorbikeUuid,
-                                             properties: indoorbikeProperties,
-                                                         value: nil,
-                                                         permissions: indoorbikePermissions)
-
-        let treadmilldataProperties: CBCharacteristicProperties = [.notify, .read]
-          let treadmilldataPermissions: CBAttributePermissions = [.readable]
-          self.treadmilldataCharacteristic = CBMutableCharacteristic(type: treadmilldataUuid,
-                                               properties: treadmilldataProperties,
-                                                           value: nil,
-                                                           permissions: treadmilldataPermissions)
-        
-        let FitnessMachinestatusProperties: CBCharacteristicProperties = [.notify]
-        let FitnessMachinestatusPermissions: CBAttributePermissions = [.readable]
-        self.FitnessMachinestatusCharacteristic = CBMutableCharacteristic(type: FitnessMachinestatusUuid,
-                                           properties: FitnessMachinestatusProperties,
-                                                       value: nil,
-                                                       permissions: FitnessMachinestatusPermissions)
-        
-        let TrainingStatusProperties: CBCharacteristicProperties = [.read]
-        let TrainingStatusPermissions: CBAttributePermissions = [.readable]
-        self.TrainingStatusCharacteristic = CBMutableCharacteristic(type: TrainingStatusUuid,
-                                                       properties: TrainingStatusProperties,
-                                                                       value: Data (bytes: [0x00, 0x01]),
-                                                                       permissions: TrainingStatusPermissions)
-
-      FitnessMachineService.characteristics = [FitnessMachineFeatureCharacteristic,
-                                               supported_resistance_level_rangeCharacteristic,
-                                               FitnessMachineControlPointCharacteristic,
-                                               indoorbikeCharacteristic,
-                                               treadmilldataCharacteristic,
-                                               FitnessMachinestatusCharacteristic,
-                                               TrainingStatusCharacteristic ]
-        
-        self.peripheralManager.add(FitnessMachineService)
+        if(!garmin_bluetooth_compatibility) {
+            self.heartRateService = CBMutableService(type: heartRateServiceUUID, primary: true)
+            let characteristicProperties: CBCharacteristicProperties = [.notify, .read, .write]
+            let characteristicPermissions: CBAttributePermissions = [.readable]
+            self.heartRateCharacteristic = CBMutableCharacteristic(type:          heartRateCharacteristicUUID,
+                                                                   properties: characteristicProperties,
+                                                                   value: nil,
+                                                                   permissions: characteristicPermissions)
+            
+            heartRateService.characteristics = [heartRateCharacteristic]
+            self.peripheralManager.add(heartRateService)
+            
+            self.FitnessMachineService = CBMutableService(type: FitnessMachineServiceUuid, primary: true)
+            
+            let FitnessMachineFeatureProperties: CBCharacteristicProperties = [.read]
+            let FitnessMachineFeaturePermissions: CBAttributePermissions = [.readable]
+            self.FitnessMachineFeatureCharacteristic = CBMutableCharacteristic(type: FitnessMachineFeatureCharacteristicUuid,
+                                                                               properties: FitnessMachineFeatureProperties,
+                                                                               value: Data (bytes: [0x83, 0x14, 0x00, 0x00, 0x0c, 0xe0, 0x00, 0x00]),
+                                                                               permissions: FitnessMachineFeaturePermissions)
+            
+            let supported_resistance_level_rangeProperties: CBCharacteristicProperties = [.read]
+            let supported_resistance_level_rangePermissions: CBAttributePermissions = [.readable]
+            self.supported_resistance_level_rangeCharacteristic = CBMutableCharacteristic(type: supported_resistance_level_rangeCharacteristicUuid,
+                                                                                          properties: supported_resistance_level_rangeProperties,
+                                                                                          value: Data (bytes: [0x0A, 0x00, 0x96, 0x00, 0x0A, 0x00]),
+                                                                                          permissions: supported_resistance_level_rangePermissions)
+            
+            let FitnessMachineControlPointProperties: CBCharacteristicProperties = [.indicate, .write]
+            let FitnessMachineControlPointPermissions: CBAttributePermissions = [.writeable]
+            self.FitnessMachineControlPointCharacteristic = CBMutableCharacteristic(type: FitnessMachineControlPointUuid,
+                                                                                    properties: FitnessMachineControlPointProperties,
+                                                                                    value: nil,
+                                                                                    permissions: FitnessMachineControlPointPermissions)
+            
+            let indoorbikeProperties: CBCharacteristicProperties = [.notify, .read]
+            let indoorbikePermissions: CBAttributePermissions = [.readable]
+            self.indoorbikeCharacteristic = CBMutableCharacteristic(type: indoorbikeUuid,
+                                                                    properties: indoorbikeProperties,
+                                                                    value: nil,
+                                                                    permissions: indoorbikePermissions)
+            
+            let treadmilldataProperties: CBCharacteristicProperties = [.notify, .read]
+            let treadmilldataPermissions: CBAttributePermissions = [.readable]
+            self.treadmilldataCharacteristic = CBMutableCharacteristic(type: treadmilldataUuid,
+                                                                       properties: treadmilldataProperties,
+                                                                       value: nil,
+                                                                       permissions: treadmilldataPermissions)
+            
+            let FitnessMachinestatusProperties: CBCharacteristicProperties = [.notify]
+            let FitnessMachinestatusPermissions: CBAttributePermissions = [.readable]
+            self.FitnessMachinestatusCharacteristic = CBMutableCharacteristic(type: FitnessMachinestatusUuid,
+                                                                              properties: FitnessMachinestatusProperties,
+                                                                              value: nil,
+                                                                              permissions: FitnessMachinestatusPermissions)
+            
+            let TrainingStatusProperties: CBCharacteristicProperties = [.read]
+            let TrainingStatusPermissions: CBAttributePermissions = [.readable]
+            self.TrainingStatusCharacteristic = CBMutableCharacteristic(type: TrainingStatusUuid,
+                                                                        properties: TrainingStatusProperties,
+                                                                        value: Data (bytes: [0x00, 0x01]),
+                                                                        permissions: TrainingStatusPermissions)
+            
+            FitnessMachineService.characteristics = [FitnessMachineFeatureCharacteristic,
+                                                     supported_resistance_level_rangeCharacteristic,
+                                                     FitnessMachineControlPointCharacteristic,
+                                                     indoorbikeCharacteristic,
+                                                     treadmilldataCharacteristic,
+                                                     FitnessMachinestatusCharacteristic,
+                                                     TrainingStatusCharacteristic ]
+            
+            self.peripheralManager.add(FitnessMachineService)
+        }
         
         self.rscService = CBMutableService(type: RSCServiceUuid, primary: true)
         
@@ -215,9 +218,16 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
       return
     }
     
-    let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                              CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, RSCServiceUuid]] as [String : Any]
-    peripheralManager.startAdvertising(advertisementData)
+      if(!garmin_bluetooth_compatibility) {
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
+                                CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, RSCServiceUuid]] as [String : Any]
+          peripheralManager.startAdvertising(advertisementData)
+      } else {
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
+                                CBAdvertisementDataServiceUUIDsKey: [RSCServiceUuid]] as [String : Any]
+          peripheralManager.startAdvertising(advertisementData)
+      }
+    
     print("Successfully added service")
   }
   
@@ -329,14 +339,31 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     }
 
     func calculateRSCMeasurement() -> Data {
-        let flags0:UInt8 = 0x00
-        let speed:UInt16 = UInt16(((Double(self.NormalizeSpeed) / 100.0) / 3.6) * 256.0)
-      
-        var rscMeasurement: [UInt8] = [flags0, (UInt8)(speed & 0xFF), (UInt8)((speed >> 8) & 0xFF),
-                                       (UInt8)(self.CurrentCadence & 0xFF)]
-      let rscMeasurementData = Data(bytes: &rscMeasurement, count: 4)
-      return rscMeasurementData
-    }
+    // Set flags to indicate distance is present (bit 1)
+    let flags0: UInt8 = 0x02
+    
+    // Calculate speed (existing logic)
+    let speed: UInt16 = UInt16(((Double(self.NormalizeSpeed) / 100.0) / 3.6) * 256.0)
+    
+    // Distance in meters (assuming you have a totalDistance property)
+    // Using UInt32 as per BLE specification for distance
+    let distance: UInt32 = UInt32(self.CurrentDistance) * 10
+    
+    // Create measurement array with distance
+    var rscMeasurement: [UInt8] = [
+        flags0,                              // Flags
+        UInt8(speed & 0xFF),                // Speed LSB
+        UInt8((speed >> 8) & 0xFF),         // Speed MSB
+        UInt8(self.CurrentCadence & 0xFF),  // Cadence
+        UInt8(distance & 0xFF),             // Distance LSB
+        UInt8((distance >> 8) & 0xFF),      // Distance byte 2
+        UInt8((distance >> 16) & 0xFF),     // Distance byte 3
+        UInt8((distance >> 24) & 0xFF)      // Distance MSB
+    ]
+    
+    let rscMeasurementData = Data(bytes: &rscMeasurement, count: 8)
+    return rscMeasurementData
+}
     
   @objc func updateSubscribers() {
     let heartRateData = self.calculateHeartRate()
@@ -344,21 +371,21 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     let treadmillData = self.calculateTreadmillData()
     let rscMeasurementData = self.calculateRSCMeasurement()
     
-    if(self.serviceToggle == 0)
+      if(self.serviceToggle == 0 && !garmin_bluetooth_compatibility)
     {
         let ok = self.peripheralManager.updateValue(heartRateData, for: self.heartRateCharacteristic, onSubscribedCentrals: nil)
         if(ok) {
             self.serviceToggle = 1;
         }
     }
-    else if(self.serviceToggle == 1)
+    else if(self.serviceToggle == 1 && !garmin_bluetooth_compatibility)
     {
         let ok = self.peripheralManager.updateValue(treadmillData, for: self.treadmilldataCharacteristic, onSubscribedCentrals: nil)
         if(ok) {
             self.serviceToggle = 2;
         }
     }
-    else if(self.serviceToggle == 2)
+      else if(self.serviceToggle == 2 || garmin_bluetooth_compatibility)
     {
         let ok = self.peripheralManager.updateValue(rscMeasurementData, for: self.rscMeasurementCharacteristic, onSubscribedCentrals: nil)
         if(ok) {

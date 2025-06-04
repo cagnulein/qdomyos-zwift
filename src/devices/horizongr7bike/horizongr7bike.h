@@ -36,7 +36,7 @@
 class horizongr7bike : public bike {
     Q_OBJECT
   public:
-    horizongr7bike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    horizongr7bike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain);
     bool connected() override;
 
@@ -63,7 +63,7 @@ class horizongr7bike : public bike {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
 
     bool initDone = false;

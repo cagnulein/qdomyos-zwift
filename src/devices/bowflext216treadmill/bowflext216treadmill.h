@@ -59,9 +59,6 @@ class bowflext216treadmill : public treadmill {
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
 
-    int64_t lastStart = 0;
-    int64_t lastStop = 0;
-
     QTimer *refresh;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
@@ -78,6 +75,7 @@ class bowflext216treadmill : public treadmill {
     bool bowflex_t6 = false;
     bool bowflex_btx116 = false;
     bool bowflex_t8j = false;
+    bool bowflex_T128 = false;
 
   Q_SIGNALS:
     void disconnected();

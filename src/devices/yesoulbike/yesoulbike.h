@@ -40,7 +40,7 @@ class yesoulbike : public bike {
     static constexpr uint16_t manufacturerDataId = 637;
     static constexpr const char* bluetoothName = "YESOUL";
 
-    yesoulbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    yesoulbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                double bikeResistanceGain);
     bool connected() override;
 
@@ -71,7 +71,7 @@ class yesoulbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
 
     bool YS_G1M = false;

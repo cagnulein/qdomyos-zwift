@@ -36,8 +36,9 @@
 class fitplusbike : public bike {
     Q_OBJECT
   public:
-    fitplusbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
+    fitplusbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     resistance_t maxResistance() override { return max_resistance; }
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool connected() override;
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
 
@@ -49,6 +50,7 @@ class fitplusbike : public bike {
     void startDiscover();
     void forceResistance(resistance_t requestResistance);
     void sendPoll();
+    double bikeResistanceToPeloton(double resistance);
     uint16_t watts() override;
     uint16_t wattsFromResistance(double resistance);
 
@@ -60,7 +62,7 @@ class fitplusbike : public bike {
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotifyFTMSCharacteristic;
 
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     uint8_t counterPoll = 1;
     uint8_t sec1Update = 0;
@@ -68,6 +70,7 @@ class fitplusbike : public bike {
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     resistance_t lastResistanceBeforeDisconnection = -1;
+    bool requestResistanceCompleted = true;
 
     bool initDone = false;
     bool initRequest = false;
@@ -76,6 +79,7 @@ class fitplusbike : public bike {
     bool noHeartService = false;
 
     bool merach_MRK = false;
+    bool H9110_OSAKA = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

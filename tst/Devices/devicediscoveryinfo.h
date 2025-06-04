@@ -1,66 +1,72 @@
-#ifndef DEVICEDISCOVERYINFO_H
-#define DEVICEDISCOVERYINFO_H
+#pragma once
 
+#include <QBluetoothDeviceInfo>
+#include <QBluetoothUuid>
 #include <QSettings>
 #include <QString>
-#include <vector>
+#include <QMap>
 
 /**
  * @brief Settings used during the device discovery process.
  */
 class DeviceDiscoveryInfo {
+    QMap<QString, QVariant> values;
+    QBluetoothDeviceInfo bluetoothDeviceInfo;
 public :
-    QString filterDevice = QLatin1String("");
-
-    bool fake_bike = false;
-    bool fakedevice_elliptical = false;
-    bool fakedevice_treadmill = false;
-    QString proformtdf4ip = nullptr;
-
-    QString proformtreadmillip = nullptr;
-    QString nordictrack_2950_ip = nullptr;
-    QString tdf_10_ip = nullptr;
-
-    bool csc_as_bike = false;
-    QString cscName = nullptr;
-
-    bool power_as_bike = false;
-    QString powerSensorName = nullptr;
-    bool power_as_treadmill = false;
-
-    bool hammerRacerS = false;
-    bool pafers_treadmill= false;
-
-    bool flywheel_life_fitness_ic8 = false;
-    bool toorx_bike = false;
-
-    bool toorx_ftms = false;
-    bool toorx_ftms_treadmill = false;
-    bool horizon_treadmill_force_ftms = false;
-    bool snode_bike = false;
-    bool fitplus_bike = false;
-
-    bool technogym_myrun_treadmill_experimental = false;
-
-    QString computrainer_serial_port = nullptr;
-    bool ss2k_peloton = false;
-
-    QString ftmsAccessoryName = nullptr;
-    QString ftms_bike = nullptr;
-
-    bool pafers_treadmill_bh_iboxster_plus = false;
-
-    bool iconcept_elliptical = false;
-
-    bool sole_treadmill_inclination = false;
-
-
-
     /**
      * @brief Constructor.
      * @param loadDefaults Indicates if the default values should be loaded.
      */
     explicit DeviceDiscoveryInfo(bool loadDefaults=true);
+
+    /**
+     * @brief Constructor that configures with a specific bluetooth device info object.
+     * @param deviceInfo
+     * @param loadDefaults Indicates if the default values should be loaded.
+     */
+    DeviceDiscoveryInfo(const QBluetoothDeviceInfo& deviceInfo, bool loadDefaults=true);
+
+
+
+    /**
+     * @brief Constructor that configures with a specific bluetooth device info object, copying other values
+     * from a DeviceDiscoveryInfo object.
+     * @param other The configuration to copy.
+     * @param deviceInfo
+     * @param loadDefaults Indicates if the default values should be loaded.
+     */
+    DeviceDiscoveryInfo(const DeviceDiscoveryInfo& other, const QBluetoothDeviceInfo& deviceInfo);
+
+    /**
+     * @brief Gets a pointer to the bluetooth device information object.
+     * @return
+     */
+    QBluetoothDeviceInfo * DeviceInfo();
+
+    /**
+     * @brief Constant function to get the bluetooth device name.
+     * @return
+     */
+    const QString DeviceName() const;
+
+    /**
+     * @brief Utility to include/exclude a service from the blutooth device info.
+     * @param serviceUuid
+     * @param include True includes, False excludes
+     */
+    void includeBluetoothService(const QBluetoothUuid& serviceUuid, bool include);
+
+    /**
+     * @brief Adds a specific service if it's not already present.
+     * @param serviceUuid
+     */
+    void addBluetoothService(const QBluetoothUuid& serviceUuid);
+
+    /**
+     * @brief Removes a specific service if it's present.
+     * @param serviceUuid
+     */
+    void removeBluetoothService(const QBluetoothUuid& serviceUuid);
 
     /**
      * @brief Configures the QSettings object.
@@ -79,6 +85,27 @@ public :
      */
     void loadDefaultValues();
 
-};
+    /**
+     * @brief Gets the value for the specified key, or the default value if the key is not present.
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    QVariant Value(const QString& key, const QVariant& defaultValue) const;
 
-#endif // DEVICEDISCOVERYINFO_H
+
+    /**
+     * @brief Gets the value for the specified key.
+     * @param key
+     * @return
+     */
+    QVariant Value(const QString& key) const;
+
+    /**
+     * @brief Sets the value for the specified key.
+     * @param key
+     * @param value
+     */
+    void setValue(const QString& key, const QVariant& value);
+
+};

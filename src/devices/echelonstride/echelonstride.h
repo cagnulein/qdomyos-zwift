@@ -68,9 +68,6 @@ class echelonstride : public treadmill {
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
 
-    int64_t lastStart = 0;
-    int64_t lastStop = 0;
-
     QTimer *refresh;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
@@ -80,6 +77,8 @@ class echelonstride : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+
+    bool stride4 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

@@ -38,6 +38,40 @@ void elliptical::update_metrics(bool watt_calc, const double watts) {
     _firstUpdate = false;
 }
 
+resistance_t elliptical::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something
+
+void elliptical::changePower(int32_t power) {
+
+    RequestedPower = power; // in order to paint in any case the request power on the charts
+
+    if (!autoResistanceEnable) {
+        qDebug() << QStringLiteral("changePower ignored because auto resistance is disabled");
+        return;
+    }
+
+    requestPower = power; // used by some bikes that have ERG mode builtin
+    QSettings settings;
+    bool force_resistance =
+        settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
+            .toBool();
+    // bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(); //Not used
+    // anywhere in code
+    double erg_filter_upper =
+        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+    double erg_filter_lower =
+        settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+    double deltaDown = wattsMetric().value() - ((double)power);
+    double deltaUp = ((double)power) - wattsMetric().value();
+    qDebug() << QStringLiteral("filter  ") + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +
+                    QString::number(erg_filter_upper) + " " + QString::number(erg_filter_lower);
+    if (/*!ergModeSupported &&*/ force_resistance /*&& erg_mode*/ &&
+        (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower)) {
+        resistance_t r = (resistance_t)resistanceFromPowerRequest(power);
+        changeResistance(r); // resistance start from 1
+    }
+}
+
+
 uint16_t elliptical::watts() {
 
     QSettings settings;
@@ -84,7 +118,8 @@ void elliptical::setGears(double gears) {
     QSettings settings;
     qDebug() << "setGears" << gears;
     m_gears = gears;
-    settings.setValue(QZSettings::gears_current_value, m_gears);
+    if (settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool())
+        settings.setValue(QZSettings::gears_current_value, m_gears);
     if (lastRawRequestedResistanceValue != -1) {
         changeResistance(lastRawRequestedResistanceValue);
     }

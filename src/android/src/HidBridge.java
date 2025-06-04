@@ -16,8 +16,9 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.os.Build;
+import androidx.core.content.ContextCompat;
  
 /**
  * This class is used for talking to hid of the dongle, connecting, disconnencting and enumerating the devices.
@@ -88,7 +89,12 @@ public class HidBridge {
                 int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
                 PendingIntent mPermissionIntent = PendingIntent.getBroadcast(_context, 0, new Intent(ACTION_USB_PERMISSION), flags);
 		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-		_context.registerReceiver(mUsbReceiver, filter);
+				ContextCompat.registerReceiver(
+                    _context,
+                    mUsbReceiver,
+                    filter,
+                    ContextCompat.RECEIVER_EXPORTED
+                );
  
 		_usbManager.requestPermission(_usbDevice, mPermissionIntent);
 		Log("Found the device");
@@ -163,7 +169,7 @@ public class HidBridge {
 		} catch(NullPointerException e)
 		{
 			Log("Error happened while writing. Could not connect to the device or interface is busy?");
-			Log.e("HidBridge", Log.getStackTraceString(e));
+			QLog.e("HidBridge", QLog.getStackTraceString(e));
 			return false;
 		}
 		return true;
@@ -283,7 +289,7 @@ public class HidBridge {
 					
 					catch (NullPointerException e) {
 						Log("Error happened while reading. No device or the connection is busy");
-						Log.e("HidBridge", Log.getStackTraceString(e));
+						QLog.e("HidBridge", QLog.getStackTraceString(e));
 					}
 					catch (ThreadDeath e) {
 						if (readConnection != null) {
@@ -326,7 +332,7 @@ public class HidBridge {
 	                   }
 	                } 
 	                else {
-	                    Log.d("TAG", "permission denied for the device " + device);
+	                    QLog.d("TAG", "permission denied for the device " + device);
 	                }
 	            }
 	        }
@@ -338,7 +344,7 @@ public class HidBridge {
 	 * @param message to log.
 	 */
 	private void Log(String message) {
-		Log.d("HidBridge", message);
+		QLog.d("HidBridge", message);
 	}
 	
 	/**

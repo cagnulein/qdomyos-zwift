@@ -16,7 +16,7 @@ using namespace std::chrono_literals;
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
 
-mepanelbike::mepanelbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+mepanelbike::mepanelbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                          double bikeResistanceGain) {
 #ifdef Q_OS_IOS
     QZ_EnableDiscoveryCharsAndDescripttors = true;

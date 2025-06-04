@@ -9,7 +9,7 @@ class CharacteristicWriteProcessor2AD9 : public CharacteristicWriteProcessor {
     CharacteristicNotifier2AD9 *notifier = nullptr;
 
   public:
-    explicit CharacteristicWriteProcessor2AD9(double bikeResistanceGain, uint8_t bikeResistanceOffset,
+    explicit CharacteristicWriteProcessor2AD9(double bikeResistanceGain, int8_t bikeResistanceOffset,
                                               bluetoothdevice *bike, CharacteristicNotifier2AD9 *notifier,
                                               QObject *parent = nullptr);
     int writeProcess(quint16 uuid, const QByteArray &data, QByteArray &out) override;

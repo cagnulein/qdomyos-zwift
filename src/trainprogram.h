@@ -15,6 +15,10 @@
 #include "zwift-api/PlayerStateWrapper.h"
 #include "zwift-api/zwift_client_auth.h"
 
+#ifdef Q_CC_MSVC
+#include "zwift-api/zwift_messages.pb.h"
+#endif
+
 class trainrow {
   public:
     QTime duration = QTime(0, 0, 0, 0);
@@ -83,8 +87,8 @@ class trainprogram : public QObject {
     double totalDistance();
     trainrow currentRow();
     trainrow getRowFromCurrent(uint32_t offset);
-    void increaseElapsedTime(uint32_t i);
-    void decreaseElapsedTime(uint32_t i);
+    void increaseElapsedTime(int32_t i);
+    void decreaseElapsedTime(int32_t i);
     int32_t offsetElapsedTime() { return offset; }
     void clearRows();
     double avgSpeedFromGpxStep(int gpxStep, int seconds);
@@ -93,6 +97,7 @@ class trainprogram : public QObject {
     double weightedInclination(int step);
     double medianInclination(int step);
     bool overridePowerForCurrentRow(double power);
+    bool overrideZoneHRForCurrentRow(uint8_t zone);
     bool powerzoneWorkout() {
         foreach(trainrow r, rows) {
             if(r.power != -1) return true;
@@ -140,6 +145,7 @@ private slots:
     void zwiftLoginState(bool ok);
 
   private:
+    void end();
     mutable QRecursiveMutex schedulerMutex;
     double avgAzimuthNext300Meters();
     QList<MetersByInclination> inclinationNext300Meters();

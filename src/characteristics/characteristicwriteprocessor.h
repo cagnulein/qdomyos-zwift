@@ -12,11 +12,11 @@
 class CharacteristicWriteProcessor : public QObject {
     Q_OBJECT
   public:
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bluetoothdevice *Bike;
 
-    explicit CharacteristicWriteProcessor(double bikeResistanceGain, uint8_t bikeResistanceOffset,
+    explicit CharacteristicWriteProcessor(double bikeResistanceGain, int8_t bikeResistanceOffset,
                                           bluetoothdevice *bike, QObject *parent = nullptr);
     virtual int writeProcess(quint16 uuid, const QByteArray &data, QByteArray &out) = 0;
     virtual void changePower(uint16_t power);

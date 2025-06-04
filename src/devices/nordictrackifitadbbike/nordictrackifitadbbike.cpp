@@ -91,6 +91,12 @@ void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
             emit onWatt(watt);
         if (hrmFound)
             emit onHRM(hrm);
+#ifdef Q_OS_WINDOWS        
+        if(adbCommandPending.length() != 0) {
+            runAdbCommand(adbCommandPending);
+            adbCommandPending = "";
+        }
+#endif                                
     });
     QObject::connect(process, &QProcess::readyReadStandardError, [process, this]() {
         auto output = process->readAllStandardError();
@@ -103,7 +109,7 @@ void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
 }
 
 nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHeartService,
-                                               uint8_t bikeResistanceOffset, double bikeResistanceGain) {
+                                               int8_t bikeResistanceOffset, double bikeResistanceGain) {
     QSettings settings;
     bool nordictrack_ifit_adb_remote =
         settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
@@ -183,7 +189,9 @@ bool nordictrackifitadbbike::inclinationAvailableByHardware() {
     bool proform_studio_NTEX71021 =
     settings.value(QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021)
         .toBool();
-    if(proform_studio_NTEX71021)
+    bool nordictrackadbbike_resistance = settings.value(QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance).toBool();
+
+    if(proform_studio_NTEX71021 || nordictrackadbbike_resistance)
         return false;   
     else
         return true; 
@@ -204,6 +212,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
     uint16_t port;
     bool freemotion_coachbike_b22_7 = settings.value(QZSettings::freemotion_coachbike_b22_7, QZSettings::default_freemotion_coachbike_b22_7).toBool();
     while (socket->hasPendingDatagrams()) {
+        QDateTime now = QDateTime::currentDateTime();
         QByteArray datagram;
         datagram.resize(socket->pendingDatagramSize());
         socket->readDatagram(datagram.data(), datagram.size(), &sender, &port);
@@ -216,6 +225,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         QString heartRateBeltName =
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+        bool nordictrackadbbike_resistance = settings.value(QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance).toBool();
 
         double speed = 0;
         double cadence = 0;
@@ -243,7 +253,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     gear = getDouble(aValues.last());
-                    Resistance = gear;
+                    if(!nordictrackadbbike_resistance)
+                        Resistance = gear;
                     emit resistanceRead(Resistance.value());
                     gearsAvailable = true;
                 }
@@ -254,10 +265,10 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                     if(freemotion_coachbike_b22_7)
                         m_pelotonResistance = (100 / 24) * resistance;
                     else
-                        m_pelotonResistance = (100 / 32) * resistance;
+                        m_pelotonResistance = bikeResistanceToPeloton(resistance);
                     qDebug() << QStringLiteral("Current Peloton Resistance: ") << m_pelotonResistance.value()
                              << resistance;
-                    if(!gearsAvailable) {
+                    if(!gearsAvailable && !nordictrackadbbike_resistance) {
                         Resistance = resistance;
                         emit resistanceRead(Resistance.value());
                     }
@@ -280,7 +291,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
-                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
 
         bool proform_studio_NTEX71021 =
@@ -291,13 +302,21 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         double inclination_delay_seconds = settings.value(QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds).toDouble();
 
         // only resistance
-        if(proform_studio_NTEX71021) {
+        if(proform_studio_NTEX71021 || nordictrackadbbike_resistance) {
             if (nordictrack_ifit_adb_remote) {
-                if (requestResistance != -100) {
+                if (requestResistance != -1) {
                     if (requestResistance != currentResistance().value()) {
                         int x1 = 950;
                         int y2 = (int)(493 - (13.57 * (requestResistance - 1)));
                         int y1Resistance = (int)(493 - (13.57 * currentResistance().value()));
+
+                        if(!proform_studio_NTEX71021) { // s22i default
+                            x1 = 1920 - 75;
+                            y2 = (int)(803 - (23.777 * requestResistance));
+                            y1Resistance = (int)(803 - (23.777 * currentResistance().value()));
+                            Resistance = requestResistance;
+                            emit resistanceRead(Resistance.value());
+                        }
 
                         lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
                                       QString::number(x1) + " " + QString::number(y2) + " 200";
@@ -326,8 +345,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             qDebug() << QString::number(ret) + " >> " + message;                
         }
         // since the motor of the bike is slow, let's filter the inclination changes to more than 4 seconds
-        else if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > inclination_delay_seconds) {
-            lastInclinationChanged = QDateTime::currentDateTime();
+        else if (lastInclinationChanged.secsTo(now) > inclination_delay_seconds) {
+            lastInclinationChanged = now;
             if (nordictrack_ifit_adb_remote) {
                 bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
                 if (requestInclination != -100 && erg_mode && requestResistance != -100) {
@@ -402,7 +421,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 requestInclination = -100;
             }
 
-            QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";";
+            double r = currentResistance().value() + difficult() + gears(); // the inclination here is like the resistance for the other bikes
+            QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";" + QString::number(r).toLocal8Bit();
             requestInclination = -100;
             int ret = socket->writeDatagram(message, message.size(), sender, 8003);
             qDebug() << QString::number(ret) + " >> " + message;
@@ -412,18 +432,18 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             KCal +=
                 ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
         // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
         if (Cadence.value() > 0) {
             CrankRevs++;
             LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
         }
 
-        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+        lastRefreshCharacteristicChanged = now;
 
 #ifdef Q_OS_ANDROID
         if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -478,56 +498,88 @@ void nordictrackifitadbbike::onHRM(int hrm) {
     }
 }
 
-resistance_t nordictrackifitadbbike::pelotonToBikeResistance(int pelotonResistance) {
-    if (pelotonResistance <= 10) {
+double nordictrackifitadbbike::bikeResistanceToPeloton(resistance_t bikeResistance) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
+        if (pelotonToBikeResistance(i) <= bikeResistance && pelotonToBikeResistance(i + 1) > bikeResistance) {
+            return i;
+        }
+    }
+    if (bikeResistance < pelotonToBikeResistance(1))
         return 1;
+    else
+        return 100;
+}
+
+resistance_t nordictrackifitadbbike::pelotonToBikeResistance(int pelotonResistance) {
+    QSettings settings;
+    int resistanceLevel;
+
+    if (pelotonResistance <= 5) {
+        resistanceLevel = 1;
     }
-    if (pelotonResistance <= 20) {
-        return 2;
+    else if (pelotonResistance <= 7) {
+        resistanceLevel = 2;
     }
-    if (pelotonResistance <= 25) {
-        return 3;
+    else if (pelotonResistance <= 9) {
+        resistanceLevel = 3;
     }
-    if (pelotonResistance <= 30) {
-        return 4;
+    else if (pelotonResistance <= 10) {
+        resistanceLevel = 4;
     }
-    if (pelotonResistance <= 35) {
-        return 5;
+    else if (pelotonResistance <= 15) {
+        resistanceLevel = 5;
     }
-    if (pelotonResistance <= 40) {
-        return 6;
+    else if (pelotonResistance <= 25) {
+        resistanceLevel = 6;
     }
-    if (pelotonResistance <= 45) {
-        return 7;
+    else if (pelotonResistance <= 30) {
+        resistanceLevel = 7;
     }
-    if (pelotonResistance <= 50) {
-        return 8;
+    else if (pelotonResistance <= 35) {
+        resistanceLevel = 8;
     }
-    if (pelotonResistance <= 55) {
-        return 9;
+    else if (pelotonResistance <= 40) {
+        resistanceLevel = 9;
     }
-    if (pelotonResistance <= 60) {
-        return 10;
+    else if (pelotonResistance <= 45) {
+        resistanceLevel = 10;
     }
-    if (pelotonResistance <= 65) {
-        return 11;
+    else if (pelotonResistance <= 50) {
+        resistanceLevel = 11;
     }
-    if (pelotonResistance <= 70) {
-        return 12;
+    else if (pelotonResistance <= 55) {
+        resistanceLevel = 12;
     }
-    if (pelotonResistance <= 75) {
-        return 13;
+    else if (pelotonResistance <= 60) {
+        resistanceLevel = 13;
     }
-    if (pelotonResistance <= 80) {
-        return 14;
+    else if (pelotonResistance <= 65) {
+        resistanceLevel = 14;
     }
-    if (pelotonResistance <= 85) {
-        return 15;
+    else if (pelotonResistance <= 70) {
+        resistanceLevel = 15;
     }
-    if (pelotonResistance <= 100) {
-        return 16;
+    else if (pelotonResistance <= 75) {
+        resistanceLevel = 16;
     }
-    return Resistance.value();
+    else if (pelotonResistance <= 80) {
+        resistanceLevel = 17;
+    }
+    else if (pelotonResistance <= 85) {
+        resistanceLevel = 18;
+    }
+    else if (pelotonResistance <= 95) {
+        resistanceLevel = 19;
+    }
+    else if (pelotonResistance <= 100) {
+        resistanceLevel = 20;
+    }
+    else {
+        return Resistance.value();
+    }
+
+    return (resistanceLevel * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+           settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
 }
 
 void nordictrackifitadbbike::forceResistance(double resistance) {}
@@ -710,3 +762,5 @@ uint16_t nordictrackifitadbbike::wattsFromResistance(double inclination, double 
 
     return power;
 }
+
+bool nordictrackifitadbbike::ifitCompatible() {return true;}

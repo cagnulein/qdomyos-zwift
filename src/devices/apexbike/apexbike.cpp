@@ -12,7 +12,7 @@
 
 using namespace std::chrono_literals;
 
-apexbike::apexbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+apexbike::apexbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -57,7 +57,13 @@ void apexbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+    }
+
 
     if (!disable_log) {
         qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
@@ -140,28 +146,45 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
     lastPacket = newValue;
 
-    if (newValue.length() != 10 && newValue.at(2) != 0x31) {
+    if (newValue.length() == 10 && newValue.at(2) == 0x31) {
+        Resistance = newValue.at(5);
+        emit resistanceRead(Resistance.value());
+        m_pelotonResistance = Resistance.value();
+
+        qDebug() << QStringLiteral("Current resistance: ") + QString::number(Resistance.value());
+    }
+
+    if (newValue.length() != 10 || newValue.at(2) != 0x30) {
         return;
     }
 
-    Resistance = newValue.at(5);
-    emit resistanceRead(Resistance.value());
-    m_pelotonResistance = Resistance.value();
+    uint16_t distanceData = (newValue.at(3) << 8) | ((uint8_t)newValue.at(4));
+    double distance = ((double)distanceData);
 
-    qDebug() << QStringLiteral("Current resistance: ") + QString::number(Resistance.value());
+    if(distance != lastDistance) {
+        if(lastDistance != 0) {
+            double deltaDistance = distance - lastDistance;
+            double deltaTime = fabs(now.msecsTo(lastTS));
+            double timeHours = deltaTime / (1000.0 * 60.0 * 60.0);
+            double k = 0.005333;
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = (deltaDistance *k) / timeHours; // Speed in distance units per hour
+            } else {
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            }
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                Cadence = Speed.value() / 0.37497622;
+            }
+        }
+        lastDistance = distance;
+        lastTS = now;
+        qDebug() << "lastDistance" << lastDistance << "lastTS" << lastTS;
+    }
 
-    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-            .toString()
-            .startsWith(QStringLiteral("Disabled"))) {
-        Cadence = ((uint8_t)newValue.at(4));
-    }
-    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-        Speed = 0.37497622 * ((double)Cadence.value());
-    } else {
-        Speed = metric::calculateSpeedFromPower(
-            watts(), Inclination.value(), Speed.value(),
-            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
-    }
     if (watts())
         KCal +=
             ((((0.048 * ((double)watts()) + 1.19) *
@@ -221,10 +244,17 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 }
 
 void apexbike::btinit() {
+    sendPoll();
+    QThread::msleep(2000);
+    sendPoll();
+    QThread::msleep(2000);
     uint8_t initData1[] = {0xeb, 0x50, 0x51, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa2};
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    QThread::msleep(500);
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    QThread::msleep(500);
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    QThread::msleep(500);
 
     initDone = true;
 

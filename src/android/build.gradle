@@ -18,7 +18,6 @@ repositories {
     google()
     jcenter()
     maven { url 'https://jitpack.io' }
-	 maven { url 'https://dl.bintray.com/rvalerio/maven' }
 }
 
 apply plugin: 'com.android.application'
@@ -28,11 +27,11 @@ def amazon = System.getenv('AMAZON')
 println(amazon)
 
 dependencies {
-    compile 'com.rvalerio:fgchecker:1.1.0'
+    implementation "androidx.core:core:1.12.0"
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
     implementation 'com.google.protobuf:protobuf-javalite:3.25.1'
-
+		
     if(amazon == "1") {
         // amazon app store
         implementation 'com.google.mlkit:text-recognition:16.0.0-beta6'
@@ -45,13 +44,13 @@ dependencies {
 
     def appcompat_version = "1.3.1"
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-	 implementation "com.android.billingclient:billing:5.0.0"
+         implementation "com.android.billingclient:billing:6.0.1"
          implementation 'com.android.support:appcompat-v7:28.0.0'
 
          implementation "androidx.appcompat:appcompat:$appcompat_version"
          implementation "androidx.appcompat:appcompat-resources:$appcompat_version"
          implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-         implementation 'com.github.mik3y:usb-serial-for-android:v3.4.6'
+         implementation files('libs/usb-serial-for-android-3.8.1.aar')
 	 androidTestImplementation "com.android.support:support-annotations:28.0.0"
 	      implementation 'com.google.android.gms:play-services-wearable:+'
 
@@ -130,7 +129,7 @@ android {
         resConfig "en"
                   compileSdkVersion 33
 		  minSdkVersion = 21
-                  targetSdkVersion = 33
+                  targetSdkVersion = 34
     }
 
 tasks.all { task ->

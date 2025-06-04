@@ -37,7 +37,7 @@ class domyosbike : public bike {
     Q_OBJECT
   public:
     domyosbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
-               uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
+               int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
@@ -74,12 +74,13 @@ class domyosbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool testResistance = false;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bool searchStopped = false;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    bool firstCharacteristicChanged = true;
 
     enum _BIKE_TYPE {
         CHANG_YOW,

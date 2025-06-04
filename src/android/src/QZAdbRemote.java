@@ -17,7 +17,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -49,6 +49,9 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
 	 private static QZAdbRemote INSTANCE;
 
+         private static final String EXTRA_FOREGROUND_SERVICE_TYPE = "FOREGROUND_SERVICE_TYPE";
+         private static final int FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE = 0x10;
+
 	 public static QZAdbRemote getInstance() {
 		 if(INSTANCE == null) {
 			 INSTANCE = new QZAdbRemote();
@@ -60,25 +63,25 @@ public class QZAdbRemote implements DeviceConnectionListener {
 	 @Override
 	 public void notifyConnectionEstablished(DeviceConnection devConn) {
 		  ADBConnected = true;
-		  Log.i(LOG_TAG, "notifyConnectionEstablished" + lastCommand);
+		  QLog.i(LOG_TAG, "notifyConnectionEstablished" + lastCommand);
 		}
 
 	 @Override
 	 public void notifyConnectionFailed(DeviceConnection devConn, Exception e) {
 		  ADBConnected = false;
-		  Log.e(LOG_TAG, e.getMessage());
+		  QLog.e(LOG_TAG, e.getMessage());
 		}
 
 	 @Override
 	 public void notifyStreamFailed(DeviceConnection devConn, Exception e) {
 		  ADBConnected = false;
-		  Log.e(LOG_TAG, e.getMessage());
+		  QLog.e(LOG_TAG, e.getMessage());
 		}
 
 	 @Override
 	 public void notifyStreamClosed(DeviceConnection devConn) {
 		  ADBConnected = false;
-		  Log.e(LOG_TAG, "notifyStreamClosed");
+		  QLog.e(LOG_TAG, "notifyStreamClosed");
 		}
 
 	 @Override
@@ -93,7 +96,7 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
 	 @Override
 	 public void receivedData(DeviceConnection devConn, byte[] data, int offset, int length) {
-		  Log.i(LOG_TAG, data.toString());
+		  QLog.i(LOG_TAG, data.toString());
 		}
 
 	 @Override
@@ -158,7 +161,7 @@ public class QZAdbRemote implements DeviceConnectionListener {
 		  if (crypto == null)
 		  {
 			   /* We need to make a new pair */
-				Log.i(LOG_TAG,
+				QLog.i(LOG_TAG,
 				        "This will only be done once.");
 
 						new Thread(new Runnable() {
@@ -170,7 +173,7 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
 						  if (crypto == null)
 						  {
-							   Log.e(LOG_TAG,
+							   QLog.e(LOG_TAG,
 								        "Unable to generate and save RSA key pair");
 										return;
 								}
@@ -181,13 +184,14 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
 		  if (binder == null) {
 			   service = new Intent(_context, ShellService.class);
+                           service.putExtra(EXTRA_FOREGROUND_SERVICE_TYPE, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
 
 				/* Bind the service if we're not bound already. After binding, the callback will
 				 * perform the initial connection. */
 				_context.bindService(service, QZAdbRemote.getInstance().serviceConn, Service.BIND_AUTO_CREATE);
 
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-					 _context.startForegroundService(service);
+                                         _context.startForegroundService(service);
 					}
 				else {
 					 _context.startService(service);
@@ -196,7 +200,7 @@ public class QZAdbRemote implements DeviceConnectionListener {
 	 }
 
     static public void sendCommand(String command) {
-                  Log.d(LOG_TAG, "sendCommand " + ADBConnected + " " + command);
+                  QLog.d(LOG_TAG, "sendCommand " + ADBConnected + " " + command);
 		  if(ADBConnected) {
 			   StringBuilder commandBuffer = new StringBuilder();
 
@@ -208,7 +212,7 @@ public class QZAdbRemote implements DeviceConnectionListener {
 				/* Send it to the device */
 				connection.queueCommand(commandBuffer.toString());
 				} else {
-				Log.e(LOG_TAG, "sendCommand ADB is not connected!");
+				QLog.e(LOG_TAG, "sendCommand ADB is not connected!");
 				}
 	 }
 

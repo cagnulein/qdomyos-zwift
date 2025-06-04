@@ -58,6 +58,7 @@ class horizontreadmill : public treadmill {
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
+    QLowEnergyCharacteristic gattWriteCharControlPointIdYpooMiniPro;
     QLowEnergyService *gattFTMSService = nullptr;
     QLowEnergyCharacteristic gattWriteCharCustomService;
     QLowEnergyService *gattCustomService = nullptr;
@@ -71,8 +72,6 @@ class horizontreadmill : public treadmill {
     uint8_t firstStateChanged = 0;
     double lastSpeed = 0.0;
     double lastInclination = 0;
-    int64_t lastStart = 0;
-    int64_t lastStop = 0;
     bool horizonPaused = false;
     double lastHorizonForceSpeed = 0;
     double minInclination = 0.0;
@@ -88,14 +87,29 @@ class horizontreadmill : public treadmill {
     int32_t messageID = 0;
 
     bool mobvoi_treadmill = false;
+    bool mobvoi_tmp_treadmill = false;
     bool kettler_treadmill = false;
+    bool wellfit_treadmill = false;
     bool sole_tt8_treadmill = false;
+    bool sole_s77_treadmill = false;
     bool anplus_treadmill = false;
     bool tunturi_t60_treadmill = false;
     bool trx3500_treadmill = false;
     bool sole_f85_treadmill = false;
     bool sole_f89_treadmill = false;
     bool schwinn_810_treadmill = false;
+    bool technogymrun = false;
+    bool disableAutoPause = false;
+    bool HORIZON_78AT_treadmill = false;
+    bool ICONCEPT_FTMS_treadmill = false;
+    bool DOMYOS = false;
+    bool SW_TREADMILL = false;
+    bool BOWFLEX_T9 = false;
+    bool YPOO_MINI_PRO = false;
+    bool MX_TM = false;
+    bool FIT = false;
+    bool T3G_PRO = false;
+    bool T3G_ELITE = false;
 
     void testProfileCRC();
     void updateProfileCRC();

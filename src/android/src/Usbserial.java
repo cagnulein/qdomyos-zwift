@@ -8,11 +8,12 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.app.Service;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import androidx.core.content.ContextCompat;
 
 import com.hoho.android.usbserial.driver.CdcAcmSerialDriver;
 import com.hoho.android.usbserial.driver.Ch34xSerialDriver;
@@ -42,12 +43,12 @@ public class Usbserial {
     static int lastReadLen = 0;
 
     public static void open(Context context) {
-        Log.d("QZ","UsbSerial open");
+        QLog.d("QZ","UsbSerial open");
         // Find all available drivers from attached devices.
         UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager);
         if (availableDrivers.isEmpty()) {
-            Log.d("QZ","UsbSerial no available drivers");
+            QLog.d("QZ","UsbSerial no available drivers");
             return;
         }
 
@@ -57,7 +58,7 @@ public class Usbserial {
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             RingtoneManager.getRingtone(context, notification).play();
 
-            Log.d("QZ","USB permission ...");
+            QLog.d("QZ","USB permission ...");
             final Boolean[] granted = {null};
             BroadcastReceiver usbReceiver = new BroadcastReceiver() {
                 @Override
@@ -68,7 +69,12 @@ public class Usbserial {
             int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
             PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent("org.cagnulen.qdomyoszwift.USB_PERMISSION"), flags);
             IntentFilter filter = new IntentFilter("org.cagnulen.qdomyoszwift.USB_PERMISSION");
-            context.registerReceiver(usbReceiver, filter);
+            ContextCompat.registerReceiver(
+                    context,
+                    usbReceiver,
+                    filter,
+                    ContextCompat.RECEIVER_EXPORTED
+                );
             manager.requestPermission(driver.getDevice(), permissionIntent);
             for(int i=0; i<5000; i++) {
                 if(granted[0] != null) break;
@@ -79,12 +85,12 @@ public class Usbserial {
                     // Do something here
                 }
             }
-            Log.d("QZ","USB permission "+granted[0]);
+            QLog.d("QZ","USB permission "+granted[0]);
         }
 
         UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
         if (connection == null) {
-            Log.d("QZ","UsbSerial no permissions");
+            QLog.d("QZ","UsbSerial no permissions");
             // add UsbManager.requestPermission(driver.getDevice(), ..) handling here
             return;
         }
@@ -98,14 +104,14 @@ public class Usbserial {
             // Do something here
         }
 
-        Log.d("QZ","UsbSerial port opened");
+        QLog.d("QZ","UsbSerial port opened");
     }
 
     public static void write (byte[] bytes) {
         if(port == null)
            return;
 
-        Log.d("QZ","UsbSerial writing " + new String(bytes, StandardCharsets.UTF_8));
+        QLog.d("QZ","UsbSerial writing " + new String(bytes, StandardCharsets.UTF_8));
         try {
             port.write(bytes, 2000);
         }
@@ -126,7 +132,7 @@ public class Usbserial {
 
         try {
             lastReadLen = port.read(receiveData, 2000);
-            Log.d("QZ","UsbSerial reading " + lastReadLen + new String(receiveData, StandardCharsets.UTF_8));
+            QLog.d("QZ","UsbSerial reading " + lastReadLen + new String(receiveData, StandardCharsets.UTF_8));
         }
         catch (IOException e) {
             // Do something here

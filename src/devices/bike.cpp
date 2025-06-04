@@ -1,6 +1,7 @@
 
 #include "devices/bike.h"
 #include "qdebugfixup.h"
+#include "homeform.h"
 #include <QSettings>
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
@@ -13,6 +14,8 @@ void bike::changeResistance(resistance_t resistance) {
         settings.value(QZSettings::zwift_erg_resistance_up, QZSettings::default_zwift_erg_resistance_up).toDouble();
     double zwift_erg_resistance_down =
         settings.value(QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down).toDouble();
+
+    qDebug() << QStringLiteral("bike::changeResistance") << autoResistanceEnable << resistance;
 
     lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
@@ -59,17 +62,28 @@ void bike::changePower(int32_t power) {
         return;
     }
 
-    requestPower = power; // used by some bikes that have ERG mode builtin
     QSettings settings;
+    bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                             .toString()
+                             .startsWith(QStringLiteral("Disabled"));
+    double erg_filter_upper =
+        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+    double erg_filter_lower =
+        settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+
+    requestPower = power; // used by some bikes that have ERG mode builtin
+    
+    if(power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0 && fabs(requestPower - m_watt.average5s()) < qMax(erg_filter_upper, erg_filter_lower)) {
+        qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s() << "watt" << m_watt.average5s() << "req" << requestPower;
+        // the concept here is to trying to add or decrease the delta from the power sensor
+        requestPower += (requestPower - m_watt.average5s());
+    }
+        
     bool force_resistance =
         settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
             .toBool();
     // bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(); //Not used
     // anywhere in code
-    double erg_filter_upper =
-        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
-    double erg_filter_lower =
-        settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
     double deltaDown = wattsMetric().value() - ((double)power);
     double deltaUp = ((double)power) - wattsMetric().value();
     qDebug() << QStringLiteral("filter  ") + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +
@@ -81,12 +95,63 @@ void bike::changePower(int32_t power) {
     }
 }
 
-double bike::gears() { return m_gears; }
+double bike::gears() {
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    double gears_offset = settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble();
+    if(gears_zwift_ratio) {
+        if(m_gears < 1)
+            return 1.0;
+        else if(m_gears > 24)
+            return 24.0;
+    }
+    return m_gears + gears_offset;
+}
+
 void bike::setGears(double gears) {
     QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    double gears_offset = settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble();
+    gears -= gears_offset;
     qDebug() << "setGears" << gears;
+
+    // Check for boundaries and emit failure signals
+    if(gears_zwift_ratio && (gears > 24 || gears < 1)) {
+        qDebug() << "new gear value ignored because of gears_zwift_ratio setting!";
+        if(gears > 24) {
+            emit gearFailedUp();
+        } else {
+            emit gearFailedDown();
+        }
+        return;
+    }
+
+    if(gears > maxGears()) {
+        qDebug() << "new gear value ignored because of maxGears" << maxGears();
+        emit gearFailedUp();
+        return;
+    }
+
+    if(gears < minGears()) {
+        qDebug() << "new gear value ignored because of minGears" << minGears();
+        emit gearFailedDown();
+        return;
+    }
+
+    if(m_gears > gears) {
+        emit gearOkDown();
+    } else {
+        emit gearOkUp();
+    }
+
     m_gears = gears;
-    settings.setValue(QZSettings::gears_current_value, m_gears);
+    if(homeform::singleton()) {
+        homeform::singleton()->updateGearsValue();
+    }
+
+    if (settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool())
+        settings.setValue(QZSettings::gears_current_value, m_gears);
+
     if (lastRawRequestedResistanceValue != -1) {
         changeResistance(lastRawRequestedResistanceValue);
     }
@@ -122,6 +187,7 @@ void bike::clearStats() {
     m_jouls.clear(true);
     elevationAcc = 0;
     m_watt.clear(false);
+    m_rawWatt.clear(false);
     WeightLoss.clear(false);
 
     RequestedPelotonResistance.clear(false);
@@ -149,6 +215,7 @@ void bike::setPaused(bool p) {
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
+    m_rawWatt.setPaused(p);
     WeightLoss.setPaused(p);
     m_pelotonResistance.setPaused(p);
     Cadence.setPaused(p);
@@ -174,6 +241,7 @@ void bike::setLap() {
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);
+    m_rawWatt.setLap(false);
     WeightLoss.setLap(false);
     WattKg.setLap(false);
 
@@ -305,4 +373,62 @@ uint16_t bike::wattFromHR(bool useSpeedAndCadence) {
         watt = currentCadence().value() * 1.2; // random value cloned from Zwift when HR is not available
     }
     return watt;
+}
+
+double bike::gearsZwiftRatio() {
+    if(m_gears <= 0)
+        return 0.65;
+    else if(m_gears > 24)
+        return 6;
+    switch((int)m_gears) {
+        case 1:
+            return 0.75;
+        case 2:
+            return 0.87;
+        case 3:
+            return 0.99;
+        case 4:
+            return 1.11;
+        case 5:
+            return 1.23;
+        case 6:
+            return 1.38;
+        case 7:
+            return 1.53;
+        case 8:
+            return 1.68;
+        case 9:
+            return 1.86;
+        case 10:
+            return 2.04;
+        case 11:
+            return 2.22;
+        case 12:
+            return 2.40;
+        case 13:
+            return 2.61;
+        case 14:
+            return 2.82;
+        case 15:
+            return 3.03;
+        case 16:
+            return 3.24;
+        case 17:
+            return 3.49;
+        case 18:
+            return 3.74;
+        case 19:
+            return 3.99;
+        case 20:
+            return 4.24;
+        case 21:
+            return 4.54;
+        case 22:
+            return 4.84;
+        case 23:
+            return 5.14;
+        case 24:
+            return 5.49;                        
+    }
+    return 1;
 }

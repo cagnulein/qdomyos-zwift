@@ -147,6 +147,11 @@ class bluetoothdevice : public QObject {
     virtual QTime lapElapsedTime();
 
     /**
+     * @brief lapOdometer Gets the distance elapsed on the current lap.
+     */
+    virtual double lapOdometer();
+
+    /**
      * @brief connected Gets a value to indicate if the device is connected.
      */
     virtual bool connected();
@@ -215,6 +220,18 @@ class bluetoothdevice : public QObject {
      * @brief wattsMetric Gets a metric object to get or set the amount of power used.  Units: watts
      */
     metric wattsMetric();
+
+    /**
+     * @brief wattsMetricforUi Show the wattage applying averaging in case the user requested this.  Units: watts
+     */
+    double wattsMetricforUI() {
+        QSettings settings;
+        bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
+        if (power5s)
+            return wattsMetric().average5s();
+        else
+            return wattsMetric().value();
+    }
 
     /**
      * @brief changeFanSpeed Tries to change the fan speed.
@@ -401,7 +418,7 @@ class bluetoothdevice : public QObject {
      */
     void setTargetPowerZone(double pz) { TargetPowerZone = pz; }
 
-    enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };
+    enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL, JUMPROPE, STAIRCLIMBER };
     enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
 
     /**
@@ -426,6 +443,11 @@ class bluetoothdevice : public QObject {
      */
     virtual resistance_t maxResistance();
 
+    // Metrics for core temperature data
+    metric CoreBodyTemperature;  // Core body temperature in °C or °F
+    metric SkinTemperature;      // Skin temperature in °C or °F
+    metric HeatStrainIndex;      // Heat Strain Index (0-25.4, scaled by 10)
+
   public Q_SLOTS:
     virtual void start();
     virtual void stop(bool pause);
@@ -433,6 +455,10 @@ class bluetoothdevice : public QObject {
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void speedSensor(double speed);
+    virtual void coreBodyTemperature(double coreBodyTemperature);
+    virtual void skinTemperature(double skinTemperature);
+    virtual void heatStrainIndex(double heatStrainIndex);
+    virtual void inclinationSensor(double grade, double inclination);
     virtual void changeResistance(resistance_t res);
     virtual void changePower(int32_t power);
     virtual void changeInclination(double grade, double percentage);
@@ -531,6 +557,12 @@ class bluetoothdevice : public QObject {
     int8_t requestDecreaseFan = -1;
     double requestFanSpeed = -1;
 
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
+
+    metric RequestedPower;
+    int16_t requestPower = -1;
+
     /**
      * @brief m_difficult The current difficulty gain. Units: device dependent
      */
@@ -562,9 +594,14 @@ class bluetoothdevice : public QObject {
     metric elevationAcc;
 
     /**
-     * @brief m_watt Metric to get and set the power expended in the session. Unit: watts
+     * @brief m_watt Metric to get and set the power read from the trainer or from the power sensor Unit: watts
      */
     metric m_watt;
+    
+    /**
+     * @brief m_rawWatt Metric to get and set the power from the trainer only. Unit: watts
+     */
+    metric m_rawWatt;
 
     /**
      * @brief WattKg Metric to get and set the watt kg for the session (what's this?). Unit: watt kg
@@ -658,6 +695,11 @@ class bluetoothdevice : public QObject {
      * @brief _ergTable The current erg table
      */
     ergTable _ergTable;
+    
+    /**
+     * @brief StepCount A metric to get and set the step count. Unit: step
+     */
+    metric StepCount;
 
     /**
      * @brief Collect the number of seconds in each zone for the current heart rate
@@ -692,7 +734,7 @@ class bluetoothdevice : public QObject {
      * @param watt_calc ??
      * @param watts ?. Unit: watts
      */
-    void update_metrics(bool watt_calc, const double watts);
+    void update_metrics(bool watt_calc, const double watts, const bool from_accessory = false);
 
     /**
      * @brief update_hr_from_external Updates heart rate from Garmin Companion App or Apple Watch

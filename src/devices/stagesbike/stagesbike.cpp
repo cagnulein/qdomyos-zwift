@@ -1,5 +1,6 @@
 #include "stagesbike.h"
 #include "virtualdevices/virtualbike.h"
+#include "homeform.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -28,33 +29,43 @@ stagesbike::stagesbike(bool noWriteResistance, bool noHeartService, bool noVirtu
     connect(refresh, &QTimer::timeout, this, &stagesbike::update);
     refresh->start(200ms);
 }
-/*
-void stagesbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool
-wait_for_response)
-{
+
+void stagesbike::writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic,
+                                           uint8_t *data, uint8_t data_len, QString info, bool disable_log,
+                                           bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
-    if(wait_for_response)
-    {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
-                &loop, SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+
+    if (!service) {
+        qDebug() << "no gattCustomService available";
+        return;
     }
-    else
-    {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
-                &loop, SLOT(quit()));
+
+    if (wait_for_response) {
+        // TO FIX
+        //connect(this, &stagesbike::packetReceived, &loop, &QEventLoop::quit);
+        timeout.singleShot(2000, &loop, SLOT(quit())); // 6 seconds are important
+    } else {
+        connect(service, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop, SLOT(quit()));
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char*)data,
-data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if(!disable_log)
-        debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
+    if (characteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        service->writeCharacteristic(characteristic, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
+    } else {
+        service->writeCharacteristic(characteristic, *writeBuffer);
+    }
+
+    if (!disable_log)
+        qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
 
     loop.exec();
-}*/
+}
 
 void stagesbike::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
@@ -67,13 +78,23 @@ void stagesbike::update() {
         Resistance = 0;
         emit resistanceRead(Resistance.value());
         initRequest = false;
+        if(eliteService != nullptr) {
+            uint8_t init1[] = {0x01, 0xad};
+            writeCharacteristic(eliteService, eliteWriteCharacteristic, init1, sizeof(init1), "init", false, false);
+            QThread::sleep(2);
+            uint8_t init2[] = {0x45, 0x0a};
+            writeCharacteristic(eliteService, eliteWriteCharacteristic2, init2, sizeof(init2), "init", false, false);
+        }
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(false, watts());
+        QSettings settings;
+        bool power_as_bike =
+            settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
+        update_metrics(false, watts(), !power_as_bike);
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
@@ -88,12 +109,26 @@ void stagesbike::update() {
                 requestResistance = 1;
             }
 
-            if (requestResistance != currentResistance().value()) {
+            if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-                // forceResistance(requestResistance);
+                if(eliteService != nullptr) {
+                    QByteArray a = setBrakeLevel((lastRawRequestedResistanceValue + gears()) / 100.0);
+                    uint8_t b[20];
+                    memcpy(b, a.constData(), a.length());
+                    writeCharacteristic(eliteService, eliteWriteCharacteristic, b, a.length(), "forceResistance", false, false);
+                }
             }
             requestResistance = -1;
+        } else if(requestPower != -1) {
+            QByteArray a = setTargetPower(requestPower);
+            uint8_t b[20];
+            memcpy(b, a.constData(), a.length());
+            writeCharacteristic(eliteService, eliteWriteCharacteristic, b, a.length(), "forcePower", false, false);
+            requestPower = -1;
         }
+
+        lastGearValue = gears();
+
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
@@ -112,6 +147,13 @@ void stagesbike::update() {
 
 void stagesbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+    if(gatt == QBluetoothUuid((quint16)0x1826)) {
+        QSettings settings;
+        settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
+        qDebug() << "forcing FTMS bike since it has FTMS";
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("FTMS bike found, restart the app to apply the change!");
+    }
 }
 
 resistance_t stagesbike::pelotonToBikeResistance(int pelotonResistance) {
@@ -260,7 +302,7 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                         cadence =
                             cadence /
                             2; // I really don't like this, there is no relationship between wheel rev and crank rev
-                    if (cadence >= 0) {
+                    if (cadence >= 0 && cadence < 256) {
                         Cadence = cadence;
                     }
                     lastGoodCadence = now;
@@ -268,6 +310,8 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                     Cadence = 0;
                 }
             }
+
+            emit cadenceChanged(Cadence.value());
 
             qDebug() << QStringLiteral("Current Cadence: ") << Cadence.value() << CrankRevs << oldCrankRevs << deltaT
                      << time_division << LastCrankEventTime << oldLastCrankEventTime;
@@ -383,7 +427,10 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
     }
 }
 
-void stagesbike::stateChanged(QLowEnergyService::ServiceState state) {
+void stagesbike::stateChanged(QLowEnergyService::ServiceState state) {                                                   
+    QBluetoothUuid _EliteServiceId(QStringLiteral("347b0001-7635-408b-8918-8ff3949ce592"));
+    QBluetoothUuid _EliteWriteId(QStringLiteral("347b0010-7635-408b-8918-8ff3949ce592"));
+    QBluetoothUuid _EliteWrite2Id(QStringLiteral("347b0018-7635-408b-8918-8ff3949ce592"));
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -417,6 +464,18 @@ void stagesbike::stateChanged(QLowEnergyService::ServiceState state) {
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+                }
+
+                if(s->serviceUuid() == _EliteServiceId) {                    
+                    if(c.uuid() == _EliteWriteId) {
+                        qDebug() << QStringLiteral("found elite write characteristic");
+                        eliteService = s;
+                        eliteWriteCharacteristic = c;
+                    } else if(c.uuid() == _EliteWrite2Id) {
+                        qDebug() << QStringLiteral("found elite write characteristic2");
+                        eliteService = s;
+                        eliteWriteCharacteristic2 = c;
+                    }
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
@@ -612,4 +671,45 @@ void stagesbike::controllerStateChanged(QLowEnergyController::ControllerState st
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+// Elite Methods
+QByteArray stagesbike::setTargetPower(quint16 watts)
+{
+    quint16 clamped = qMin(watts, static_cast<quint16>(4000));
+    QByteArray result;
+    result.append(static_cast<char>(0x00));
+    result.append(static_cast<char>(clamped & 0xFF));
+    result.append(static_cast<char>((clamped >> 8) & 0xFF));
+    return result;
+}
+
+QByteArray stagesbike::setBrakeLevel(double level)
+{
+    double clamped = qBound(0.0, level, 1.0);
+    quint8 normalized = static_cast<quint8>(round(clamped * 200));
+    QByteArray result;
+    result.append(static_cast<char>(0x01));
+    result.append(static_cast<char>(normalized));
+    return result;
+}
+
+QByteArray stagesbike::setSimulationMode(double grade, double crr, double wrc,
+                                           double windSpeedKPH, double draftingFactor)
+{
+    quint16 gradeN = static_cast<quint16>(((grade * 100) + 200) * 100);
+    quint8 crrN = static_cast<quint8>(static_cast<int>(crr / 0.00005) & 0xFF);
+    quint8 wrcN = static_cast<quint8>(static_cast<int>(wrc / 0.01) & 0xFF);
+    quint8 windSpeed = static_cast<quint8>(qBound(-127.0, windSpeedKPH, 128.0) + 127);
+    quint8 draftN = static_cast<quint8>(static_cast<int>(draftingFactor / 0.01) & 0xFF);
+
+    QByteArray result;
+    result.append(static_cast<char>(0x02));
+    result.append(static_cast<char>(gradeN & 0xFF));
+    result.append(static_cast<char>((gradeN >> 8) & 0xFF));
+    result.append(static_cast<char>(crrN));
+    result.append(static_cast<char>(wrcN));
+    result.append(static_cast<char>(windSpeed));
+    result.append(static_cast<char>(draftN));
+    return result;
 }

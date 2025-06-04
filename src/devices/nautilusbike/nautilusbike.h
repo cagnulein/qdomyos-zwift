@@ -32,7 +32,7 @@ class nautilusbike : public bike {
     Q_OBJECT
   public:
     nautilusbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
-                 uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
+                 int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~nautilusbike();
     bool connected() override;
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
@@ -64,7 +64,7 @@ class nautilusbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool testResistance = false;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bool searchStopped = false;
     uint8_t sec1Update = 0;

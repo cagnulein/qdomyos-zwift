@@ -1,0 +1,19 @@
+services:
+  qdomyos-zwift-webgl:
+    image: qdomyos-zwift-webgl
+    container_name: qdomyos-zwift-webgl
+    privileged: true
+    network_mode: "host"
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /dev:/dev
+      - /run/dbus:/run/dbus
+      - ./.config:/root/.config
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    stdin_open: true
+    tty: true
+    restart: "no"
+#    command: qdomyos-zwift -qml -platform webgl:port=8080
+#    command: ["qdomyos-zwift", "-no-gui"]
+

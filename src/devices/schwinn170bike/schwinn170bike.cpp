@@ -18,7 +18,7 @@
 
 using namespace std::chrono_literals;
 
-schwinn170bike::schwinn170bike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+schwinn170bike::schwinn170bike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -133,6 +133,35 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         return;
     }
 
+    if (newValue.length() == 17) {
+        double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
+        double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
+
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            double current = ((double)(((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4))));
+            if (current != lastCadenceValue) {
+                QDateTime now = QDateTime::currentDateTime();
+                double c = ((current - lastCadenceValue) / fabs(now.msecsTo(lastCadenceChanged))) * 60000.0;
+                lastCadenceValue = current;
+                lastCadenceChanged = now;
+                if (c < 255) {
+                    if (c > 0)
+                        Cadence = (c * cadence_gain) + cadence_offset;
+                    else
+                        Cadence = 0;
+                } else {
+                    qDebug() << "Cadence too high" << c << "discarded!";
+                }
+            }
+        }
+
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+
+        return;
+    }
+    
     if (newValue.length() != 14)
         return;
 
@@ -140,21 +169,6 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(7)) << 8) | (uint16_t)((uint8_t)newValue.at(6)))) / 100.0;
     emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
-
-    double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
-    double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
-
-    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-            .toString()
-            .startsWith(QStringLiteral("Disabled"))) {
-        double c = ((double)(((uint16_t)((uint8_t)newValue.at(4)) << 8) | (uint16_t)((uint8_t)newValue.at(3)))) / 17.47;
-        if (c > 0)
-            Cadence = (c * cadence_gain) + cadence_offset;
-        else
-            Cadence = 0;
-    }
-
-    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
     if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = ((double)(((uint16_t)((uint8_t)newValue.at(4)) << 8) | (uint16_t)((uint8_t)newValue.at(3)))) / 100.0;

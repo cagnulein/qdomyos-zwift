@@ -37,7 +37,7 @@
 class ypooelliptical : public elliptical {
     Q_OBJECT
   public:
-    ypooelliptical(bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4,
+    ypooelliptical(bool noWriteResistance = false, bool noHeartService = false, int8_t bikeResistanceOffset = 4,
                    double bikeResistanceGain = 1.0);
     bool connected() override;
     double minStepInclination() override;
@@ -64,7 +64,7 @@ class ypooelliptical : public elliptical {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     const uint8_t max_resistance = 72; // 24;
     const uint8_t default_resistance = 6;
@@ -78,6 +78,11 @@ class ypooelliptical : public elliptical {
     uint8_t counterPoll = 0;
     bool SCH_590E = false;
     bool E35 = false;
+    bool KETTLER = false;
+    bool CARDIOPOWER_EEGO = false;
+    bool MYELLIPTICAL = false;
+    bool SKANDIKA = false;
+    bool DOMYOS = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

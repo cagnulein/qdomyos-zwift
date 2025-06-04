@@ -13,7 +13,9 @@
 
 @interface swiftDebug : NSObject
 
-- (void)qtDebug:(NSString *)inputString;;
+- (void)qtDebug:(NSString *)inputString;
+- (void)gearUp;
+- (void)gearDown;
 
 @end
 
