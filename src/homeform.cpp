@@ -8252,14 +8252,14 @@ extern "C" {
     Java_org_cagnulen_qdomyoszwift_ChannelService_nativeSetResistance(JNIEnv *env, jclass clazz, jint resistance) {
         qDebug() << "Native: ANT+ Setting resistance to:" << resistance;
         
-        if (bluetoothManager && bluetoothManager->device()) {
-            bluetoothdevice::BLUETOOTH_TYPE deviceType = bluetoothManager->device()->deviceType();
+        if (homeform::singleton()->bluetoothManager && homeform::singleton()->bluetoothManager->device()) {
+            bluetoothdevice::BLUETOOTH_TYPE deviceType = homeform::singleton()->bluetoothManager->device()->deviceType();
             
             if (deviceType == bluetoothdevice::BIKE || 
                 deviceType == bluetoothdevice::ROWING || 
                 deviceType == bluetoothdevice::ELLIPTICAL) {
                 
-                bluetoothManager->device()->changeResistance(resistance);
+                homeform::singleton()->bluetoothManager->device()->changeResistance(resistance);
                 qDebug() << "Applied ANT+ resistance change:" << resistance;
             } else {
                 qDebug() << "Device type does not support resistance change";
@@ -8273,15 +8273,15 @@ extern "C" {
     Java_org_cagnulen_qdomyoszwift_ChannelService_nativeSetPower(JNIEnv *env, jclass clazz, jint power) {
         qDebug() << "Native: ANT+ Setting power to:" << power << "W";
         
-        if (bluetoothManager && bluetoothManager->device()) {
-            bluetoothdevice::BLUETOOTH_TYPE deviceType = bluetoothManager->device()->deviceType();
+        if (homeform::singleton()->bluetoothManager && homeform::singleton()->bluetoothManager->device()) {
+            bluetoothdevice::BLUETOOTH_TYPE deviceType = homeform::singleton()->bluetoothManager->device()->deviceType();
             
             if (deviceType == bluetoothdevice::BIKE || 
                 deviceType == bluetoothdevice::ROWING || 
                 deviceType == bluetoothdevice::ELLIPTICAL ||
                 deviceType == bluetoothdevice::TREADMILL) {
                 
-                bluetoothManager->device()->changePower(power);
+                homeform::singleton()->bluetoothManager->device()->changePower(power);
                 qDebug() << "Applied ANT+ power change:" << power << "W";
             } else {
                 qDebug() << "Device type does not support power change";
@@ -8295,14 +8295,14 @@ extern "C" {
     Java_org_cagnulen_qdomyoszwift_ChannelService_nativeSetInclination(JNIEnv *env, jclass clazz, jdouble inclination) {
         qDebug() << "Native: ANT+ Setting inclination to:" << inclination << "%";
         
-        if (bluetoothManager && bluetoothManager->device()) {
-            bluetoothdevice::BLUETOOTH_TYPE deviceType = bluetoothManager->device()->deviceType();
+        if (homeform::singleton()->bluetoothManager && homeform::singleton()->bluetoothManager->device()) {
+            bluetoothdevice::BLUETOOTH_TYPE deviceType = homeform::singleton()->bluetoothManager->device()->deviceType();
             
             if (deviceType == bluetoothdevice::BIKE || 
                 deviceType == bluetoothdevice::TREADMILL || 
                 deviceType == bluetoothdevice::ELLIPTICAL) {
                 
-                bluetoothManager->device()->changeInclination(inclination, inclination);
+                homeform::singleton()->bluetoothManager->device()->changeInclination(inclination, inclination);
                 qDebug() << "Applied ANT+ inclination change:" << inclination << "%";
             } else {
                 qDebug() << "Device type does not support inclination change";
