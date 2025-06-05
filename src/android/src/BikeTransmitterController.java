@@ -1,65 +1,81 @@
+/*
+ * Copyright 2012 Dynastream Innovations Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package org.cagnulen.qdomyoszwift;
 
-import android.content.Context;
+import android.os.RemoteException;
 import org.cagnulen.qdomyoszwift.QLog;
 
-// ANT+ Channel imports following PowerChannelController pattern
 import com.dsi.ant.channel.AntChannel;
 import com.dsi.ant.channel.AntCommandFailedException;
 import com.dsi.ant.channel.IAntChannelEventHandler;
 import com.dsi.ant.message.ChannelId;
 import com.dsi.ant.message.ChannelType;
+import com.dsi.ant.message.EventCode;
 import com.dsi.ant.message.fromant.AcknowledgedDataMessage;
-import com.dsi.ant.message.fromant.BroadcastDataMessage;
 import com.dsi.ant.message.fromant.ChannelEventMessage;
 import com.dsi.ant.message.fromant.MessageFromAntType;
 import com.dsi.ant.message.ipc.AntMessageParcel;
 
-// Java imports
-import java.math.BigDecimal;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+import java.util.Random;
 
 /**
  * ANT+ Bike Transmitter Controller
- * Follows the same pattern as PowerChannelController but for transmitting bike data
+ * Follows exactly the same pattern as PowerChannelController but for Fitness Equipment
  */
 public class BikeTransmitterController {
+    public static final int FITNESS_EQUIPMENT_SENSOR_ID = 0x9e3d4b67; // Different from power sensor
+    // The device type and transmission type to be part of the channel ID message
+    private static final int CHANNEL_FITNESS_EQUIPMENT_DEVICE_TYPE = 17; // Fitness Equipment
+    private static final int CHANNEL_FITNESS_EQUIPMENT_TRANSMISSION_TYPE = 5;
+    // The period and frequency values the channel will be configured to
+    private static final int CHANNEL_FITNESS_EQUIPMENT_PERIOD = 8192; // 4 Hz for FE
+    private static final int CHANNEL_FITNESS_EQUIPMENT_FREQUENCY = 57;
     private static final String TAG = BikeTransmitterController.class.getSimpleName();
-
-    // ANT+ Fitness Equipment constants
-    private static final int DEVICE_TYPE_FITNESS_EQUIPMENT = 17;
-    private static final int TRANSMISSION_TYPE = 5;
-    private static final int CHANNEL_PERIOD = 8192; // 32768/4 = 8192 (4Hz)
-    private static final int RADIO_FREQUENCY = 57; // 2457 MHz
-    private static final int DEVICE_NUMBER = 12345; // Should be unique device number
     
     // ANT+ Data Page IDs for Fitness Equipment
     private static final byte DATA_PAGE_GENERAL_FE = 0x10;
-    private static final byte DATA_PAGE_GENERAL_SETTINGS = 0x11;
-    private static final byte DATA_PAGE_GENERAL_METABOLIC = 0x12;
     private static final byte DATA_PAGE_BIKE_DATA = 0x19;
     private static final byte DATA_PAGE_TRAINER_DATA = 0x1A;
-
-    private AntChannel mAntChannel = null;
-    private boolean isTransmitting = false;
-    private Timer transmissionTimer = null;
+    private static final byte DATA_PAGE_GENERAL_SETTINGS = 0x11;
+    
+    private static Random randGen = new Random();
     
     // Current bike metrics to transmit
-    private int currentCadence = 0;           // Current cadence in RPM
-    private int currentPower = 0;             // Current power in watts
-    private BigDecimal currentSpeed = new BigDecimal(0); // Current speed in m/s
-    private long totalDistance = 0;           // Total distance in meters
-    private long totalCalories = 0;           // Total calories burned
-    private int currentHeartRate = 0;         // Heart rate in BPM
-    private BigDecimal elapsedTime = new BigDecimal(0); // Elapsed time in seconds
-    private int currentResistance = 0;        // Current resistance level (0-100)
-    private double currentInclination = 0.0;  // Current inclination in percentage
+    int currentCadence = 0;           // Current cadence in RPM
+    int currentPower = 0;             // Current power in watts
+    double currentSpeedKph = 0.0;     // Current speed in km/h
+    long totalDistance = 0;           // Total distance in meters
+    int currentHeartRate = 0;         // Heart rate in BPM
+    double elapsedTimeSeconds = 0.0;  // Elapsed time in seconds
+    int currentResistance = 0;        // Current resistance level (0-100)
+    double currentInclination = 0.0;  // Current inclination in percentage
     
     // Control commands received from ANT+ devices
     private int requestedResistance = -1;     // Requested resistance from controller
     private int requestedPower = -1;          // Requested power from controller
     private double requestedInclination = -100; // Requested inclination from controller
+    
+    private AntChannel mAntChannel;
+    private ChannelEventCallback mChannelEventCallback = new ChannelEventCallback();
+    private boolean mIsOpen;
     
     // Callbacks for control commands
     public interface ControlCommandListener {
@@ -69,37 +85,10 @@ public class BikeTransmitterController {
     }
     
     private ControlCommandListener controlListener = null;
-    
-    // ANT+ Channel event handler - following PowerChannelController pattern
-    private final IAntChannelEventHandler mChannelEventHandler = new IAntChannelEventHandler() {
-        @Override
-        public void onChannelDeath() {
-            QLog.d(TAG, "ANT+ Channel Death");
-            isTransmitting = false;
-        }
 
-        @Override
-        public void onReceiveMessage(MessageFromAntType messageType, AntMessageParcel antParcel) {
-            switch (messageType) {
-                case ACKNOWLEDGED_DATA:
-                    handleAcknowledgedData(new AcknowledgedDataMessage(antParcel));
-                    break;
-                case BROADCAST_DATA:
-                    handleBroadcastData(new BroadcastDataMessage(antParcel));
-                    break;
-                case CHANNEL_EVENT:
-                    handleChannelEvent(new ChannelEventMessage(antParcel));
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
-
-    // Constructor following PowerChannelController pattern - takes AntChannel
     public BikeTransmitterController(AntChannel antChannel) {
-        this.mAntChannel = antChannel;
-        QLog.v(TAG, "BikeTransmitterController created with channel");
+        mAntChannel = antChannel;
+        openChannel();
     }
     
     /**
@@ -109,457 +98,435 @@ public class BikeTransmitterController {
         this.controlListener = listener;
     }
 
-    /**
-     * Start transmitting bike data via ANT+
-     */
-    public boolean startTransmission() {
-        if (mAntChannel == null) {
-            QLog.e(TAG, "Cannot start transmission - no ANT+ channel available");
-            return false;
-        }
-        
-        try {
-            // Configure channel for fitness equipment transmission - following existing pattern
-            ChannelId channelId = new ChannelId(DEVICE_NUMBER, DEVICE_TYPE_FITNESS_EQUIPMENT, TRANSMISSION_TYPE);
-            
-            mAntChannel.assign(ChannelType.BIDIRECTIONAL_MASTER);
-            mAntChannel.setChannelId(channelId);
-            mAntChannel.setPeriod(CHANNEL_PERIOD);
-            mAntChannel.setRfFrequency(RADIO_FREQUENCY);
-            mAntChannel.setChannelEventHandler(mChannelEventHandler);
-            
-            // Open the channel
-            mAntChannel.open();
-            
-            isTransmitting = true;
-            
-            // Start periodic data transmission (every 250ms for smooth updates)
-            startPeriodicTransmission();
-            
-            QLog.d(TAG, "ANT+ bike transmission started successfully");
-            return true;
-            
-        } catch (AntCommandFailedException e) {
-            QLog.e(TAG, "Failed to start ANT+ transmission: " + e.getMessage());
-            return false;
-        } catch (Exception e) {
-            QLog.e(TAG, "Unexpected error starting ANT+ transmission: " + e.getMessage());
-            return false;
-        }
-    }
+    boolean openChannel() {
+        if (null != mAntChannel) {
+            if (mIsOpen) {
+                QLog.w(TAG, "Channel was already open");
+            } else {
+                // Channel ID message contains device number, type and transmission type
+                ChannelId channelId = new ChannelId(FITNESS_EQUIPMENT_SENSOR_ID & 0xFFFF,
+                        CHANNEL_FITNESS_EQUIPMENT_DEVICE_TYPE, CHANNEL_FITNESS_EQUIPMENT_TRANSMISSION_TYPE);
 
-    /**
-     * Stop transmitting bike data
-     */
-    public void stopTransmission() {
-        isTransmitting = false;
-        
-        if (transmissionTimer != null) {
-            transmissionTimer.cancel();
-            transmissionTimer = null;
-        }
-        
-        if (mAntChannel != null) {
-            try {
-                mAntChannel.close();
-            } catch (RemoteException e) {
-                QLog.w(TAG, "RemoteException closing ANT+ channel: " + e.getMessage());
-            } catch (AntCommandFailedException e) {
-                QLog.w(TAG, "AntCommandFailedException closing ANT+ channel: " + e.getMessage());
-            }
-        }
-        
-        QLog.d(TAG, "ANT+ bike transmission stopped");
-    }
+                try {
+                    // Setting the channel event handler so that we can receive messages from ANT
+                    mAntChannel.setChannelEventHandler(mChannelEventCallback);
 
-    /**
-     * Close the channel - following PowerChannelController pattern
-     */
-    public void close() {
-        stopTransmission();
-    }
+                    // Performs channel assignment by assigning the type to the channel
+                    mAntChannel.assign(ChannelType.BIDIRECTIONAL_MASTER);
 
-    /**
-     * Start periodic transmission of bike data
-     */
-    private void startPeriodicTransmission() {
-        if (transmissionTimer != null) {
-            transmissionTimer.cancel();
-        }
-        
-        transmissionTimer = new Timer();
-        transmissionTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                if (isTransmitting && mAntChannel != null) {
-                    transmitCurrentData();
+                    // Configures the channel ID, messaging period and rf frequency after assigning,
+                    // then opening the channel.
+                    mAntChannel.setChannelId(channelId);
+                    mAntChannel.setPeriod(CHANNEL_FITNESS_EQUIPMENT_PERIOD);
+                    mAntChannel.setRfFrequency(CHANNEL_FITNESS_EQUIPMENT_FREQUENCY);
+                    mAntChannel.open();
+                    mIsOpen = true;
+
+                    QLog.d(TAG, "Opened fitness equipment channel with device number: " + FITNESS_EQUIPMENT_SENSOR_ID);
+
+                } catch (RemoteException e) {
+                    channelError(e);
+                } catch (AntCommandFailedException e) {
+                    // This will release, and therefore unassign if required
+                    channelError("Open failed", e);
                 }
             }
-        }, 0, 250); // Transmit every 250ms
+        } else {
+            QLog.w(TAG, "No channel available");
+        }
+
+        return mIsOpen;
     }
 
-    /**
-     * Transmit current bike data via ANT+
-     */
-    private void transmitCurrentData() {
-        if (!isTransmitting || mAntChannel == null) {
-            return;
+    public boolean startTransmission() {
+        return openChannel();
+    }
+
+    public void stopTransmission() {
+        close();
+    }
+
+    void channelError(RemoteException e) {
+        String logString = "Remote service communication failed.";
+        QLog.e(TAG, logString);
+    }
+
+    void channelError(String error, AntCommandFailedException e) {
+        StringBuilder logString;
+
+        if (e.getResponseMessage() != null) {
+            String initiatingMessageId = "0x" + Integer.toHexString(
+                    e.getResponseMessage().getInitiatingMessageId());
+            String rawResponseCode = "0x" + Integer.toHexString(
+                    e.getResponseMessage().getRawResponseCode());
+
+            logString = new StringBuilder(error)
+                    .append(". Command ")
+                    .append(initiatingMessageId)
+                    .append(" failed with code ")
+                    .append(rawResponseCode);
+        } else {
+            String attemptedMessageId = "0x" + Integer.toHexString(
+                    e.getAttemptedMessageType().getMessageId());
+            String failureReason = e.getFailureReason().toString();
+
+            logString = new StringBuilder(error)
+                    .append(". Command ")
+                    .append(attemptedMessageId)
+                    .append(" failed with reason ")
+                    .append(failureReason);
         }
-        
-        try {
-            // Alternate between different data pages for complete information
-            long currentTime = System.currentTimeMillis();
-            int pageIndex = (int) ((currentTime / 250) % 4); // Switch page every 250ms
-            
-            byte[] dataPage = new byte[8];
-            
-            switch (pageIndex) {
-                case 0:
-                    // General Fitness Equipment Data Page (0x10)
-                    buildGeneralFEDataPage(dataPage);
-                    break;
-                case 1:
-                    // Bike Data Page (0x19)
-                    buildBikeDataPage(dataPage);
-                    break;
-                case 2:
-                    // Trainer Data Page (0x1A)
-                    buildTrainerDataPage(dataPage);
-                    break;
-                case 3:
-                    // General Metabolic Data Page (0x12)
-                    buildMetabolicDataPage(dataPage);
-                    break;
-            }
-            
-            // Send the data page using correct method name
-            mAntChannel.setBroadcastData(dataPage);
-            
-            QLog.v(TAG, "Transmitted ANT+ data page: " + pageIndex);
-                       
-        } catch (RemoteException e) {
-            QLog.e(TAG, "RemoteException transmitting ANT+ data: " + e.getMessage());
-        } catch (Exception e) {
-            QLog.e(TAG, "Unexpected error transmitting ANT+ data: " + e.getMessage());
+
+        QLog.e(TAG, logString.toString());
+        mAntChannel.release();
+    }
+
+    public void close() {
+        if (null != mAntChannel) {
+            mIsOpen = false;
+            // Releasing the channel to make it available for others.
+            // After releasing, the AntChannel instance cannot be reused.
+            mAntChannel.release();
+            mAntChannel = null;
         }
-    }
-    
-    /**
-     * Build General Fitness Equipment Data Page (0x10)
-     */
-    private void buildGeneralFEDataPage(byte[] dataPage) {
-        dataPage[0] = DATA_PAGE_GENERAL_FE;
-        dataPage[1] = 0x19; // Equipment type: Bike
-        
-        // Elapsed time (0.25 second resolution)
-        int elapsedTime025s = (int) (elapsedTime.doubleValue() * 4);
-        dataPage[2] = (byte) (elapsedTime025s & 0xFF);
-        
-        // Distance (meters)
-        int distanceMeters = (int) totalDistance;
-        dataPage[3] = (byte) (distanceMeters & 0xFF);
-        dataPage[4] = (byte) ((distanceMeters >> 8) & 0xFF);
-        
-        // Speed (0.001 m/s resolution)
-        int speedMms = (int) (currentSpeed.doubleValue() * 1000);
-        dataPage[5] = (byte) (speedMms & 0xFF);
-        dataPage[6] = (byte) ((speedMms >> 8) & 0xFF);
-        
-        // Heart rate
-        dataPage[7] = (byte) currentHeartRate;
-    }
-    
-    /**
-     * Build Bike Data Page (0x19)
-     */
-    private void buildBikeDataPage(byte[] dataPage) {
-        dataPage[0] = DATA_PAGE_BIKE_DATA;
-        dataPage[1] = (byte) 0xFF; // Reserved
-        dataPage[2] = (byte) 0xFF; // Reserved
-        dataPage[3] = (byte) 0xFF; // Reserved
-        
-        // Instantaneous cadence
-        dataPage[4] = (byte) currentCadence;
-        
-        // Instantaneous power (watts)
-        dataPage[5] = (byte) (currentPower & 0xFF);
-        dataPage[6] = (byte) ((currentPower >> 8) & 0xFF);
-        
-        dataPage[7] = (byte) 0xFF; // Reserved
-    }
-    
-    /**
-     * Build Trainer Data Page (0x1A)
-     */
-    private void buildTrainerDataPage(byte[] dataPage) {
-        dataPage[0] = DATA_PAGE_TRAINER_DATA;
-        
-        // Event count (increments on parameter changes)
-        dataPage[1] = 0x00;
-        
-        // Instantaneous cadence
-        dataPage[2] = (byte) currentCadence;
-        
-        // Instantaneous power (watts)
-        dataPage[3] = (byte) (currentPower & 0xFF);
-        dataPage[4] = (byte) ((currentPower >> 8) & 0xFF);
-        
-        // Resistance level (0.5% resolution)
-        int resistance05 = (int) (currentResistance * 2);
-        dataPage[5] = (byte) (resistance05 & 0xFF);
-        
-        // Target power (watts) - echo back any requested power
-        dataPage[6] = (byte) (requestedPower & 0xFF);
-        dataPage[7] = (byte) ((requestedPower >> 8) & 0xFF);
-    }
-    
-    /**
-     * Build General Metabolic Data Page (0x12)
-     */
-    private void buildMetabolicDataPage(byte[] dataPage) {
-        dataPage[0] = DATA_PAGE_GENERAL_METABOLIC;
-        dataPage[1] = (byte) 0xFF; // Reserved
-        
-        // Metabolic equivalent (METs) - 0.1 MET resolution
-        // Estimate METs based on power and weight (assuming 75kg rider)
-        double estimatedMETs = (currentPower * 0.014) + 1.0; // Rough estimation
-        int mets01 = (int) (estimatedMETs * 10);
-        dataPage[2] = (byte) (mets01 & 0xFF);
-        
-        // Calories per hour
-        int caloriesPerHour = (int) (estimatedMETs * 75); // 75kg rider assumption
-        dataPage[3] = (byte) (caloriesPerHour & 0xFF);
-        dataPage[4] = (byte) ((caloriesPerHour >> 8) & 0xFF);
-        
-        // Calories accumulated
-        dataPage[5] = (byte) (totalCalories & 0xFF);
-        dataPage[6] = (byte) ((totalCalories >> 8) & 0xFF);
-        
-        dataPage[7] = (byte) 0xFF; // Reserved
-    }
-    
-    /**
-     * Handle incoming acknowledged data (control commands)
-     */
-    private void handleAcknowledgedData(AcknowledgedDataMessage message) {
-        byte[] data = message.getMessageContent();
-        if (data.length < 8) return;
-        
-        byte pageNumber = data[0];
-        QLog.d(TAG, "Received acknowledged data page: 0x" + String.format("%02X", pageNumber));
-        
-        // Handle control command pages
-        switch (pageNumber) {
-            case 0x30: // Basic Resistance
-                handleBasicResistanceCommand(data);
-                break;
-            case 0x31: // Target Power
-                handleTargetPowerCommand(data);
-                break;
-            case 0x33: // Track Resistance
-                handleTrackResistanceCommand(data);
-                break;
-        }
-    }
-    
-    /**
-     * Handle basic resistance command (page 0x30)
-     */
-    private void handleBasicResistanceCommand(byte[] data) {
-        int resistance = data[7] & 0xFF; // Resistance in 0.5% increments
-        double resistancePercent = resistance * 0.5;
-        
-        QLog.d(TAG, "Received basic resistance command: " + resistancePercent + "%");
-        
-        if (resistancePercent != requestedInclination && controlListener != null) {
-            requestedResistance = (int) resistancePercent;
-            controlListener.onResistanceChangeRequested(requestedResistance);
-        }
-    }
-    
-    /**
-     * Handle target power command (page 0x31)
-     */
-    private void handleTargetPowerCommand(byte[] data) {
-        int targetPower = ((data[7] & 0xFF) << 8) | (data[6] & 0xFF);
-        
-        QLog.d(TAG, "Received target power command: " + targetPower + "W");
-        
-        if (targetPower != requestedPower && controlListener != null) {
-            requestedPower = targetPower;
-            controlListener.onPowerChangeRequested(targetPower);
-        }
-    }
-    
-    /**
-     * Handle track resistance command (page 0x33)
-     */
-    private void handleTrackResistanceCommand(byte[] data) {
-        // Grade is in 0.01% increments, signed 16-bit
-        int gradeRaw = ((data[6] & 0xFF) << 8) | (data[5] & 0xFF);
-        if (gradeRaw > 32767) gradeRaw -= 65536; // Convert to signed
-        double grade = gradeRaw * 0.01;
-        
-        QLog.d(TAG, "Received track resistance command: " + grade + "% grade");
-        
-        if (Math.abs(grade - requestedInclination) > 0.1 && controlListener != null) {
-            requestedInclination = grade;
-            controlListener.onInclinationChangeRequested(grade);
-        }
-    }
-    
-    /**
-     * Handle broadcast data (not typically used for control)
-     */
-    private void handleBroadcastData(BroadcastDataMessage message) {
-        // Usually not used for receiving control commands
-    }
-    
-    /**
-     * Handle channel events
-     */
-    private void handleChannelEvent(ChannelEventMessage message) {
-        QLog.d(TAG, "Channel event: " + message.getEventCode());
+        QLog.e(TAG, "Fitness Equipment Channel Closed");
     }
 
     // Setter methods for updating bike metrics from the main application
-    
-    /**
-     * Update the current cadence value
-     * @param cadence Cadence in RPM
-     */
     public void setCadence(int cadence) {
         this.currentCadence = Math.max(0, cadence);
     }
 
-    /**
-     * Update the current power value
-     * @param power Power in watts
-     */
     public void setPower(int power) {
         this.currentPower = Math.max(0, power);
     }
 
-    /**
-     * Update the current speed value
-     * @param speedKph Speed in km/h
-     */
     public void setSpeedKph(double speedKph) {
-        // Convert km/h to m/s
-        this.currentSpeed = new BigDecimal(speedKph / 3.6);
+        this.currentSpeedKph = Math.max(0, speedKph);
     }
 
-    /**
-     * Update the current speed value
-     * @param speedMps Speed in m/s
-     */
-    public void setSpeedMps(double speedMps) {
-        this.currentSpeed = new BigDecimal(Math.max(0, speedMps));
-    }
-
-    /**
-     * Update the total distance
-     * @param distance Total distance in meters
-     */
     public void setDistance(long distance) {
         this.totalDistance = Math.max(0, distance);
     }
 
-    /**
-     * Update the total calories
-     * @param calories Total calories burned
-     */
-    public void setCalories(long calories) {
-        this.totalCalories = Math.max(0, calories);
-    }
-
-    /**
-     * Update the current heart rate
-     * @param heartRate Heart rate in BPM
-     */
     public void setHeartRate(int heartRate) {
         this.currentHeartRate = Math.max(0, Math.min(255, heartRate));
     }
 
-    /**
-     * Update the elapsed time
-     * @param timeSeconds Elapsed time in seconds
-     */
     public void setElapsedTime(double timeSeconds) {
-        this.elapsedTime = new BigDecimal(Math.max(0, timeSeconds));
+        this.elapsedTimeSeconds = Math.max(0, timeSeconds);
     }
 
-    /**
-     * Update the current resistance level
-     * @param resistance Resistance level (typically 0-100)
-     */
     public void setResistance(int resistance) {
         this.currentResistance = Math.max(0, Math.min(100, resistance));
     }
 
-    /**
-     * Update the current inclination
-     * @param inclination Inclination in percentage (-100 to +100)
-     */
     public void setInclination(double inclination) {
         this.currentInclination = Math.max(-100, Math.min(100, inclination));
     }
 
     // Getter methods for the last requested control values
-    
-    /**
-     * Get the last requested resistance from ANT+ controller
-     * @return Requested resistance level, or -1 if none requested
-     */
     public int getRequestedResistance() {
         return requestedResistance;
     }
 
-    /**
-     * Get the last requested power from ANT+ controller
-     * @return Requested power in watts, or -1 if none requested
-     */
     public int getRequestedPower() {
         return requestedPower;
     }
 
-    /**
-     * Get the last requested inclination from ANT+ controller
-     * @return Requested inclination in percentage, or -100 if none requested
-     */
     public double getRequestedInclination() {
         return requestedInclination;
     }
 
-    /**
-     * Clear any pending control requests
-     */
     public void clearControlRequests() {
         requestedResistance = -1;
         requestedPower = -1;
         requestedInclination = -100;
     }
 
-    /**
-     * Check if the transmitter is currently active
-     * @return True if transmitting, false otherwise
-     */
     public boolean isTransmitting() {
-        return isTransmitting;
+        return mIsOpen;
     }
 
-    /**
-     * Get current transmission state info for debugging
-     * @return String with current state information
-     */
     public String getTransmissionInfo() {
-        if (!isTransmitting) {
+        if (!mIsOpen) {
             return "Transmission: STOPPED";
         }
         
         return String.format("Transmission: ACTIVE - Cadence: %drpm, Power: %dW, " +
                            "Speed: %.1fkm/h, Resistance: %d, Inclination: %.1f%%",
-                           currentCadence, currentPower, currentSpeed.doubleValue() * 3.6,
+                           currentCadence, currentPower, currentSpeedKph,
                            currentResistance, currentInclination);
+    }
+
+    /**
+     * Implements the Channel Event Handler Interface following PowerChannelController pattern
+     */
+    public class ChannelEventCallback implements IAntChannelEventHandler {
+
+        int cnt = 0;
+        int eventCount = 0;
+        int cumulativeDistance = 0;
+        Timer carousalTimer = null;
+
+        @Override
+        public void onChannelDeath() {
+            // Display channel death message when channel dies
+            QLog.e(TAG, "Fitness Equipment Channel Death");
+        }
+
+        @Override
+        public void onReceiveMessage(MessageFromAntType messageType, AntMessageParcel antParcel) {
+            QLog.d(TAG, "Rx: " + antParcel);
+            QLog.d(TAG, "Message Type: " + messageType);
+            byte[] payload = new byte[8];
+
+            // Start unsolicited transmission timer like PowerChannelController
+            if(carousalTimer == null) {
+               carousalTimer = new Timer(); // At this line a new Thread will be created
+               carousalTimer.scheduleAtFixedRate(new TimerTask() {
+                   @Override
+                   public void run() {
+                       QLog.d(TAG, "Tx Unsolicited Fitness Equipment Data");
+                       byte[] payload = new byte[8];
+                       eventCount = (eventCount + 1) & 0xFF;
+                       cumulativeDistance = (cumulativeDistance + (int)(currentSpeedKph / 3.6)) & 0xFFFF; // rough distance calc
+                       
+                       // Build General FE Data Page (0x10)
+                       buildGeneralFEDataPage(payload);
+
+                       if (mIsOpen) {
+                           try {
+                               // Setting the data to be broadcast on the next channel period
+                               mAntChannel.setBroadcastData(payload);
+                           } catch (RemoteException e) {
+                               channelError(e);
+                           }
+                       }
+                   }
+               }, 0, 250); // Every 250ms for 4Hz
+           }
+
+            // Switching on message type to handle different types of messages
+            switch (messageType) {
+                case BROADCAST_DATA:
+                    // Rx Data
+                    break;
+                case ACKNOWLEDGED_DATA:
+                    // Handle control commands
+                    payload = new AcknowledgedDataMessage(antParcel).getPayload();
+                    QLog.d(TAG, "AcknowledgedDataMessage: " + payload);
+                    handleControlCommand(payload);
+                    break;
+                case CHANNEL_EVENT:
+                    // Constructing channel event message from parcel
+                    ChannelEventMessage eventMessage = new ChannelEventMessage(antParcel);
+                    EventCode code = eventMessage.getEventCode();
+                    QLog.d(TAG, "Event Code: " + code);
+
+                    // Switching on event code to handle the different types of channel events
+                    switch (code) {
+                        case TX:
+                            cnt += 1;
+
+                            // Cycle through different data pages like PowerChannelController
+                            if (cnt % 16 == 1) {
+                                // General FE Data Page (0x10)
+                                buildGeneralFEDataPage(payload);
+                            } else if (cnt % 16 == 5) {
+                                // Bike Data Page (0x19)
+                                buildBikeDataPage(payload);
+                            } else if (cnt % 16 == 9) {
+                                // Trainer Data Page (0x1A)
+                                buildTrainerDataPage(payload);
+                            } else if (cnt % 16 == 13) {
+                                // General Settings Page (0x11)
+                                buildGeneralSettingsPage(payload);
+                            } else {
+                                // Default General FE Data Page (0x10)
+                                buildGeneralFEDataPage(payload);
+                            }
+
+                            if (mIsOpen) {
+                                try {
+                                    // Setting the data to be broadcast on the next channel period
+                                    mAntChannel.setBroadcastData(payload);
+                                } catch (RemoteException e) {
+                                    channelError(e);
+                                }
+                            }
+                            break;
+                        case CHANNEL_COLLISION:
+                            cnt += 1;
+                            break;
+                        case RX_SEARCH_TIMEOUT:
+                            QLog.e(TAG, "No Device Found");
+                            break;
+                        case CHANNEL_CLOSED:
+                        case RX_FAIL:
+                        case RX_FAIL_GO_TO_SEARCH:
+                        case TRANSFER_RX_FAILED:
+                        case TRANSFER_TX_COMPLETED:
+                        case TRANSFER_TX_FAILED:
+                        case TRANSFER_TX_START:
+                        case UNKNOWN:
+                            // TODO More complex communication will need to handle these events
+                            break;
+                    }
+                    break;
+                case ANT_VERSION:
+                case BURST_TRANSFER_DATA:
+                case CAPABILITIES:
+                case CHANNEL_ID:
+                case CHANNEL_RESPONSE:
+                case CHANNEL_STATUS:
+                case SERIAL_NUMBER:
+                case OTHER:
+                    // TODO More complex communication will need to handle these message types
+                    break;
+            }
+        }
+        
+        /**
+         * Build General Fitness Equipment Data Page (0x10)
+         */
+        private void buildGeneralFEDataPage(byte[] payload) {
+            payload[0] = DATA_PAGE_GENERAL_FE;
+            payload[1] = 0x19; // Equipment type: Bike
+            
+            // Elapsed time (0.25 second resolution)
+            int elapsedTime025s = (int) (elapsedTimeSeconds * 4);
+            payload[2] = (byte) (elapsedTime025s & 0xFF);
+            
+            // Distance (meters)
+            payload[3] = (byte) (totalDistance & 0xFF);
+            payload[4] = (byte) ((totalDistance >> 8) & 0xFF);
+            
+            // Speed (0.001 m/s resolution)
+            int speedMms = (int) (currentSpeedKph / 3.6 * 1000);
+            payload[5] = (byte) (speedMms & 0xFF);
+            payload[6] = (byte) ((speedMms >> 8) & 0xFF);
+            
+            // Heart rate
+            payload[7] = (byte) currentHeartRate;
+        }
+        
+        /**
+         * Build Bike Data Page (0x19)
+         */
+        private void buildBikeDataPage(byte[] payload) {
+            payload[0] = DATA_PAGE_BIKE_DATA;
+            payload[1] = (byte) 0xFF; // Reserved
+            payload[2] = (byte) 0xFF; // Reserved
+            payload[3] = (byte) 0xFF; // Reserved
+            
+            // Instantaneous cadence
+            payload[4] = (byte) currentCadence;
+            
+            // Instantaneous power (watts)
+            payload[5] = (byte) (currentPower & 0xFF);
+            payload[6] = (byte) ((currentPower >> 8) & 0xFF);
+            
+            payload[7] = (byte) 0xFF; // Reserved
+        }
+        
+        /**
+         * Build Trainer Data Page (0x1A)
+         */
+        private void buildTrainerDataPage(byte[] payload) {
+            payload[0] = DATA_PAGE_TRAINER_DATA;
+            
+            // Event count (increments on parameter changes)
+            payload[1] = (byte) eventCount;
+            
+            // Instantaneous cadence
+            payload[2] = (byte) currentCadence;
+            
+            // Instantaneous power (watts)
+            payload[3] = (byte) (currentPower & 0xFF);
+            payload[4] = (byte) ((currentPower >> 8) & 0xFF);
+            
+            // Resistance level (0.5% resolution)
+            int resistance05 = (int) (currentResistance * 2);
+            payload[5] = (byte) (resistance05 & 0xFF);
+            
+            // Target power (watts) - echo back any requested power
+            payload[6] = (byte) (requestedPower != -1 ? (requestedPower & 0xFF) : 0xFF);
+            payload[7] = (byte) (requestedPower != -1 ? ((requestedPower >> 8) & 0xFF) : 0xFF);
+        }
+        
+        /**
+         * Build General Settings Page (0x11)
+         */
+        private void buildGeneralSettingsPage(byte[] payload) {
+            payload[0] = DATA_PAGE_GENERAL_SETTINGS;
+            payload[1] = (byte) 0xFF; // Reserved
+            payload[2] = (byte) 0xFF; // Reserved
+            payload[3] = (byte) 0xFF; // Reserved
+            payload[4] = (byte) 0xFF; // Reserved
+            payload[5] = (byte) 0xFF; // Reserved
+            payload[6] = (byte) 0xFF; // Reserved
+            payload[7] = (byte) 0xFF; // Reserved
+        }
+        
+        /**
+         * Handle incoming control commands
+         */
+        private void handleControlCommand(byte[] data) {
+            if (data.length < 8) return;
+            
+            byte pageNumber = data[0];
+            QLog.d(TAG, "Received control command page: 0x" + String.format("%02X", pageNumber));
+            
+            // Handle control command pages
+            switch (pageNumber) {
+                case 0x30: // Basic Resistance
+                    handleBasicResistanceCommand(data);
+                    break;
+                case 0x31: // Target Power
+                    handleTargetPowerCommand(data);
+                    break;
+                case 0x33: // Track Resistance
+                    handleTrackResistanceCommand(data);
+                    break;
+            }
+        }
+        
+        private void handleBasicResistanceCommand(byte[] data) {
+            int resistance = data[7] & 0xFF; // Resistance in 0.5% increments
+            double resistancePercent = resistance * 0.5;
+            
+            QLog.d(TAG, "Received basic resistance command: " + resistancePercent + "%");
+            
+            if (resistancePercent != requestedResistance && controlListener != null) {
+                requestedResistance = (int) resistancePercent;
+                controlListener.onResistanceChangeRequested(requestedResistance);
+            }
+        }
+        
+        private void handleTargetPowerCommand(byte[] data) {
+            int targetPower = ((data[7] & 0xFF) << 8) | (data[6] & 0xFF);
+            
+            QLog.d(TAG, "Received target power command: " + targetPower + "W");
+            
+            if (targetPower != requestedPower && controlListener != null) {
+                requestedPower = targetPower;
+                controlListener.onPowerChangeRequested(targetPower);
+            }
+        }
+        
+        private void handleTrackResistanceCommand(byte[] data) {
+            // Grade is in 0.01% increments, signed 16-bit
+            int gradeRaw = ((data[6] & 0xFF) << 8) | (data[5] & 0xFF);
+            if (gradeRaw > 32767) gradeRaw -= 65536; // Convert to signed
+            double grade = gradeRaw * 0.01;
+            
+            QLog.d(TAG, "Received track resistance command: " + grade + "% grade");
+            
+            if (Math.abs(grade - requestedInclination) > 0.1 && controlListener != null) {
+                requestedInclination = grade;
+                controlListener.onInclinationChangeRequested(grade);
+            }
+        }
     }
 }
