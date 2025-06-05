@@ -29,6 +29,7 @@ import com.dsi.ant.message.fromant.AcknowledgedDataMessage;
 import com.dsi.ant.message.fromant.ChannelEventMessage;
 import com.dsi.ant.message.fromant.MessageFromAntType;
 import com.dsi.ant.message.ipc.AntMessageParcel;
+import android.os.RemoteException;
 
 import java.util.Locale;
 import java.util.Timer;
