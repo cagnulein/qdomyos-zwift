@@ -580,6 +580,7 @@ public class BikeTransmitterController {
         
         private void handleTargetPowerCommand(byte[] data) {
             int targetPower = ((data[7] & 0xFF) << 8) | (data[6] & 0xFF);
+            targetPower = targetPower / 4;
             
             QLog.d(TAG, "Received target power command: " + targetPower + "W");
             
@@ -592,8 +593,8 @@ public class BikeTransmitterController {
         private void handleTrackResistanceCommand(byte[] data) {
             // Grade is in 0.01% increments, signed 16-bit
             int gradeRaw = ((data[6] & 0xFF) << 8) | (data[5] & 0xFF);
-            if (gradeRaw > 32767) gradeRaw -= 65536; // Convert to signed
-            double grade = gradeRaw * 0.01;
+            if (gradeRaw > 32767) gradeRaw -= 65536; // Convert to signed            
+            double grade = (gradeRaw - 0x4E20) * 0.01;
             
             QLog.d(TAG, "Received track resistance command: " + grade + "% grade");
             
