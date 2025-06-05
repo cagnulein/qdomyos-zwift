@@ -112,6 +112,10 @@ public class ChannelService extends Service {
      */
     public class ChannelServiceComm extends Binder {
 
+        public static native void nativeSetResistance(int resistance);
+        public static native void nativeSetPower(int power);
+        public static native void nativeSetInclination(double inclination);
+
         void setSpeed(double speed) {
             if (null != speedChannelController) {
                 speedChannelController.speed = speed;
@@ -346,6 +350,7 @@ public class ChannelService extends Service {
                             // Send broadcast intent to notify the main application
                             Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_RESISTANCE_CHANGE");
                             intent.putExtra("resistance", resistance);
+                            nativeSetResistance(resistance);
                             sendBroadcast(intent);
                         }
 
@@ -355,6 +360,7 @@ public class ChannelService extends Service {
                             // Send broadcast intent to notify the main application
                             Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_POWER_CHANGE");
                             intent.putExtra("power", power);
+                            nativeSetPower(power);
                             sendBroadcast(intent);
                         }
 
@@ -364,6 +370,7 @@ public class ChannelService extends Service {
                             // Send broadcast intent to notify the main application
                             Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_INCLINATION_CHANGE");
                             intent.putExtra("inclination", inclination);
+                            nativeSetInclination(inclination);
                             sendBroadcast(intent);
                         }
                     });
