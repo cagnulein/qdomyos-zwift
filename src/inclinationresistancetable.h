@@ -28,8 +28,6 @@ class inclinationResistanceTable : public QObject {
 public:
     inclinationResistanceTable(QObject *parent = nullptr) : QObject(parent) {
         loadSettings();
-        // Clean any invalid points on initialization
-        cleanInvalidPoints();
     }
 
     ~inclinationResistanceTable() {
@@ -51,53 +49,12 @@ public:
         settings.sync();
     }
 
-    // Clean any invalid points in the table
-    void cleanInvalidPoints() {
-        // Remove points with zero inclination or resistance
-        auto it = dataPoints.begin();
-        while (it != dataPoints.end()) {
-            if (it->inclination == 0 || it->resistance == 0) {
-                qDebug() << "Removing invalid point:" << "Incl:" << it->inclination 
-                         << "Res:" << it->resistance;
-                it = dataPoints.erase(it);
-            } else {
-                ++it;
-            }
-        }
-
-        // Create a map to handle duplicate resistance values
-        QMap<uint16_t, inclinationResistanceDataPoint> uniqueResistanceMap;
-        for (const auto& point : dataPoints) {
-            // If this resistance already exists, keep the point with the larger absolute inclination
-            if (uniqueResistanceMap.contains(point.resistance)) {
-                if (qAbs(point.inclination) > qAbs(uniqueResistanceMap[point.resistance].inclination)) {
-                    qDebug() << "Replacing duplicate resistance point:" 
-                             << "Old Incl:" << uniqueResistanceMap[point.resistance].inclination
-                             << "New Incl:" << point.inclination
-                             << "Res:" << point.resistance;
-                    uniqueResistanceMap[point.resistance] = point;
-                }
-            } else {
-                uniqueResistanceMap[point.resistance] = point;
-            }
-        }
-
-        // Rebuild dataPoints list from the unique resistance map
-        dataPoints.clear();
-        for (auto it = uniqueResistanceMap.constBegin(); it != uniqueResistanceMap.constEnd(); ++it) {
-            dataPoints.append(it.value());
-        }
-        
-        // Save the cleaned data
-        saveSettings();
-    }
-
     // Add a new data point if values are stable for 5 seconds
-    void collectData(double inclination, uint16_t resistance) {
+    void collectData(double inclination, uint16_t resistance, double watt) {
         // Skip invalid data points (zero inclination or resistance)
-        if (inclination == 0 || resistance == 0) {
+        if (inclination == 0 || resistance == 0 || watt == 0) {
             qDebug() << "Skipping invalid data point:" << "Incl:" << inclination 
-                     << "Res:" << resistance;
+                     << "Res:" << resistance << "Watt:" << watt;
             return;
         }
 

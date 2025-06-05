@@ -91,6 +91,13 @@ void proformwifitreadmill::forceSpeed(double requestSpeed) {
     waitStatePkg = true;
 }
 
+void proformwifitreadmill::forceSpeedMPH(double requestSpeed) {
+    QString send = "{\"type\":\"set\",\"values\":{\"MPH\":\"" + QString::number(requestSpeed) + "\"}}";
+    qDebug() << "forceSpeed" << send;
+    websocket.sendTextMessage(send);
+    waitStatePkg = true;
+}
+
 void proformwifitreadmill::forceIncline(double requestIncline) {
     QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(requestIncline) + "\"}}";
     qDebug() << "forceIncline" << send;
@@ -133,7 +140,17 @@ void proformwifitreadmill::update() {
             sec1Update = 0;
             if(waitStatePkg == false) {
                 // keeping the connection alive
-                forceSpeed(currentSpeed().value());
+                qint64 msSinceLastMetrics = lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime());
+                if (msSinceLastMetrics >= 2000) {
+                    // keeping the connection alive - no metrics received for 2+ seconds
+                    qDebug() << QStringLiteral("Keep-alive: No metrics for ") << msSinceLastMetrics << "ms";
+                    QSettings settings;
+                    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+                    if(!miles)
+                        forceSpeed(currentSpeed().value());
+                    else
+                        forceSpeedMPH(SpeedMPH.value());
+                }
             }
         }
 
@@ -194,6 +211,10 @@ void proformwifitreadmill::characteristicChanged(const QString &newValue) {
         } else {
             qDebug() << "filtering speed due to firmware bug";
         }
+    }
+
+    if (!values[QStringLiteral("MPH")].isUndefined()) {
+        SpeedMPH = values[QStringLiteral("MPH")].toString().toDouble();
     }
 
     if (!values[QStringLiteral("Kilometers")].isUndefined()) {

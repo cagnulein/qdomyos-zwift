@@ -1141,8 +1141,10 @@ import Qt.labs.platform 1.1
 
             property bool nordictrack_t65s_treadmill_81_miles: false
             property bool nordictrack_elite_800: false
-            property bool ios_btdevice_native: false
+            property bool ios_btdevice_native: false            
             property string inclinationResistancePoints: ""
+            property int floatingwindow_type: 0
+            property bool horizon_treadmill_7_0_at_24: false
 
             // from version ?
             property bool trixter_xdream_v1_bike_enabled: false
@@ -1581,7 +1583,7 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
+                    }                    
                 }
             }
 
@@ -4183,6 +4185,44 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.top_bar_enabled = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelFloatingWindowType
+                            text: qsTr("Floating Window Type:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: floatingWindowTypeComboBox
+                            model: ["Classic", "Horizontal"]
+                            currentIndex: settings.floatingwindow_type
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("floatingwindow_type activated" + floatingWindowTypeComboBox.currentIndex)
+                            }
+                        }
+                        Button {
+                            id: okFloatingWindowTypeButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.floatingwindow_type = floatingWindowTypeComboBox.currentIndex; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     Label {
@@ -7730,6 +7770,20 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.horizon_treadmill_force_ftms = checked; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                id: horizonTreadmill70At24Delegate
+                                text: qsTr("Horizon 7.0 AT/24")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.horizon_treadmill_7_0_at_24
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.horizon_treadmill_7_0_at_24 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
                                 id: horizon78TreadmillDelegate

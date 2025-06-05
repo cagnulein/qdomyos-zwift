@@ -21,6 +21,7 @@
 #include "qzsettings.h"
 
 #include "devices/activiotreadmill/activiotreadmill.h"
+#include "devices/speraxtreadmill/speraxtreadmill.h"
 #include "devices/antbike/antbike.h"
 #include "devices/android_antbike/android_antbike.h"
 #include "devices/apexbike/apexbike.h"
@@ -222,6 +223,7 @@ private:
     trxappgateusbtreadmill *trxappgateusb = nullptr;
     spirittreadmill *spiritTreadmill = nullptr;
     activiotreadmill *activioTreadmill = nullptr;
+    speraxtreadmill *speraXTreadmill = nullptr;
     nautilusbike *nautilusBike = nullptr;
     nautiluselliptical *nautilusElliptical = nullptr;
     nautilustreadmill *nautilusTreadmill = nullptr;

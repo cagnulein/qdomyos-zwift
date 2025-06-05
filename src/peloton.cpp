@@ -884,8 +884,14 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     getInstructor(current_instructor_id);
 }
 
+int peloton::getIntroOffset() {
+    return first_target_metrics_start_offset;
+}
+
 void peloton::ride_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::ride_onfinish);
+
+    first_target_metrics_start_offset = 60; // default value
 
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
@@ -1212,66 +1218,186 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     }
 
     QJsonObject target_metrics_data_list = ride[QStringLiteral("target_metrics_data")].toObject();
+    if (!target_metrics_data_list.isEmpty()) {
+        QJsonArray target_metrics = target_metrics_data_list["target_metrics"].toArray();
+        if (!target_metrics.isEmpty()) {
+            QJsonObject first_metric = target_metrics[0].toObject();
+            QJsonObject offsets = first_metric["offsets"].toObject();
+            if (!offsets.isEmpty()) {
+                first_target_metrics_start_offset = offsets["start"].toInt();
+                qDebug() << "First target metrics start offset:" << first_target_metrics_start_offset;
+            }
+        }
+    }
     if (trainrows.empty() && !target_metrics_data_list.isEmpty() &&
         bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
         bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
         QJsonArray target_metrics = target_metrics_data_list["target_metrics"].toArray();
-        for (const QJsonValue& segment : target_metrics) {
+
+        bool atLeastOnePower = false;
+        int lastEnd = 60; // Starting offset, similar to performance_onfinish
+
+        // Convert QJsonArray to QList for sorting by start time
+        QList<QJsonValue> sortedMetrics;
+        for (const QJsonValue &metric : target_metrics) {
+            sortedMetrics.append(metric);
+        }
+
+               // Sort the list by "start" time to ensure proper order
+        std::sort(sortedMetrics.begin(), sortedMetrics.end(), [](const QJsonValue &a, const QJsonValue &b) {
+            int startA = a.toObject()[QStringLiteral("offsets")].toObject()[QStringLiteral("start")].toInt();
+            int startB = b.toObject()[QStringLiteral("offsets")].toObject()[QStringLiteral("start")].toInt();
+            return startA < startB;
+        });
+
+        for (const QJsonValue& segment : sortedMetrics) {
             QJsonObject segmentObj = segment.toObject();
             QJsonObject offsets = segmentObj["offsets"].toObject();
             QJsonArray metrics = segmentObj["metrics"].toArray();
-        
-            trainrow r;
+
             int start = offsets["start"].toInt();
             int end = offsets["end"].toInt();
-            r.duration = QTime(0, 0, 0).addSecs(end - start);
-            if (!metrics.isEmpty()) {
-                QJsonObject metric = metrics[0].toObject();
-                int lower = metric["lower"].toInt();
-                int upper = metric["upper"].toInt();
-                int avg = (upper - lower) / 2;
-                
-                int p = lower;
 
+            // Check if there's a gap from previous segment and add filler if needed
+            if (!trainrows.isEmpty()) {
+                int expectedStart = lastEnd + 1;
+                if (start > expectedStart) {
+                    // Add gap row for missing time
+                    trainrow gapRow;
+                    int gapDuration = start - expectedStart;
+                    gapRow.duration = QTime(0, gapDuration / 60, gapDuration % 60, 0);
+                    gapRow.power = -1; // No power target for gap
+                    qDebug() << "Adding gap row of" << gapDuration << "seconds from" << expectedStart << "to" << (start - 1);
+                    trainrows.append(gapRow);
+                }
+            }
+
+            lastEnd = end;
+
+            trainrow r;
+            r.duration = QTime(0, 0, 0).addSecs(end - start + 1);
+
+            bool isPowerZone = false;
+            bool hasResistanceCadence = false;
+            int powerZone = 0;
+            int lowerResistance = 0, upperResistance = 0;
+            int lowerCadence = 0, upperCadence = 0;
+
+            // Analyze metrics to determine workout type
+            for (const QJsonValue& metricValue : metrics) {
+                QJsonObject metric = metricValue.toObject();
+                QString name = metric["name"].toString();
+
+                if (name == "power_zone") {
+                    isPowerZone = true;
+                    int lower = metric["lower"].toInt();
+                    int upper = metric["upper"].toInt();
+
+                    // Use difficulty setting for power zone
+                    if (difficulty == QStringLiteral("average")) {
+                        powerZone = (lower + upper) / 2;
+                    } else if (difficulty == QStringLiteral("upper")) {
+                        powerZone = upper;
+                    } else { // lower
+                        powerZone = lower;
+                    }
+                } else if (name == "resistance") {
+                    hasResistanceCadence = true;
+                    lowerResistance = metric["lower"].toInt();
+                    upperResistance = metric["upper"].toInt();
+                } else if (name == "cadence") {
+                    hasResistanceCadence = true;
+                    lowerCadence = metric["lower"].toInt();
+                    upperCadence = metric["upper"].toInt();
+                }
+            }
+
+            if (isPowerZone) {
+                // Handle power zone workout
+                switch(powerZone) {
+                case 1:
+                    r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.50;
+                    break;
+                case 2:
+                    r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.66;
+                    break;
+                case 3:
+                    r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.83;
+                    break;
+                case 4:
+                    r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.98;
+                    break;
+                case 5:
+                    r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.13;
+                    break;
+                case 6:
+                    r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.35;
+                    break;
+                case 7:
+                    r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.5;
+                    break;
+                default:
+                    qDebug() << "ERROR: Unhandled power zone!" << powerZone;
+                    r.power = -1;
+                    break;
+                }
+                if (r.power != -1) {
+                    atLeastOnePower = true;
+                }
+                qDebug() << r.duration << "power zone" << powerZone << "power" << r.power << "time range" << start << "-" << end;
+            } else if (hasResistanceCadence) {
+                // Handle resistance/cadence workout
+                r.lower_requested_peloton_resistance = lowerResistance;
+                r.upper_requested_peloton_resistance = upperResistance;
+                r.lower_cadence = lowerCadence;
+                r.upper_cadence = upperCadence;
+
+                r.average_requested_peloton_resistance = (lowerResistance + upperResistance) / 2;
+                r.average_cadence = (lowerCadence + upperCadence) / 2;
+
+                if (bluetoothManager && bluetoothManager->device()) {
+                    if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                        r.lower_resistance = ((bike *)bluetoothManager->device())
+                                                 ->pelotonToBikeResistance(lowerResistance);
+                        r.upper_resistance = ((bike *)bluetoothManager->device())
+                                                 ->pelotonToBikeResistance(upperResistance);
+                        r.average_resistance = ((bike *)bluetoothManager->device())
+                                                   ->pelotonToBikeResistance(r.average_requested_peloton_resistance);
+                    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                        r.lower_resistance = ((elliptical *)bluetoothManager->device())
+                                                 ->pelotonToEllipticalResistance(lowerResistance);
+                        r.upper_resistance = ((elliptical *)bluetoothManager->device())
+                                                 ->pelotonToEllipticalResistance(upperResistance);
+                        r.average_resistance = ((elliptical *)bluetoothManager->device())
+                                                   ->pelotonToEllipticalResistance(r.average_requested_peloton_resistance);
+                    }
+                }
+
+                       // Set values based on difficulty preference
                 if (difficulty == QStringLiteral("average")) {
-                    p = avg;
+                    r.resistance = r.average_resistance;
+                    r.requested_peloton_resistance = r.average_requested_peloton_resistance;
+                    r.cadence = r.average_cadence;
                 } else if (difficulty == QStringLiteral("upper")) {
-                    p = upper;
+                    r.resistance = r.upper_resistance;
+                    r.requested_peloton_resistance = r.upper_requested_peloton_resistance;
+                    r.cadence = r.upper_cadence;
                 } else { // lower
-                    p = lower;
+                    r.resistance = r.lower_resistance;
+                    r.requested_peloton_resistance = r.lower_requested_peloton_resistance;
+                    r.cadence = r.lower_cadence;
                 }
 
-                switch(p) {
-                    case 1:
-                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.50;
-                    break;
-                    case 2:
-                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.66;
-                    break;
-                    case 3:
-                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.83;
-                    break;
-                    case 4:
-                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.98;
-                    break;
-                    case 5:
-                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.13;
-                    break;
-                    case 6:
-                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.35;
-                    break;
-                    case 7:
-                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.5;
-                    break;
-                    default:
-                        qDebug() << "ERROR not handled!" << p;
-                        break;
-                }
-                atLeastOnePower = true;
+                qDebug() << r.duration << "resistance" << r.lower_requested_peloton_resistance << "-" << r.upper_requested_peloton_resistance
+                         << "cadence" << r.lower_cadence << "-" << r.upper_cadence << "time range" << start << "-" << end;
+            }
+
+            if (isPowerZone || hasResistanceCadence) {
                 trainrows.append(r);
-                qDebug() << r.duration << "power" << r.power;
-            }        
+            }
         }
+
+               // Check duration consistency
         QTime duration(0,0,0,0);
         foreach(trainrow r, trainrows) {
             duration = duration.addSecs(QTime(0,0,0,0).secsTo(r.duration));
@@ -1285,8 +1411,9 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
             qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << diff << current_pedaling_duration;
             trainrows.clear();
         }
+
         // this list doesn't have nothing useful for this session
-        if (!atLeastOnePower) {
+        if (!atLeastOnePower && trainrows.isEmpty()) {
             trainrows.clear();
         }
     }
