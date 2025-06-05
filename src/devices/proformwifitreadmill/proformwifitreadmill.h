@@ -57,6 +57,7 @@ class proformwifitreadmill : public treadmill {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void forceSpeed(double requestSpeed);
+    void forceSpeedMPH(double requestSpeed);
     void forceIncline(double requestIncline);
     void startDiscover();
     void sendPoll();
@@ -75,6 +76,7 @@ class proformwifitreadmill : public treadmill {
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
+    metric SpeedMPH;
 
     bool initDone = false;
     bool initRequest = false;
