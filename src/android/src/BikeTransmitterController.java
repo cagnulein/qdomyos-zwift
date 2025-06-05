@@ -389,85 +389,141 @@ public class BikeTransmitterController {
         }
         
         /**
-         * Build General Fitness Equipment Data Page (0x10)
+         * Build General Fitness Equipment Data Page (0x10) - Page 16
+         * Following Table 8-7 format exactly
          */
         private void buildGeneralFEDataPage(byte[] payload) {
-            payload[0] = DATA_PAGE_GENERAL_FE;
-            payload[1] = 0x19; // Equipment type: Bike
+            payload[0] = 0x10; // Data Page Number = 0x10 (Page 16)
             
-            // Elapsed time (0.25 second resolution)
-            int elapsedTime025s = (int) (elapsedTimeSeconds * 4);
-            payload[2] = (byte) (elapsedTime025s & 0xFF);
+            // Byte 1: Equipment Type Bit Field (Refer to Table 8-8)
+            payload[1] = 0x19; // Equipment type: Bike (stationary bike = 0x19)
             
-            // Distance (meters)
-            payload[3] = (byte) (totalDistance & 0xFF);
-            payload[4] = (byte) ((totalDistance >> 8) & 0xFF);
+            // Byte 2: Elapsed Time (0.25 seconds resolution, rollover at 64s)
+            int elapsedTime025s = (int) (elapsedTimeSeconds * 4) & 0xFF;
+            payload[2] = (byte) elapsedTime025s;
             
-            // Speed (0.001 m/s resolution)
+            // Byte 3: Distance Traveled (1 meter resolution, rollover at 256m)
+            int distanceMeters = (int) (totalDistance) & 0xFF;
+            payload[3] = (byte) distanceMeters;
+            
+            // Bytes 4-5: Speed (0.001 m/s resolution, 0xFFFF = invalid)
             int speedMms = (int) (currentSpeedKph / 3.6 * 1000);
-            payload[5] = (byte) (speedMms & 0xFF);
-            payload[6] = (byte) ((speedMms >> 8) & 0xFF);
+            if (speedMms > 65534) speedMms = 65534; // Max valid value
+            payload[4] = (byte) (speedMms & 0xFF);        // Speed LSB
+            payload[5] = (byte) ((speedMms >> 8) & 0xFF); // Speed MSB
             
-            // Heart rate
-            payload[7] = (byte) currentHeartRate;
+            // Byte 6: Heart Rate (0xFF = invalid)
+            payload[6] = (byte) (currentHeartRate == 0 ? 0xFF : currentHeartRate);
+            
+            // Byte 7: Capabilities Bit Field (4 bits 0:3) + FE State Bit Field (4 bits 4:7)
+            payload[7] = 0x00; // Set to 0x00 for now (refer to Tables 8-9 and 8-10)
         }
         
         /**
-         * Build Bike Data Page (0x19)
+         * Build Specific Trainer/Stationary Bike Data Page (0x19) - Page 25
+         * Following Table 8-25 format exactly
          */
         private void buildBikeDataPage(byte[] payload) {
-            payload[0] = DATA_PAGE_BIKE_DATA;
-            payload[1] = (byte) 0xFF; // Reserved
-            payload[2] = (byte) 0xFF; // Reserved
-            payload[3] = (byte) 0xFF; // Reserved
+            payload[0] = 0x19; // Data Page Number = 0x19 (Page 25)
             
-            // Instantaneous cadence
-            payload[4] = (byte) currentCadence;
-            
-            // Instantaneous power (watts)
-            payload[5] = (byte) (currentPower & 0xFF);
-            payload[6] = (byte) ((currentPower >> 8) & 0xFF);
-            
-            payload[7] = (byte) 0xFF; // Reserved
-        }
-        
-        /**
-         * Build Trainer Data Page (0x1A)
-         */
-        private void buildTrainerDataPage(byte[] payload) {
-            payload[0] = DATA_PAGE_TRAINER_DATA;
-            
-            // Event count (increments on parameter changes)
+            // Byte 1: Update Event Count (increments with each information update)
+            eventCount = (eventCount + 1) & 0xFF;
             payload[1] = (byte) eventCount;
             
-            // Instantaneous cadence
-            payload[2] = (byte) currentCadence;
+            // Byte 2: Instantaneous Cadence (RPM, 0xFF = invalid)
+            payload[2] = (byte) (currentCadence == 0 ? 0xFF : currentCadence);
             
-            // Instantaneous power (watts)
-            payload[3] = (byte) (currentPower & 0xFF);
-            payload[4] = (byte) ((currentPower >> 8) & 0xFF);
+            // Bytes 3-4: Accumulated Power (1 watt resolution, rollover at 65536W)
+            // This is cumulative power, not instantaneous
+            int accumulatedPower = (int) (currentPower * elapsedTimeSeconds / 3600) & 0xFFFF; // Rough calculation
+            payload[3] = (byte) (accumulatedPower & 0xFF);        // Accumulated Power LSB
+            payload[4] = (byte) ((accumulatedPower >> 8) & 0xFF); // Accumulated Power MSB
             
-            // Resistance level (0.5% resolution)
-            int resistance05 = (int) (currentResistance * 2);
-            payload[5] = (byte) (resistance05 & 0xFF);
+            // Bytes 5-6: Instantaneous Power (1.5 bytes, 0xFFF = invalid for both fields)
+            if (currentPower > 4094) {
+                // 0xFFF indicates BOTH instantaneous and accumulated power fields are invalid
+                payload[5] = (byte) 0xFF; // Instantaneous Power LSB
+                payload[6] = (byte) 0xFF; // Instantaneous Power MSB (bits 0-3) + Trainer Status (bits 4-7)
+            } else {
+                payload[5] = (byte) (currentPower & 0xFF);                    // Instantaneous Power LSB
+                payload[6] = (byte) ((currentPower >> 8) & 0x0F);            // Instantaneous Power MSN (bits 0-3)
+                // Bits 4-7 of byte 6: Trainer Status Bit Field (refer to Table 8-27)
+                payload[6] |= 0x00; // Trainer status = 0 for now
+            }
             
-            // Target power (watts) - echo back any requested power
-            payload[6] = (byte) (requestedPower != -1 ? (requestedPower & 0xFF) : 0xFF);
-            payload[7] = (byte) (requestedPower != -1 ? ((requestedPower >> 8) & 0xFF) : 0xFF);
+            // Byte 7: Flags Bit Field (bits 0-3) + FE State Bit Field (bits 4-7)
+            payload[7] = 0x00; // Set to 0x00 for now
         }
         
         /**
-         * Build General Settings Page (0x11)
+         * Build Specific Trainer Torque Data Page (0x1A) - Page 26
+         * Following Table 8-29 format exactly
+         */
+        private void buildTrainerDataPage(byte[] payload) {
+            payload[0] = 0x1A; // Data Page Number = 0x1A (Page 26)
+            
+            // Byte 1: Update Event Count (increments with each information update)
+            eventCount = (eventCount + 1) & 0xFF;
+            payload[1] = (byte) eventCount;
+            
+            // Byte 2: Wheel Ticks (increments with each wheel revolution, rollover at 256)
+            int wheelTicks = (int) (totalDistance / 2.1) & 0xFF; // Assuming ~2.1m wheel circumference
+            payload[2] = (byte) wheelTicks;
+            
+            // Bytes 3-4: Wheel Period (1/2048s resolution, accumulated wheel period updated each event)
+            // Calculate wheel period from current speed
+            double wheelCircumference = 2.1; // meters
+            double wheelRPS = (currentSpeedKph / 3.6) / wheelCircumference; // revolutions per second
+            int wheelPeriod2048s = wheelRPS > 0 ? (int) (2048.0 / wheelRPS) & 0xFFFF : 0xFFFF;
+            payload[3] = (byte) (wheelPeriod2048s & 0xFF);        // Wheel Period LSB
+            payload[4] = (byte) ((wheelPeriod2048s >> 8) & 0xFF); // Wheel Period MSB
+            
+            // Bytes 5-6: Accumulated Torque (1/32 Nm resolution, updated each event)
+            // Estimate torque from power and cadence: Torque = Power / (2π * Cadence/60)
+            double torqueNm = 0;
+            if (currentCadence > 0) {
+                torqueNm = currentPower / (2 * Math.PI * currentCadence / 60.0);
+            }
+            int accumulatedTorque32 = (int) (torqueNm * 32 * elapsedTimeSeconds) & 0xFFFF;
+            payload[5] = (byte) (accumulatedTorque32 & 0xFF);        // Accumulated Torque LSB
+            payload[6] = (byte) ((accumulatedTorque32 >> 8) & 0xFF); // Accumulated Torque MSB
+            
+            // Byte 7: Capabilities Bit Field (bits 0-3) + FE State Bit Field (bits 4-7)
+            payload[7] = 0x00; // Capabilities = 0x0 (reserved for future use), FE State = 0x0
+        }
+        
+        /**
+         * Build General Settings Page (0x11) - Page 17
+         * Following Table 8-11 format exactly
          */
         private void buildGeneralSettingsPage(byte[] payload) {
-            payload[0] = DATA_PAGE_GENERAL_SETTINGS;
-            payload[1] = (byte) 0xFF; // Reserved
-            payload[2] = (byte) 0xFF; // Reserved
-            payload[3] = (byte) 0xFF; // Reserved
-            payload[4] = (byte) 0xFF; // Reserved
-            payload[5] = (byte) 0xFF; // Reserved
-            payload[6] = (byte) 0xFF; // Reserved
-            payload[7] = (byte) 0xFF; // Reserved
+            payload[0] = 0x11; // Data Page Number = 0x11 (Page 17)
+            
+            // Byte 1: Reserved (0xFF - Do not interpret)
+            payload[1] = (byte) 0xFF;
+            
+            // Byte 2: Reserved (0xFF - Do not interpret)
+            payload[2] = (byte) 0xFF;
+            
+            // Byte 3: Cycle length (0.01 meters resolution, 0xFF = invalid)
+            // Length of one 'cycle' - for bike this could be wheel circumference
+            int cycleLengthCm = 210; // 2.1m wheel circumference = 210cm
+            payload[3] = (byte) (cycleLengthCm & 0xFF);
+            
+            // Bytes 4-5: Incline Percentage (signed integer, 0.01% resolution, 0x7FFF = invalid)
+            int inclinePercent001 = (int) (currentInclination * 100); // Convert to 0.01% units
+            if (inclinePercent001 < -10000) inclinePercent001 = -10000; // Min -100.00%
+            if (inclinePercent001 > 10000) inclinePercent001 = 10000;   // Max +100.00%
+            payload[4] = (byte) (inclinePercent001 & 0xFF);        // Incline LSB
+            payload[5] = (byte) ((inclinePercent001 >> 8) & 0xFF); // Incline MSB
+            
+            // Byte 6: Resistance Level (0.5% resolution, percentage of maximum applicable resistance)
+            int resistanceLevel05 = (int) (currentResistance * 2); // Convert to 0.5% units
+            if (resistanceLevel05 > 200) resistanceLevel05 = 200; // Max 100% = 200 in 0.5% units
+            payload[6] = (byte) (resistanceLevel05 & 0xFF);
+            
+            // Byte 7: Capabilities Bit Field (bits 0-3) + FE State Bit Field (bits 4-7)
+            payload[7] = 0x00; // Set to 0x00 for now
         }
         
         /**
