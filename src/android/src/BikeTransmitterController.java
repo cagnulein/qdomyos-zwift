@@ -293,8 +293,25 @@ public class BikeTransmitterController {
                        eventCount = (eventCount + 1) & 0xFF;
                        cumulativeDistance = (cumulativeDistance + (int)(currentSpeedKph / 3.6)) & 0xFFFF; // rough distance calc
                        
-                       // Build General FE Data Page (0x10)
-                       buildGeneralFEDataPage(payload);
+                       cnt += 1;
+
+                        // Cycle through different data pages like PowerChannelController
+                        if (cnt % 5 == 0) {
+                            // General FE Data Page (0x10)
+                            buildGeneralFEDataPage(payload);
+                        } else if (cnt % 5 == 1) {
+                            // Bike Data Page (0x19)
+                            buildBikeDataPage(payload);
+                        } else if (cnt % 5 == 2) {
+                            // Trainer Data Page (0x1A)
+                            buildTrainerDataPage(payload);
+                        } else if (cnt % 5 == 3) {
+                            // General Settings Page (0x11)
+                            buildGeneralSettingsPage(payload);
+                        } else {
+                            // Default General FE Data Page (0x10)
+                            buildGeneralFEDataPage(payload);
+                        }
 
                        if (mIsOpen) {
                            try {
