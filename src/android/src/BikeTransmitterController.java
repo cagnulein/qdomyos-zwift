@@ -267,7 +267,6 @@ public class BikeTransmitterController {
 
         int cnt = 0;
         int eventCount = 0;
-        int eventCountPower = 0;
         int cumulativeDistance = 0;
         int cumulativeWatt = 0;
         int accumulatedTorque32 = 0;
@@ -484,8 +483,8 @@ public class BikeTransmitterController {
             payload[0] = 0x19; // Data Page Number = 0x19 (Page 25)
             
             // Byte 1: Update Event Count (increments with each information update)
-            eventCountPower = (eventCountPower + 1) & 0xFF;
-            payload[1] = (byte) eventCountPower;
+            eventCount = (eventCount + 1) & 0xFF;
+            payload[1] = (byte) eventCount;
             
             // Byte 2: Instantaneous Cadence (RPM, 0xFF = invalid)
             payload[2] = (byte) (currentCadence == 0 ? 0xFF : currentCadence);
