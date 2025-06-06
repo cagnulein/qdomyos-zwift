@@ -216,17 +216,17 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     coreTemperatureFieldDesc.SetFieldDefinitionNumber(0);
     coreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
     coreTemperatureFieldDesc.SetFieldName(0, L"core_temperature");
-    coreTemperatureFieldDesc.SetUnits(0, L"C");
-    coreTemperatureFieldDesc.SetNativeMesgNum(fit::Profile::MESG_RECORD);
-    coreTemperatureFieldDesc.SetNativeFieldNum(255); // Use invalid field number to indicate custom field
+    coreTemperatureFieldDesc.SetUnits(0, L"°C");
+    coreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
+    coreTemperatureFieldDesc.SetNativeFieldNum(139);
 
     fit::FieldDescriptionMesg skinTemperatureFieldDesc;
     skinTemperatureFieldDesc.SetDeveloperDataIndex(0);
     skinTemperatureFieldDesc.SetFieldDefinitionNumber(1);
     skinTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
     skinTemperatureFieldDesc.SetFieldName(0, L"skin_temperature");
-    skinTemperatureFieldDesc.SetUnits(0, L"C");
-    skinTemperatureFieldDesc.SetNativeMesgNum(fit::Profile::MESG_RECORD);
+    skinTemperatureFieldDesc.SetUnits(0, L"°C");
+    skinTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
     skinTemperatureFieldDesc.SetNativeFieldNum(255); // Use invalid field number to indicate custom field
 
     fit::FieldDescriptionMesg heatStrainIndexFieldDesc;
@@ -234,8 +234,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     heatStrainIndexFieldDesc.SetFieldDefinitionNumber(2);
     heatStrainIndexFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
     heatStrainIndexFieldDesc.SetFieldName(0, L"heat_strain_index");
-    heatStrainIndexFieldDesc.SetUnits(0, L"");
-    heatStrainIndexFieldDesc.SetNativeMesgNum(fit::Profile::MESG_RECORD);
+    heatStrainIndexFieldDesc.SetUnits(0, L"a.u.");
+    heatStrainIndexFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
     heatStrainIndexFieldDesc.SetNativeFieldNum(255); // Use invalid field number to indicate custom field
 
     fit::ActivityMesg activityMesg;
