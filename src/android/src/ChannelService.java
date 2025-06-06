@@ -49,6 +49,10 @@ public class ChannelService extends Service {
     private AntChannelProvider mAntChannelProvider = null;
     private boolean mAllowAddChannel = false;
 
+    public static native void nativeSetResistance(int resistance);
+    public static native void nativeSetPower(int power);
+    public static native void nativeSetInclination(double inclination);
+
     HeartChannelController heartChannelController = null;
     PowerChannelController powerChannelController = null;
     SpeedChannelController speedChannelController = null;
@@ -111,10 +115,6 @@ public class ChannelService extends Service {
      * The interface used to communicate with the ChannelService
      */
     public class ChannelServiceComm extends Binder {
-
-        public static native void nativeSetResistance(int resistance);
-        public static native void nativeSetPower(int power);
-        public static native void nativeSetInclination(double inclination);
 
         void setSpeed(double speed) {
             if (null != speedChannelController) {
