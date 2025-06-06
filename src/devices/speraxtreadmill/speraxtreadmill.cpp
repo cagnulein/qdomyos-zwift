@@ -183,6 +183,7 @@ void speraxtreadmill::update() {
                 requestStop = -1;
             } else {
                 uint8_t noop[] = {0xf5, 0x08, 0x00, 0x19, 0xf0, 0x0a, 0x59, 0xfa};
+                writeCharacteristic(gattWriteCharacteristic, noop, sizeof(noop), QStringLiteral("noop"), false, false);
 
             }
             /*if (requestFanSpeed != -1) {
