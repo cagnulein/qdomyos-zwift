@@ -61,12 +61,7 @@ void speraxtreadmill::writeCharacteristic(const QLowEnergyCharacteristic charact
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCommunicationChannelService->writeCharacteristic(characteristic, *writeBuffer,
-                                                             QLowEnergyService::WriteWithoutResponse);
-    } else {
-        gattCommunicationChannelService->writeCharacteristic(characteristic, *writeBuffer);
-    }
+    gattCommunicationChannelService->writeCharacteristic(characteristic, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
