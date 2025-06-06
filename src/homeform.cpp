@@ -5979,6 +5979,39 @@ void homeform::update() {
             v += settings.value(QZSettings::ant_speed_offset, QZSettings::default_ant_speed_offset).toDouble();
             KeepAwakeHelper::antObject(false)->callMethod<void>("setCadenceSpeedPower", "(FII)V", (float)v, (int)watts,
                                                                 (int)cadence);
+
+            long distanceMeters = (long)(bluetoothManager->device()->odometer() * 1000.0);
+            
+            // Get heart rate
+            int heartRate = (int)bluetoothManager->device()->currentHeart().value();
+            
+            // Calculate elapsed time in seconds
+            double elapsedTimeSeconds = (double)(bluetoothManager->device()->elapsedTime().second() +
+                (bluetoothManager->device()->elapsedTime().minute() * 60) +
+                (bluetoothManager->device()->elapsedTime().hour() * 3600));
+            
+            // Get resistance and inclination values
+            int resistance = 0;
+            double inclination = 0.0;
+            
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                resistance = (int)((bike*)bluetoothManager->device())->currentResistance().value();
+                inclination = ((bike*)bluetoothManager->device())->currentInclination().value();
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                resistance = (int)((elliptical*)bluetoothManager->device())->currentResistance().value();
+                inclination = ((elliptical*)bluetoothManager->device())->currentInclination().value();
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+                resistance = (int)((rower*)bluetoothManager->device())->currentResistance().value();
+            }
+            
+            // Call the extended metrics update via JNI
+            KeepAwakeHelper::antObject(false)->callMethod<void>("updateBikeTransmitterExtendedMetrics", 
+                "(JIDID)V", 
+                distanceMeters, 
+                heartRate, 
+                elapsedTimeSeconds, 
+                resistance, 
+                inclination);                                      
         }
 #endif
 

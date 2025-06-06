@@ -296,16 +296,13 @@ public class BikeTransmitterController {
                        cnt += 1;
 
                         // Cycle through different data pages like PowerChannelController
-                        if (cnt % 5 == 0) {
+                        if (cnt % 4 == 0) {
                             // General FE Data Page (0x10)
                             buildGeneralFEDataPage(payload);
-                        } else if (cnt % 5 == 1) {
+                        } else if (cnt % 4 == 1) {
                             // Bike Data Page (0x19)
                             buildBikeDataPage(payload);
-                        } else if (cnt % 5 == 2) {
-                            // Trainer Data Page (0x1A)
-                            buildTrainerDataPage(payload);
-                        } else if (cnt % 5 == 3) {
+                        } else if (cnt % 4 == 3) {
                             // General Settings Page (0x11)
                             buildGeneralSettingsPage(payload);
                         } else {
@@ -354,9 +351,6 @@ public class BikeTransmitterController {
                             } else if (cnt % 16 == 5) {
                                 // Bike Data Page (0x19)
                                 buildBikeDataPage(payload);
-                            } else if (cnt % 16 == 9) {
-                                // Trainer Data Page (0x1A)
-                                buildTrainerDataPage(payload);
                             } else if (cnt % 16 == 13) {
                                 // General Settings Page (0x11)
                                 buildGeneralSettingsPage(payload);
@@ -470,43 +464,6 @@ public class BikeTransmitterController {
             
             // Byte 7: Flags Bit Field (bits 0-3) + FE State Bit Field (bits 4-7)
             payload[7] = 0x00; // Set to 0x00 for now
-        }
-        
-        /**
-         * Build Specific Trainer Torque Data Page (0x1A) - Page 26
-         * Following Table 8-29 format exactly
-         */
-        private void buildTrainerDataPage(byte[] payload) {
-            payload[0] = 0x1A; // Data Page Number = 0x1A (Page 26)
-            
-            // Byte 1: Update Event Count (increments with each information update)
-            eventCount = (eventCount + 1) & 0xFF;
-            payload[1] = (byte) eventCount;
-            
-            // Byte 2: Wheel Ticks (increments with each wheel revolution, rollover at 256)
-            int wheelTicks = (int) (totalDistance / 2.1) & 0xFF; // Assuming ~2.1m wheel circumference
-            payload[2] = (byte) wheelTicks;
-            
-            // Bytes 3-4: Wheel Period (1/2048s resolution, accumulated wheel period updated each event)
-            // Calculate wheel period from current speed
-            double wheelCircumference = 2.1; // meters
-            double wheelRPS = (currentSpeedKph / 3.6) / wheelCircumference; // revolutions per second
-            int wheelPeriod2048s = wheelRPS > 0 ? (int) (2048.0 / wheelRPS) & 0xFFFF : 0xFFFF;
-            payload[3] = (byte) (wheelPeriod2048s & 0xFF);        // Wheel Period LSB
-            payload[4] = (byte) ((wheelPeriod2048s >> 8) & 0xFF); // Wheel Period MSB
-            
-            // Bytes 5-6: Accumulated Torque (1/32 Nm resolution, updated each event)
-            // Estimate torque from power and cadence: Torque = Power / (2π * Cadence/60)
-            double torqueNm = 0;
-            if (currentCadence > 0) {
-                torqueNm = currentPower / (2 * Math.PI * currentCadence / 60.0);
-            }
-            int accumulatedTorque32 = (int) (torqueNm * 32 * elapsedTimeSeconds) & 0xFFFF;
-            payload[5] = (byte) (accumulatedTorque32 & 0xFF);        // Accumulated Torque LSB
-            payload[6] = (byte) ((accumulatedTorque32 >> 8) & 0xFF); // Accumulated Torque MSB
-            
-            // Byte 7: Capabilities Bit Field (bits 0-3) + FE State Bit Field (bits 4-7)
-            payload[7] = 0x00; // Capabilities = 0x0 (reserved for future use), FE State = 0x0
         }
         
         /**
