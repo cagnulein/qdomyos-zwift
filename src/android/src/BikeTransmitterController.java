@@ -446,7 +446,7 @@ public class BikeTransmitterController {
             
             // Byte 1: Update Event Count (increments with each information update)
             eventCount = (eventCount + 1) & 0xFF;
-            payload[1] = (byte) eventCount;Add commentMore actions
+            payload[1] = (byte) eventCount;
             
             // Byte 2: Wheel Ticks (increments with each wheel revolution, rollover at 256)
             int wheelTicks = (int) (totalDistance / 2.1) & 0xFF; // Assuming ~2.1m wheel circumference
