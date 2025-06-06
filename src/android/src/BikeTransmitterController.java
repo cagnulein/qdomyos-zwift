@@ -261,6 +261,17 @@ public class BikeTransmitterController {
     }
 
     /**
+     * Helper method to convert byte array to hex string for debugging
+     */
+    private String bytesToHex(byte[] bytes) {
+        StringBuilder hex = new StringBuilder();
+        for (byte b : bytes) {
+            hex.append(String.format("%02X ", b & 0xFF));
+        }
+        return hex.toString().trim();
+    }
+
+    /**
      * Implements the Channel Event Handler Interface following PowerChannelController pattern
      */
     public class ChannelEventCallback implements IAntChannelEventHandler {
@@ -292,6 +303,7 @@ public class BikeTransmitterController {
                    public void run() {
                        QLog.d(TAG, "Tx Unsolicited Fitness Equipment Data");
                        byte[] payload = new byte[8];
+                       String debugString = "";
                        eventCount = (eventCount + 1) & 0xFF;
                        cumulativeDistance = (cumulativeDistance + (int)(currentSpeedKph / 3.6)) & 0xFFFF; // rough distance calc
                        
@@ -300,20 +312,24 @@ public class BikeTransmitterController {
                         // Cycle through different data pages like PowerChannelController
                         if (cnt % 5 == 0) {
                             // General FE Data Page (0x10)
-                            buildGeneralFEDataPage(payload);
+                            debugString = buildGeneralFEDataPage(payload);
                         } else if (cnt % 5 == 1) {
                             // Bike Data Page (0x19)
-                            buildBikeDataPage(payload);
+                            debugString = buildBikeDataPage(payload);
                         } else if (cnt % 5 == 2) {
                             // Trainer Data Page (0x1A)
-                            buildTrainerDataPage(payload);
+                            debugString = buildTrainerDataPage(payload);
                         } else if (cnt % 5 == 3) {
                             // General Settings Page (0x11)
-                            buildGeneralSettingsPage(payload);
+                            debugString = buildGeneralSettingsPage(payload);
                         } else {
                             // Default General FE Data Page (0x10)
-                            buildGeneralFEDataPage(payload);
+                            debugString = buildGeneralFEDataPage(payload);
                         }
+
+                       // Log the hex data and parsed values
+                       QLog.d(TAG, "Tx Payload HEX: " + bytesToHex(payload));
+                       QLog.d(TAG, debugString);
 
                        if (mIsOpen) {
                            try {
@@ -348,24 +364,29 @@ public class BikeTransmitterController {
                     switch (code) {
                         case TX:
                             cnt += 1;
+                            String debugString = "";
 
                             // Cycle through different data pages like PowerChannelController
                             if (cnt % 16 == 1) {
                                 // General FE Data Page (0x10)
-                                buildGeneralFEDataPage(payload);
+                                debugString = buildGeneralFEDataPage(payload);
                             } else if (cnt % 16 == 5) {
                                 // Bike Data Page (0x19)
-                                buildBikeDataPage(payload);
+                                debugString = buildBikeDataPage(payload);
                             } else if (cnt % 16 == 9) {
                                 // Trainer Data Page (0x1A)
-                                buildTrainerDataPage(payload);                                
+                                debugString = buildTrainerDataPage(payload);                                
                             } else if (cnt % 16 == 13) {
                                 // General Settings Page (0x11)
-                                buildGeneralSettingsPage(payload);
+                                debugString = buildGeneralSettingsPage(payload);
                             } else {
                                 // Default General FE Data Page (0x10)
-                                buildGeneralFEDataPage(payload);
+                                debugString = buildGeneralFEDataPage(payload);
                             }
+
+                            // Log the hex data and parsed values
+                            QLog.d(TAG, "Tx Payload HEX: " + bytesToHex(payload));
+                            QLog.d(TAG, debugString);
 
                             if (mIsOpen) {
                                 try {
@@ -410,8 +431,10 @@ public class BikeTransmitterController {
         /**
          * Build General Fitness Equipment Data Page (0x10) - Page 16
          * Following Table 8-7 format exactly
+         * @param payload byte array to populate
+         * @return debug string with hex and parsed values
          */
-        private void buildGeneralFEDataPage(byte[] payload) {
+        private String buildGeneralFEDataPage(byte[] payload) {
             payload[0] = 0x10; // Data Page Number = 0x10 (Page 16)
             
             // Byte 1: Equipment Type Bit Field (Refer to Table 8-8)
@@ -436,13 +459,29 @@ public class BikeTransmitterController {
             
             // Byte 7: Capabilities Bit Field (4 bits 0:3) + FE State Bit Field (4 bits 4:7)
             payload[7] = 0x00; // Set to 0x00 for now (refer to Tables 8-9 and 8-10)
+            
+            // Create debug string
+            return String.format(Locale.US, 
+                "General FE Data Page (0x10): " +
+                "Page=0x%02X, Equipment=0x%02X(Bike), " +
+                "ElapsedTime=0x%02X(%.1fs), Distance=0x%02X(%dm), " +
+                "Speed=0x%02X%02X(%.1fkm/h), HeartRate=0x%02X(%s), " +
+                "Capabilities=0x%02X",
+                payload[0] & 0xFF, payload[1] & 0xFF,
+                payload[2] & 0xFF, elapsedTimeSeconds,
+                payload[3] & 0xFF, distanceMeters,
+                payload[5] & 0xFF, payload[4] & 0xFF, currentSpeedKph,
+                payload[6] & 0xFF, currentHeartRate == 0 ? "Invalid" : currentHeartRate + "bpm",
+                payload[7] & 0xFF);
         }
         
        /**
          * Build Specific Trainer Torque Data Page (0x1A) - Page 26
          * Following Table 8-29 format exactly
+         * @param payload byte array to populate
+         * @return debug string with hex and parsed values
          */
-        private void buildTrainerDataPage(byte[] payload) {
+        private String buildTrainerDataPage(byte[] payload) {
             payload[0] = 0x1A; // Data Page Number = 0x1A (Page 26)
             
             // Byte 1: Update Event Count (increments with each information update)
@@ -473,13 +512,27 @@ public class BikeTransmitterController {
             
             // Byte 7: Capabilities Bit Field (bits 0-3) + FE State Bit Field (bits 4-7)
             payload[7] = 0x00; // Capabilities = 0x0 (reserved for future use), FE State = 0x0
+            
+            // Create debug string
+            return String.format(Locale.US,
+                "Trainer Data Page (0x1A): " +
+                "Page=0x%02X, EventCount=0x%02X(%d), " +
+                "WheelTicks=0x%02X(%d), WheelPeriod=0x%02X%02X(%d/2048s), " +
+                "AccumulatedTorque=0x%02X%02X(%.2fNm), Capabilities=0x%02X",
+                payload[0] & 0xFF, payload[1] & 0xFF, eventCount,
+                payload[2] & 0xFF, wheelTicks,
+                payload[4] & 0xFF, payload[3] & 0xFF, wheelPeriod2048s,
+                payload[6] & 0xFF, payload[5] & 0xFF, torqueNm,
+                payload[7] & 0xFF);
         }
 
         /**
          * Build Specific Trainer/Stationary Bike Data Page (0x19) - Page 25
          * Following Table 8-25 format exactly
+         * @param payload byte array to populate
+         * @return debug string with hex and parsed values
          */
-        private void buildBikeDataPage(byte[] payload) {
+        private String buildBikeDataPage(byte[] payload) {
             payload[0] = 0x19; // Data Page Number = 0x19 (Page 25)
             
             // Byte 1: Update Event Count (increments with each information update)
@@ -509,13 +562,30 @@ public class BikeTransmitterController {
             
             // Byte 7: Flags Bit Field (bits 0-3) + FE State Bit Field (bits 4-7)
             payload[7] = 0x00; // Set to 0x00 for now
+            
+            // Create debug string
+            String cadenceStr = currentCadence == 0 ? "Invalid" : currentCadence + "rpm";
+            String powerStr = currentPower > 4094 ? "Invalid" : currentPower + "W";
+            
+            return String.format(Locale.US,
+                "Bike Data Page (0x19): " +
+                "Page=0x%02X, EventCount=0x%02X(%d), " +
+                "Cadence=0x%02X(%s), AccumPower=0x%02X%02X(%dW), " +
+                "InstPower=0x%X%02X(%s), Flags=0x%02X",
+                payload[0] & 0xFF, payload[1] & 0xFF, eventCount,
+                payload[2] & 0xFF, cadenceStr,
+                payload[4] & 0xFF, payload[3] & 0xFF, cumulativeWatt,
+                (payload[6] & 0x0F), payload[5] & 0xFF, powerStr,
+                payload[7] & 0xFF);
         }
         
         /**
          * Build General Settings Page (0x11) - Page 17
          * Following Table 8-11 format exactly
+         * @param payload byte array to populate
+         * @return debug string with hex and parsed values
          */
-        private void buildGeneralSettingsPage(byte[] payload) {
+        private String buildGeneralSettingsPage(byte[] payload) {
             payload[0] = 0x11; // Data Page Number = 0x11 (Page 17)
             
             // Byte 1: Reserved (0xFF - Do not interpret)
@@ -543,6 +613,18 @@ public class BikeTransmitterController {
             
             // Byte 7: Capabilities Bit Field (bits 0-3) + FE State Bit Field (bits 4-7)
             payload[7] = 0x00; // Set to 0x00 for now
+            
+            // Create debug string
+            return String.format(Locale.US,
+                "General Settings Page (0x11): " +
+                "Page=0x%02X, Reserved1=0x%02X, Reserved2=0x%02X, " +
+                "CycleLength=0x%02X(%.2fm), Incline=0x%02X%02X(%.2f%%), " +
+                "Resistance=0x%02X(%.1f%%), Capabilities=0x%02X",
+                payload[0] & 0xFF, payload[1] & 0xFF, payload[2] & 0xFF,
+                payload[3] & 0xFF, cycleLengthCm / 100.0,
+                payload[5] & 0xFF, payload[4] & 0xFF, currentInclination,
+                payload[6] & 0xFF, currentResistance,
+                payload[7] & 0xFF);
         }
         
         /**
@@ -553,6 +635,7 @@ public class BikeTransmitterController {
             
             byte pageNumber = data[0];
             QLog.d(TAG, "Received control command page: 0x" + String.format("%02X", pageNumber));
+            QLog.d(TAG, "Control Command HEX: " + bytesToHex(data));
             
             // Handle control command pages
             switch (pageNumber) {
@@ -565,6 +648,9 @@ public class BikeTransmitterController {
                 case 0x33: // Track Resistance
                     handleTrackResistanceCommand(data);
                     break;
+                default:
+                    QLog.d(TAG, "Unknown control page: 0x" + String.format("%02X", pageNumber));
+                    break;
             }
         }
         
@@ -572,7 +658,9 @@ public class BikeTransmitterController {
             int resistance = data[7] & 0xFF; // Resistance in 0.5% increments
             double resistancePercent = resistance * 0.5;
             
-            QLog.d(TAG, "Received basic resistance command: " + resistancePercent + "%");
+            QLog.d(TAG, String.format(Locale.US, 
+                "Basic Resistance Command (0x30): Resistance=0x%02X(%.1f%%)", 
+                resistance, resistancePercent));
             
             if (resistancePercent != requestedResistance && controlListener != null) {
                 requestedResistance = (int) resistancePercent;
@@ -584,7 +672,9 @@ public class BikeTransmitterController {
             int targetPower = ((data[7] & 0xFF) << 8) | (data[6] & 0xFF);
             targetPower = targetPower / 4;
             
-            QLog.d(TAG, "Received target power command: " + targetPower + "W");
+            QLog.d(TAG, String.format(Locale.US,
+                "Target Power Command (0x31): Power=0x%02X%02X(%dW)",
+                data[7] & 0xFF, data[6] & 0xFF, targetPower));
             
             if (targetPower != requestedPower && controlListener != null) {
                 requestedPower = targetPower;
@@ -598,7 +688,9 @@ public class BikeTransmitterController {
             if (gradeRaw > 32767) gradeRaw -= 65536; // Convert to signed            
             double grade = (gradeRaw - 0x4E20) * 0.01;
             
-            QLog.d(TAG, "Received track resistance command: " + grade + "% grade");
+            QLog.d(TAG, String.format(Locale.US,
+                "Track Resistance Command (0x33): Grade=0x%02X%02X(%.2f%%)",
+                data[6] & 0xFF, data[5] & 0xFF, grade));
             
             if (Math.abs(grade - requestedInclination) > 0.1 && controlListener != null) {
                 requestedInclination = grade;
