@@ -267,8 +267,10 @@ public class BikeTransmitterController {
 
         int cnt = 0;
         int eventCount = 0;
+        int eventCountPower = 0;
         int cumulativeDistance = 0;
-        short cumulativeWatt = 0;
+        int cumulativeWatt = 0;
+        int accumulatedTorque32 = 0;
         Timer carousalTimer = null;
 
         @Override
@@ -466,7 +468,7 @@ public class BikeTransmitterController {
             if (currentCadence > 0) {
                 torqueNm = currentPower / (2 * Math.PI * currentCadence / 60.0);
             }
-            int accumulatedTorque32 = (int) (torqueNm * 32 * elapsedTimeSeconds) & 0xFFFF;
+            accumulatedTorque32 = (int) (accumulatedTorque32 + (torqueNm * 32)) & 0xFFFF;
             payload[5] = (byte) (accumulatedTorque32 & 0xFF);        // Accumulated Torque LSB
             payload[6] = (byte) ((accumulatedTorque32 >> 8) & 0xFF); // Accumulated Torque MSB
             
@@ -482,8 +484,8 @@ public class BikeTransmitterController {
             payload[0] = 0x19; // Data Page Number = 0x19 (Page 25)
             
             // Byte 1: Update Event Count (increments with each information update)
-            eventCount = (eventCount + 1) & 0xFF;
-            payload[1] = (byte) eventCount;
+            eventCountPower = (eventCountPower + 1) & 0xFF;
+            payload[1] = (byte) eventCountPower;
             
             // Byte 2: Instantaneous Cadence (RPM, 0xFF = invalid)
             payload[2] = (byte) (currentCadence == 0 ? 0xFF : currentCadence);
