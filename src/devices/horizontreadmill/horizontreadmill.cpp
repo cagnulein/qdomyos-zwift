@@ -1903,10 +1903,6 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             }
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
-        } else if(horizon_treadmill_7_0_at_24) {
-            qDebug() << "horizon_treadmill_7_0_at_24 workaround";
-            Inclination = (double)(newValue.at(4)) / 10.0;
-            emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         }
 
         if (Flags.elevation) {
@@ -2309,10 +2305,6 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     !settings
                          .value(QZSettings::horizon_treadmill_force_ftms,
                                 QZSettings::default_horizon_treadmill_force_ftms)
-                         .toBool() &&
-                    !settings
-                         .value(QZSettings::horizon_treadmill_7_0_at_24,
-                                QZSettings::default_horizon_treadmill_7_0_at_24)
                          .toBool()) {
                     qDebug() << QStringLiteral("Custom service and Control Point found");
                     gattWriteCharCustomService = c;

@@ -61,12 +61,7 @@ void speraxtreadmill::writeCharacteristic(const QLowEnergyCharacteristic charact
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCommunicationChannelService->writeCharacteristic(characteristic, *writeBuffer,
-                                                             QLowEnergyService::WriteWithoutResponse);
-    } else {
-        gattCommunicationChannelService->writeCharacteristic(characteristic, *writeBuffer);
-    }
+    gattCommunicationChannelService->writeCharacteristic(characteristic, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
@@ -188,6 +183,7 @@ void speraxtreadmill::update() {
                 requestStop = -1;
             } else {
                 uint8_t noop[] = {0xf5, 0x08, 0x00, 0x19, 0xf0, 0x0a, 0x59, 0xfa};
+                writeCharacteristic(gattWriteCharacteristic, noop, sizeof(noop), QStringLiteral("noop"), false, false);
 
             }
             /*if (requestFanSpeed != -1) {
