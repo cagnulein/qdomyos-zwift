@@ -128,11 +128,18 @@ void proformwifitreadmill::update() {
             }
             requestInclination = -100;
         }
-
-        // updating the treadmill console every second
-        if (sec1Update++ == (500 / refresh->interval())) {
+    
+        if (sec1Update++ == (2000 / refresh->interval())) {
             sec1Update = 0;
-            // updateDisplay(elapsed);
+            if(waitStatePkg == false) {
+                // keeping the connection alive
+                qint64 msSinceLastMetrics = lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime());
+                if (msSinceLastMetrics >= 2000) {
+                    // keeping the connection alive - no metrics received for 2+ seconds
+                    qDebug() << QStringLiteral("Keep-alive: No metrics for ") << msSinceLastMetrics << "ms";
+                    forceSpeed(currentSpeed().value());
+                }
+            }
         }
 
         if (requestStart != -1) {

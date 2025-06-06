@@ -531,11 +531,21 @@ jobs:
           Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
-          # This token is provided by Actions, you do not need to create your own token
           token: ${{ secrets.GITHUB_TOKEN }}
-          submodules: recursive # or 'true' if you want to check out only immediate submodules
+          submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
+        
+      - name: Checkout submodules with specific branches
+        run: |
+          git submodule init
+          git submodule update --init --recursive 
+
+      - name: Fix qmdnsengine submodule
+        run: |
+          cd src/qmdnsengine
+          git fetch
+          git checkout 602da51dc43c55bd9aa8a83c47ea3594a9b01b98
 
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qt6-base-dev qtchooser qmake6 qt6-base-dev-tools qml6-module-qtquick-controls libqt6bluetooth6 libqt6widgets6 libqt6positioning6 libqt6xml6 qt6-connectivity-dev qt6-positioning-dev libqt6charts6-dev libqt6charts6 libqt6networkauth6-dev libqt6websockets6-dev libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev

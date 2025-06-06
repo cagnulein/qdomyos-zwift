@@ -1223,7 +1223,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1293,7 +1293,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO) {
+        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1439,7 +1439,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
                 writeS[1] = 0x00;
                 writeS[2] = 0x00;
             }
-        } else if(T3G_PRO) {
+        } else if(T3G_PRO || T3G_ELITE) {
             if(requestInclination > 0 && requestInclination < 1) {
                 writeS[1] = 0x10;
                 writeS[2] = 0x00;
@@ -1826,7 +1826,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 // this treadmill sends the speed in miles!
                 speed *= miles_conversion;
             }
-            parseSpeed(speed);
+            if(!mobvoi_tmp_treadmill || (mobvoi_tmp_treadmill && !horizonPaused))
+                parseSpeed(speed);
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
@@ -1976,12 +1977,15 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                              (uint16_t)((uint8_t)newValue.at(index))));
                 qDebug() << QStringLiteral("Local Time Elapsed") << local_elapsed;
                 // this treadmill sends here if the user is really running
-                if(old_local_elapsed != local_elapsed)
+                if(old_local_elapsed != local_elapsed) {
                     last_local_elapsed_change = QDateTime::currentDateTime();
+                    horizonPaused = false;
+                }
                 QDateTime current_time = QDateTime::currentDateTime();
                  // Only if more than 2 seconds have passed since the last update
                  if(mobvoi_tmp_treadmill && last_local_elapsed_change.secsTo(current_time) >= 2) {
                     Speed = 0;
+                    horizonPaused = true;
                     qDebug() << "Forcing Speed to 0 since the treadmill saws that the user is not really running";
                 }
                 old_local_elapsed = local_elapsed;
@@ -2494,7 +2498,6 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
             mobvoi_tmp_treadmill = true;
-            disableAutoPause = true;
             qDebug() << QStringLiteral("MOBVOI TMP workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
             mobvoi_treadmill = true;
@@ -2562,6 +2565,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("3G PRO "))) {
             qDebug() << QStringLiteral("3G PRO");
             T3G_PRO = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("3G ELITE "))) {
+            qDebug() << QStringLiteral("3G ELITE");
+            T3G_ELITE = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
@@ -3286,7 +3292,7 @@ void horizontreadmill::testProfileCRC() {
 double horizontreadmill::minStepInclination() {
     QSettings settings;
     bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
-    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill || FIT || T3G_PRO)
+    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill || FIT || T3G_PRO || T3G_ELITE)
         return 1.0;
     else
         return 0.5;

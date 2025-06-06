@@ -455,6 +455,9 @@ class bluetoothdevice : public QObject {
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void speedSensor(double speed);
+    virtual void coreBodyTemperature(double coreBodyTemperature);
+    virtual void skinTemperature(double skinTemperature);
+    virtual void heatStrainIndex(double heatStrainIndex);
     virtual void inclinationSensor(double grade, double inclination);
     virtual void changeResistance(resistance_t res);
     virtual void changePower(int32_t power);
@@ -591,9 +594,14 @@ class bluetoothdevice : public QObject {
     metric elevationAcc;
 
     /**
-     * @brief m_watt Metric to get and set the power expended in the session. Unit: watts
+     * @brief m_watt Metric to get and set the power read from the trainer or from the power sensor Unit: watts
      */
     metric m_watt;
+    
+    /**
+     * @brief m_rawWatt Metric to get and set the power from the trainer only. Unit: watts
+     */
+    metric m_rawWatt;
 
     /**
      * @brief WattKg Metric to get and set the watt kg for the session (what's this?). Unit: watt kg

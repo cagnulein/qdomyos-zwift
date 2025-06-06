@@ -58,8 +58,15 @@ class wahookickrsnapbike : public bike {
         _setSimWindSpeed = 71,
         _setWheelCircumference = 72,
     };
+    
+    // Variabili per iOS (pubbliche per permettere all'implementazione iOS di impostarle)
+    bool zwift_found = false;
+    bool wahoo_found = false;
+    
+    // Wrapper per characteristicChanged che accetta direttamente QBluetoothUuid
+    void handleCharacteristicValueChanged(const QBluetoothUuid &uuid, const QByteArray &newValue);
 
-  private:    
+  private:
     QByteArray unlockCommand();
     QByteArray setResistanceMode(double resistance);
     QByteArray setStandardMode(uint8_t level);
@@ -81,9 +88,11 @@ class wahookickrsnapbike : public bike {
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
 
+#ifndef Q_OS_IOS
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyService *gattPowerChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
+#endif
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -113,10 +122,11 @@ class wahookickrsnapbike : public bike {
 
     volatile int notificationSubscribed = 0;
 
-    resistance_t lastForcedResistance = -1;    
+    resistance_t lastForcedResistance = -1;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
+    lockscreen* iOS_wahooKickrSnapBike = nullptr;
 #endif
 
   signals:
@@ -127,23 +137,20 @@ class wahookickrsnapbike : public bike {
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void resistanceFromFTMSAccessory(resistance_t res) override;
     void restoreDefaultWheelDiameter();
-
-  private slots:
-
-    void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
-    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
-    void stateChanged(QLowEnergyService::ServiceState state);
-    void controllerStateChanged(QLowEnergyController::ControllerState state);
-
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
+    void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void stateChanged(QLowEnergyService::ServiceState state);
+    void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
+    void controllerStateChanged(QLowEnergyController::ControllerState state);
+
+  private slots:
+    void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
-
     void inclinationChanged(double grade, double percentage);
 };
 #endif // WAHOOKICKRSNAPBIKE_H

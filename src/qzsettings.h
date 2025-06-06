@@ -2453,6 +2453,23 @@ class QZSettings {
     static const QString tile_coretemperature_order;
     static constexpr int default_tile_coretemperature_order = 67;
 
+    static const QString nordictrack_t65s_treadmill_81_miles;
+    static constexpr bool default_nordictrack_t65s_treadmill_81_miles = false;
+
+    static const QString nordictrack_elite_800;
+    static constexpr bool default_nordictrack_elite_800 = false;
+    static const QString ios_btdevice_native;
+    static constexpr bool default_ios_btdevice_native = false;
+
+    static const QString inclinationResistancePoints;
+    static const QString default_inclinationResistancePoints;
+
+    /**
+     * @brief Type of floating window to use. 0 = classic, 1 = horizontal
+     */
+    static const QString floatingwindow_type;
+    static constexpr int default_floatingwindow_type = 0;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

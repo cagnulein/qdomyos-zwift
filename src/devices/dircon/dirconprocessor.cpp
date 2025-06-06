@@ -268,7 +268,7 @@ void DirconProcessor::tcpDataAvailable() {
                 qDebug() << "Sending resp for uuid" << serverName << ":" << resp;
                 if (resp.Identifier != DPKT_MSGID_ERROR) {
                     QByteArray byteout = resp.encode(pkt.SequenceNumber);
-                    if (byteout.size())
+                    if (byteout.size() && client && client->sock)
                         client->sock->write(byteout);
                 }
             } else if (rembuf >= 0) {
@@ -277,7 +277,7 @@ void DirconProcessor::tcpDataAvailable() {
                 resp.ResponseCode = DPKT_RESPCODE_UNEXPECTED_ERROR;
                 resp.Identifier = pkt.Identifier;
                 QByteArray byteout = resp.encode(pkt.SequenceNumber);
-                if (byteout.size())
+                if (byteout.size() && client && client->sock)
                     client->sock->write(byteout);
             } else
                 break;
