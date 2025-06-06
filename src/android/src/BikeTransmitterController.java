@@ -490,7 +490,7 @@ public class BikeTransmitterController {
             
             // Bytes 3-4: Accumulated Power (1 watt resolution, rollover at 65536W)
             // This is cumulative power, not instantaneous
-            cumulativeWatt = cumulativeWatt + currentPower;
+            cumulativeWatt = (short) (cumulativeWatt + currentPower);
             payload[3] = (byte) (cumulativeWatt & 0xFF);        // Accumulated Power LSB
             payload[4] = (byte) ((cumulativeWatt >> 8) & 0xFF); // Accumulated Power MSB
             
