@@ -12,6 +12,8 @@
 
 #include "fit_decode.hpp"
 #include "fit_developer_field_description.hpp"
+#include "fit_field_description_mesg.hpp"
+#include "fit_developer_field.hpp"
 #include "fit_mesg_broadcaster.hpp"
 
 #ifdef _WIN32
@@ -208,6 +210,34 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     }
     devIdMesg.SetDeveloperDataIndex(0);
 
+    // Create developer field descriptions for custom temperature fields
+    fit::FieldDescriptionMesg coreTemperatureFieldDesc;
+    coreTemperatureFieldDesc.SetDeveloperDataIndex(0);
+    coreTemperatureFieldDesc.SetFieldDefinitionNumber(0);
+    coreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
+    coreTemperatureFieldDesc.SetFieldName(0, L"core_temperature");
+    coreTemperatureFieldDesc.SetUnits(0, L"C");
+    coreTemperatureFieldDesc.SetNativeMesgNum(fit::Profile::MESG_RECORD);
+    coreTemperatureFieldDesc.SetNativeFieldNum(255); // Use invalid field number to indicate custom field
+
+    fit::FieldDescriptionMesg skinTemperatureFieldDesc;
+    skinTemperatureFieldDesc.SetDeveloperDataIndex(0);
+    skinTemperatureFieldDesc.SetFieldDefinitionNumber(1);
+    skinTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
+    skinTemperatureFieldDesc.SetFieldName(0, L"skin_temperature");
+    skinTemperatureFieldDesc.SetUnits(0, L"C");
+    skinTemperatureFieldDesc.SetNativeMesgNum(fit::Profile::MESG_RECORD);
+    skinTemperatureFieldDesc.SetNativeFieldNum(255); // Use invalid field number to indicate custom field
+
+    fit::FieldDescriptionMesg heatStrainIndexFieldDesc;
+    heatStrainIndexFieldDesc.SetDeveloperDataIndex(0);
+    heatStrainIndexFieldDesc.SetFieldDefinitionNumber(2);
+    heatStrainIndexFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
+    heatStrainIndexFieldDesc.SetFieldName(0, L"heat_strain_index");
+    heatStrainIndexFieldDesc.SetUnits(0, L"");
+    heatStrainIndexFieldDesc.SetNativeMesgNum(fit::Profile::MESG_RECORD);
+    heatStrainIndexFieldDesc.SetNativeFieldNum(255); // Use invalid field number to indicate custom field
+
     fit::ActivityMesg activityMesg;
     activityMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     activityMesg.SetTotalTimerTime(session.last().elapsedTime);
@@ -230,6 +260,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Open(file);
     encode.Write(fileIdMesg);
     encode.Write(devIdMesg);
+    encode.Write(coreTemperatureFieldDesc);
+    encode.Write(skinTemperatureFieldDesc);
+    encode.Write(heatStrainIndexFieldDesc);
 
     if (workoutName.length() > 0) {
         fit::TrainingFileMesg trainingFile;
@@ -341,12 +374,22 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             newRecord.SetStanceTime(sl.groundContactMS);
         }
 
-        if (sl.coreTemp)
-            newRecord.SetCoreTemperature(sl.coreTemp);
-        if (sl.bodyTemp)
-            newRecord.SetTemperature(sl.bodyTemp);
-        /*if (sl.heatStrainIndex)
-            newRecord.SetHeatStrain(sl.heatStrainIndex);*/
+        // Add custom developer fields for temperature data
+        if (sl.coreTemp) {
+            fit::DeveloperField coreTemperatureField(coreTemperatureFieldDesc, devIdMesg);
+            coreTemperatureField.SetFLOAT32Value((float)sl.coreTemp);
+            newRecord.AddDeveloperField(coreTemperatureField);
+        }
+        if (sl.bodyTemp) {
+            fit::DeveloperField skinTemperatureField(skinTemperatureFieldDesc, devIdMesg);
+            skinTemperatureField.SetFLOAT32Value((float)sl.bodyTemp);
+            newRecord.AddDeveloperField(skinTemperatureField);
+        }
+        if (sl.heatStrainIndex) {
+            fit::DeveloperField heatStrainIndexField(heatStrainIndexFieldDesc, devIdMesg);
+            heatStrainIndexField.SetFLOAT32Value((float)sl.heatStrainIndex);
+            newRecord.AddDeveloperField(heatStrainIndexField);
+        }
 
         // if a gps track contains a point without the gps information, it has to be discarded, otherwise the database
         // structure is corrupted and 2 tracks are saved in the FIT file causing mapping issue.
