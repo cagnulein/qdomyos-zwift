@@ -268,6 +268,7 @@ public class BikeTransmitterController {
         int cnt = 0;
         int eventCount = 0;
         int cumulativeDistance = 0;
+        short cumulativeWatt = 0;
         Timer carousalTimer = null;
 
         @Override
@@ -489,9 +490,9 @@ public class BikeTransmitterController {
             
             // Bytes 3-4: Accumulated Power (1 watt resolution, rollover at 65536W)
             // This is cumulative power, not instantaneous
-            int accumulatedPower = (int) (currentPower * elapsedTimeSeconds / 3600) & 0xFFFF; // Rough calculation
-            payload[3] = (byte) (accumulatedPower & 0xFF);        // Accumulated Power LSB
-            payload[4] = (byte) ((accumulatedPower >> 8) & 0xFF); // Accumulated Power MSB
+            cumulativeWatt = cumulativeWatt + currentPower;
+            payload[3] = (byte) (cumulativeWatt & 0xFF);        // Accumulated Power LSB
+            payload[4] = (byte) ((cumulativeWatt >> 8) & 0xFF); // Accumulated Power MSB
             
             // Bytes 5-6: Instantaneous Power (1.5 bytes, 0xFFF = invalid for both fields)
             if (currentPower > 4094) {
