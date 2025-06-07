@@ -152,4 +152,15 @@ public class Ant {
     QLog.v(TAG, "isBikeConnected");
     return mChannelService.isBikeConnected();
  }
+
+ public void updateBikeTransmitterExtendedMetrics(long distanceMeters, int heartRate, 
+                                               double elapsedTimeSeconds, int resistance, 
+                                               double inclination) {
+    if(mChannelService == null)
+       return;
+    QLog.v(TAG, "updateBikeTransmitterExtendedMetrics");
+    mChannelService.updateBikeTransmitterExtendedMetrics(distanceMeters, heartRate, 
+                                                        elapsedTimeSeconds, resistance, 
+                                                        inclination);
+ }
 }
