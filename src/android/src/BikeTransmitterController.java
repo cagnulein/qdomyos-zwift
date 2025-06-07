@@ -278,6 +278,7 @@ public class BikeTransmitterController {
 
         int cnt = 0;
         int eventCount = 0;
+        int eventPowerCount = 0;
         int cumulativeDistance = 0;
         int cumulativeWatt = 0;
         int accumulatedTorque32 = 0;
@@ -318,7 +319,7 @@ public class BikeTransmitterController {
                             debugString = buildBikeDataPage(payload);
                         } else if (cnt % 5 == 2) {
                             // Trainer Data Page (0x1A)
-                            debugString = buildTrainerDataPage(payload);
+                            debugString = buildBikeDataPage(payload);
                         } else if (cnt % 5 == 3) {
                             // General Settings Page (0x11)
                             debugString = buildGeneralSettingsPage(payload);
@@ -375,7 +376,7 @@ public class BikeTransmitterController {
                                 debugString = buildBikeDataPage(payload);
                             } else if (cnt % 16 == 9) {
                                 // Trainer Data Page (0x1A)
-                                debugString = buildTrainerDataPage(payload);                                
+                                debugString = buildBikeDataPage(payload);                                
                             } else if (cnt % 16 == 13) {
                                 // General Settings Page (0x11)
                                 debugString = buildGeneralSettingsPage(payload);
@@ -474,57 +475,6 @@ public class BikeTransmitterController {
                 payload[6] & 0xFF, currentHeartRate == 0 ? "Invalid" : currentHeartRate + "bpm",
                 payload[7] & 0xFF);
         }
-        
-       /**
-         * Build Specific Trainer Torque Data Page (0x1A) - Page 26
-         * Following Table 8-29 format exactly
-         * @param payload byte array to populate
-         * @return debug string with hex and parsed values
-         */
-        private String buildTrainerDataPage(byte[] payload) {
-            payload[0] = 0x1A; // Data Page Number = 0x1A (Page 26)
-            
-            // Byte 1: Update Event Count (increments with each information update)
-            eventCount = (eventCount + 1) & 0xFF;
-            payload[1] = (byte) eventCount;
-            
-            // Byte 2: Wheel Ticks (increments with each wheel revolution, rollover at 256)
-            int wheelTicks = (int) (totalDistance / 2.1) & 0xFF; // Assuming ~2.1m wheel circumference
-            payload[2] = (byte) wheelTicks;
-            
-            // Bytes 3-4: Wheel Period (1/2048s resolution, accumulated wheel period updated each event)
-            // Calculate wheel period from current speed
-            double wheelCircumference = 2.1; // meters
-            double wheelRPS = (currentSpeedKph / 3.6) / wheelCircumference; // revolutions per second
-            int wheelPeriod2048s = wheelRPS > 0 ? (int) (2048.0 / wheelRPS) & 0xFFFF : 0xFFFF;
-            payload[3] = (byte) (wheelPeriod2048s & 0xFF);        // Wheel Period LSB
-            payload[4] = (byte) ((wheelPeriod2048s >> 8) & 0xFF); // Wheel Period MSB
-            
-            // Bytes 5-6: Accumulated Torque (1/32 Nm resolution, updated each event)
-            // Estimate torque from power and cadence: Torque = Power / (2π * Cadence/60)
-            double torqueNm = 0;
-            if (currentCadence > 0) {
-                torqueNm = currentPower / (2 * Math.PI * currentCadence / 60.0);
-            }
-            accumulatedTorque32 = (int) (accumulatedTorque32 + (torqueNm * 32)) & 0xFFFF;
-            payload[5] = (byte) (accumulatedTorque32 & 0xFF);        // Accumulated Torque LSB
-            payload[6] = (byte) ((accumulatedTorque32 >> 8) & 0xFF); // Accumulated Torque MSB
-            
-            // Byte 7: Capabilities Bit Field (bits 0-3) + FE State Bit Field (bits 4-7)
-            payload[7] = 0x00; // Capabilities = 0x0 (reserved for future use), FE State = 0x0
-            
-            // Create debug string
-            return String.format(Locale.US,
-                "Trainer Data Page (0x1A): " +
-                "Page=0x%02X, EventCount=0x%02X(%d), " +
-                "WheelTicks=0x%02X(%d), WheelPeriod=0x%02X%02X(%d/2048s), " +
-                "AccumulatedTorque=0x%02X%02X(%.2fNm), Capabilities=0x%02X",
-                payload[0] & 0xFF, payload[1] & 0xFF, eventCount,
-                payload[2] & 0xFF, wheelTicks,
-                payload[4] & 0xFF, payload[3] & 0xFF, wheelPeriod2048s,
-                payload[6] & 0xFF, payload[5] & 0xFF, torqueNm,
-                payload[7] & 0xFF);
-        }
 
         /**
          * Build Specific Trainer/Stationary Bike Data Page (0x19) - Page 25
@@ -536,8 +486,8 @@ public class BikeTransmitterController {
             payload[0] = 0x19; // Data Page Number = 0x19 (Page 25)
             
             // Byte 1: Update Event Count (increments with each information update)
-            eventCount = (eventCount + 1) & 0xFF;
-            payload[1] = (byte) eventCount;
+            eventPowerCount = (eventPowerCount + 1) & 0xFF;
+            payload[1] = (byte) eventPowerCount;
             
             // Byte 2: Instantaneous Cadence (RPM, 0xFF = invalid)
             payload[2] = (byte) (currentCadence == 0 ? 0xFF : currentCadence);
