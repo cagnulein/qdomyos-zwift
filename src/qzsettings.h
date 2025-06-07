@@ -1752,6 +1752,9 @@ class QZSettings {
     static const QString horizon_treadmill_force_ftms;
     static constexpr bool default_horizon_treadmill_force_ftms = false;
 
+    static const QString horizon_treadmill_7_0_at_24;
+    static constexpr bool default_horizon_treadmill_7_0_at_24 = false;
+
     static const QString treadmill_pid_heart_min;
     static constexpr int default_treadmill_pid_heart_min = 0;
 
