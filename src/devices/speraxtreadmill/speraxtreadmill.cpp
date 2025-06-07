@@ -232,7 +232,7 @@ void speraxtreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     double speed = GetSpeedFromPacket(value);
     double incline = 0;
-    StepCount = (double)((uint8_t)packet.at(16)) + (((double)(uint8_t)packet.at(15)) * 256.0);
+    StepCount = (double)((uint8_t)newValue.at(16)) + (((double)(uint8_t)newValue.at(15)) * 256.0);
     qDebug() << "Current Step: " << StepCount.value();
 
 #ifdef Q_OS_ANDROID
