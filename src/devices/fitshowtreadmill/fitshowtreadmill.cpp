@@ -210,7 +210,7 @@ void fitshowtreadmill::update() {
             if (requestInclination != inc) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 inc = requestInclination;
-                double speed = currentSpeed().value();
+                double speed = currentSpeed().valueRaw();
                 if (requestSpeed != -1) {
                     speed = requestSpeed;
                     requestSpeed = -1;
@@ -299,11 +299,12 @@ void fitshowtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
         qDebug() << "adding" << gatt.toString() << "as the default service";
         serviceId = gatt; // NOTE: clazy-rule-of-tow
     }
-    if(gatt == QBluetoothUuid((quint16)0x1826)) {
+    if(gatt == QBluetoothUuid((quint16)0x1826) && !fs_connected) {
         QSettings settings;
         settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
         qDebug() << "forcing FTMS treadmill since it has FTMS";
-        homeform::singleton()->setToastRequested("FTMS treadmill found, restart the app to apply the change");
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("FTMS treadmill found, restart the app to apply the change");
     }
 }
 
@@ -837,10 +838,10 @@ void fitshowtreadmill::error(QLowEnergyController::Error err) {
 void fitshowtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    /*if (device.name().startsWith(QStringLiteral("FS-")) ||
-        (device.name().startsWith(QStringLiteral("SW")) && device.name().length() == 14))*/
-
-    if (device.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT"))) {
+    if (device.name().toUpper().startsWith(QStringLiteral("FS-"))) {
+        qDebug() << "FS FIX!";
+        fs_connected = true;
+    } else if (device.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT"))) {
         qDebug() << "NOBLEPRO FIX!";
         minStepInclinationValue = 0.5;
         noblepro_connected = true;

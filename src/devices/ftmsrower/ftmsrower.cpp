@@ -78,8 +78,16 @@ void ftmsrower::update() {
     }
 
     if (initRequest) {
-        uint8_t write[] = {FTMS_START_RESUME};
-        writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+        if(I_ROWER || ROWER) {
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(write, sizeof(write), "start", false, true);
+
+            uint8_t write1[] = {FTMS_START_RESUME};
+            writeCharacteristic(write1, sizeof(write1), "start simulation", false, true);
+        } else {
+            uint8_t write[] = {FTMS_START_RESUME};
+            writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+        }
 
         initRequest = false;
     } else if (bluetoothDevice.isValid() &&
@@ -388,6 +396,7 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
         }
     }
 
+    notificationSubscribed = 0;
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
@@ -402,6 +411,15 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
                 this, &ftmsrower::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &ftmsrower::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &ftmsrower::descriptorRead);
+
+            if (I_ROWER || ROWER) {
+                QBluetoothUuid ftmsService((quint16)0x1826);
+                if (s->serviceUuid() != ftmsService) {
+                    qDebug() << QStringLiteral("I-ROWER wants to be subscribed only to FTMS service in order to send metrics")
+                             << s->serviceUuid();
+                    continue;
+                }
+            }
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
@@ -419,6 +437,7 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
                     if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                        notificationSubscribed++;
                         s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
@@ -434,6 +453,7 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
                     if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                        notificationSubscribed++;
                         s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
@@ -512,8 +532,15 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
 void ftmsrower::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + " " + newValue.toHex(' '));
 
-    initRequest = true;
-    emit connectedAndDiscovered();
+    if (notificationSubscribed)
+        notificationSubscribed--;
+
+    qDebug() << "notificationSubscribed=" << notificationSubscribed;
+
+    if (!notificationSubscribed) {
+        initRequest = true;
+        emit connectedAndDiscovered();
+    }
 }
 
 void ftmsrower::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -583,6 +610,12 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("DFIT-L-R"))) {
             DFIT_L_R = true;
             qDebug() << "DFIT_L_R found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("I-ROWER"))) {
+            I_ROWER = true;
+            qDebug() << "I_ROWER found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("IROWER "))) {
+            ROWER = true;
+            qDebug() << "ROWER found!";
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";

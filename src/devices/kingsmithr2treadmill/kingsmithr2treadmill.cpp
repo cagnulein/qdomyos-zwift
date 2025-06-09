@@ -27,6 +27,12 @@ kingsmithr2treadmill::kingsmithr2treadmill(uint32_t pollDeviceTime, bool noConso
     if (forceInitInclination > 0) {
         lastInclination = forceInitInclination;
     }
+    if (lastControlMode != UNKNOWN_CONTROL_MODE) {
+        lastControlMode = UNKNOWN_CONTROL_MODE;
+    }
+    if (lastRunState != UNKNOWN_RUN_STATE) {
+        lastRunState = UNKNOWN_RUN_STATE;
+    }
 
     refresh = new QTimer(this);
     initDone = false;
@@ -205,16 +211,25 @@ void kingsmithr2treadmill::update() {
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
+            if (lastControlMode != MANUAL) {
+                writeCharacteristic(QStringLiteral("props ControlMode 1"), QStringLiteral("turn on treadmill to manual mode"),
+                                    false, true);
+            }
+            if (lastRunState != START) {
+                writeCharacteristic(QStringLiteral("props runState 1"), QStringLiteral("starting"), false, true);
+            }
             if (lastSpeed == 0.0) {
-
                 lastSpeed = 0.5;
             }
-            // btinit(true);
             requestStart = -1;
             emit tapeStarted();
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
+            if (lastRunState != STOP) {
+                writeCharacteristic(QStringLiteral("props runState 0"), QStringLiteral("stopping"), false, true);
+            }
+            // don't go to standby mode automatically
             requestStop = -1;
         }
         if (requestFanSpeed != -1) {
@@ -297,6 +312,11 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     QStringList _props = data.split(QStringLiteral(" "), QString::SkipEmptyParts);
     for (int i = 1; i < _props.size(); i += 2) {
         QString key = _props.at(i);
+        // Error key only can have error code
+        // props Error "ErrorCode" -5000
+        if (!key.compare(QStringLiteral("Error"))) {
+            break;
+        }
         // skip string params
         if (!key.compare(QStringLiteral("mcu_version")) || !key.compare(QStringLiteral("goal"))) {
             continue;
@@ -312,6 +332,8 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
 
     double speed = props.value("CurrentSpeed", 0);
     Cadence = props.value("spm", 0);
+    KINGSMITH_R2_CONTROL_MODE controlMode = (KINGSMITH_R2_CONTROL_MODE)(int)props.value("ControlMode", (double)UNKNOWN_CONTROL_MODE);
+    KINGSMITH_R2_RUN_STATE runState = (KINGSMITH_R2_RUN_STATE)(int)props.value("runState", (double)UNKNOWN_RUN_STATE);
 
     // TODO:
     // - RunningDistance (int; meter) : update each 10miters / 0.01 mile
@@ -319,6 +341,9 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     // - BurnCalories (int) : KCal * 1000
     // - RunningTotalTime (int; sec)
     // - spm (int) : steps per minute
+
+    // TODO: check 'ControlMode' and 'runState' of treadmill side
+    // then update current running status of application.
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -376,6 +401,16 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         // lastInclination = incline;
     }
 
+    if (lastControlMode != controlMode) {
+        lastControlMode = controlMode;
+        if (controlMode != UNKNOWN_CONTROL_MODE) {
+            emit debug(QStringLiteral("kingsmith r2 is ready"));
+            initDone = true;
+        }
+    }
+    if (lastRunState != runState) {
+        lastRunState = runState;
+    }
     firstCharacteristicChanged = false;
 }
 
@@ -403,7 +438,6 @@ void kingsmithr2treadmill::btinit(bool startTape) {
     //    QStringLiteral("servers getProp 1 3 7 8 9 16 17 18 19 21 22 23 24 31"), QStringLiteral("init"), false, true);
     writeCharacteristic(QStringLiteral("servers getProp 1 2 7 12 23 24 31"), QStringLiteral("init"), false, true);
 
-    // TODO need reset BurnCalories & RunningDistance
     initDone = true;
 }
 
@@ -412,10 +446,10 @@ void kingsmithr2treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteCharacteristicId((quint16)0xFED7);
     QBluetoothUuid _gattNotifyCharacteristicId((quint16)0xFED8);
 
-    if (KS_NACH_X21C) {
+    if (KS_NACH_X21C || KS_NGCH_G1C_2) {
         _gattWriteCharacteristicId = QBluetoothUuid(QStringLiteral("0002FED7-0000-1000-8000-00805f9b34fb"));
         _gattNotifyCharacteristicId = QBluetoothUuid(QStringLiteral("0002FED8-0000-1000-8000-00805f9b34fb"));
-    } else if (KS_NGCH_G1C || KS_NACH_MXG) {
+    } else if (KS_NGCH_G1C || KS_NACH_MXG || KS_NACH_X21C_2) {
         _gattWriteCharacteristicId = QBluetoothUuid(QStringLiteral("0001FED7-0000-1000-8000-00805f9b34fb"));
         _gattNotifyCharacteristicId = QBluetoothUuid(QStringLiteral("0001FED8-0000-1000-8000-00805f9b34fb"));
     }
@@ -475,6 +509,19 @@ void kingsmithr2treadmill::serviceScanDone(void) {
         _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00011234-0000-1000-8000-00805f9b34fb"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    if(gattCommunicationChannelService == nullptr && KS_NACH_X21C) {
+        KS_NACH_X21C_2 = true;
+        KS_NACH_X21C = false;
+        qDebug() << "KS_NACH_X21C default service id not found";
+        _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00011234-0000-1000-8000-00805f9b34fb"));
+        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    } else if(gattCommunicationChannelService == nullptr && KS_NGCH_G1C) {
+        KS_NGCH_G1C_2 = true;
+        KS_NGCH_G1C = false;
+        qDebug() << "KS_NGCH_G1C default service id not found";
+        _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00021234-0000-1000-8000-00805f9b34fb"));
+        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
             &kingsmithr2treadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();

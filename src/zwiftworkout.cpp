@@ -129,26 +129,45 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
         if (sportType.toLower().contains(QStringLiteral("run")) && !durationAsDistance(sportType, durationType)) {
             double speed = speedFromPace(Pace);
             int speedDelta = qAbs(qCeil((((60.0 / speed) * 60.0) * (PowerHigh - PowerLow)) * 10)) + 1;
+
+            // Ensure we don't divide by zero
+            speedDelta = qMax(1, speedDelta);
+
+            // Calculate base duration step and remaining seconds
             int durationStep = Duration / speedDelta;
-            int spareSeconds = Duration - (durationStep * speedDelta);
-            int spareSum = 0;
+            int remainingSeconds = Duration % speedDelta;
+
+            int totalElapsed = 0;
+
             for (int i = 0; i < speedDelta; i++) {
                 trainrow row;
-                int spare = 0;
-                if (spareSeconds)
-                    spare = (i % spareSeconds == 0 && i > 0) ? 1 : 0;
-                spareSum += spare;
-                row.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
-                row.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
-                row.rampDuration = QTime(0, 0, 0, 0).addSecs(Duration - (durationStep * i) - spareSum);
+
+                // Distribute remaining seconds evenly across iterations
+                int extraSecond = (i < remainingSeconds) ? 1 : 0;
+                int currentStepDuration = durationStep + extraSecond;
+
+                // Set row duration
+                row.duration = QTime(0, 0, 0, 0).addSecs(currentStepDuration);
+                row.rampElapsed = QTime(0, 0, 0, 0).addSecs(totalElapsed);
+                row.rampDuration = QTime(0, 0, 0, 0).addSecs(Duration - totalElapsed);
+
+                // Update total elapsed time
+                totalElapsed += currentStepDuration;
+
                 row.forcespeed = 1;
+
+                // Calculate speed based on tag type
                 if (!qstricmp(tag, "Ramp") || !qstricmp(tag, "Warmup")) {
                     row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * (PowerLow)) + (0.1 * i)) * 10.0) / 10.0;
                 } else {
                     row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * (PowerLow)) - (0.1 * i)) * 10.0) / 10.0;
                 }
-                if(Incline != -100)
+
+                // Set inclination if provided
+                if (Incline != -100) {
                     row.inclination = Incline * 100;
+                }
+
                 qDebug() << "TrainRow" << row.toString();
                 list.append(row);
             }

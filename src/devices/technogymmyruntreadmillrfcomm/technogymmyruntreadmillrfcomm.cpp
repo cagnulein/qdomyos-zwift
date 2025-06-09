@@ -45,7 +45,7 @@ void technogymmyruntreadmillrfcomm::deviceDiscovered(const QBluetoothDeviceInfo 
 }
 
 void technogymmyruntreadmillrfcomm::serviceFinished(void) {
-    qDebug() << QStringLiteral("technogymmyruntreadmillrfcomm::serviceCanceled") << socket;
+    qDebug() << QStringLiteral("technogymmyruntreadmillrfcomm::serviceFinished") << socket;
     if (!socket) {
         socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
 
@@ -72,22 +72,20 @@ void technogymmyruntreadmillrfcomm::serviceFinished(void) {
 }
 
 void technogymmyruntreadmillrfcomm::serviceCanceled(void) {
-
+    qDebug() << QStringLiteral("technogymmyruntreadmillrfcomm::serviceCanceled");
 }
 
 // In your local slot, read information about the found devices
 void technogymmyruntreadmillrfcomm::serviceDiscovered(const QBluetoothServiceInfo &service) {
-    // this treadmill has more serial port, just the first one is the right one.
+    qDebug() << QStringLiteral("Found new service: ") << service.serviceName() << '(' << service.serviceUuid().toString() << ') ' << service.device().address() << bluetoothDevice.address();
+
     if (found == true) {
         qDebug() << QStringLiteral("technogymmyruntreadmillrfcomm::serviceDiscovered socket already initialized");
-        return;
+        //return;
     }
 
     qDebug() << QStringLiteral("technogymmyruntreadmillrfcomm::serviceDiscovered") << service;
-    if (service.device().address() == bluetoothDevice.address()) {
-        emit debug(QStringLiteral("Found new service: ") + service.serviceName() + '(' +
-                   service.serviceUuid().toString() + ')');
-
+    if (service.device().address() == bluetoothDevice.address()) {        
         if (service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
             service.serviceName().startsWith(QStringLiteral("Serial Port"))) {
             serialPortService = service;

@@ -28,6 +28,10 @@
 #include "devices/bluetoothdevice.h"
 #include "zwiftPlayDevice.h"
 
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
 class zwiftclickremote : public bluetoothdevice {
     Q_OBJECT
   public:
@@ -35,6 +39,11 @@ class zwiftclickremote : public bluetoothdevice {
     zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap);
     bool connected() override;
     ZwiftPlayDevice* playDevice = new ZwiftPlayDevice();
+    void vibrate(uint8_t pattern);
+    AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap = AbstractZapDevice::NONE;
+    
+    // Wrapper per characteristicChanged che accetta direttamente QBluetoothUuid
+    void handleCharacteristicValueChanged(const QBluetoothUuid &uuid, const QByteArray &newValue);
 
   private:
     QList<QLowEnergyService *> gattCommunicationChannelService;
@@ -51,9 +60,14 @@ class zwiftclickremote : public bluetoothdevice {
 
     bool initDone = false;
     bool initRequest = false;
-    AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap = AbstractZapDevice::NONE;
 
-    QTimer *refresh;    
+    QTimer *refresh;
+
+    uint32_t countRxTimeout = 0;
+
+#ifdef Q_OS_IOS
+    lockscreen* iOS_zwiftClickRemote = nullptr;
+#endif
 
   signals:
     void disconnected();
@@ -63,17 +77,15 @@ class zwiftclickremote : public bluetoothdevice {
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void disconnectBluetooth();
-
-  private slots:
-
-    void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
-    void stateChanged(QLowEnergyService::ServiceState state);
-    void controllerStateChanged(QLowEnergyController::ControllerState state);
-
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
+    void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void stateChanged(QLowEnergyService::ServiceState state);
+    void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
+    void controllerStateChanged(QLowEnergyController::ControllerState state);
+
+  private slots:
+    void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);

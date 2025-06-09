@@ -96,8 +96,6 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
 
                 int16_t sincline = a + (((int16_t)b) << 8);
                 double requestIncline = (double)sincline / 10.0;
-                if (requestIncline < 0)
-                    requestIncline = 0;
 
                 if (dt == bluetoothdevice::TREADMILL)
                     ((treadmill *)Bike)->changeInclination(requestIncline, requestIncline);

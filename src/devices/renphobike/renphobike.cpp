@@ -18,6 +18,7 @@ renphobike::renphobike(bool noWriteResistance, bool noHeartService) {
     ergModeSupported = true; // IMPORTANT, only for this bike
 
     m_watt.setType(metric::METRIC_WATT);
+    m_rawWatt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -286,15 +287,15 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
     }
 
     if (Flags.instantPower) {
-        wattFromBike =
+        m_rawWatt =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")))
-            m_watt = wattFromBike.value();
+            m_watt = m_rawWatt.value();
         index += 2;
         debug("Current Watt: " + QString::number(m_watt.value()));
-        debug("Current Watt from the Bike: " + QString::number(wattFromBike.value()));
+        debug("Current Watt from the Bike: " + QString::number(m_rawWatt.value()));
     }
 
     if (Flags.avgPower) {
@@ -529,7 +530,7 @@ uint16_t renphobike::ergModificator(uint16_t powerRequested) {
             double f = ((double)powerRequested * (double)powerRequested) / m_watt.average5s();
             lastPowerRequestedFactor = f / powerRequested;
             powerRequested = f;
-            qDebug() << QStringLiteral("power sensor detected, reading from the bike") << wattFromBike.value()
+            qDebug() << QStringLiteral("power sensor detected, reading from the bike") << m_rawWatt.value()
                      << QStringLiteral("reading from power pedal") << m_watt.value()
                      << QStringLiteral("reading from power pedal (avg 5s)") << m_watt.average5s()
                      << QStringLiteral("powerRequested") << powerRequested;
@@ -575,10 +576,10 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
             qDebug() << QStringLiteral("sending") << lastFTMSPacketReceived.toHex(' ');
         // handling gears
         } else if (lastFTMSPacketReceived.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
-            qDebug() << "applying gears mod" << m_gears;
+            qDebug() << "applying gears mod" << gears();
             int16_t slope = (((uint8_t)lastFTMSPacketReceived.at(3)) + (lastFTMSPacketReceived.at(4) << 8));
-            if (m_gears != 0) {
-                slope += (m_gears * 50);
+            if (gears() != 0) {
+                slope += (gears() * 50);
                 lastFTMSPacketReceived[3] = slope & 0xFF;
                 lastFTMSPacketReceived[4] = slope >> 8;
             }

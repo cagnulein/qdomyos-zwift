@@ -91,6 +91,13 @@ void proformwifitreadmill::forceSpeed(double requestSpeed) {
     waitStatePkg = true;
 }
 
+void proformwifitreadmill::forceSpeedMPH(double requestSpeed) {
+    QString send = "{\"type\":\"set\",\"values\":{\"MPH\":\"" + QString::number(requestSpeed) + "\"}}";
+    qDebug() << "forceSpeed" << send;
+    websocket.sendTextMessage(send);
+    waitStatePkg = true;
+}
+
 void proformwifitreadmill::forceIncline(double requestIncline) {
     QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(requestIncline) + "\"}}";
     qDebug() << "forceIncline" << send;
@@ -128,11 +135,23 @@ void proformwifitreadmill::update() {
             }
             requestInclination = -100;
         }
-
-        // updating the treadmill console every second
-        if (sec1Update++ == (500 / refresh->interval())) {
+    
+        if (sec1Update++ == (2000 / refresh->interval())) {
             sec1Update = 0;
-            // updateDisplay(elapsed);
+            if(waitStatePkg == false) {
+                // keeping the connection alive
+                qint64 msSinceLastMetrics = lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime());
+                if (msSinceLastMetrics >= 2000) {
+                    // keeping the connection alive - no metrics received for 2+ seconds
+                    qDebug() << QStringLiteral("Keep-alive: No metrics for ") << msSinceLastMetrics << "ms";
+                    QSettings settings;
+                    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+                    if(!miles)
+                        forceSpeed(currentSpeed().value());
+                    else
+                        forceSpeedMPH(SpeedMPH.value());
+                }
+            }
         }
 
         if (requestStart != -1) {
@@ -192,6 +211,10 @@ void proformwifitreadmill::characteristicChanged(const QString &newValue) {
         } else {
             qDebug() << "filtering speed due to firmware bug";
         }
+    }
+
+    if (!values[QStringLiteral("MPH")].isUndefined()) {
+        SpeedMPH = values[QStringLiteral("MPH")].toString().toDouble();
     }
 
     if (!values[QStringLiteral("Kilometers")].isUndefined()) {

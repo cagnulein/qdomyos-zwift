@@ -5,6 +5,7 @@ import Qt.labs.settings 1.0
 
 Page {
     id: wizardPage
+    objectName: "wizardPage"
 
     property int currentStep: 0
     property var selectedOptions: ({})
@@ -335,7 +336,7 @@ Page {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Peloton Login")
+                        text: qsTr("Connect to Peloton")
                         font.pixelSize: 24
                         font.bold: true
                         color: "white"
@@ -343,54 +344,36 @@ Page {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Username")
+                        text: qsTr("Click the button below to connect your Peloton account")
                         font.pixelSize: 20
-                        font.bold: true
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        width: stackViewLocal.width * 0.8
+                        horizontalAlignment: Text.AlignHCenter
                         color: "white"
                     }
 
-                    TextField {
-                        id: pelotonUsernameTextField
-                        text: settings.peloton_username
-                        horizontalAlignment: Text.AlignHCenter
+                    Image {
                         Layout.alignment: Qt.AlignHCenter
-                        Layout.fillHeight: false
-                        onAccepted: settings.peloton_username = text
-                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                    }
+                        source: "icons/icons/Button_Connect_Rect_DarkMode.png"
+                        fillMode: Image.PreserveAspectFit
+                        width: parent.width * 0.8
 
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Password")
-                        font.pixelSize: 20
-                        font.bold: true
-                        color: "white"
-                    }
-
-                    TextField {
-                        id: pelotonPasswordTextField
-                        text: settings.peloton_password
-                        horizontalAlignment: Text.AlignHCenter
-                        Layout.fillHeight: false
-                        Layout.alignment: Qt.AlignHCenter
-                        inputMethodHints: Qt.ImhHiddenText
-                        echoMode: TextInput.PasswordEchoOnEdit
-                        onAccepted: settings.peloton_password = text
-                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                stackViewLocal.push("WebPelotonAuth.qml")
+                                stackViewLocal.currentItem.goBack.connect(function() {
+                                            stackViewLocal.pop();
+                                            stackViewLocal.push(pelotonDifficultyComponent)
+                                        })
+                                peloton_connect_clicked()
+                            }
+                        }
                     }
 
                     Item {
                         Layout.preferredHeight: 50
-                    }
-
-                    WizardButton {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Next")
-                        onClicked: {
-                            settings.peloton_username = pelotonUsernameTextField.text;
-                            settings.peloton_password = pelotonPasswordTextField.text;
-                            stackViewLocal.push(pelotonDifficultyComponent)
-                        }
                     }
 
                     WizardButton {
@@ -839,7 +822,7 @@ Page {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Corrent startup phase:\n\n1. close any app that can connect to your Zwift devices\n2. wake up your Zwift devices\n3. wake up your trainer\n4. open qz\n5. now if you change gear on your Zwift device you will see a reaction in the gear tile on qz and so on your trainer.")
+                        text: qsTr("Correct startup phase:\n\n1. close any app that can connect to your Zwift devices\n2. wake up your Zwift devices\n3. wake up your trainer\n4. open qz\n5. now if you change gear on your Zwift device you will see a reaction in the gear tile on qz and so on your trainer.")
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                         width: stackViewLocal.width * 0.8
@@ -1210,11 +1193,11 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         from: settings.miles_unit ? 660 : 300  // 66.0 lbs or 30.0 kg
                         to: settings.miles_unit ? 4400 : 2000  // 440.0 lbs or 200.0 kg
-                        value: settings.weight * 10
+                        value: settings.miles_unit ? (settings.weight * 2.20462 * 10).toFixed(0) : (settings.weight * 10)
                         stepSize: 1
                         editable: true
 
-                        property real realValue: value / 10
+                        property real realValue: settings.miles_unit ? value / 22.0462 : value / 10
 
                         textFromValue: function(value, locale) {
                             return Number(value / 10).toLocaleString(locale, 'f', 1)
@@ -1222,6 +1205,10 @@ Page {
 
                         valueFromText: function(text, locale) {
                             return Number.fromLocaleString(locale, text) * 10
+                        }
+
+                        onValueChanged: {
+                            settings.weight = realValue
                         }
                     }
 

@@ -10,17 +10,20 @@
 #include <QDebug>
 #include "ios/AdbClient.h"
 #include "ios/ios_eliteariafan.h"
+#include "ios/ios_echelonconnectsport.h"
+#include "ios/ios_wahookickrsnapbike.h"
+#include "ios/ios_zwiftclickremote.h"
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
-@class virtualrower;
+@class virtualrower_zwift;
 @class virtualtreadmill_zwift;
 @class healthkit;
 
 static healthkit* h = 0;
 static virtualbike_ios_swift* _virtualbike = nil;
 static virtualbike_zwift* _virtualbike_zwift = nil;
-static virtualrower* _virtualrower = nil;
+static virtualrower_zwift* _virtualrower = nil;
 static virtualtreadmill_zwift* _virtualtreadmill_zwift = nil;
 
 static GarminConnect* Garmin = 0;
@@ -28,6 +31,7 @@ static GarminConnect* Garmin = 0;
 static AdbClient *_adb = 0;
 
 static ios_eliteariafan* ios_eliteAriaFan = nil;
+static ios_echelonconnectsport* ios_echelonConnectSport = nil;
 
 static zwift_protobuf_layer* zwiftProtobufLayer = nil;
 
@@ -68,6 +72,11 @@ void lockscreen::setDistance(double distance)
     [h setDistanceWithDistance:distance * 0.621371];
 }
 
+void lockscreen::setSteps(double steps)
+{
+    [h setStepsWithSteps:steps];
+}
+
 void lockscreen::setPower(double power)
 {
     [h setPowerWithPower:power];
@@ -101,14 +110,14 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
         [_virtualbike updateCadenceWithCrankRevolutions:crankRevolutions LastCrankEventTime:lastCrankEventTime];
 }
 
-void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility)
+void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator)
 {
-    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr:disable_hr garmin_bluetooth_compatibility:garmin_bluetooth_compatibility];
+    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr:disable_hr garmin_bluetooth_compatibility:garmin_bluetooth_compatibility zwift_play_emulator:zwift_play_emulator watt_bike_emulator:watt_bike_emulator];
 }
 
 void lockscreen::virtualrower_ios()
 {
-    _virtualrower = [[virtualrower alloc] init];
+    _virtualrower = [[virtualrower_zwift alloc] init];
 }
 
 double lockscreen::virtualbike_getCurrentSlope()
@@ -147,10 +156,10 @@ double lockscreen::virtualbike_getPowerRequested()
     return 0;
 }
 
-bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime)
+bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, signed short Gears)
 {
     if(_virtualbike_zwift != nil)
-        return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime];
+        return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime Gears:Gears];
     return 0;
 }
 
@@ -169,9 +178,9 @@ void lockscreen::virtualrower_setHeartRate(unsigned char heartRate)
 
 
 // virtual treadmill
-void lockscreen::virtualtreadmill_zwift_ios()
+void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility)
 {
-    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] init];
+    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility];
 }
 
 void lockscreen::virtualtreadmill_setHeartRate(unsigned char heartRate)
@@ -259,6 +268,14 @@ int lockscreen::getFootCad() {
     return [Garmin getFootCad];
 }
 
+int lockscreen::getPower() {
+    return [Garmin getPower];
+}
+
+double lockscreen::getSpeed() {
+    return [Garmin getSpeed];
+}
+
 // getVolume
 
 double lockscreen::getVolume()
@@ -313,6 +330,17 @@ void lockscreen::eliteAriaFan_fanSpeedRequest(unsigned char speed) {
     }
 }
 
+void lockscreen::echelonConnectSport(const char*  Name, void* deviceClass) {
+    NSString *deviceName = [NSString stringWithCString:Name encoding:NSASCIIStringEncoding];
+    ios_echelonConnectSport = [[ios_echelonconnectsport alloc] init:deviceName qtDevice:deviceClass];
+}
+
+void lockscreen::echelonConnectSport_WriteCharacteristic(unsigned char* qdata, unsigned char length) {
+    if(ios_echelonConnectSport) {
+        [ios_echelonConnectSport writeCharacteristc:qdata length:length ];
+    }
+}
+
 void lockscreen::zwift_api_decodemessage_player(const char* data, int len) {
     NSData *d = [NSData dataWithBytes:data length:len];
     [zwiftProtobufLayer getPlayerStateWithValue:d];
@@ -332,5 +360,96 @@ float lockscreen::zwift_api_getlatitude() {
 
 float lockscreen::zwift_api_getlongitude() {
     return [zwiftProtobufLayer getLongitude];
+}
+
+QByteArray lockscreen::zwift_hub_inclinationCommand(double inclination) {
+    NSError *error = nil;
+    NSData *command = [ZwiftHubBike inclinationCommandWithInclination:inclination error:&error];
+
+    if (error) {
+        qDebug() << "error zwift_hub_inclinationCommand: " << error;
+        return QByteArray();
+    } else {
+        const char* bytes = static_cast<const char*>([command bytes]);
+        NSUInteger length = [command length];
+        return QByteArray(bytes, length);
+    }
+}
+
+QByteArray lockscreen::zwift_hub_setGearsCommand(unsigned int gears) {
+    NSError *error = nil;
+    NSData *command = [ZwiftHubBike setGearCommandWithGears:gears error:&error];
+
+    if (error) {
+        qDebug() << "error zwift_hub_setGearsCommand: " << error;
+        return QByteArray();
+    } else {
+        const char* bytes = static_cast<const char*>([command bytes]);
+        NSUInteger length = [command length];
+        return QByteArray(bytes, length);
+    }
+}
+
+// Function to get power value from buffer data
+uint32_t lockscreen::zwift_hub_getPowerFromBuffer(const QByteArray& buffer) {
+    NSData *data = [NSData dataWithBytes:buffer.constData() length:buffer.length()];
+    
+    uint32_t power = [ZwiftHubBike getPowerFromBufferWithBuffer:data];
+    return power;
+}
+
+// Function to get cadence value from buffer data
+uint32_t lockscreen::zwift_hub_getCadenceFromBuffer(const QByteArray& buffer) {
+    NSData *data = [NSData dataWithBytes:buffer.constData() length:buffer.length()];
+    
+    uint32_t cadence = [ZwiftHubBike getCadenceFromBufferWithBuffer:data];
+    return cadence;
+}
+
+static ios_wahookickrsnapbike* ios_wahooKickrSnapBike = nil;
+
+void lockscreen::wahooKickrSnapBike(const char* Name, void* deviceClass) {
+    NSString *deviceName = [NSString stringWithCString:Name encoding:NSASCIIStringEncoding];
+    ios_wahooKickrSnapBike = [[ios_wahookickrsnapbike alloc] init:deviceName qtDevice:deviceClass];
+}
+
+void lockscreen::writeCharacteristic(unsigned char* qdata, unsigned char length) {
+    if(ios_wahooKickrSnapBike) {
+        [ios_wahooKickrSnapBike writeCharacteristic:qdata length:length];
+    }
+}
+
+static NSMutableDictionary<NSValue*, ios_zwiftclickremote*>* ios_zwiftClickRemotes = nil;
+
+void lockscreen::zwiftClickRemote(const char* Name, const char* UUID, void* deviceClass) {
+    NSString *deviceName = [NSString stringWithCString:Name encoding:NSASCIIStringEncoding];
+    NSString *deviceUUID = [NSString stringWithCString:UUID encoding:NSASCIIStringEncoding];
+    
+    // Initialize the dictionary if needed
+    if (ios_zwiftClickRemotes == nil) {
+        ios_zwiftClickRemotes = [[NSMutableDictionary alloc] init];
+    }
+    
+    // Create a key using the pointer value
+    NSValue *key = [NSValue valueWithPointer:deviceClass];
+    
+    // Create a new instance for this device, passing both name and UUID
+    ios_zwiftclickremote *remote = [[ios_zwiftclickremote alloc] initWithNameAndUUID:deviceName uuid:deviceUUID qtDevice:deviceClass];
+    
+    // Store in dictionary using the device pointer as key
+    [ios_zwiftClickRemotes setObject:remote forKey:key];
+}
+
+
+void lockscreen::zwiftClickRemote_WriteCharacteristic(unsigned char* qdata, unsigned char length, void* deviceClass) {
+    if (ios_zwiftClickRemotes == nil) return;
+    
+    // Get the specific remote for this device
+    NSValue *key = [NSValue valueWithPointer:deviceClass];
+    ios_zwiftclickremote *remote = [ios_zwiftClickRemotes objectForKey:key];
+    
+    if(remote) {
+        [remote writeCharacteristic:qdata length:length];
+    }
 }
 #endif

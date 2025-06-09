@@ -44,10 +44,16 @@ void faketreadmill::update() {
     }
 
     if (requestInclination != -100) {
-        Inclination = requestInclination;
+        double step =
+            settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline)
+                .toDouble();
+        double r = qRound(requestInclination / step) * step;
+        Inclination = r;
         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
         requestInclination = -100;
     }
+    
+    StepCount = StepCount.value() + 0.5;
 
     _ergTable.collectTreadmillData(Speed.value(), _watts, Inclination.value());
 

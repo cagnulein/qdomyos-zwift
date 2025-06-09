@@ -720,6 +720,8 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         {
             if (heartRateBeltDisabled && (k3.pulse == 0 || settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool())) {
                 update_hr_from_external();
+            } else if(!heartRateBeltDisabled) {
+                // we don't have to anything in this case
             } else {
                 Heart = k3.pulse;
             }

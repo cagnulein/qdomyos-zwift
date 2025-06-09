@@ -26,7 +26,9 @@
 #include <QObject>
 #include <QString>
 
+#include "wheelcircumference.h"
 #include "devices/bike.h"
+#include "inclinationresistancetable.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -69,15 +71,22 @@ class ftmsbike : public bike {
     Q_OBJECT
   public:
     ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
+    ~ftmsbike();
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    double maxGears() override;
+    double minGears() override;
 
   private:
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+    bool writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    void writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+                             bool wait_for_response = false);
+    void zwiftPlayInit();
     void startDiscover();
+    void setWheelDiameter(double diameter);
     uint16_t watts() override;
     void init();
     void forceResistance(resistance_t requestResistance);
@@ -90,10 +99,14 @@ class ftmsbike : public bike {
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattFTMSService = nullptr;
 
+    QLowEnergyCharacteristic zwiftPlayWriteChar;
+    QLowEnergyService *zwiftPlayService = nullptr;
+
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QByteArray lastPacketFromFTMS;
-    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
+    QDateTime lastRefreshCharacteristicChanged2ACE = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
@@ -110,11 +123,31 @@ class ftmsbike : public bike {
 
     bool resistance_lvl_mode = false;
     bool resistance_received = false;
+    inclinationResistanceTable _inclinationResistanceTable;
 
     bool DU30_bike = false;
     bool ICSE = false;
     bool DOMYOS = false;
     bool _3G_Cardio_RB = false;
+    bool SCH_190U = false;
+    bool D2RIDE = false;
+    bool WATTBIKE = false;
+    bool VFSPINBIKE = false;
+    bool SS2K = false;
+    bool DIRETO_XR = false;
+    bool JFBK5_0 = false;
+    bool BIKE_ = false;
+    bool SMB1 = false;
+    bool LYDSTO = false;
+    bool SL010 = false;
+    bool REEBOK = false;
+    bool TITAN_7000 = false;
+    bool T2 = false;
+    bool FIT_BK = false;
+    bool YS_G1MPLUS = false;
+    bool EXPERT_SX9 = false;
+
+    int16_t T2_lastGear = 0;
 
     uint8_t battery_level = 0;
 

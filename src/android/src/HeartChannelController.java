@@ -1,23 +1,21 @@
-/*
- * Copyright 2012 Dynastream Innovations Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
 package org.cagnulen.qdomyoszwift;
 
-import android.os.RemoteException;
-import android.util.Log;
+import android.content.Context;
+import org.cagnulen.qdomyoszwift.QLog;
+import android.app.Activity;
 
+// ANT+ Plugin imports
+import com.dsi.ant.plugins.antplus.pcc.AntPlusHeartRatePcc;
+import com.dsi.ant.plugins.antplus.pcc.AntPlusHeartRatePcc.DataState;
+import com.dsi.ant.plugins.antplus.pcc.AntPlusHeartRatePcc.IHeartRateDataReceiver;
+import com.dsi.ant.plugins.antplus.pcc.defines.DeviceState;
+import com.dsi.ant.plugins.antplus.pcc.defines.EventFlag;
+import com.dsi.ant.plugins.antplus.pcc.defines.RequestAccessResult;
+import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc.IDeviceStateChangeReceiver;
+import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc.IPluginAccessResultReceiver;
+import com.dsi.ant.plugins.antplus.pccbase.PccReleaseHandle;
+
+// Basic ANT imports for legacy support
 import com.dsi.ant.channel.AntChannel;
 import com.dsi.ant.channel.AntCommandFailedException;
 import com.dsi.ant.channel.IAntChannelEventHandler;
@@ -30,220 +28,103 @@ import com.dsi.ant.message.fromant.ChannelEventMessage;
 import com.dsi.ant.message.fromant.MessageFromAntType;
 import com.dsi.ant.message.ipc.AntMessageParcel;
 
+// Java imports
+import java.math.BigDecimal;
+import java.util.EnumSet;
 import java.util.Random;
 
 public class HeartChannelController {
-	 // The device type and transmission type to be part of the channel ID message
-	 private static final int CHANNEL_HEART_DEVICE_TYPE = 0x78;
-	 private static final int CHANNEL_HEART_TRANSMISSION_TYPE = 1;
+    private static final String TAG = HeartChannelController.class.getSimpleName();
+    
+    private Context context;
+    private AntPlusHeartRatePcc hrPcc = null;
+    private PccReleaseHandle<AntPlusHeartRatePcc> releaseHandle = null;
+    private boolean isConnected = false;
+    public int heart = 0; // Public to be accessible from ChannelService
 
-	 // The period and frequency values the channel will be configured to
-	 private static final int CHANNEL_HEART_PERIOD = 8118; // 1 Hz
-	 private static final int CHANNEL_HEART_FREQUENCY = 57;
+    public HeartChannelController() {
+        this.context = Ant.activity;
+        openChannel();
+    }
 
-	 private static final String TAG = HeartChannelController.class.getSimpleName();
+    public boolean openChannel() {
+        // Request access to first available heart rate device
+        releaseHandle = AntPlusHeartRatePcc.requestAccess((Activity)context, 0, 0, // 0 means first available device
+            new IPluginAccessResultReceiver<AntPlusHeartRatePcc>() {
+                @Override
+                public void onResultReceived(AntPlusHeartRatePcc result, RequestAccessResult resultCode, DeviceState initialDeviceState) {
+                    switch(resultCode) {
+                        case SUCCESS:
+                            hrPcc = result;
+                            isConnected = true;
+                            QLog.d(TAG, "Connected to heart rate monitor: " + result.getDeviceName());
+                            subscribeToHrEvents();
+                            break;
+                        case CHANNEL_NOT_AVAILABLE:
+                            QLog.e(TAG, "Channel Not Available");
+                            break;
+                        case ADAPTER_NOT_DETECTED:
+                            QLog.e(TAG, "ANT Adapter Not Available");
+                            break;
+                        case BAD_PARAMS:
+                            QLog.e(TAG, "Bad request parameters");
+                            break;
+                        case OTHER_FAILURE:
+                            QLog.e(TAG, "RequestAccess failed");
+                            break;
+                        case DEPENDENCY_NOT_INSTALLED:
+                            QLog.e(TAG, "Dependency not installed");
+                            break;
+                        default:
+                            QLog.e(TAG, "Unrecognized result: " + resultCode);
+                            break;
+                    }
+                }
+            },
+            new IDeviceStateChangeReceiver() {
+                @Override
+                public void onDeviceStateChange(DeviceState newDeviceState) {
+                    QLog.d(TAG, "Device State Changed to: " + newDeviceState);
+                    if (newDeviceState == DeviceState.DEAD) {
+                        isConnected = false;
+                    }
+                }
+            }
+        );
 
-	 private static Random randGen = new Random();
+        return isConnected;
+    }
 
-	 private AntChannel mAntChannel;
+    private void subscribeToHrEvents() {
+        if (hrPcc != null) {
+            hrPcc.subscribeHeartRateDataEvent(new IHeartRateDataReceiver() {
+                @Override
+                public void onNewHeartRateData(long estTimestamp, EnumSet<EventFlag> eventFlags,
+                    int computedHeartRate, long heartBeatCount,
+                    BigDecimal heartBeatEventTime, DataState dataState) {
+                    
+                    heart = computedHeartRate;
+                    QLog.d(TAG, "Heart Rate: " + heart);
+                }
+            });
+        }
+    }
 
-	 private ChannelEventCallback mChannelEventCallback = new ChannelEventCallback();
+    public void close() {
+        if (releaseHandle != null) {
+            releaseHandle.close();
+            releaseHandle = null;
+        }
+        hrPcc = null;
+        isConnected = false;
+        QLog.d(TAG, "Channel Closed");
+    }
 
+    public int getHeartRate() {
+        return heart;
+    }
 
-	 private boolean mIsOpen;
-	 int heart = 0;
-
-	 public HeartChannelController(AntChannel antChannel) {
-		  mAntChannel = antChannel;
-		  openChannel();
-		}
-
-	 boolean openChannel() {
-		  if (null != mAntChannel) {
-			   if (mIsOpen) {
-					 Log.w(TAG, "Channel was already open");
-					} else {
-					 // Channel ID message contains device number, type and transmission type. In
-					 // order for master (TX) channels and slave (RX) channels to connect, they
-					 // must have the same channel ID, or wildcard (0) is used.
-					 ChannelId channelId = new ChannelId(0,
-					         CHANNEL_HEART_DEVICE_TYPE, CHANNEL_HEART_TRANSMISSION_TYPE);
-
-								try {
-						  // Setting the channel event handler so that we can receive messages from ANT
-						  mAntChannel.setChannelEventHandler(mChannelEventCallback);
-
-						  // Performs channel assignment by assigning the type to the channel. Additional
-						  // features (such as, background scanning and frequency agility) can be enabled
-						  // by passing an ExtendedAssignment object to assign(ChannelType, ExtendedAssignment).
-						  mAntChannel.assign(ChannelType.SLAVE_RECEIVE_ONLY);
-
-						  /*
-						   * Configures the channel ID, messaging period and rf frequency after assigning,
-							* then opening the channel.
-							*
-							* For any additional ANT features such as proximity search or background scanning, refer to
-							* the ANT Protocol Doc found at:
-							* http://www.thisisant.com/resources/ant-message-protocol-and-usage/
-							*/
-							mAntChannel.setChannelId(channelId);
-						  mAntChannel.setPeriod(CHANNEL_HEART_PERIOD);
-						  mAntChannel.setRfFrequency(CHANNEL_HEART_FREQUENCY);
-						  mAntChannel.open();
-						  mIsOpen = true;
-
-						  Log.d(TAG, "Opened channel with device number");
-						} catch (RemoteException e) {
-						  channelError(e);
-						} catch (AntCommandFailedException e) {
-						  // This will release, and therefore unassign if required
-						  channelError("Open failed", e);
-						}
-				}
-			} else {
-			   Log.w(TAG, "No channel available");
-				}
-
-			return mIsOpen;
-		}
-
-	 void channelError(RemoteException e) {
-		  String logString = "Remote service communication failed.";
-
-		  Log.e(TAG, logString);
-		  }
-
-	 void channelError(String error, AntCommandFailedException e) {
-		  StringBuilder logString;
-
-		  if (e.getResponseMessage() != null) {
-			   String initiatingMessageId = "0x" + Integer.toHexString(
-				        e.getResponseMessage().getInitiatingMessageId());
-						String rawResponseCode = "0x" + Integer.toHexString(
-						  e.getResponseMessage().getRawResponseCode());
-
-						logString = new StringBuilder(error)
-						  .append(". Command ")
-						  .append(initiatingMessageId)
-						  .append(" failed with code ")
-						  .append(rawResponseCode);
-						} else {
-						String attemptedMessageId = "0x" + Integer.toHexString(
-						  e.getAttemptedMessageType().getMessageId());
-						String failureReason = e.getFailureReason().toString();
-
-				logString = new StringBuilder(error)
-				        .append(". Command ")
-						  .append(attemptedMessageId)
-						  .append(" failed with reason ")
-						  .append(failureReason);
-						}
-
-					Log.e(TAG, logString.toString());
-
-		  mAntChannel.release();
-
-		  Log.e(TAG, "ANT Command Failed");
-		}
-
-	 public void close() {
-		  // TODO kill all our resources
-		  if (null != mAntChannel) {
-			   mIsOpen = false;
-
-				// Releasing the channel to make it available for others.
-				// After releasing, the AntChannel instance cannot be reused.
-				mAntChannel.release();
-				mAntChannel = null;
-				}
-
-			Log.e(TAG, "Channel Closed");
-		}
-
-	 /**
-	  * Implements the Channel Event Handler Interface so that messages can be
-	  * received and channel death events can be handled.
-	  */
-	 public class ChannelEventCallback implements IAntChannelEventHandler {
-		  int revCounts = 0;
-		  int ucMessageCount = 0;
-		  byte ucPageChange = 0;
-		  byte ucExtMesgType = 1;
-		  long lastTime = 0;
-		  double way;
-		  int rev;
-		  double remWay;
-		  double wheel = 0.1;
-
-		  @Override
-		  public void onChannelDeath() {
-			   // Display channel death message when channel dies
-				Log.e(TAG, "Channel Death");
-				}
-
-			@Override
-		  public void onReceiveMessage(MessageFromAntType messageType, AntMessageParcel antParcel) {
-			   Log.d(TAG, "Rx: " + antParcel);
-				Log.d(TAG, "Message Type: " + messageType);
-
-				// Switching on message type to handle different types of messages
-				switch (messageType) {
-					 // If data message, construct from parcel and update channel data
-					 case BROADCAST_DATA:
-					     // Rx Data
-						  //updateData(new BroadcastDataMessage(antParcel).getPayload());
-						  BroadcastDataMessage m = new BroadcastDataMessage(antParcel);
-						  Log.d(TAG, "BROADCAST_DATA: " + m.getPayload());
-						  heart = m.getPayload()[7];
-						  Log.d(TAG, "BROADCAST_DATA: " + heart);
-						  break;
-						case ACKNOWLEDGED_DATA:
-						  // Rx Data
-						  //updateData(new AcknowledgedDataMessage(antParcel).getPayload());
-						  Log.d(TAG, "ACKNOWLEDGED_DATA: " + new AcknowledgedDataMessage(antParcel).getPayload());
-						  break;
-						case CHANNEL_EVENT:
-						  // Constructing channel event message from parcel
-						  ChannelEventMessage eventMessage = new ChannelEventMessage(antParcel);
-						  EventCode code = eventMessage.getEventCode();
-						  Log.d(TAG, "Event Code: " + code);
-
-						  // Switching on event code to handle the different types of channel events
-						  switch (code) {
-							   case TX:
-								    break;
-									case CHANNEL_COLLISION:
-									 ucPageChange += 0x20;
-									 ucPageChange &= 0xF0;
-									 ucMessageCount += 1;
-									 break;
-									case RX_SEARCH_TIMEOUT:
-									 // TODO May want to keep searching
-									 Log.e(TAG, "No Device Found");
-									 break;
-									case CHANNEL_CLOSED:
-								case RX_FAIL:
-								case RX_FAIL_GO_TO_SEARCH:
-								case TRANSFER_RX_FAILED:
-								case TRANSFER_TX_COMPLETED:
-								case TRANSFER_TX_FAILED:
-								case TRANSFER_TX_START:
-								case UNKNOWN:
-								    // TODO More complex communication will need to handle these events
-									 break;
-									}
-								break;
-						case ANT_VERSION:
-					 case BURST_TRANSFER_DATA:
-					 case CAPABILITIES:
-					 case CHANNEL_ID:
-					 case CHANNEL_RESPONSE:
-					 case CHANNEL_STATUS:
-					 case SERIAL_NUMBER:
-					 case OTHER:
-					     // TODO More complex communication will need to handle these message types
-						  break;
-						}
-			}
-	 }
+    public boolean isConnected() {
+        return isConnected;
+    }
 }

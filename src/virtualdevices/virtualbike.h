@@ -42,6 +42,12 @@ class virtualbike : public virtualdevice {
         else
             return lastDirconFTMSFrameReceived;
     }
+    double currentGear() {
+        if(dirconManager) {
+            return dirconManager->currentGear();
+        }
+        return writeP0003->currentGear();
+    }
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -50,6 +56,8 @@ class virtualbike : public virtualdevice {
     QLowEnergyService *serviceFIT = nullptr;
     QLowEnergyService *service = nullptr;
     QLowEnergyService *serviceChanged = nullptr;
+    QLowEnergyService *serviceWattAtomBike = nullptr;
+    QLowEnergyService *serviceZwiftPlayBike = nullptr;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataBattery;
@@ -57,14 +65,19 @@ class virtualbike : public virtualdevice {
     QLowEnergyServiceData serviceData;
     QLowEnergyServiceData serviceDataChanged;
     QLowEnergyServiceData serviceEchelon;
+    QLowEnergyServiceData serviceDataWattAtomBike;
+    QLowEnergyServiceData serviceDataZwiftPlayBike;
     QTimer bikeTimer;
     bluetoothdevice *Bike;
     CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
+    CharacteristicWriteProcessor0003 *writeP0003 = 0;
     CharacteristicNotifier2AD2 *notif2AD2 = 0;
     CharacteristicNotifier2AD9 *notif2AD9 = 0;
     CharacteristicNotifier2A63 *notif2A63 = 0;
     CharacteristicNotifier2A37 *notif2A37 = 0;
     CharacteristicNotifier2A5B *notif2A5B = 0;
+    CharacteristicNotifier0002 *notif0002 = 0;
+    CharacteristicNotifier0004 *notif0004 = 0;
 
     qint64 lastFTMSFrameReceived = 0;
     qint64 lastDirconFTMSFrameReceived = 0;
@@ -79,6 +92,7 @@ class virtualbike : public virtualdevice {
     qint64 iFit_TSLastFrame = 0;
     QByteArray iFit_LastFrameReceived;
     resistance_t iFit_LastResistanceRequested = 0;
+    bool iFit_Stop = false;
 
     bool echelonInitDone = false;
     void echelonWriteResistance();
@@ -86,11 +100,19 @@ class virtualbike : public virtualdevice {
 
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
-
+    
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
-
+    
+    // Struct to hold varint decoding result
+    struct VarintResult {
+       qint64 value;
+       int bytesRead;
+    };
+    VarintResult decodeVarint(const QByteArray& bytes, int startIndex);
+    qint32 decodeSInt(const QByteArray& bytes);
+    
   signals:
     void changeInclination(double grade, double percentage);
 

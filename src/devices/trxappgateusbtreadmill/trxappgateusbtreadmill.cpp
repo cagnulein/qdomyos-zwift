@@ -41,7 +41,7 @@ void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse && (treadmill_type != TYPE::ADIDAS && treadmill_type != TYPE::DKN && treadmill_type != TYPE::DKN_2  && treadmill_type != TYPE::DKN_3)) {
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
                                                              QLowEnergyService::WriteWithoutResponse);
     } else {
@@ -276,6 +276,16 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     QTime now = QTime::currentTime();
     if (!firstCharChanged) {
         DistanceCalculated += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
+        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+            kcal =
+                KCal.value() + ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                                    200.0) /
+                                (60000.0 / ((double)lastTimeCharChanged.msecsTo(
+                                                now)))); //(( (0.048* Output in watts +1.19) * body
+                                                                            // weight in kg * 3.5) / 200 ) / 60
+        else
+            kcal = KCal.value();
     }
     lastTimeCharChanged = now;
 
@@ -654,7 +664,7 @@ void trxappgateusbtreadmill::characteristicWritten(const QLowEnergyCharacteristi
 }
 
 void trxappgateusbtreadmill::serviceScanDone(void) {
-    emit debug(QStringLiteral("serviceScanDone"));
+    qDebug() << QStringLiteral("serviceScanDone") << treadmill_type;
 
     QString uuid = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
     if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::DKN_2) {

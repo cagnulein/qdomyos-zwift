@@ -33,12 +33,14 @@ class elliptical : public bluetoothdevice {
     void setGears(double d);
     double gears();
     virtual double minStepInclination() { return 0.5; }
+    virtual resistance_t resistanceFromPowerRequest(uint16_t power);
 
   public Q_SLOTS:
     virtual void changeSpeed(double speed);
     void changeResistance(resistance_t res) override;
     void changeInclination(double grade, double inclination) override;
     virtual void changeCadence(int16_t cad);
+    void changePower(int32_t power) override;
     virtual void changeRequestedPelotonResistance(int8_t resistance);
 
   signals:
