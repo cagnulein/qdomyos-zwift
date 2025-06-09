@@ -246,7 +246,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
         if(ergModeNotSupported) {
-            requestResistance = _inclinationResistanceTable.estimateInclination(requestResistance);
+            requestResistance = _inclinationResistanceTable.estimateInclination(requestResistance) * 10.0;
             qDebug() << "ergMode Not Supported so the resistance will be" << requestResistance;
         } else {
             requestResistance = fr;
