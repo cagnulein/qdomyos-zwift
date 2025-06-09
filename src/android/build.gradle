@@ -132,6 +132,22 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    packagingOptions {
+        pickFirst '**/META-INF/okio.kotlin_module'
+        pickFirst '**/META-INF/kotlinx-coroutines-core.kotlin_module'
+        pickFirst '**/META-INF/atomicfu.kotlin_module'
+        pickFirst '**/META-INF/kotlinx-coroutines-io.kotlin_module'
+        pickFirst '**/META-INF/kotlinx-io.kotlin_module'
+        pickFirst '**/META-INF/kotlinx-coroutines-debug.kotlin_module'
+        // Exclude other potentially conflicting files
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
