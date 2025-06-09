@@ -1,0 +1,31 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "CaloriesBurnedServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message CaloriesBurnedMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  double lastCalories = 3;
+}
+
+message CaloriesBurnedMetricList {
+  repeated CaloriesBurnedMetric metrics = 1;
+}
+
+service CaloriesBurnedService {
+  // check whether CaloriesBurned is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+
+  // get the current CaloriesBurned relative to the current workout
+  rpc GetCaloriesBurned(Empty) returns (CaloriesBurnedMetric) {}
+
+  // subscribe to CaloriesBurned updates relative to the current workout
+  rpc CaloriesBurnedSubscription(Empty) returns (stream CaloriesBurnedMetric) {}
+
+  // gets a list of all of the CaloriesBurned changes for the given workout ID
+  rpc GetCaloriesBurnedHistory(WorkoutID) returns (CaloriesBurnedMetricList) {}
+}

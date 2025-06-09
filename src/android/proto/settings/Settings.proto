@@ -1,0 +1,12 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.settings";
+option java_outer_classname = "SettingsProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "settings/VideoQualityService.proto";
+
+message Settings {
+  VideoQuality videoQuality = 1;
+}

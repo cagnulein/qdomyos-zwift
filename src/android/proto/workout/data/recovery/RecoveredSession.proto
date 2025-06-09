@@ -1,0 +1,13 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "workout/data/recovery/RecoveredWorkoutSessionItem.proto";
+option java_package = "com.ifit.glassos.workout.data.recovery";
+option java_outer_classname = "RecoveredSessionProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message RecoveredSession {
+  string sessionId = 1;
+  repeated RecoveredWorkoutSessionItem workoutSessionItems = 2;
+  int64 createdAtEpochTimeMillis = 3;
+}

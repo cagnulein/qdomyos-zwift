@@ -1,0 +1,26 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.user";
+option java_outer_classname = "GenderProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "util/IFitError.proto";
+
+enum GenderType {
+  FEMALE = 0;
+  MALE = 1;
+  NON_BINARY = 2;
+  UNSPECIFIED = 3;
+}
+
+message Gender {
+  GenderType gender = 1;
+}
+
+message GenderResult {
+  oneof errorOrGender {
+    IFitError error = 1;
+    Gender gender = 2;
+  }
+}

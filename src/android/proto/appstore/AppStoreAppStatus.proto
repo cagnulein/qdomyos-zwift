@@ -1,0 +1,12 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.appstore";
+option java_outer_classname = "AppStoreAppStatusProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum AppStoreAppStatus {
+  NOT_INSTALLED = 0;
+  INSTALLED = 1;
+  PENDING = 2;
+}
