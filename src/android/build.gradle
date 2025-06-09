@@ -142,6 +142,9 @@ android {
             renderscript.srcDirs = ['src']
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
+            proto {
+                srcDirs = ['proto']  // Point to your proto directory
+            }
        }
     }
 

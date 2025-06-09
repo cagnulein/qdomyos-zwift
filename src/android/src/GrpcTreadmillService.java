@@ -1,4 +1,4 @@
-package org.cagnulein.grpcNordictrack;
+package org.cagnulen.qdomyoszwift;
 
 import android.content.Context;
 import android.content.res.AssetManager;
