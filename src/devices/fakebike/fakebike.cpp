@@ -63,6 +63,8 @@ void fakebike::update() {
         Speed = metric::calculateSpeedFromPower(
             m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
             speedLimit());
+        CoreBodyTemperature = Speed.value();
+        SkinTemperature = Speed.value() * 2;
     }
     
     if (Cadence.value() > 0) {

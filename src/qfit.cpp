@@ -88,6 +88,17 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     }
     fileIdMesg.SetTimeCreated(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
 
+    fit::FileCreatorMesg fileCreatorMesg;
+    fileCreatorMesg.SetSoftwareVersion(2119);
+
+    fit::DeviceInfoMesg deviceInfoMesg;
+    deviceInfoMesg.SetDeviceIndex(FIT_DEVICE_INDEX_CREATOR);
+    deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
+    deviceInfoMesg.SetSerialNumber(3313379353);
+    deviceInfoMesg.SetProduct(FIT_GARMIN_PRODUCT_EDGE_1030_PLUS);
+    deviceInfoMesg.SetSoftwareVersion(21.19);
+    deviceInfoMesg.SetSourceType(FIT_SOURCE_TYPE_LOCAL);
+
     bool gps_data = false;
     double max_alt = 0;
     double min_alt = 99999;
@@ -204,11 +215,28 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     }
 
     fit::DeveloperDataIdMesg devIdMesg;
-    for (FIT_UINT8 i = 0; i < 16; i++) {
-
-        devIdMesg.SetApplicationId(i, i);
-    }
+    // QZ companion app
+    // 3746ce54-a9e9-42b0-9be9-b867f8d20f7d
+    // Core App
+    // 6957fe68-83fe-4ed6-8613-413f70624bb5
+    devIdMesg.SetApplicationId(0, 0x37);
+    devIdMesg.SetApplicationId(1, 0x46);
+    devIdMesg.SetApplicationId(2, 0xce);
+    devIdMesg.SetApplicationId(3, 0x54);
+    devIdMesg.SetApplicationId(4, 0xa9);
+    devIdMesg.SetApplicationId(5, 0xe9);
+    devIdMesg.SetApplicationId(6, 0x42);
+    devIdMesg.SetApplicationId(7, 0xb0);
+    devIdMesg.SetApplicationId(8, 0x9b);
+    devIdMesg.SetApplicationId(9, 0xe9);
+    devIdMesg.SetApplicationId(10, 0xb8);
+    devIdMesg.SetApplicationId(11, 0x67);
+    devIdMesg.SetApplicationId(12, 0xf8);
+    devIdMesg.SetApplicationId(13, 0xd2);
+    devIdMesg.SetApplicationId(14, 0x0f);
+    devIdMesg.SetApplicationId(15, 0x7d);
     devIdMesg.SetDeveloperDataIndex(0);
+    devIdMesg.SetApplicationVersion(70);
 
     // Create developer field descriptions for custom temperature fields
     fit::FieldDescriptionMesg coreTemperatureFieldDesc;
@@ -259,10 +287,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
     encode.Open(file);
     encode.Write(fileIdMesg);
+    encode.Write(fileCreatorMesg);
     encode.Write(devIdMesg);
     encode.Write(coreTemperatureFieldDesc);
     encode.Write(skinTemperatureFieldDesc);
     encode.Write(heatStrainIndexFieldDesc);
+    encode.Write(deviceInfoMesg);
 
     if (workoutName.length() > 0) {
         fit::TrainingFileMesg trainingFile;
