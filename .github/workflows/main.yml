@@ -634,7 +634,7 @@ jobs:
             run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
     
           - name: Archive apk binary
-            uses: actions/upload-artifact@v2
+            uses: actions/upload-artifact@v4
             with:
               name: nordictrack-android-trial
               path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
