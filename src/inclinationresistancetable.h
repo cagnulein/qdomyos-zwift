@@ -61,19 +61,21 @@ public:
         QDateTime currentTime = QDateTime::currentDateTime();
         
         // Check if values have changed
-        bool inclinationChanged = qAbs(inclination - lastInclinationValue) > 0.1;
+        bool inclinationChanged = qAbs(inclination - lastInclinationValue) > 0.3;
         bool resistanceChanged = resistance != lastResistanceValue;
         
         if (inclinationChanged) {
             inclinationStable = false;
             lastInclinationValue = inclination;
             lastStableTime = currentTime;
+            qDebug() << QStringLiteral("Inclination not stable, resetting...");
         }
         
         if (resistanceChanged) {
             resistanceStable = false;
             lastResistanceValue = resistance;
             lastStableTime = currentTime;
+            qDebug() << QStringLiteral("Resistance not stable, resetting...");
         }
         
         // If one of the values is not yet stable, check if 5 seconds have passed
