@@ -2447,6 +2447,30 @@ class QZSettings {
     static const QString tile_hr_time_in_zone_5_order;
     static constexpr int default_tile_hr_time_in_zone_5_order = 66;
 
+    static const QString tile_heat_time_in_zone_1_enabled;
+    static constexpr bool default_tile_heat_time_in_zone_1_enabled = false;
+
+    static const QString tile_heat_time_in_zone_1_order;
+    static constexpr int default_tile_heat_time_in_zone_1_order = 68;
+
+    static const QString tile_heat_time_in_zone_2_enabled;
+    static constexpr bool default_tile_heat_time_in_zone_2_enabled = false;
+
+    static const QString tile_heat_time_in_zone_2_order;
+    static constexpr int default_tile_heat_time_in_zone_2_order = 69;
+
+    static const QString tile_heat_time_in_zone_3_enabled;
+    static constexpr bool default_tile_heat_time_in_zone_3_enabled = false;
+
+    static const QString tile_heat_time_in_zone_3_order;
+    static constexpr int default_tile_heat_time_in_zone_3_order = 70;
+
+    static const QString tile_heat_time_in_zone_4_enabled;
+    static constexpr bool default_tile_heat_time_in_zone_4_enabled = false;
+
+    static const QString tile_heat_time_in_zone_4_order;
+    static constexpr int default_tile_heat_time_in_zone_4_order = 71;
+
     static const QString zwift_gear_ui_aligned;
     static constexpr bool default_zwift_gear_ui_aligned = false;
 

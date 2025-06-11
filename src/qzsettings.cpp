@@ -911,6 +911,18 @@ const QString QZSettings::tile_hr_time_in_zone_4_order = QStringLiteral("tile_hr
 const QString QZSettings::tile_hr_time_in_zone_5_enabled = QStringLiteral("tile_hr_time_in_zone_5_enabled");
 const QString QZSettings::tile_hr_time_in_zone_5_order = QStringLiteral("tile_hr_time_in_zone_5_order");
 
+const QString QZSettings::tile_heat_time_in_zone_1_enabled = QStringLiteral("tile_heat_time_in_zone_1_enabled");
+const QString QZSettings::tile_heat_time_in_zone_1_order = QStringLiteral("tile_heat_time_in_zone_1_order");
+
+const QString QZSettings::tile_heat_time_in_zone_2_enabled = QStringLiteral("tile_heat_time_in_zone_2_enabled");
+const QString QZSettings::tile_heat_time_in_zone_2_order = QStringLiteral("tile_heat_time_in_zone_2_order");
+
+const QString QZSettings::tile_heat_time_in_zone_3_enabled = QStringLiteral("tile_heat_time_in_zone_3_enabled");
+const QString QZSettings::tile_heat_time_in_zone_3_order = QStringLiteral("tile_heat_time_in_zone_3_order");
+
+const QString QZSettings::tile_heat_time_in_zone_4_enabled = QStringLiteral("tile_heat_time_in_zone_4_enabled");
+const QString QZSettings::tile_heat_time_in_zone_4_order = QStringLiteral("tile_heat_time_in_zone_4_order");
+
 const QString QZSettings::zwift_gear_ui_aligned = QStringLiteral("zwift_gear_ui_aligned");
 const QString QZSettings::tacxneo2_disable_negative_inclination = QStringLiteral("tacxneo2_disable_negative_inclination");
 
@@ -928,7 +940,7 @@ const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("
 const QString QZSettings::floatingwindow_type = QStringLiteral("floatingwindow_type");
 
 
-const uint32_t allSettingsCount = 759;
+const uint32_t allSettingsCount = 767;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1695,6 +1707,15 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_hr_time_in_zone_4_order, QZSettings::default_tile_hr_time_in_zone_4_order},
     {QZSettings::tile_hr_time_in_zone_5_enabled, QZSettings::default_tile_hr_time_in_zone_5_enabled},
     {QZSettings::tile_hr_time_in_zone_5_order, QZSettings::default_tile_hr_time_in_zone_5_order},
+
+    {QZSettings::tile_heat_time_in_zone_1_enabled, QZSettings::default_tile_heat_time_in_zone_1_enabled},
+    {QZSettings::tile_heat_time_in_zone_1_order, QZSettings::default_tile_heat_time_in_zone_1_order},
+    {QZSettings::tile_heat_time_in_zone_2_enabled, QZSettings::default_tile_heat_time_in_zone_2_enabled},
+    {QZSettings::tile_heat_time_in_zone_2_order, QZSettings::default_tile_heat_time_in_zone_2_order},
+    {QZSettings::tile_heat_time_in_zone_3_enabled, QZSettings::default_tile_heat_time_in_zone_3_enabled},
+    {QZSettings::tile_heat_time_in_zone_3_order, QZSettings::default_tile_heat_time_in_zone_3_order},
+    {QZSettings::tile_heat_time_in_zone_4_enabled, QZSettings::default_tile_heat_time_in_zone_4_enabled},
+    {QZSettings::tile_heat_time_in_zone_4_order, QZSettings::default_tile_heat_time_in_zone_4_order},
     {QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native},
 
     {QZSettings::zwift_gear_ui_aligned, QZSettings::default_zwift_gear_ui_aligned},
