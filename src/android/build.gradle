@@ -2,6 +2,7 @@ buildscript {
     repositories {
         google()
         jcenter()
+        mavenCentral() // Add mavenCentral for better protobuf artifact resolution
     }
 
     dependencies {
@@ -17,6 +18,7 @@ plugins {
 repositories {
     google()
     jcenter()
+    mavenCentral() // Add mavenCentral for better protobuf artifact resolution
     maven { url 'https://jitpack.io' }
 }
 
@@ -28,12 +30,14 @@ def nordictrack = System.getenv('NORDICTRACK')
 println(amazon)
 println(nordictrack)
 
-// Global exclusion strategy - apply to all configurations
+// Global exclusion strategy - apply to all configurations except protoc
 configurations.all {
-    // Exclude all protobuf variants except the one we want
-    exclude group: 'com.google.protobuf', module: 'protobuf-java'
-    exclude group: 'com.google.protobuf', module: 'protobuf-lite'
-    exclude group: 'com.google.protobuf', module: 'protobuf-java-util'
+    // Don't exclude from protobuf plugin configurations
+    if (!name.startsWith('protobufToolsLocator')) {
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+        exclude group: 'com.google.protobuf', module: 'protobuf-java-util'
+    }
 }
 
 dependencies {
@@ -100,12 +104,25 @@ dependencies {
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
-// Compatible with macOS on Apple Silicon
-def archSuffix = Os.isFamily(Os.FAMILY_MAC) ? ':osx-x86_64' : ''
+// CORRECTED: Compatible with macOS on Apple Silicon and Linux
+def archSuffix = ''
+if (Os.isFamily(Os.FAMILY_MAC)) {
+    def arch = System.getProperty("os.arch")
+    if (arch == "aarch64" || arch == "arm64") {
+        archSuffix = ':osx-aarch_64'
+    } else {
+        archSuffix = ':osx-x86_64'
+    }
+} else if (Os.isFamily(Os.FAMILY_UNIX)) {
+    archSuffix = ':linux-x86_64'
+} else if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+    archSuffix = ':windows-x86_64'
+}
 
 protobuf {
     protoc {
-      artifact = "com.google.protobuf:protoc:3.25.1$archSuffix"
+        // FIXED: Use the correct protoc artifact, not protobuf-javalite
+        artifact = "com.google.protobuf:protoc:3.25.1$archSuffix"
     }
     // Add gRPC plugin configuration
     plugins {
@@ -114,19 +131,19 @@ protobuf {
         }
     }
     generateProtoTasks {
-      all().configureEach { task ->
-        // Add gRPC plugin to task
-        task.plugins {
-            grpc {
-                option "lite"  // Essential for Android
+        all().configureEach { task ->
+            // Add gRPC plugin to task
+            task.plugins {
+                grpc {
+                    option "lite"  // Essential for Android
+                }
+            }
+            task.builtins {
+                java {
+                    option "lite"
+                }
             }
         }
-        task.builtins {
-          java {
-            option "lite"
-          }
-        }
-      }
     }
 }
 
@@ -234,28 +251,30 @@ configurations.all {
         force 'androidx.appcompat:appcompat:1.3.1'
         force 'androidx.annotation:annotation:1.6.0'
         
-        // Substitute all protobuf variants with our chosen one
+        // Substitute all protobuf variants with our chosen one (except protoc)
         dependencySubstitution {
             substitute module('com.google.protobuf:protobuf-java') with module('com.google.protobuf:protobuf-javalite:3.25.1')
             substitute module('com.google.protobuf:protobuf-lite') with module('com.google.protobuf:protobuf-javalite:3.25.1')
             substitute module('com.google.protobuf:protobuf-java-util') with module('com.google.protobuf:protobuf-javalite:3.25.1')
         }
         
-        // Component selection to reject unwanted protobuf versions
+        // Component selection to reject unwanted protobuf versions (but allow protoc)
         componentSelection {
             all { ComponentSelection selection ->
                 if (selection.candidate.group == 'com.google.protobuf') {
-                    if (selection.candidate.module != 'protobuf-javalite') {
-                        selection.reject("Only protobuf-javalite allowed for Android")
+                    if (selection.candidate.module != 'protobuf-javalite' && 
+                        selection.candidate.module != 'protoc') {
+                        selection.reject("Only protobuf-javalite and protoc allowed for Android")
                     }
                 }
             }
         }
         
-        // Catch-all replacement for any remaining protobuf dependencies
+        // Catch-all replacement for any remaining protobuf dependencies (except protoc)
         eachDependency { DependencyResolveDetails details ->
             if (details.requested.group == 'com.google.protobuf') {
-                if (details.requested.name != 'protobuf-javalite') {
+                if (details.requested.name != 'protobuf-javalite' && 
+                    details.requested.name != 'protoc') {
                     details.useTarget group: 'com.google.protobuf', 
                                     name: 'protobuf-javalite', 
                                     version: '3.25.1'
