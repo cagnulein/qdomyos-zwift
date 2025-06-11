@@ -447,7 +447,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         settings.value(QZSettings::tile_preset_powerzone_7_label, QZSettings::default_tile_preset_powerzone_7_label).toString(),
         settings.value(QZSettings::tile_preset_powerzone_7_color, QZSettings::default_tile_preset_powerzone_7_color).toString());
 
-    tile_hr_time_in_zone_1 = new DataObject(QStringLiteral("HR Zone 1"), QStringLiteral("icons/icons/heart_red.png"),
+    tile_hr_time_in_zone_1 = new DataObject(QStringLiteral("HR Zone 1+"), QStringLiteral("icons/icons/heart_red.png"),
                                             QStringLiteral("0:00:00"), false, QStringLiteral("tile_hr_time_in_zone_1"), valueElapsedFontSize, labelFontSize);
 
     tile_hr_time_in_zone_2 = new DataObject(QStringLiteral("HR Zone 2+"), QStringLiteral("icons/icons/heart_red.png"),
