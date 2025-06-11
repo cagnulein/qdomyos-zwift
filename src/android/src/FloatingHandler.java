@@ -29,32 +29,26 @@ public class FloatingHandler {
     static public int _width;
     static public int _height;
     static public int _alpha;
+    static public String _htmlPage = "floating.htm";
 
-        public static void show(Context context, int port, int width, int height, int transparency) {
-            _context = context;
-            _port = port;
-            _width = width;
-            _height = height;
-            _alpha = transparency;
+    public static void show(Context context, int port, int width, int height, int transparency, String htmlPage) {
+        _context = context;
+        _port = port;
+        _width = width;
+        _height = height;
+        _alpha = transparency;
+        _htmlPage = htmlPage;
 
-		// First it confirms whether the
-		// 'Display over other apps' permission in given
-		if (checkOverlayDisplayPermission()) {
-                         if(_intent == null)
-                            _intent = new Intent(context, FloatingWindowGFG.class);
-			 // FloatingWindowGFG service is started
-                         context.startService(_intent);
-			 // The MainActivity closes here
-                         //finish();
-			} else {
-                            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + _context.getPackageName()));
-
-                            // This method will start the intent. It takes two parameter, one is the Intent and the other is
-                            // an requestCode Integer. Here it is -1.
-                            Activity a = (Activity)_context;
-                            a.startActivityForResult(intent, -1);
-			}
-	}
+        if (checkOverlayDisplayPermission()) {
+            if (_intent == null)
+                _intent = new Intent(context, FloatingWindowGFG.class);
+            context.startService(_intent);
+        } else {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + _context.getPackageName()));
+            Activity a = (Activity) _context;
+            a.startActivityForResult(intent, -1);
+        }
+    }
 
     public static void hide() {
         if(_intent != null)

@@ -699,6 +699,7 @@ class homeform : public QObject {
     DataObject *tile_hr_time_in_zone_3;
     DataObject *tile_hr_time_in_zone_4;
     DataObject *tile_hr_time_in_zone_5;
+    DataObject *coreTemperature;
 
   private:
     static homeform *m_singleton;
