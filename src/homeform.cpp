@@ -447,7 +447,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         settings.value(QZSettings::tile_preset_powerzone_7_label, QZSettings::default_tile_preset_powerzone_7_label).toString(),
         settings.value(QZSettings::tile_preset_powerzone_7_color, QZSettings::default_tile_preset_powerzone_7_color).toString());
 
-    tile_hr_time_in_zone_1 = new DataObject(QStringLiteral("HR Zone 1+"), QStringLiteral("icons/icons/heart_red.png"),
+    tile_hr_time_in_zone_1 = new DataObject(QStringLiteral("HR Zone 1"), QStringLiteral("icons/icons/heart_red.png"),
                                             QStringLiteral("0:00:00"), false, QStringLiteral("tile_hr_time_in_zone_1"), valueElapsedFontSize, labelFontSize);
 
     tile_hr_time_in_zone_2 = new DataObject(QStringLiteral("HR Zone 2+"), QStringLiteral("icons/icons/heart_red.png"),
@@ -462,16 +462,16 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     tile_hr_time_in_zone_5 = new DataObject(QStringLiteral("HR Zone 5"), QStringLiteral("icons/icons/heart_red.png"),
                                             QStringLiteral("0:00:00"), false, QStringLiteral("tile_hr_time_in_zone_5"), valueElapsedFontSize, labelFontSize);
 
-    tile_heat_time_in_zone_1 = new DataObject(QStringLiteral("Heat Zone 1+"), QStringLiteral("icons/icons/heart_red.png"),
+    tile_heat_time_in_zone_1 = new DataObject(QStringLiteral("Heat Zone 1"), QStringLiteral("icons/icons/fan.png"),
                                               QStringLiteral("0:00:00"), false, QStringLiteral("tile_heat_time_in_zone_1"), valueElapsedFontSize, labelFontSize);
 
-    tile_heat_time_in_zone_2 = new DataObject(QStringLiteral("Heat Zone 2+"), QStringLiteral("icons/icons/heart_red.png"),
+    tile_heat_time_in_zone_2 = new DataObject(QStringLiteral("Heat Zone 2"), QStringLiteral("icons/icons/fan.png"),
                                               QStringLiteral("0:00:00"), false, QStringLiteral("tile_heat_time_in_zone_2"), valueElapsedFontSize, labelFontSize);
 
-    tile_heat_time_in_zone_3 = new DataObject(QStringLiteral("Heat Zone 3+"), QStringLiteral("icons/icons/heart_red.png"),
+    tile_heat_time_in_zone_3 = new DataObject(QStringLiteral("Heat Zone 3"), QStringLiteral("icons/icons/fan.png"),
                                               QStringLiteral("0:00:00"), false, QStringLiteral("tile_heat_time_in_zone_3"), valueElapsedFontSize, labelFontSize);
 
-    tile_heat_time_in_zone_4 = new DataObject(QStringLiteral("Heat Zone 4"), QStringLiteral("icons/icons/heart_red.png"),
+    tile_heat_time_in_zone_4 = new DataObject(QStringLiteral("Heat Zone 4"), QStringLiteral("icons/icons/fan.png"),
                                               QStringLiteral("0:00:00"), false, QStringLiteral("tile_heat_time_in_zone_4"), valueElapsedFontSize, labelFontSize);
 
     coreTemperature = new DataObject(QStringLiteral("Core Temp"), QStringLiteral("icons/icons/heart_red.png"),
@@ -1303,8 +1303,8 @@ void homeform::onToastRequested(QString message) {
 QStringList homeform::tile_order() {
 
     QStringList r;
-    r.reserve(65);
-    for (int i = 0; i < 66; i++) {
+    r.reserve(72);
+    for (int i = 0; i < 73; i++) {
         r.append(QString::number(i));
     }
     return r;
@@ -4929,16 +4929,16 @@ void homeform::update() {
         uint32_t heat_seconds_zone4 = bluetoothManager->device()->secondsForHeatZone(3);
 
         // Calculate cumulative times (time in this heat zone or higher)
-        uint32_t heat_seconds_zone1_plus = heat_seconds_zone1 + heat_seconds_zone2 + heat_seconds_zone3 + heat_seconds_zone4;
-        uint32_t heat_seconds_zone2_plus = heat_seconds_zone2 + heat_seconds_zone3 + heat_seconds_zone4;
-        uint32_t heat_seconds_zone3_plus = heat_seconds_zone3 + heat_seconds_zone4;
-        uint32_t heat_seconds_zone4_plus = heat_seconds_zone4; // Zone 4 is already just zone 4
+        //uint32_t heat_seconds_zone1_plus = heat_seconds_zone1 + heat_seconds_zone2 + heat_seconds_zone3 + heat_seconds_zone4;
+        //uint32_t heat_seconds_zone2_plus = heat_seconds_zone2 + heat_seconds_zone3 + heat_seconds_zone4;
+        //uint32_t heat_seconds_zone3_plus = heat_seconds_zone3 + heat_seconds_zone4;
+        //uint32_t heat_seconds_zone4_plus = heat_seconds_zone4; // Zone 4 is already just zone 4
 
         // Update the UI for each heat tile
-        tile_heat_time_in_zone_1->setValue(QTime(0, 0, 0).addSecs(heat_seconds_zone1_plus).toString("h:mm:ss"));
-        tile_heat_time_in_zone_2->setValue(QTime(0, 0, 0).addSecs(heat_seconds_zone2_plus).toString("h:mm:ss"));
-        tile_heat_time_in_zone_3->setValue(QTime(0, 0, 0).addSecs(heat_seconds_zone3_plus).toString("h:mm:ss"));
-        tile_heat_time_in_zone_4->setValue(QTime(0, 0, 0).addSecs(heat_seconds_zone4_plus).toString("h:mm:ss"));
+        tile_heat_time_in_zone_1->setValue(QTime(0, 0, 0).addSecs(heat_seconds_zone1).toString("h:mm:ss"));
+        tile_heat_time_in_zone_2->setValue(QTime(0, 0, 0).addSecs(heat_seconds_zone2).toString("h:mm:ss"));
+        tile_heat_time_in_zone_3->setValue(QTime(0, 0, 0).addSecs(heat_seconds_zone3).toString("h:mm:ss"));
+        tile_heat_time_in_zone_4->setValue(QTime(0, 0, 0).addSecs(heat_seconds_zone4).toString("h:mm:ss"));
 
         // Set colors based on the heat zone
         tile_heat_time_in_zone_1->setValueFontColor(QStringLiteral("lightblue"));

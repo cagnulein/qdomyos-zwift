@@ -940,7 +940,7 @@ const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("
 const QString QZSettings::floatingwindow_type = QStringLiteral("floatingwindow_type");
 
 
-const uint32_t allSettingsCount = 759;
+const uint32_t allSettingsCount = 767;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},

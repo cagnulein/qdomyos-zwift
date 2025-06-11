@@ -519,7 +519,7 @@ void bluetoothdevice::setHeatZone(double heatStrainIndex) {
     }
     
     HeatZone = zone;
-    if(isPaused() == false && heatStrainIndex >= 0) {
+    if(isPaused() == false && heatStrainIndex > 0) {
         // Convert to 0-based index for array access
         uint8_t zoneIndex = zone - 1;
         if(zoneIndex < maxHeatZone()) {

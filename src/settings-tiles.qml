@@ -5067,7 +5067,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: heatTimeInZone1EnabledAccordion
-            title: qsTr("Heat Time in Zone 1+")
+            title: qsTr("Heat Time in Zone 1")
             linkedBoolSetting: "tile_heat_time_in_zone_1_enabled"
             settings: settings
             accordionContent: RowLayout {
@@ -5112,7 +5112,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: heatTimeInZone2EnabledAccordion
-            title: qsTr("Heat Time in Zone 2+")
+            title: qsTr("Heat Time in Zone 2")
             linkedBoolSetting: "tile_heat_time_in_zone_2_enabled"
             settings: settings
             accordionContent: RowLayout {
@@ -5157,7 +5157,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: heatTimeInZone3EnabledAccordion
-            title: qsTr("Heat Time in Zone 3+")
+            title: qsTr("Heat Time in Zone 3")
             linkedBoolSetting: "tile_heat_time_in_zone_3_enabled"
             settings: settings
             accordionContent: RowLayout {
