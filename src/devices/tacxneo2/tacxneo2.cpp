@@ -345,12 +345,16 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         uint16_t time_division = 1024;
         uint8_t index = 4;
 
-        if (newValue.length() > 3) {
-            m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
-        }
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            if (newValue.length() > 3) {
+                m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+            }
 
-        emit powerChanged(m_watt.value());
-        emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+            emit powerChanged(m_watt.value());
+            emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+        }
 
         if(THINK_X) {
 
