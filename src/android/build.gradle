@@ -28,33 +28,23 @@ def nordictrack = System.getenv('NORDICTRACK')
 println(amazon)
 println(nordictrack)
 
-// Clean configurations to prevent conflicts
-configurations {
-    all {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
-    }
-}
-
 dependencies {
     implementation "androidx.core:core:1.12.0"
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
     
-    // Single protobuf dependency - use only javalite
+    // Explicit protobuf dependency - use only javalite for Android
     implementation 'com.google.protobuf:protobuf-javalite:3.25.1'
 
-    // Minimal gRPC dependencies with strict exclusions
+    // Core gRPC dependencies with exclusions to prevent protobuf conflicts
     implementation('io.grpc:grpc-okhttp:1.63.0') {
-        exclude group: 'com.google.protobuf'
-        exclude group: 'io.grpc', module: 'grpc-protobuf'
+        exclude group: 'io.grpc', module: 'grpc-protobuf' // Keep only lite version
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
     }
     implementation('io.grpc:grpc-protobuf-lite:1.63.0') {
-        exclude group: 'com.google.protobuf'
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
     }
-    implementation('io.grpc:grpc-stub:1.63.0') {
-        exclude group: 'com.google.protobuf'
-    }
+    implementation('io.grpc:grpc-stub:1.63.0')
     
     // Required for gRPC annotations
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
@@ -62,19 +52,17 @@ dependencies {
     if(amazon == "1") {
         // amazon app store
         implementation('com.google.mlkit:text-recognition:16.0.0-beta6') {
-            exclude group: 'com.google.protobuf'
+            exclude group: 'com.google.protobuf', module: 'protobuf-java'
         }
     } else if(nordictrack != "1") {
         // google play store
         implementation('com.google.android.gms:play-services-mlkit-text-recognition:18.0.2') {
-            exclude group: 'com.google.protobuf'
+            exclude group: 'com.google.protobuf', module: 'protobuf-java'
         }
     }
     // NordicTrack build: no ML Kit dependency included
 
-    implementation('com.google.android.play:core:1.8.2') {
-        exclude group: 'com.google.protobuf'
-    }
+    implementation('com.google.android.play:core:1.8.2')
 
     def appcompat_version = "1.3.1"
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
@@ -86,9 +74,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
     implementation files('libs/usb-serial-for-android-3.8.1.aar')
     androidTestImplementation "com.android.support:support-annotations:28.0.0"
-    implementation('com.google.android.gms:play-services-wearable:+') {
-        exclude group: 'com.google.protobuf'
-    }
+    implementation 'com.google.android.gms:play-services-wearable:+'
 
     implementation 'com.jakewharton.timber:timber:5.0.1'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.60'
@@ -158,12 +144,11 @@ android {
         pickFirst '**/META-INF/kotlinx-io.kotlin_module'
         pickFirst '**/META-INF/kotlinx-coroutines-debug.kotlin_module'
         
-        // Comprehensive protobuf conflict resolution
+        // Enhanced protobuf conflict resolution
         pickFirst '**/com/google/protobuf/**'
-        pickFirst '**/google/protobuf/**'
-        pickFirst '**/*.proto'
+        pickFirst '**/google/protobuf/*.proto'
         
-        // Exclude conflicting metadata files
+        // Exclude other potentially conflicting files
         exclude 'META-INF/INDEX.LIST'
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/LICENSE'
@@ -172,7 +157,6 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/com.google.protobuf_protobuf-java.version'
         exclude 'META-INF/com.google.protobuf_protobuf-javalite.version'
-        exclude 'META-INF/com.google.protobuf_protobuf-lite.version'
     }
 
     sourceSets {
@@ -216,16 +200,33 @@ tasks.all { task ->
 }
 }
 
-// Strict resolution strategy to enforce single protobuf version
+// Comprehensive resolution strategy to handle both protobuf and AndroidX conflicts
 configurations.all {
     resolutionStrategy {
-        // Force single protobuf version
+        // Force specific versions to resolve conflicts
+        force 'androidx.core:core:1.12.0'
+        force 'androidx.core:core-ktx:1.12.0'
+        force 'androidx.appcompat:appcompat:1.3.1'
+        force 'androidx.appcompat:appcompat-resources:1.3.1'
+        force 'androidx.annotation:annotation:1.6.0'
+        force 'androidx.annotation:annotation-experimental:1.3.0'
+        force 'androidx.lifecycle:lifecycle-viewmodel:2.3.1'
+        force 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
+        force 'androidx.fragment:fragment:1.3.6'
+        force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
+        force 'com.google.errorprone:error_prone_annotations:2.23.0'
+        force 'com.google.android.datatransport:transport-api:3.0.0'
+        force 'com.google.android.datatransport:transport-backend-cct:3.1.8'
+        force 'com.google.android.datatransport:transport-runtime:3.1.8'
+        
+        // Force protobuf version consistency
         force 'com.google.protobuf:protobuf-javalite:3.25.1'
         
-        // Fail on version conflict to catch issues early
-        failOnVersionConflict()
+        // Exclude conflicting protobuf versions
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
         
-        // Replace any protobuf-java with protobuf-javalite
+        // Replace any protobuf-java with protobuf-javalite for Android compatibility
         eachDependency { DependencyResolveDetails details ->
             if (details.requested.group == 'com.google.protobuf') {
                 if (details.requested.name == 'protobuf-java' || 
@@ -233,7 +234,7 @@ configurations.all {
                     details.useTarget group: 'com.google.protobuf', 
                                     name: 'protobuf-javalite', 
                                     version: '3.25.1'
-                    details.because 'Enforce single protobuf version for Android'
+                    details.because 'Force use of protobuf-javalite for Android compatibility'
                 }
             }
         }
