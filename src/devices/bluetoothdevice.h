@@ -371,6 +371,24 @@ class bluetoothdevice : public QObject {
     uint32_t secondsForHeartZone(uint8_t zone);
 
     /**
+     * @brief currentHeatZone Gets a metric object to get or set the current heat zone. Units: depends on
+     * implementation (based on Heat Strain Index: Zone 1: 0-1.99, Zone 2: 2-2.99, Zone 3: 3-6.99, Zone 4: 7+)
+     */
+    metric currentHeatZone() { return HeatZone; }
+
+    /**
+     * @brief maxHeatZone Gets the maximum number of heat zones.
+     */
+    uint8_t maxHeatZone() { return maxheatzone; }
+
+    /**
+     * @brief secondsForHeatZone Gets the number of seconds in the current heat zone.
+     * 
+     * @param zone The heat zone.
+     */
+    uint32_t secondsForHeatZone(uint8_t zone);
+
+    /**
      * @brief currentPowerZone Gets a metric object to get or set the current power zome. Units: depends on
      * implementation.
      * @return
@@ -403,6 +421,13 @@ class bluetoothdevice : public QObject {
      * @param hz The heart zone. Unit: depends on implementation.
      */
     void setHeartZone(double hz);
+
+    /**
+     * @brief setHeatZone Set the current heat zone based on Heat Strain Index.
+     * This is equivalent to currentHeatZone().setvalue(hz)
+     * @param heatStrainIndex The heat strain index to determine zone. Unit: depends on implementation.
+     */
+    void setHeatZone(double heatStrainIndex);
 
     /**
      * @brief setPowerZone Set the current power zone.
@@ -682,6 +707,11 @@ class bluetoothdevice : public QObject {
     metric HeartZone;
 
     /**
+     * @brief HeatZone A metric to get and set the current heat zone. Unit: depends on implementation
+     */
+    metric HeatZone;
+
+    /**
      * @brief PowerZone A metric to get and set the current power zone. Unit: depends on implementation
      */
     metric PowerZone;
@@ -706,6 +736,12 @@ class bluetoothdevice : public QObject {
      */
     static const uint8_t maxhrzone = 5;
     metric hrZonesSeconds[maxhrzone];
+
+    /**
+     * @brief Collect the number of seconds in each zone for the current heat strain index
+     */
+    static const uint8_t maxheatzone = 4;
+    metric heatZonesSeconds[maxheatzone];
 
     bluetoothdevice::WORKOUT_EVENT_STATE lastState;
 

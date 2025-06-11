@@ -1147,6 +1147,15 @@ import Qt.labs.platform 1.1
             property bool horizon_treadmill_7_0_at_24: false  // not used
 
             property bool nordictrack_treadmill_ultra_le: false
+
+            property bool tile_heat_time_in_zone_1_enabled: false
+            property int  tile_heat_time_in_zone_1_order: 68
+            property bool tile_heat_time_in_zone_2_enabled: false
+            property int  tile_heat_time_in_zone_2_order: 69
+            property bool tile_heat_time_in_zone_3_enabled: false
+            property int  tile_heat_time_in_zone_3_order: 70
+            property bool tile_heat_time_in_zone_4_enabled: false
+            property int  tile_heat_time_in_zone_4_order: 71
         }
 
         function paddingZeros(text, limit) {
