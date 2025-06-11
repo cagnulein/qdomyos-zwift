@@ -72,6 +72,7 @@ class proformtreadmill : public treadmill {
     bool nordictrack10 = false;
     bool nordictrackt70 = false;
     bool nordictrack_t65s_treadmill = false;
+    bool nordictrack_treadmill_ultra_le = false;
     bool nordictrack_s30_treadmill = false;
     bool proform_treadmill_1800i = false;
     bool proform_treadmill_se = false;

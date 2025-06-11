@@ -1145,6 +1145,8 @@ import Qt.labs.platform 1.1
             property string inclinationResistancePoints: ""
             property int floatingwindow_type: 0
             property bool horizon_treadmill_7_0_at_24: false  // not used
+
+            property bool nordictrack_treadmill_ultra_le: false
         }
 
         function paddingZeros(text, limit) {
@@ -6630,6 +6632,7 @@ import Qt.labs.platform 1.1
                                     "Proform Performance 300i",
                                     "Nordictrack T6.5S v81 Miles",
                                     "Nordictrack Elite 800",
+                                    "Nordictrack Ultra LE",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -6695,7 +6698,8 @@ import Qt.labs.platform 1.1
                                                     settings.nordictrack_treadmill_1750_adb ? 46 : 
                                                     settings.proform_performance_300i ? 47 :
                                                     settings.nordictrack_t65s_treadmill_81_miles ? 48 : 
-                                                    settings.nordictrack_elite_800 ? 49 : 0;
+                                                    settings.nordictrack_elite_800 ? 49 :
+                                                    settings.nordictrack_treadmill_ultra_le ? 50 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -6759,6 +6763,7 @@ import Qt.labs.platform 1.1
                                     settings.nordictrack_treadmill_1750_adb = false;
                                     settings.nordictrack_t65s_treadmill_81_miles = false;
                                     settings.nordictrack_elite_800 = false;
+                                    settings.nordictrack_treadmill_ultra_le = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -6811,6 +6816,7 @@ import Qt.labs.platform 1.1
                                         case 47: settings.proform_performance_300i = true; break;
                                         case 48: settings.nordictrack_t65s_treadmill_81_miles = true; break;
                                         case 49: settings.nordictrack_elite_800 = true; break;
+                                        case 50: settings.nordictrack_treadmill_ultra_le = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
