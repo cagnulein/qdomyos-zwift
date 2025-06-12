@@ -5098,7 +5098,7 @@ ScrollView {
         }
 
         Label {
-            text: qsTr("Displays total time spent in heat Zone 1 or higher during the session.")
+            text: qsTr("Displays total time spent in heat Zone 1 during the session.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5143,7 +5143,7 @@ ScrollView {
         }
 
         Label {
-            text: qsTr("Displays total time spent in heat Zone 2 or higher during the session.")
+            text: qsTr("Displays total time spent in heat Zone 2 during the session.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5188,7 +5188,7 @@ ScrollView {
         }
 
         Label {
-            text: qsTr("Displays total time spent in heat Zone 3 or higher during the session.")
+            text: qsTr("Displays total time spent in heat Zone 3 during the session.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2
