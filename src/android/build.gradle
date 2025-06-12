@@ -7,7 +7,12 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.17'
     }
+}
+
+plugins {
+  id "com.google.protobuf" version "0.8.17"
 }
 
 repositories {
@@ -18,31 +23,28 @@ repositories {
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.protobuf'
 
 def amazon = System.getenv('AMAZON')
 def nordictrack = System.getenv('NORDICTRACK')
-println(amazon)
-println(nordictrack)
 
-// NUCLEAR EXCLUSION: Remove ALL protobuf variants from ALL dependencies
+// TARGETED exclusion - only exclude the problematic full protobuf implementations
 configurations.all {
-    exclude group: 'com.google.protobuf'
-    
-    // Also exclude known problematic transitive dependencies
-    exclude group: 'io.grpc', module: 'grpc-protobuf'
-    exclude group: 'io.grpc', module: 'grpc-protobuf-lite'
+    exclude group: 'com.google.protobuf', module: 'protobuf-java'
+    exclude group: 'com.google.protobuf', module: 'protobuf-lite'
     
     resolutionStrategy {
-        // Force consistent versions across the board
-        force 'androidx.core:core:1.12.0'
-        force 'androidx.appcompat:appcompat:1.3.1'
+        // Force consistent versions
+        force 'com.google.protobuf:protobuf-javalite:3.19.4'
+        force 'io.grpc:grpc-core:1.45.1'
+        force 'io.grpc:grpc-okhttp:1.45.1'
+        force 'io.grpc:grpc-protobuf-lite:1.45.1'
+        force 'io.grpc:grpc-stub:1.45.1'
         
-        // Block any protobuf dependency from sneaking in
-        eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group == 'com.google.protobuf') {
-                details.useTarget group: 'androidx.core', name: 'core', version: '1.12.0'
-                details.because 'Block all protobuf dependencies to prevent duplicate classes'
-            }
+        // Replace problematic dependencies with lite versions
+        dependencySubstitution {
+            substitute module('com.google.protobuf:protobuf-java') using module('com.google.protobuf:protobuf-javalite:3.19.4')
+            substitute module('com.google.protobuf:protobuf-lite') using module('com.google.protobuf:protobuf-javalite:3.19.4')
         }
     }
 }
@@ -52,40 +54,54 @@ dependencies {
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
     
-    // NO PROTOBUF DEPENDENCIES AT ALL
-    // If you need protobuf functionality, add manually compiled classes to libs/
+    // SINGLE protobuf implementation - this will provide all protobuf classes
+    implementation 'com.google.protobuf:protobuf-javalite:3.19.4'
+
+    // REQUIRED gRPC dependencies for your code to work
+    implementation('io.grpc:grpc-okhttp:1.45.1') {
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+        // Keep protobuf-javalite
+    }
+    implementation('io.grpc:grpc-protobuf-lite:1.45.1') {
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+        // This provides ProtoLiteUtils and marshalling needed by generated code
+    }
+    implementation('io.grpc:grpc-stub:1.45.1') {
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+        // This provides MetadataUtils and stub utilities
+    }
     
-    // NO GRPC DEPENDENCIES - they all bring protobuf conflicts
-    
-    // Required for annotations only
+    // Required for annotations
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
-    // ML Kit dependencies - with COMPLETE exclusions
+    // ML Kit dependencies - with targeted exclusions
     if(amazon == "1") {
         implementation('com.google.mlkit:text-recognition:16.0.0-beta6') {
-            exclude group: 'com.google.protobuf'
-            exclude group: 'io.grpc'
+            exclude group: 'com.google.protobuf', module: 'protobuf-java'
+            exclude group: 'com.google.protobuf', module: 'protobuf-lite'
         }
     } else if(nordictrack != "1") {
         implementation('com.google.android.gms:play-services-mlkit-text-recognition:18.0.2') {
-            exclude group: 'com.google.protobuf'
-            exclude group: 'io.grpc'
+            exclude group: 'com.google.protobuf', module: 'protobuf-java'
+            exclude group: 'com.google.protobuf', module: 'protobuf-lite'
         }
     }
 
     implementation('com.google.android.play:core:1.8.2') {
-        exclude group: 'com.google.protobuf'
-        exclude group: 'io.grpc'
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
     }
 
     def appcompat_version = "1.3.1"
     
-    // Add back local libraries
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
     
     implementation("com.android.billingclient:billing:6.0.1") {
-        exclude group: 'com.google.protobuf'
-        exclude group: 'io.grpc'
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
     }
     implementation 'com.android.support:appcompat-v7:28.0.0'
 
@@ -93,25 +109,22 @@ dependencies {
     implementation "androidx.appcompat:appcompat-resources:$appcompat_version"
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
     
-    // Add back USB serial library
     implementation files('libs/usb-serial-for-android-3.8.1.aar')
     
     androidTestImplementation "com.android.support:support-annotations:28.0.0"
     
-    // Add back Wearable support with COMPLETE exclusions
     implementation('com.google.android.gms:play-services-wearable:+') {
-        exclude group: 'com.google.protobuf'
-        exclude group: 'io.grpc'
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
     }
 
-    // Enhanced Google Play Services with COMPLETE exclusions
     implementation('com.google.android.gms:play-services-base:18.2.0') {
-        exclude group: 'com.google.protobuf'
-        exclude group: 'io.grpc'
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
     }
     implementation('com.google.android.gms:play-services-tasks:18.0.2') {
-        exclude group: 'com.google.protobuf'
-        exclude group: 'io.grpc'
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
     }
     
     implementation 'com.jakewharton.timber:timber:5.0.1'
@@ -119,22 +132,34 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
 }
 
+// CRITICAL: Configure protobuf plugin to generate the classes your code needs
+protobuf {
+    protoc {
+        // Use protoc version that matches protobuf-javalite
+        artifact = "com.google.protobuf:protoc:3.19.4"
+    }
+    plugins {
+        grpc {
+            // Use grpc version that matches our dependencies
+            artifact = "io.grpc:protoc-gen-grpc-java:1.45.1"
+        }
+    }
+    generateProtoTasks {
+        all()*.builtins {
+            java {
+                option "lite"
+            }
+        }
+        all()*.plugins {
+            grpc {
+                option "lite"
+            }
+        }
+    }
+}
+
 android {
-    /*******************************************************
-     * The following variables:
-     * - androidBuildToolsVersion,
-     * - androidCompileSdkVersion
-     * - qt5AndroidDir - holds the path to qt android files
-     *                   needed to build any Qt application
-     *                   on Android.
-     *
-     * are defined in gradle.properties file. This file is
-     * updated by QtCreator and androiddeployqt tools.
-     * Changing them manually might break the compilation!
-     *******************************************************/
-
     compileSdkVersion androidCompileSdkVersion.toInteger()
-
     buildToolsVersion '29.0.2'
 
     compileOptions {
@@ -150,13 +175,21 @@ android {
         pickFirst '**/META-INF/kotlinx-io.kotlin_module'
         pickFirst '**/META-INF/kotlinx-coroutines-debug.kotlin_module'
         
-        // AGGRESSIVE protobuf exclusion at packaging level
-        exclude '**/com/google/protobuf/**'
-        exclude '**/google/protobuf/**'
-        exclude '**/*.proto'
-        exclude '**/META-INF/com.google.protobuf*'
+        // AGGRESSIVE but targeted protobuf conflict resolution
+        // This should handle the duplicate dex classes
+        pickFirst '**/com/google/protobuf/Any.class'
+        pickFirst '**/com/google/protobuf/Any$1.class'
+        pickFirst '**/com/google/protobuf/Any$Builder.class'
+        pickFirst '**/com/google/protobuf/Any$*.class'
+        pickFirst '**/com/google/protobuf/**'
+        pickFirst '**/google/protobuf/**'
         
-        // Exclude other potentially conflicting files
+        // Also handle at dex level
+        pickFirst '**/com/google/protobuf/Any$1.dex'
+        pickFirst '**/com/google/protobuf/Any.dex'
+        pickFirst '**/com/google/protobuf/Any$Builder.dex'
+        pickFirst '**/com/google/protobuf/Any$*.dex'
+        
         exclude 'META-INF/INDEX.LIST'
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/LICENSE'
@@ -176,13 +209,7 @@ android {
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
             
-            // CRITICAL: Exclude ALL proto-related files from compilation
-            java {
-                exclude '**/*.proto'
-                exclude '**/com/google/protobuf/**'
-                exclude '**/*Proto.java'
-                exclude '**/*Grpc.java'
-            }
+            // DO NOT exclude proto files - we need them for code generation
        }
     }
 
@@ -191,7 +218,6 @@ android {
         checkReleaseBuilds false
     }
 
-    // Do not compress Qt binary resources file
     aaptOptions {
         noCompress 'rcc'
     }
@@ -201,34 +227,32 @@ android {
         compileSdkVersion 33
         minSdkVersion = 21
         targetSdkVersion = 34
-        
-        // Enable multiDex but with aggressive deduplication
         multiDexEnabled true
     }
 
     dexOptions {
         preDexLibraries = false
         javaMaxHeapSize "4g"
+        jumboMode = true
         
-        // CRITICAL: Additional dex options to handle duplicate classes
+        // Configure dex to handle duplicate classes more gracefully
         additionalParameters = [
             "--force-enable-assertions",
-            "--multi-dex",
             "--min-sdk-version=21"
         ]
-        
-        // Increase dex processing options
-        jumboMode = true
-        dexInProcess = false
     }
 
-    // ULTIMATE FIX: Configure build to ignore duplicate classes during dex merge
-    android.applicationVariants.all { variant ->
+    // Add configuration to better handle dex merge conflicts
+    applicationVariants.all { variant ->
         variant.outputs.all { output ->
-            // Add custom dex merge options
-            variant.getPackageApplication().doFirst {
-                // Force ignore duplicate classes during packaging
-                project.android.dexOptions.preDexLibraries = false
+            // Ensure proper ordering during dex merge
+            if (variant.buildType.name == 'release') {
+                variant.getPackageApplication().doFirst {
+                    println "Configuring ${variant.name} build to handle protobuf duplicate classes"
+                    
+                    // Force clean intermediate dex files before merge
+                    delete fileTree(dir: "${buildDir}/intermediates/project_dex_archive/${variant.name}/out", include: "**/com/google/protobuf/Any\$*.dex")
+                }
             }
         }
     }
