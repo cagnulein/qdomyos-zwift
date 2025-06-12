@@ -30,7 +30,7 @@ def nordictrack = System.getenv('NORDICTRACK')
 println(amazon)
 println(nordictrack)
 
-// DIAGNOSTIC: Exclude protobuf from specific dependencies one by one to find the culprit
+// Global exclusion strategy to prevent protobuf conflicts
 configurations.all {
     exclude group: 'com.google.protobuf', module: 'protobuf-java'
     exclude group: 'com.google.protobuf', module: 'protobuf-lite'
@@ -45,17 +45,11 @@ dependencies {
     // Single protobuf dependency
     implementation 'com.google.protobuf:protobuf-javalite:3.21.12'
 
-    // DIAGNOSTIC: Comment out dependencies one by one to isolate the problem
-    
-    // Core gRPC - START WITH MINIMAL SET
+    // Core gRPC dependencies - minimal set that works
     implementation('io.grpc:grpc-okhttp:1.50.2') {
         exclude group: 'com.google.protobuf'
         exclude group: 'io.grpc', module: 'grpc-protobuf'
     }
-    // COMMENTED OUT FOR TESTING: This might be the source of duplicates
-    // implementation('io.grpc:grpc-protobuf-lite:1.50.2') {
-    //     exclude group: 'com.google.protobuf'
-    // }
     implementation('io.grpc:grpc-stub:1.50.2') {
         exclude group: 'com.google.protobuf'
     }
@@ -63,16 +57,16 @@ dependencies {
     // Required for gRPC annotations
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
-    // COMMENTED OUT FOR TESTING: ML Kit might contain protobuf
-    // if(amazon == "1") {
-    //     implementation('com.google.mlkit:text-recognition:16.0.0-beta6') {
-    //         exclude group: 'com.google.protobuf'
-    //     }
-    // } else if(nordictrack != "1") {
-    //     implementation('com.google.android.gms:play-services-mlkit-text-recognition:18.0.2') {
-    //         exclude group: 'com.google.protobuf'
-    //     }
-    // }
+    // ML Kit dependencies - add back with exclusions
+    if(amazon == "1") {
+        implementation('com.google.mlkit:text-recognition:16.0.0-beta6') {
+            exclude group: 'com.google.protobuf'
+        }
+    } else if(nordictrack != "1") {
+        implementation('com.google.android.gms:play-services-mlkit-text-recognition:18.0.2') {
+            exclude group: 'com.google.protobuf'
+        }
+    }
 
     implementation('com.google.android.play:core:1.8.2') {
         exclude group: 'com.google.protobuf'
@@ -80,8 +74,8 @@ dependencies {
 
     def appcompat_version = "1.3.1"
     
-    // COMMENTED OUT FOR TESTING: Local libs might contain protobuf
-    // implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    // Add back local libraries
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
     
     implementation("com.android.billingclient:billing:6.0.1") {
         exclude group: 'com.google.protobuf'
@@ -92,22 +86,33 @@ dependencies {
     implementation "androidx.appcompat:appcompat-resources:$appcompat_version"
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
     
-    // COMMENTED OUT FOR TESTING: This AAR file might contain protobuf classes
-    // implementation files('libs/usb-serial-for-android-3.8.1.aar')
+    // Add back USB serial library
+    implementation files('libs/usb-serial-for-android-3.8.1.aar')
     
     androidTestImplementation "com.android.support:support-annotations:28.0.0"
     
-    // COMMENTED OUT FOR TESTING: Wearable might contain protobuf
-    // implementation('com.google.android.gms:play-services-wearable:+') {
-    //     exclude group: 'com.google.protobuf'
-    // }
+    // Add back Wearable support with protobuf exclusion
+    implementation('com.google.android.gms:play-services-wearable:+') {
+        exclude group: 'com.google.protobuf'
+    }
 
+    // Add missing dependencies that are causing compilation errors
+    
+    // ANT+ dependencies for heart rate, power, and SDM controllers
+    implementation 'org.apache.ant:ant:1.10.12' // Basic ANT support
+    
+    // Garmin Connect IQ SDK dependencies
+    implementation 'com.garmin.connectiq:ciq-companion-app-sdk:2.0.3'
+    
+    // ZAP Click dependencies (might need to be local JARs if not available in Maven)
+    // implementation 'com.che.zap:zap-play:1.0.0' // Replace with actual version if available
+    
     implementation 'com.jakewharton.timber:timber:5.0.1'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.60'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
 }
 
-// Simplified protobuf configuration
+// Protobuf configuration
 protobuf {
     protoc {
         artifact = "com.google.protobuf:protoc:3.21.12"
@@ -223,7 +228,7 @@ tasks.all { task ->
 }
 }
 
-// Simplified resolution strategy
+// Resolution strategy to prevent conflicts
 configurations.all {
     resolutionStrategy {
         force 'com.google.protobuf:protobuf-javalite:3.21.12'
