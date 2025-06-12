@@ -2,23 +2,23 @@ buildscript {
     repositories {
         google()
         jcenter()
-        mavenCentral() // Add mavenCentral for better protobuf artifact resolution
+        mavenCentral()
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.0'
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.4'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.18'
     }
 }
 
 plugins {
-  id "com.google.protobuf" version "0.9.4"
+  id "com.google.protobuf" version "0.8.18"
 }
 
 repositories {
     google()
     jcenter()
-    mavenCentral() // Add mavenCentral for better protobuf artifact resolution
+    mavenCentral()
     maven { url 'https://jitpack.io' }
 }
 
@@ -30,14 +30,11 @@ def nordictrack = System.getenv('NORDICTRACK')
 println(amazon)
 println(nordictrack)
 
-// Global exclusion strategy - apply to all configurations except protoc
+// DIAGNOSTIC: Exclude protobuf from specific dependencies one by one to find the culprit
 configurations.all {
-    // Don't exclude from protobuf plugin configurations
-    if (!name.startsWith('protobufToolsLocator')) {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
-        exclude group: 'com.google.protobuf', module: 'protobuf-java-util'
-    }
+    exclude group: 'com.google.protobuf', module: 'protobuf-java'
+    exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+    exclude group: 'com.google.protobuf', module: 'protobuf-java-util'
 }
 
 dependencies {
@@ -45,103 +42,90 @@ dependencies {
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
     
-    // CRITICAL: Only one protobuf dependency - must be first
-    implementation 'com.google.protobuf:protobuf-javalite:3.25.1'
+    // Single protobuf dependency
+    implementation 'com.google.protobuf:protobuf-javalite:3.21.12'
 
-    // Core gRPC dependencies with aggressive exclusions
-    implementation('io.grpc:grpc-okhttp:1.63.0') {
-        exclude group: 'com.google.protobuf' // Exclude ALL protobuf from gRPC
+    // DIAGNOSTIC: Comment out dependencies one by one to isolate the problem
+    
+    // Core gRPC - START WITH MINIMAL SET
+    implementation('io.grpc:grpc-okhttp:1.50.2') {
+        exclude group: 'com.google.protobuf'
         exclude group: 'io.grpc', module: 'grpc-protobuf'
-        exclude group: 'com.google.guava'
     }
-    implementation('io.grpc:grpc-protobuf-lite:1.63.0') {
-        exclude group: 'com.google.protobuf' // Exclude ALL protobuf from gRPC
-    }
-    implementation('io.grpc:grpc-stub:1.63.0') {
-        exclude group: 'com.google.protobuf' // Exclude ALL protobuf from gRPC
+    // COMMENTED OUT FOR TESTING: This might be the source of duplicates
+    // implementation('io.grpc:grpc-protobuf-lite:1.50.2') {
+    //     exclude group: 'com.google.protobuf'
+    // }
+    implementation('io.grpc:grpc-stub:1.50.2') {
+        exclude group: 'com.google.protobuf'
     }
     
     // Required for gRPC annotations
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
-    if(amazon == "1") {
-        // amazon app store
-        implementation('com.google.mlkit:text-recognition:16.0.0-beta6') {
-            exclude group: 'com.google.protobuf' // Exclude ALL protobuf from ML Kit
-        }
-    } else if(nordictrack != "1") {
-        // google play store
-        implementation('com.google.android.gms:play-services-mlkit-text-recognition:18.0.2') {
-            exclude group: 'com.google.protobuf' // Exclude ALL protobuf from Play Services
-        }
-    }
-    // NordicTrack build: no ML Kit dependency included
+    // COMMENTED OUT FOR TESTING: ML Kit might contain protobuf
+    // if(amazon == "1") {
+    //     implementation('com.google.mlkit:text-recognition:16.0.0-beta6') {
+    //         exclude group: 'com.google.protobuf'
+    //     }
+    // } else if(nordictrack != "1") {
+    //     implementation('com.google.android.gms:play-services-mlkit-text-recognition:18.0.2') {
+    //         exclude group: 'com.google.protobuf'
+    //     }
+    // }
 
     implementation('com.google.android.play:core:1.8.2') {
-        exclude group: 'com.google.protobuf' // Exclude ALL protobuf from Play Core
+        exclude group: 'com.google.protobuf'
     }
 
     def appcompat_version = "1.3.1"
-    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    
+    // COMMENTED OUT FOR TESTING: Local libs might contain protobuf
+    // implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    
     implementation("com.android.billingclient:billing:6.0.1") {
-        exclude group: 'com.google.protobuf' // Exclude ALL protobuf from Billing
+        exclude group: 'com.google.protobuf'
     }
     implementation 'com.android.support:appcompat-v7:28.0.0'
 
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "androidx.appcompat:appcompat-resources:$appcompat_version"
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-    implementation files('libs/usb-serial-for-android-3.8.1.aar')
+    
+    // COMMENTED OUT FOR TESTING: This AAR file might contain protobuf classes
+    // implementation files('libs/usb-serial-for-android-3.8.1.aar')
+    
     androidTestImplementation "com.android.support:support-annotations:28.0.0"
-    implementation('com.google.android.gms:play-services-wearable:+') {
-        exclude group: 'com.google.protobuf' // Exclude ALL protobuf from Wearable
-    }
+    
+    // COMMENTED OUT FOR TESTING: Wearable might contain protobuf
+    // implementation('com.google.android.gms:play-services-wearable:+') {
+    //     exclude group: 'com.google.protobuf'
+    // }
 
     implementation 'com.jakewharton.timber:timber:5.0.1'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.60'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
 }
 
-import org.apache.tools.ant.taskdefs.condition.Os
-
-// CORRECTED: Compatible with macOS on Apple Silicon and Linux
-def archSuffix = ''
-if (Os.isFamily(Os.FAMILY_MAC)) {
-    def arch = System.getProperty("os.arch")
-    if (arch == "aarch64" || arch == "arm64") {
-        archSuffix = ':osx-aarch_64'
-    } else {
-        archSuffix = ':osx-x86_64'
-    }
-} else if (Os.isFamily(Os.FAMILY_UNIX)) {
-    archSuffix = ':linux-x86_64'
-} else if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-    archSuffix = ':windows-x86_64'
-}
-
+// Simplified protobuf configuration
 protobuf {
     protoc {
-        // FIXED: Use the correct protoc artifact, not protobuf-javalite
-        artifact = "com.google.protobuf:protoc:3.25.1$archSuffix"
+        artifact = "com.google.protobuf:protoc:3.21.12"
     }
-    // Add gRPC plugin configuration
     plugins {
         grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.63.0"
+            artifact = "io.grpc:protoc-gen-grpc-java:1.50.2"
         }
     }
     generateProtoTasks {
-        all().configureEach { task ->
-            // Add gRPC plugin to task
-            task.plugins {
-                grpc {
-                    option "lite"  // Essential for Android
-                }
+        all()*.builtins {
+            java {
+                option "lite"
             }
-            task.builtins {
-                java {
-                    option "lite"
-                }
+        }
+        all()*.plugins {
+            grpc {
+                option "lite"
             }
         }
     }
@@ -178,7 +162,7 @@ android {
         pickFirst '**/META-INF/kotlinx-io.kotlin_module'
         pickFirst '**/META-INF/kotlinx-coroutines-debug.kotlin_module'
         
-        // AGGRESSIVE protobuf conflict resolution - pick first of everything
+        // Comprehensive protobuf conflict resolution
         pickFirst '**/com/google/protobuf/**'
         pickFirst '**/google/protobuf/**'
         pickFirst '**/*.proto'
@@ -226,7 +210,6 @@ android {
         multiDexEnabled true
     }
 
-    // Add this to help with duplicate class issues
     dexOptions {
         preDexLibraries = false
         javaMaxHeapSize "4g"
@@ -240,47 +223,17 @@ tasks.all { task ->
 }
 }
 
-// MOST AGGRESSIVE resolution strategy
+// Simplified resolution strategy
 configurations.all {
     resolutionStrategy {
-        // Force the single protobuf version we want
-        force 'com.google.protobuf:protobuf-javalite:3.25.1'
-        
-        // Force AndroidX versions to prevent conflicts
+        force 'com.google.protobuf:protobuf-javalite:3.21.12'
         force 'androidx.core:core:1.12.0'
         force 'androidx.appcompat:appcompat:1.3.1'
-        force 'androidx.annotation:annotation:1.6.0'
         
-        // Substitute all protobuf variants with our chosen one (except protoc)
+        // Replace conflicting protobuf dependencies
         dependencySubstitution {
-            substitute module('com.google.protobuf:protobuf-java') with module('com.google.protobuf:protobuf-javalite:3.25.1')
-            substitute module('com.google.protobuf:protobuf-lite') with module('com.google.protobuf:protobuf-javalite:3.25.1')
-            substitute module('com.google.protobuf:protobuf-java-util') with module('com.google.protobuf:protobuf-javalite:3.25.1')
-        }
-        
-        // Component selection to reject unwanted protobuf versions (but allow protoc)
-        componentSelection {
-            all { ComponentSelection selection ->
-                if (selection.candidate.group == 'com.google.protobuf') {
-                    if (selection.candidate.module != 'protobuf-javalite' && 
-                        selection.candidate.module != 'protoc') {
-                        selection.reject("Only protobuf-javalite and protoc allowed for Android")
-                    }
-                }
-            }
-        }
-        
-        // Catch-all replacement for any remaining protobuf dependencies (except protoc)
-        eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group == 'com.google.protobuf') {
-                if (details.requested.name != 'protobuf-javalite' && 
-                    details.requested.name != 'protoc') {
-                    details.useTarget group: 'com.google.protobuf', 
-                                    name: 'protobuf-javalite', 
-                                    version: '3.25.1'
-                    details.because 'Force single protobuf-javalite version for Android'
-                }
-            }
+            substitute module('com.google.protobuf:protobuf-java') with module('com.google.protobuf:protobuf-javalite:3.21.12')
+            substitute module('com.google.protobuf:protobuf-lite') with module('com.google.protobuf:protobuf-javalite:3.21.12')
         }
     }
 }
