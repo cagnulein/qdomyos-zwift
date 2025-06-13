@@ -43,6 +43,8 @@ public class QZAdbRemote implements DeviceConnectionListener {
 	 private static final String LOG_TAG = "QZ:AdbRemote";
 	 private static String lastCommand = "";
 	 private static boolean ADBConnected = false;
+	 private static boolean cryptoReady = false;
+	 private static final Object cryptoLock = new Object();
 
 	 private static String _address = "127.0.0.1";
 	 private static Context _context;
@@ -98,6 +100,20 @@ public class QZAdbRemote implements DeviceConnectionListener {
 	 @Override
 	 public AdbCrypto loadAdbCrypto(DeviceConnection devConn) {
 		  QLog.d(LOG_TAG, "loadAdbCrypto - START: devConn=" + devConn + ", context=" + _context);
+		  
+		  synchronized (cryptoLock) {
+			  if (!cryptoReady) {
+				  QLog.d(LOG_TAG, "loadAdbCrypto - WAITING: crypto not ready, waiting for generation");
+				  try {
+					  cryptoLock.wait(30000); // Wait up to 30 seconds
+				  } catch (InterruptedException e) {
+					  QLog.e(LOG_TAG, "loadAdbCrypto - INTERRUPTED: wait interrupted", e);
+					  Thread.currentThread().interrupt();
+					  return null;
+				  }
+			  }
+		  }
+		  
 		  AdbCrypto crypto = AdbUtils.readCryptoConfig(_context.getFilesDir());
 		  QLog.d(LOG_TAG, "loadAdbCrypto - RESULT: crypto=" + (crypto != null ? "valid" : "null"));
 		  return crypto;
@@ -206,15 +222,27 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
 						  crypto = AdbUtils.writeNewCryptoConfig(_context.getFilesDir());
 
-						  if (crypto == null)
-						  {
-							   QLog.e(LOG_TAG,
-								        "Unable to generate and save RSA key pair");
-										return;
-								}
+						  synchronized (cryptoLock) {
+							  if (crypto == null)
+							  {
+								   QLog.e(LOG_TAG,
+									        "Unable to generate and save RSA key pair");
+											cryptoReady = false;
+											cryptoLock.notifyAll();
+											return;
+									}
+								QLog.d(LOG_TAG, "createConnection - CRYPTO_GENERATED: crypto keys generated successfully");
+								cryptoReady = true;
+								cryptoLock.notifyAll();
+						  }
 
 					 }
 				}).start();
+			} else {
+				QLog.d(LOG_TAG, "createConnection - CRYPTO_EXISTS: marking crypto as ready");
+				synchronized (cryptoLock) {
+					cryptoReady = true;
+				}
 			}
 
 		  QLog.d(LOG_TAG, "createConnection - SERVICE_CHECK: binder=" + (binder != null ? "exists" : "null"));
