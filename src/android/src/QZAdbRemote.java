@@ -249,8 +249,9 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
     static public void sendCommand(String command) {
                   QLog.d(LOG_TAG, "sendCommand " + ADBConnected + " " + command);
-		  if(ADBConnected) {
-			   StringBuilder commandBuffer = new StringBuilder();
+
+			if (connection != null && !connection.isClosed() && connection.isConnected()) {
+				StringBuilder commandBuffer = new StringBuilder();
 
 				commandBuffer.append(command);
 
@@ -259,9 +260,10 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
 				/* Send it to the device */
 				connection.queueCommand(commandBuffer.toString());
-				} else {
+			} else {
 				QLog.e(LOG_TAG, "sendCommand ADB is not connected!");
-				}
+				createConnection(_address, _context);
+			}
 	 }
 
 }
