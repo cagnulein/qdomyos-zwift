@@ -4824,10 +4824,10 @@ void homeform::handleRestoreDefaultWheelDiameter() {
         bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
 
         // Controlla se il dispositivo è un wahookickrsnapbike
-        wahookickrsnapbike* kickrBike = dynamic_cast<wahookickrsnapbike*>(bluetoothManager->device());
+        /*wahookickrsnapbike* kickrBike = dynamic_cast<wahookickrsnapbike*>(bluetoothManager->device());
         if (kickrBike) {
             kickrBike->restoreDefaultWheelDiameter();
-        }
+        }*/
     }
 }
 
