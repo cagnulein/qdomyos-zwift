@@ -1,0 +1,13 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.featuregates";
+option java_outer_classname = "GatedFeatureProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum GatedFeature {
+  GATED_FEATURE_UNKNOWN = 0;
+  GATED_FEATURE_UPSELL = 1;
+  GATED_FEATURE_CHALLENGES = 2;
+  GATED_FEATURE_WORKOUT_CREATOR = 3;
+}
