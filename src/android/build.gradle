@@ -30,12 +30,13 @@ def nordictrack = System.getenv('NORDICTRACK')
 println(amazon)
 println(nordictrack)
 
-// Minimal exclusion - let generated code handle protobuf
+// ULTRA-AGGRESSIVE exclusion strategy
 configurations.all {
     exclude group: 'com.google.protobuf', module: 'protobuf-java'
     exclude group: 'com.google.protobuf', module: 'protobuf-lite'
     
     resolutionStrategy {
+        // Force single protobuf version everywhere
         force 'com.google.protobuf:protobuf-javalite:3.19.4'
         force 'io.grpc:grpc-core:1.45.1'
         force 'io.grpc:grpc-okhttp:1.45.1'
@@ -43,6 +44,16 @@ configurations.all {
         force 'io.grpc:grpc-stub:1.45.1'
         force 'androidx.core:core:1.12.0'
         force 'androidx.appcompat:appcompat:1.3.1'
+        
+        // Use eachDependency to catch any protobuf sneaking in
+        eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'com.google.protobuf') {
+                if (details.requested.name != 'protobuf-javalite') {
+                    details.useTarget group: 'com.google.protobuf', name: 'protobuf-javalite', version: '3.19.4'
+                    details.because 'Force single protobuf implementation'
+                }
+            }
+        }
     }
 }
 
@@ -51,42 +62,35 @@ dependencies {
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
     
-    // DON'T include protobuf-javalite directly - let it come from gRPC
-    
-    // gRPC dependencies - ONLY exclude the problematic modules
+    // ONLY ONE protobuf implementation
+    implementation 'com.google.protobuf:protobuf-javalite:3.19.4'
+
+    // gRPC dependencies with COMPLETE protobuf exclusions
     implementation('io.grpc:grpc-okhttp:1.45.1') {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
-        // Allow protobuf-javalite to come through
+        exclude group: 'com.google.protobuf'
     }
     implementation('io.grpc:grpc-protobuf-lite:1.45.1') {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
-        // This should bring protobuf-javalite as transitive dependency
+        exclude group: 'com.google.protobuf'
     }
     implementation('io.grpc:grpc-stub:1.45.1') {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+        exclude group: 'com.google.protobuf'
     }
     
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
-    // Other dependencies with targeted exclusions
+    // All other dependencies with COMPLETE protobuf exclusions
     if(amazon == "1") {
         implementation('com.google.mlkit:text-recognition:16.0.0-beta6') {
-            exclude group: 'com.google.protobuf', module: 'protobuf-java'
-            exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+            exclude group: 'com.google.protobuf'
         }
     } else if(nordictrack != "1") {
         implementation('com.google.android.gms:play-services-mlkit-text-recognition:18.0.2') {
-            exclude group: 'com.google.protobuf', module: 'protobuf-java'
-            exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+            exclude group: 'com.google.protobuf'
         }
     }
 
     implementation('com.google.android.play:core:1.8.2') {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+        exclude group: 'com.google.protobuf'
     }
 
     def appcompat_version = "1.3.1"
@@ -94,8 +98,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
     
     implementation("com.android.billingclient:billing:6.0.1") {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+        exclude group: 'com.google.protobuf'
     }
     implementation 'com.android.support:appcompat-v7:28.0.0'
 
@@ -108,17 +111,14 @@ dependencies {
     androidTestImplementation "com.android.support:support-annotations:28.0.0"
     
     implementation('com.google.android.gms:play-services-wearable:+') {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+        exclude group: 'com.google.protobuf'
     }
 
     implementation('com.google.android.gms:play-services-base:18.2.0') {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+        exclude group: 'com.google.protobuf'
     }
     implementation('com.google.android.gms:play-services-tasks:18.0.2') {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+        exclude group: 'com.google.protobuf'
     }
     
     implementation 'com.jakewharton.timber:timber:5.0.1'
@@ -167,9 +167,12 @@ android {
         pickFirst '**/META-INF/kotlinx-io.kotlin_module'
         pickFirst '**/META-INF/kotlinx-coroutines-debug.kotlin_module'
         
-        // Let dex merger handle protobuf conflicts naturally by using pickFirst
-        pickFirst '**/com/google/protobuf/**'
-        pickFirst '**/google/protobuf/**'
+        // EXTREME packaging options - exclude protobuf entirely from packaging
+        exclude '**/com/google/protobuf/Any.class'
+        exclude '**/com/google/protobuf/Any$*.class'
+        exclude '**/com/google/protobuf/**'
+        exclude '**/google/protobuf/**'
+        exclude '**/*.proto'
         
         exclude 'META-INF/INDEX.LIST'
         exclude 'META-INF/DEPENDENCIES'
@@ -186,7 +189,6 @@ android {
                 project.hasProperty('qt5AndroidDir') ? qt5AndroidDir + '/src' : 'qt-src',
                 'src', 
                 'java'
-                // Generated protobuf sources are automatically included by the protobuf plugin
             ]
             aidl.srcDirs = [
                 project.hasProperty('qt5AndroidDir') ? qt5AndroidDir + '/src' : 'qt-src',
@@ -201,13 +203,6 @@ android {
             renderscript.srcDirs = ['src']
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
-            
-            // IMPORTANT: Proto files should be placed in src/main/proto/
-            // The protobuf plugin will automatically:
-            // 1. Find .proto files in src/main/proto/
-            // 2. Generate Java classes in build/generated/source/proto/main/java/
-            // 3. Generate gRPC stubs in build/generated/source/proto/main/grpc/
-            // 4. Add generated sources to compilation automatically
        }
     }
 
@@ -233,8 +228,82 @@ android {
         javaMaxHeapSize "4g"
         jumboMode = true
         
-        // Use legacy multidex to handle conflicts better
-        additionalParameters = ["--force-enable-assertions"]
+        // Additional dex options to handle conflicts
+        additionalParameters = [
+            "--force-enable-assertions",
+            "--min-sdk-version=21"
+        ]
+    }
+
+    // CRITICAL: Custom tasks to handle dex-level duplicate classes
+    applicationVariants.all { variant ->
+        
+        // Create a task to clean duplicate dex files before merge
+        Task cleanDuplicateDexTask = task("cleanDuplicateDex${variant.name.capitalize()}", type: Delete) {
+            doFirst {
+                println "=== CLEANING DUPLICATE PROTOBUF DEX FILES FOR ${variant.name.toUpperCase()} ==="
+                
+                // Delete specific duplicate dex files from project dex archive
+                def projectDexDir = file("${buildDir}/intermediates/project_dex_archive/${variant.name}/out")
+                if (projectDexDir.exists()) {
+                    println "Scanning project dex directory: ${projectDexDir.path}"
+                    
+                    // Remove ALL protobuf dex files from project archive
+                    projectDexDir.traverse(type: groovy.io.FileType.FILES) { file ->
+                        if (file.name.contains('protobuf') && file.name.endsWith('.dex')) {
+                            println "DELETING protobuf dex: ${file.path}"
+                            file.delete()
+                        }
+                        if (file.name.contains('Any
+
+tasks.all { task ->
+     if (task.name == 'compileDebugJavaWithJavac' && amazon == "1") {
+        task.dependsOn copyArm64Directory
+        task.dependsOn copyArm32Directory
+        }
+}
+}
+
+task copyArm64Directory(type: Copy) {
+    from "libs/arm64-v8a/"
+    include '*arm64-v8a.so'
+    into "libs/armeabi-v7a/"
+}
+
+task copyArm32Directory(type: Copy) {
+    from "libs/armeabi-v7a/"
+    include '*armeabi-v7a.so'
+    into "libs/arm64-v8a/"
+}) && file.name.endsWith('.dex')) {
+                            println "DELETING Any dex: ${file.path}"
+                            file.delete()
+                        }
+                        if (file.path.contains('com/google/protobuf') && file.name.endsWith('.dex')) {
+                            println "DELETING google protobuf dex: ${file.path}"
+                            file.delete()
+                        }
+                    }
+                } else {
+                    println "Project dex directory does not exist yet: ${projectDexDir.path}"
+                }
+                
+                println "=== CLEANUP COMPLETE ==="
+            }
+        }
+        
+        // Make sure our cleanup runs before ANY dex merge
+        tasks.whenTaskAdded { task ->
+            if (task.name.startsWith('mergeDex') && task.name.contains(variant.name.capitalize())) {
+                println "Configuring ${task.name} to depend on ${cleanDuplicateDexTask.name}"
+                task.dependsOn cleanDuplicateDexTask
+                task.mustRunAfter cleanDuplicateDexTask
+            }
+            if (task.name.startsWith('mergeExtDex') && task.name.contains(variant.name.capitalize())) {
+                println "Configuring ${task.name} to depend on ${cleanDuplicateDexTask.name}"
+                task.dependsOn cleanDuplicateDexTask
+                task.mustRunAfter cleanDuplicateDexTask
+            }
+        }
     }
 
 tasks.all { task ->
