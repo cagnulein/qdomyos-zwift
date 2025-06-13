@@ -30,13 +30,12 @@ def nordictrack = System.getenv('NORDICTRACK')
 println(amazon)
 println(nordictrack)
 
-// Simple but effective exclusion strategy for Gradle 5.6.4
+// Minimal exclusion - let generated code handle protobuf
 configurations.all {
     exclude group: 'com.google.protobuf', module: 'protobuf-java'
     exclude group: 'com.google.protobuf', module: 'protobuf-lite'
     
     resolutionStrategy {
-        // Force consistent versions
         force 'com.google.protobuf:protobuf-javalite:3.19.4'
         force 'io.grpc:grpc-core:1.45.1'
         force 'io.grpc:grpc-okhttp:1.45.1'
@@ -52,27 +51,27 @@ dependencies {
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
     
-    // SINGLE protobuf implementation
-    implementation 'com.google.protobuf:protobuf-javalite:3.19.4'
-
-    // REQUIRED gRPC dependencies - with targeted exclusions
+    // DON'T include protobuf-javalite directly - let it come from gRPC
+    
+    // gRPC dependencies - ONLY exclude the problematic modules
     implementation('io.grpc:grpc-okhttp:1.45.1') {
         exclude group: 'com.google.protobuf', module: 'protobuf-java'
         exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+        // Allow protobuf-javalite to come through
     }
     implementation('io.grpc:grpc-protobuf-lite:1.45.1') {
         exclude group: 'com.google.protobuf', module: 'protobuf-java'
         exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+        // This should bring protobuf-javalite as transitive dependency
     }
     implementation('io.grpc:grpc-stub:1.45.1') {
         exclude group: 'com.google.protobuf', module: 'protobuf-java'
         exclude group: 'com.google.protobuf', module: 'protobuf-lite'
     }
     
-    // Required for annotations
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
-    // ML Kit dependencies
+    // Other dependencies with targeted exclusions
     if(amazon == "1") {
         implementation('com.google.mlkit:text-recognition:16.0.0-beta6') {
             exclude group: 'com.google.protobuf', module: 'protobuf-java'
@@ -152,7 +151,6 @@ protobuf {
 }
 
 android {
-    // Handle missing gradle.properties variables gracefully
     compileSdkVersion project.hasProperty('androidCompileSdkVersion') ? androidCompileSdkVersion.toInteger() : 33
     buildToolsVersion '29.0.2'
 
@@ -169,10 +167,9 @@ android {
         pickFirst '**/META-INF/kotlinx-io.kotlin_module'
         pickFirst '**/META-INF/kotlinx-coroutines-debug.kotlin_module'
         
-        // Handle protobuf conflicts at packaging level
+        // Let dex merger handle protobuf conflicts naturally by using pickFirst
         pickFirst '**/com/google/protobuf/**'
         pickFirst '**/google/protobuf/**'
-        pickFirst '**/*.proto'
         
         exclude 'META-INF/INDEX.LIST'
         exclude 'META-INF/DEPENDENCIES'
@@ -189,6 +186,7 @@ android {
                 project.hasProperty('qt5AndroidDir') ? qt5AndroidDir + '/src' : 'qt-src',
                 'src', 
                 'java'
+                // Generated protobuf sources are automatically included by the protobuf plugin
             ]
             aidl.srcDirs = [
                 project.hasProperty('qt5AndroidDir') ? qt5AndroidDir + '/src' : 'qt-src',
@@ -203,6 +201,13 @@ android {
             renderscript.srcDirs = ['src']
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
+            
+            // IMPORTANT: Proto files should be placed in src/main/proto/
+            // The protobuf plugin will automatically:
+            // 1. Find .proto files in src/main/proto/
+            // 2. Generate Java classes in build/generated/source/proto/main/java/
+            // 3. Generate gRPC stubs in build/generated/source/proto/main/grpc/
+            // 4. Add generated sources to compilation automatically
        }
     }
 
@@ -227,6 +232,9 @@ android {
         preDexLibraries = false
         javaMaxHeapSize "4g"
         jumboMode = true
+        
+        // Use legacy multidex to handle conflicts better
+        additionalParameters = ["--force-enable-assertions"]
     }
 
 tasks.all { task ->
