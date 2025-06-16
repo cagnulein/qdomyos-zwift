@@ -1,6 +1,7 @@
 #include "characteristicnotifier2acd.h"
 #include "devices/treadmill.h"
 #include <qmath.h>
+#include <QTime> // Include QTime for Bike->elapsedTime()
 
 CharacteristicNotifier2ACD::CharacteristicNotifier2ACD(bluetoothdevice *Bike, QObject *parent)
     : CharacteristicNotifier(0x2acd, parent), Bike(Bike) {}
@@ -9,7 +10,8 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
     bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
     if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
         value.append(0x0C);       // Inclination available and distance for peloton
-        value.append((char)0x01); // heart rate available
+        //value.append((char)0x01); // heart rate available
+        value.append((char)0x05); // HeartRate(8) | ElapsedTime(10)
 
         uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
         char a = (normalizeSpeed >> 8) & 0XFF;
@@ -61,6 +63,18 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         rampBytes.append(b);
         rampBytes.append(a);
 
+        // Get session elapsed time - makes Runna calculations work
+        QTime sessionElapsedTime = Bike->elapsedTime();
+        double elapsed_time_seconds =
+            (double)sessionElapsedTime.hour() * 3600.0 +
+            (double)sessionElapsedTime.minute() * 60.0 +
+            (double)sessionElapsedTime.second() +
+            (double)sessionElapsedTime.msec() / 1000.0;
+        uint16_t ftms_elapsed_time_field = (uint16_t)qRound(elapsed_time_seconds);
+        QByteArray elapsedBytes;
+        elapsedBytes.append(static_cast<char>(ftms_elapsed_time_field & 0xFF));
+        elapsedBytes.append(static_cast<char>((ftms_elapsed_time_field >> 8) & 0xFF));
+
         value.append(speedBytes); // Actual value.
         
         value.append(distanceBytes); // Actual value.
@@ -70,6 +84,9 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         value.append(rampBytes); // ramp angle
 
         value.append(Bike->currentHeart().value()); // current heart rate
+
+        value.append(elapsedBytes); // Elapsed Time
+
         return CN_OK;
     } else
         return CN_INVALID;
