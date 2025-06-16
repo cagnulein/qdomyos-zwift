@@ -22,6 +22,11 @@
 #include <QRegularExpression>
 #include "treadmill.h"
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
+
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
@@ -77,6 +82,17 @@ class nordictrackifitadbtreadmill : public treadmill {
     void forceSpeed(double speed);
     double getDouble(QString v);
     void initiateThreadStop();
+    
+    // gRPC integration methods
+    void initializeGrpcService();
+    void startGrpcMetricsUpdates();
+    void stopGrpcMetricsUpdates();
+    double getGrpcSpeed();
+    double getGrpcIncline();
+    double getGrpcWatts();
+    double getGrpcCadence();
+    void setGrpcSpeed(double speed);
+    void setGrpcIncline(double incline);
 
     QTimer *refresh;
 
@@ -93,6 +109,7 @@ class nordictrackifitadbtreadmill : public treadmill {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool grpcInitialized = false;
 
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
