@@ -31,6 +31,20 @@ dependencies {
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
     implementation 'com.google.protobuf:protobuf-javalite:3.25.1'
+    
+    // gRPC dependencies
+    implementation('io.grpc:grpc-okhttp:1.63.0') {
+        exclude group: 'com.google.protobuf'
+        exclude group: 'io.grpc', module: 'grpc-protobuf'
+    }
+    implementation('io.grpc:grpc-protobuf-lite:1.63.0') {
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.protobuf', module: 'protobuf-java-util'
+    }
+    implementation('io.grpc:grpc-stub:1.63.0') {
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+    }
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
 		
     if(amazon == "1") {
         // amazon app store
@@ -68,12 +82,22 @@ protobuf {
     protoc {
       artifact = "com.google.protobuf:protoc:3.25.1$archSuffix"
     }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.63.0"
+        }
+    }
     generateProtoTasks {
       all().configureEach { task ->
         task.builtins {
           java {
             option "lite"
           }
+        }
+        task.plugins {
+            grpc {
+                option "lite"
+            }
         }
       }
     }

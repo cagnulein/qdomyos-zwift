@@ -27,6 +27,7 @@ import javax.net.ssl.SSLContext;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.okhttp.OkHttpChannelBuilder;
+import io.grpc.stub.MetadataUtils;
 
 import com.ifit.glassos.util.Empty;
 import com.ifit.glassos.workout.SpeedMetric;
@@ -139,7 +140,7 @@ public class GrpcTreadmillService {
                 
                 Metadata headers = createHeaders();
                 SpeedServiceGrpc.SpeedServiceBlockingStub stubWithHeaders = speedStub.withInterceptors(
-                        io.grpc.stub.MetadataUtils.newAttachHeadersInterceptor(headers)
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
                 
                 SpeedRequest request = SpeedRequest.newBuilder().setKph(newSpeed).build();
@@ -163,7 +164,7 @@ public class GrpcTreadmillService {
                 
                 Metadata headers = createHeaders();
                 InclineServiceGrpc.InclineServiceBlockingStub stubWithHeaders = inclineStub.withInterceptors(
-                        io.grpc.stub.MetadataUtils.newAttachHeadersInterceptor(headers)
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
                 
                 InclineRequest request = InclineRequest.newBuilder().setPercent(newIncline).build();
@@ -187,7 +188,7 @@ public class GrpcTreadmillService {
                 
                 Metadata headers = createHeaders();
                 ResistanceServiceGrpc.ResistanceServiceBlockingStub stubWithHeaders = resistanceStub.withInterceptors(
-                        io.grpc.stub.MetadataUtils.newAttachHeadersInterceptor(headers)
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
                 
                 ResistanceRequest request = ResistanceRequest.newBuilder().setResistance(newResistance).build();
@@ -357,7 +358,7 @@ public class GrpcTreadmillService {
             // Fetch speed
             try {
                 SpeedServiceGrpc.SpeedServiceBlockingStub speedStubWithHeaders = speedStub.withInterceptors(
-                        io.grpc.stub.MetadataUtils.newAttachHeadersInterceptor(headers)
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
                 SpeedMetric speedResponse = speedStubWithHeaders.getSpeed(request);
                 currentSpeed = speedResponse.getLastKph();
@@ -375,7 +376,7 @@ public class GrpcTreadmillService {
             // Fetch inclination
             try {
                 InclineServiceGrpc.InclineServiceBlockingStub inclineStubWithHeaders = inclineStub.withInterceptors(
-                        io.grpc.stub.MetadataUtils.newAttachHeadersInterceptor(headers)
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
                 InclineMetric inclineResponse = inclineStubWithHeaders.getIncline(request);
                 currentIncline = inclineResponse.getLastInclinePercent();
@@ -393,7 +394,7 @@ public class GrpcTreadmillService {
             // Fetch watts
             try {
                 WattsServiceGrpc.WattsServiceBlockingStub wattsStubWithHeaders = wattsStub.withInterceptors(
-                        io.grpc.stub.MetadataUtils.newAttachHeadersInterceptor(headers)
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
                 WattsMetric wattsResponse = wattsStubWithHeaders.getWatts(request);
                 double currentWatts = wattsResponse.getLastWatts();
@@ -411,7 +412,7 @@ public class GrpcTreadmillService {
             // Fetch resistance
             try {
                 ResistanceServiceGrpc.ResistanceServiceBlockingStub resistanceStubWithHeaders = resistanceStub.withInterceptors(
-                        io.grpc.stub.MetadataUtils.newAttachHeadersInterceptor(headers)
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
                 ResistanceMetric resistanceResponse = resistanceStubWithHeaders.getResistance(request);
                 currentResistance = resistanceResponse.getLastResistance();
@@ -429,7 +430,7 @@ public class GrpcTreadmillService {
             // Fetch cadence
             try {
                 CadenceServiceGrpc.CadenceServiceBlockingStub cadenceStubWithHeaders = cadenceStub.withInterceptors(
-                        io.grpc.stub.MetadataUtils.newAttachHeadersInterceptor(headers)
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
                 CadenceMetric cadenceResponse = cadenceStubWithHeaders.getCadence(request);
                 double currentCadence = cadenceResponse.getLastStepsPerMinute();
