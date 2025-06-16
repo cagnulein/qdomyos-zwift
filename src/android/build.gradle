@@ -1,23 +1,21 @@
 buildscript {
     repositories {
         google()
-        mavenCentral()
         jcenter()
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.0'
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.17'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.4'
     }
 }
 
 plugins {
-  id "com.google.protobuf" version "0.8.17"
+  id "com.google.protobuf" version "0.9.4"
 }
 
 repositories {
     google()
-    mavenCentral()
     jcenter()
     maven { url 'https://jitpack.io' }
 }
@@ -26,129 +24,77 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.protobuf'
 
 def amazon = System.getenv('AMAZON')
-def nordictrack = System.getenv('NORDICTRACK')
 println(amazon)
-println(nordictrack)
-
-// Ultra-aggressive exclusion strategy
-configurations.all {
-    exclude group: 'com.google.protobuf', module: 'protobuf-java'
-    exclude group: 'com.google.protobuf', module: 'protobuf-lite'
-    
-    resolutionStrategy {
-        force 'com.google.protobuf:protobuf-javalite:3.19.4'
-        force 'io.grpc:grpc-core:1.45.1'
-        force 'io.grpc:grpc-okhttp:1.45.1'
-        force 'io.grpc:grpc-protobuf-lite:1.45.1'
-        force 'io.grpc:grpc-stub:1.45.1'
-        force 'androidx.core:core:1.12.0'
-        force 'androidx.appcompat:appcompat:1.3.1'
-        
-        eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group == 'com.google.protobuf') {
-                if (details.requested.name != 'protobuf-javalite') {
-                    details.useTarget group: 'com.google.protobuf', name: 'protobuf-javalite', version: '3.19.4'
-                    details.because 'Force single protobuf implementation'
-                }
-            }
-        }
-    }
-}
 
 dependencies {
     implementation "androidx.core:core:1.12.0"
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
-    
-    // Single protobuf implementation
-    implementation 'com.google.protobuf:protobuf-javalite:3.19.4'
-
-    // gRPC dependencies with complete exclusions
-    implementation('io.grpc:grpc-okhttp:1.45.1') {
-        exclude group: 'com.google.protobuf'
-    }
-    implementation('io.grpc:grpc-protobuf-lite:1.45.1') {
-        exclude group: 'com.google.protobuf'
-    }
-    implementation('io.grpc:grpc-stub:1.45.1') {
-        exclude group: 'com.google.protobuf'
-    }
-    
-    implementation 'javax.annotation:javax.annotation-api:1.3.2'
-
+    implementation 'com.google.protobuf:protobuf-javalite:3.25.1'
+		
     if(amazon == "1") {
-        implementation('com.google.mlkit:text-recognition:16.0.0-beta6') {
-            exclude group: 'com.google.protobuf'
-        }
-    } else if(nordictrack != "1") {
-        implementation('com.google.android.gms:play-services-mlkit-text-recognition:18.0.2') {
-            exclude group: 'com.google.protobuf'
-        }
+        // amazon app store
+        implementation 'com.google.mlkit:text-recognition:16.0.0-beta6'
+    } else {
+        // google play store
+        implementation 'com.google.android.gms:play-services-mlkit-text-recognition:18.0.2'
     }
 
-    implementation('com.google.android.play:core:1.8.2') {
-        exclude group: 'com.google.protobuf'
-    }
+    implementation 'com.google.android.play:core:1.8.2'
 
     def appcompat_version = "1.3.1"
-    
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-    
-    implementation("com.android.billingclient:billing:6.0.1") {
-        exclude group: 'com.google.protobuf'
-    }
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+         implementation "com.android.billingclient:billing:6.0.1"
+         implementation 'com.android.support:appcompat-v7:28.0.0'
 
-    implementation "androidx.appcompat:appcompat:$appcompat_version"
-    implementation "androidx.appcompat:appcompat-resources:$appcompat_version"
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-    
-    implementation files('libs/usb-serial-for-android-3.8.1.aar')
-    
-    androidTestImplementation "com.android.support:support-annotations:28.0.0"
-    
-    implementation('com.google.android.gms:play-services-wearable:+') {
-        exclude group: 'com.google.protobuf'
-    }
+         implementation "androidx.appcompat:appcompat:$appcompat_version"
+         implementation "androidx.appcompat:appcompat-resources:$appcompat_version"
+         implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+         implementation files('libs/usb-serial-for-android-3.8.1.aar')
+	 androidTestImplementation "com.android.support:support-annotations:28.0.0"
+	      implementation 'com.google.android.gms:play-services-wearable:+'
 
-    implementation('com.google.android.gms:play-services-base:18.2.0') {
-        exclude group: 'com.google.protobuf'
-    }
-    implementation('com.google.android.gms:play-services-tasks:18.0.2') {
-        exclude group: 'com.google.protobuf'
-    }
-    
     implementation 'com.jakewharton.timber:timber:5.0.1'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.60'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
 }
 
-// Protobuf configuration
+import org.apache.tools.ant.taskdefs.condition.Os
+
+// Compatible with macOS on Apple Silicon
+def archSuffix = Os.isFamily(Os.FAMILY_MAC) ? ':osx-x86_64' : ''
+
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.19.4"
-    }
-    plugins {
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.45.1"
-        }
+      artifact = "com.google.protobuf:protoc:3.25.1$archSuffix"
     }
     generateProtoTasks {
-        all()*.builtins {
-            java {
-                option "lite"
-            }
+      all().configureEach { task ->
+        task.builtins {
+          java {
+            option "lite"
+          }
         }
-        all()*.plugins {
-            grpc {
-                option "lite"
-            }
-        }
+      }
     }
 }
 
 android {
-    compileSdkVersion project.hasProperty('androidCompileSdkVersion') ? androidCompileSdkVersion.toInteger() : 33
+    /*******************************************************
+     * The following variables:
+     * - androidBuildToolsVersion,
+     * - androidCompileSdkVersion
+     * - qt5AndroidDir - holds the path to qt android files
+     *                   needed to build any Qt application
+     *                   on Android.
+     *
+     * are defined in gradle.properties file. This file is
+     * updated by QtCreator and androiddeployqt tools.
+     * Changing them manually might break the compilation!
+     *******************************************************/
+
+    compileSdkVersion androidCompileSdkVersion.toInteger()
+
     buildToolsVersion '29.0.2'
 
     compileOptions {
@@ -156,46 +102,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    packagingOptions {
-        pickFirst '**/META-INF/okio.kotlin_module'
-        pickFirst '**/META-INF/kotlinx-coroutines-core.kotlin_module'
-        pickFirst '**/META-INF/atomicfu.kotlin_module'
-        pickFirst '**/META-INF/kotlinx-coroutines-io.kotlin_module'
-        pickFirst '**/META-INF/kotlinx-io.kotlin_module'
-        pickFirst '**/META-INF/kotlinx-coroutines-debug.kotlin_module'
-        
-        // Extreme exclusion of protobuf at packaging level
-        exclude '**/com/google/protobuf/Any.class'
-        exclude '**/com/google/protobuf/Any\$*.class'
-        exclude '**/com/google/protobuf/**'
-        exclude '**/google/protobuf/**'
-        exclude '**/*.proto'
-        
-        exclude 'META-INF/INDEX.LIST'
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-    }
-
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = [
-                project.hasProperty('qt5AndroidDir') ? qt5AndroidDir + '/src' : 'qt-src',
-                'src', 
-                'java'
-            ]
-            aidl.srcDirs = [
-                project.hasProperty('qt5AndroidDir') ? qt5AndroidDir + '/src' : 'qt-src',
-                'src', 
-                'aidl'
-            ]
-            res.srcDirs = [
-                project.hasProperty('qt5AndroidDir') ? qt5AndroidDir + '/res' : 'qt-res',
-                'res'
-            ]
+            java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
+            aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
+            res.srcDirs = [qt5AndroidDir + '/res', 'res']
             resources.srcDirs = ['resources']
             renderscript.srcDirs = ['src']
             assets.srcDirs = ['assets']
@@ -205,43 +117,19 @@ android {
 
     lintOptions {
         abortOnError false
-        checkReleaseBuilds false
+		  checkReleaseBuilds false
     }
 
+    // Do not compress Qt binary resources file
     aaptOptions {
         noCompress 'rcc'
     }
 
     defaultConfig {
         resConfig "en"
-        compileSdkVersion 33
-        minSdkVersion = 21
-        targetSdkVersion = 34
-        multiDexEnabled true
-    }
-
-    dexOptions {
-        preDexLibraries = false
-        javaMaxHeapSize "4g"
-        jumboMode = true
-    }
-
-    // Simple approach: Clean entire dex directories before merge
-    applicationVariants.all { variant ->
-        def cleanProjectDexTask = task("cleanProjectDex${variant.name.capitalize()}") {
-            doLast {
-                println "Cleaning project dex directory for ${variant.name}"
-                def projectDexDir = file("${buildDir}/intermediates/project_dex_archive/${variant.name}/out")
-                if (projectDexDir.exists()) {
-                    delete projectDexDir
-                    projectDexDir.mkdirs()
-                    println "Project dex directory cleaned: ${projectDexDir.path}"
-                }
-            }
-        }
-        
-        tasks.findByName("mergeDex${variant.name.capitalize()}")?.dependsOn(cleanProjectDexTask)
-        tasks.findByName("mergeExtDex${variant.name.capitalize()}")?.dependsOn(cleanProjectDexTask)
+                  compileSdkVersion 33
+		  minSdkVersion = 21
+                  targetSdkVersion = 34
     }
 
 tasks.all { task ->
@@ -251,6 +139,7 @@ tasks.all { task ->
         }
 }
 }
+
 
 task copyArm64Directory(type: Copy) {
     from "libs/arm64-v8a/"
