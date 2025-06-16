@@ -22,6 +22,7 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     ergModeSupported = true; // IMPORTANT, only for this bike
 
     m_watt.setType(metric::METRIC_WATT);
+    m_rawWatt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -30,11 +31,24 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &wahookickrsnapbike::update);
-    refresh->start(200ms);
+    QSettings settings;
+    refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
+    wheelCircumference::GearTable g;
+    g.printTable();
+}
+
+void wahookickrsnapbike::restoreDefaultWheelDiameter() {
+    // Default wheel circumference is 2070 (700 x 18C)
+    QByteArray a = setWheelCircumference(2070);
+    uint8_t b[20];
+    memcpy(b, a.constData(), a.length());
+    writeCharacteristic(b, a.length(), "setWheelCircumference (restore default)", false, true);
+    emit debug("Restored default wheel diameter (2070mm) to trainer");
 }
 
 bool wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
                                              bool wait_for_response) {
+#ifndef Q_OS_IOS
     QEventLoop loop;
     QTimer timeout;
 
@@ -52,18 +66,27 @@ bool wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QS
                 SLOT(quit()));
         timeout.singleShot(1000, &loop, SLOT(quit()));
     }
+#endif
 
     if (writeBuffer) {
         delete writeBuffer;
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    iOS_wahooKickrSnapBike->writeCharacteristic((unsigned char*)writeBuffer->data(), data_len);
+#endif
+#else
     gattPowerChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+#endif
 
     if (!disable_log)
         debug(" >> " + writeBuffer->toHex(' ') + " // " + info);
 
+#ifndef Q_OS_IOS
     loop.exec();
+#endif
 
     return true;
 }
@@ -97,6 +120,7 @@ QByteArray wahookickrsnapbike::setErgMode(uint16_t watts) {
     r.append(_setErgMode);
     r.append((uint8_t)(watts & 0xFF));
     r.append((uint8_t)(watts >> 8 & 0xFF));
+    lastCommandErgMode = true;
     return r;
     // response: 0x01 0x42 0x01 0x00 watts1 watts2
 }
@@ -169,12 +193,15 @@ QByteArray wahookickrsnapbike::setWheelCircumference(double millimeters) {
 }
 
 void wahookickrsnapbike::update() {
+#ifndef Q_OS_IOS
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
     }
+#endif
 
     if (initRequest) {
+        lastCommandErgMode = false;
         QSettings settings;
         QByteArray a = unlockCommand();
         uint8_t b[20];
@@ -196,8 +223,14 @@ void wahookickrsnapbike::update() {
         Resistance = 0;
         emit resistanceRead(Resistance.value());
         initRequest = false;
-    } else if (bluetoothDevice.isValid() &&
-               m_control->state() == QLowEnergyController::DiscoveredState //&&
+    } else if (
+#ifndef Q_OS_IOS
+               bluetoothDevice.isValid() &&
+               m_control->state() == QLowEnergyController::DiscoveredState
+#else
+               1
+#endif
+               //&&
                                                                            // gattCommunicationChannelService &&
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
@@ -217,6 +250,7 @@ void wahookickrsnapbike::update() {
             bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                                      .toString()
                                      .startsWith(QStringLiteral("Disabled"));
+            
             QByteArray a = setErgMode(requestPower);
             uint8_t b[20];
             memcpy(b, a.constData(), a.length());
@@ -340,15 +374,19 @@ uint16_t wahookickrsnapbike::wattsFromResistance(double resistance) {
 
 void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                                const QByteArray &newValue) {
+    handleCharacteristicValueChanged(characteristic.uuid(), newValue);
+}
+
+void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &uuid, const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
-    Q_UNUSED(characteristic);
+
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
-    qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << characteristic.uuid();
+    qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << uuid;
 
-    if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
+    if (uuid == QBluetoothUuid::CyclingPowerMeasurement) {
         lastPacket = newValue;
 
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
@@ -359,7 +397,11 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
         uint8_t index = 4;
 
         if (newValue.length() > 3) {
-            m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+            m_rawWatt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled")))
+                m_watt = m_rawWatt.value();
         }
 
         emit powerChanged(m_watt.value());
@@ -426,9 +468,8 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                 deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
             }
 
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled"))) {
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString().startsWith(QStringLiteral("Disabled")) && 
+                    settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name).toString().startsWith(QStringLiteral("Disabled"))) {
                 if (CrankRevs != oldCrankRevs && deltaT) {
                     double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
                     if (!crank_rev_present)
@@ -554,9 +595,11 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
     emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
 
+#ifndef Q_OS_IOS
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
+#endif
 }
 
 void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
@@ -565,6 +608,7 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
+#ifndef Q_OS_IOS
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
         if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
@@ -643,6 +687,7 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
             }
         }
     }
+#endif
 
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice()
@@ -720,17 +765,32 @@ void wahookickrsnapbike::serviceScanDone(void) {
     m_control->requestConnectionUpdate(c);
 #endif
 
+#ifndef Q_OS_IOS
     auto services_list = m_control->services();
+    zwift_found = false;
+    wahoo_found = false;
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &wahookickrsnapbike::stateChanged);
         gattCommunicationChannelService.constLast()->discoverDetails();
-        if(s == QBluetoothUuid((quint16)0x1826)) {
-            qDebug() << "if it doesn't change the inclination, set the bike in the FTMS bike setting under the Bike settings.";
-            if(homeform::singleton())
-                homeform::singleton()->setToastRequested("if it doesn't change the inclination, set the bike in the FTMS bike setting under the Bike settings.");
+        if(s == QBluetoothUuid(QStringLiteral("00000001-19ca-4651-86e5-fa29dcdd09d1"))) {
+            zwift_found = true;
+        } else if(s == QBluetoothUuid(QStringLiteral("a026ee01-0a7d-4ab3-97fa-f1500f9feb8b"))) {
+            wahoo_found = true;
         }
+    }
+#endif
+    
+    qDebug() << "zwift service found " << zwift_found << "wahoo service found" << wahoo_found;
+
+    if(zwift_found && !wahoo_found) {
+        QSettings settings;
+        settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
+        settings.sync();
+            if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Zwift Hub device found, please restart the app to enjoy virtual gearing!");
+        return;
     }
 }
 
@@ -749,8 +809,6 @@ void wahookickrsnapbike::error(QLowEnergyController::Error err) {
 void wahookickrsnapbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    {
-        bluetoothDevice = device;
 
         if (device.name().toUpper().startsWith("WAHOO KICKR")) {
             WAHOO_KICKR = true;
@@ -758,7 +816,21 @@ void wahookickrsnapbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("KICKR BIKE")) {
             KICKR_BIKE = true;
             qDebug() << "KICKR BIKE workaround activated";
-        }
+    } else if(device.name().toUpper().startsWith("KICKR SNAP")) {
+        KICKR_SNAP = true;
+        qDebug() << "KICKR SNAP workaround activated";
+    }
+    
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    iOS_wahooKickrSnapBike = new lockscreen();
+    iOS_wahooKickrSnapBike->wahooKickrSnapBike(device.name().toStdString().c_str(), this);
+    return;
+#endif
+#endif
+
+    {
+        bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &wahookickrsnapbike::serviceDiscovered);
@@ -793,7 +865,12 @@ void wahookickrsnapbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 }
 
+// Modified connected method to handle iOS
 bool wahookickrsnapbike::connected() {
+#ifdef Q_OS_IOS
+    return true;
+#endif
+
     if (!m_control) {
         return false;
     }
