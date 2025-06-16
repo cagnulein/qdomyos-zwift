@@ -156,6 +156,11 @@ android {
                   targetSdkVersion = 34
     }
 
+    packagingOptions {
+        pickFirst '**/META-INF/okio.kotlin_module'
+        pickFirst '**/META-INF/*.kotlin_module'
+    }
+
 tasks.all { task ->
      if (task.name == 'compileDebugJavaWithJavac' && amazon == "1") {
         task.dependsOn copyArm64Directory
