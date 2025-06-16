@@ -6227,14 +6227,14 @@ void proformtreadmill::btinit() {
         QThread::msleep(sleepms);
         writeCharacteristic(initData31, sizeof(initData31), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
-        writeCharacteristic(initData32, sizeof(initData32), QStringLiteral("init"), false, false);
+        /*writeCharacteristic(initData32, sizeof(initData32), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
         writeCharacteristic(initData33, sizeof(initData33), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
         writeCharacteristic(initData34, sizeof(initData34), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
         writeCharacteristic(initData35, sizeof(initData35), QStringLiteral("init"), false, false);
-        QThread::msleep(sleepms);        
+        QThread::msleep(sleepms);   */     
      } else if (nordictrack_t65s_treadmill_81_miles) {
             uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
             uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
