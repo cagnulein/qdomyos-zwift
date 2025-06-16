@@ -232,7 +232,10 @@ resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
     if (power < wattsFromResistance(1))
         return 1;
     else
-        return max_resistance;
+        if(DU30_bike)
+            return max_resistance;
+        else
+            return _ergTable.getMaxResistance();
 }
 
 void ftmsbike::forceResistance(resistance_t requestResistance) {

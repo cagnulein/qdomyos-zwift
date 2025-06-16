@@ -250,4 +250,16 @@ class ergTable : public QObject {
     }
 };
 
+uint16_t getMaxResistance() const {
+    if (consolidatedData.isEmpty()) return 0;
+    
+    uint16_t maxRes = 0;
+    for (const auto& point : consolidatedData) {
+        if (point.resistance > maxRes) {
+            maxRes = point.resistance;
+        }
+    }
+    return maxRes;
+}
+
 #endif // ERGTABLE_H
