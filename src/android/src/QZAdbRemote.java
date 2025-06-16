@@ -101,19 +101,6 @@ public class QZAdbRemote implements DeviceConnectionListener {
 	 public AdbCrypto loadAdbCrypto(DeviceConnection devConn) {
 		  QLog.d(LOG_TAG, "loadAdbCrypto - START: devConn=" + devConn + ", context=" + _context);
 		  
-		  synchronized (cryptoLock) {
-			  if (!cryptoReady) {
-				  QLog.d(LOG_TAG, "loadAdbCrypto - WAITING: crypto not ready, waiting for generation");
-				  try {
-					  cryptoLock.wait(30000); // Wait up to 30 seconds
-				  } catch (InterruptedException e) {
-					  QLog.e(LOG_TAG, "loadAdbCrypto - INTERRUPTED: wait interrupted", e);
-					  Thread.currentThread().interrupt();
-					  return null;
-				  }
-			  }
-		  }
-		  
 		  AdbCrypto crypto = AdbUtils.readCryptoConfig(_context.getFilesDir());
 		  QLog.d(LOG_TAG, "loadAdbCrypto - RESULT: crypto=" + (crypto != null ? "valid" : "null"));
 		  return crypto;
@@ -215,29 +202,19 @@ public class QZAdbRemote implements DeviceConnectionListener {
 				QLog.i(LOG_TAG,
 				        "This will only be done once.");
 
-						new Thread(new Runnable() {
-					 @Override
-					 public void run() {
-						  AdbCrypto crypto;
-
-						  crypto = AdbUtils.writeNewCryptoConfig(_context.getFilesDir());
-
-						  synchronized (cryptoLock) {
-							  if (crypto == null)
-							  {
-								   QLog.e(LOG_TAG,
-									        "Unable to generate and save RSA key pair");
-											cryptoReady = false;
-											cryptoLock.notifyAll();
-											return;
-									}
-								QLog.d(LOG_TAG, "createConnection - CRYPTO_GENERATED: crypto keys generated successfully");
-								cryptoReady = true;
-								cryptoLock.notifyAll();
-						  }
-
-					 }
-				}).start();
+				QLog.d(LOG_TAG, "createConnection - GENERATING_CRYPTO: synchronously generating crypto keys");
+				crypto = AdbUtils.writeNewCryptoConfig(_context.getFilesDir());
+				
+				if (crypto == null) {
+					QLog.e(LOG_TAG, "Unable to generate and save RSA key pair");
+					cryptoReady = false;
+					return;
+				}
+				
+				QLog.d(LOG_TAG, "createConnection - CRYPTO_GENERATED: crypto keys generated successfully");
+				synchronized (cryptoLock) {
+					cryptoReady = true;
+				}
 			} else {
 				QLog.d(LOG_TAG, "createConnection - CRYPTO_EXISTS: marking crypto as ready");
 				synchronized (cryptoLock) {
