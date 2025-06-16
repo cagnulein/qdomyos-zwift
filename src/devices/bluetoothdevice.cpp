@@ -291,6 +291,9 @@ void bluetoothdevice::clearStats() {
     Cadence.clear(false);
     for(int i=0; i<maxHeartZone(); i++) {
         hrZonesSeconds[i].clear(false);
+    }
+    for(int i=0; i<maxHeatZone(); i++) {
+        heatZonesSeconds[i].clear(false);
     }    
 }
 
@@ -312,6 +315,9 @@ void bluetoothdevice::setPaused(bool p) {
     Cadence.setPaused(p);
     for(int i=0; i<maxHeartZone(); i++) {
         hrZonesSeconds[i].setPaused(p);
+    }
+    for(int i=0; i<maxHeatZone(); i++) {
+        heatZonesSeconds[i].setPaused(p);
     }    
 }
 
@@ -332,6 +338,9 @@ void bluetoothdevice::setLap() {
     Cadence.setLap(false);
     for(int i=0; i<maxHeartZone(); i++) {
         hrZonesSeconds[i].setLap(false);
+    }
+    for(int i=0; i<maxHeatZone(); i++) {
+        heatZonesSeconds[i].setLap(false);
     }    
 }
 
@@ -496,9 +505,39 @@ void bluetoothdevice::setHeartZone(double hz) {
     }
 }
 
+void bluetoothdevice::setHeatZone(double heatStrainIndex) {
+    // Determine heat zone based on Heat Strain Index values
+    uint8_t zone;
+    if (heatStrainIndex >= 0 && heatStrainIndex <= 1.99) {
+        zone = 1;
+    } else if (heatStrainIndex < 3.0) {
+        zone = 2;
+    } else if (heatStrainIndex < 7.0) {
+        zone = 3;
+    } else {
+        zone = 4;
+    }
+    
+    HeatZone = zone;
+    if(isPaused() == false && heatStrainIndex > 0) {
+        // Convert to 0-based index for array access
+        uint8_t zoneIndex = zone - 1;
+        if(zoneIndex < maxHeatZone()) {
+            heatZonesSeconds[zoneIndex].setValue(heatZonesSeconds[zoneIndex].value() + 1);
+        }
+    }
+}
+
 uint32_t bluetoothdevice::secondsForHeartZone(uint8_t zone) {
     if(zone < maxHeartZone()) {
        return hrZonesSeconds[zone].value();
+    }
+    return 0;
+}
+
+uint32_t bluetoothdevice::secondsForHeatZone(uint8_t zone) {
+    if(zone < maxHeatZone()) {
+       return heatZonesSeconds[zone].value();
     }
     return 0;
 }

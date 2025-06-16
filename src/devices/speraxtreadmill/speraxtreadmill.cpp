@@ -76,14 +76,443 @@ void speraxtreadmill::writeCharacteristic(const QLowEnergyCharacteristic charact
 }
 
 void speraxtreadmill::forceSpeed(double requestSpeed) {
-    /*QSettings settings;
-    uint8_t writeSpeed[] = {0x03, 0x00, 0x00, 0x00, 0x00, 0x28, 0x00};
+    // Convert km/h to internal speed value (multiply by 10 and convert to integer)
+    int speedValue = static_cast<int>(requestSpeed * 10);
 
-    writeSpeed[1] = (requestSpeed * 10);
-    writeSpeed[5] += writeSpeed[1];
+    uint8_t* writeSpeed = nullptr;
+    size_t frameSize = 0;
 
-    writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
-                        QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, false);*/
+    switch (speedValue) {
+    case 1: {
+        // Frame from pkt6905 (after discarding first 12 bytes)
+        static uint8_t frame0[] = {0xf5, 0x0b, 0x00, 0x15, 0x02, 0x01, 0x00, 0x56, 0xf0, 0x00, 0xfa};
+        writeSpeed = frame0;
+        frameSize = sizeof(frame0);
+        break;
+    }
+    case 2: {
+        // Frame from pkt6981 (after discarding first 12 bytes)
+        static uint8_t frame2[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x02, 0x00, 0xbe, 0x98, 0xfa};
+        writeSpeed = frame2;
+        frameSize = sizeof(frame2);
+        break;
+    }
+    case 3: {
+        // Frame from pkt6986 (after discarding first 12 bytes)
+        static uint8_t frame3[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x03, 0x00, 0x2b, 0x71, 0xfa};
+        writeSpeed = frame3;
+        frameSize = sizeof(frame3);
+        break;
+    }
+    case 4: {
+        // Frame from pkt7310 (after discarding first 12 bytes)
+        static uint8_t frame4[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x04, 0x00, 0x5e, 0x61, 0xfa};
+        writeSpeed = frame4;
+        frameSize = sizeof(frame4);
+        break;
+    }
+    case 5: {
+        // Frame from pkt7442 (after discarding first 12 bytes)
+        static uint8_t frame5[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x05, 0x00, 0xcb, 0x88, 0xfa};
+        writeSpeed = frame5;
+        frameSize = sizeof(frame5);
+        break;
+    }
+    case 6: {
+        // Frame from pkt7585 (after discarding first 12 bytes)
+        static uint8_t frame6[] = {0xf5, 0x0b, 0x00, 0x15, 0x01, 0x06, 0x00, 0x3b, 0xf0, 0x04, 0xfa};
+        writeSpeed = frame6;
+        frameSize = sizeof(frame6);
+        break;
+    }
+    case 7: {
+        // Frame from pkt7695 (after discarding first 12 bytes)
+        static uint8_t frame7[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x07, 0x00, 0xae, 0x1d, 0xfa};
+        writeSpeed = frame7;
+        frameSize = sizeof(frame7);
+        break;
+    }
+    case 8: {
+        // Frame from pkt7807 (after discarding first 12 bytes)
+        static uint8_t frame8[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x08, 0x00, 0xd1, 0xd4, 0xfa};
+        writeSpeed = frame8;
+        frameSize = sizeof(frame8);
+        break;
+    }
+    case 9: {
+        // Frame from pkt7964 (after discarding first 12 bytes)
+        static uint8_t frame9[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x09, 0x00, 0x44, 0x3d, 0xfa};
+        writeSpeed = frame9;
+        frameSize = sizeof(frame9);
+        break;
+    }
+    case 10: {
+        // Frame from pkt8084 (after discarding first 12 bytes)
+        static uint8_t frame10[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x0a, 0x00, 0xb4, 0x41, 0xfa};
+        writeSpeed = frame10;
+        frameSize = sizeof(frame10);
+        break;
+    }
+    case 11: {
+        // Frame from pkt8205 (after discarding first 12 bytes)
+        static uint8_t frame11[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x0b, 0x00, 0x21, 0xa8, 0xfa};
+        writeSpeed = frame11;
+        frameSize = sizeof(frame11);
+        break;
+    }
+    case 12: {
+        // Frame from pkt8341 (after discarding first 12 bytes)
+        static uint8_t frame12[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x0c, 0x00, 0x54, 0xb8, 0xfa};
+        writeSpeed = frame12;
+        frameSize = sizeof(frame12);
+        break;
+    }
+    case 13: {
+        // Frame from pkt8460 (after discarding first 12 bytes)
+        static uint8_t frame13[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x0d, 0x00, 0xc1, 0x51, 0xfa};
+        writeSpeed = frame13;
+        frameSize = sizeof(frame13);
+        break;
+    }
+    case 14: {
+        // Frame from pkt8589 (after discarding first 12 bytes)
+        static uint8_t frame14[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x0e, 0x00, 0x31, 0x2d, 0xfa};
+        writeSpeed = frame14;
+        frameSize = sizeof(frame14);
+        break;
+    }
+    case 15: {
+        // Frame from pkt8715 (after discarding first 12 bytes)
+        static uint8_t frame15[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x0f, 0x00, 0xa4, 0xc4, 0xfa};
+        writeSpeed = frame15;
+        frameSize = sizeof(frame15);
+        break;
+    }
+    case 16: {
+        // Frame from pkt8850 (after discarding first 12 bytes)
+        static uint8_t frame16[] = {0xf5, 0x0b, 0x00, 0x15, 0x01, 0x10, 0x00, 0x80, 0xf0, 0x09, 0xfa};
+        writeSpeed = frame16;
+        frameSize = sizeof(frame16);
+        break;
+    }
+    case 17: {
+        // Frame from pkt8977 (after discarding first 12 bytes)
+        static uint8_t frame17[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x11, 0x00, 0x15, 0x10, 0xfa};
+        writeSpeed = frame17;
+        frameSize = sizeof(frame17);
+        break;
+    }
+    case 18: {
+        // Frame from pkt9098 (after discarding first 12 bytes)
+        static uint8_t frame18[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x12, 0x00, 0xe5, 0x6c, 0xfa};
+        writeSpeed = frame18;
+        frameSize = sizeof(frame18);
+        break;
+    }
+    case 19: {
+        // Frame from pkt9202 (after discarding first 12 bytes)
+        static uint8_t frame19[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x13, 0x00, 0x70, 0x85, 0xfa};
+        writeSpeed = frame19;
+        frameSize = sizeof(frame19);
+        break;
+    }
+    case 20: {
+        // Frame from pkt9387 (after discarding first 12 bytes)
+        static uint8_t frame20[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x14, 0x00, 0x05, 0x95, 0xfa};
+        writeSpeed = frame20;
+        frameSize = sizeof(frame20);
+        break;
+    }
+    case 21: {
+        // Frame from pkt9622 (after discarding first 12 bytes)
+        static uint8_t frame21[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x15, 0x00, 0x90, 0x7c, 0xfa};
+        writeSpeed = frame21;
+        frameSize = sizeof(frame21);
+        break;
+    }
+    case 22: {
+        // Frame from pkt9711 (after discarding first 12 bytes)
+        static uint8_t frame22[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x16, 0x00, 0x60, 0x00, 0xfa};
+        writeSpeed = frame22;
+        frameSize = sizeof(frame22);
+        break;
+    }
+    case 23: {
+        // Frame from pkt9804 (after discarding first 12 bytes)
+        static uint8_t frame23[] = {0xf5, 0x0b, 0x00, 0x15, 0x01, 0x17, 0x00, 0xf0, 0x05, 0xe9, 0xfa};
+        writeSpeed = frame23;
+        frameSize = sizeof(frame23);
+        break;
+    }
+    case 24: {
+        // Frame from pkt9876 (after discarding first 12 bytes)
+        static uint8_t frame24[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x18, 0x00, 0x8a, 0x20, 0xfa};
+        writeSpeed = frame24;
+        frameSize = sizeof(frame24);
+        break;
+    }
+    case 25: {
+        // Frame from pkt9953 (after discarding first 12 bytes)
+        static uint8_t frame25[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x19, 0x00, 0x1f, 0xc9, 0xfa};
+        writeSpeed = frame25;
+        frameSize = sizeof(frame25);
+        break;
+    }
+    case 26: {
+        // Frame from pkt10062 (after discarding first 12 bytes)
+        static uint8_t frame26[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x1a, 0x00, 0xef, 0xb5, 0xfa};
+        writeSpeed = frame26;
+        frameSize = sizeof(frame26);
+        break;
+    }
+    case 27: {
+        // Frame from pkt10164 (after discarding first 12 bytes)
+        static uint8_t frame27[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x1b, 0x00, 0x7a, 0x5c, 0xfa};
+        writeSpeed = frame27;
+        frameSize = sizeof(frame27);
+        break;
+    }
+    case 28: {
+        // Frame from pkt10292 (after discarding first 12 bytes)
+        static uint8_t frame28[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x1c, 0x00, 0x0f, 0x4c, 0xfa};
+        writeSpeed = frame28;
+        frameSize = sizeof(frame28);
+        break;
+    }
+    case 29: {
+        // Frame from pkt10401 (after discarding first 12 bytes)
+        static uint8_t frame29[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x1d, 0x00, 0x9a, 0xa5, 0xfa};
+        writeSpeed = frame29;
+        frameSize = sizeof(frame29);
+        break;
+    }
+    case 30: {
+        // Frame from pkt10515 (after discarding first 12 bytes)
+        static uint8_t frame30[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x1e, 0x00, 0x6a, 0xd9, 0xfa};
+        writeSpeed = frame30;
+        frameSize = sizeof(frame30);
+        break;
+    }
+    case 31: {
+        // Frame from pkt10668 (after discarding first 12 bytes)
+        static uint8_t frame31[] = {0xf5, 0x0b, 0x00, 0x15, 0x01, 0x1f, 0x00, 0xf0, 0x0f, 0x30, 0xfa};
+        writeSpeed = frame31;
+        frameSize = sizeof(frame31);
+        break;
+    }
+    case 32: {
+        // Frame from pkt10756 (after discarding first 12 bytes)
+        static uint8_t frame32[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x20, 0x00, 0x22, 0xa3, 0xfa};
+        writeSpeed = frame32;
+        frameSize = sizeof(frame32);
+        break;
+    }
+    case 33: {
+        // Frame from pkt10815 (after discarding first 12 bytes)
+        static uint8_t frame33[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x21, 0x00, 0xb7, 0x4a, 0xfa};
+        writeSpeed = frame33;
+        frameSize = sizeof(frame33);
+        break;
+    }
+    case 34: {
+        // Frame from pkt10876 (after discarding first 12 bytes)
+        static uint8_t frame34[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x22, 0x00, 0x47, 0x36, 0xfa};
+        writeSpeed = frame34;
+        frameSize = sizeof(frame34);
+        break;
+    }
+    case 35: {
+        // Frame from pkt10950 (after discarding first 12 bytes)
+        static uint8_t frame35[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x23, 0x00, 0xd2, 0xdf, 0xfa};
+        writeSpeed = frame35;
+        frameSize = sizeof(frame35);
+        break;
+    }
+    case 36: {
+        // Frame from pkt10983 (after discarding first 12 bytes)
+        static uint8_t frame36[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x24, 0x00, 0xa7, 0xcf, 0xfa};
+        writeSpeed = frame36;
+        frameSize = sizeof(frame36);
+        break;
+    }
+    case 37: {
+        // Frame from pkt11032 (after discarding first 12 bytes)
+        static uint8_t frame37[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x25, 0x00, 0x32, 0x26, 0xfa};
+        writeSpeed = frame37;
+        frameSize = sizeof(frame37);
+        break;
+    }
+    case 38: {
+        // Frame from pkt11076 (after discarding first 12 bytes)
+        static uint8_t frame38[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x26, 0x00, 0xc2, 0x5a, 0xfa};
+        writeSpeed = frame38;
+        frameSize = sizeof(frame38);
+        break;
+    }
+    case 39: {
+        // Frame from pkt11122 (after discarding first 12 bytes)
+        static uint8_t frame39[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x27, 0x00, 0x57, 0xb3, 0xfa};
+        writeSpeed = frame39;
+        frameSize = sizeof(frame39);
+        break;
+    }
+    case 40: {
+        // Frame from pkt11163 (after discarding first 12 bytes)
+        static uint8_t frame40[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x28, 0x00, 0x28, 0x7a, 0xfa};
+        writeSpeed = frame40;
+        frameSize = sizeof(frame40);
+        break;
+    }
+    case 41: {
+        // Frame from pkt11225 (after discarding first 12 bytes)
+        static uint8_t frame41[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x29, 0x00, 0xbd, 0x93, 0xfa};
+        writeSpeed = frame41;
+        frameSize = sizeof(frame41);
+        break;
+    }
+    case 42: {
+        // Frame from pkt11273 (after discarding first 12 bytes)
+        static uint8_t frame42[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x2a, 0x00, 0x4d, 0xef, 0xfa};
+        writeSpeed = frame42;
+        frameSize = sizeof(frame42);
+        break;
+    }
+    case 43: {
+        // Frame from pkt11330 (after discarding first 12 bytes)
+        static uint8_t frame43[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x2b, 0x00, 0xd8, 0x06, 0xfa};
+        writeSpeed = frame43;
+        frameSize = sizeof(frame43);
+        break;
+    }
+    case 44: {
+        // Frame from pkt11385 (after discarding first 12 bytes)
+        static uint8_t frame44[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x2c, 0x00, 0xad, 0x16, 0xfa};
+        writeSpeed = frame44;
+        frameSize = sizeof(frame44);
+        break;
+    }
+    case 45: {
+        // Frame from pkt11435 (after discarding first 12 bytes)
+        static uint8_t frame45[] = {0xf5, 0x0b, 0x00, 0x15, 0x01, 0x2d, 0x00, 0x38, 0xf0, 0x0f, 0xfa};
+        writeSpeed = frame45;
+        frameSize = sizeof(frame45);
+        break;
+    }
+    case 46: {
+        // Frame from pkt11483 (after discarding first 12 bytes)
+        static uint8_t frame46[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x2e, 0x00, 0xc8, 0x83, 0xfa};
+        writeSpeed = frame46;
+        frameSize = sizeof(frame46);
+        break;
+    }
+    case 47: {
+        // Frame from pkt11541 (after discarding first 12 bytes)
+        static uint8_t frame47[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x2f, 0x00, 0x5d, 0x6a, 0xfa};
+        writeSpeed = frame47;
+        frameSize = sizeof(frame47);
+        break;
+    }
+    case 48: {
+        // Frame from pkt11591 (after discarding first 12 bytes)
+        static uint8_t frame48[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x30, 0x00, 0x79, 0x57, 0xfa};
+        writeSpeed = frame48;
+        frameSize = sizeof(frame48);
+        break;
+    }
+    case 49: {
+        // Frame from pkt11631 (after discarding first 12 bytes)
+        static uint8_t frame49[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x31, 0x00, 0xec, 0xbe, 0xfa};
+        writeSpeed = frame49;
+        frameSize = sizeof(frame49);
+        break;
+    }
+    case 50: {
+        // Frame from pkt11698 (after discarding first 12 bytes)
+        static uint8_t frame50[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x32, 0x00, 0x1c, 0xc2, 0xfa};
+        writeSpeed = frame50;
+        frameSize = sizeof(frame50);
+        break;
+    }
+    case 51: {
+        // Frame from pkt11777 (after discarding first 12 bytes)
+        static uint8_t frame51[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x33, 0x00, 0x89, 0x2b, 0xfa};
+        writeSpeed = frame51;
+        frameSize = sizeof(frame51);
+        break;
+    }
+    case 52: {
+        // Frame from pkt11856 (after discarding first 12 bytes)
+        static uint8_t frame52[] = {0xf5, 0x0b, 0x00, 0x15, 0x01, 0x34, 0x00, 0xf0, 0x0c, 0x3b, 0xfa};
+        writeSpeed = frame52;
+        frameSize = sizeof(frame52);
+        break;
+    }
+    case 53: {
+        // Frame from pkt11922 (after discarding first 12 bytes)
+        static uint8_t frame53[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x35, 0x00, 0x69, 0xd2, 0xfa};
+        writeSpeed = frame53;
+        frameSize = sizeof(frame53);
+        break;
+    }
+    case 54: {
+        // Frame from pkt11979 (after discarding first 12 bytes)
+        static uint8_t frame54[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x36, 0x00, 0x99, 0xae, 0xfa};
+        writeSpeed = frame54;
+        frameSize = sizeof(frame54);
+        break;
+    }
+    case 55: {
+        // Frame from pkt12042 (after discarding first 12 bytes)
+        static uint8_t frame55[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x37, 0x00, 0x0c, 0x47, 0xfa};
+        writeSpeed = frame55;
+        frameSize = sizeof(frame55);
+        break;
+    }
+    case 56: {
+        // Frame from pkt12093 (after discarding first 12 bytes)
+        static uint8_t frame56[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x38, 0x00, 0x73, 0x8e, 0xfa};
+        writeSpeed = frame56;
+        frameSize = sizeof(frame56);
+        break;
+    }
+    case 57: {
+        // Frame from pkt12163 (after discarding first 12 bytes)
+        static uint8_t frame57[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x39, 0x00, 0xe6, 0x67, 0xfa};
+        writeSpeed = frame57;
+        frameSize = sizeof(frame57);
+        break;
+    }
+    case 58: {
+        // Frame from pkt12216 (after discarding first 12 bytes)
+        static uint8_t frame58[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x3a, 0x00, 0x16, 0x1b, 0xfa};
+        writeSpeed = frame58;
+        frameSize = sizeof(frame58);
+        break;
+    }
+    case 59: {
+        // Frame from pkt12268 (after discarding first 12 bytes)
+        static uint8_t frame59[] = {0xf5, 0x0b, 0x00, 0x15, 0x01, 0x3b, 0x00, 0x83, 0xf0, 0x02, 0xfa};
+        writeSpeed = frame59;
+        frameSize = sizeof(frame59);
+        break;
+    }
+    case 60: {
+        // Frame from pkt12316 (after discarding first 12 bytes)
+        static uint8_t frame60[] = {0xf5, 0x0b, 0x00, 0x15, 0x01, 0x3c, 0x00, 0xf0, 0x06, 0xe2, 0xfa};
+        writeSpeed = frame60;
+        frameSize = sizeof(frame60);
+        break;
+    }
+    default:
+        qDebug() << "no frame to send";
+        return;
+    }
+
+    // Send the appropriate frame to the treadmill
+    if (writeSpeed != nullptr) {
+        writeCharacteristic(gattWriteCharacteristic, writeSpeed, frameSize,
+                            QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, false);
+    }
 }
 
 void speraxtreadmill::forceIncline(double requestIncline) {
@@ -176,11 +605,16 @@ void speraxtreadmill::update() {
 
                 requestStart = -1;
                 emit tapeStarted();
+
+                uint8_t start[] = {0xf5, 0x0a, 0x00, 0x15, 0x01, 0x02, 0x00, 0xbe, 0x98, 0xfa};
+                writeCharacteristic(gattWriteCharacteristic, start, sizeof(start), QStringLiteral("start"), false, false);
             }
             else if (requestStop != -1) {
                 emit debug(QStringLiteral("stopping... ") + paused);              
 
                 requestStop = -1;
+                uint8_t stop[] = {0xf5, 0x0a, 0x00, 0x15, 0x00, 0x00, 0x00, 0xd3, 0x01, 0xfa};
+                writeCharacteristic(gattWriteCharacteristic, stop, sizeof(stop), QStringLiteral("noop"), false, false);
             } else {
                 uint8_t noop[] = {0xf5, 0x08, 0x00, 0x19, 0xf0, 0x0a, 0x59, 0xfa};
                 writeCharacteristic(gattWriteCharacteristic, noop, sizeof(noop), QStringLiteral("noop"), false, false);
