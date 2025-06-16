@@ -38,11 +38,10 @@ dependencies {
         exclude group: 'io.grpc', module: 'grpc-protobuf'
     }
     implementation('io.grpc:grpc-protobuf-lite:1.63.0') {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'com.google.protobuf', module: 'protobuf-java-util'
+        exclude group: 'com.google.protobuf'
     }
     implementation('io.grpc:grpc-stub:1.63.0') {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.protobuf'
     }
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
 		
