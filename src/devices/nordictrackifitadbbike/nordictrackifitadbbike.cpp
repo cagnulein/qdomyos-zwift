@@ -945,3 +945,4 @@ void nordictrackifitadbbike::setGrpcResistance(double resistance) {
     }
 #endif
 }
+
