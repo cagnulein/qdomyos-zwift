@@ -3002,7 +3002,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
          (newValue.at(4) != 0x02 || newValue.at(5) != 0x2e)) ||
 
         ((nordictrack_elite_800) &&
-         (newValue.at(4) != 0x02 || newValue.at(5) != 0x2f)) ||
+         ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF) ||
 
         (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
          ((uint8_t)newValue.at(14)) == 0xFF && ((uint8_t)newValue.at(15)) == 0xFF &&
