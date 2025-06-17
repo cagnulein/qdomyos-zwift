@@ -1096,6 +1096,7 @@ DISTFILES += \
    android/src/com/cgutman/androidremotedebugger/ui/SpinnerDialog.java \
 	android/src/com/dsi/ant/channel/PredefinedNetwork.java \
     android/gradle.properties \
+    android/proguard-rules.pro \
 	android/src/org/qtproject/qt/android/purchasing/Security.java \
 	android/src/org/qtproject/qt/android/purchasing/InAppPurchase.java \
 	android/src/org/qtproject/qt/android/purchasing/Base64.java \
