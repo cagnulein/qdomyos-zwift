@@ -36,6 +36,10 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
     QString nordictrack_2950_ip =
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+    bool fake_bike =
+        settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
+    bool fake_treadmill =
+    settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
 
     if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() && !pelotonBike) {
         pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
@@ -47,6 +51,28 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         }
         // this signal is not associated to anything in this moment, since the homeform is not loaded yet
         this->signalBluetoothDeviceConnected(pelotonBike);
+    } else if (fake_bike) {
+        fakeBike = new fakebike(noWriteResistance, noHeartService, false);
+        emit deviceConnected(QBluetoothDeviceInfo());
+        connect(fakeBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+        connect(fakeBike, &fakebike::debug, this, &bluetooth::debug);
+        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+            emit searchingStop();
+        }
+        // this signal is not associated to anything in this moment, since the homeform is not loaded yet
+        this->signalBluetoothDeviceConnected(fakeBike);
+        return;
+    } else if (fake_treadmill) {
+        fakeTreadmill = new faketreadmill(noWriteResistance, noHeartService, false);
+        emit deviceConnected(QBluetoothDeviceInfo());
+        connect(fakeTreadmill, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+        connect(fakeTreadmill, &faketreadmill::debug, this, &bluetooth::debug);
+        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+            emit searchingStop();
+        }
+        // this signal is not associated to anything in this moment, since the homeform is not loaded yet
+        this->signalBluetoothDeviceConnected(fakeBike);
+        return;
     }
 
 #ifdef TEST
