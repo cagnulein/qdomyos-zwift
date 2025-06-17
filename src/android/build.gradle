@@ -26,21 +26,13 @@ apply plugin: 'com.google.protobuf'
 def amazon = System.getenv('AMAZON')
 println(amazon)
 
-// ADD THIS: Global dependency resolution strategy to prevent protobuf conflicts
 configurations.all {
     resolutionStrategy {
-        // Force only protobuf-lite version
-        force 'com.google.protobuf:protobuf-javalite:3.25.3'
-        
-        // Exclude all full protobuf variants globally
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'com.google.protobuf', module: 'protobuf-java-util'
-        exclude group: 'com.google.protobuf', module: 'protobuf-kotlin'
-        exclude group: 'com.google.protobuf', module: 'protobuf-kotlin-lite'
-        
-        // Exclude problematic gRPC modules that bring in full protobuf
-        exclude group: 'io.grpc', module: 'grpc-protobuf'
-        exclude group: 'com.google.api.grpc'
+        force 'com.google.protobuf:protobuf-javalite:3.25.1'
+        force 'io.grpc:grpc-okhttp:1.57.2'
+        force 'io.grpc:grpc-protobuf-lite:1.57.2' 
+        force 'io.grpc:grpc-stub:1.57.2'
+        force 'io.grpc:grpc-core:1.57.2'
     }
 }
 
