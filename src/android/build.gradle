@@ -21,7 +21,7 @@ repositories {
 }
 
 apply plugin: 'com.android.application'
-//apply plugin: 'com.google.protobuf'
+apply plugin: 'com.google.protobuf'
 
 def amazon = System.getenv('AMAZON')
 println(amazon)
@@ -44,7 +44,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
     
     // FIXED: Una sola versione di protobuf-javalite
-    //implementation 'com.google.protobuf:protobuf-javalite:3.25.3'
+    implementation 'com.google.protobuf:protobuf-javalite:3.25.3'
     
     // FIXED: gRPC dependencies con esclusioni corrette - NON escludere protobuf-javalite
     implementation('io.grpc:grpc-okhttp:1.63.0') {
@@ -111,6 +111,31 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 // Compatible with macOS on Apple Silicon
 def archSuffix = Os.isFamily(Os.FAMILY_MAC) ? ':osx-x86_64' : ''
+
+protobuf {
+    protoc {
+      artifact = "com.google.protobuf:protoc:3.25.3$archSuffix"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.63.0"
+        }
+    }
+    generateProtoTasks {
+      all().configureEach { task ->
+        task.builtins {
+          java {
+            option "lite"
+          }
+        }
+        task.plugins {
+            grpc {
+                option "lite"
+            }
+        }
+      }
+    }
+}
 
 android {
     /*******************************************************
