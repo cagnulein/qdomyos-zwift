@@ -26,21 +26,11 @@ apply plugin: 'com.google.protobuf'
 def amazon = System.getenv('AMAZON')
 println(amazon)
 
-// ADD THIS: Global dependency resolution strategy to prevent protobuf conflicts
+// SEMPLIFICATO: Rimuovi la configurazione globale aggressiva per ora
 configurations.all {
     resolutionStrategy {
-        // Force only protobuf-lite version
-        force 'com.google.protobuf:protobuf-javalite:3.25.3'
-        
-        // Exclude all full protobuf variants globally
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'com.google.protobuf', module: 'protobuf-java-util'
-        exclude group: 'com.google.protobuf', module: 'protobuf-kotlin'
-        exclude group: 'com.google.protobuf', module: 'protobuf-kotlin-lite'
-        
-        // Exclude problematic gRPC modules that bring in full protobuf
-        exclude group: 'io.grpc', module: 'grpc-protobuf'
-        exclude group: 'com.google.api.grpc'
+        // Usa solo la versione che funzionava
+        force 'com.google.protobuf:protobuf-javalite:3.25.1'
     }
 }
 
@@ -49,33 +39,23 @@ dependencies {
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
     
-    // ONLY protobuf-lite - no other protobuf variants
-    implementation 'com.google.protobuf:protobuf-javalite:3.25.3'
+    // CAMBIATO: Usa la stessa versione del gradle.kts funzionante
+    implementation 'com.google.protobuf:protobuf-javalite:3.25.1'
     
-    // gRPC dependencies with comprehensive exclusions
-    implementation('io.grpc:grpc-okhttp:1.63.0') {
-        exclude group: 'com.google.protobuf'
-        exclude group: 'io.grpc', module: 'grpc-protobuf'
-    }
-    implementation('io.grpc:grpc-protobuf-lite:1.63.0') {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'com.google.protobuf', module: 'protobuf-java-util'
-    }
-    implementation('io.grpc:grpc-stub:1.63.0') {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-    }
-    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+    // RIMOSSO: Non includere gRPC qui, aggiungilo solo se necessario
+    // implementation('io.grpc:grpc-okhttp:1.63.0') { ... }
+    // implementation('io.grpc:grpc-protobuf-lite:1.63.0') { ... }
+    // implementation('io.grpc:grpc-stub:1.63.0') { ... }
+    // implementation 'javax.annotation:javax.annotation-api:1.3.2'
 		
     if(amazon == "1") {
-        // amazon app store
+        // amazon app store - exclude protobuf to prevent conflicts
         implementation('com.google.mlkit:text-recognition:16.0.0-beta6') {
-            // ML Kit might bring in full protobuf, exclude it
             exclude group: 'com.google.protobuf', module: 'protobuf-java'
         }
     } else {
-        // google play store
+        // google play store - exclude protobuf to prevent conflicts
         implementation('com.google.android.gms:play-services-mlkit-text-recognition:18.0.2') {
-            // Play Services might bring in full protobuf, exclude it
             exclude group: 'com.google.protobuf', module: 'protobuf-java'
         }
     }
@@ -106,13 +86,14 @@ def archSuffix = Os.isFamily(Os.FAMILY_MAC) ? ':osx-x86_64' : ''
 
 protobuf {
     protoc {
-      artifact = "com.google.protobuf:protoc:3.25.3$archSuffix"
+      artifact = "com.google.protobuf:protoc:3.25.1$archSuffix"
     }
-    plugins {
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.63.0"
-        }
-    }
+    // RIMOSSO: Non configurare gRPC se non lo usi ancora
+    // plugins {
+    //     grpc {
+    //         artifact = "io.grpc:protoc-gen-grpc-java:1.63.0"
+    //     }
+    // }
     generateProtoTasks {
       all().configureEach { task ->
         task.builtins {
@@ -120,11 +101,12 @@ protobuf {
             option "lite"
           }
         }
-        task.plugins {
-            grpc {
-                option "lite"
-            }
-        }
+        // RIMOSSO: Plugin gRPC non necessario per ora
+        // task.plugins {
+        //     grpc {
+        //         option "lite"
+        //     }
+        // }
       }
     }
 }
@@ -181,36 +163,19 @@ android {
         minSdkVersion = 21
         targetSdkVersion = 34
         multiDexEnabled true
+        
+        // NUOVO: Aggiungi dexOptions per gestire meglio i conflitti
+        dexOptions {
+            javaMaxHeapSize "4g"
+            preDexLibraries false
+        }
     }
 
-    // IMPROVED: Enhanced packaging options to handle all conflicts
+    // SEMPLIFICATO: packagingOptions di base
     packagingOptions {
-        // EXCLUDE problematic META-INF files instead of pickFirst to avoid collisions
-        exclude 'META-INF/MANIFEST.MF'
-        exclude 'META-INF/INDEX.LIST'
-        exclude 'META-INF/io.netty.versions.properties'
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/AL2.0'
-        exclude 'META-INF/LGPL2.1'
-        
-        // Keep pickFirst only for files that are actually needed
-        pickFirst '**/META-INF/okio.kotlin_module'
-        pickFirst '**/META-INF/*.kotlin_module'
-        
-        // Handle duplicate protobuf classes - this is crucial for your error
+        // Risolvi solo il conflitto specifico delle classi protobuf
         pickFirst '**/com/google/protobuf/**'
-        
-        // Handle native libraries
-        pickFirst '**/libprotobuf-lite.so'
-        pickFirst '**/libprotoc.so'
-        
-        // Additional common conflicts
-        pickFirst '**/META-INF/services/**'
-        pickFirst '**/kotlin/**'
+        pickFirst '**/META-INF/*.kotlin_module'
     }
 
     tasks.all { task ->
