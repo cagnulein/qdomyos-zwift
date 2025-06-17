@@ -36,6 +36,8 @@ configurations.all {
         force 'io.grpc:grpc-stub:1.63.0'
         force 'io.grpc:grpc-core:1.63.0'
     }
+    // Exclude full protobuf from ALL dependencies
+    exclude group: 'com.google.protobuf', module: 'protobuf-java'
 }
 
 dependencies {
@@ -135,6 +137,9 @@ protobuf {
         }
       }
     }
+    
+    // Configure where generated classes are placed
+    generatedFilesBaseDir = "$projectDir/src/generated"
 }
 
 android {
@@ -176,7 +181,7 @@ android {
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
+            java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java', 'src/generated/main/java']
             aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
             res.srcDirs = [qt5AndroidDir + '/res', 'res']
             resources.srcDirs = ['resources']
