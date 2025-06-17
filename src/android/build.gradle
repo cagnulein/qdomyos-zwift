@@ -30,7 +30,7 @@ dependencies {
     implementation "androidx.core:core:1.12.0"
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
-    implementation 'com.google.protobuf:protobuf-javalite:3.25.1'
+    implementation 'com.google.protobuf:protobuf-javalite:3.25.3'
     
     // gRPC dependencies
     implementation('io.grpc:grpc-okhttp:1.63.0') {
@@ -79,7 +79,7 @@ def archSuffix = Os.isFamily(Os.FAMILY_MAC) ? ':osx-x86_64' : ''
 
 protobuf {
     protoc {
-      artifact = "com.google.protobuf:protoc:3.25.1$archSuffix"
+      artifact = "com.google.protobuf:protoc:3.25.3$archSuffix"
     }
     plugins {
         grpc {
