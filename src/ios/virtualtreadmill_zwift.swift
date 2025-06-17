@@ -36,7 +36,7 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
         return peripheralManager.PowerRequested;
     }
     
-    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16, currentInclination: UInt16, currentDistance: UInt64) -> Bool
+    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16, currentInclination: UInt16, currentDistance: UInt64, elapsedTimeSeconds: UInt16) -> Bool
     {
         peripheralManager.NormalizeSpeed = normalizeSpeed
         peripheralManager.CurrentCadence = currentCadence
@@ -44,7 +44,7 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
         peripheralManager.CurrentWatt = currentWatt
         peripheralManager.CurrentInclination = currentInclination
         peripheralManager.CurrentDistance = currentDistance
-
+	peripheralManager.ElapsedTimeSeconds = elapsedTimeSeconds
         return peripheralManager.connected;
     }
 }
@@ -73,6 +73,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     public var CurrentWatt: UInt16! = 0
     public var CurrentInclination: UInt16! = 0
     public var CurrentDistance: UInt64! = 0
+    public var ElapsedTimeSeconds: UInt16! = 0
     public var lastCurrentSlope: UInt64! = 0;
     
     public var serviceToggle: UInt8 = 0
@@ -327,14 +328,15 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
 
     func calculateTreadmillData() -> Data {
         let flags0:UInt8 = 0x0C
-        let flags1:UInt8 = 0x01
-      
-        var treadmillData: [UInt8] = [flags0, flags1, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
+        let flagsMSO:UInt8 = 0x05 // HR (bit 0 of MSO) | ElapsedTime (bit 2 of MSO)      
+
+        var treadmillData: [UInt8] = [flags0, flagsMSO, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
                                       (UInt8)(self.CurrentDistance & 0xFF), (UInt8)((self.CurrentDistance >> 8) & 0xFF), (UInt8)((self.CurrentDistance >> 16) & 0xFF),
                                       (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
                                       (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
-                                      self.heartRate]
-      let treadmillDataData = Data(bytes: &treadmillData, count: 13)
+                                      self.heartRate,
+				      (UInt8)(self.ElapsedTimeSeconds & 0xFF), (UInt8)((self.ElapsedTimeSeconds >> 8) & 0xFF)]
+      let treadmillDataData = Data(bytes: &treadmillData, count: treadmillData.count)
       return treadmillDataData
     }
 

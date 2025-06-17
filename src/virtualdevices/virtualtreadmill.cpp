@@ -541,16 +541,44 @@ void virtualtreadmill::treadmillProvider() {
               inclination -= offset;
               inclination /= gain;
         }
-        uint16_t normalizeSpeed = (uint16_t)qRound(treadMill->currentSpeed().value() * 100);
-        // really connected to a device
-        if (h->virtualtreadmill_updateFTMS(
-                normalizeSpeed, 0, (uint16_t)((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier,
-                (uint16_t)((treadmill *)treadMill)->wattsMetric().value(),
-                inclination * 10, (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0))) {
-            h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
-            lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
-            if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
-                writeP2AD9->changeSlope(h->virtualtreadmill_getCurrentSlope(), 0, 0);
+    uint16_t normalizeSpeed = (uint16_t)qRound(treadMill->currentSpeed().value() * 100);
+
+    // really connected to a device
+    //if (h->virtualtreadmill_updateFTMS(
+    //        normalizeSpeed, 0, (uint16_t)((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier,
+    //        (uint16_t)((treadmill *)treadMill)->wattsMetric().value(),
+    //        inclination * 10, (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0))) {
+    //    h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
+    //    lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
+
+    uint16_t swiftSpeed = normalizeSpeed;
+    uint16_t swiftCadence = (uint16_t)(((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier);
+    uint8_t swiftResistance = 0;
+    uint16_t swiftWatt = (uint16_t)((treadmill *)treadMill)->wattsMetric().value();
+    uint16_t swiftInclination = (uint16_t)(inclination * 10.0);
+    uint64_t swiftDistance = (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0);
+
+    // Calculate Elapsed Time to pass
+    QTime swift_elapsed = treadMill->elapsedTime();
+    double swift_elapsed_seconds_double = (double)swift_elapsed.hour() * 3600.0 +
+                                          (double)swift_elapsed.minute() * 60.0 +
+                                          (double)swift_elapsed.second() +
+                                          (double)swift_elapsed.msec() / 1000.0;
+    uint16_t swiftElapsedTimeSeconds = (uint16_t)qRound(swift_elapsed_seconds_double);
+
+    if (h->virtualtreadmill_updateFTMS(  // uses @objc public func updateFTMS in virtualtreadmill_zwift.swift
+            swiftSpeed,
+            swiftCadence,
+            swiftResistance,
+            swiftWatt,
+            swiftInclination,
+            swiftDistance,
+            swiftElapsedTimeSeconds
+            )) {
+        h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
+
+        if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
+            writeP2AD9->changeSlope(h->virtualtreadmill_getCurrentSlope(), 0, 0);
         }
         return;
     }
