@@ -232,7 +232,10 @@ resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
     if (power < wattsFromResistance(1))
         return 1;
     else
-        return max_resistance;
+        if(DU30_bike)
+            return max_resistance;
+        else
+            return _ergTable.getMaxResistance();
 }
 
 void ftmsbike::forceResistance(resistance_t requestResistance) {
@@ -246,7 +249,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
         if(ergModeNotSupported) {
-            requestResistance = _inclinationResistanceTable.estimateInclination(requestResistance);
+            requestResistance = _inclinationResistanceTable.estimateInclination(requestResistance) * 10.0;
             qDebug() << "ergMode Not Supported so the resistance will be" << requestResistance;
         } else {
             requestResistance = fr;
@@ -951,7 +954,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         update_hr_from_external();
     }
 
-    if(resistance_received)
+    if(resistance_received && requestPower == -1)
         _inclinationResistanceTable.collectData(Inclination.value(), Resistance.value(), m_watt.value());
 
 #ifdef Q_OS_IOS

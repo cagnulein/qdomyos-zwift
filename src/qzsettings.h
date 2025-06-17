@@ -675,6 +675,12 @@ class QZSettings {
     static const QString nordictrack_t65s_treadmill;
     static constexpr bool default_nordictrack_t65s_treadmill = false;
 
+    static const QString nordictrack_treadmill_ultra_le;
+    static constexpr bool default_nordictrack_treadmill_ultra_le = false;
+
+    static const QString proform_treadmill_carbon_tls;
+    static constexpr bool default_proform_treadmill_carbon_tls = false;
+
     // static const QString proform_treadmill_995i;
     // static constexpr bool default_proform_treadmill_995i = false;
 
@@ -1752,6 +1758,9 @@ class QZSettings {
     static const QString horizon_treadmill_force_ftms;
     static constexpr bool default_horizon_treadmill_force_ftms = false;
 
+    static const QString horizon_treadmill_7_0_at_24;
+    static constexpr bool default_horizon_treadmill_7_0_at_24 = false;
+
     static const QString treadmill_pid_heart_min;
     static constexpr int default_treadmill_pid_heart_min = 0;
 
@@ -2440,6 +2449,30 @@ class QZSettings {
 
     static const QString tile_hr_time_in_zone_5_order;
     static constexpr int default_tile_hr_time_in_zone_5_order = 66;
+
+    static const QString tile_heat_time_in_zone_1_enabled;
+    static constexpr bool default_tile_heat_time_in_zone_1_enabled = false;
+
+    static const QString tile_heat_time_in_zone_1_order;
+    static constexpr int default_tile_heat_time_in_zone_1_order = 68;
+
+    static const QString tile_heat_time_in_zone_2_enabled;
+    static constexpr bool default_tile_heat_time_in_zone_2_enabled = false;
+
+    static const QString tile_heat_time_in_zone_2_order;
+    static constexpr int default_tile_heat_time_in_zone_2_order = 69;
+
+    static const QString tile_heat_time_in_zone_3_enabled;
+    static constexpr bool default_tile_heat_time_in_zone_3_enabled = false;
+
+    static const QString tile_heat_time_in_zone_3_order;
+    static constexpr int default_tile_heat_time_in_zone_3_order = 70;
+
+    static const QString tile_heat_time_in_zone_4_enabled;
+    static constexpr bool default_tile_heat_time_in_zone_4_enabled = false;
+
+    static const QString tile_heat_time_in_zone_4_order;
+    static constexpr int default_tile_heat_time_in_zone_4_order = 71;
 
     static const QString zwift_gear_ui_aligned;
     static constexpr bool default_zwift_gear_ui_aligned = false;

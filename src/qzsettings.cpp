@@ -219,6 +219,8 @@ const QString QZSettings::pafers_treadmill = QStringLiteral("pafers_treadmill");
 const QString QZSettings::yesoul_peloton_formula = QStringLiteral("yesoul_peloton_formula");
 const QString QZSettings::nordictrack_10_treadmill = QStringLiteral("nordictrack_10_treadmill");
 const QString QZSettings::nordictrack_t65s_treadmill = QStringLiteral("nordictrack_t65s_treadmill");
+const QString QZSettings::nordictrack_treadmill_ultra_le = QStringLiteral("nordictrack_treadmill_ultra_le");
+const QString QZSettings::proform_treadmill_carbon_tls = QStringLiteral("proform_treadmill_carbon_tls");
 // const QString QZSettings:: proform_treadmill_995i = QStringLiteral("proform_treadmill_995i");
 //
 const QString QZSettings::toorx_3_0 = QStringLiteral("toorx_3_0");
@@ -624,6 +626,7 @@ const QString QZSettings::treadmill_inclination_override_145 = QStringLiteral("t
 const QString QZSettings::treadmill_inclination_override_150 = QStringLiteral("treadmill_inclination_override_150");
 const QString QZSettings::sole_elliptical_e55 = QStringLiteral("sole_elliptical_e55");
 const QString QZSettings::horizon_treadmill_force_ftms = QStringLiteral("horizon_treadmill_force_ftms");
+const QString QZSettings::horizon_treadmill_7_0_at_24 = QStringLiteral("horizon_treadmill_7_0_at_24");
 const QString QZSettings::treadmill_pid_heart_min = QStringLiteral("treadmill_pid_heart_min");
 const QString QZSettings::treadmill_pid_heart_max = QStringLiteral("treadmill_pid_heart_max");
 const QString QZSettings::nordictrack_elliptical_c7_5 = QStringLiteral("nordictrack_elliptical_c7_5");
@@ -909,6 +912,18 @@ const QString QZSettings::tile_hr_time_in_zone_4_order = QStringLiteral("tile_hr
 const QString QZSettings::tile_hr_time_in_zone_5_enabled = QStringLiteral("tile_hr_time_in_zone_5_enabled");
 const QString QZSettings::tile_hr_time_in_zone_5_order = QStringLiteral("tile_hr_time_in_zone_5_order");
 
+const QString QZSettings::tile_heat_time_in_zone_1_enabled = QStringLiteral("tile_heat_time_in_zone_1_enabled");
+const QString QZSettings::tile_heat_time_in_zone_1_order = QStringLiteral("tile_heat_time_in_zone_1_order");
+
+const QString QZSettings::tile_heat_time_in_zone_2_enabled = QStringLiteral("tile_heat_time_in_zone_2_enabled");
+const QString QZSettings::tile_heat_time_in_zone_2_order = QStringLiteral("tile_heat_time_in_zone_2_order");
+
+const QString QZSettings::tile_heat_time_in_zone_3_enabled = QStringLiteral("tile_heat_time_in_zone_3_enabled");
+const QString QZSettings::tile_heat_time_in_zone_3_order = QStringLiteral("tile_heat_time_in_zone_3_order");
+
+const QString QZSettings::tile_heat_time_in_zone_4_enabled = QStringLiteral("tile_heat_time_in_zone_4_enabled");
+const QString QZSettings::tile_heat_time_in_zone_4_order = QStringLiteral("tile_heat_time_in_zone_4_order");
+
 const QString QZSettings::zwift_gear_ui_aligned = QStringLiteral("zwift_gear_ui_aligned");
 const QString QZSettings::tacxneo2_disable_negative_inclination = QStringLiteral("tacxneo2_disable_negative_inclination");
 
@@ -926,7 +941,7 @@ const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("
 const QString QZSettings::floatingwindow_type = QStringLiteral("floatingwindow_type");
 
 
-const uint32_t allSettingsCount = 757;
+const uint32_t allSettingsCount = 768;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1110,6 +1125,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::yesoul_peloton_formula, QZSettings::default_yesoul_peloton_formula},
     {QZSettings::nordictrack_10_treadmill, QZSettings::default_nordictrack_10_treadmill},
     {QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill},
+    {QZSettings::nordictrack_treadmill_ultra_le, QZSettings::default_nordictrack_treadmill_ultra_le},
+    {QZSettings::proform_treadmill_carbon_tls, QZSettings::default_proform_treadmill_carbon_tls},
     {QZSettings::toorx_3_0, QZSettings::default_toorx_3_0},
     {QZSettings::toorx_65s_evo, QZSettings::default_toorx_65s_evo},
     {QZSettings::jtx_fitness_sprint_treadmill, QZSettings::default_jtx_fitness_sprint_treadmill},
@@ -1451,6 +1468,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_inclination_override_150, QZSettings::default_treadmill_inclination_override_150},
     {QZSettings::sole_elliptical_e55, QZSettings::default_sole_elliptical_e55},
     {QZSettings::horizon_treadmill_force_ftms, QZSettings::default_horizon_treadmill_force_ftms},
+    {QZSettings::horizon_treadmill_7_0_at_24, QZSettings::default_horizon_treadmill_7_0_at_24},
     {QZSettings::treadmill_pid_heart_min, QZSettings::default_treadmill_pid_heart_min},
     {QZSettings::treadmill_pid_heart_max, QZSettings::default_treadmill_pid_heart_max},
     {QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5},
@@ -1691,6 +1709,15 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_hr_time_in_zone_4_order, QZSettings::default_tile_hr_time_in_zone_4_order},
     {QZSettings::tile_hr_time_in_zone_5_enabled, QZSettings::default_tile_hr_time_in_zone_5_enabled},
     {QZSettings::tile_hr_time_in_zone_5_order, QZSettings::default_tile_hr_time_in_zone_5_order},
+
+    {QZSettings::tile_heat_time_in_zone_1_enabled, QZSettings::default_tile_heat_time_in_zone_1_enabled},
+    {QZSettings::tile_heat_time_in_zone_1_order, QZSettings::default_tile_heat_time_in_zone_1_order},
+    {QZSettings::tile_heat_time_in_zone_2_enabled, QZSettings::default_tile_heat_time_in_zone_2_enabled},
+    {QZSettings::tile_heat_time_in_zone_2_order, QZSettings::default_tile_heat_time_in_zone_2_order},
+    {QZSettings::tile_heat_time_in_zone_3_enabled, QZSettings::default_tile_heat_time_in_zone_3_enabled},
+    {QZSettings::tile_heat_time_in_zone_3_order, QZSettings::default_tile_heat_time_in_zone_3_order},
+    {QZSettings::tile_heat_time_in_zone_4_enabled, QZSettings::default_tile_heat_time_in_zone_4_enabled},
+    {QZSettings::tile_heat_time_in_zone_4_order, QZSettings::default_tile_heat_time_in_zone_4_order},
     {QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native},
 
     {QZSettings::zwift_gear_ui_aligned, QZSettings::default_zwift_gear_ui_aligned},

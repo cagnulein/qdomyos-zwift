@@ -252,6 +252,15 @@ ScrollView {
 
         property bool tile_coretemperature_enabled: false
         property int  tile_coretemperature_order: 67
+
+        property bool tile_heat_time_in_zone_1_enabled: false
+        property int  tile_heat_time_in_zone_1_order: 68
+        property bool tile_heat_time_in_zone_2_enabled: false
+        property int  tile_heat_time_in_zone_2_order: 69
+        property bool tile_heat_time_in_zone_3_enabled: false
+        property int  tile_heat_time_in_zone_3_order: 70
+        property bool tile_heat_time_in_zone_4_enabled: false
+        property int  tile_heat_time_in_zone_4_order: 71
     }
 
 
@@ -5045,6 +5054,186 @@ ScrollView {
 
         Label {
             text: qsTr("Shows Core, Body Temperature and Heat Strain Index from a Core Temperature sensor.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: heatTimeInZone1EnabledAccordion
+            title: qsTr("Heat Time in Zone 1")
+            linkedBoolSetting: "tile_heat_time_in_zone_1_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelHeatTimeInZone1Order
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: heatTimeInZone1OrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_heat_time_in_zone_1_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = heatTimeInZone1OrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okHeatTimeInZone1OrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_heat_time_in_zone_1_order = heatTimeInZone1OrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Displays total time spent in heat Zone 1 during the session.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: heatTimeInZone2EnabledAccordion
+            title: qsTr("Heat Time in Zone 2")
+            linkedBoolSetting: "tile_heat_time_in_zone_2_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelHeatTimeInZone2Order
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: heatTimeInZone2OrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_heat_time_in_zone_2_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = heatTimeInZone2OrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okHeatTimeInZone2OrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_heat_time_in_zone_2_order = heatTimeInZone2OrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Displays total time spent in heat Zone 2 during the session.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: heatTimeInZone3EnabledAccordion
+            title: qsTr("Heat Time in Zone 3")
+            linkedBoolSetting: "tile_heat_time_in_zone_3_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelHeatTimeInZone3Order
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: heatTimeInZone3OrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_heat_time_in_zone_3_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = heatTimeInZone3OrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okHeatTimeInZone3OrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_heat_time_in_zone_3_order = heatTimeInZone3OrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Displays total time spent in heat Zone 3 during the session.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: heatTimeInZone4EnabledAccordion
+            title: qsTr("Heat Time in Zone 4")
+            linkedBoolSetting: "tile_heat_time_in_zone_4_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelHeatTimeInZone4Order
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: heatTimeInZone4OrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_heat_time_in_zone_4_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = heatTimeInZone4OrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okHeatTimeInZone4OrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_heat_time_in_zone_4_order = heatTimeInZone4OrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Displays total time spent in heat Zone 4 during the session.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2

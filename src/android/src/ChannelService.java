@@ -49,11 +49,16 @@ public class ChannelService extends Service {
     private AntChannelProvider mAntChannelProvider = null;
     private boolean mAllowAddChannel = false;
 
+    public static native void nativeSetResistance(int resistance);
+    public static native void nativeSetPower(int power);
+    public static native void nativeSetInclination(double inclination);
+
     HeartChannelController heartChannelController = null;
     PowerChannelController powerChannelController = null;
     SpeedChannelController speedChannelController = null;
     SDMChannelController sdmChannelController = null;
     BikeChannelController bikeChannelController = null; // Added BikeChannelController reference
+    BikeTransmitterController bikeTransmitterController = null; // Added BikeTransmitterController reference
 
     private ServiceConnection mAntRadioServiceConnection = new ServiceConnection() {
         @Override
@@ -118,11 +123,19 @@ public class ChannelService extends Service {
             if (null != sdmChannelController) {
                 sdmChannelController.speed = speed;
             }
+            // Update bike transmitter with speed data (only if not treadmill)
+            if (!Ant.treadmill && null != bikeTransmitterController) {
+                bikeTransmitterController.setSpeedKph(speed);
+            }
         }
 
         void setPower(int power) {
             if (null != powerChannelController) {
                 powerChannelController.power = power;
+            }
+            // Update bike transmitter with power data (only if not treadmill)
+            if (!Ant.treadmill && null != bikeTransmitterController) {
+                bikeTransmitterController.setPower(power);
             }
         }
 
@@ -135,6 +148,10 @@ public class ChannelService extends Service {
             }
             if (null != sdmChannelController) {
                 sdmChannelController.cadence = cadence;
+            }
+            // Update bike transmitter with cadence data (only if not treadmill)
+            if (!Ant.treadmill && null != bikeTransmitterController) {
+                bikeTransmitterController.setCadence(cadence);
             }
         }
 
@@ -182,6 +199,114 @@ public class ChannelService extends Service {
             return (bikeChannelController != null && bikeChannelController.isConnected());
         }
 
+        // ========== BIKE TRANSMITTER METHODS ==========
+
+        /**
+         * Start the bike transmitter (only available if not treadmill)
+         */
+        boolean startBikeTransmitter() {
+            QLog.v(TAG, "ChannelServiceComm.startBikeTransmitter");
+            
+            if (Ant.treadmill) {
+                QLog.w(TAG, "Bike transmitter not available in treadmill mode");
+                return false;
+            }
+            
+            if (bikeTransmitterController != null) {
+                return bikeTransmitterController.startTransmission();
+            }
+            QLog.w(TAG, "Bike transmitter controller is null");
+            return false;
+        }
+
+        /**
+         * Stop the bike transmitter
+         */
+        void stopBikeTransmitter() {
+            QLog.v(TAG, "ChannelServiceComm.stopBikeTransmitter");
+            
+            if (bikeTransmitterController != null) {
+                bikeTransmitterController.stopTransmission();
+            }
+        }
+
+        /**
+         * Check if bike transmitter is active (only if not treadmill)
+         */
+        boolean isBikeTransmitterActive() {
+            if (Ant.treadmill) {
+                return false;
+            }
+            return (bikeTransmitterController != null && bikeTransmitterController.isTransmitting());
+        }
+
+        /**
+         * Update bike transmitter with extended metrics (only if not treadmill)
+         */
+        void updateBikeTransmitterExtendedMetrics(long distanceMeters, int heartRate, 
+                                                 double elapsedTimeSeconds, int resistance, 
+                                                 double inclination) {
+            if (!Ant.treadmill && bikeTransmitterController != null) {
+                bikeTransmitterController.setDistance(distanceMeters);
+                bikeTransmitterController.setHeartRate(heartRate);
+                bikeTransmitterController.setElapsedTime(elapsedTimeSeconds);
+                bikeTransmitterController.setResistance(resistance);
+                bikeTransmitterController.setInclination(inclination);
+            }
+        }
+
+        /**
+         * Get the last requested resistance from ANT+ controller (only if not treadmill)
+         */
+        int getRequestedResistanceFromAnt() {
+            if (!Ant.treadmill && bikeTransmitterController != null) {
+                return bikeTransmitterController.getRequestedResistance();
+            }
+            return -1;
+        }
+
+        /**
+         * Get the last requested power from ANT+ controller (only if not treadmill)
+         */
+        int getRequestedPowerFromAnt() {
+            if (!Ant.treadmill && bikeTransmitterController != null) {
+                return bikeTransmitterController.getRequestedPower();
+            }
+            return -1;
+        }
+
+        /**
+         * Get the last requested inclination from ANT+ controller (only if not treadmill)
+         */
+        double getRequestedInclinationFromAnt() {
+            if (!Ant.treadmill && bikeTransmitterController != null) {
+                return bikeTransmitterController.getRequestedInclination();
+            }
+            return -100.0;
+        }
+
+        /**
+         * Clear any pending control requests (only if not treadmill)
+         */
+        void clearAntControlRequests() {
+            if (!Ant.treadmill && bikeTransmitterController != null) {
+                bikeTransmitterController.clearControlRequests();
+            }
+        }
+
+        /**
+         * Get transmission info for debugging (only if not treadmill)
+         */
+        String getBikeTransmitterInfo() {
+            if (Ant.treadmill) {
+                return "Bike transmitter disabled in treadmill mode";
+            }
+            if (bikeTransmitterController != null) {
+                return bikeTransmitterController.getTransmissionInfo();
+            }
+            return "Bike transmitter not initialized";
+        }
+
         /**
          * Closes all channels currently added.
          */
@@ -203,9 +328,70 @@ public class ChannelService extends Service {
             }
         }
 
-        // Add initialization for BikeChannelController
+        // Add initialization for BikeChannelController (receiver)
         if (Ant.bikeRequest && bikeChannelController == null) {
             bikeChannelController = new BikeChannelController();
+        }
+
+        // Add initialization for BikeTransmitterController (transmitter) - only when NOT treadmill
+        if (!Ant.treadmill && bikeTransmitterController == null) {
+            QLog.v(TAG, "Initializing BikeTransmitterController (not treadmill mode)");
+            try {
+                // Acquire channel like other controllers
+                AntChannel transmitterChannel = acquireChannel();
+                if (transmitterChannel != null) {
+                    bikeTransmitterController = new BikeTransmitterController(transmitterChannel);
+                    
+                    // Set up control command listener to handle requests from ANT+ devices
+                    bikeTransmitterController.setControlCommandListener(new BikeTransmitterController.ControlCommandListener() {
+                        @Override
+                        public void onResistanceChangeRequested(int resistance) {
+                            QLog.d(TAG, "ChannelService: ANT+ Resistance change requested: " + resistance);
+                            // Send broadcast intent to notify the main application
+                            Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_RESISTANCE_CHANGE");
+                            intent.putExtra("resistance", resistance);
+                            nativeSetResistance(resistance);
+                            sendBroadcast(intent);
+                        }
+
+                        @Override
+                        public void onPowerChangeRequested(int power) {
+                            QLog.d(TAG, "ChannelService: ANT+ Power change requested: " + power + "W");
+                            // Send broadcast intent to notify the main application
+                            Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_POWER_CHANGE");
+                            intent.putExtra("power", power);
+                            nativeSetPower(power);
+                            sendBroadcast(intent);
+                        }
+
+                        @Override
+                        public void onInclinationChangeRequested(double inclination) {
+                            QLog.d(TAG, "ChannelService: ANT+ Inclination change requested: " + inclination + "%");
+                            // Send broadcast intent to notify the main application
+                            Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_INCLINATION_CHANGE");
+                            intent.putExtra("inclination", inclination);
+                            nativeSetInclination(inclination);
+                            sendBroadcast(intent);
+                        }
+                    });
+                    
+                    QLog.i(TAG, "BikeTransmitterController initialized successfully (bike mode)");
+                    
+                    // Start the bike transmitter immediately after initialization
+                    boolean transmissionStarted = bikeTransmitterController.startTransmission();
+                    if (transmissionStarted) {
+                        QLog.i(TAG, "BikeTransmitterController transmission started automatically");
+                    } else {
+                        QLog.w(TAG, "Failed to start BikeTransmitterController transmission");
+                    }
+                } else {
+                    QLog.e(TAG, "Failed to acquire channel for BikeTransmitterController");
+                }
+                
+            } catch (Exception e) {
+                QLog.e(TAG, "Failed to initialize BikeTransmitterController: " + e.getMessage());
+                bikeTransmitterController = null;
+            }
         }
     }
 
@@ -220,12 +406,16 @@ public class ChannelService extends Service {
             sdmChannelController.close();
         if (bikeChannelController != null)  // Added closing bikeChannelController
             bikeChannelController.close();
+        if (bikeTransmitterController != null) {  // Added closing bikeTransmitterController
+            bikeTransmitterController.close();  // Use close() method like other controllers
+        }
 
         heartChannelController = null;
         powerChannelController = null;
         speedChannelController = null;
         sdmChannelController = null;
         bikeChannelController = null;  // Added nullifying bikeChannelController
+        bikeTransmitterController = null;  // Added nullifying bikeTransmitterController
     }
 
     AntChannel acquireChannel() throws ChannelNotAvailableException {

@@ -192,6 +192,18 @@ class ergTable : public QObject {
         return wattageData;
     }
 
+    uint16_t getMaxResistance() const {
+        if (consolidatedData.isEmpty()) return 0;
+
+        uint16_t maxRes = 0;
+        for (const auto& point : consolidatedData) {
+            if (point.resistance > maxRes) {
+                maxRes = point.resistance;
+            }
+        }
+        return maxRes;
+    }
+
   private:
     QMap<CadenceResistancePair, WattageStats> wattageData;
     QList<ergDataPoint> consolidatedData;

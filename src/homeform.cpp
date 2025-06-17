@@ -461,6 +461,19 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     tile_hr_time_in_zone_5 = new DataObject(QStringLiteral("HR Zone 5"), QStringLiteral("icons/icons/heart_red.png"),
                                             QStringLiteral("0:00:00"), false, QStringLiteral("tile_hr_time_in_zone_5"), valueElapsedFontSize, labelFontSize);
+
+    tile_heat_time_in_zone_1 = new DataObject(QStringLiteral("Heat Zone 1"), QStringLiteral("icons/icons/fan.png"),
+                                              QStringLiteral("0:00:00"), false, QStringLiteral("tile_heat_time_in_zone_1"), valueElapsedFontSize, labelFontSize);
+
+    tile_heat_time_in_zone_2 = new DataObject(QStringLiteral("Heat Zone 2"), QStringLiteral("icons/icons/fan.png"),
+                                              QStringLiteral("0:00:00"), false, QStringLiteral("tile_heat_time_in_zone_2"), valueElapsedFontSize, labelFontSize);
+
+    tile_heat_time_in_zone_3 = new DataObject(QStringLiteral("Heat Zone 3"), QStringLiteral("icons/icons/fan.png"),
+                                              QStringLiteral("0:00:00"), false, QStringLiteral("tile_heat_time_in_zone_3"), valueElapsedFontSize, labelFontSize);
+
+    tile_heat_time_in_zone_4 = new DataObject(QStringLiteral("Heat Zone 4"), QStringLiteral("icons/icons/fan.png"),
+                                              QStringLiteral("0:00:00"), false, QStringLiteral("tile_heat_time_in_zone_4"), valueElapsedFontSize, labelFontSize);
+
     coreTemperature = new DataObject(QStringLiteral("Core Temp"), QStringLiteral("icons/icons/heart_red.png"),
                                   QStringLiteral("0"), false, QStringLiteral("coretemperature"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""));
 
@@ -1290,8 +1303,8 @@ void homeform::onToastRequested(QString message) {
 QStringList homeform::tile_order() {
 
     QStringList r;
-    r.reserve(65);
-    for (int i = 0; i < 66; i++) {
+    r.reserve(72);
+    for (int i = 0; i < 73; i++) {
         r.append(QString::number(i));
     }
     return r;
@@ -1672,6 +1685,30 @@ void homeform::sortTiles() {
                 dataList.append(tile_hr_time_in_zone_5);
             }
 
+            if (settings.value(QZSettings::tile_heat_time_in_zone_1_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_1_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_1->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_1);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_2_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_2_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_2->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_2);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_3_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_3_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_3->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_3);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_4_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_4_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_4->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_4);
+            }
+
             if (settings.value(QZSettings::tile_coretemperature_enabled, QZSettings::default_tile_coretemperature_enabled).toBool() &&
                 settings.value(QZSettings::tile_coretemperature_order, QZSettings::default_tile_coretemperature_order).toInt() == i) {
                 coreTemperature->setGridId(i);
@@ -2023,6 +2060,30 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_hr_time_in_zone_5_order, 0).toInt() == i) {
                 tile_hr_time_in_zone_5->setGridId(i);
                 dataList.append(tile_hr_time_in_zone_5);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_1_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_1_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_1->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_1);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_2_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_2_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_2->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_2);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_3_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_3_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_3->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_3);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_4_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_4_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_4->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_4);
             }
 
             if (settings.value(QZSettings::tile_coretemperature_enabled, QZSettings::default_tile_coretemperature_enabled).toBool() &&
@@ -2449,6 +2510,30 @@ void homeform::sortTiles() {
                 dataList.append(tile_hr_time_in_zone_5);
             }
 
+            if (settings.value(QZSettings::tile_heat_time_in_zone_1_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_1_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_1->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_1);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_2_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_2_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_2->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_2);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_3_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_3_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_3->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_3);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_4_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_4_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_4->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_4);
+            }
+
             if (settings.value(QZSettings::tile_coretemperature_enabled, QZSettings::default_tile_coretemperature_enabled).toBool() &&
                 settings.value(QZSettings::tile_coretemperature_order, QZSettings::default_tile_coretemperature_order).toInt() == i) {
                 coreTemperature->setGridId(i);
@@ -2777,6 +2862,30 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_hr_time_in_zone_5_order, 0).toInt() == i) {
                 tile_hr_time_in_zone_5->setGridId(i);
                 dataList.append(tile_hr_time_in_zone_5);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_1_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_1_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_1->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_1);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_2_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_2_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_2->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_2);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_3_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_3_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_3->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_3);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_4_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_4_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_4->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_4);
             }
 
             if (settings.value(QZSettings::tile_coretemperature_enabled, QZSettings::default_tile_coretemperature_enabled).toBool() &&
@@ -3111,6 +3220,30 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_hr_time_in_zone_5_order, 0).toInt() == i) {
                 tile_hr_time_in_zone_5->setGridId(i);
                 dataList.append(tile_hr_time_in_zone_5);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_1_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_1_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_1->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_1);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_2_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_2_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_2->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_2);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_3_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_3_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_3->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_3);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_4_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_4_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_4->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_4);
             }
 
             if (settings.value(QZSettings::tile_coretemperature_enabled, QZSettings::default_tile_coretemperature_enabled).toBool() &&
@@ -3455,6 +3588,30 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_hr_time_in_zone_5_order, 0).toInt() == i) {
                 tile_hr_time_in_zone_5->setGridId(i);
                 dataList.append(tile_hr_time_in_zone_5);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_1_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_1_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_1->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_1);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_2_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_2_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_2->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_2);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_3_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_3_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_3->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_3);
+            }
+
+            if (settings.value(QZSettings::tile_heat_time_in_zone_4_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_heat_time_in_zone_4_order, 0).toInt() == i) {
+                tile_heat_time_in_zone_4->setGridId(i);
+                dataList.append(tile_heat_time_in_zone_4);
             }
 
             if (settings.value(QZSettings::tile_coretemperature_enabled, QZSettings::default_tile_coretemperature_enabled).toBool() &&
@@ -4765,6 +4922,30 @@ void homeform::update() {
         tile_hr_time_in_zone_4->setValueFontColor(QStringLiteral("orange"));
         tile_hr_time_in_zone_5->setValueFontColor(QStringLiteral("red"));
 
+        // Get the time spent in each heat zone
+        uint32_t heat_seconds_zone1 = bluetoothManager->device()->secondsForHeatZone(0);
+        uint32_t heat_seconds_zone2 = bluetoothManager->device()->secondsForHeatZone(1);
+        uint32_t heat_seconds_zone3 = bluetoothManager->device()->secondsForHeatZone(2);
+        uint32_t heat_seconds_zone4 = bluetoothManager->device()->secondsForHeatZone(3);
+
+        // Calculate cumulative times (time in this heat zone or higher)
+        //uint32_t heat_seconds_zone1_plus = heat_seconds_zone1 + heat_seconds_zone2 + heat_seconds_zone3 + heat_seconds_zone4;
+        //uint32_t heat_seconds_zone2_plus = heat_seconds_zone2 + heat_seconds_zone3 + heat_seconds_zone4;
+        //uint32_t heat_seconds_zone3_plus = heat_seconds_zone3 + heat_seconds_zone4;
+        //uint32_t heat_seconds_zone4_plus = heat_seconds_zone4; // Zone 4 is already just zone 4
+
+        // Update the UI for each heat tile
+        tile_heat_time_in_zone_1->setValue(QTime(0, 0, 0).addSecs(heat_seconds_zone1).toString("h:mm:ss"));
+        tile_heat_time_in_zone_2->setValue(QTime(0, 0, 0).addSecs(heat_seconds_zone2).toString("h:mm:ss"));
+        tile_heat_time_in_zone_3->setValue(QTime(0, 0, 0).addSecs(heat_seconds_zone3).toString("h:mm:ss"));
+        tile_heat_time_in_zone_4->setValue(QTime(0, 0, 0).addSecs(heat_seconds_zone4).toString("h:mm:ss"));
+
+        // Set colors based on the heat zone
+        tile_heat_time_in_zone_1->setValueFontColor(QStringLiteral("lightblue"));
+        tile_heat_time_in_zone_2->setValueFontColor(QStringLiteral("yellow"));
+        tile_heat_time_in_zone_3->setValueFontColor(QStringLiteral("orange"));
+        tile_heat_time_in_zone_4->setValueFontColor(QStringLiteral("red"));
+
         emit signalChanged(signal());
         emit currentSpeedChanged(bluetoothManager->device()->currentSpeed().value());
         speed->setValue(QString::number(bluetoothManager->device()->currentSpeed().value() * unit_conversion, 'f', 1));
@@ -4790,6 +4971,9 @@ void homeform::update() {
 
         coreTemperature->setValue(QString::number(bluetoothManager->device()->CoreBodyTemperature.value(), 'f', 1) + "C");
         coreTemperature->setSecondLine(QString::number(bluetoothManager->device()->SkinTemperature.value(), 'f', 1) + "C HSI:" + QString::number(bluetoothManager->device()->HeatStrainIndex.value(), 'f', 1));
+        
+        // Update heat zone based on Heat Strain Index
+        bluetoothManager->device()->setHeatZone(bluetoothManager->device()->HeatStrainIndex.value());
 
         if (trainProgram) {
             // sync the video with the zwo workout file
@@ -5979,6 +6163,39 @@ void homeform::update() {
             v += settings.value(QZSettings::ant_speed_offset, QZSettings::default_ant_speed_offset).toDouble();
             KeepAwakeHelper::antObject(false)->callMethod<void>("setCadenceSpeedPower", "(FII)V", (float)v, (int)watts,
                                                                 (int)cadence);
+
+            long distanceMeters = (long)(bluetoothManager->device()->odometer() * 1000.0);
+            
+            // Get heart rate
+            int heartRate = (int)bluetoothManager->device()->currentHeart().value();
+            
+            // Calculate elapsed time in seconds
+            double elapsedTimeSeconds = (double)(bluetoothManager->device()->elapsedTime().second() +
+                (bluetoothManager->device()->elapsedTime().minute() * 60) +
+                (bluetoothManager->device()->elapsedTime().hour() * 3600));
+            
+            // Get resistance and inclination values
+            int resistance = 0;
+            double inclination = 0.0;
+            
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                resistance = (int)((bike*)bluetoothManager->device())->currentResistance().value();
+                inclination = ((bike*)bluetoothManager->device())->currentInclination().value();
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                resistance = (int)((elliptical*)bluetoothManager->device())->currentResistance().value();
+                inclination = ((elliptical*)bluetoothManager->device())->currentInclination().value();
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+                resistance = (int)((rower*)bluetoothManager->device())->currentResistance().value();
+            }
+            
+            // Call the extended metrics update via JNI
+            KeepAwakeHelper::antObject(false)->callMethod<void>("updateBikeTransmitterExtendedMetrics", 
+                "(JIDID)V", 
+                distanceMeters, 
+                heartRate, 
+                elapsedTimeSeconds, 
+                resistance, 
+                inclination);                                      
         }
 #endif
 
@@ -8245,3 +8462,71 @@ void homeform::videoSeekPosition(int ms) {
     auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
     videoPlaybackHalfPlayer->setPosition(ms);
 }
+
+#ifdef Q_OS_ANDROID
+extern "C" {
+    JNIEXPORT void JNICALL
+    Java_org_cagnulen_qdomyoszwift_ChannelService_nativeSetResistance(JNIEnv *env, jclass clazz, jint resistance) {
+        qDebug() << "Native: ANT+ Setting resistance to:" << resistance;
+        
+        if (homeform::singleton()->bluetoothManager && homeform::singleton()->bluetoothManager->device()) {
+            bluetoothdevice::BLUETOOTH_TYPE deviceType = homeform::singleton()->bluetoothManager->device()->deviceType();
+            
+            if (deviceType == bluetoothdevice::BIKE || 
+                deviceType == bluetoothdevice::ROWING || 
+                deviceType == bluetoothdevice::ELLIPTICAL) {
+                
+                homeform::singleton()->bluetoothManager->device()->changeResistance(resistance);
+                qDebug() << "Applied ANT+ resistance change:" << resistance;
+            } else {
+                qDebug() << "Device type does not support resistance change";
+            }
+        } else {
+            qDebug() << "No bluetooth device connected";
+        }
+    }
+
+    JNIEXPORT void JNICALL
+    Java_org_cagnulen_qdomyoszwift_ChannelService_nativeSetPower(JNIEnv *env, jclass clazz, jint power) {
+        qDebug() << "Native: ANT+ Setting power to:" << power << "W";
+        
+        if (homeform::singleton()->bluetoothManager && homeform::singleton()->bluetoothManager->device()) {
+            bluetoothdevice::BLUETOOTH_TYPE deviceType = homeform::singleton()->bluetoothManager->device()->deviceType();
+            
+            if (deviceType == bluetoothdevice::BIKE || 
+                deviceType == bluetoothdevice::ROWING || 
+                deviceType == bluetoothdevice::ELLIPTICAL ||
+                deviceType == bluetoothdevice::TREADMILL) {
+                
+                homeform::singleton()->bluetoothManager->device()->changePower(power);
+                qDebug() << "Applied ANT+ power change:" << power << "W";
+            } else {
+                qDebug() << "Device type does not support power change";
+            }
+        } else {
+            qDebug() << "No bluetooth device connected";
+        }
+    }
+
+    JNIEXPORT void JNICALL
+    Java_org_cagnulen_qdomyoszwift_ChannelService_nativeSetInclination(JNIEnv *env, jclass clazz, jdouble inclination) {
+        qDebug() << "Native: ANT+ Setting inclination to:" << inclination << "%";
+        
+        if (homeform::singleton()->bluetoothManager && homeform::singleton()->bluetoothManager->device()) {
+            bluetoothdevice::BLUETOOTH_TYPE deviceType = homeform::singleton()->bluetoothManager->device()->deviceType();
+            
+            if (deviceType == bluetoothdevice::BIKE || 
+                deviceType == bluetoothdevice::TREADMILL || 
+                deviceType == bluetoothdevice::ELLIPTICAL) {
+                
+                homeform::singleton()->bluetoothManager->device()->changeInclination(inclination, inclination);
+                qDebug() << "Applied ANT+ inclination change:" << inclination << "%";
+            } else {
+                qDebug() << "Device type does not support inclination change";
+            }
+        } else {
+            qDebug() << "No bluetooth device connected";
+        }
+    }
+}
+#endif

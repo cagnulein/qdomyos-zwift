@@ -1783,6 +1783,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
+        bool horizon_treadmill_7_0_at_24 = settings.value(QZSettings::horizon_treadmill_7_0_at_24, QZSettings::default_horizon_treadmill_7_0_at_24).toBool();
         lastPacket = newValue;
 
         // default flags for this treadmill is 84 04
