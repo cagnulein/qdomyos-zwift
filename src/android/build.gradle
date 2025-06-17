@@ -137,9 +137,6 @@ protobuf {
         }
       }
     }
-    
-    // Configure where generated classes are placed
-    generatedFilesBaseDir = "$projectDir/src/generated"
 }
 
 android {
@@ -181,7 +178,7 @@ android {
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java', 'src/generated/main/java']
+            java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
             aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
             res.srcDirs = [qt5AndroidDir + '/res', 'res']
             resources.srcDirs = ['resources']
