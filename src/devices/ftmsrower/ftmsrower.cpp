@@ -78,7 +78,7 @@ void ftmsrower::update() {
     }
 
     if (initRequest) {
-        if(I_ROWER) {
+        if(I_ROWER || ROWER) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(write, sizeof(write), "start", false, true);
 
@@ -412,7 +412,7 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::descriptorWritten, this, &ftmsrower::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &ftmsrower::descriptorRead);
 
-            if (I_ROWER) {
+            if (I_ROWER || ROWER) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
                     qDebug() << QStringLiteral("I-ROWER wants to be subscribed only to FTMS service in order to send metrics")
@@ -612,7 +612,10 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << "DFIT_L_R found!";
         } else if (device.name().toUpper().startsWith(QStringLiteral("I-ROWER"))) {
             I_ROWER = true;
-            qDebug() << "I_ROWER found!";            
+            qDebug() << "I_ROWER found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("IROWER "))) {
+            ROWER = true;
+            qDebug() << "ROWER found!";
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";

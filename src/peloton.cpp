@@ -16,7 +16,7 @@ using namespace std::chrono_literals;
 
 const bool log_request = true;
 
-#define RAWHEADER request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toUtf8());
+#define RAWHEADER request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift/") + QCoreApplication::applicationVersion());request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + (tempAccessToken.isEmpty() ?  getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toUtf8() : tempAccessToken.toUtf8()));
 
 peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
 
@@ -596,9 +596,10 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     connect(PZP, &powerzonepack::loginState, this, &peloton::pzp_loginState);
     connect(HFB, &homefitnessbuddy::workoutStarted, this, &peloton::hfb_trainrows);
 
-    if (!settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken)
-             .toString()
-        .length()) {
+    QString userId = settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString();
+    qDebug() << "userId" << userId;
+    
+    if (!getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().length()) {
         qDebug() << QStringLiteral("invalid peloton credentials");
         return;
     }
@@ -666,7 +667,7 @@ void peloton::login_onfinish(QNetworkReply *reply) {
     int status = json[QStringLiteral("status")].toInt();
 
     if (log_request) {
-        qDebug() << QStringLiteral("login_onfinish") << document;
+        qDebug() << QStringLiteral("login_onfinish") << document << payload;
     } else {
         qDebug() << QStringLiteral("login_onfinish");
     }
@@ -692,11 +693,23 @@ void peloton::login_onfinish(QNetworkReply *reply) {
 
     QSettings settings;
     // if it's a new user
-    if(user_id.compare(settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString())) {
-        qDebug() << "new peloton user id, saving information...";
+    if(user_id.compare(settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString()) || !tempAccessToken.isEmpty()) {
+        qDebug() << "new peloton user id, saving information..." << user_id;
         settings.setValue(QZSettings::peloton_current_user_id, user_id);
-        settings.setValue(getPelotonSettingKey(QZSettings::peloton_refreshtoken, user_id), settings.value(QZSettings::peloton_refreshtoken, QZSettings::default_peloton_refreshtoken).toString());
-        settings.setValue(getPelotonSettingKey(QZSettings::peloton_accesstoken, user_id), settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString());
+        if (!tempAccessToken.isEmpty()) {
+            savePelotonTokenForUser(QZSettings::peloton_accesstoken, tempAccessToken, user_id);
+            savePelotonTokenForUser(QZSettings::peloton_refreshtoken, tempRefreshToken, user_id);
+            savePelotonTokenForUser(QZSettings::peloton_expires, tempExpiresAt, user_id);
+            tempAccessToken.clear();
+            tempRefreshToken.clear();
+            qDebug() << "Assigned temporary tokens to new user:" << user_id;
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Welcome " + document[QStringLiteral("username")].toString());
+            }
+        } else {
+            settings.setValue(getPelotonSettingKey(QZSettings::peloton_refreshtoken, user_id), settings.value(QZSettings::peloton_refreshtoken, QZSettings::default_peloton_refreshtoken).toString());
+            settings.setValue(getPelotonSettingKey(QZSettings::peloton_accesstoken, user_id), settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString());
+        }
     }
     
 
@@ -871,8 +884,14 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     getInstructor(current_instructor_id);
 }
 
+int peloton::getIntroOffset() {
+    return first_target_metrics_start_offset;
+}
+
 void peloton::ride_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::ride_onfinish);
+
+    first_target_metrics_start_offset = 60; // default value
 
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
@@ -1199,77 +1218,202 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     }
 
     QJsonObject target_metrics_data_list = ride[QStringLiteral("target_metrics_data")].toObject();
+    if (!target_metrics_data_list.isEmpty()) {
+        QJsonArray target_metrics = target_metrics_data_list["target_metrics"].toArray();
+        if (!target_metrics.isEmpty()) {
+            QJsonObject first_metric = target_metrics[0].toObject();
+            QJsonObject offsets = first_metric["offsets"].toObject();
+            if (!offsets.isEmpty()) {
+                first_target_metrics_start_offset = offsets["start"].toInt();
+                qDebug() << "First target metrics start offset:" << first_target_metrics_start_offset;
+            }
+        }
+    }
     if (trainrows.empty() && !target_metrics_data_list.isEmpty() &&
         bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
         bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
         QJsonArray target_metrics = target_metrics_data_list["target_metrics"].toArray();
-        for (const QJsonValue& segment : target_metrics) {
+
+        bool atLeastOnePower = false;
+        int lastEnd = 60; // Starting offset, similar to performance_onfinish
+
+        // Convert QJsonArray to QList for sorting by start time
+        QList<QJsonValue> sortedMetrics;
+        for (const QJsonValue &metric : target_metrics) {
+            sortedMetrics.append(metric);
+        }
+
+               // Sort the list by "start" time to ensure proper order
+        std::sort(sortedMetrics.begin(), sortedMetrics.end(), [](const QJsonValue &a, const QJsonValue &b) {
+            int startA = a.toObject()[QStringLiteral("offsets")].toObject()[QStringLiteral("start")].toInt();
+            int startB = b.toObject()[QStringLiteral("offsets")].toObject()[QStringLiteral("start")].toInt();
+            return startA < startB;
+        });
+
+        for (const QJsonValue& segment : sortedMetrics) {
             QJsonObject segmentObj = segment.toObject();
             QJsonObject offsets = segmentObj["offsets"].toObject();
             QJsonArray metrics = segmentObj["metrics"].toArray();
-        
-            trainrow r;
+
             int start = offsets["start"].toInt();
             int end = offsets["end"].toInt();
-            r.duration = QTime(0, 0, 0).addSecs(end - start);
-            if (!metrics.isEmpty()) {
-                QJsonObject metric = metrics[0].toObject();
-                int lower = metric["lower"].toInt();
-                int upper = metric["upper"].toInt();
-                int avg = (upper - lower) / 2;
-                
-                int p = lower;
 
+            // Check if there's a gap from previous segment and add filler if needed
+            if (!trainrows.isEmpty()) {
+                int expectedStart = lastEnd + 1;
+                if (start > expectedStart) {
+                    // Add gap row for missing time
+                    trainrow gapRow;
+                    int gapDuration = start - expectedStart;
+                    gapRow.duration = QTime(0, gapDuration / 60, gapDuration % 60, 0);
+                    gapRow.power = -1; // No power target for gap
+                    qDebug() << "Adding gap row of" << gapDuration << "seconds from" << expectedStart << "to" << (start - 1);
+                    trainrows.append(gapRow);
+                }
+            }
+
+            lastEnd = end;
+
+            trainrow r;
+            r.duration = QTime(0, 0, 0).addSecs(end - start + 1);
+
+            bool isPowerZone = false;
+            bool hasResistanceCadence = false;
+            int powerZone = 0;
+            int lowerResistance = 0, upperResistance = 0;
+            int lowerCadence = 0, upperCadence = 0;
+
+            // Analyze metrics to determine workout type
+            for (const QJsonValue& metricValue : metrics) {
+                QJsonObject metric = metricValue.toObject();
+                QString name = metric["name"].toString();
+
+                if (name == "power_zone") {
+                    isPowerZone = true;
+                    int lower = metric["lower"].toInt();
+                    int upper = metric["upper"].toInt();
+
+                    // Use difficulty setting for power zone
+                    if (difficulty == QStringLiteral("average")) {
+                        powerZone = (lower + upper) / 2;
+                    } else if (difficulty == QStringLiteral("upper")) {
+                        powerZone = upper;
+                    } else { // lower
+                        powerZone = lower;
+                    }
+                } else if (name == "resistance") {
+                    hasResistanceCadence = true;
+                    lowerResistance = metric["lower"].toInt();
+                    upperResistance = metric["upper"].toInt();
+                } else if (name == "cadence") {
+                    hasResistanceCadence = true;
+                    lowerCadence = metric["lower"].toInt();
+                    upperCadence = metric["upper"].toInt();
+                }
+            }
+
+            if (isPowerZone) {
+                // Handle power zone workout
+                switch(powerZone) {
+                case 1:
+                    r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.50;
+                    break;
+                case 2:
+                    r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.66;
+                    break;
+                case 3:
+                    r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.83;
+                    break;
+                case 4:
+                    r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.98;
+                    break;
+                case 5:
+                    r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.13;
+                    break;
+                case 6:
+                    r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.35;
+                    break;
+                case 7:
+                    r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.5;
+                    break;
+                default:
+                    qDebug() << "ERROR: Unhandled power zone!" << powerZone;
+                    r.power = -1;
+                    break;
+                }
+                if (r.power != -1) {
+                    atLeastOnePower = true;
+                }
+                qDebug() << r.duration << "power zone" << powerZone << "power" << r.power << "time range" << start << "-" << end;
+            } else if (hasResistanceCadence) {
+                // Handle resistance/cadence workout
+                r.lower_requested_peloton_resistance = lowerResistance;
+                r.upper_requested_peloton_resistance = upperResistance;
+                r.lower_cadence = lowerCadence;
+                r.upper_cadence = upperCadence;
+
+                r.average_requested_peloton_resistance = (lowerResistance + upperResistance) / 2;
+                r.average_cadence = (lowerCadence + upperCadence) / 2;
+
+                if (bluetoothManager && bluetoothManager->device()) {
+                    if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                        r.lower_resistance = ((bike *)bluetoothManager->device())
+                                                 ->pelotonToBikeResistance(lowerResistance);
+                        r.upper_resistance = ((bike *)bluetoothManager->device())
+                                                 ->pelotonToBikeResistance(upperResistance);
+                        r.average_resistance = ((bike *)bluetoothManager->device())
+                                                   ->pelotonToBikeResistance(r.average_requested_peloton_resistance);
+                    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                        r.lower_resistance = ((elliptical *)bluetoothManager->device())
+                                                 ->pelotonToEllipticalResistance(lowerResistance);
+                        r.upper_resistance = ((elliptical *)bluetoothManager->device())
+                                                 ->pelotonToEllipticalResistance(upperResistance);
+                        r.average_resistance = ((elliptical *)bluetoothManager->device())
+                                                   ->pelotonToEllipticalResistance(r.average_requested_peloton_resistance);
+                    }
+                }
+
+                       // Set values based on difficulty preference
                 if (difficulty == QStringLiteral("average")) {
-                    p = avg;
+                    r.resistance = r.average_resistance;
+                    r.requested_peloton_resistance = r.average_requested_peloton_resistance;
+                    r.cadence = r.average_cadence;
                 } else if (difficulty == QStringLiteral("upper")) {
-                    p = upper;
+                    r.resistance = r.upper_resistance;
+                    r.requested_peloton_resistance = r.upper_requested_peloton_resistance;
+                    r.cadence = r.upper_cadence;
                 } else { // lower
-                    p = lower;
+                    r.resistance = r.lower_resistance;
+                    r.requested_peloton_resistance = r.lower_requested_peloton_resistance;
+                    r.cadence = r.lower_cadence;
                 }
 
-                switch(p) {
-                    case 1:
-                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.50;
-                    break;
-                    case 2:
-                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.66;
-                    break;
-                    case 3:
-                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.83;
-                    break;
-                    case 4:
-                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.98;
-                    break;
-                    case 5:
-                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.13;
-                    break;
-                    case 6:
-                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.35;
-                    break;
-                    case 7:
-                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.5;
-                    break;
-                    default:
-                        qDebug() << "ERROR not handled!" << p;
-                        break;
-                }
-                atLeastOnePower = true;
+                qDebug() << r.duration << "resistance" << r.lower_requested_peloton_resistance << "-" << r.upper_requested_peloton_resistance
+                         << "cadence" << r.lower_cadence << "-" << r.upper_cadence << "time range" << start << "-" << end;
+            }
+
+            if (isPowerZone || hasResistanceCadence) {
                 trainrows.append(r);
-                qDebug() << r.duration << "power" << r.power;
-            }        
+            }
         }
+
+               // Check duration consistency
         QTime duration(0,0,0,0);
         foreach(trainrow r, trainrows) {
             duration = duration.addSecs(QTime(0,0,0,0).secsTo(r.duration));
             qDebug() << duration << r.duration;
         }
-        if(QTime(0,0,0,0).secsTo(duration) < current_pedaling_duration) {
-            qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << QTime(0,0,0,0).secsTo(duration) << current_pedaling_duration;
+
+        int diff = current_pedaling_duration - QTime(0,0,0,0).secsTo(duration);
+        if (diff > 0 && diff < 10) {
+            qDebug() << "WARNING: The difference between expected and actual duration is positive but less than 10 seconds:" << diff << "seconds";
+        } else if(diff > 0) {
+            qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << diff << current_pedaling_duration;
             trainrows.clear();
         }
+
         // this list doesn't have nothing useful for this session
-        if (!atLeastOnePower) {
+        if (!atLeastOnePower && trainrows.isEmpty()) {
             trainrows.clear();
         }
     }
@@ -1403,8 +1547,11 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                 duration = duration.addSecs(QTime(0,0,0,0).secsTo(r.duration));
                 qDebug() << duration << r.duration;
             }
-            if(QTime(0,0,0,0).secsTo(duration) < current_pedaling_duration) {
-                qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << QTime(0,0,0,0).secsTo(duration) << current_pedaling_duration;
+            int diff = current_pedaling_duration - QTime(0,0,0,0).secsTo(duration);
+            if (diff > 0 && diff < 10) {
+                qDebug() << "WARNING: The difference between expected and actual duration is positive but less than 10 seconds:" << diff << "seconds";
+            } else if(diff > 0) {
+                qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << diff << current_pedaling_duration;
                 trainrows.clear();
             }
         }
@@ -1551,14 +1698,28 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         }
 
         QJsonArray targetMetricsList = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
-
+        
         bool atLeastOnePower = false;
         if (trainrows.empty() && !targetMetricsList.isEmpty() &&
             bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
             bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
 
             int lastEnd = 60;
-            for (QJsonValue metric : targetMetricsList) {
+            
+            // Convert QJsonArray in QList for sorting
+            QList<QJsonValue> sortedMetrics;
+            for (const QJsonValue &metric : targetMetricsList) {
+                sortedMetrics.append(metric);
+            }
+
+            // sort the list for "start"
+            std::sort(sortedMetrics.begin(), sortedMetrics.end(), [](const QJsonValue &a, const QJsonValue &b) {
+                int startA = a.toObject()[QStringLiteral("offsets")].toObject()[QStringLiteral("start")].toInt();
+                int startB = b.toObject()[QStringLiteral("offsets")].toObject()[QStringLiteral("start")].toInt();
+                return startA < startB;
+            });
+
+            for (QJsonValue metric : sortedMetrics) {
                 QJsonObject metricObj = metric.toObject();
                 QJsonObject offsets = metricObj[QStringLiteral("offsets")].toObject();
                 int start = offsets[QStringLiteral("start")].toInt();
@@ -1992,15 +2153,20 @@ void peloton::onPelotonGranted() {
     emit pelotonWebVisibleChanged(pelotonAuthWebVisible);
     QSettings settings;
     QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
-    savePelotonTokenForUser(QZSettings::peloton_accesstoken, pelotonOAuth->token(), userId);
-    savePelotonTokenForUser(QZSettings::peloton_refreshtoken, pelotonOAuth->refreshToken(), userId);
-    savePelotonTokenForUser(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime(), userId);
-    qDebug() << QStringLiteral("peloton authenticathed") << pelotonOAuth->token() << pelotonOAuth->refreshToken();
-    peloton_refreshtoken();
+    tempAccessToken = pelotonOAuth->token();
+    tempRefreshToken = pelotonOAuth->refreshToken();
+    tempExpiresAt = QDateTime::currentDateTime();
+
+    qDebug() << QStringLiteral("peloton authenticathed");
+    
+    peloton_connect();
+    
     if(homeform::singleton())
         homeform::singleton()->setPelotonPopupVisible(true);
-    if(!timer->isActive())
+    if(!timer->isActive()) {
+        peloton_credentials_wrong = false;
         startEngine();
+    }
 }
 
 void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
@@ -2033,9 +2199,9 @@ void peloton::replyDataReceived(const QByteArray &v) {
     QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
     QString s(v);
     QJsonDocument jsonResponse = QJsonDocument::fromJson(s.toUtf8());
-    savePelotonTokenForUser(QZSettings::peloton_accesstoken, jsonResponse[QStringLiteral("access_token")], userId);
-    savePelotonTokenForUser(QZSettings::peloton_refreshtoken, jsonResponse[QStringLiteral("refresh_token")], userId);
-    savePelotonTokenForUser(QZSettings::peloton_expires, jsonResponse[QStringLiteral("expires_at")], userId);
+
+    tempAccessToken = jsonResponse[QStringLiteral("access_token")].toString();
+    tempRefreshToken = jsonResponse[QStringLiteral("refresh_token")].toString();
 
     qDebug() << jsonResponse[QStringLiteral("access_token")] << jsonResponse[QStringLiteral("refresh_token")]
              << jsonResponse[QStringLiteral("expires_at")];
@@ -2098,9 +2264,9 @@ void peloton::networkRequestFinished(QNetworkReply *reply) {
             access_token = document[QStringLiteral("access_token")].toString();
         }
 
-        savePelotonTokenForUser(QZSettings::peloton_accesstoken, access_token, userId);
-        savePelotonTokenForUser(QZSettings::peloton_refreshtoken, refresh_token, userId);
-        savePelotonTokenForUser(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime(), userId);
+        tempAccessToken = access_token;
+        tempRefreshToken = refresh_token;
+        tempExpiresAt = QDateTime::currentDateTime();
 
         qDebug() << access_token << refresh_token;
 
@@ -2157,6 +2323,8 @@ QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
 }
 
 void peloton::peloton_connect_clicked() {
+    timer->stop();
+    
     QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
 
     peloton_connect();
@@ -2203,13 +2371,13 @@ void peloton::peloton_refreshtoken() {
 
     QNetworkRequest request(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token?")));
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
-
+    
     // set params
     QString data;
     data += QStringLiteral("client_id=" PELOTON_CLIENT_ID_S);
-    data += QStringLiteral("&refresh_token=") + getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString();
+    data += QStringLiteral("&refresh_token=") + (tempRefreshToken.isEmpty() ? getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString() : tempRefreshToken);
     data += QStringLiteral("&grant_type=refresh_token");
-
+    
     // make request
     if (manager) {
 
@@ -2250,10 +2418,10 @@ void peloton::peloton_refreshtoken() {
     QString refresh_token = document[QStringLiteral("refresh_token")].toString();
 
     qDebug() << "userid: " << userId;
-    savePelotonTokenForUser(QZSettings::peloton_accesstoken, access_token, userId);
-    savePelotonTokenForUser(QZSettings::peloton_refreshtoken, refresh_token, userId);
-    savePelotonTokenForUser(QZSettings::peloton_lastrefresh, QDateTime::currentDateTime(), userId);
-
+    tempAccessToken = access_token;
+    tempRefreshToken = refresh_token;
+    tempExpiresAt = QDateTime::currentDateTime();
+    
     homeform::singleton()->setToastRequested("Peloton Login OK!");
     
 }

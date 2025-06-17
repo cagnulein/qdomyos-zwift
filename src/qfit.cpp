@@ -12,6 +12,8 @@
 
 #include "fit_decode.hpp"
 #include "fit_developer_field_description.hpp"
+#include "fit_field_description_mesg.hpp"
+#include "fit_developer_field.hpp"
 #include "fit_mesg_broadcaster.hpp"
 
 #ifdef _WIN32
@@ -85,6 +87,17 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         fileIdMesg.SetSerialNumber(12345);
     }
     fileIdMesg.SetTimeCreated(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
+
+    fit::FileCreatorMesg fileCreatorMesg;
+    fileCreatorMesg.SetSoftwareVersion(2119);
+
+    fit::DeviceInfoMesg deviceInfoMesg;
+    deviceInfoMesg.SetDeviceIndex(FIT_DEVICE_INDEX_CREATOR);
+    deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
+    deviceInfoMesg.SetSerialNumber(3313379353);
+    deviceInfoMesg.SetProduct(FIT_GARMIN_PRODUCT_EDGE_1030_PLUS);
+    deviceInfoMesg.SetSoftwareVersion(21.19);
+    deviceInfoMesg.SetSourceType(FIT_SOURCE_TYPE_LOCAL);
 
     bool gps_data = false;
     double max_alt = 0;
@@ -161,15 +174,14 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
                 sessionMesg.SetSubSport(FIT_SUB_SPORT_TREADMILL);
         }
     } else if (type == bluetoothdevice::ELLIPTICAL) {
-
-        if (speed_avg == 0 || speed_avg > 6.5)
-            sessionMesg.SetSport(FIT_SPORT_RUNNING);
-        else
-            sessionMesg.SetSport(FIT_SPORT_WALKING);
-
         if (strava_virtual_activity) {
+            if (speed_avg == 0 || speed_avg > 6.5)
+                sessionMesg.SetSport(FIT_SPORT_RUNNING);
+            else
+                sessionMesg.SetSport(FIT_SPORT_WALKING);
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
         } else {
+            sessionMesg.SetSport(FIT_SPORT_FITNESS_EQUIPMENT);
             sessionMesg.SetSubSport(FIT_SUB_SPORT_ELLIPTICAL);
         }
     } else if (type == bluetoothdevice::ROWING) {
@@ -184,6 +196,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             sessionMesg.SetMaxCadence(session.last().maxStrokesRate);
         if (session.last().avgStrokesLength)
             sessionMesg.SetAvgStrokeDistance(session.last().avgStrokesLength);
+    } else if (type == bluetoothdevice::STAIRCLIMBER) {
+
+        sessionMesg.SetSport(FIT_SPORT_GENERIC);
+        sessionMesg.SetSubSport(FIT_SUB_SPORT_STAIR_CLIMBING);
     } else if (type == bluetoothdevice::JUMPROPE) {
 
         sessionMesg.SetSport(FIT_SPORT_JUMPROPE);
@@ -199,11 +215,56 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     }
 
     fit::DeveloperDataIdMesg devIdMesg;
-    for (FIT_UINT8 i = 0; i < 16; i++) {
-
-        devIdMesg.SetApplicationId(i, i);
-    }
+    // QZ companion app
+    // 3746ce54-a9e9-42b0-9be9-b867f8d20f7d
+    // Core App
+    // 6957fe68-83fe-4ed6-8613-413f70624bb5
+    devIdMesg.SetApplicationId(0, 0x37);
+    devIdMesg.SetApplicationId(1, 0x46);
+    devIdMesg.SetApplicationId(2, 0xce);
+    devIdMesg.SetApplicationId(3, 0x54);
+    devIdMesg.SetApplicationId(4, 0xa9);
+    devIdMesg.SetApplicationId(5, 0xe9);
+    devIdMesg.SetApplicationId(6, 0x42);
+    devIdMesg.SetApplicationId(7, 0xb0);
+    devIdMesg.SetApplicationId(8, 0x9b);
+    devIdMesg.SetApplicationId(9, 0xe9);
+    devIdMesg.SetApplicationId(10, 0xb8);
+    devIdMesg.SetApplicationId(11, 0x67);
+    devIdMesg.SetApplicationId(12, 0xf8);
+    devIdMesg.SetApplicationId(13, 0xd2);
+    devIdMesg.SetApplicationId(14, 0x0f);
+    devIdMesg.SetApplicationId(15, 0x7d);
     devIdMesg.SetDeveloperDataIndex(0);
+    devIdMesg.SetApplicationVersion(70);
+
+           // Create developer field descriptions for custom temperature fields
+    fit::FieldDescriptionMesg coreTemperatureFieldDesc;
+    coreTemperatureFieldDesc.SetDeveloperDataIndex(0);
+    coreTemperatureFieldDesc.SetFieldDefinitionNumber(0);
+    coreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
+    coreTemperatureFieldDesc.SetFieldName(0, L"core_temperature");
+    coreTemperatureFieldDesc.SetUnits(0, L"°C");
+        coreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
+    coreTemperatureFieldDesc.SetNativeFieldNum(139);
+
+    fit::FieldDescriptionMesg skinTemperatureFieldDesc;
+    skinTemperatureFieldDesc.SetDeveloperDataIndex(0);
+    skinTemperatureFieldDesc.SetFieldDefinitionNumber(1);
+    skinTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
+    skinTemperatureFieldDesc.SetFieldName(0, L"skin_temperature");
+    skinTemperatureFieldDesc.SetUnits(0, L"°C");
+        skinTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
+    skinTemperatureFieldDesc.SetNativeFieldNum(255); // Use invalid field number to indicate custom field
+
+    fit::FieldDescriptionMesg heatStrainIndexFieldDesc;
+    heatStrainIndexFieldDesc.SetDeveloperDataIndex(0);
+    heatStrainIndexFieldDesc.SetFieldDefinitionNumber(2);
+    heatStrainIndexFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
+    heatStrainIndexFieldDesc.SetFieldName(0, L"heat_strain_index");
+    heatStrainIndexFieldDesc.SetUnits(0, L"a.u.");
+    heatStrainIndexFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
+    heatStrainIndexFieldDesc.SetNativeFieldNum(255); // Use invalid field number to indicate custom field
 
     fit::ActivityMesg activityMesg;
     activityMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
@@ -226,7 +287,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
     encode.Open(file);
     encode.Write(fileIdMesg);
+    encode.Write(fileCreatorMesg);
     encode.Write(devIdMesg);
+    encode.Write(coreTemperatureFieldDesc);
+    encode.Write(skinTemperatureFieldDesc);
+    encode.Write(heatStrainIndexFieldDesc);
+    encode.Write(deviceInfoMesg);
 
     if (workoutName.length() > 0) {
         fit::TrainingFileMesg trainingFile;
@@ -240,7 +306,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         workout.SetSubSport(sessionMesg.GetSubSport());
 #ifndef _WIN32
         workout.SetWktName(workoutName.toStdWString());
-#endif        
+#endif
         workout.SetNumValidSteps(1);
         encode.Write(workout);
 
@@ -284,6 +350,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     } else if (type == bluetoothdevice::JUMPROPE) {
 
         lapMesg.SetSport(FIT_SPORT_JUMPROPE);
+    } else if (type == bluetoothdevice::STAIRCLIMBER) {
+
+        lapMesg.SetSport(FIT_SPORT_GENERIC);
+        lapMesg.SetSubSport(FIT_SUB_SPORT_STAIR_CLIMBING);
     } else {
 
         lapMesg.SetSport(FIT_SPORT_CYCLING);
@@ -334,8 +404,25 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             newRecord.SetStanceTime(sl.groundContactMS);
         }
 
-        // if a gps track contains a point without the gps information, it has to be discarded, otherwise the database
-        // structure is corrupted and 2 tracks are saved in the FIT file causing mapping issue.
+               // Add custom developer fields for temperature data
+        if (sl.coreTemp) {
+            fit::DeveloperField coreTemperatureField(coreTemperatureFieldDesc, devIdMesg);
+            coreTemperatureField.SetFLOAT32Value((float)sl.coreTemp);
+            newRecord.AddDeveloperField(coreTemperatureField);
+        }
+        if (sl.bodyTemp) {
+            fit::DeveloperField skinTemperatureField(skinTemperatureFieldDesc, devIdMesg);
+            skinTemperatureField.SetFLOAT32Value((float)sl.bodyTemp);
+            newRecord.AddDeveloperField(skinTemperatureField);
+        }
+        if (sl.heatStrainIndex) {
+            fit::DeveloperField heatStrainIndexField(heatStrainIndexFieldDesc, devIdMesg);
+            heatStrainIndexField.SetFLOAT32Value((float)sl.heatStrainIndex);
+            newRecord.AddDeveloperField(heatStrainIndexField);
+        }
+
+               // if a gps track contains a point without the gps information, it has to be discarded, otherwise the database
+               // structure is corrupted and 2 tracks are saved in the FIT file causing mapping issue.
         if (!sl.coordinate.isValid() && gps_data) {
             continue;
         }
@@ -348,9 +435,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             newRecord.SetAltitude(sl.elevationGain);
         }
 
-        // using just the start point as reference in order to avoid pause time
-        // strava ignore the elapsed field
-        // this workaround could leads an accuracy issue.
+               // using just the start point as reference in order to avoid pause time
+               // strava ignore the elapsed field
+               // this workaround could leads an accuracy issue.
         newRecord.SetTimestamp(date.GetTimeStamp() + i);
         encode.Write(newRecord);
 

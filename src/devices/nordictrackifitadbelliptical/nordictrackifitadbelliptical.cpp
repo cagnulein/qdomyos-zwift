@@ -18,7 +18,7 @@ nordictrackifitadbellipticalLogcatAdbThread::nordictrackifitadbellipticalLogcatA
 
 void nordictrackifitadbellipticalLogcatAdbThread::run() {
     QSettings settings;
-    QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+    QString ip = settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
     runAdbCommand("connect " + ip);
 
     while (1) {
@@ -66,17 +66,27 @@ void nordictrackifitadbellipticalLogcatAdbThread::runAdbTailCommand(QString comm
         QStringList lines = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
         bool wattFound = false;
         bool hrmFound = false;
+        bool cadenceFound = false;
+        bool resistanceFound = false;
         foreach (QString line, lines) {
-            if (line.contains("Changed KPH")) {
-                emit debug(line);
+            if (line.contains("Changed KPH") || line.contains("Changed Actual KPH")) {
+                emit debug(line);                
                 speed = line.split(' ').last().toDouble();
             } else if (line.contains("Changed Grade")) {
                 emit debug(line);
                 inclination = line.split(' ').last().toDouble();
+            } else if (line.contains("Changed RPM")) {
+                emit debug(line);
+                cadence = line.split(' ').last().toDouble();
+                cadenceFound = true;
             } else if (line.contains("Changed Watts")) {
                 emit debug(line);
                 watt = line.split(' ').last().toDouble();
                 wattFound = true;
+            } else if (line.contains("Resistance changed")) {
+                emit debug(line);
+                resistance = line.split(' ').last().toDouble();
+                resistanceFound = true;
             } else if (line.contains("HeartRateDataUpdate")) {
                 emit debug(line);
                 QStringList splitted = line.split(' ', Qt::SkipEmptyParts);
@@ -87,10 +97,14 @@ void nordictrackifitadbellipticalLogcatAdbThread::runAdbTailCommand(QString comm
             }
         }
         emit onSpeedInclination(speed, inclination);
+        if (cadenceFound)
+            emit onCadence(cadence);
         if (wattFound)
             emit onWatt(watt);
         if (hrmFound)
             emit onHRM(hrm);
+        if (resistanceFound)
+            emit onResistance(resistance);
 #ifdef Q_OS_WINDOWS        
         if(adbCommandPending.length() != 0) {
             runAdbCommand(adbCommandPending);
@@ -121,7 +135,7 @@ nordictrackifitadbelliptical::nordictrackifitadbelliptical(bool noWriteResistanc
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbelliptical::update);
-    ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+    ip = settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
     refresh->start(200ms);
 
     socket = new QUdpSocket(this);
@@ -173,6 +187,14 @@ nordictrackifitadbelliptical::nordictrackifitadbelliptical(bool noWriteResistanc
                 &nordictrackifitadbelliptical::onSpeedInclination);
         connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onWatt, this,
                 &nordictrackifitadbelliptical::onWatt);*/
+        connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onCadence, this,
+                &nordictrackifitadbelliptical::onCadence);
+        connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onSpeedInclination, this,
+                &nordictrackifitadbelliptical::onSpeedInclination);
+        connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onWatt, this,
+                &nordictrackifitadbelliptical::onWatt);
+        connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onResistance, this,
+                &nordictrackifitadbelliptical::onResistance);
         connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::onHRM, this, &nordictrackifitadbelliptical::onHRM);
         connect(logcatAdbThread, &nordictrackifitadbellipticalLogcatAdbThread::debug, this, &nordictrackifitadbelliptical::debug);
         logcatAdbThread->start();
@@ -182,6 +204,28 @@ nordictrackifitadbelliptical::nordictrackifitadbelliptical(bool noWriteResistanc
 #endif
 #endif
     }
+}
+
+void nordictrackifitadbelliptical::onSpeedInclination(double speed, double inclination) {
+    if(speed > 0)
+        speedReadFromTM = true;
+    Speed = speed;
+    Inclination = inclination;
+}
+
+void nordictrackifitadbelliptical::onWatt(double watt) {
+    m_watt = watt;
+    wattReadFromTM = true;
+}
+
+void nordictrackifitadbelliptical::onCadence(double cadence) {
+    Cadence = cadence;
+    cadenceReadFromTM = true;
+}
+
+void nordictrackifitadbelliptical::onResistance(double resistance) {
+    Resistance = resistance;
+    resistanceReadFromTM = true;
 }
 
 bool nordictrackifitadbelliptical::inclinationAvailableByHardware() {
@@ -219,7 +263,7 @@ void nordictrackifitadbelliptical::processPendingDatagrams() {
         qDebug() << "Port From :: " << port;
         qDebug() << "Message :: " << datagram;
 
-        QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+        QString ip = settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
         QString heartRateBeltName =
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
@@ -238,6 +282,7 @@ void nordictrackifitadbelliptical::processPendingDatagrams() {
             if (line.contains(QStringLiteral("Changed KPH")) && !settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
+                    speedReadFromTM = true;
                     speed = getDouble(aValues.last());
                     Speed = speed;
                 }
@@ -246,9 +291,11 @@ void nordictrackifitadbelliptical::processPendingDatagrams() {
                 if (aValues.length()) {
                     cadence = getDouble(aValues.last());
                     Cadence = cadence;
-                    Speed = Cadence.value() *
-                            settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
-                                .toDouble();
+                    if(!speedReadFromTM) {
+                        Speed = Cadence.value() *
+                                settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
+                                    .toDouble();
+                    }
                 }
             } else if (line.contains(QStringLiteral("Changed CurrentGear"))) {
                 QStringList aValues = line.split(" ");
@@ -290,82 +337,73 @@ void nordictrackifitadbelliptical::processPendingDatagrams() {
                 fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), 20);
         }
 
-        bool proform_studio_NTEX71021 =
-            settings.value(QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021).toBool();
         bool nordictrack_ifit_adb_remote =
             settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
                 .toBool();
         double inclination_delay_seconds = settings.value(QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds).toDouble();
 
-        // only resistance
-        if(proform_studio_NTEX71021 || nordictrackadbbike_resistance) {
-            if (nordictrack_ifit_adb_remote) {
-                if (requestResistance != -1) {
-                    if (requestResistance != currentResistance().value()) {
-                        int x1 = 950;
-                        int y2 = (int)(493 - (13.57 * (requestResistance - 1)));
-                        int y1Resistance = (int)(493 - (13.57 * currentResistance().value()));
+        // resistance
+        if (nordictrack_ifit_adb_remote) {
+            if (requestResistance != -1) {
+                if (requestResistance != currentResistance().value()) {
+                    bool nordictrack_fs10i = true; //settings.value(QZSettings::nordictrack_fs10i, QZSettings::default_nordictrack_fs10i).toBool();
+                    int x1 = 1205; // Estimated x-coordinate of the resistance slider (right side)
+                    int y2 = (int)(590 - (15.65 * requestResistance));
+                    int y1Resistance = (int)(590 - (15.65 * currentResistance().value()));
 
-                        if(!proform_studio_NTEX71021) { // s22i default
-                            x1 = 1920 - 75;
-                            y2 = (int)(803 - (23.777 * requestResistance));
-                            y1Resistance = (int)(803 - (23.777 * currentResistance().value()));
-                            Resistance = requestResistance;
-                        }
+                    // For resistance slider on NordicTrackFS10i
+                    if(nordictrack_fs10i) {
+                        x1 = 1205; // Estimated x-coordinate of the resistance slider (right side)
+                        y2 = (int)(590 - (15.65 * requestResistance));
+                        y1Resistance = (int)(590 - (15.65 * currentResistance().value()));
+                    }
 
-                        lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
-                                      QString::number(x1) + " " + QString::number(y2) + " 200";
-                        qDebug() << " >> " + lastCommand;
+                    lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
+                                  QString::number(x1) + " " + QString::number(y2) + " 200";
+                    qDebug() << " >> " + lastCommand;
 #ifdef Q_OS_ANDROID
-                        QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-                        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
-                                                                  "sendCommand", "(Ljava/lang/String;)V",
-                                                                  command.object<jstring>());
+                    QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+                    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
+                                                              "sendCommand", "(Ljava/lang/String;)V",
+                                                              command.object<jstring>());
 #elif defined(Q_OS_WIN)
-                        if (logcatAdbThread)
-                            logcatAdbThread->runCommand("shell " + lastCommand);
+                    if (logcatAdbThread)
+                        logcatAdbThread->runCommand("shell " + lastCommand);
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
-                        h->adb_sendcommand(lastCommand.toStdString().c_str());
+                    h->adb_sendcommand(lastCommand.toStdString().c_str());
 #endif
 #endif
-                    }
                 }
+            }
 
-                requestResistance = -1;
-            }            
+            requestResistance = -1;
+        } else {
             QByteArray message = (QString::number(requestResistance).toLocal8Bit()) + ";";
             requestResistance = -1;
             int ret = socket->writeDatagram(message, message.size(), sender, 8003);
-            qDebug() << QString::number(ret) + " >> " + message;                
+            qDebug() << QString::number(ret) + " >> " + message;
         }
+
         // since the motor of the bike is slow, let's filter the inclination changes to more than 4 seconds
-        else if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > inclination_delay_seconds) {
+        if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > inclination_delay_seconds) {
             lastInclinationChanged = QDateTime::currentDateTime();
             if (nordictrack_ifit_adb_remote) {
-                bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
-                if (requestInclination != -100 && erg_mode && requestResistance != -100) {
-                    qDebug() << "forcing inclination based on the erg mode resistance request of" << requestResistance;
-                    requestInclination = requestResistance;
-                    requestResistance = -100;
-                }
                 if (requestInclination != -100) {
                     double inc = qRound(requestInclination / 0.5) * 0.5;
                     if (inc != currentInclination().value()) {
-                        bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();                        
-                        bool proform_tdf_10_0 = settings.value(QZSettings::proform_tdf_10_0, QZSettings::default_proform_tdf_10_0).toBool();                        
+                        bool nordictrack_fs10i = true; //settings.value(QZSettings::nordictrack_fs10i, QZSettings::default_nordictrack_fs10i).toBool();
                         int x1 = 75;
                         int y2 = (int)(616.18 - (17.223 * (inc + gears())));
                         int y1Resistance = (int)(616.18 - (17.223 * currentInclination().value()));
 
-                        if(proform_studio) {
-                            x1 = 1827;
-                            y2 = (int)(806 - (21.375 * (inc + gears())));
-                            y1Resistance = (int)(806 - (21.375 * currentInclination().value()));
-                        } else if(proform_tdf_10_0) {
+                        if(nordictrack_fs10i) {
                             x1 = 75;
-                            y2 = (int)(477 - (12.5 * (inc + gears())));
-                            y1Resistance = (int)(477 - (12.5 * currentInclination().value()));
+                            int y_bottom = 585; // y-coordinate for 0% incline
+                            double coefficient = 35.5; // (585-230)/10 pixels per 1% of inclination
+
+                            y2 = (int)(y_bottom - (coefficient * (inc + gears())));
+                            y1Resistance = (int)(y_bottom - (coefficient * currentInclination().value()));
                         }
 
                         lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
@@ -384,43 +422,17 @@ void nordictrackifitadbelliptical::processPendingDatagrams() {
                         h->adb_sendcommand(lastCommand.toStdString().c_str());
 #endif
 #endif
-                        // this bike has both inclination and resistance, let's try to handle both
-                        // the Original Poster doesn't want anymore, but maybe it will be useful in the future
-                        /*
-                        if(freemotion_coachbike_b22_7) {
-                            int x1 = 75;
-                            int y2 = (int)(616.18 - (17.223 * (inc + gears())));
-                            int y1Resistance = (int)(616.18 - (17.223 * currentInclination().value()));
-
-                            lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
-                                        QString::number(x1) + " " + QString::number(y2) + " 200";
-                            qDebug() << " >> " + lastCommand;
-    #ifdef Q_OS_ANDROID
-                            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-                            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
-                                                                    "sendCommand", "(Ljava/lang/String;)V",
-                                                                    command.object<jstring>());
-    #elif defined(Q_OS_WIN)
-                            if (logcatAdbThread)
-                                logcatAdbThread->runCommand("shell " + lastCommand);
-    #elif defined Q_OS_IOS
-    #ifndef IO_UNDER_QT
-                            h->adb_sendcommand(lastCommand.toStdString().c_str());
-    #endif
-    #endif
-                        }
-                        */
                     }
                 }
 
                 requestInclination = -100;
+            } else {
+                double r = currentResistance().value() + difficult() + gears(); // the inclination here is like the resistance for the other bikes
+                QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";" + QString::number(r).toLocal8Bit();
+                requestInclination = -100;
+                int ret = socket->writeDatagram(message, message.size(), sender, 8003);
+                qDebug() << QString::number(ret) + " >> " + message;
             }
-
-            double r = currentResistance().value() + difficult() + gears(); // the inclination here is like the resistance for the other bikes
-            QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";" + QString::number(r).toLocal8Bit();
-            requestInclination = -100;
-            int ret = socket->writeDatagram(message, message.size(), sender, 8003);
-            qDebug() << QString::number(ret) + " >> " + message;
         }
 
         if (watts())
@@ -464,6 +476,7 @@ void nordictrackifitadbelliptical::processPendingDatagrams() {
 #endif
 #endif
 
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
         emit debug(QStringLiteral("Current Gear: ") + QString::number(gear));
