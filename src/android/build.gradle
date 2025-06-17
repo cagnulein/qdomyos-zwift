@@ -183,19 +183,23 @@ android {
         multiDexEnabled true
     }
 
-    // IMPROVED: Enhanced packaging options to handle protobuf conflicts
+    // IMPROVED: Enhanced packaging options to handle all conflicts
     packagingOptions {
-        // Handle duplicate META-INF files
+        // EXCLUDE problematic META-INF files instead of pickFirst to avoid collisions
+        exclude 'META-INF/MANIFEST.MF'
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/io.netty.versions.properties'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/AL2.0'
+        exclude 'META-INF/LGPL2.1'
+        
+        // Keep pickFirst only for files that are actually needed
         pickFirst '**/META-INF/okio.kotlin_module'
         pickFirst '**/META-INF/*.kotlin_module'
-        pickFirst '**/META-INF/INDEX.LIST'
-        pickFirst '**/META-INF/io.netty.versions.properties'
-        pickFirst '**/META-INF/DEPENDENCIES'
-        pickFirst '**/META-INF/LICENSE'
-        pickFirst '**/META-INF/LICENSE.txt'
-        pickFirst '**/META-INF/NOTICE'
-        pickFirst '**/META-INF/NOTICE.txt'
-        pickFirst '**/META-INF/MANIFEST.MF'
         
         // Handle duplicate protobuf classes - this is crucial for your error
         pickFirst '**/com/google/protobuf/**'
@@ -204,9 +208,9 @@ android {
         pickFirst '**/libprotobuf-lite.so'
         pickFirst '**/libprotoc.so'
         
-        // Exclude problematic META-INF files that might cause conflicts
-        exclude 'META-INF/INDEX.LIST'
-        exclude 'META-INF/io.netty.versions.properties'
+        // Additional common conflicts
+        pickFirst '**/META-INF/services/**'
+        pickFirst '**/kotlin/**'
     }
 
     tasks.all { task ->
