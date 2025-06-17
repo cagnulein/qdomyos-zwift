@@ -1073,6 +1073,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/activitylog/ActivityLogProto.java \
     $$PWD/android/src/com/ifit/glassos/activitylog/ActivityLogResult.java \
     $$PWD/android/src/com/ifit/glassos/activitylog/ActivityLogResultOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/activitylog/ActivityLogServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/activitylog/ActivityLogServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/activitylog/ActivityLogStats.java \
     $$PWD/android/src/com/ifit/glassos/activitylog/ActivityLogStatsOrBuilder.java \
@@ -1097,7 +1098,9 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/antplus/AntPlusDeviceProto.java \
     $$PWD/android/src/com/ifit/glassos/antplus/AntPlusScanDurationMessage.java \
     $$PWD/android/src/com/ifit/glassos/antplus/AntPlusScanDurationMessageOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/antplus/AntPlusServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/antplus/AntPlusServiceProto.java \
+    $$PWD/android/src/com/ifit/glassos/appnavigation/AppNavigationServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/appnavigation/AppNavigationServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/appnavigation/ForegroundClass.java \
     $$PWD/android/src/com/ifit/glassos/appnavigation/ForegroundClassNameRequest.java \
@@ -1127,6 +1130,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/appstore/AppStoreAppProto.java \
     $$PWD/android/src/com/ifit/glassos/appstore/AppStoreAppStatus.java \
     $$PWD/android/src/com/ifit/glassos/appstore/AppStoreAppStatusProto.java \
+    $$PWD/android/src/com/ifit/glassos/appstore/AppStoreServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/appstore/AppStoreServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/appstore/AppStoreState.java \
     $$PWD/android/src/com/ifit/glassos/appstore/AppStoreStateOrBuilder.java \
@@ -1174,6 +1178,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/auth/AuthQRCodeResultOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/auth/AuthResult.java \
     $$PWD/android/src/com/ifit/glassos/auth/AuthResultOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/auth/AuthServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/auth/AuthServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/auth/AuthToken.java \
     $$PWD/android/src/com/ifit/glassos/auth/AuthTokenList.java \
@@ -1202,6 +1207,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/bluetooth/BluetoothResultOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/bluetooth/BluetoothScanState.java \
     $$PWD/android/src/com/ifit/glassos/bluetooth/BluetoothScanStateOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/bluetooth/BluetoothServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/bluetooth/BluetoothServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/bluetooth/BluetoothServiceState.java \
     $$PWD/android/src/com/ifit/glassos/bluetooth/BluetoothServiceStateOrBuilder.java \
@@ -1228,6 +1234,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/club/GetClubCodeResponseOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/club/GetUseVideoScreensaverResponse.java \
     $$PWD/android/src/com/ifit/glassos/club/GetUseVideoScreensaverResponseOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/club/IFitClubSettingsServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/club/IsEgymEnabledRequest.java \
     $$PWD/android/src/com/ifit/glassos/club/IsEgymEnabledRequestOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/club/SaveClubCodeRequest.java \
@@ -1248,6 +1255,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/console/ConsoleInfo.java \
     $$PWD/android/src/com/ifit/glassos/console/ConsoleInfoOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/console/ConsoleInfoProto.java \
+    $$PWD/android/src/com/ifit/glassos/console/ConsoleServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/console/ConsoleServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/console/ConsoleState.java \
     $$PWD/android/src/com/ifit/glassos/console/ConsoleStateMessage.java \
@@ -1255,6 +1263,18 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/console/ConsoleStateProto.java \
     $$PWD/android/src/com/ifit/glassos/console/ConsoleType.java \
     $$PWD/android/src/com/ifit/glassos/console/ConsoleTypeProto.java \
+    $$PWD/android/src/com/ifit/glassos/console/calibration/InclineCalibrationServiceGrpc.java \
+    $$PWD/android/src/com/ifit/glassos/console/calibration/ThrottleCalibrationServiceGrpc.java \
+    $$PWD/android/src/com/ifit/glassos/console/constantwatts/ConstantWattsServiceGrpc.java \
+    $$PWD/android/src/com/ifit/glassos/console/idlelockout/IdleModeLockoutServiceGrpc.java \
+    $$PWD/android/src/com/ifit/glassos/console/keypress/KeyPressServiceGrpc.java \
+    $$PWD/android/src/com/ifit/glassos/console/proximity/ProximitySensingServiceGrpc.java \
+    $$PWD/android/src/com/ifit/glassos/console/sleep/SleepStateServiceGrpc.java \
+    $$PWD/android/src/com/ifit/glassos/console/spoofing/ConsoleSpoofingServiceGrpc.java \
+    $$PWD/android/src/com/ifit/glassos/console/tdf/TDFGearServiceGrpc.java \
+    $$PWD/android/src/com/ifit/glassos/console/update/FirmwareUpdateServiceGrpc.java \
+    $$PWD/android/src/com/ifit/glassos/console/useractivity/UserActivityServiceGrpc.java \
+    $$PWD/android/src/com/ifit/glassos/console/virtualdmk/VirtualDMKServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/featuregates/BooleanFacetPayload.java \
     $$PWD/android/src/com/ifit/glassos/featuregates/BooleanFacetPayloadOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/featuregates/EnumeratedConsoleTypeFacetMessage.java \
@@ -1277,6 +1297,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/featuregates/FeatureGateRule.java \
     $$PWD/android/src/com/ifit/glassos/featuregates/FeatureGateRuleOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/featuregates/FeatureGateRuleProto.java \
+    $$PWD/android/src/com/ifit/glassos/featuregates/FeatureGateServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/featuregates/FeatureGateServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/featuregates/GatedFeature.java \
     $$PWD/android/src/com/ifit/glassos/featuregates/GatedFeatureMessage.java \
@@ -1286,6 +1307,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/settings/BrightnessOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/settings/BrightnessResult.java \
     $$PWD/android/src/com/ifit/glassos/settings/BrightnessResultOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/settings/BrightnessServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/settings/BrightnessServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/settings/DemoMode.java \
     $$PWD/android/src/com/ifit/glassos/settings/DemoModeOrBuilder.java \
@@ -1295,13 +1317,16 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/settings/DemoModeScreensaverVolumeOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/settings/DemoModeScreensaverVolumeResult.java \
     $$PWD/android/src/com/ifit/glassos/settings/DemoModeScreensaverVolumeResultOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/settings/DemoModeServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/settings/DemoModeServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/settings/FanState.java \
     $$PWD/android/src/com/ifit/glassos/settings/FanStateMessage.java \
     $$PWD/android/src/com/ifit/glassos/settings/FanStateMessageOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/settings/FanStateServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/settings/FanStateServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/settings/MaxSpeedMessage.java \
     $$PWD/android/src/com/ifit/glassos/settings/MaxSpeedMessageOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/settings/MaxSpeedServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/settings/MaxSpeedServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/settings/Settings.java \
     $$PWD/android/src/com/ifit/glassos/settings/SettingsOrBuilder.java \
@@ -1311,6 +1336,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/settings/SystemUnitsMessageOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/settings/SystemUnitsResult.java \
     $$PWD/android/src/com/ifit/glassos/settings/SystemUnitsResultOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/settings/SystemUnitsServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/settings/SystemUnitsServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/settings/TimeZone.java \
     $$PWD/android/src/com/ifit/glassos/settings/TimeZoneList.java \
@@ -1318,16 +1344,22 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/settings/TimeZoneOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/settings/TimeZoneResult.java \
     $$PWD/android/src/com/ifit/glassos/settings/TimeZoneResultOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/settings/TimeZoneServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/settings/TimeZoneServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/settings/VideoQuality.java \
     $$PWD/android/src/com/ifit/glassos/settings/VideoQualityLevel.java \
     $$PWD/android/src/com/ifit/glassos/settings/VideoQualityOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/settings/VideoQualityResult.java \
     $$PWD/android/src/com/ifit/glassos/settings/VideoQualityResultOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/settings/VideoQualityServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/settings/VideoQualityServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/settings/VolumeMessage.java \
     $$PWD/android/src/com/ifit/glassos/settings/VolumeMessageOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/settings/VolumeServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/settings/VolumeServiceProto.java \
+    $$PWD/android/src/com/ifit/glassos/settings/hdmi/HdmiSoundServiceGrpc.java \
+    $$PWD/android/src/com/ifit/glassos/settings/heartrate/HeartRateSettingsServiceGrpc.java \
+    $$PWD/android/src/com/ifit/glassos/settings/lighting/LightingServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/user/Address.java \
     $$PWD/android/src/com/ifit/glassos/user/AddressOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/user/AddressProto.java \
@@ -1394,6 +1426,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/user/UserProto.java \
     $$PWD/android/src/com/ifit/glassos/user/UserResult.java \
     $$PWD/android/src/com/ifit/glassos/user/UserResultOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/user/UserServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/user/UserServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/user/UserTier.java \
     $$PWD/android/src/com/ifit/glassos/user/UserTierProto.java \
@@ -1446,36 +1479,43 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/workout/CadenceMetricList.java \
     $$PWD/android/src/com/ifit/glassos/workout/CadenceMetricListOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/CadenceMetricOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/CadenceServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/CadenceServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/CaloriesBurnedMetric.java \
     $$PWD/android/src/com/ifit/glassos/workout/CaloriesBurnedMetricList.java \
     $$PWD/android/src/com/ifit/glassos/workout/CaloriesBurnedMetricListOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/CaloriesBurnedMetricOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/CaloriesBurnedServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/CaloriesBurnedServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/CaloriesPerHourMetric.java \
     $$PWD/android/src/com/ifit/glassos/workout/CaloriesPerHourMetricList.java \
     $$PWD/android/src/com/ifit/glassos/workout/CaloriesPerHourMetricListOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/CaloriesPerHourMetricOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/CaloriesPerHourServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/CaloriesPerHourServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/DistanceMetric.java \
     $$PWD/android/src/com/ifit/glassos/workout/DistanceMetricList.java \
     $$PWD/android/src/com/ifit/glassos/workout/DistanceMetricListOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/DistanceMetricOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/DistanceServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/DistanceServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/ElapsedTimeMetric.java \
     $$PWD/android/src/com/ifit/glassos/workout/ElapsedTimeMetricList.java \
     $$PWD/android/src/com/ifit/glassos/workout/ElapsedTimeMetricListOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/ElapsedTimeMetricOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/ElapsedTimeServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/ElapsedTimeServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/ElevationMetric.java \
     $$PWD/android/src/com/ifit/glassos/workout/ElevationMetricList.java \
     $$PWD/android/src/com/ifit/glassos/workout/ElevationMetricListOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/ElevationMetricOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/ElevationServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/ElevationServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/FiveHundredSplitMetric.java \
     $$PWD/android/src/com/ifit/glassos/workout/FiveHundredSplitMetricList.java \
     $$PWD/android/src/com/ifit/glassos/workout/FiveHundredSplitMetricListOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/FiveHundredSplitMetricOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/FiveHundredSplitServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/FiveHundredSplitServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/GearMetric.java \
     $$PWD/android/src/com/ifit/glassos/workout/GearMetricList.java \
@@ -1483,6 +1523,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/workout/GearMetricOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/GearRequest.java \
     $$PWD/android/src/com/ifit/glassos/workout/GearRequestOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/GearServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/GearServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/HeartRateMetric.java \
     $$PWD/android/src/com/ifit/glassos/workout/HeartRateMetricList.java \
@@ -1490,6 +1531,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/workout/HeartRateMetricOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/HeartRateRequest.java \
     $$PWD/android/src/com/ifit/glassos/workout/HeartRateRequestOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/HeartRateServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/HeartRateServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/InclineMetric.java \
     $$PWD/android/src/com/ifit/glassos/workout/InclineMetricList.java \
@@ -1497,19 +1539,23 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/workout/InclineMetricOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/InclineRequest.java \
     $$PWD/android/src/com/ifit/glassos/workout/InclineRequestOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/InclineServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/InclineServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/LapTimeMetric.java \
     $$PWD/android/src/com/ifit/glassos/workout/LapTimeMetricList.java \
     $$PWD/android/src/com/ifit/glassos/workout/LapTimeMetricListOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/LapTimeMetricOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/LapTimeServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/LapTimeServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/MapViewTypeMessage.java \
     $$PWD/android/src/com/ifit/glassos/workout/MapViewTypeMessageOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/MapWorkoutServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/MapWorkoutServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/PauseTimeRemainingMetric.java \
     $$PWD/android/src/com/ifit/glassos/workout/PauseTimeRemainingMetricList.java \
     $$PWD/android/src/com/ifit/glassos/workout/PauseTimeRemainingMetricListOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/PauseTimeRemainingMetricOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/PauseTimeRemainingServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/PauseTimeRemainingServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/ProgramAtPosition.java \
     $$PWD/android/src/com/ifit/glassos/workout/ProgramAtPositionOrBuilder.java \
@@ -1520,6 +1566,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/workout/ProgrammedWorkoutSessionError.java \
     $$PWD/android/src/com/ifit/glassos/workout/ProgrammedWorkoutSessionErrorCode.java \
     $$PWD/android/src/com/ifit/glassos/workout/ProgrammedWorkoutSessionErrorOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/ProgrammedWorkoutSessionServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/ProgrammedWorkoutSessionServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/ProgrammedWorkoutSessiontErrorProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/RecoveredSessionResponse.java \
@@ -1530,7 +1577,9 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/workout/ResistanceMetricOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/ResistanceRequest.java \
     $$PWD/android/src/com/ifit/glassos/workout/ResistanceRequestOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/ResistanceServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/ResistanceServiceProto.java \
+    $$PWD/android/src/com/ifit/glassos/workout/RingServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/RingServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/RingStateMessage.java \
     $$PWD/android/src/com/ifit/glassos/workout/RingStateMessageOrBuilder.java \
@@ -1540,11 +1589,13 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/workout/RpmMetricOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/RpmRequest.java \
     $$PWD/android/src/com/ifit/glassos/workout/RpmRequestOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/RpmServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/RpmServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/SetAtPositionRequest.java \
     $$PWD/android/src/com/ifit/glassos/workout/SetAtPositionRequestOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/SmartAdjustScaleChangeNotificationResponse.java \
     $$PWD/android/src/com/ifit/glassos/workout/SmartAdjustScaleChangeNotificationResponseOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/SmartAdjustServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/SmartAdjustServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/SpeedMetric.java \
     $$PWD/android/src/com/ifit/glassos/workout/SpeedMetricList.java \
@@ -1552,6 +1603,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/workout/SpeedMetricOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/SpeedRequest.java \
     $$PWD/android/src/com/ifit/glassos/workout/SpeedRequestOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/SpeedServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/SpeedServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/StartWorkoutResponse.java \
     $$PWD/android/src/com/ifit/glassos/workout/StartWorkoutResponseOrBuilder.java \
@@ -1559,6 +1611,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/workout/StepCountMetricList.java \
     $$PWD/android/src/com/ifit/glassos/workout/StepCountMetricListOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/StepCountMetricOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/StepCountServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/StepCountServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/StrokesMetric.java \
     $$PWD/android/src/com/ifit/glassos/workout/StrokesMetricList.java \
@@ -1570,12 +1623,15 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/workout/StrokesPerMinuteMetricOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/StrokesPerMinuteRequest.java \
     $$PWD/android/src/com/ifit/glassos/workout/StrokesPerMinuteRequestOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/StrokesPerMinuteServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/StrokesPerMinuteServiceProto.java \
+    $$PWD/android/src/com/ifit/glassos/workout/StrokesServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/StrokesServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/WattsMetric.java \
     $$PWD/android/src/com/ifit/glassos/workout/WattsMetricList.java \
     $$PWD/android/src/com/ifit/glassos/workout/WattsMetricListOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/WattsMetricOrBuilder.java \
+    $$PWD/android/src/com/ifit/glassos/workout/WattsServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/WattsServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/WorkoutError.java \
     $$PWD/android/src/com/ifit/glassos/workout/WorkoutErrorCode.java \
@@ -1584,6 +1640,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/workout/WorkoutResult.java \
     $$PWD/android/src/com/ifit/glassos/workout/WorkoutResultOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/WorkoutResultProto.java \
+    $$PWD/android/src/com/ifit/glassos/workout/WorkoutServiceGrpc.java \
     $$PWD/android/src/com/ifit/glassos/workout/WorkoutServiceProto.java \
     $$PWD/android/src/com/ifit/glassos/workout/WorkoutSourceMessage.java \
     $$PWD/android/src/com/ifit/glassos/workout/WorkoutSourceMessageOrBuilder.java \
@@ -1591,6 +1648,7 @@ DISTFILES += \
     $$PWD/android/src/com/ifit/glassos/workout/WorkoutStateMessage.java \
     $$PWD/android/src/com/ifit/glassos/workout/WorkoutStateMessageOrBuilder.java \
     $$PWD/android/src/com/ifit/glassos/workout/WorkoutStateProto.java \
+    $$PWD/android/src/com/ifit/glassos/workout/activepulse/ActivePulseServiceGrpc.java \
     $$PWD/android/src/firebase/transport/ClientAnalytics.java \
     $$PWD/android/src/firebase/transport/ClientMetrics.java \
     $$PWD/android/src/firebase/transport/ClientMetricsOrBuilder.java \
