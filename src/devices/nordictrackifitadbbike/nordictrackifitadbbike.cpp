@@ -300,6 +300,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
                 .toBool();
         double inclination_delay_seconds = settings.value(QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds).toDouble();
+        bool proform_tdf_10_0 = settings.value(QZSettings::proform_tdf_10_0, QZSettings::default_proform_tdf_10_0).toBool();                        
 
         // only resistance
         if(proform_studio_NTEX71021 || nordictrackadbbike_resistance) {
@@ -317,7 +318,14 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                             Resistance = requestResistance;
                             emit resistanceRead(Resistance.value());
                         }
-
+                        else if(proform_tdf_10_0) {
+                            x1 = 1175;
+                            y2 = (int)(590 - (15.91 * requestResistance));
+                            y1Resistance = (int)(590 - (15.91 * currentResistance().value()));
+                            Resistance = requestResistance;
+                            emit resistanceRead(Resistance.value());
+                        }
+                        
                         lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
                                       QString::number(x1) + " " + QString::number(y2) + " 200";
                         qDebug() << " >> " + lastCommand;
@@ -358,7 +366,6 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                     double inc = qRound(requestInclination / 0.5) * 0.5;
                     if (inc != currentInclination().value()) {
                         bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();                        
-                        bool proform_tdf_10_0 = settings.value(QZSettings::proform_tdf_10_0, QZSettings::default_proform_tdf_10_0).toBool();                        
                         int x1 = 75;
                         int y2 = (int)(616.18 - (17.223 * (inc + gears())));
                         int y1Resistance = (int)(616.18 - (17.223 * currentInclination().value()));
