@@ -135,10 +135,6 @@ protobuf {
                 option "lite"
             }
         }
-        // Only generate from your custom proto files, not google's standard ones
-        task.source = task.source.filter { file ->
-            !file.path.contains("google/protobuf")
-        }
       }
     }
 }
