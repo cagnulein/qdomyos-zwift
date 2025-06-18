@@ -128,19 +128,6 @@ android {
 
     buildToolsVersion '29.0.2'
 
-    buildTypes {
-        release {
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-        debug {
-            // Abilita ProGuard anche per debug per risolvere i conflitti
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -174,7 +161,6 @@ android {
         compileSdkVersion 33
         minSdkVersion = 21
         targetSdkVersion = 34
-        multiDexEnabled true
     }
 
     // FIXED: Packaging options ottimizzato per gestire i conflitti protobuf
