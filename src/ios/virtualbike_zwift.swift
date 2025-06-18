@@ -243,6 +243,35 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                           CSCMeasurementCharacteristic,
                                           SCControlPointCharacteristic]
             self.peripheralManager.add(CSCService)
+        } else {
+            // CSC Service per garmin_bluetooth_compatibility
+            self.CSCService = CBMutableService(type: CSCServiceUUID, primary: true)
+            
+            let CSCFeatureProperties: CBCharacteristicProperties = [.read]
+            let CSCFeaturePermissions: CBAttributePermissions = [.readable]
+            self.CSCFeatureCharacteristic = CBMutableCharacteristic(type: CSCFeatureCharacteristicUUID,
+                                                                    properties: CSCFeatureProperties,
+                                                                    value: Data (bytes: [0x01, 0x00]),
+                                                                    permissions: CSCFeaturePermissions)
+            
+            let SensorLocationProperties: CBCharacteristicProperties = [.read]
+            let SensorLocationPermissions: CBAttributePermissions = [.readable]
+            self.SensorLocationCharacteristic = CBMutableCharacteristic(type: SensorLocationCharacteristicUUID,
+                                                                        properties: SensorLocationProperties,
+                                                                        value: Data (bytes: [0x0D]),
+                                                                        permissions: SensorLocationPermissions)
+            
+            let CSCMeasurementProperties: CBCharacteristicProperties = [.notify, .read]
+            let CSCMeasurementPermissions: CBAttributePermissions = [.readable]
+            self.CSCMeasurementCharacteristic = CBMutableCharacteristic(type: CSCMeasurementCharacteristicUUID,
+                                                                        properties: CSCMeasurementProperties,
+                                                                        value: nil,
+                                                                        permissions: CSCMeasurementPermissions)
+            
+            CSCService.characteristics = [CSCFeatureCharacteristic,
+                                          SensorLocationCharacteristic,
+                                          CSCMeasurementCharacteristic]
+            self.peripheralManager.add(CSCService)
         }
         self.PowerService = CBMutableService(type: PowerServiceUUID, primary: true)
         
@@ -352,7 +381,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       
       if(garmin_bluetooth_compatibility) {
           let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                                CBAdvertisementDataServiceUUIDsKey: [PowerServiceUUID]] as [String : Any]
+                                CBAdvertisementDataServiceUUIDsKey: [PowerServiceUUID, CSCServiceUUID]] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
       } else if(disable_hr) {
           // useful in order to hide HR from Garmin devices
@@ -711,7 +740,11 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       print("Responded successfully to a read request")
     }
     else if request.characteristic == self.CSCMeasurementCharacteristic {
-      request.value = self.calculateCadence()
+      if(garmin_bluetooth_compatibility) {
+          request.value = self.calculateCSCWheelData()
+      } else {
+          request.value = self.calculateCadence()
+      }
       self.peripheralManager.respond(to: request, withResult: .success)
       print("Responded successfully to a read request")
     }
@@ -761,6 +794,37 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         var cadence: [UInt8] = [flags, (UInt8)(crankRevolutions & 0xFF), (UInt8)((crankRevolutions >> 8) & 0xFF),  (UInt8)(lastCrankEventTime & 0xFF), (UInt8)((lastCrankEventTime >> 8) & 0xFF)]
       let cadenceData = Data(bytes: &cadence, count: MemoryLayout.size(ofValue: cadence))
       return cadenceData
+    }
+    
+    private var wheelRevolutions: UInt32 = 0
+    private var lastWheelEventTime: UInt16 = 0
+    private var lastWheelRevolution: UInt64 = UInt64(Date().timeIntervalSince1970 * 1000)
+    
+    func calculateCSCWheelData() -> Data {
+        // Deriviamo i dati di ruota dalla cadenza
+        // Assumiamo un rapporto di 3:1 (crank:wheel) come nel codice power esistente
+        let millis: UInt64 = UInt64(Date().timeIntervalSince1970 * 1000)
+        
+        if CurrentCadence != 0 && (millis >= lastWheelRevolution + (60000 / UInt64(CurrentCadence * 3 / 2))) {
+            wheelRevolutions = wheelRevolutions + 1
+            var newT: UInt64 = ((60000 / (UInt64(CurrentCadence * 3 / 2)) * 1024) / 1000)
+            newT = newT + UInt64(lastWheelEventTime)
+            newT = newT % 65536
+            lastWheelEventTime = UInt16(newT)
+            lastWheelRevolution = millis
+        }
+        
+        // Flag 0x01 = Wheel Revolution Data Present
+        let flags: UInt8 = 0x01
+        var wheelData: [UInt8] = [flags, 
+                                  (UInt8)(wheelRevolutions & 0xFF), 
+                                  (UInt8)((wheelRevolutions >> 8) & 0xFF),
+                                  (UInt8)((wheelRevolutions >> 16) & 0xFF),
+                                  (UInt8)((wheelRevolutions >> 24) & 0xFF),
+                                  (UInt8)(lastWheelEventTime & 0xFF), 
+                                  (UInt8)((lastWheelEventTime >> 8) & 0xFF)]
+        let wheelDataResult = Data(bytes: &wheelData, count: MemoryLayout.size(ofValue: wheelData))
+        return wheelDataResult
     }
     
     
@@ -862,12 +926,23 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     var WattBikeSequence: UInt8 = 0
     
   @objc func updateSubscribers() {
-      if(self.serviceToggle == 4 || garmin_bluetooth_compatibility || (self.serviceToggle == 3 && !zwift_play_emulator && !watt_bike_emulator))
+      if(garmin_bluetooth_compatibility && self.serviceToggle == 1) {
+          // In modalità Garmin invia CSC wheel data
+          let cscData = self.calculateCSCWheelData()
+          let ok = self.peripheralManager.updateValue(cscData, for: self.CSCMeasurementCharacteristic, onSubscribedCentrals: nil)
+          if(ok) {
+              self.serviceToggle = 0
+          }
+      } else if(self.serviceToggle == 4 || garmin_bluetooth_compatibility || (self.serviceToggle == 3 && !zwift_play_emulator && !watt_bike_emulator))
       {
           let powerData = self.calculatePower()
           let ok = self.peripheralManager.updateValue(powerData, for: self.PowerMeasurementCharacteristic, onSubscribedCentrals: nil)
           if(ok) {
-              self.serviceToggle = 0
+              if(garmin_bluetooth_compatibility) {
+                  self.serviceToggle = self.serviceToggle + 1
+              } else {
+                  self.serviceToggle = 0
+              }
           }
       } else if(self.serviceToggle == 3) {
           if(watt_bike_emulator) {
