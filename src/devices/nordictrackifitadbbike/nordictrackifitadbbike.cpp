@@ -311,17 +311,17 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                         int y2 = (int)(493 - (13.57 * (requestResistance - 1)));
                         int y1Resistance = (int)(493 - (13.57 * currentResistance().value()));
 
-                        if(!proform_studio_NTEX71021) { // s22i default
-                            x1 = 1920 - 75;
-                            y2 = (int)(803 - (23.777 * requestResistance));
-                            y1Resistance = (int)(803 - (23.777 * currentResistance().value()));
-                            Resistance = requestResistance;
-                            emit resistanceRead(Resistance.value());
-                        }
-                        else if(proform_tdf_10_0) {
+                        if(proform_tdf_10_0) {
                             x1 = 1175;
                             y2 = (int)(590 - (15.91 * requestResistance));
                             y1Resistance = (int)(590 - (15.91 * currentResistance().value()));
+                            Resistance = requestResistance;
+                            emit resistanceRead(Resistance.value());
+                        }
+                        else if(!proform_studio_NTEX71021) { // s22i default
+                            x1 = 1920 - 75;
+                            y2 = (int)(803 - (23.777 * requestResistance));
+                            y1Resistance = (int)(803 - (23.777 * currentResistance().value()));
                             Resistance = requestResistance;
                             emit resistanceRead(Resistance.value());
                         }
