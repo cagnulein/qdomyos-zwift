@@ -43,8 +43,7 @@ class wahookickrsnapbike : public bike {
     bool connected() override;
     resistance_t maxResistance() override { return 100; }
     bool inclinationAvailableByHardware() override;
-    double maxGears() override;
-    double minGears() override;
+
 
     enum OperationCode : uint8_t {
         _unlock = 32,
@@ -62,7 +61,7 @@ class wahookickrsnapbike : public bike {
     // Variabili per iOS (pubbliche per permettere all'implementazione iOS di impostarle)
     bool zwift_found = false;
     bool wahoo_found = false;
-    
+        
     // Wrapper per characteristicChanged che accetta direttamente QBluetoothUuid
     void handleCharacteristicValueChanged(const QBluetoothUuid &uuid, const QByteArray &newValue);
 

@@ -218,16 +218,10 @@ void wahookickrsnapbike::update() {
         }
         QThread::msleep(700);
 
-        QByteArray d = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
-        uint8_t e[20];
-        setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value).toDouble());
-        memcpy(e, d.constData(), d.length());
-        writeCharacteristic(e, d.length(), "setWheelCircumference", false, true);
-
         // required to the SS2K only one time
         Resistance = 0;
         emit resistanceRead(Resistance.value());
-        initRequest = false;               
+        initRequest = false;
     } else if (
 #ifndef Q_OS_IOS
                bluetoothDevice.isValid() &&
@@ -270,7 +264,10 @@ void wahookickrsnapbike::update() {
                 inclinationChanged(requestInclination, requestInclination);
                 Inclination = requestInclination; // the bike is not sending back the inclination?
                 requestInclination = -100;
+            } else if (lastGearValue != gears()) {
+                inclinationChanged(lastGrade, lastGrade);
             }
+            lastGearValue = gears();
         } else if (requestResistance != -1 && KICKR_BIKE == false) {
             if (requestResistance > 100) {
                 requestResistance = 100;
@@ -288,30 +285,18 @@ void wahookickrsnapbike::update() {
                 memcpy(b, a.constData(), a.length());
                 writeCharacteristic(b, a.length(), "setResistance", false, false);
             } else if (requestResistance != currentResistance().value() &&
-               ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
-               emit debug(QStringLiteral("writing resistance ") + QString::number(lastForcedResistance));
-               QByteArray a = setResistanceMode(((double)lastForcedResistance) / 100.0);
+               ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) && lastGearValue != gears()) {
+               emit debug(QStringLiteral("writing resistance due to gears changed ") + QString::number(lastForcedResistance));
+               QByteArray a = setResistanceMode(((double)lastForcedResistance + (gears() - lastGearValue)) / 100.0);
                uint8_t b[20];
                memcpy(b, a.constData(), a.length());
                writeCharacteristic(b, a.length(), "setResistance", false, false);
+            } else if (virtualBike && virtualBike->ftmsDeviceConnected() && lastGearValue != gears()) {
+                inclinationChanged(lastGrade, lastGrade);
             }
+            lastGearValue = gears();
             requestResistance = -1;
         }
-
-        if (lastGearValue != gears()) {
-            if(KICKR_SNAP) {
-               inclinationChanged(lastGrade, lastGrade);
-            } else {
-                QByteArray a = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
-                uint8_t b[20];
-                memcpy(b, a.constData(), a.length());
-                writeCharacteristic(b, a.length(), "setWheelCircumference", false, false);
-                lastGrade = 999; // to force a change
-            }
-        }
-
-        lastGearValue = gears();
-
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
@@ -802,7 +787,7 @@ void wahookickrsnapbike::serviceScanDone(void) {
         QSettings settings;
         settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
         settings.sync();
-        if(homeform::singleton())
+            if(homeform::singleton())
             homeform::singleton()->setToastRequested("Zwift Hub device found, please restart the app to enjoy virtual gearing!");
         return;
     }
@@ -823,13 +808,13 @@ void wahookickrsnapbike::error(QLowEnergyController::Error err) {
 void wahookickrsnapbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    
-    if (device.name().toUpper().startsWith("WAHOO KICKR")) {
-        WAHOO_KICKR = true;
-        qDebug() << "WAHOO KICKR workaround activated";
-    } else if(device.name().toUpper().startsWith("KICKR BIKE")) {
-        KICKR_BIKE = true;
-        qDebug() << "KICKR BIKE workaround activated";
+
+        if (device.name().toUpper().startsWith("WAHOO KICKR")) {
+            WAHOO_KICKR = true;
+            qDebug() << "WAHOO KICKR workaround activated";
+        } else if(device.name().toUpper().startsWith("KICKR BIKE")) {
+            KICKR_BIKE = true;
+            qDebug() << "KICKR BIKE workaround activated";
     } else if(device.name().toUpper().startsWith("KICKR SNAP")) {
         KICKR_SNAP = true;
         qDebug() << "KICKR SNAP workaround activated";
@@ -915,41 +900,17 @@ void wahookickrsnapbike::controllerStateChanged(QLowEnergyController::Controller
 
 void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     Q_UNUSED(percentage);
-    if(lastCommandErgMode) {
-        lastGrade = grade + 1; // to force a refresh
-        initRequest = true;
-        qDebug() << "avoid sending this command, since I have first to restore the setSimGrade";
-        return;
-    }
-    if(lastGrade == grade) {
-        qDebug() << "grade is already set to " << grade << "skipping";
-        return;
-    }
     lastGrade = grade;
-    Inclination = grade;
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
     QSettings settings;
     double g = grade;
-    if(KICKR_SNAP) {
-        g += gears() * 0.5;
-        qDebug() << "adding gear offset so " << g;
-    }
+    g += gears();
     QByteArray a = setSimGrade(g);
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());
     writeCharacteristic(b, a.length(), "setSimGrade", false, false);
-    lastCommandErgMode = false;
 }
 
 bool wahookickrsnapbike::inclinationAvailableByHardware() {
     return KICKR_BIKE;
-}
-
-double wahookickrsnapbike::maxGears() {
-    wheelCircumference::GearTable g;
-    return g.maxGears;
-}
-
-double wahookickrsnapbike::minGears() {
-    return 1;
 }
