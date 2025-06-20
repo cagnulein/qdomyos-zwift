@@ -200,7 +200,7 @@ public class BikeChannelController {
 
     public boolean openSpeedCadenceSensorChannel() {
         // Request access to first available speed/cadence sensor device
-        speedCadenceReleaseHandle = AntPlusBikeSpeedDistancePcc.requestAccess((Activity)context, 0, 0,
+        speedCadenceReleaseHandle = AntPlusBikeSpeedDistancePcc.requestAccess((Activity)context, context,
             new IPluginAccessResultReceiver<AntPlusBikeSpeedDistancePcc>() {
                 @Override
                 public void onResultReceived(AntPlusBikeSpeedDistancePcc result, RequestAccessResult resultCode, DeviceState initialDeviceState) {
