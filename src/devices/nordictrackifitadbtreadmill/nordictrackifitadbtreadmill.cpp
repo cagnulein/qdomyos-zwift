@@ -849,6 +849,15 @@ void nordictrackifitadbtreadmill::initializeGrpcService() {
 #ifdef Q_OS_ANDROID
     if (!grpcInitialized) {
         try {
+            // Set Android context first
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "setContext",
+                "(Landroid/content/Context;)V",
+                QtAndroid::androidContext().object()
+            );
+            
+            // Now initialize the service
             QAndroidJniObject::callStaticMethod<void>(
                 "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
                 "initialize",

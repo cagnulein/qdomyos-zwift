@@ -49,6 +49,10 @@ import org.cagnulen.qdomyoszwift.QLog;
 public class GrpcTreadmillService {
 
     private static final String TAG = "GrpcTreadmillService";
+    
+    // Singleton instance for static access
+    private static GrpcTreadmillService instance = null;
+    private static Context staticContext = null;
     private static final String SERVER_HOST = "localhost";
     private static final int SERVER_PORT = 54321;
     private static final int UPDATE_INTERVAL_MS = 500;
@@ -460,6 +464,109 @@ public class GrpcTreadmillService {
                     metricsListener.onError("cadence", "Error");
                 });
             }
+        }
+    }
+    
+    // Static wrapper methods for JNI calls
+    public static void initialize() {
+        try {
+            if (staticContext == null) {
+                QLog.e(TAG, "Context not set. Call setContext() first.");
+                return;
+            }
+            
+            if (instance == null) {
+                instance = new GrpcTreadmillService(staticContext);
+            }
+            
+            instance.initialize();
+            QLog.i(TAG, "Static initialize completed");
+        } catch (Exception e) {
+            QLog.e(TAG, "Static initialize failed", e);
+        }
+    }
+    
+    public static void setContext(Context context) {
+        staticContext = context;
+    }
+    
+    public static void startMetricsUpdates() {
+        if (instance != null) {
+            instance.startMetricsUpdates();
+        } else {
+            QLog.e(TAG, "Service not initialized. Call initialize() first.");
+        }
+    }
+    
+    public static void stopMetricsUpdates() {
+        if (instance != null) {
+            instance.stopMetricsUpdates();
+        } else {
+            QLog.e(TAG, "Service not initialized. Call initialize() first.");
+        }
+    }
+    
+    public static double getCurrentSpeed() {
+        if (instance != null) {
+            return instance.currentSpeed;
+        }
+        return 0.0;
+    }
+    
+    public static double getCurrentIncline() {
+        if (instance != null) {
+            return instance.currentIncline;
+        }
+        return 0.0;
+    }
+    
+    public static double getCurrentWatts() {
+        // Note: watts is fetched but not stored as instance variable
+        // You might want to add currentWatts field if needed
+        return 0.0;
+    }
+    
+    public static double getCurrentCadence() {
+        // Note: cadence is fetched but not stored as instance variable
+        // You might want to add currentCadence field if needed
+        return 0.0;
+    }
+    
+    public static double getCurrentResistance() {
+        if (instance != null) {
+            return instance.currentResistance;
+        }
+        return 0.0;
+    }
+    
+    public static void adjustSpeed(double delta) {
+        if (instance != null) {
+            instance.adjustSpeed(delta);
+        } else {
+            QLog.e(TAG, "Service not initialized. Call initialize() first.");
+        }
+    }
+    
+    public static void adjustIncline(double delta) {
+        if (instance != null) {
+            instance.adjustIncline(delta);
+        } else {
+            QLog.e(TAG, "Service not initialized. Call initialize() first.");
+        }
+    }
+    
+    public static void adjustResistance(double delta) {
+        if (instance != null) {
+            instance.adjustResistance(delta);
+        } else {
+            QLog.e(TAG, "Service not initialized. Call initialize() first.");
+        }
+    }
+    
+    public static void shutdown() {
+        if (instance != null) {
+            instance.shutdown();
+            instance = null;
         }
     }
 }
