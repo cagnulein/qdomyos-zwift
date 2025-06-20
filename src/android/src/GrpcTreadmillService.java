@@ -101,11 +101,11 @@ public class GrpcTreadmillService {
         this.metricsListener = listener;
     }
 
-    public void initialize() throws Exception {
+    private void initializeInstance() throws Exception {
         initializeGrpcConnection();
     }
 
-    public void startMetricsUpdates() {
+    private void startMetricsUpdatesInstance() {
         if (isUpdating) return;
 
         isUpdating = true;
@@ -129,7 +129,7 @@ public class GrpcTreadmillService {
         QLog.i(TAG, "Started periodic metrics updates");
     }
 
-    public void stopMetricsUpdates() {
+    private void stopMetricsUpdatesInstance() {
         isUpdating = false;
 
         if (metricsUpdateRunnable != null) {
@@ -139,7 +139,7 @@ public class GrpcTreadmillService {
         QLog.i(TAG, "Stopped periodic metrics updates");
     }
 
-    public void adjustSpeed(double delta) {
+    private void adjustSpeedInstance(double delta) {
         executorService.execute(() -> {
             try {
                 double newSpeed = Math.max(0.0, currentSpeed + delta);
@@ -163,7 +163,7 @@ public class GrpcTreadmillService {
         });
     }
 
-    public void adjustIncline(double delta) {
+    private void adjustInclineInstance(double delta) {
         executorService.execute(() -> {
             try {
                 double newIncline = Math.max(0.0, currentIncline + delta);
@@ -187,7 +187,7 @@ public class GrpcTreadmillService {
         });
     }
 
-    public void adjustResistance(double delta) {
+    private void adjustResistanceInstance(double delta) {
         executorService.execute(() -> {
             try {
                 double newResistance = Math.max(0.0, currentResistance + delta);
@@ -211,7 +211,7 @@ public class GrpcTreadmillService {
         });
     }
 
-    public void shutdown() {
+    private void shutdownInstance() {
         stopMetricsUpdates();
 
         if (channel != null) {
@@ -479,7 +479,7 @@ public class GrpcTreadmillService {
                 instance = new GrpcTreadmillService(staticContext);
             }
             
-            instance.initialize();
+            instance.initializeInstance();
             QLog.i(TAG, "Static initialize completed");
         } catch (Exception e) {
             QLog.e(TAG, "Static initialize failed", e);
@@ -492,7 +492,7 @@ public class GrpcTreadmillService {
     
     public static void startMetricsUpdates() {
         if (instance != null) {
-            instance.startMetricsUpdates();
+            instance.startMetricsUpdatesInstance();
         } else {
             QLog.e(TAG, "Service not initialized. Call initialize() first.");
         }
@@ -500,7 +500,7 @@ public class GrpcTreadmillService {
     
     public static void stopMetricsUpdates() {
         if (instance != null) {
-            instance.stopMetricsUpdates();
+            instance.stopMetricsUpdatesInstance();
         } else {
             QLog.e(TAG, "Service not initialized. Call initialize() first.");
         }
@@ -541,7 +541,7 @@ public class GrpcTreadmillService {
     
     public static void adjustSpeed(double delta) {
         if (instance != null) {
-            instance.adjustSpeed(delta);
+            instance.adjustSpeedInstance(delta);
         } else {
             QLog.e(TAG, "Service not initialized. Call initialize() first.");
         }
@@ -549,7 +549,7 @@ public class GrpcTreadmillService {
     
     public static void adjustIncline(double delta) {
         if (instance != null) {
-            instance.adjustIncline(delta);
+            instance.adjustInclineInstance(delta);
         } else {
             QLog.e(TAG, "Service not initialized. Call initialize() first.");
         }
@@ -557,7 +557,7 @@ public class GrpcTreadmillService {
     
     public static void adjustResistance(double delta) {
         if (instance != null) {
-            instance.adjustResistance(delta);
+            instance.adjustResistanceInstance(delta);
         } else {
             QLog.e(TAG, "Service not initialized. Call initialize() first.");
         }
@@ -565,7 +565,7 @@ public class GrpcTreadmillService {
     
     public static void shutdown() {
         if (instance != null) {
-            instance.shutdown();
+            instance.shutdownInstance();
             instance = null;
         }
     }
