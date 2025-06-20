@@ -91,6 +91,7 @@ class nordictrackifitadbbike : public bike {
     double getGrpcCadence();
     double getGrpcResistance();
     void setGrpcResistance(double resistance);
+    void setGrpcIncline(double inclination);
 
     QTimer *refresh;
 

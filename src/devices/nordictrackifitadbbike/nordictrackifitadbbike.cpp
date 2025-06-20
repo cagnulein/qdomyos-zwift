@@ -666,6 +666,16 @@ void nordictrackifitadbbike::update() {
             Resistance = currentResistance;
             emit debug(QString("gRPC Resistance: %1").arg(currentResistance));
         }
+
+        if (requestInclination != -100) {
+            setGrpcIncline(requestInclination);
+            requestInclination = -100;
+        }
+
+        if(requestResistance != - 1) {
+            setGrpcResistance(requestResistance);
+            requestResistance = -1;
+        }
     }
 #endif
 }
@@ -954,4 +964,19 @@ void nordictrackifitadbbike::setGrpcResistance(double resistance) {
     }
 #endif
 }
+
+void nordictrackifitadbbike::setGrpcIncline(double incline) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "adjustIncline",
+            "(D)V",
+            incline - Inclination.value()
+        );
+        emit debug(QString("Set gRPC incline to: %1").arg(incline));
+    }
+#endif
+}
+
 
