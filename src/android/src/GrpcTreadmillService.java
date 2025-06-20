@@ -44,6 +44,8 @@ import com.ifit.glassos.workout.ResistanceRequest;
 import com.ifit.glassos.workout.CadenceMetric;
 import com.ifit.glassos.workout.CadenceServiceGrpc;
 
+import org.cagnulen.qdomyoszwift.QLog;
+
 public class GrpcTreadmillService {
 
     private static final String TAG = "GrpcTreadmillService";
@@ -120,7 +122,7 @@ public class GrpcTreadmillService {
         };
 
         mainHandler.post(metricsUpdateRunnable);
-        Log.i(TAG, "Started periodic metrics updates");
+        QLog.i(TAG, "Started periodic metrics updates");
     }
 
     public void stopMetricsUpdates() {
@@ -130,7 +132,7 @@ public class GrpcTreadmillService {
             mainHandler.removeCallbacks(metricsUpdateRunnable);
         }
 
-        Log.i(TAG, "Stopped periodic metrics updates");
+        QLog.i(TAG, "Stopped periodic metrics updates");
     }
 
     public void adjustSpeed(double delta) {
@@ -146,10 +148,10 @@ public class GrpcTreadmillService {
                 SpeedRequest request = SpeedRequest.newBuilder().setKph(newSpeed).build();
                 stubWithHeaders.setSpeed(request);
                 
-                Log.d(TAG, String.format("Set speed to %.1f km/h", newSpeed));
+                QLog.d(TAG, String.format("Set speed to %.1f km/h", newSpeed));
                 
             } catch (Exception e) {
-                Log.e(TAG, "Failed to set speed", e);
+                QLog.e(TAG, "Failed to set speed", e);
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onError("speed", e.getMessage()));
                 }
@@ -170,10 +172,10 @@ public class GrpcTreadmillService {
                 InclineRequest request = InclineRequest.newBuilder().setPercent(newIncline).build();
                 stubWithHeaders.setIncline(request);
                 
-                Log.d(TAG, String.format("Set incline to %.1f%%", newIncline));
+                QLog.d(TAG, String.format("Set incline to %.1f%%", newIncline));
                 
             } catch (Exception e) {
-                Log.e(TAG, "Failed to set incline", e);
+                QLog.e(TAG, "Failed to set incline", e);
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onError("incline", e.getMessage()));
                 }
@@ -194,10 +196,10 @@ public class GrpcTreadmillService {
                 ResistanceRequest request = ResistanceRequest.newBuilder().setResistance(newResistance).build();
                 stubWithHeaders.setResistance(request);
                 
-                Log.d(TAG, String.format("Set resistance to %.0f level", newResistance));
+                QLog.d(TAG, String.format("Set resistance to %.0f level", newResistance));
                 
             } catch (Exception e) {
-                Log.e(TAG, "Failed to set resistance", e);
+                QLog.e(TAG, "Failed to set resistance", e);
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onError("resistance", e.getMessage()));
                 }
@@ -215,7 +217,7 @@ public class GrpcTreadmillService {
                     channel.shutdownNow();
                 }
             } catch (InterruptedException e) {
-                Log.e(TAG, "Error shutting down gRPC channel", e);
+                QLog.e(TAG, "Error shutting down gRPC channel", e);
                 channel.shutdownNow();
             }
         }
@@ -227,7 +229,7 @@ public class GrpcTreadmillService {
                     executorService.shutdownNow();
                 }
             } catch (InterruptedException e) {
-                Log.e(TAG, "Error shutting down executor service", e);
+                QLog.e(TAG, "Error shutting down executor service", e);
                 executorService.shutdownNow();
             }
         }
@@ -250,12 +252,12 @@ public class GrpcTreadmillService {
         try {
             caCertStream = assets.open("ca_cert.pem");
         } catch (Exception e) {
-            Log.w(TAG, "ca_cert.pem not found, continuing with insecure mode");
+            QLog.w(TAG, "ca_cert.pem not found, continuing with insecure mode");
         }
         InputStream clientCertStream = assets.open("client_cert.pem");
         InputStream clientKeyStream = assets.open("client_key.pem");
 
-        Log.i(TAG, "Loading TLS certificates (insecure server validation mode)...");
+        QLog.i(TAG, "Loading TLS certificates (insecure server validation mode)...");
 
         SSLContext sslContext = createSSLContext(caCertStream, clientCertStream, clientKeyStream);
 
@@ -273,17 +275,17 @@ public class GrpcTreadmillService {
         resistanceStub = ResistanceServiceGrpc.newBlockingStub(channel);
         cadenceStub = CadenceServiceGrpc.newBlockingStub(channel);
 
-        Log.i(TAG, "gRPC connection initialized with client certificates");
+        QLog.i(TAG, "gRPC connection initialized with client certificates");
     }
 
     private SSLContext createSSLContext(InputStream caCertStream, InputStream clientCertStream,
                                         InputStream clientKeyStream) throws Exception {
 
-        Log.d(TAG, "Creating SSL context with client certificates (insecure server validation)...");
+        QLog.d(TAG, "Creating SSL context with client certificates (insecure server validation)...");
 
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         X509Certificate clientCert = (X509Certificate) cf.generateCertificate(clientCertStream);
-        Log.d(TAG, "Loaded client certificate: " + clientCert.getSubjectDN());
+        QLog.d(TAG, "Loaded client certificate: " + clientCert.getSubjectDN());
 
         byte[] keyData = readAllBytesCompat(clientKeyStream);
         String keyString = new String(keyData, StandardCharsets.UTF_8);
@@ -295,7 +297,7 @@ public class GrpcTreadmillService {
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
-        Log.d(TAG, "Loaded private key");
+        QLog.d(TAG, "Loaded private key");
 
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         keyStore.load(null, null);
@@ -312,7 +314,7 @@ public class GrpcTreadmillService {
 
                     @Override
                     public void checkServerTrusted(X509Certificate[] chain, String authType) {
-                        Log.d(TAG, "Accepting server certificate without validation (insecure mode)");
+                        QLog.d(TAG, "Accepting server certificate without validation (insecure mode)");
                     }
 
                     @Override
@@ -325,7 +327,7 @@ public class GrpcTreadmillService {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(kmf.getKeyManagers(), insecureTrustManagers, new SecureRandom());
 
-        Log.i(TAG, "SSL context created with client authentication but insecure server validation");
+        QLog.i(TAG, "SSL context created with client authentication but insecure server validation");
         return sslContext;
     }
 
@@ -350,7 +352,7 @@ public class GrpcTreadmillService {
 
     private void fetchAllMetricsFromServer() {
         try {
-            Log.d(TAG, "Making gRPC calls for all metrics...");
+            QLog.d(TAG, "Making gRPC calls for all metrics...");
 
             Metadata headers = createHeaders();
             Empty request = Empty.newBuilder().build();
@@ -367,7 +369,7 @@ public class GrpcTreadmillService {
                     mainHandler.post(() -> metricsListener.onSpeedUpdated(currentSpeed));
                 }
             } catch (Exception e) {
-                Log.w(TAG, "Failed to fetch speed", e);
+                QLog.w(TAG, "Failed to fetch speed", e);
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onError("speed", "Error"));
                 }
@@ -385,7 +387,7 @@ public class GrpcTreadmillService {
                     mainHandler.post(() -> metricsListener.onInclineUpdated(currentIncline));
                 }
             } catch (Exception e) {
-                Log.w(TAG, "Failed to fetch inclination", e);
+                QLog.w(TAG, "Failed to fetch inclination", e);
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onError("inclination", "Error"));
                 }
@@ -403,7 +405,7 @@ public class GrpcTreadmillService {
                     mainHandler.post(() -> metricsListener.onWattsUpdated(currentWatts));
                 }
             } catch (Exception e) {
-                Log.w(TAG, "Failed to fetch watts", e);
+                QLog.w(TAG, "Failed to fetch watts", e);
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onError("watts", "Error"));
                 }
@@ -421,7 +423,7 @@ public class GrpcTreadmillService {
                     mainHandler.post(() -> metricsListener.onResistanceUpdated(currentResistance));
                 }
             } catch (Exception e) {
-                Log.w(TAG, "Failed to fetch resistance", e);
+                QLog.w(TAG, "Failed to fetch resistance", e);
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onError("resistance", "Error"));
                 }
@@ -439,16 +441,16 @@ public class GrpcTreadmillService {
                     mainHandler.post(() -> metricsListener.onCadenceUpdated(currentCadence));
                 }
             } catch (Exception e) {
-                Log.w(TAG, "Failed to fetch cadence", e);
+                QLog.w(TAG, "Failed to fetch cadence", e);
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onError("cadence", "Error"));
                 }
             }
 
-            Log.d(TAG, "Completed all metrics fetch");
+            QLog.d(TAG, "Completed all metrics fetch");
 
         } catch (Exception e) {
-            Log.e(TAG, "Failed to fetch metrics", e);
+            QLog.e(TAG, "Failed to fetch metrics", e);
             if (metricsListener != null) {
                 mainHandler.post(() -> {
                     metricsListener.onError("speed", "Error");
