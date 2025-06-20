@@ -3029,7 +3029,9 @@ void bluetooth::connectedAndDiscovered() {
         }
     }
 #ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() ||
+    bool android_antbike =
+        settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool();
+    if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() || android_antbike ||
         settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
                                                                                "activity", "()Landroid/app/Activity;");
