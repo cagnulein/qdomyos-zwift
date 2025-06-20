@@ -48,20 +48,19 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         // this signal is not associated to anything in this moment, since the homeform is not loaded yet
         this->signalBluetoothDeviceConnected(pelotonBike);
     } else if(nordictrack) {
-        QTimer::singleShot(5000, this, [this]() {
-            if (!nordictrackifitadbTreadmill) {
-                nordictrackifitadbTreadmill = new nordictrackifitadbtreadmill(noWriteResistance, noHeartService);
-                emit deviceConnected(QBluetoothDeviceInfo());
-                connect(nordictrackifitadbTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
-                        &bluetooth::connectedAndDiscovered);
-                connect(nordictrackifitadbTreadmill, &nordictrackifitadbtreadmill::debug, this, &bluetooth::debug);
-                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
-                    emit searchingStop();
-                }
-                // this signal is not associated to anything in this moment, since the homeform is not loaded yet
-                this->signalBluetoothDeviceConnected(nordictrackifitadbTreadmill);
-            }
-        });
+        QTimer::singleShot(5000, this, [this, noWriteResistance, noHeartService]() {
+    if (!nordictrackifitadbTreadmill) {
+        nordictrackifitadbTreadmill = new nordictrackifitadbtreadmill(noWriteResistance, noHeartService);
+        emit deviceConnected(QBluetoothDeviceInfo());
+        connect(nordictrackifitadbTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                &bluetooth::connectedAndDiscovered);
+        connect(nordictrackifitadbTreadmill, &nordictrackifitadbtreadmill::debug, this, &bluetooth::debug);
+        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+            emit searchingStop();
+        }
+        // this signal is not associated to anything in this moment, since the homeform is not loaded yet
+        this->signalBluetoothDeviceConnected(nordictrackifitadbTreadmill);
+    }});
         return;
     }
 
