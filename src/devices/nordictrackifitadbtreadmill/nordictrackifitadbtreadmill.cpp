@@ -686,6 +686,11 @@ void nordictrackifitadbtreadmill::update() {
             cadenceReadFromTM = true;
             emit debug(QString("gRPC Cadence: %1").arg(currentCadence));
         }
+
+        if (requestInclination != -100) {
+            setGrpcIncline(requestInclination);
+            requestInclination = -100;
+        }
     } else {
         // Fallback to OCR if gRPC is not available
         QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
