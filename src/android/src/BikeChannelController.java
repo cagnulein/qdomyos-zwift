@@ -13,11 +13,14 @@ import com.dsi.ant.plugins.antplus.pcc.AntPlusFitnessEquipmentPcc.EquipmentState
 import com.dsi.ant.plugins.antplus.pcc.AntPlusFitnessEquipmentPcc.EquipmentType;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusFitnessEquipmentPcc.HeartRateDataSource;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikePowerPcc;
-import com.dsi.ant.plugins.antplus.pcc.AntPlusBikePowerPcc.IPowerOnlyDataReceiver;
+import com.dsi.ant.plugins.antplus.pcc.AntPlusBikePowerPcc.IRawPowerOnlyDataReceiver;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikePowerPcc.ICalculatedPowerReceiver;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc;
-import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc.ISpeedDistanceDataReceiver;
-import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc.IRawSpeedDistanceDataReceiver;
+import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc.CalculatedSpeedReceiver;
+import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc.CalculatedAccumulatedDistanceReceiver;
+import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc.IRawSpeedAndDistanceDataReceiver;
+import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeCadencePcc;
+import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeCadencePcc.ICalculatedCadenceReceiver;
 import com.dsi.ant.plugins.antplus.pcc.defines.DeviceState;
 import com.dsi.ant.plugins.antplus.pcc.defines.EventFlag;
 import com.dsi.ant.plugins.antplus.pcc.defines.RequestAccessResult;
@@ -39,6 +42,8 @@ public class BikeChannelController {
     private PccReleaseHandle<AntPlusBikePowerPcc> powerReleaseHandle = null;
     private AntPlusBikeSpeedDistancePcc speedCadencePcc = null;
     private PccReleaseHandle<AntPlusBikeSpeedDistancePcc> speedCadenceReleaseHandle = null;
+    private AntPlusBikeCadencePcc cadencePcc = null;
+    private PccReleaseHandle<AntPlusBikeCadencePcc> cadenceReleaseHandle = null;
     private boolean isConnected = false;
     private boolean isPowerConnected = false;
     private boolean isSpeedCadenceConnected = false;
@@ -303,11 +308,12 @@ public class BikeChannelController {
 
     private void subscribeToPowerSensorEvents() {
         if (powerPcc != null) {
-            // Subscribe to power-only data events
-            powerPcc.subscribePowerOnlyDataEvent(new IPowerOnlyDataReceiver() {
+            // Subscribe to raw power-only data events
+            powerPcc.subscribeRawPowerOnlyDataEvent(new IRawPowerOnlyDataReceiver() {
                 @Override
-                public void onNewPowerOnlyData(long estTimestamp, EnumSet<EventFlag> eventFlags,
-                                             int instantaneousPower, int accumulatedPower) {
+                public void onNewRawPowerOnlyData(long estTimestamp, EnumSet<EventFlag> eventFlags,
+                                                long powerOnlyUpdateEventCount, int instantaneousPower,
+                                                long accumulatedPower) {
                     if (instantaneousPower != -1) {
                         powerSensorPower = instantaneousPower;
                         QLog.d(TAG, "Power Sensor Data - Power: " + powerSensorPower + "W");
@@ -315,19 +321,16 @@ public class BikeChannelController {
                 }
             });
 
-            // Also subscribe to calculated power events which might include cadence
+            // Also subscribe to calculated power events
             powerPcc.subscribeCalculatedPowerEvent(new ICalculatedPowerReceiver() {
                 @Override
                 public void onNewCalculatedPower(long estTimestamp, EnumSet<EventFlag> eventFlags,
-                                                int calculatedPower, int pedalPowerPercentage,
-                                                boolean powerOnlyData, int cadence) {
-                    if (calculatedPower != -1) {
-                        powerSensorPower = calculatedPower;
+                                                AntPlusBikePowerPcc.DataSource dataSource,
+                                                BigDecimal calculatedPower) {
+                    if (calculatedPower != null && calculatedPower.intValue() != -1) {
+                        powerSensorPower = calculatedPower.intValue();
+                        QLog.d(TAG, "Power Sensor Calculated Data - Power: " + powerSensorPower + "W");
                     }
-                    if (cadence != -1 && !isConnected) { // Only use cadence from power sensor if no fitness equipment connected
-                        speedSensorCadence = cadence;
-                    }
-                    QLog.d(TAG, "Power Sensor Calculated Data - Power: " + powerSensorPower + "W, Cadence: " + cadence + "rpm");
                 }
             });
         }
@@ -335,38 +338,73 @@ public class BikeChannelController {
 
     private void subscribeToSpeedCadenceSensorEvents() {
         if (speedCadencePcc != null) {
-            // Subscribe to speed and distance data events
-            speedCadencePcc.subscribeSpeedDistanceDataEvent(new ISpeedDistanceDataReceiver() {
+            // 2.095m circumference = average 700cx23mm road tire
+            BigDecimal wheelCircumference = new BigDecimal("2.095");
+            
+            // Subscribe to calculated speed events
+            speedCadencePcc.subscribeCalculatedSpeedEvent(new CalculatedSpeedReceiver(wheelCircumference) {
                 @Override
-                public void onNewSpeedDistanceData(long estTimestamp, EnumSet<EventFlag> eventFlags,
-                                                  BigDecimal calculatedSpeed, long calculatedDistance,
-                                                  boolean isSpeedVirtual, boolean isDistanceVirtual) {
-                    if (calculatedSpeed != null && calculatedSpeed.intValue() != -1) {
+                public void onNewCalculatedSpeed(long estTimestamp, EnumSet<EventFlag> eventFlags,
+                                                BigDecimal calculatedSpeed) {
+                    if (calculatedSpeed != null && calculatedSpeed.doubleValue() > 0) {
                         speedSensorSpeed = calculatedSpeed;
+                        QLog.d(TAG, "Speed Sensor Data - Speed: " + speedSensorSpeed + "m/s");
                     }
-                    if (calculatedDistance != -1) {
-                        speedSensorDistance = calculatedDistance;
-                    }
-                    QLog.d(TAG, "Speed/Distance Sensor Data - Speed: " + speedSensorSpeed + "m/s, Distance: " + speedSensorDistance + "m");
                 }
             });
 
-            // Subscribe to raw speed and distance data for cadence
-            speedCadencePcc.subscribeRawSpeedDistanceDataEvent(new IRawSpeedDistanceDataReceiver() {
+            // Subscribe to calculated distance events
+            speedCadencePcc.subscribeCalculatedAccumulatedDistanceEvent(new CalculatedAccumulatedDistanceReceiver(wheelCircumference) {
                 @Override
-                public void onNewRawSpeedDistanceData(long estTimestamp, EnumSet<EventFlag> eventFlags,
-                                                     int speedRevolutionCount, int speedEventTime,
-                                                     int cadenceRevolutionCount, int cadenceEventTime) {
-                    // Calculate cadence from revolution counts and event times
-                    // This is a simplified calculation - a proper implementation would track previous values
-                    // and calculate RPM based on time differences
-                    if (cadenceRevolutionCount != -1 && cadenceEventTime != -1) {
-                        // Basic cadence calculation would go here
-                        // For now, just log the raw data
-                        QLog.d(TAG, "Speed/Cadence Raw Data - Cadence Revs: " + cadenceRevolutionCount + ", Time: " + cadenceEventTime);
+                public void onNewCalculatedAccumulatedDistance(long estTimestamp, EnumSet<EventFlag> eventFlags,
+                                                             BigDecimal calculatedAccumulatedDistance) {
+                    if (calculatedAccumulatedDistance != null && calculatedAccumulatedDistance.longValue() > 0) {
+                        speedSensorDistance = calculatedAccumulatedDistance.longValue();
+                        QLog.d(TAG, "Speed Sensor Data - Distance: " + speedSensorDistance + "m");
                     }
                 }
             });
+
+            // Subscribe to raw speed and distance data
+            speedCadencePcc.subscribeRawSpeedAndDistanceDataEvent(new IRawSpeedAndDistanceDataReceiver() {
+                @Override
+                public void onNewRawSpeedAndDistanceData(long estTimestamp, EnumSet<EventFlag> eventFlags,
+                                                        BigDecimal timestampOfLastEvent, long cumulativeRevolutions) {
+                    QLog.d(TAG, "Speed/Distance Raw Data - Revs: " + cumulativeRevolutions + ", Time: " + timestampOfLastEvent);
+                }
+            });
+
+            // Check if this is a combined speed/cadence sensor
+            if (speedCadencePcc.isSpeedAndCadenceCombinedSensor()) {
+                // Connect to cadence functionality
+                cadenceReleaseHandle = AntPlusBikeCadencePcc.requestAccess(
+                    (Activity)context, speedCadencePcc.getAntDeviceNumber(), 0, true,
+                    new IPluginAccessResultReceiver<AntPlusBikeCadencePcc>() {
+                        @Override
+                        public void onResultReceived(AntPlusBikeCadencePcc result, RequestAccessResult resultCode, DeviceState initialDeviceState) {
+                            if (resultCode == RequestAccessResult.SUCCESS) {
+                                cadencePcc = result;
+                                cadencePcc.subscribeCalculatedCadenceEvent(new ICalculatedCadenceReceiver() {
+                                    @Override
+                                    public void onNewCalculatedCadence(long estTimestamp, EnumSet<EventFlag> eventFlags,
+                                                                      BigDecimal calculatedCadence) {
+                                        if (calculatedCadence != null && calculatedCadence.intValue() > 0) {
+                                            speedSensorCadence = calculatedCadence.intValue();
+                                            QLog.d(TAG, "Cadence Sensor Data - Cadence: " + speedSensorCadence + "rpm");
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    },
+                    new IDeviceStateChangeReceiver() {
+                        @Override
+                        public void onDeviceStateChange(DeviceState newDeviceState) {
+                            QLog.d(TAG, "Cadence Sensor State Changed to: " + newDeviceState);
+                        }
+                    }
+                );
+            }
         }
     }
 
@@ -383,9 +421,14 @@ public class BikeChannelController {
             speedCadenceReleaseHandle.close();
             speedCadenceReleaseHandle = null;
         }
+        if (cadenceReleaseHandle != null) {
+            cadenceReleaseHandle.close();
+            cadenceReleaseHandle = null;
+        }
         fePcc = null;
         powerPcc = null;
         speedCadencePcc = null;
+        cadencePcc = null;
         isConnected = false;
         isPowerConnected = false;
         isSpeedCadenceConnected = false;
