@@ -49,18 +49,36 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         this->signalBluetoothDeviceConnected(pelotonBike);
     } else if(nordictrack) {
         QTimer::singleShot(5000, this, [this, noWriteResistance, noHeartService]() {
-    if (!nordictrackifitadbTreadmill) {
-        nordictrackifitadbTreadmill = new nordictrackifitadbtreadmill(noWriteResistance, noHeartService);
-        emit deviceConnected(QBluetoothDeviceInfo());
-        connect(nordictrackifitadbTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
-                &bluetooth::connectedAndDiscovered);
-        connect(nordictrackifitadbTreadmill, &nordictrackifitadbtreadmill::debug, this, &bluetooth::debug);
-        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
-            emit searchingStop();
-        }
-        // this signal is not associated to anything in this moment, since the homeform is not loaded yet
-        this->signalBluetoothDeviceConnected(nordictrackifitadbTreadmill);
-    }});
+            QSettings settings;
+            QString nordictrack_2950_ip =
+                settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();            
+            QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+            if (!nordictrackifitadbTreadmill && !nordictrack_2950_ip.isEmpty()) {
+                qDebug() << "starting nordictrackifitadbTreadmill";
+                nordictrackifitadbTreadmill = new nordictrackifitadbtreadmill(noWriteResistance, noHeartService);
+                emit deviceConnected(QBluetoothDeviceInfo());
+                connect(nordictrackifitadbTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(nordictrackifitadbTreadmill, &nordictrackifitadbtreadmill::debug, this, &bluetooth::debug);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                // this signal is not associated to anything in this moment, since the homeform is not loaded yet
+                this->signalBluetoothDeviceConnected(nordictrackifitadbTreadmill);
+            } else if (!nordictrackifitadbBike && !tdf_10_ip.isEmpty()) {
+                qDebug() << "starting nordictrackifitadbBike";
+                nordictrackifitadbBike = new nordictrackifitadbbike(noWriteResistance, noHeartService);
+                emit deviceConnected(QBluetoothDeviceInfo());
+                connect(nordictrackifitadbBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(nordictrackifitadbBike, &nordictrackifitadbbike::debug, this, &bluetooth::debug);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                // this signal is not associated to anything in this moment, since the homeform is not loaded yet
+                this->signalBluetoothDeviceConnected(nordictrackifitadbBike);
+            }  
+        });
         return;
     }
 
