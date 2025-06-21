@@ -691,6 +691,11 @@ void nordictrackifitadbtreadmill::update() {
             setGrpcIncline(requestInclination);
             requestInclination = -100;
         }
+
+        if (requestSpeed != -1) {
+            setGrpcSpeed(requestSpeed);
+            requestSpeed = -1;
+        }
     } else {
         // Fallback to OCR if gRPC is not available
         QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
