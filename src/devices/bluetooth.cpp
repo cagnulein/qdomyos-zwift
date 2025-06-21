@@ -48,7 +48,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         // this signal is not associated to anything in this moment, since the homeform is not loaded yet
         this->signalBluetoothDeviceConnected(pelotonBike);
     } else if(nordictrack) {
-        QTimer::singleShot(5000, this, [this, noWriteResistance, noHeartService]() {
+        QTimer::singleShot(5000, this, [this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain]() {
             QSettings settings;
             QString nordictrack_2950_ip =
                 settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();            
@@ -67,7 +67,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
                 this->signalBluetoothDeviceConnected(nordictrackifitadbTreadmill);
             } else if (!nordictrackifitadbBike && !tdf_10_ip.isEmpty()) {
                 qDebug() << "starting nordictrackifitadbBike";
-                nordictrackifitadbBike = new nordictrackifitadbbike(noWriteResistance, noHeartService);
+                nordictrackifitadbBike = new nordictrackifitadbbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 emit deviceConnected(QBluetoothDeviceInfo());
                 connect(nordictrackifitadbBike, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
