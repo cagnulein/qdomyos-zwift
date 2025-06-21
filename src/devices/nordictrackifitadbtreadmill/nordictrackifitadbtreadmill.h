@@ -18,8 +18,14 @@
 #include <QString>
 #include <QThread>
 #include <QUdpSocket>
-
+#include <QRect>
+#include <QRegularExpression>
 #include "treadmill.h"
+
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -66,10 +72,27 @@ class nordictrackifitadbtreadmill : public treadmill {
     double minStepSpeed() override { return 0.1; }
 
   private:
+    struct DisplayValue {
+        QString value;
+        QString label;
+        QRect rect;
+    };
+
     void forceIncline(double incline);
     void forceSpeed(double speed);
     double getDouble(QString v);
     void initiateThreadStop();
+    
+    // gRPC integration methods
+    void initializeGrpcService();
+    void startGrpcMetricsUpdates();
+    void stopGrpcMetricsUpdates();
+    double getGrpcSpeed();
+    double getGrpcIncline();
+    double getGrpcWatts();
+    double getGrpcCadence();
+    void setGrpcSpeed(double speed);
+    void setGrpcIncline(double incline);
 
     QTimer *refresh;
 
@@ -86,6 +109,7 @@ class nordictrackifitadbtreadmill : public treadmill {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool grpcInitialized = false;
 
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
@@ -93,6 +117,9 @@ class nordictrackifitadbtreadmill : public treadmill {
 #ifdef Q_OS_WIN32
     nordictrackifitadbtreadmillLogcatAdbThread *logcatAdbThread = nullptr;
 #endif
+
+    DisplayValue extractValue(const QString& ocrText, int imageWidth, bool isLeftSide);
+    void processOCROutput(const QString& ocrText, int imageWidth);
 
     int x14i_inclination_lookuptable(double reqInclination);
 

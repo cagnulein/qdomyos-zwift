@@ -22,6 +22,11 @@
 #include "devices/bike.h"
 #include "virtualdevices/virtualbike.h"
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
+
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
@@ -75,6 +80,18 @@ class nordictrackifitadbbike : public bike {
     double getDouble(QString v);
     uint16_t wattsFromResistance(double inclination, double cadence);
     double bikeResistanceToPeloton(resistance_t resistance);
+    
+    // gRPC integration methods
+    void initializeGrpcService();
+    void startGrpcMetricsUpdates();
+    void stopGrpcMetricsUpdates();
+    double getGrpcSpeed();
+    double getGrpcIncline();
+    double getGrpcWatts();
+    double getGrpcCadence();
+    double getGrpcResistance();
+    void setGrpcResistance(double resistance);
+    void setGrpcIncline(double inclination);
 
     QTimer *refresh;
 
@@ -89,6 +106,7 @@ class nordictrackifitadbbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool grpcInitialized = false;
 
     bool gearsAvailable = false;
 

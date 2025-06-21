@@ -1,0 +1,28 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.useractivity";
+option java_outer_classname = "UserActivityProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+import "util/IFitError.proto";
+
+import "google/protobuf/duration.proto";
+
+message DurationResult {
+    google.protobuf.Duration duration = 1;
+}
+
+message UserActivityOverrideMessage {
+    string id = 1;
+}
+
+message SetDurationRequest {
+    google.protobuf.Duration duration = 1;
+}
+
+message UserActivityServiceResult {
+    oneof errorOrSuccess {
+        IFitError error = 1;
+        bool success = 2;
+    }
+}
