@@ -75,6 +75,8 @@ public class GrpcTreadmillService {
     private volatile double currentSpeed = 0.0;
     private volatile double currentIncline = 0.0;
     private volatile double currentResistance = 0.0;
+    private volatile double currentWatts = 0.0;
+    private volatile double currentCadence = 0.0;
 
     // Context for accessing assets
     private Context context;
@@ -403,7 +405,7 @@ public class GrpcTreadmillService {
                         MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
                 WattsMetric wattsResponse = wattsStubWithHeaders.getWatts(request);
-                double currentWatts = wattsResponse.getLastWatts();
+                currentWatts = wattsResponse.getLastWatts();
                 
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onWattsUpdated(currentWatts));
@@ -439,7 +441,7 @@ public class GrpcTreadmillService {
                         MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
                 CadenceMetric cadenceResponse = cadenceStubWithHeaders.getCadence(request);
-                double currentCadence = cadenceResponse.getLastStepsPerMinute();
+                currentCadence = cadenceResponse.getLastStepsPerMinute();
                 
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onCadenceUpdated(currentCadence));
@@ -521,14 +523,16 @@ public class GrpcTreadmillService {
     }
     
     public static double getCurrentWatts() {
-        // Note: watts is fetched but not stored as instance variable
-        // You might want to add currentWatts field if needed
+        if (instance != null) {
+            return instance.currentWatts;
+        }
         return 0.0;
     }
     
     public static double getCurrentCadence() {
-        // Note: cadence is fetched but not stored as instance variable
-        // You might want to add currentCadence field if needed
+        if (instance != null) {
+            return instance.currentCadence;
+        }
         return 0.0;
     }
     
