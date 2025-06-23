@@ -251,9 +251,11 @@ Promise.resolve(
 								if (track && track.polyline.positions) {
 									const positions = track.polyline.positions.getValue();
 									if (positions.length > 0) {
-										// Add start marker (green)
+										// Add start marker (green) - elevated 45m above ground
+										const startPos = Cesium.Cartographic.fromCartesian(positions[0]);
+										const elevatedStartPos = Cesium.Cartesian3.fromRadians(startPos.longitude, startPos.latitude, startPos.height + 45);
 										viewer.entities.add({
-											position: positions[0],
+											position: elevatedStartPos,
 											billboard: {
 												image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiMwMEZGMDAiLz4KPHN2ZyB4PSI4IiB5PSI4IiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGRkZGRiI+CjxwYXRoIGQ9Im04IDEyIDQgNCA4LTgiLz4KPC9zdmc+Cjwvc3ZnPgo=',
 												scale: 1.0,
@@ -272,9 +274,11 @@ Promise.resolve(
 											}
 										});
 										
-										// Add end marker (red)
+										// Add end marker (red) - elevated 45m above ground
+										const endPos = Cesium.Cartographic.fromCartesian(positions[positions.length - 1]);
+										const elevatedEndPos = Cesium.Cartesian3.fromRadians(endPos.longitude, endPos.latitude, endPos.height + 45);
 										viewer.entities.add({
-											position: positions[positions.length - 1],
+											position: elevatedEndPos,
 											billboard: {
 												image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiNGRjAwMDAiLz4KPHN2ZyB4PSI4IiB5PSI4IiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGRkZGRiI+CjxwYXRoIGQ9Ik02IDZoMTJ2MTJINnoiLz4KPC9zdmc+Cjwvc3ZnPgo=',
 												scale: 1.0,
