@@ -971,7 +971,8 @@ HEADERS += \
     mqttpublisher.h
 
 SOURCES += \
-    mqttpublisher.cpp
+    mqttpublisher.cpp \
+    mqttpublisher_discovery.cpp
 
 include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes

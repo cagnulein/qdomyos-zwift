@@ -3,6 +3,9 @@
 #include "homeform.h"
 #include "devices/elliptical.h"
 #include <QDebug>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QCoreApplication>
 
 MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QString username, QString password, bluetooth* manager, QObject *parent)
     : QObject(parent)
@@ -195,6 +198,9 @@ void MQTTPublisher::onConnected() {
     m_lastPublishedValues.clear();  // Reset stored values
     publishOnlineStatus();
     subscribeToControlTopics();
+    
+    // Delay discovery config to allow device initialization
+    QTimer::singleShot(2000, this, &MQTTPublisher::publishDiscoveryConfig);
 }
 
 void MQTTPublisher::subscribeToControlTopics() {
@@ -319,6 +325,130 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
         }
     } else if(command == "fan") {
         m_device->changeFanSpeed(value.toInt());
+    }
+}
+
+QJsonObject MQTTPublisher::getDeviceInfo() const {
+    QJsonObject device;
+    
+    if (m_device) {
+        device["identifiers"] = QJsonArray{m_device->bluetoothDevice.address().toString()};
+        device["name"] = QString("QZ Fitness Device (%1)").arg(m_userNickname);
+        device["model"] = m_device->bluetoothDevice.name();
+        device["manufacturer"] = "QDomyos-Zwift";
+        device["sw_version"] = QCoreApplication::applicationVersion();
+    } else {
+        device["identifiers"] = QJsonArray{m_userNickname};
+        device["name"] = QString("QZ Fitness Device (%1)").arg(m_userNickname);
+        device["manufacturer"] = "QDomyos-Zwift";
+        device["sw_version"] = QCoreApplication::applicationVersion();
+    }
+    
+    return device;
+}
+
+QString MQTTPublisher::getDiscoveryTopic(const QString& component, const QString& objectId) const {
+    return QString("homeassistant/%1/qz_%2_%3/config").arg(component, m_userNickname, objectId);
+}
+
+void MQTTPublisher::publishSensorDiscovery(const QString& sensorType, const QString& name, const QString& stateTopic, const QString& unit, const QString& deviceClass, const QString& icon) {
+    if (!isConnected()) return;
+    
+    QJsonObject config;
+    config["name"] = name;
+    config["unique_id"] = QString("qz_%1_%2").arg(m_userNickname, sensorType);
+    config["state_topic"] = stateTopic;
+    config["device"] = getDeviceInfo();
+    
+    if (!unit.isEmpty()) config["unit_of_measurement"] = unit;
+    if (!deviceClass.isEmpty()) config["device_class"] = deviceClass;
+    if (!icon.isEmpty()) config["icon"] = icon;
+    
+    QString topic = getDiscoveryTopic("sensor", sensorType);
+    QJsonDocument doc(config);
+    
+    m_client->publish(QMqttTopicName(topic), doc.toJson(QJsonDocument::Compact), 1, true);
+}
+
+void MQTTPublisher::publishBinarySensorDiscovery(const QString& sensorType, const QString& name, const QString& stateTopic, const QString& deviceClass, const QString& icon) {
+    if (!isConnected()) return;
+    
+    QJsonObject config;
+    config["name"] = name;
+    config["unique_id"] = QString("qz_%1_%2").arg(m_userNickname, sensorType);
+    config["state_topic"] = stateTopic;
+    config["device"] = getDeviceInfo();
+    config["payload_on"] = "true";
+    config["payload_off"] = "false";
+    
+    if (!deviceClass.isEmpty()) config["device_class"] = deviceClass;
+    if (!icon.isEmpty()) config["icon"] = icon;
+    
+    QString topic = getDiscoveryTopic("binary_sensor", sensorType);
+    QJsonDocument doc(config);
+    
+    m_client->publish(QMqttTopicName(topic), doc.toJson(QJsonDocument::Compact), 1, true);
+}
+
+void MQTTPublisher::publishNumberDiscovery(const QString& entityType, const QString& name, const QString& stateTopic, const QString& commandTopic, double min, double max, double step, const QString& unit, const QString& icon) {
+    if (!isConnected()) return;
+    
+    QJsonObject config;
+    config["name"] = name;
+    config["unique_id"] = QString("qz_%1_%2").arg(m_userNickname, entityType);
+    config["state_topic"] = stateTopic;
+    config["command_topic"] = commandTopic;
+    config["device"] = getDeviceInfo();
+    config["min"] = min;
+    config["max"] = max;
+    config["step"] = step;
+    config["mode"] = "box";
+    
+    if (!unit.isEmpty()) config["unit_of_measurement"] = unit;
+    if (!icon.isEmpty()) config["icon"] = icon;
+    
+    QString topic = getDiscoveryTopic("number", entityType);
+    QJsonDocument doc(config);
+    
+    m_client->publish(QMqttTopicName(topic), doc.toJson(QJsonDocument::Compact), 1, true);
+}
+
+void MQTTPublisher::publishSwitchDiscovery(const QString& entityType, const QString& name, const QString& stateTopic, const QString& commandTopic, const QString& icon) {
+    if (!isConnected()) return;
+    
+    QJsonObject config;
+    config["name"] = name;
+    config["unique_id"] = QString("qz_%1_%2").arg(m_userNickname, entityType);
+    config["state_topic"] = stateTopic;
+    config["command_topic"] = commandTopic;
+    config["device"] = getDeviceInfo();
+    config["payload_on"] = "true";
+    config["payload_off"] = "false";
+    
+    if (!icon.isEmpty()) config["icon"] = icon;
+    
+    QString topic = getDiscoveryTopic("switch", entityType);
+    QJsonDocument doc(config);
+    
+    m_client->publish(QMqttTopicName(topic), doc.toJson(QJsonDocument::Compact), 1, true);
+}
+
+void MQTTPublisher::removeDiscoveryConfig() {
+    if (!isConnected()) return;
+    
+    // Remove all discovery configs by publishing empty messages
+    QStringList components = {"sensor", "binary_sensor", "number", "switch", "button"};
+    QStringList entities = {
+        "speed_current", "speed_avg", "distance", "calories", "elapsed_time", "heart_current", "heart_avg",
+        "watts_current", "watts_avg", "connected", "paused", "resistance", "cadence", "inclination",
+        "power", "fan_speed", "start", "stop", "pause"
+    };
+    
+    for (const QString& component : components) {
+        for (const QString& entity : entities) {
+            QString topic = getDiscoveryTopic(component, entity);
+            m_client->publish(QMqttTopicName(topic), QByteArray(), 1, true);
+        }
     }
 }
 
@@ -490,3 +620,5 @@ void MQTTPublisher::publishWorkoutData() {
             break;
     }
 }
+
+#include "mqttpublisher_discovery.cpp"
