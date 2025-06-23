@@ -213,6 +213,32 @@ public class GrpcTreadmillService {
         });
     }
 
+    private void setWattsInstance(double watts) {
+        executorService.execute(() -> {
+            try {
+                double targetWatts = Math.max(0.0, watts);
+                
+                Metadata headers = createHeaders();
+                WattsServiceGrpc.WattsServiceBlockingStub stubWithHeaders = wattsStub.withInterceptors(
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
+                );
+                
+                // Note: Assuming there's a setWatts method in the gRPC service
+                // You may need to check the actual proto definition
+                com.ifit.glassos.workout.WattsRequest request = com.ifit.glassos.workout.WattsRequest.newBuilder().setWatts(targetWatts).build();
+                stubWithHeaders.setWatts(request);
+                
+                QLog.d(TAG, String.format("Set watts to %.0f", targetWatts));
+                
+            } catch (Exception e) {
+                QLog.e(TAG, "Failed to set watts", e);
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onError("watts", e.getMessage()));
+                }
+            }
+        });
+    }
+
     private void shutdownInstance() {
         stopMetricsUpdates();
 
@@ -562,6 +588,14 @@ public class GrpcTreadmillService {
     public static void adjustResistance(double delta) {
         if (instance != null) {
             instance.adjustResistanceInstance(delta);
+        } else {
+            QLog.e(TAG, "Service not initialized. Call initialize() first.");
+        }
+    }
+    
+    public static void setWatts(double watts) {
+        if (instance != null) {
+            instance.setWattsInstance(watts);
         } else {
             QLog.e(TAG, "Service not initialized. Call initialize() first.");
         }

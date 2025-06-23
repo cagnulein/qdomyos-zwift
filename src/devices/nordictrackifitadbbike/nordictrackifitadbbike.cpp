@@ -979,4 +979,35 @@ void nordictrackifitadbbike::setGrpcIncline(double incline) {
 #endif
 }
 
+void nordictrackifitadbbike::setGrpcWatts(double watts) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "setWatts",
+            "(D)V",
+            watts
+        );
+        emit debug(QString("Set gRPC watts to: %1").arg(watts));
+    }
+#endif
+}
+
+void nordictrackifitadbbike::changePower(int32_t power) {
+    // Call base class implementation first to set RequestedPower
+    bike::changePower(power);
+    
+    // If gRPC is available, use it to set the power directly
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized && power > 0) {
+        setGrpcWatts(static_cast<double>(power));
+        emit debug(QString("changePower: Set power to %1W via gRPC").arg(power));
+    } else {
+        emit debug(QString("changePower: Power request %1W (gRPC not available or power <= 0)").arg(power));
+    }
+#else
+    emit debug(QString("changePower: Power request %1W (Android gRPC not available)").arg(power));
+#endif
+}
+
 
