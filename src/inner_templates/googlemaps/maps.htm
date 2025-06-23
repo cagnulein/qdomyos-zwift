@@ -242,7 +242,60 @@ Promise.resolve(
 						 {
 						   clampToGround: true,
 							}
-						))
+						)).then(function(dataSource) {
+							// Add start and end markers
+							const entities = dataSource.entities.values;
+							if (entities.length > 0) {
+								// Find the polyline entity (the track)
+								const track = entities.find(entity => entity.polyline);
+								if (track && track.polyline.positions) {
+									const positions = track.polyline.positions.getValue();
+									if (positions.length > 0) {
+										// Add start marker (green)
+										viewer.entities.add({
+											position: positions[0],
+											billboard: {
+												image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiMwMEZGMDAiLz4KPHN2ZyB4PSI4IiB5PSI4IiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGRkZGRiI+CjxwYXRoIGQ9Im04IDEyIDQgNCA4LTgiLz4KPC9zdmc+Cjwvc3ZnPgo=',
+												scale: 1.0,
+												pixelOffset: new Cesium.Cartesian2(0, -16),
+												verticalOrigin: Cesium.VerticalOrigin.BOTTOM
+											},
+											label: {
+												text: 'START',
+												font: 'bold 14px sans-serif',
+												fillColor: Cesium.Color.WHITE,
+												outlineColor: Cesium.Color.BLACK,
+												outlineWidth: 2,
+												style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+												pixelOffset: new Cesium.Cartesian2(0, -50),
+												verticalOrigin: Cesium.VerticalOrigin.BOTTOM
+											}
+										});
+										
+										// Add end marker (red)
+										viewer.entities.add({
+											position: positions[positions.length - 1],
+											billboard: {
+												image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiNGRjAwMDAiLz4KPHN2ZyB4PSI4IiB5PSI4IiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGRkZGRiI+CjxwYXRoIGQ9Ik02IDZoMTJ2MTJINnoiLz4KPC9zdmc+Cjwvc3ZnPgo=',
+												scale: 1.0,
+												pixelOffset: new Cesium.Cartesian2(0, -16),
+												verticalOrigin: Cesium.VerticalOrigin.BOTTOM
+											},
+											label: {
+												text: 'FINISH',
+												font: 'bold 14px sans-serif',
+												fillColor: Cesium.Color.WHITE,
+												outlineColor: Cesium.Color.BLACK,
+												outlineWidth: 2,
+												style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+												pixelOffset: new Cesium.Cartesian2(0, -50),
+												verticalOrigin: Cesium.VerticalOrigin.BOTTOM
+											}
+										});
+									}
+								}
+							}
+						});
 	  }
 
 let el = new MainWSQueueElement({
