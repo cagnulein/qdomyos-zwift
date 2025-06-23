@@ -29,12 +29,14 @@ public:
     void setPort(quint16 port);
     bool isConnected() const;
     void setDevice(bluetoothdevice* device);
+    void subscribeToControlTopics();
 
 private slots:
     void onConnected();
     void onDisconnected();
     void onError(QMqttClient::ClientError error);
     void publishWorkoutData();
+    void onMessageReceived(const QByteArray &message, const QMqttTopicName &topic);
 
 private:
     const QString STATUS_TOPIC = "status";
@@ -57,6 +59,11 @@ private:
 
     // Helper method to store last published value
     void updateLastPublishedValue(const QString& topic, const QVariant& value);
+    
+    // Control command handlers
+    void handleControlCommand(const QString& command, const QVariant& value);
+    void processDeviceCommand(const QString& deviceType, const QString& command, const QVariant& value);
+    QString getControlTopic() const;
 
     QMqttClient* m_client;
     QTimer* m_timer;

@@ -1,6 +1,7 @@
 #include "mqttpublisher.h"
 #include "qzsettings.h"
 #include "homeform.h"
+#include "devices/elliptical.h"
 #include <QDebug>
 
 MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QString username, QString password, bluetooth* manager, QObject *parent)
@@ -24,6 +25,7 @@ MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QString username
     connect(m_client, &QMqttClient::connected, this, &MQTTPublisher::onConnected);
     connect(m_client, &QMqttClient::disconnected, this, &MQTTPublisher::onDisconnected);
     connect(m_client, &QMqttClient::errorChanged, this, &MQTTPublisher::onError);
+    connect(m_client, &QMqttClient::messageReceived, this, &MQTTPublisher::onMessageReceived);
 
     setupMQTTClient();
     start();
@@ -71,6 +73,10 @@ QString MQTTPublisher::getStatusTopic() const {
 
 QString MQTTPublisher::getBaseTopic() const {
     return QString("QZ/%1/workout/").arg(m_userNickname);
+}
+
+QString MQTTPublisher::getControlTopic() const {
+    return QString("QZ/%1/control/").arg(m_userNickname);
 }
 
 void MQTTPublisher::setupMQTTClient() {
@@ -188,6 +194,132 @@ void MQTTPublisher::onConnected() {
     qDebug() << "MQTT Client Connected";
     m_lastPublishedValues.clear();  // Reset stored values
     publishOnlineStatus();
+    subscribeToControlTopics();
+}
+
+void MQTTPublisher::subscribeToControlTopics() {
+    if(!isConnected()) return;
+    
+    QString controlTopic = getControlTopic() + "+";
+    QString deviceControlTopic = getControlTopic() + "+/+";
+    
+    qDebug() << "Subscribing to control topics:" << controlTopic << deviceControlTopic;
+    
+    m_client->subscribe(QMqttTopicFilter(controlTopic), 1);
+    m_client->subscribe(QMqttTopicFilter(deviceControlTopic), 1);
+}
+
+void MQTTPublisher::onMessageReceived(const QByteArray &message, const QMqttTopicName &topic) {
+    QString topicName = topic.name();
+    QString controlPrefix = getControlTopic();
+    
+    if(!topicName.startsWith(controlPrefix)) {
+        return;
+    }
+    
+    QString command = topicName.mid(controlPrefix.length());
+    QVariant value = QString::fromUtf8(message);
+    
+    qDebug() << "Received control command:" << command << "value:" << value.toString();
+    
+    handleControlCommand(command, value);
+}
+
+void MQTTPublisher::handleControlCommand(const QString& command, const QVariant& value) {
+    if(!m_device) return;
+    
+    QStringList parts = command.split('/');
+    if(parts.isEmpty()) return;
+    
+    // Handle device-specific commands (e.g., "bike/resistance", "treadmill/speed")
+    if(parts.size() == 2) {
+        processDeviceCommand(parts[0], parts[1], value);
+        return;
+    }
+    
+    // Handle general commands
+    QString mainCommand = parts[0];
+    
+    if(mainCommand == "start") {
+        m_device->start();
+    } else if(mainCommand == "stop") {
+        m_device->stop(false);
+    } else if(mainCommand == "pause") {
+        m_device->setPaused(value.toBool());
+    } else if(mainCommand == "resistance") {
+        m_device->changeResistance(value.toInt());
+    } else if(mainCommand == "power") {
+        m_device->changePower(value.toInt());
+    } else if(mainCommand == "fan") {
+        m_device->changeFanSpeed(value.toInt());
+    } else if(mainCommand == "inclination") {
+        m_device->changeInclination(value.toDouble(), value.toDouble());
+    }
+}
+
+void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QString& command, const QVariant& value) {
+    if(!m_device) return;
+    
+    if(deviceType == "bike" && m_device->deviceType() == bluetoothdevice::BIKE) {
+        bike* bikeDevice = static_cast<bike*>(m_device);
+        
+        if(command == "resistance") {
+            bikeDevice->changeResistance(value.toInt());
+        } else if(command == "power") {
+            bikeDevice->changePower(value.toInt());
+        } else if(command == "cadence") {
+            bikeDevice->changeCadence(value.toInt());
+        } else if(command == "peloton_resistance") {
+            bikeDevice->changeRequestedPelotonResistance(value.toInt());
+        } else if(command == "inclination") {
+            bikeDevice->changeInclination(value.toDouble(), value.toDouble());
+        } else if(command == "gears_up") {
+            bikeDevice->gearUp();
+        } else if(command == "gears_down") {
+            bikeDevice->gearDown();
+        }
+        
+    } else if(deviceType == "treadmill" && m_device->deviceType() == bluetoothdevice::TREADMILL) {
+        treadmill* treadDevice = static_cast<treadmill*>(m_device);
+        
+        if(command == "speed") {
+            treadDevice->changeSpeed(value.toDouble());
+        } else if(command == "inclination") {
+            treadDevice->changeInclination(value.toDouble(), value.toDouble());
+        } else if(command == "power") {
+            treadDevice->changePower(value.toInt());
+        }
+        
+    } else if(deviceType == "rowing" && m_device->deviceType() == bluetoothdevice::ROWING) {
+        rower* rowDevice = static_cast<rower*>(m_device);
+        
+        if(command == "resistance") {
+            rowDevice->changeResistance(value.toInt());
+        } else if(command == "power") {
+            rowDevice->changePower(value.toInt());
+        } else if(command == "cadence") {
+            rowDevice->changeCadence(value.toInt());
+        } else if(command == "speed") {
+            rowDevice->changeSpeed(value.toDouble());
+        }
+        
+    } else if(deviceType == "elliptical" && m_device->deviceType() == bluetoothdevice::ELLIPTICAL) {
+        elliptical* ellipticalDevice = static_cast<elliptical*>(m_device);
+        
+        if(command == "resistance") {
+            ellipticalDevice->changeResistance(value.toInt());
+        } else if(command == "power") {
+            ellipticalDevice->changePower(value.toInt());
+        } else if(command == "speed") {
+            ellipticalDevice->changeSpeed(value.toDouble());
+        } else if(command == "inclination") {
+            ellipticalDevice->changeInclination(value.toDouble(), value.toDouble());
+        } else if(command == "cadence") {
+            ellipticalDevice->changeCadence(value.toInt());
+        }
+    } else if(command == "fan") {
+        m_device->changeFanSpeed(value.toInt());
+    }
 }
 
 void MQTTPublisher::publishWorkoutData() {
