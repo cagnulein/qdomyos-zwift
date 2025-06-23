@@ -38,6 +38,8 @@ import com.ifit.glassos.workout.InclineServiceGrpc;
 import com.ifit.glassos.workout.InclineRequest;
 import com.ifit.glassos.workout.WattsMetric;
 import com.ifit.glassos.workout.WattsServiceGrpc;
+import com.ifit.glassos.console.constantwatts.ConstantWattsMessage;
+import com.ifit.glassos.console.constantwatts.ConstantWattsServiceGrpc;
 import com.ifit.glassos.workout.ResistanceMetric;
 import com.ifit.glassos.workout.ResistanceServiceGrpc;
 import com.ifit.glassos.workout.ResistanceRequest;
@@ -67,6 +69,7 @@ public class GrpcTreadmillService {
     private SpeedServiceGrpc.SpeedServiceBlockingStub speedStub;
     private InclineServiceGrpc.InclineServiceBlockingStub inclineStub;
     private WattsServiceGrpc.WattsServiceBlockingStub wattsStub;
+    private ConstantWattsServiceGrpc.ConstantWattsServiceBlockingStub constantWattsStub;
     private ResistanceServiceGrpc.ResistanceServiceBlockingStub resistanceStub;
     private CadenceServiceGrpc.CadenceServiceBlockingStub cadenceStub;
 
@@ -216,19 +219,17 @@ public class GrpcTreadmillService {
     private void setWattsInstance(double watts) {
         executorService.execute(() -> {
             try {
-                double targetWatts = Math.max(0.0, watts);
+                int targetWatts = Math.max(0, (int) watts);
                 
                 Metadata headers = createHeaders();
-                WattsServiceGrpc.WattsServiceBlockingStub stubWithHeaders = wattsStub.withInterceptors(
+                ConstantWattsServiceGrpc.ConstantWattsServiceBlockingStub stubWithHeaders = constantWattsStub.withInterceptors(
                         MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
                 
-                // Note: Assuming there's a setWatts method in the gRPC service
-                // You may need to check the actual proto definition
-                com.ifit.glassos.workout.WattsRequest request = com.ifit.glassos.workout.WattsRequest.newBuilder().setWatts(targetWatts).build();
-                stubWithHeaders.setWatts(request);
+                ConstantWattsMessage request = ConstantWattsMessage.newBuilder().setWatts(targetWatts).build();
+                stubWithHeaders.setConstantWatts(request);
                 
-                QLog.d(TAG, String.format("Set watts to %.0f", targetWatts));
+                QLog.d(TAG, String.format("Set constant watts to %d", targetWatts));
                 
             } catch (Exception e) {
                 QLog.e(TAG, "Failed to set watts", e);
@@ -304,6 +305,7 @@ public class GrpcTreadmillService {
         speedStub = SpeedServiceGrpc.newBlockingStub(channel);
         inclineStub = InclineServiceGrpc.newBlockingStub(channel);
         wattsStub = WattsServiceGrpc.newBlockingStub(channel);
+        constantWattsStub = ConstantWattsServiceGrpc.newBlockingStub(channel);
         resistanceStub = ResistanceServiceGrpc.newBlockingStub(channel);
         cadenceStub = CadenceServiceGrpc.newBlockingStub(channel);
 
