@@ -168,7 +168,7 @@ public class GrpcTreadmillService {
     private void adjustInclineInstance(double delta) {
         executorService.execute(() -> {
             try {
-                double newIncline = Math.max(0.0, currentIncline + delta);
+                double newIncline = Math.max(-50.0, currentIncline + delta);
                 
                 Metadata headers = createHeaders();
                 InclineServiceGrpc.InclineServiceBlockingStub stubWithHeaders = inclineStub.withInterceptors(
