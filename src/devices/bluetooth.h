@@ -20,6 +20,7 @@
 #include "devices/discoveryoptions.h"
 #include "qzsettings.h"
 
+#ifndef NO_NORDICTRACK
 #include "devices/activiotreadmill/activiotreadmill.h"
 #include "devices/speraxtreadmill/speraxtreadmill.h"
 #include "devices/antbike/antbike.h"
@@ -27,47 +28,55 @@
 #include "devices/apexbike/apexbike.h"
 #include "devices/bhfitnesselliptical/bhfitnesselliptical.h"
 #include "devices/bkoolbike/bkoolbike.h"
+#endif // NO_NORDICTRACK
 #include "devices/bluetoothdevice.h"
+#ifndef NO_NORDICTRACK
 #include "devices/bowflext216treadmill/bowflext216treadmill.h"
 #include "devices/bowflextreadmill/bowflextreadmill.h"
 #include "devices/chronobike/chronobike.h"
 #include "devices/coresensor/coresensor.h"
+#endif // NO_NORDICTRACK
 #ifndef Q_OS_IOS
 #include "devices/computrainerbike/computrainerbike.h"
 #include "devices/csaferower/csaferower.h"
 #include "devices/csafeelliptical/csafeelliptical.h"
 #endif
+#include "devices/cscbike/cscbike.h"
+#ifndef NO_NORDICTRACK
 #include "devices/concept2skierg/concept2skierg.h"
 #include "devices/crossrope/crossrope.h"
-#include "devices/cscbike/cscbike.h"
 #include "devices/cycleopsphantombike/cycleopsphantombike.h"
 #include "devices/deeruntreadmill/deerruntreadmill.h"
 #include "devices/domyosbike/domyosbike.h"
 #include "devices/domyoselliptical/domyoselliptical.h"
 #include "devices/domyosrower/domyosrower.h"
 #include "devices/domyostreadmill/domyostreadmill.h"
+#endif // NO_NORDICTRACK
 
+#ifndef NO_NORDICTRACK
 #include "devices/echelonconnectsport/echelonconnectsport.h"
 #include "devices/echelonrower/echelonrower.h"
 #include "devices/echelonstairclimber/echelonstairclimber.h"
-#include "devices/eliteariafan/eliteariafan.h"
-#include "devices/eliterizer/eliterizer.h"
-#include "devices/elitesquarecontroller/elitesquarecontroller.h"
-#include "devices/elitesterzosmart/elitesterzosmart.h"
 #include "devices/eslinkertreadmill/eslinkertreadmill.h"
 #include "devices/fakebike/fakebike.h"
 #include "devices/fakeelliptical/fakeelliptical.h"
 #include "devices/fakerower/fakerower.h"
 #include "devices/faketreadmill/faketreadmill.h"
-#include "devices/fitmetria_fanfit/fitmetria_fanfit.h"
 #include "devices/fitplusbike/fitplusbike.h"
+#endif // NO_NORDICTRACK
+#include "devices/eliteariafan/eliteariafan.h"
+#include "devices/eliterizer/eliterizer.h"
+#include "devices/elitesquarecontroller/elitesquarecontroller.h"
+#include "devices/elitesterzosmart/elitesterzosmart.h"
 
+#include "devices/fitmetria_fanfit/fitmetria_fanfit.h"
+#include "devices/heartratebelt/heartratebelt.h"
+#ifndef NO_NORDICTRACK
 #include "devices/fitshowtreadmill/fitshowtreadmill.h"
 #include "devices/flywheelbike/flywheelbike.h"
 #include "devices/ftmsbike/ftmsbike.h"
 #include "devices/ftmsrower/ftmsrower.h"
 #include "devices/focustreadmill/focustreadmill.h"
-#include "devices/heartratebelt/heartratebelt.h"
 #include "devices/horizongr7bike/horizongr7bike.h"
 #include "devices/horizontreadmill/horizontreadmill.h"
 #include "devices/iconceptbike/iconceptbike.h"
@@ -87,9 +96,13 @@
 #include "devices/nautiluselliptical/nautiluselliptical.h"
 #include "devices/nautilustreadmill/nautilustreadmill.h"
 #include "devices/nordictrackelliptical/nordictrackelliptical.h"
+#endif // NO_NORDICTRACK
 #include "devices/nordictrackifitadbbike/nordictrackifitadbbike.h"
+#ifndef NO_NORDICTRACK  
 #include "devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h"
+#endif // NO_NORDICTRACK
 #include "devices/nordictrackifitadbtreadmill/nordictrackifitadbtreadmill.h"
+#ifndef NO_NORDICTRACK
 #include "devices/npecablebike/npecablebike.h"
 #include "devices/octaneelliptical/octaneelliptical.h"
 #include "devices/octanetreadmill/octanetreadmill.h"
@@ -107,49 +120,65 @@
 #include "devices/proformwifitreadmill/proformwifitreadmill.h"
 #include "devices/schwinn170bike/schwinn170bike.h"
 #include "devices/schwinnic4bike/schwinnic4bike.h"
+#endif // NO_NORDICTRACK
 #include "signalhandler.h"
+#include "devices/smartspin2k/smartspin2k.h"
+#ifndef NO_NORDICTRACK
 #include "devices/skandikawiribike/skandikawiribike.h"
 #include "devices/smartrowrower/smartrowrower.h"
-#include "devices/smartspin2k/smartspin2k.h"
-#include "devices/snodebike/snodebike.h"
-#include "devices/strydrunpowersensor/strydrunpowersensor.h"
 
+#include "devices/snodebike/snodebike.h"
+#endif // NO_NORDICTRACK
+#include "devices/strydrunpowersensor/strydrunpowersensor.h"
+#ifndef NO_NORDICTRACK
 #include "devices/shuaa5treadmill/shuaa5treadmill.h"
 #include "devices/solebike/solebike.h"
 #include "devices/soleelliptical/soleelliptical.h"
 #include "devices/solef80treadmill/solef80treadmill.h"
+#endif // NO_NORDICTRACK
 
+#ifndef NO_NORDICTRACK
 #include "devices/spirittreadmill/spirittreadmill.h"
 #include "devices/sportsplusbike/sportsplusbike.h"
 #include "devices/sportsplusrower/sportsplusrower.h"
 #include "devices/sportstechbike/sportstechbike.h"
 #include "devices/sportstechelliptical/sportstechelliptical.h"
+#endif // NO_NORDICTRACK
 #include "devices/sramAXSController/sramAXSController.h"
 #include "devices/stagesbike/stagesbike.h"
-
+#ifndef NO_NORDICTRACK
 #include "devices/renphobike/renphobike.h"
 #include "devices/tacxneo2/tacxneo2.h"
 #include "devices/technogymmyruntreadmill/technogymmyruntreadmill.h"
 #include "devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.h"
+#endif // NO_NORDICTRACK
 
+#ifndef NO_NORDICTRACK
 #include "devices/echelonstride/echelonstride.h"
+#endif // NO_NORDICTRACK
 
 #include "templateinfosenderbuilder.h"
+#ifndef NO_NORDICTRACK
 #include "technogymbike/technogymbike.h"
 #include "devices/toorxtreadmill/toorxtreadmill.h"
+#endif // NO_NORDICTRACK
 #include "devices/treadmill.h"
+#ifndef NO_NORDICTRACK
 #include "devices/truetreadmill/truetreadmill.h"
 #include "devices/trxappgateusbbike/trxappgateusbbike.h"
 #include "devices/trxappgateusbelliptical/trxappgateusbelliptical.h"
 #include "devices/trxappgateusbrower/trxappgateusbrower.h"
 #include "devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h"
 #include "devices/ultrasportbike/ultrasportbike.h"
-#include "devices/wahookickrheadwind/wahookickrheadwind.h"
+
 #include "devices/wahookickrsnapbike/wahookickrsnapbike.h"
 #include "devices/yesoulbike/yesoulbike.h"
+#endif // NO_NORDICTRACK
+#ifndef NO_NORDICTRACK
 #include "devices/ypooelliptical/ypooelliptical.h"
 #include "devices/ziprotreadmill/ziprotreadmill.h"
-
+#endif // NO_NORDICTRACK
+#include "devices/wahookickrheadwind/wahookickrheadwind.h"
 #include "zwift_play/zwiftPlayDevice.h"
 #include "zwift_play/zwiftclickremote.h"
 
@@ -178,6 +207,10 @@ class bluetooth : public QObject, public SignalHandler {
     bool useDiscovery = false;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
+    nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
+    nordictrackifitadbbike *nordictrackifitadbBike = nullptr;
+
+    #ifndef NO_NORDICTRACK
     antbike *antBike = nullptr;
     android_antbike *android_antBike = nullptr;
     apexbike *apexBike = nullptr;
@@ -219,8 +252,6 @@ class bluetooth : public QObject, public SignalHandler {
     flywheelbike *flywheelBike = nullptr;
     moxy5sensor *moxy5Sensor = nullptr;
     nordictrackelliptical *nordictrackElliptical = nullptr;
-    nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
-    nordictrackifitadbbike *nordictrackifitadbBike = nullptr;
     nordictrackifitadbelliptical *nordictrackifitadbElliptical = nullptr;
     octaneelliptical *octaneElliptical = nullptr;
     octanetreadmill *octaneTreadmill = nullptr;
@@ -252,10 +283,14 @@ class bluetooth : public QObject, public SignalHandler {
     m3ibike *m3iBike = nullptr;
     mepanelbike *mepanelBike = nullptr;
     skandikawiribike *skandikaWiriBike = nullptr;
+#endif
     cscbike *cscBike = nullptr;
+#ifndef NO_NORDICTRACK
     mcfbike *mcfBike = nullptr;
     npecablebike *npeCableBike = nullptr;
+#endif
     stagesbike *stagesBike = nullptr;
+#ifndef NO_NORDICTRACK
     solebike *soleBike = nullptr;
     soleelliptical *soleElliptical = nullptr;
     solef80treadmill *soleF80 = nullptr;
@@ -279,24 +314,29 @@ class bluetooth : public QObject, public SignalHandler {
     pitpatbike *pitpatBike = nullptr;
     renphobike *renphoBike = nullptr;
     shuaa5treadmill *shuaA5Treadmill = nullptr;
+#endif
     heartratebelt *heartRateBelt = nullptr;
     smartspin2k *ftmsAccessory = nullptr;
     cscbike *cadenceSensor = nullptr;
     stagesbike *powerSensor = nullptr;
     strydrunpowersensor *powerSensorRun = nullptr;
     stagesbike *powerBike = nullptr;
+#ifndef NO_NORDICTRACK
     ultrasportbike *ultraSportBike = nullptr;
     wahookickrsnapbike *wahooKickrSnapBike = nullptr;
     ypooelliptical *ypooElliptical = nullptr;
     ziprotreadmill *ziproTreadmill = nullptr;
     kineticinroadbike *kineticInroadBike = nullptr;
+#endif
     strydrunpowersensor *powerTreadmill = nullptr;
     eliterizer *eliteRizer = nullptr;
     elitesterzosmart *eliteSterzoSmart = nullptr;
+#ifndef NO_NORDICTRACK
     fakebike *fakeBike = nullptr;
     fakeelliptical *fakeElliptical = nullptr;
     fakerower *fakeRower = nullptr;
     faketreadmill *fakeTreadmill = nullptr;
+#endif
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QList<wahookickrheadwind *> wahookickrHeadWind;
     QList<eliteariafan *> eliteAriaFan;
