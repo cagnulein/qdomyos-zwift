@@ -609,6 +609,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     foreach (quint16 id, ids) {
         qDebug() << id << device.manufacturerData(id).toHex(' ');
 
+#ifndef NO_NORDICTRACK
 #ifdef Q_OS_ANDROID
         // yesoul bike on android 13 doesn't send anymore the name
         if (device.name().count() == 0 && id == yesoulbike::manufacturerDataId &&
@@ -633,6 +634,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             }
             manufacturerDeviceFound = true;
         }
+#endif
 #endif
     }
 
