@@ -29,12 +29,15 @@ public:
     void setPort(quint16 port);
     bool isConnected() const;
     void setDevice(bluetoothdevice* device);
+    void subscribeToControlTopics();
+    void publishDiscoveryConfig();
 
 private slots:
     void onConnected();
     void onDisconnected();
     void onError(QMqttClient::ClientError error);
     void publishWorkoutData();
+    void onMessageReceived(const QByteArray &message, const QMqttTopicName &topic);
 
 private:
     const QString STATUS_TOPIC = "status";
@@ -57,6 +60,20 @@ private:
 
     // Helper method to store last published value
     void updateLastPublishedValue(const QString& topic, const QVariant& value);
+    
+    // Control command handlers
+    void handleControlCommand(const QString& command, const QVariant& value);
+    void processDeviceCommand(const QString& deviceType, const QString& command, const QVariant& value);
+    QString getControlTopic() const;
+    
+    // Home Assistant Discovery helpers
+    void publishSensorDiscovery(const QString& sensorType, const QString& name, const QString& stateTopic, const QString& unit = "", const QString& deviceClass = "", const QString& icon = "");
+    void publishBinarySensorDiscovery(const QString& sensorType, const QString& name, const QString& stateTopic, const QString& deviceClass = "", const QString& icon = "");
+    void publishNumberDiscovery(const QString& entityType, const QString& name, const QString& stateTopic, const QString& commandTopic, double min = 0, double max = 100, double step = 1, const QString& unit = "", const QString& icon = "");
+    void publishSwitchDiscovery(const QString& entityType, const QString& name, const QString& stateTopic, const QString& commandTopic, const QString& icon = "");
+    QJsonObject getDeviceInfo() const;
+    QString getDiscoveryTopic(const QString& component, const QString& objectId) const;
+    void removeDiscoveryConfig();
 
     QMqttClient* m_client;
     QTimer* m_timer;
