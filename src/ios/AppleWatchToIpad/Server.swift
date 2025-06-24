@@ -36,10 +36,10 @@ class Server {
 
     func start() {
         listener.stateUpdateHandler = { newState in
-            SwiftDebug.qtDebug("listener.stateUpdateHandler \(newState)")
+            self.SwiftDebug.qtDebug("listener.stateUpdateHandler \(newState)")
         }
         listener.newConnectionHandler = { [weak self] newConnection in
-            SwiftDebug.qtDebug("listener.newConnectionHandler \(newConnection)")
+            self?.SwiftDebug.qtDebug("listener.newConnectionHandler \(newConnection)")
             let connection = Connection(connection: newConnection)
             self?.connections += [connection]
         }

@@ -28,10 +28,10 @@ class Browser {
 
     func start(handler: @escaping (NWBrowser.Result) -> Void) {
         browser.stateUpdateHandler = { newState in
-            SwiftDebug.qtDebug("browser.stateUpdateHandler \(newState)")
+            self.SwiftDebug.qtDebug("browser.stateUpdateHandler \(newState)")
         }
         browser.browseResultsChangedHandler = { results, changes in
-            SwiftDebug.qtDebug("browser.statebrowseResultsChangedHandlerUpdateHandler \(results)")
+            self.SwiftDebug.qtDebug("browser.statebrowseResultsChangedHandlerUpdateHandler \(results)")
             for result in results {
                 if case NWEndpoint.service = result.endpoint {
                     handler(result)
