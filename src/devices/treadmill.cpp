@@ -10,6 +10,12 @@
 treadmill::treadmill() {}
 
 void treadmill::changeSpeed(double speed) {
+    // Reset target watts only if called from external source
+    if (!callingFromFollowPower) {
+        targetWatts = -1;
+        qDebug() << "External speed change - resetting power following mode";
+    }
+    
     QSettings settings;
     bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
     m_lastRawSpeedRequested = speed;
@@ -32,6 +38,12 @@ void treadmill::changeSpeed(double speed) {
         requestSpeed = (speed * m_difficult) + m_difficult_offset;
 }
 void treadmill::changeInclination(double grade, double inclination) {
+    // Reset target watts only if called from external source  
+    if (!callingFromFollowPower) {
+        targetWatts = -1;
+        qDebug() << "External inclination change - resetting power following mode";
+    }
+    
     QSettings settings;
     double treadmill_incline_min = settings.value(QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min).toDouble();
     double treadmill_incline_max = settings.value(QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max).toDouble();
@@ -587,25 +599,34 @@ bool treadmill::followPowerBySpeed() {
     if (treadmill_follow_wattage) {
 
         if (currentInclination().value() != lastInclination && wattsMetric().value() != 0) {
+            
+            // If not following power mode, calculate new target from current values
+            if (targetWatts == -1) {
+                targetWatts = wattsCalc(w, currentSpeed().value(), lastInclination);
+                qDebug() << "Starting power following mode with target watts:" << targetWatts;
+            }
+            
+            // Find speed to maintain targetWatts with current inclination
             double newspeed = 0;
             double bestSpeed = 0.1;
-
-            // don't read the wattage directly from the m_watt because if you were using a power sensor, the power calcuated in the for will not match it
-            double previousWatt = wattsCalc(w, currentSpeed().value(), lastInclination);
-
-            double bestDifference = fabs(wattsCalc(w, bestSpeed, currentInclination().value()) - previousWatt);
+            double bestDifference = fabs(wattsCalc(w, bestSpeed, currentInclination().value()) - targetWatts);
+            
             for (int speed = 1; speed <= 300; speed++) {
                 double s = ((double)speed) / 10.0;
-                double thisDifference = fabs(wattsCalc(w, s, currentInclination().value()) - previousWatt);
+                double thisDifference = fabs(wattsCalc(w, s, currentInclination().value()) - targetWatts);
                 if (thisDifference < bestDifference) {
                     bestDifference = thisDifference;
                     bestSpeed = s;
                 }
             }
-            // Now bestSpeed is the speed closest to the desired wattage
+            
             newspeed = bestSpeed;
-            qDebug() << QStringLiteral("changing speed to") << newspeed << "due to inclination changed" << currentInclination().value() << lastInclination;
+            qDebug() << "Following power: changing speed to" << newspeed << "to maintain" << targetWatts << "watts (inclination changed" << currentInclination().value() << lastInclination << ")";
+            
+            callingFromFollowPower = true;  // Set flag before calling
             changeSpeedAndInclination(newspeed, currentInclination().value());
+            callingFromFollowPower = false; // Reset flag after calling
+            
             r = true;
         }
     }
