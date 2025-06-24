@@ -678,6 +678,7 @@ void nordictrackifitadbbike::update() {
         if (requestInclination != -100) {
             setGrpcIncline(requestInclination);
             requestInclination = -100;
+            requestResistance = -1;
         }
 
         if(requestResistance != - 1) {
