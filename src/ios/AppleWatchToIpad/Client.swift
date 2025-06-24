@@ -12,14 +12,16 @@ class Client {
 
     static let client = Client()
     let browser = Browser()
+    let SwiftDebug = swiftDebug()
 
     var connection: Connection?
 
     func start() {
+        SwiftDebug.qtDebug("Client.start()")
         browser.start { [weak self] result in
             /*guard let self = self,
                   self.connection == nil else { return }*/
-            print("client.handler result: \(result)")
+            SwiftDebug.qtDebug("client.handler result: \(result)")
             self?.connection = Connection(endpoint: result.endpoint)
         }
     }

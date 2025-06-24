@@ -13,6 +13,7 @@ class Server {
 
     static let server = try? Server()
     let listener: NWListener
+    let SwiftDebug = swiftDebug()
 
     var connections: [Connection] = []
 
@@ -35,10 +36,10 @@ class Server {
 
     func start() {
         listener.stateUpdateHandler = { newState in
-            print("listener.stateUpdateHandler \(newState)")
+            SwiftDebug.qtDebug("listener.stateUpdateHandler \(newState)")
         }
         listener.newConnectionHandler = { [weak self] newConnection in
-            print("listener.newConnectionHandler \(newConnection)")
+            SwiftDebug.qtDebug("listener.newConnectionHandler \(newConnection)")
             let connection = Connection(connection: newConnection)
             self?.connections += [connection]
         }
@@ -46,6 +47,7 @@ class Server {
     }
 
     func send(_ message: String) {
+        SwiftDebug.qtDebug("Server.send \(message) \(connections)")
         connections.forEach {
             if($0.connection.state == .ready) {
                 $0.send(message)

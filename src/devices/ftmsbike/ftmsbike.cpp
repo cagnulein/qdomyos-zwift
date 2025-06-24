@@ -1096,7 +1096,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
         if(homeform::singleton())
             homeform::singleton()->setToastRequested("Domyos bike presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
     } else if(gattFTMSService == nullptr && PM5) {
-        settings.setValue(QZSettings::ftms_rower, bluetoothdevice.name());
+        settings.setValue(QZSettings::ftms_rower, bluetoothDevice.name());
         if(homeform::singleton())
             homeform::singleton()->setToastRequested("PM5 rower found. Restart QZ to apply the fix, thanks.");
     }
