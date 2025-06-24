@@ -1095,6 +1095,10 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
         settings.setValue(QZSettings::domyosbike_notfmts, true);
         if(homeform::singleton())
             homeform::singleton()->setToastRequested("Domyos bike presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
+    } else if(gattFTMSService == nullptr && PM5) {
+        settings.setValue(QZSettings::ftms_rower, bluetoothdevice.name());
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("PM5 rower found. Restart QZ to apply the fix, thanks.");
     }
 
     if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
@@ -1400,6 +1404,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("YS_G1MPLUS found");
             YS_G1MPLUS = true;
             max_resistance = 100;
+        } else if (bluetoothDevice.name().toUpper().startsWith(QStringLiteral("PM5"))) {
+            PM5 = true;
+            qDebug() << QStringLiteral("PM5 found");
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {

@@ -146,6 +146,7 @@ class ftmsbike : public bike {
     bool FIT_BK = false;
     bool YS_G1MPLUS = false;
     bool EXPERT_SX9 = false;
+    bool PM5 = false;
 
     int16_t T2_lastGear = 0;
 
