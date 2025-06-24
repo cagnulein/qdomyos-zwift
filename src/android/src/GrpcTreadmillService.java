@@ -45,6 +45,8 @@ import com.ifit.glassos.workout.ResistanceServiceGrpc;
 import com.ifit.glassos.workout.ResistanceRequest;
 import com.ifit.glassos.workout.CadenceMetric;
 import com.ifit.glassos.workout.CadenceServiceGrpc;
+import com.ifit.glassos.workout.RpmMetric;
+import com.ifit.glassos.workout.RpmServiceGrpc;
 
 import org.cagnulen.qdomyoszwift.QLog;
 
@@ -72,6 +74,7 @@ public class GrpcTreadmillService {
     private ConstantWattsServiceGrpc.ConstantWattsServiceBlockingStub constantWattsStub;
     private ResistanceServiceGrpc.ResistanceServiceBlockingStub resistanceStub;
     private CadenceServiceGrpc.CadenceServiceBlockingStub cadenceStub;
+    private RpmServiceGrpc.RpmServiceBlockingStub rpmStub;
 
     // Control flags and current values
     private volatile boolean isUpdating = false;
@@ -80,6 +83,7 @@ public class GrpcTreadmillService {
     private volatile double currentResistance = 0.0;
     private volatile double currentWatts = 0.0;
     private volatile double currentCadence = 0.0;
+    private volatile double currentRpm = 0.0;
 
     // Context for accessing assets
     private Context context;
@@ -91,6 +95,7 @@ public class GrpcTreadmillService {
         void onWattsUpdated(double watts);
         void onResistanceUpdated(double resistance);
         void onCadenceUpdated(double cadence);
+        void onRpmUpdated(double rpm);
         void onError(String metric, String error);
     }
 
@@ -308,6 +313,7 @@ public class GrpcTreadmillService {
         constantWattsStub = ConstantWattsServiceGrpc.newBlockingStub(channel);
         resistanceStub = ResistanceServiceGrpc.newBlockingStub(channel);
         cadenceStub = CadenceServiceGrpc.newBlockingStub(channel);
+        rpmStub = RpmServiceGrpc.newBlockingStub(channel);
 
         QLog.i(TAG, "gRPC connection initialized with client certificates");
     }
@@ -463,7 +469,25 @@ public class GrpcTreadmillService {
                 }
             }
 
-            // Fetch cadence
+            // Fetch RPM (for bikes)
+            try {
+                RpmServiceGrpc.RpmServiceBlockingStub rpmStubWithHeaders = rpmStub.withInterceptors(
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
+                );
+                RpmMetric rpmResponse = rpmStubWithHeaders.getRpm(request);
+                currentRpm = rpmResponse.getLastRpm();
+                
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onRpmUpdated(currentRpm));
+                }
+            } catch (Exception e) {
+                QLog.w(TAG, "Failed to fetch RPM", e);
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onError("rpm", "Error"));
+                }
+            }
+
+            // Fetch cadence (for treadmills)
             try {
                 CadenceServiceGrpc.CadenceServiceBlockingStub cadenceStubWithHeaders = cadenceStub.withInterceptors(
                         MetadataUtils.newAttachHeadersInterceptor(headers)
@@ -560,6 +584,13 @@ public class GrpcTreadmillService {
     public static double getCurrentCadence() {
         if (instance != null) {
             return instance.currentCadence;
+        }
+        return 0.0;
+    }
+    
+    public static double getCurrentRpm() {
+        if (instance != null) {
+            return instance.currentRpm;
         }
         return 0.0;
     }

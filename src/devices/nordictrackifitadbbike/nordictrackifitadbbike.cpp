@@ -930,7 +930,7 @@ double nordictrackifitadbbike::getGrpcCadence() {
     if (grpcInitialized) {
         return QAndroidJniObject::callStaticMethod<jdouble>(
             "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
-            "getCurrentCadence",
+            "getCurrentRpm",
             "()D"
         );
     }
