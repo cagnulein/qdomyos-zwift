@@ -362,6 +362,14 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             lastInclinationChanged = now;
             if (nordictrack_ifit_adb_remote) {
                 bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+                
+                // Check if erg_mode has been disabled and we had an active watts target
+                if (!erg_mode && lastErgMode && hasActiveWattsTarget) {
+                    qDebug() << "ERG mode disabled, disabling constant watts target";
+                    disableGrpcWatts();
+                }
+                lastErgMode = erg_mode;
+                
                 if (requestInclination != -100 && erg_mode && requestResistance != -100) {
                     qDebug() << "forcing inclination based on the erg mode resistance request of" << requestResistance;
                     requestInclination = requestResistance;
@@ -989,6 +997,21 @@ void nordictrackifitadbbike::setGrpcWatts(double watts) {
             watts
         );
         emit debug(QString("Set gRPC watts to: %1").arg(watts));
+        hasActiveWattsTarget = (watts > 0);
+    }
+#endif
+}
+
+void nordictrackifitadbbike::disableGrpcWatts() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "disableConstantWatts",
+            "()V"
+        );
+        emit debug("Disabled gRPC constant watts mode");
+        hasActiveWattsTarget = false;
     }
 #endif
 }

@@ -94,6 +94,7 @@ class nordictrackifitadbbike : public bike {
     void setGrpcResistance(double resistance);
     void setGrpcIncline(double inclination);
     void setGrpcWatts(double watts);
+    void disableGrpcWatts();
 
     QTimer *refresh;
 
@@ -109,6 +110,8 @@ class nordictrackifitadbbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool grpcInitialized = false;
+    bool lastErgMode = true;
+    bool hasActiveWattsTarget = false;
 
     bool gearsAvailable = false;
 

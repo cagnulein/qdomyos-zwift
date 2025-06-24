@@ -224,20 +224,45 @@ public class GrpcTreadmillService {
     private void setWattsInstance(double watts) {
         executorService.execute(() -> {
             try {
-                int targetWatts = Math.max(0, (int) watts);
-                
                 Metadata headers = createHeaders();
                 ConstantWattsServiceGrpc.ConstantWattsServiceBlockingStub stubWithHeaders = constantWattsStub.withInterceptors(
                         MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
                 
-                ConstantWattsMessage request = ConstantWattsMessage.newBuilder().setWatts(targetWatts).build();
-                stubWithHeaders.setConstantWatts(request);
-                
-                QLog.d(TAG, String.format("Set constant watts to %d", targetWatts));
+                if (watts <= 0) {
+                    // Disable constant watts mode when watts is 0 or negative
+                    stubWithHeaders.disable(Empty.newBuilder().build());
+                    QLog.d(TAG, "Disabled constant watts mode");
+                } else {
+                    // Set target watts
+                    int targetWatts = (int) watts;
+                    ConstantWattsMessage request = ConstantWattsMessage.newBuilder().setWatts(targetWatts).build();
+                    stubWithHeaders.setConstantWatts(request);
+                    QLog.d(TAG, String.format("Set constant watts to %d", targetWatts));
+                }
                 
             } catch (Exception e) {
                 QLog.e(TAG, "Failed to set watts", e);
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onError("watts", e.getMessage()));
+                }
+            }
+        });
+    }
+
+    private void disableConstantWattsInstance() {
+        executorService.execute(() -> {
+            try {
+                Metadata headers = createHeaders();
+                ConstantWattsServiceGrpc.ConstantWattsServiceBlockingStub stubWithHeaders = constantWattsStub.withInterceptors(
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
+                );
+                
+                stubWithHeaders.disable(Empty.newBuilder().build());
+                QLog.d(TAG, "Explicitly disabled constant watts mode");
+                
+            } catch (Exception e) {
+                QLog.e(TAG, "Failed to disable constant watts", e);
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onError("watts", e.getMessage()));
                 }
@@ -629,6 +654,14 @@ public class GrpcTreadmillService {
     public static void setWatts(double watts) {
         if (instance != null) {
             instance.setWattsInstance(watts);
+        } else {
+            QLog.e(TAG, "Service not initialized. Call initialize() first.");
+        }
+    }
+    
+    public static void disableConstantWatts() {
+        if (instance != null) {
+            instance.disableConstantWattsInstance();
         } else {
             QLog.e(TAG, "Service not initialized. Call initialize() first.");
         }
