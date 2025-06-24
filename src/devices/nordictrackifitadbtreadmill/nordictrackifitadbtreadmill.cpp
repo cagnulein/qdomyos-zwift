@@ -663,6 +663,7 @@ void nordictrackifitadbtreadmill::update() {
         double currentIncline = getGrpcIncline();
         double currentWatts = getGrpcWatts();
         double currentCadence = getGrpcCadence();
+        int currentFanSpeed = getGrpcFanSpeed();
         
         // Update the metrics if they've changed
         if (currentSpeed != Speed.value()) {
@@ -685,6 +686,11 @@ void nordictrackifitadbtreadmill::update() {
             Cadence = currentCadence;
             cadenceReadFromTM = true;
             emit debug(QString("gRPC Cadence: %1").arg(currentCadence));
+        }
+        
+        if (currentFanSpeed != FanSpeed) {
+            FanSpeed = currentFanSpeed;
+            emit debug(QString("gRPC Fan Speed: %1").arg(currentFanSpeed));
         }
 
         if (requestInclination != -100) {
@@ -987,4 +993,48 @@ void nordictrackifitadbtreadmill::setGrpcIncline(double incline) {
         emit debug(QString("Set gRPC incline to: %1").arg(incline));
     }
 #endif
+}
+
+bool nordictrackifitadbtreadmill::changeFanSpeed(uint8_t speed) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        setGrpcFanSpeed(static_cast<int>(speed));
+        FanSpeed = speed;
+        emit debug(QString("changeFanSpeed: Set fan speed to %1 via gRPC").arg(speed));
+        return true;
+    } else {
+        emit debug(QString("changeFanSpeed: Fan speed request %1 (gRPC not available)").arg(speed));
+        return false;
+    }
+#else
+    emit debug(QString("changeFanSpeed: Fan speed request %1 (Android gRPC not available)").arg(speed));
+    return false;
+#endif
+}
+
+void nordictrackifitadbtreadmill::setGrpcFanSpeed(int fanSpeed) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "setFanSpeed",
+            "(I)V",
+            fanSpeed
+        );
+        emit debug(QString("Set gRPC fan speed to: %1").arg(fanSpeed));
+    }
+#endif
+}
+
+int nordictrackifitadbtreadmill::getGrpcFanSpeed() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jint>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentFanSpeed",
+            "()I"
+        );
+    }
+#endif
+    return 0;
 }

@@ -73,6 +73,7 @@ class nordictrackifitadbbike : public bike {
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     bool ifitCompatible() override;
     void changePower(int32_t power) override;
+    bool changeFanSpeed(uint8_t speed) override;
 
   private:
     const resistance_t max_resistance = 20; // max inclination for s22i
@@ -95,6 +96,8 @@ class nordictrackifitadbbike : public bike {
     void setGrpcIncline(double inclination);
     void setGrpcWatts(double watts);
     void disableGrpcWatts();
+    void setGrpcFanSpeed(int fanSpeed);
+    int getGrpcFanSpeed();
 
     QTimer *refresh;
 

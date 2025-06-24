@@ -70,6 +70,7 @@ class nordictrackifitadbtreadmill : public treadmill {
     bool connected() override;
     bool canStartStop() override { return false; }
     double minStepSpeed() override { return 0.1; }
+    bool changeFanSpeed(uint8_t speed) override;
 
   private:
     struct DisplayValue {
@@ -92,6 +93,8 @@ class nordictrackifitadbtreadmill : public treadmill {
     double getGrpcWatts();
     double getGrpcCadence();
     void setGrpcSpeed(double speed);
+    void setGrpcFanSpeed(int fanSpeed);
+    int getGrpcFanSpeed();
     void setGrpcIncline(double incline);
 
     QTimer *refresh;
