@@ -228,6 +228,23 @@ Promise.resolve(
        );
            lastBikeHeight = samples[0].height
            //bike.modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(Cesium.Cartesian3.fromDegrees(realLon, realLat, lastBikeHeight), hpr);
+           
+           // Update camera to follow bike orientation (like Google Maps navigation)
+           const bikePosition = Cesium.Cartesian3.fromDegrees(realLon, realLat, lastBikeHeight + 50); // Camera 50m above bike
+           const cameraHeading = Cesium.Math.toRadians(realAzimuth); // Same heading as bike
+           const cameraPitch = Cesium.Math.toRadians(-20); // Look down slightly
+           const cameraRoll = 0;
+           
+           viewer.camera.setView({
+               destination: bikePosition,
+               orientation: {
+                   heading: cameraHeading,
+                   pitch: cameraPitch,
+                   roll: cameraRoll
+               }
+           });
+           
+           camera_complete();
        });
 
 
