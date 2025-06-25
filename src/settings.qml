@@ -7132,7 +7132,7 @@ import Qt.labs.platform 1.1
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("T900A")
+                                text: qsTr("T900")
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
