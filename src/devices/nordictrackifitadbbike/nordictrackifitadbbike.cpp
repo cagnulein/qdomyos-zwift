@@ -681,7 +681,7 @@ void nordictrackifitadbbike::update() {
             emit debug(QString("gRPC Fan Speed: %1").arg(currentFanSpeed));
         }
 
-        if (requestInclination != -100) {
+        if (requestInclination != -100 && !settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
             double inc = qRound(requestInclination / 0.5) * 0.5;
             double currentInc = qRound(currentInclination().value() / 0.5) * 0.5;
             if (inc != currentInc) {
