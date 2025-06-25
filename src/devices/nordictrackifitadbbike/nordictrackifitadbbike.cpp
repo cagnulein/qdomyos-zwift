@@ -682,7 +682,11 @@ void nordictrackifitadbbike::update() {
         }
 
         if (requestInclination != -100) {
-            setGrpcIncline(requestInclination);
+            double inc = qRound(requestInclination / 0.5) * 0.5;
+            double currentInc = qRound(currentInclination().value() / 0.5) * 0.5;
+            if (inc != currentInc) {
+                setGrpcIncline(requestInclination);
+            }
             requestInclination = -100;
             requestResistance = -1;
         }
