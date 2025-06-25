@@ -660,12 +660,12 @@ void nordictrackifitadbbike::update() {
             emit debug(QString("gRPC Inclination: %1").arg(currentIncline));
         }
         
-        if (currentWatts != m_watt.value() && currentWatts > 0) {
+        if (currentWatts != m_watt.value()) {
             m_watt = currentWatts;
             emit debug(QString("gRPC Watts: %1").arg(currentWatts));
         }
         
-        if (currentCadence != Cadence.value() && currentCadence > 0) {
+        if (currentCadence != Cadence.value()) {
             Cadence = currentCadence;
             emit debug(QString("gRPC Cadence: %1").arg(currentCadence));
         }
