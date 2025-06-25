@@ -105,8 +105,10 @@ class ftmsbike : public bike {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QByteArray lastPacketFromFTMS;
+    QDateTime lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChanged2ACE = QDateTime::currentDateTime();
+    bool ftmsFrameReceived = false;
     uint8_t firstStateChanged = 0;
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
@@ -147,10 +149,16 @@ class ftmsbike : public bike {
     bool YS_G1MPLUS = false;
     bool EXPERT_SX9 = false;
     bool PM5 = false;
+    bool THINK_X = false;
 
     int16_t T2_lastGear = 0;
 
     uint8_t battery_level = 0;
+
+    uint16_t oldLastCrankEventTime = 0;
+    uint16_t oldCrankRevs = 0;
+    QDateTime lastGoodCadence = QDateTime::currentDateTime();
+    double lastRawRequestedInclinationValue = -100;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
