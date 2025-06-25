@@ -83,6 +83,10 @@ class treadmill : public bluetoothdevice {
     double m_lastRawInclinationRequested = -100;
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
     treadmillErgTable _ergTable;
+    
+    // Power following logic
+    bool callingFromFollowPower = false;  // Flag to track if change comes from followPowerBySpeed
+    double targetWatts = -1;              // Target watts to maintain during power following
 
     void parseSpeed(double speed);
     void parseInclination(double speed);
