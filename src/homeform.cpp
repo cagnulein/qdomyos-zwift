@@ -7939,7 +7939,7 @@ void homeform::sendMail() {
         QStringLiteral("Moving Time: ") + bluetoothManager->device()->movingTime().toString() + QStringLiteral("\n");
     textMessage += QStringLiteral("Weight Loss (") + weightLossUnit + "): " + QString::number(WeightLoss, 'f', 2) +
                    QStringLiteral("\n");
-    double vo2max = metric::calculateVO2Max(&Session)
+    double vo2max = metric::calculateVO2Max(&Session);
     if(vo2max)
         textMessage += QStringLiteral("Estimated VO2Max: ") + QString::number(vo2max, 'f', 0) +
                    QStringLiteral("\n");
