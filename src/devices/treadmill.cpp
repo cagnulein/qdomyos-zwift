@@ -37,13 +37,7 @@ void treadmill::changeSpeed(double speed) {
     if (autoResistanceEnable)
         requestSpeed = (speed * m_difficult) + m_difficult_offset;
 }
-void treadmill::changeInclination(double grade, double inclination) {
-    // Reset target watts only if called from external source  
-    if (!callingFromFollowPower) {
-        targetWatts = -1;
-        qDebug() << "External inclination change - resetting power following mode";
-    }
-    
+void treadmill::changeInclination(double grade, double inclination) {    
     QSettings settings;
     double treadmill_incline_min = settings.value(QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min).toDouble();
     double treadmill_incline_max = settings.value(QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max).toDouble();
