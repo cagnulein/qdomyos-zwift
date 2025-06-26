@@ -176,6 +176,187 @@ tst/Devices/
 - MQTT client for IoT integration
 - Various fitness platform APIs (Strava, Garmin Connect, etc.)
 
+## Adding New ProForm Treadmill Models
+
+This section provides a complete guide for adding new ProForm treadmill models to the codebase, based on the ProForm 995i implementation.
+
+### Prerequisites
+
+1. **Bluetooth Frame Capture File**: A file containing raw Bluetooth frames from the target treadmill
+2. **Frame Analysis**: Understanding of which frames are initialization vs. sendPoll frames
+3. **BLE Header Knowledge**: Each frame has an 11-byte BLE header that must be removed
+
+### Step-by-Step Implementation Process
+
+#### 1. Process Bluetooth Frames
+
+First, process the raw Bluetooth frames by removing the first 11 bytes (BLE header) from each frame:
+
+```bash
+# Example: if you have "proform_model.c" with raw frames
+# Process each frame by removing first 11 bytes
+# Separate initialization frames from sendPoll frames
+```
+
+**Key Requirements:**
+- Remove exactly 11 bytes from each frame (BLE header)
+- Identify the boundary between initialization and sendPoll frames
+- Initialization frames come first, sendPoll frames follow
+- Document which packet number starts the sendPoll sequence
+
+#### 2. Add Boolean Flag to Header File
+
+Add the new model flag to `src/devices/proformtreadmill/proformtreadmill.h`:
+
+```cpp
+// Add before #ifdef Q_OS_IOS section
+bool proform_treadmill_newmodel = false;
+```
+
+#### 3. Add Settings Support
+
+Update the following files for settings integration:
+
+**In `src/qzsettings.h`:**
+```cpp
+static const QString proform_treadmill_newmodel;
+static constexpr bool default_proform_treadmill_newmodel = false;
+```
+
+**In `src/qzsettings.cpp`:**
+```cpp
+const QString QZSettings::proform_treadmill_newmodel = QStringLiteral("proform_treadmill_newmodel");
+```
+
+#### 4. Update QML Settings UI
+
+**In `src/settings.qml`:**
+
+1. Add property at the END of properties list:
+```qml
+property bool proform_treadmill_newmodel: false
+```
+
+2. Update ComboBox model array:
+```qml
+model: ["Disabled", "Proform New Model", ...]
+```
+
+3. Add case selection logic (find next available case number):
+```qml
+currentIndex: settings.proform_treadmill_newmodel ? XX : 0;
+```
+
+4. Add reset logic:
+```qml
+settings.proform_treadmill_newmodel = false;
+```
+
+5. Add switch case:
+```qml
+case XX: settings.proform_treadmill_newmodel = true; break;
+```
+
+#### 5. Implement Device Logic
+
+**In `src/devices/proformtreadmill/proformtreadmill.cpp`:**
+
+1. **Load Settings** (in constructor):
+```cpp
+proform_treadmill_newmodel = settings.value(QZSettings::proform_treadmill_newmodel, QZSettings::default_proform_treadmill_newmodel).toBool();
+```
+
+2. **Add Initialization Case** (in `btinit()` method):
+```cpp
+} else if (proform_treadmill_newmodel) {
+    // ALL initialization frames go here
+    uint8_t initData1[] = {0x00, 0xfe, 0x02, 0x08, 0x02};
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    // ... continue with ALL init frames from capture file
+    // Use frames from beginning until sendPoll boundary
+}
+```
+
+3. **Add SendPoll Case** (in `sendPoll()` method):
+```cpp
+} else if (proform_treadmill_newmodel) {
+    switch (counterPoll) {
+        case 0:
+            // First sendPoll frame
+            break;
+        case 1:
+            // Second sendPoll frame  
+            break;
+        // ... continue with pattern from sendPoll frames
+        default:
+            // Reset counter and cycle
+            counterPoll = -1;
+            break;
+    }
+}
+```
+
+4. **Update Force Functions** - Add flag to conditional checks in `forceIncline()` and `forceSpeed()`:
+```cpp
+} else if (proform_treadmill_8_0 || ... || proform_treadmill_newmodel) {
+    write[14] = write[11] + write[12] + 0x12;
+}
+```
+
+### Implementation Requirements
+
+#### Frame Processing Rules
+- **Exactly 11 bytes** must be removed from each frame (BLE header)
+- **All initialization frames** must be included in the btinit() case
+- **All sendPoll frames** must be included in the sendPoll() switch statement
+- **Frame order** must be preserved exactly as captured
+
+#### Settings Integration Rules
+- **Property placement**: Always add new properties at the END of the properties list in settings.qml
+- **Case numbering**: Find the next available case number in the ComboBox switch statement
+- **Naming convention**: Use descriptive names following existing patterns
+
+#### Code Organization Rules
+- **Initialization**: All init frames go in btinit() method
+- **Communication**: All sendPoll frames go in sendPoll() method with switch/case structure
+- **Force functions**: Add new model flag to existing conditional chains
+
+### Common Pitfalls and Solutions
+
+#### Incorrect Byte Removal
+- **Problem**: Removing wrong number of bytes (12 instead of 11)
+- **Solution**: Always remove exactly 11 bytes (BLE header)
+
+#### Wrong SendPoll Boundary  
+- **Problem**: Using initialization frames in sendPoll logic
+- **Solution**: Identify exact packet number where sendPoll starts
+
+#### Incomplete Initialization
+- **Problem**: Missing initialization frames
+- **Solution**: Include ALL frames from start until sendPoll boundary
+
+#### Settings Placement
+- **Problem**: Adding property in wrong location in settings.qml
+- **Solution**: Always add at END of properties list
+
+### Verification Checklist
+
+- [ ] All 11 bytes removed from each frame
+- [ ] Initialization frames correctly identified and included
+- [ ] SendPoll frames correctly identified and implemented
+- [ ] Settings properly integrated in all required files
+- [ ] ComboBox updated with new model option
+- [ ] Force functions updated with new model flag
+- [ ] Property added at END of settings.qml properties list
+
+### Example Reference
+
+The ProForm 995i implementation serves as the reference example:
+- 25 initialization frames (pkt4658-pkt4756)
+- 33 sendPoll frames (pkt4761-pkt4897) 
+- 6-case sendPoll switch statement with cycling logic
+- Complete settings integration across all required files
+
 ## Development Tips
 
 - Use Qt Creator for development with proper project file support

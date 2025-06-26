@@ -681,8 +681,8 @@ class QZSettings {
     static const QString proform_treadmill_carbon_tls;
     static constexpr bool default_proform_treadmill_carbon_tls = false;
 
-    // static const QString proform_treadmill_995i;
-    // static constexpr bool default_proform_treadmill_995i = false;
+    static const QString proform_treadmill_995i;
+    static constexpr bool default_proform_treadmill_995i = false;
 
     static const QString toorx_3_0;
     static constexpr bool default_toorx_3_0 = false;

@@ -1158,6 +1158,7 @@ import Qt.labs.platform 1.1
             property int  tile_heat_time_in_zone_4_order: 71
 
             property bool proform_treadmill_carbon_tls: false
+            property bool proform_treadmill_995i: false
         }
 
         function paddingZeros(text, limit) {
@@ -6645,6 +6646,7 @@ import Qt.labs.platform 1.1
                                     "Nordictrack Elite 800",
                                     "Nordictrack Ultra LE",
                                     "Proform Carbon TLS",
+                                    "Proform 995i",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -6712,7 +6714,8 @@ import Qt.labs.platform 1.1
                                                     settings.nordictrack_t65s_treadmill_81_miles ? 48 : 
                                                     settings.nordictrack_elite_800 ? 49 :
                                                     settings.nordictrack_treadmill_ultra_le ? 50 :
-                                                    settings.proform_treadmill_carbon_tls ? 51 : 0;
+                                                    settings.proform_treadmill_carbon_tls ? 51 :
+                                                    settings.proform_treadmill_995i ? 52 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -6778,6 +6781,7 @@ import Qt.labs.platform 1.1
                                     settings.nordictrack_elite_800 = false;
                                     settings.nordictrack_treadmill_ultra_le = false;
                                     settings.proform_treadmill_carbon_tls = false;
+                                    settings.proform_treadmill_995i = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -6832,6 +6836,7 @@ import Qt.labs.platform 1.1
                                         case 49: settings.nordictrack_elite_800 = true; break;
                                         case 50: settings.nordictrack_treadmill_ultra_le = true; break;
                                         case 51: settings.proform_treadmill_carbon_tls = true; break;
+                                        case 52: settings.proform_treadmill_995i = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
