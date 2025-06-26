@@ -682,10 +682,17 @@ void nordictrackifitadbbike::update() {
         }
 
         if (requestInclination != -100 && !settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
-            double inc = qRound(requestInclination / 0.5) * 0.5;
-            double currentInc = qRound(currentInclination().value() / 0.5) * 0.5;
-            if (inc != currentInc) {
-                setGrpcIncline(requestInclination);
+            QDateTime now = QDateTime::currentDateTime();
+            double inclination_delay_seconds = settings.value(QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds).toDouble();
+            
+            // Apply delay logic similar to ADB version
+            if (lastGrpcInclinationChanged.secsTo(now) > inclination_delay_seconds) {
+                double inc = qRound(requestInclination / 0.5) * 0.5;
+                double currentInc = qRound(currentInclination().value() / 0.5) * 0.5;
+                if (inc != currentInc) {
+                    setGrpcIncline(requestInclination);
+                    lastGrpcInclinationChanged = now;
+                }
             }
             requestInclination = -100;
             requestResistance = -1;
