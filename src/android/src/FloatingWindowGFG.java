@@ -125,8 +125,8 @@ public class FloatingWindowGFG extends Service {
 					);
 
 		  // The Gravity of the Floating Window is set.
-		  // The Window will appear in the center of the screen
-		  floatWindowLayoutParam.gravity = Gravity.CENTER;
+		  // Use TOP | LEFT for free positioning without constraints
+		  floatWindowLayoutParam.gravity = Gravity.TOP | Gravity.LEFT;
 
 		  // X and Y value of the window is set
 		  floatWindowLayoutParam.x = 0;
@@ -145,48 +145,82 @@ public class FloatingWindowGFG extends Service {
 		  // The window can be moved at any position on the screen.
 		  floatView.setOnTouchListener(new View.OnTouchListener() {
 			   final WindowManager.LayoutParams floatWindowLayoutUpdateParam = floatWindowLayoutParam;
-				double x;
-				double y;
-				double px;
-				double py;
+				int initialX;
+				int initialY;
+				float initialTouchX;
+				float initialTouchY;
+				boolean isDragging = false;
+				final int TOUCH_THRESHOLD = 10; // Threshold for distinguishing tap vs drag
 
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
 
-                                         QLog.d("QZ","onTouch");
+                                         QLog.d("QZ","onTouch action: " + event.getAction());
 
 					 switch (event.getAction()) {
-						  // When the window will be touched,
-						  // the x and y position of that position
-						  // will be retrieved
 						  case MotionEvent.ACTION_DOWN:
-						      x = floatWindowLayoutUpdateParam.x;
-								y = floatWindowLayoutUpdateParam.y;
-
-								// returns the original raw X
-								// coordinate of this event
-								px = event.getRawX();
-
-								// returns the original raw Y
-								// coordinate of this event
-								py = event.getRawY();
+						      // Store initial positions
+						      initialX = floatWindowLayoutUpdateParam.x;
+								initialY = floatWindowLayoutUpdateParam.y;
+								initialTouchX = event.getRawX();
+								initialTouchY = event.getRawY();
+								isDragging = false;
 								break;
-								// When the window will be dragged around,
-						  // it will update the x, y of the Window Layout Parameter
+
 						  case MotionEvent.ACTION_MOVE:
-						      floatWindowLayoutUpdateParam.x = (int) ((x + event.getRawX()) - px);
-								floatWindowLayoutUpdateParam.y = (int) ((y + event.getRawY()) - py);
-
-                                                                SharedPreferences.Editor myEdit = sharedPreferences.edit();
-                                                                myEdit.putInt(PREF_NAME_X, floatWindowLayoutUpdateParam.x);
-                                                                myEdit.putInt(PREF_NAME_Y, floatWindowLayoutUpdateParam.y);
-                                                                myEdit.commit();
-
-								// updated parameter is applied to the WindowManager
-								windowManager.updateViewLayout(floatView, floatWindowLayoutUpdateParam);
-								break;
+						      // Calculate distance moved
+						      float deltaX = event.getRawX() - initialTouchX;
+								float deltaY = event.getRawY() - initialTouchY;
+								
+								// Check if we've moved enough to consider this a drag
+								if (!isDragging && (Math.abs(deltaX) > TOUCH_THRESHOLD || Math.abs(deltaY) > TOUCH_THRESHOLD)) {
+								    isDragging = true;
 								}
-							return false;
+								
+								if (isDragging) {
+								    // Get screen dimensions for boundary checking
+								    DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+								    int screenWidth = displayMetrics.widthPixels;
+								    int screenHeight = displayMetrics.heightPixels;
+								    
+								    // Calculate new position
+								    int newX = initialX + (int) deltaX;
+								    int newY = initialY + (int) deltaY;
+								    
+								    // Apply boundary constraints
+								    // Keep window within screen bounds
+								    int windowWidth = FloatingHandler._width;
+								    int windowHeight = FloatingHandler._height;
+								    
+								    if (newX < 0) newX = 0;
+								    if (newY < 0) newY = 0;
+								    if (newX + windowWidth > screenWidth) newX = screenWidth - windowWidth;
+								    if (newY + windowHeight > screenHeight) newY = screenHeight - windowHeight;
+								    
+								    // Update position
+								    floatWindowLayoutUpdateParam.x = newX;
+								    floatWindowLayoutUpdateParam.y = newY;
+
+                                                                    // Save position to preferences
+                                                                    SharedPreferences.Editor myEdit = sharedPreferences.edit();
+                                                                    myEdit.putInt(PREF_NAME_X, floatWindowLayoutUpdateParam.x);
+                                                                    myEdit.putInt(PREF_NAME_Y, floatWindowLayoutUpdateParam.y);
+                                                                    myEdit.apply(); // Use apply() instead of commit() for better performance
+
+								    // Apply updated parameter to the WindowManager
+								    windowManager.updateViewLayout(floatView, floatWindowLayoutUpdateParam);
+								}
+								break;
+
+						  case MotionEvent.ACTION_UP:
+						      // If it wasn't a drag, it's a tap - let the WebView handle it
+						      if (!isDragging) {
+						          return false; // Let the event propagate to WebView
+						      }
+						      isDragging = false;
+						      break;
+								}
+							return isDragging; // Consume the event only if we're dragging
 					}
 			});
 	 }
