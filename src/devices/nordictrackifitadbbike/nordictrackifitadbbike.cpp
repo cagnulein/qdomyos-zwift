@@ -681,7 +681,9 @@ void nordictrackifitadbbike::update() {
             emit debug(QString("gRPC Fan Speed: %1").arg(currentFanSpeed));
         }
 
-        if (requestInclination != -100 && !settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
+        bool nordictrackadbbike_resistance = settings.value(QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance).toBool();
+
+        if (requestInclination != -100 && !nordictrackadbbike_resistance && !settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
             QDateTime now = QDateTime::currentDateTime();
             double inclination_delay_seconds = settings.value(QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds).toDouble();
             
@@ -690,13 +692,21 @@ void nordictrackifitadbbike::update() {
                 double inc = qRound(requestInclination / 0.5) * 0.5;
                 double currentInc = qRound(currentInclination().value() / 0.5) * 0.5;
                 if (inc != currentInc) {
-                    setGrpcIncline(requestInclination);
+                    emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
+                    setGrpcIncline(lastRawRequestedInclinationValue + gears());
                     lastGrpcInclinationChanged = now;
                 }
             }
             requestInclination = -100;
             requestResistance = -1;
+        } else if((virtualBike() && virtualBike()->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
+            // in order to send the new gear value ASAP (similar to tacxneo2)
+            setGrpcIncline(lastRawRequestedInclinationValue + gears());
+            requestResistance = -1;
         }
+        
+        // Update lastGearValue for gear change detection
+        lastGearValue = gears();
 
         if(requestResistance != - 1) {
             setGrpcResistance(requestResistance);

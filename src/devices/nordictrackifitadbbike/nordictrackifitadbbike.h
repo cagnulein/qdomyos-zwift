@@ -118,6 +118,7 @@ class nordictrackifitadbbike : public bike {
     bool hasActiveWattsTarget = false;
 
     bool gearsAvailable = false;
+    double lastGearValue = 0;
 
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
