@@ -80,7 +80,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
     }
     if(fit_file_garmin_device_training_effect) {
-        fileIdMesg.SetProduct(FIT_GARMIN_PRODUCT_EDGE_1030_PLUS);
+        fileIdMesg.SetProduct(FIT_GARMIN_PRODUCT_EDGE_830);
         fileIdMesg.SetSerialNumber(3313379353);
     } else {
         fileIdMesg.SetProduct(1);
@@ -89,14 +89,27 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     fileIdMesg.SetTimeCreated(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
 
     fit::FileCreatorMesg fileCreatorMesg;
-    fileCreatorMesg.SetSoftwareVersion(2119);
+    if(fit_file_garmin_device_training_effect) {
+        fileCreatorMesg.SetSoftwareVersion(975);
+        fileCreatorMesg.SetHardwareVersion(255);
+    } else {
+        fileCreatorMesg.SetSoftwareVersion(2119);
+    }
 
     fit::DeviceInfoMesg deviceInfoMesg;
     deviceInfoMesg.SetDeviceIndex(FIT_DEVICE_INDEX_CREATOR);
-    deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
-    deviceInfoMesg.SetSerialNumber(3313379353);
-    deviceInfoMesg.SetProduct(FIT_GARMIN_PRODUCT_EDGE_1030_PLUS);
-    deviceInfoMesg.SetSoftwareVersion(21.19);
+    if(fit_file_garmin_device_training_effect) {
+        deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
+        deviceInfoMesg.SetSerialNumber(3313379353);
+        deviceInfoMesg.SetProduct(FIT_GARMIN_PRODUCT_EDGE_830);
+        deviceInfoMesg.SetGarminProduct(FIT_GARMIN_PRODUCT_EDGE_830);
+        deviceInfoMesg.SetSoftwareVersion(21.19);
+    } else {
+        deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
+        deviceInfoMesg.SetSerialNumber(12345);
+        deviceInfoMesg.SetProduct(1);
+        deviceInfoMesg.SetSoftwareVersion(21.19);
+    }
     deviceInfoMesg.SetSourceType(FIT_SOURCE_TYPE_LOCAL);
 
     bool gps_data = false;
