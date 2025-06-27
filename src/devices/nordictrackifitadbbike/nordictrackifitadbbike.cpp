@@ -682,6 +682,7 @@ void nordictrackifitadbbike::update() {
         }
 
         bool nordictrackadbbike_resistance = settings.value(QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance).toBool();
+        auto virtualBike = this->VirtualBike();
 
         if (requestInclination != -100 && !nordictrackadbbike_resistance && !settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
             QDateTime now = QDateTime::currentDateTime();
