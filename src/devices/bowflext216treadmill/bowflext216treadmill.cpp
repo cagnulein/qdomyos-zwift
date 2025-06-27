@@ -286,7 +286,7 @@ double bowflext216treadmill::GetSpeedFromPacket(const QByteArray &packet) {
         return data * 1.60934;
     } else if(bowflex_T128) {
         uint16_t convertedData = (uint16_t)((uint8_t)packet.at(9)) + ((uint16_t)((uint8_t)packet.at(10)) << 8);
-        double data = (double)convertedData / 10.0f;
+        double data = (double)convertedData / 100.0f;
         return data * 1.60934;
     } else if (bowflex_t6 == false) {
         uint16_t convertedData = (uint16_t)((uint8_t)packet.at(6)) + (((uint16_t)((uint8_t)packet.at(7)) << 8) & 0xFF00);
