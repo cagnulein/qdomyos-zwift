@@ -160,14 +160,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     }
 
     encode.Open(file);
-    fit::DeveloperDataIdMesg devIdMesg;
-    for (FIT_UINT8 i = 0; i < 16; i++) {
-
-        devIdMesg.SetApplicationId(i, i);
-    }
-    devIdMesg.SetDeveloperDataIndex(0);
     encode.Write(fileIdMesg);
-    encode.Write(devIdMesg);
     encode.Write(userMesg);
 
     fit::FieldDescriptionMesg activityTitle;
