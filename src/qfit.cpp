@@ -208,12 +208,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     ftpSessionMesg.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
     encode.Write(ftpSessionMesg);
 
-    fit::DeveloperField ftpSessionField(ftpSessionMesg, devIdMesg);
-    ftpSessionField.AddValue(settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble());
-
-    fit::DeveloperField activityTitleField(activityTitle, devIdMesg);
-    activityTitleField.SetSTRINGValue(workoutName.toStdWString());
-
     fit::SessionMesg sessionMesg;
     sessionMesg.AddDeveloperField(activityTitleField);
     sessionMesg.AddDeveloperField(ftpSessionField);
@@ -344,6 +338,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     heatStrainIndexFieldDesc.SetUnits(0, L"a.u.");
     heatStrainIndexFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
     heatStrainIndexFieldDesc.SetNativeFieldNum(255); // Use invalid field number to indicate custom field
+
+    fit::DeveloperField ftpSessionField(ftpSessionMesg, devIdMesg);
+    ftpSessionField.AddValue(settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble());
+
+    fit::DeveloperField activityTitleField(activityTitle, devIdMesg);
+    activityTitleField.SetSTRINGValue(workoutName.toStdWString());
 
     fit::ActivityMesg activityMesg;
     activityMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
