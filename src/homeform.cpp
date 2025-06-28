@@ -6961,7 +6961,7 @@ void homeform::update() {
                     (bluetoothManager->device()->elapsedTime().minute() * 60) +
                     (bluetoothManager->device()->elapsedTime().hour() * 3600),
 
-                lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength, HEAD
+                lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
                 bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount, 
                 target_cadence->value().toDouble(), target_power->value().toDouble(), target_resistance->value().toDouble(),
                 bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value());
