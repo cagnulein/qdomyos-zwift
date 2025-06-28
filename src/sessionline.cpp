@@ -5,7 +5,9 @@ SessionLine::SessionLine(double speed, int8_t inclination, double distance, uint
                          double elevationGain, uint32_t elapsed, bool lap, uint32_t totalStrokes, double avgStrokesRate,
                          double maxStrokesRate, double avgStrokesLength, const QGeoCoordinate coordinate,
                          double instantaneousStrideLengthCM, double groundContactMS, double verticalOscillationMM, double stepCount,
-                         double target_cadence, double target_watt, double target_resistance, const QDateTime &time) {
+                         double target_cadence, double target_watt, double target_resistance, const QDateTime &time,
+                         double coreTemp, double bodyTemp, double heatStrainIndex,
+                         const QDateTime &time) {
     this->speed = speed;
     this->inclination = inclination;
     this->distance = distance;
@@ -32,6 +34,9 @@ SessionLine::SessionLine(double speed, int8_t inclination, double distance, uint
     this->target_watt = target_watt;
     this->target_resistance = target_resistance;
     this->stepCount = stepCount;
+    this->coreTemp = coreTemp;
+    this->bodyTemp = bodyTemp;
+    this->heatStrainIndex = heatStrainIndex;
 }
 
 SessionLine::SessionLine() {}

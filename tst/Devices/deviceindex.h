@@ -55,6 +55,7 @@ public:
     DEFINE_DEVICE(Chronobike, "Chronobike");
     DEFINE_DEVICE(ComputrainerBike, "Computrainer Bike");
     DEFINE_DEVICE(Concept2SkiErg, "Concept2 Ski Erg");
+    DEFINE_DEVICE(CyclopsPhantomBike, "Cyclops Phantom Bike");
     DEFINE_DEVICE(DeerRunTreadmill, "DeerRun Treadmill");
     DEFINE_DEVICE(DomyosBike, "Domyos Bike");
     DEFINE_DEVICE(DomyosElliptical, "Domyos Elliptical");
@@ -112,6 +113,7 @@ public:
     DEFINE_DEVICE(OctaneTreadmill, "Octane Treadmill");
     DEFINE_DEVICE(PafersBike, "Pafers Bike");
     DEFINE_DEVICE(PafersTreadmill, "Pafers Treadmill");
+    DEFINE_DEVICE(PitpatBike, "Pitpat Bike");
     DEFINE_DEVICE(ProFormRower, "ProForm Rower");
     DEFINE_DEVICE(ProFormTreadmill, "ProForm Treadmill");
     DEFINE_DEVICE(ProFormWifiBike, "ProForm Wifi Bike");

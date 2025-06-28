@@ -128,6 +128,7 @@ jobs:
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
@@ -141,7 +142,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
@@ -168,7 +169,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
@@ -304,6 +305,7 @@ jobs:
 #            qmake
 #            cd src
 #            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+#            echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
 #            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
 #            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
 #            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
@@ -338,7 +340,7 @@ jobs:
   # This workflow contains a single job called "build"
   linux-x86-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -439,15 +441,15 @@ jobs:
           name: linux-desktop-binary
           path: src/qdomyos-zwift         
 
-     # - name: Test
-        #run: cd tst; GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests; cd ..
+      - name: Test
+        run: cd tst; GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests; cd ..
 
-  #    - name: Upload test results
-        #uses: actions/upload-artifact@v4
-        #if: failure()
-        #with:
-          #name: test_results_xml
-          #path: tst/test-results/**/*.xml               
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test_results_xml
+          path: tst/test-results/**/*.xml               
 
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
@@ -508,7 +510,7 @@ jobs:
   # This workflow contains a single job called "build"
   android-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -532,11 +534,21 @@ jobs:
           Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
-          # This token is provided by Actions, you do not need to create your own token
           token: ${{ secrets.GITHUB_TOKEN }}
-          submodules: recursive # or 'true' if you want to check out only immediate submodules
+          submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
+        
+      - name: Checkout submodules with specific branches
+        run: |
+          git submodule init
+          git submodule update --init --recursive 
+
+      - name: Fix qmdnsengine submodule
+        run: |
+          cd src/qmdnsengine
+          git fetch
+          git checkout 602da51dc43c55bd9aa8a83c47ea3594a9b01b98
 
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
@@ -571,7 +583,7 @@ jobs:
 
 # waiting github.com/jurplel/install-qt-action/issues/63
       - name: Install Qt Android
-        uses: jurplel/install-qt-action@v3
+        uses: jdpurcell/install-qt-action@v5
         with:
           version: '5.15.0'
           host: 'linux'
@@ -606,6 +618,7 @@ jobs:
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
@@ -636,19 +649,92 @@ jobs:
           name: fdroid-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
 
-      # - name: Exit if not on master branch
-      #   if: github.ref == 'refs/heads/master'
-      #   run: exit 1
+  android-emulator-test:
+    runs-on: ubuntu-latest
+    needs: android-build
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      # - name: upload windows artifact
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ github.token }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
-      #     asset_name: fdroid-android-trial.zip
-      #     asset_content_type: application/zip                  
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+        
+      # Download the APK from the previous job
+      - name: Download APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fdroid-android-trial
+          path: apk-debug
+          
+      - name: Setup Java for Android Emulator
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      # Use a smaller emulator configuration
+      - name: Run tests on emulator
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          target: default  # Use default instead of Google APIs
+          arch: x86
+          api-level: 29
+          profile: Nexus 6
+          disable-animations: true
+          script: |
+            # Display available space
+            df -h
+            
+            # List available files
+            echo "Files in apk-debug directory:"
+            ls -la apk-debug/
+            
+            # Install the APK
+            adb install apk-debug/android-debug.apk
+            
+            # Grant necessary permissions for API 25
+            echo "Granting permissions..."
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_FINE_LOCATION || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADMIN || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.READ_EXTERNAL_STORAGE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WRITE_EXTERNAL_STORAGE || true
+            
+            # Start the main activity
+            adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
+            
+            # Wait for app to start
+            sleep 40
+            
+            # Verify the app is running
+            echo "Checking if app is running..."
+            adb shell "ps -A" > process_list.txt
+            grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
+            echo "App is running successfully"
+            
+            # Take a screenshot for verification
+            adb shell screencap -p /sdcard/screenshot.png
+            adb pull /sdcard/screenshot.png
+            
+            # Check if the package is installed
+            adb shell pm list packages | grep org.cagnulen.qdomyoszwift
+            
+            # Display logcat output for debugging (just the last 100 lines)
+            adb logcat -d | grep -i qdomyos | tail -n 100
+
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-emulator-test-evidence
+          path: |
+            screenshot.png
+            process_list.txt
+          if-no-files-found: warn                
 
   ios-build:
     # The type of runner that the job will run on
@@ -709,6 +795,7 @@ jobs:
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
@@ -819,6 +906,7 @@ jobs:
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
@@ -849,7 +937,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=D:\a\qdomyos-zwift\vcpkg\installed
+          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
         working-directory: ${{ runner.workspace }}
   
       - name: Build
@@ -862,7 +950,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
@@ -890,7 +978,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
@@ -1006,6 +1094,7 @@ jobs:
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h          
@@ -1036,7 +1125,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=D:\a\qdomyos-zwift\vcpkg\installed
+          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
         working-directory: ${{ runner.workspace }}
 
       - name: Build
@@ -1052,7 +1141,7 @@ jobs:
             cd src/debug
             mkdir output
             mkdir appx
-            cp qdomyos-zwift.exe output/
+            cp qdomyos-zwift.* output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
@@ -1100,6 +1189,7 @@ jobs:
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
@@ -1126,14 +1216,17 @@ jobs:
             make -j$(nproc)
             "
 
+      - name: Rename binary
+        run: mv src/qdomyos-zwift src/qdomyos-zwift-32bit
+      
       - name: Archive Raspberry Pi binary
         uses: actions/upload-artifact@v4
         with:
           name: raspberry-pi-binary
-          path: src/qdomyos-zwift
+          path: src/qdomyos-zwift-32bit
 
   raspberry-pi-build-and-image-64bit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     
     steps:
       - name: Checkout code
@@ -1141,16 +1234,21 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          image: tonistiigi/binfmt:master
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+        with:
+          version: v0.19.3
 
       - name: Secrets
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
@@ -1177,96 +1275,213 @@ jobs:
             make -j$(nproc)
             "
 
-      - name: Archive Raspberry Pi binary
+      - name: Rename binary
+        run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
+
+      - name: Archive Raspberry Pi 64bit binary
         uses: actions/upload-artifact@v4
         with:
-          name: raspberry-pi-64bit-binary
-          path: src/qdomyos-zwift
+          name: raspberry-pi-binary-64bit
+          path: src/qdomyos-zwift-64bit        
 
-      - name: Download and expand Raspberry Pi OS image
-        run: |
-          wget https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2024-10-28/2024-10-22-raspios-bookworm-arm64-lite.img.xz
-          xz -d 2024-10-22-raspios-bookworm-arm64-lite.img.xz
-          ORIGINAL_SIZE=$(stat -c %s 2024-10-22-raspios-bookworm-arm64-lite.img)
-          NEW_SIZE=$((ORIGINAL_SIZE + 2*1024*1024*1024))  # Add 2GB
-          truncate -s $NEW_SIZE 2024-10-22-raspios-bookworm-arm64-lite.img
-          sudo apt-get update
-          sudo apt-get install -y parted
-          sudo parted 2024-10-22-raspios-bookworm-arm64-lite.img resizepart 2 100%
+  window-msvc2022-build:
+    runs-on: windows-latest
+    if: github.event_name == 'schedule'
+    strategy:
+      matrix:
+        config:
+          - {python: true}
+          - {python: false}    
 
-      - name: Mount Raspberry Pi image
-        run: |
-          sudo apt-get install -y kpartx qemu-user-static
-          LOOP_DEVICE=$(sudo losetup -f --show 2024-10-22-raspios-bookworm-arm64-lite.img)
-          echo "Loop device is $LOOP_DEVICE"
-          sudo kpartx -av $LOOP_DEVICE
-          sudo mkdir -p /mnt/raspbian
-          sudo mount /dev/mapper/$(basename $LOOP_DEVICE)p2 /mnt/raspbian
-          sudo resize2fs /dev/mapper/$(basename $LOOP_DEVICE)p2
-          echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
-          sudo cp /usr/bin/qemu-aarch64-static /mnt/raspbian/usr/bin/
-          sudo mkdir -p /mnt/raspbian_p1
-          sudo mount /dev/mapper/$(basename $LOOP_DEVICE)p1 /mnt/raspbian_p1
-
-      - name: Install Qt and dependencies on Raspberry Pi image
-        run: |
-          sudo chroot /mnt/raspbian qemu-aarch64-static /bin/bash << EOF
-          apt-get update
-          apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2
-          EOF
-
-      - name: Copy binary to Raspberry Pi image
-        run: |
-          sudo cp src/qdomyos-zwift /mnt/raspbian/home/pi/
-          sudo chown 1000:1000 /mnt/raspbian/home/pi/qdomyos-zwift
-
-      - name: Setup auto-start for qdomyos-zwift
-        run: |
-          echo '[Unit]
-          Description=QDomyos-Zwift
-          After=multi-user.target
-
-          [Service]
-          ExecStart=/home/pi/qdomyos-zwift
-          User=pi
-          Environment=DISPLAY=:0
-
-          [Install]
-          WantedBy=multi-user.target' | sudo tee /mnt/raspbian/etc/systemd/system/qdomyos-zwift.service
-          sudo chroot /mnt/raspbian systemctl enable qdomyos-zwift.service
-
-      - name: Modify boot config to enable bluetooth
-        run: |
-          # The following line makes it specific for Raspberry Pi Zero 2W. 
-          # though I expect it is needed for Raspberry Pi 3B and maybe others as well
-          echo "[pi02]" | sudo tee -a /mnt/raspbian_p1/config.txt
-          echo "dtoverlay=miniuart-bt" | sudo tee -a /mnt/raspbian_p1/config.txt
-
-      - name: Unmount Raspberry Pi image
-        run: |
-          sudo umount /mnt/raspbian
-          sudo umount /mnt/raspbian_p1
-          sudo kpartx -d ${{ env.LOOP_DEVICE }}
-          sudo losetup -d ${{ env.LOOP_DEVICE }}
-
-      - name: Compress modified Raspberry Pi image
-        run: |
-          xz -z 2024-10-22-raspios-bookworm-arm64-lite.img
-
-      - name: Upload Raspberry Pi image as artifact
-        uses: actions/upload-artifact@v4
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v2
         with:
-          name: raspberry-pi-64bit-image
-          path: 2024-10-22-raspios-bookworm-arm64-lite.img.xz
+          ref: refs/pull/1508/head
+          submodules: recursive 
+    
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
+      - name: download python and paddleocr
+        run: |
+          python -VV
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade setuptools
+          python -m pip install "protobuf<=3.20.2,>=3.1.0"
+          python -m pip install paddlepaddle==2.5.1
+          python -m pip install paddleocr
+          python -m pip install imutils
+          python -m pip install "Pillow<10.0.0"
+          python -m pip install opencv-python
+          python -m pip install numpy
+          python -m pip install pywin32
+        if: matrix.config.python          
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.8.2'
+          host: 'windows'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtspeech qtpositioning qtwebsockets qtlocation qtmultimedia qtwebengine qtwebview qthttpserver qtwebchannel'
+          target: "desktop"
+          arch: win64_msvc2022_64
+          dir: "${{github.workspace}}/qt/"
+          install-deps: "true"
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-windows'          
+
+      - name: Install MSVC compiler
+        uses: ilammy/msvc-dev-cmd@v1
+        with: 
+          # 14.1 is for vs2017, 14.2 is vs2019, following the upstream vcpkg build from Qv2ray-deps repo
+          #toolset: 14.2
+          arch: x64
+
+      # - name: download 3rd party files for qthttpserver
+      #   run: |
+      #       cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+
+      # - name: Build qthttpserver
+      #   run: |
+      #       cd src\qthttpserver 
+      #       qmake
+      #       nmake
+      #       nmake install
+      #       cd ../..          
+
+      - name: Secrets
+        if: github.ref == 'refs/heads/master'
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          cd ..        
+
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg.git
+        working-directory: ${{ runner.workspace }}
   
+      - name: Bootstrap vcpkg
+        run: .\vcpkg\bootstrap-vcpkg.bat
+        working-directory: ${{ runner.workspace }}
+        
+      - name: Create vcpkg.json
+        working-directory: ${{ runner.workspace }}
+        run: |
+          echo '{
+            "name": "qdomyos-zwift",
+            "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+            "dependencies": [
+              "protobuf",
+              "protobuf-c",
+              "abseil"
+            ],
+            "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
+          }' > vcpkg.json
+      
+      - name: Install dependencies
+        run: |
+           .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
+        working-directory: ${{ runner.workspace }}
+  
+      - name: Build
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+        run: |
+            qmake            
+            nmake
+            cd src/debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.* output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .
+            cp ../../AppxManifest.xml .
+            cp ../../windows/*.py .
+            cp ../../windows/*.bat .
+            cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
+            mkdir adb
+            mkdir python
+            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
+            cp ../../adb/* adb/
+            cd ..
+            cd appx
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
+        if: matrix.config.python
+
+            
+      - name: Build without python
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose     
+        run: |          
+            qmake           
+            nmake
+            cd src/debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.* output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp "C:/mingw64/bin/libwinpthread-1.dll" .
+            cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
+            cp "C:/mingw64/bin/libstdc++-6.dll" .              
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .
+            cp ../../AppxManifest.xml .
+            cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
+            mkdir adb
+            cp ../../adb/* adb/
+            cd ..
+            cd appx
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
+        if: matrix.config.python == false            
+
+      - name: patching qt for bluetooth
+        run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-msvc2022-binary.zip
+        if: matrix.config.python
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-msvc2022-binary-no-python.zip
+        if:  ${{ ! matrix.config.python }}
+
+      - name: Archive windows binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msvc2022-binary
+          path: windows-msvc2022-binary.zip
+        if: matrix.config.python
+
+      - name: Archive windows binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msvc2022-binary-no-python
+          path: windows-msvc2022-binary-no-python.zip
+        if:  ${{ ! matrix.config.python }}
+          
   upload_to_release:
     permissions: write-all
-    runs-on: ubuntu-20.04 
+    runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build]  # Specify the job dependencies
+    needs: [linux-x86-build, window-msvc2019-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
       - name: Download artifacts
         uses: actions/download-artifact@v4
+                  
       - name: Update nightly release
         uses: andelf/nightly-release@main
         env:
@@ -1284,14 +1499,24 @@ jobs:
             of new complex code, the stability of the program may suffer compared to
             official releases, so **use it with caution**!
 
+            ## Windows Builds:
+            - **windows-msvc2019**: Recommended for Windows 10
+            - **windows-msvc2022**: Recommended for Windows 11 (experimental, QT6)
+            - **windows**: MinGW build (alternative version)
+
+            ## Other Platforms:
+            - **fdroid-android-trial**: Android build
+            - **raspberry-pi-binary**: Raspberry Pi build
+
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
           files: |
             windows-msvc2019-binary-no-python/*
             windows-msvc2019-binary/*
+            windows-msvc2022-binary-no-python/*
+            windows-msvc2022-binary/*
             windows-msvc2019-ai-server-binary/*            
             windows-binary-no-python/*
             windows-binary/*
             fdroid-android-trial/*
-            raspberry-pi-binary/*
-            raspberry-pi-64bit-binary/*
-            2024-10-22-raspios-bookworm-arm64-lite.img.xz
+            raspberry-pi-binary/qdomyos-zwift-32bit
+            raspberry-pi-binary/qdomyos-zwift-64bit

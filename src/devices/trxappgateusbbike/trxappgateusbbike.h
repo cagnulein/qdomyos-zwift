@@ -114,6 +114,8 @@ class trxappgateusbbike : public bike {
         TOORX_SRX_500 = 25,
         IRUNNING_2 = 26,
         PASYOU = 27,
+        FAL_SPORTS = 28,
+        HAMMER_SPEED_BIKE_S = 29,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 

@@ -57,6 +57,7 @@ class ftmsrower : public rower {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
+    volatile int notificationSubscribed = 0;
 
     bool initDone = false;
     bool initRequest = false;
@@ -72,6 +73,7 @@ class ftmsrower : public rower {
     bool WATER_ROWER = false;
     bool DFIT_L_R = false;
     bool I_ROWER = false;
+    bool ROWER = false;
     QDateTime lastStroke = QDateTime::currentDateTime();
     double lastStrokesCount = 0;
 

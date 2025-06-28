@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.0
+import Qt.labs.platform 1.1
 
 //Page {
     ScrollView {
@@ -14,6 +15,8 @@ import QtQuick.Dialogs 1.0
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane        
+
+        signal peloton_connect_clicked()
 
         Settings {
             id: settings
@@ -977,6 +980,7 @@ import QtQuick.Dialogs 1.0
             property bool gears_zwift_ratio: false
             property bool domyos_bike_500_profile_v2: false
             property double gears_offset: 0.0
+
             property bool proform_carbon_tl_PFTL59720: false
 
             // from version 2.16.71
@@ -1046,6 +1050,115 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.18.18
             property bool tile_biggears_swap: false
+            property bool treadmill_follow_wattage: false
+            property bool fit_file_garmin_device_training_effect: false
+            property bool proform_treadmill_705_cst_V80_44: false
+
+            // from version 2.18.19
+            property string  peloton_accesstoken: ""
+            property string  peloton_refreshtoken: ""
+            property string  peloton_lastrefresh: ""
+            property string  peloton_expires: ""
+            property string  peloton_code: ""
+
+            property bool nordictrack_treadmill_1750_adb: false
+
+            property bool tile_preset_powerzone_1_enabled: false
+            property int tile_preset_powerzone_1_order: 55
+            property real tile_preset_powerzone_1_value: 1.0
+            property string tile_preset_powerzone_1_label: "Zone 1"
+            property string tile_preset_powerzone_1_color: "white"
+
+            property bool tile_preset_powerzone_2_enabled: false
+            property int tile_preset_powerzone_2_order: 56
+            property real tile_preset_powerzone_2_value: 2.0
+            property string tile_preset_powerzone_2_label: "Zone 2"
+            property string tile_preset_powerzone_2_color: "limegreen"
+
+            property bool tile_preset_powerzone_3_enabled: false
+            property int tile_preset_powerzone_3_order: 57
+            property real tile_preset_powerzone_3_value: 3.0
+            property string tile_preset_powerzone_3_label: "Zone 3"
+            property string tile_preset_powerzone_3_color: "gold"
+
+            property bool tile_preset_powerzone_4_enabled: false
+            property int tile_preset_powerzone_4_order: 58
+            property real tile_preset_powerzone_4_value: 4.0
+            property string tile_preset_powerzone_4_label: "Zone 4"
+            property string tile_preset_powerzone_4_color: "orange"
+
+            property bool tile_preset_powerzone_5_enabled: false
+            property int tile_preset_powerzone_5_order: 59
+            property real tile_preset_powerzone_5_value: 5.0
+            property string tile_preset_powerzone_5_label: "Zone 5"
+            property string tile_preset_powerzone_5_color: "darkorange"
+
+            property bool tile_preset_powerzone_6_enabled: false
+            property int tile_preset_powerzone_6_order: 60
+            property real tile_preset_powerzone_6_value: 6.0
+            property string tile_preset_powerzone_6_label: "Zone 6"
+            property string tile_preset_powerzone_6_color: "orangered"
+
+            property bool tile_preset_powerzone_7_enabled: false
+            property int tile_preset_powerzone_7_order: 61
+            property real tile_preset_powerzone_7_value: 7.0
+            property string tile_preset_powerzone_7_label: "Zone 7"
+            property string tile_preset_powerzone_7_color: "red"  
+
+            property bool proform_bike_PFEVEX71316_0: false
+            property bool real_inclination_to_virtual_treamill_bridge: false
+            property bool stryd_inclination_instead_treadmill: false
+
+            // 2.18.20
+            property bool domyos_elliptical_fmts: false
+            property bool proform_xbike: false            
+            property bool proform_225_csx_PFEX32925_INT_0: false
+            property string peloton_current_user_id: ""
+
+            // 2.18.22
+            property bool trainprogram_pid_ignore_inclination: false
+            property bool tile_hr_time_in_zone_1_enabled: false
+            property int  tile_hr_time_in_zone_1_order: 62
+            property bool tile_hr_time_in_zone_2_enabled: false
+            property int  tile_hr_time_in_zone_2_order: 63
+            property bool tile_hr_time_in_zone_3_enabled: false
+            property int  tile_hr_time_in_zone_3_order: 64
+            property bool tile_hr_time_in_zone_4_enabled: false
+            property int  tile_hr_time_in_zone_4_order: 65
+            property bool tile_hr_time_in_zone_5_enabled: false
+            property int  tile_hr_time_in_zone_5_order: 66
+
+            // 2.18.25
+            property bool zwift_gear_ui_aligned: false
+            property bool tacxneo2_disable_negative_inclination: false
+
+            // 2.18.26
+            property bool proform_performance_300i: false
+            property bool android_antbike: false
+
+            property bool tile_coretemperature_enabled: false
+            property int  tile_coretemperature_order: 67
+
+            property bool nordictrack_t65s_treadmill_81_miles: false
+            property bool nordictrack_elite_800: false
+            property bool ios_btdevice_native: false            
+            property string inclinationResistancePoints: ""
+            property int floatingwindow_type: 0
+            property bool horizon_treadmill_7_0_at_24: false  // not used
+
+            property bool nordictrack_treadmill_ultra_le: false            
+
+            property bool tile_heat_time_in_zone_1_enabled: false
+            property int  tile_heat_time_in_zone_1_order: 68
+            property bool tile_heat_time_in_zone_2_enabled: false
+            property int  tile_heat_time_in_zone_2_order: 69
+            property bool tile_heat_time_in_zone_3_enabled: false
+            property int  tile_heat_time_in_zone_3_order: 70
+            property bool tile_heat_time_in_zone_4_enabled: false
+            property int  tile_heat_time_in_zone_4_order: 71
+
+            property bool proform_treadmill_carbon_tls: false
+            property bool proform_treadmill_995i: false
         }
 
         function paddingZeros(text, limit) {
@@ -1473,7 +1586,7 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
+                    }                    
                 }
             }
 
@@ -3035,6 +3148,8 @@ import QtQuick.Dialogs 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent:
+												ColumnLayout {
+                            spacing: 0
                         IndicatorOnlySwitch {
                             id: fitplusBikeDelegate
                             text: qsTr("Fit Plus Bike")
@@ -3077,6 +3192,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.sportstech_sx600 = checked; window.settings_restart_to_apply = true; }
                         }
+										   }
                     }
                     AccordionElement {
                         id: flywheelBikeAccordion
@@ -3132,87 +3248,131 @@ import QtQuick.Dialogs 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
-                        accordionContent: RowLayout {
-                            spacing: 10
-                            Label {
-                                id: labelDomyosBikeCadenceFilter
-                                text: qsTr("Cadence Filter:")
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelDomyosBikeCadenceFilter
+                                    text: qsTr("Cadence Filter:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: domyosBikeCadenceFilterTextField
+                                    text: settings.domyos_bike_cadence_filter
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.domyos_bike_cadence_filter = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okDomyosBikeCadenceFilter
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Ignore FTMS")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyosbike_notfmts
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
+                                onClicked: settings.domyosbike_notfmts = checked
                             }
-                            TextField {
-                                id: domyosBikeCadenceFilterTextField
-                                text: settings.domyos_bike_cadence_filter
-                                horizontalAlignment: Text.AlignRight
-                                Layout.fillHeight: false
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
-                                onAccepted: settings.domyos_bike_cadence_filter = text
-                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            IndicatorOnlySwitch {
+                                text: qsTr("Fix Calories/Km to Console")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_bike_display_calories
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.domyos_bike_display_calories = checked
                             }
-                            Button {
-                                id: okDomyosBikeCadenceFilter
-                                text: "OK"
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: { settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text; toast.show("Setting saved!"); }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Bike 500 wattage profile")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_bike_500_profile_v1
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.domyos_bike_500_profile_v1 = checked; settings.domyos_bike_500_profile_v2 = false; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Bike 500 wattage profile v2")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_bike_500_profile_v2
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.domyos_bike_500_profile_v2 = checked; settings.domyos_bike_500_profile_v1 = false; }
                             }
                         }
-                        IndicatorOnlySwitch {
-                            text: qsTr("Fix Calories/Km to Console")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.domyos_bike_display_calories
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: settings.domyos_bike_display_calories = checked
-                        }
-                        IndicatorOnlySwitch {
-                            text: qsTr("Bike 500 wattage profile")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.domyos_bike_500_profile_v1
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.domyos_bike_500_profile_v1 = checked; settings.domyos_bike_500_profile_v2 = false; }
-                        }
-                        IndicatorOnlySwitch {
-                            text: qsTr("Bike 500 wattage profile v2")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.domyos_bike_500_profile_v2
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.domyos_bike_500_profile_v2 = checked; settings.domyos_bike_500_profile_v1 = false; }
-                        }                    
                     }                
                     AccordionElement {
                         title: qsTr("Tacx Neo Options")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
-                        IndicatorOnlySwitch {
-                            text: qsTr("Peloton Configuration")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.tacx_neo2_peloton
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: settings.tacx_neo2_peloton = checked
+                        accordionContent: ColumnLayout {
+                            IndicatorOnlySwitch {
+                                text: qsTr("Peloton Configuration")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.tacx_neo2_peloton
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.tacx_neo2_peloton = checked
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Disable Negative Inclination due to gear")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.tacxneo2_disable_negative_inclination
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.tacxneo2_disable_negative_inclination = checked
+                            }
+                            Label {
+                                text: qsTr("Enabling this QZ will ignore changing gears if the value is too low for this trainer. Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
                         }
                     }
                     AccordionElement {
@@ -3273,7 +3433,10 @@ import QtQuick.Dialogs 1.0
                                     "Proform 225 CSX",
                                     "Proform 325 CSX / Healthrider H30X",
                                     "Proform SB",
-                                    "Nordictrack GX 4.4 Pro"
+                                    "Nordictrack GX 4.4 Pro",
+                                    "TDF 1.0 PFEVEX71316.0",
+                                    "Proform XBike",
+                                    "Proform 225 CSX PFEX32925 INT.0"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -3305,7 +3468,10 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_bike_225_csx ? 12 :
                                                     settings.proform_bike_325_csx ? 13 :
                                                     settings.proform_bike_sb ? 14 :
-                                                    settings.nordictrack_gx_44_pro ? 15 : 0;
+                                                    settings.nordictrack_gx_44_pro ? 15 :
+                                                    settings.proform_bike_PFEVEX71316_0 ? 16 :
+                                                    settings.proform_xbike ? 17 :
+                                                    settings.proform_225_csx_PFEX32925_INT_0 ? 18 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -3335,6 +3501,9 @@ import QtQuick.Dialogs 1.0
                                     settings.proform_bike_325_csx = false;
                                     settings.proform_bike_sb = false;
                                     settings.nordictrack_gx_44_pro = false;
+                                    settings.proform_bike_PFEVEX71316_0 = false;
+                                    settings.proform_xbike = false;
+                                    settings.proform_225_csx_PFEX32925_INT_0 = false;
 
                                     // Set corresponding setting for selected model
                                     switch (currentIndex) {
@@ -3353,6 +3522,9 @@ import QtQuick.Dialogs 1.0
                                         case 13: settings.proform_bike_325_csx = true; break;
                                         case 14: settings.proform_bike_sb = true; break;
                                         case 15: settings.nordictrack_gx_44_pro = true; break;
+                                        case 16: settings.proform_bike_PFEVEX71316_0 = true; break;
+                                        case 17: settings.proform_xbike = true; break;
+                                        case 18: settings.proform_225_csx_PFEX32925_INT_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -3756,6 +3928,33 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Ant+ Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.android_antbike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.android_antbike = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Use this to connect to your bike using ANT+ instead bluetooth. Default: Disabled")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
                 }
             }
 /*
@@ -3807,6 +4006,44 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.top_bar_enabled = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelFloatingWindowType
+                            text: qsTr("Floating Window Type:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: floatingWindowTypeComboBox
+                            model: ["Classic", "Horizontal"]
+                            currentIndex: settings.floatingwindow_type
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("floatingwindow_type activated" + floatingWindowTypeComboBox.currentIndex)
+                            }
+                        }
+                        Button {
+                            id: okFloatingWindowTypeButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.floatingwindow_type = floatingWindowTypeComboBox.currentIndex; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     Label {
@@ -4171,7 +4408,7 @@ import QtQuick.Dialogs 1.0
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
                     spacing: 0
-
+/*
                     RowLayout {
                         spacing: 10
                         Label {
@@ -4247,6 +4484,23 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+*/
+
+                    ItemDelegate {
+                        Image {
+                            anchors.left: parent.left;
+                            anchors.verticalCenter: parent.verticalCenter
+                            source: "icons/icons/Button_Connect_Rect_DarkMode.png"
+                            fillMode: Image.PreserveAspectFit
+                            visible: true
+                            width: parent.width
+                        }
+                        Layout.fillWidth: true
+                        onClicked: {
+                            stackView.push("WebPelotonAuth.qml")
+                            peloton_connect_clicked()
+                        }
                     }
 
                     RowLayout {
@@ -4957,6 +5211,20 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }              
 
+                    MessageDialog {
+                        id: zwiftPlaySettingsDialog
+                        text: "Zwift Play & Click Settings"
+                        informativeText: "Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with 'Get gears from Zwift' may cause conflicts."
+                        buttons: (MessageDialog.Yes | MessageDialog.No)
+                        onYesClicked: {
+                            settings.zwift_play = false;
+                            settings.zwift_click = false;
+                            settings.zwift_play_emulator = true;
+                            window.settings_restart_to_apply = true;
+                        }
+                        visible: false
+                    }
+
                     IndicatorOnlySwitch {
                         text: qsTr("Get Gears from Zwift")
                         spacing: 0
@@ -4968,7 +5236,16 @@ import QtQuick.Dialogs 1.0
                         checked: settings.zwift_play_emulator
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_play_emulator = checked; if(checked) { settings.watt_bike_emulator = false; } window.settings_restart_to_apply = true; }
+                        onClicked: {
+                             if (checked && !settings.zwift_play_emulator) {  // Only show dialog when enabling
+                                 if (settings.zwift_play || settings.zwift_click) {
+                                     zwiftPlaySettingsDialog.visible = true;
+                                 }
+                                 settings.watt_bike_emulator = false;
+                             }
+                             window.settings_restart_to_apply = true;
+                             settings.zwift_play_emulator = checked;
+                         }
                     }
 
                     Label {
@@ -4983,7 +5260,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-
+/*
                     IndicatorOnlySwitch {
                         text: qsTr("Show Gears to Zwift Only")
                         spacing: 0
@@ -5010,7 +5287,34 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+*/
 
+                    IndicatorOnlySwitch {
+                        text: qsTr("Align Gear Value on Both Zwift and QZ")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_gear_ui_aligned
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.zwift_gear_ui_aligned = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("By default QZ is showing the actual gears from the bike. Enabling this, QZ will show the same gears that you see on Zwift. This doesn't affect the real gear value one the bike. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
                     RowLayout {
                         spacing: 10
@@ -5275,6 +5579,33 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }                    
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Treadmill Auto-adjust speed by power")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_follow_wattage
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_follow_wattage = checked
+                    }
+
+                    Label {
+                        text: qsTr("Treadmill only: Automatically adjusts speed to maintain consistent power output. Speed adjustments occur on incline changes and adapt to manual speed modifications.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     RowLayout {
@@ -5390,6 +5721,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("PID Ignore Inclination")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.trainprogram_pid_ignore_inclination
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.trainprogram_pid_ignore_inclination = checked
+                    }
+
+                    Label {
+                        text: qsTr("Enabling this the PID will ignore the inclination changes. Default: Disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -6280,7 +6638,15 @@ import QtQuick.Dialogs 1.0
                                     "Proform Carbon TL PFTL59722c",
                                     "Proform 1500 Pro",
                                     "Proform 505 CST v.80.44",
-                                    "Proform Trainer 8.0"
+                                    "Proform Trainer 8.0",
+                                    "Proform 705 CST v.80.44",
+                                    "Nordictrack 1750",
+                                    "Proform Performance 300i",
+                                    "Nordictrack T6.5S v81 Miles",
+                                    "Nordictrack Elite 800",
+                                    "Nordictrack Ultra LE",
+                                    "Proform Carbon TLS",
+                                    "Proform 995i",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -6341,7 +6707,15 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_carbon_tl_PFTL59722c ? 41 :
                                                     settings.proform_treadmill_1500_pro ? 42 :
                                                     settings.proform_505_cst_80_44 ? 43 :
-                                                    settings.proform_trainer_8_0 ? 44 : 0;
+                                                    settings.proform_trainer_8_0 ? 44 :
+                                                    settings.proform_treadmill_705_cst_V80_44 ? 45 :
+                                                    settings.nordictrack_treadmill_1750_adb ? 46 : 
+                                                    settings.proform_performance_300i ? 47 :
+                                                    settings.nordictrack_t65s_treadmill_81_miles ? 48 : 
+                                                    settings.nordictrack_elite_800 ? 49 :
+                                                    settings.nordictrack_treadmill_ultra_le ? 50 :
+                                                    settings.proform_treadmill_carbon_tls ? 51 :
+                                                    settings.proform_treadmill_995i ? 52 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -6392,6 +6766,7 @@ import QtQuick.Dialogs 1.0
                                     settings.proform_carbon_tl_PFTL59720 = false;
                                     settings.proform_treadmill_sport_70 = false;
                                     settings.proform_treadmill_575i = false;
+                                    settings.proform_performance_300i = false;
                                     settings.proform_performance_400i = false;
                                     settings.proform_treadmill_c700 = false;
                                     settings.proform_treadmill_c960i = false;
@@ -6400,6 +6775,13 @@ import QtQuick.Dialogs 1.0
                                     settings.proform_treadmill_1500_pro = false;
                                     settings.proform_505_cst_80_44 = false;
                                     settings.proform_trainer_8_0 = false;
+                                    settings.proform_treadmill_705_cst_V80_44 = false;
+                                    settings.nordictrack_treadmill_1750_adb = false;
+                                    settings.nordictrack_t65s_treadmill_81_miles = false;
+                                    settings.nordictrack_elite_800 = false;
+                                    settings.nordictrack_treadmill_ultra_le = false;
+                                    settings.proform_treadmill_carbon_tls = false;
+                                    settings.proform_treadmill_995i = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -6447,6 +6829,14 @@ import QtQuick.Dialogs 1.0
                                         case 42: settings.proform_treadmill_1500_pro = true; break;
                                         case 43: settings.proform_505_cst_80_44 = true; break;
                                         case 44: settings.proform_trainer_8_0 = true; break;
+                                        case 45: settings.proform_treadmill_705_cst_V80_44 = true; break;
+                                        case 46: settings.nordictrack_treadmill_1750_adb = true; break;
+                                        case 47: settings.proform_performance_300i = true; break;
+                                        case 48: settings.nordictrack_t65s_treadmill_81_miles = true; break;
+                                        case 49: settings.nordictrack_elite_800 = true; break;
+                                        case 50: settings.nordictrack_treadmill_ultra_le = true; break;
+                                        case 51: settings.proform_treadmill_carbon_tls = true; break;
+                                        case 52: settings.proform_treadmill_995i = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -6747,7 +7137,7 @@ import QtQuick.Dialogs 1.0
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("T900A")
+                                text: qsTr("T900")
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -8441,6 +8831,33 @@ import QtQuick.Dialogs 1.0
                     }
 
                     IndicatorOnlySwitch {
+                        text: qsTr("Use garmin device in the FIT file")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fit_file_garmin_device_training_effect
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.fit_file_garmin_device_training_effect = checked; window.settings_restart_to_apply = false; }
+                    }
+
+                    Label {
+                        text: qsTr("WIth this enabled, QZ will write the FIT file as a Garmin device so Garmin will consider this fit file for the training effect. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
                         id: stravaVirtualActivityDelegate
                         text: qsTr("Strava Virtual Activity Tag")
                         spacing: 0
@@ -8772,6 +9189,35 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Send real inclination to virtual bridge")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.real_inclination_to_virtual_treamill_bridge
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.real_inclination_to_virtual_treamill_bridge = checked
+                    }
+
+                    Label {
+                        text: qsTr("By default QZ sends to the virtual bluetooth/dircon bridge the current inclination of the treadmill. Enabling this, it will send instead the one wihtout considering inclination gain or offset. Default: False.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
 
                     IndicatorOnlySwitch {
                         text: qsTr("Disable Wattage from Machinery")
@@ -9184,6 +9630,33 @@ import QtQuick.Dialogs 1.0
 
                             Label {
                                 text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Use inclination from the power sensor")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.stryd_inclination_instead_treadmill
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.stryd_inclination_instead_treadmill = checked
+                            }
+
+                            Label {
+                                text: qsTr("If you have a bluetooth treadmill and also a Runn device connected to QZ and you want to use the inclination from the RUNN instead of the inclination of the treadmill, enable this. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -10102,7 +10575,7 @@ import QtQuick.Dialogs 1.0
                             }
 
                             Label {
-                                text: qsTr("Use it to change the gears on QZ!")
+                                text: qsTr("Also for Elite Square. Use it to change the gears on QZ!")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -10636,6 +11109,7 @@ import QtQuick.Dialogs 1.0
                                 settings: settings
                                 accordionContent: ColumnLayout {
                                     spacing: 0
+                                    /*
                                     IndicatorOnlySwitch {
                                         id: wahooRGTDirconDelegate
                                         text: qsTr("MyWhoosh Compatibility")
@@ -10649,7 +11123,7 @@ import QtQuick.Dialogs 1.0
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
                                         onClicked: { settings.wahoo_rgt_dircon = checked; window.settings_restart_to_apply = true; }
-                                    }
+                                    }*/
 
                                     Label {
                                         text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to Wahoo RGT app. Leave the RGT compatibility disabled in order to use Zwift.")
@@ -11134,6 +11608,33 @@ import QtQuick.Dialogs 1.0
                     }
 
                     IndicatorOnlySwitch {
+                        text: qsTr("iOS Bluetooth Device Native")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_btdevice_native
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.ios_btdevice_native = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("If you are experiencing crash on iOS midride, try to turn this on. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
                         id: appleWatchFakeDeviceDelegate
                         text: qsTr("Fake Device")
                         spacing: 0
@@ -11355,11 +11856,23 @@ import QtQuick.Dialogs 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    Button {
-                        id: clearLogs
-                        text: "Clear History"
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: rootItem.clearFiles();
+                    RowLayout {
+                        Layout.fillWidth: true
+                        
+                        Button {
+                            id: clearLogs
+                            text: "Clear History"
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                            onClicked: rootItem.clearFiles();
+                        }
+                        
+                        Button {
+                            text: "Show Logs Folder"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                toast.show(rootItem.getProfileDir())
+                            }
+                        }
                     }
 
                     Label {

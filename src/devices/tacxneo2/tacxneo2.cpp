@@ -11,6 +11,7 @@
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
+#include "homeform.h"
 
 #include <chrono>
 
@@ -28,6 +29,17 @@ tacxneo2::tacxneo2(bool noWriteResistance, bool noHeartService) {
 
 void tacxneo2::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
+    
+    if(!gattCustomService) {
+        qDebug() << "gattCustomService is null!";
+        QSettings settings;
+        settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
+        qDebug() << "forcing FTMS bike since it has FTMS";
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("FTMS bike found, restart the app to apply the change!");
+        return;
+    }
+    
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
@@ -93,6 +105,17 @@ void tacxneo2::forceInclination(double inclination) {
     writeCharacteristic(inc, sizeof(inc), QStringLiteral("changeInclination"), false, false);
 }
 
+// The reason of this function is: "The only weird part is that when the offset in QZ is below 0 my Tacx Neo 2T thinks I am going down hill. And it keeps the flywheel motor moving."
+double tacxneo2::gearsFlywheelCheck(double inclination, double gears) {
+    QSettings settings;
+    bool tacxneo2_disable_negative_inclination = settings.value(QZSettings::tacxneo2_disable_negative_inclination, QZSettings::default_tacxneo2_disable_negative_inclination).toBool();
+    if(tacxneo2_disable_negative_inclination && inclination >= 0 && inclination + gears < 0) {
+        qDebug() << "inclination + gears are below 0, flatting to 0" << inclination << gears;
+        return 0;
+    }
+    return inclination + gears;
+}
+
 void tacxneo2::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -135,12 +158,12 @@ void tacxneo2::update() {
         }
         if (requestInclination != -100) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-            forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+            forceInclination(gearsFlywheelCheck(requestInclination, gears())); // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
             requestInclination = -100;            
         } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
             // in order to send the new gear value ASAP
-            forceInclination(lastRawRequestedInclinationValue + gears());   // since this bike doesn't have the concept of resistance,
+            forceInclination(gearsFlywheelCheck(lastRawRequestedInclinationValue, gears()));   // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
         }
 
@@ -322,12 +345,16 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         uint16_t time_division = 1024;
         uint8_t index = 4;
 
-        if (newValue.length() > 3) {
-            m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
-        }
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            if (newValue.length() > 3) {
+                m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+            }
 
-        emit powerChanged(m_watt.value());
-        emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+            emit powerChanged(m_watt.value());
+            emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+        }
 
         if(THINK_X) {
 
@@ -740,6 +767,12 @@ void tacxneo2::stateChanged(QLowEnergyService::ServiceState state) {
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
+            if(s->serviceUuid() == QBluetoothUuid(QStringLiteral("fe03a000-17d0-470a-8798-4ad3e1c1f35b")) || 
+                s->serviceUuid() == QBluetoothUuid(QStringLiteral("fe031000-17d0-470a-8798-4ad3e1c1f35b"))) {
+                qDebug() << "skipping service" << s->serviceUuid();
+                continue;
+            }
+
             auto characteristics = s->characteristics();
             for (const QLowEnergyCharacteristic &c : characteristics) {
                 qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
@@ -891,7 +924,7 @@ void tacxneo2::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
-        if(device.name().toUpper().startsWith(QStringLiteral("THINK X"))) {
+        if(device.name().toUpper().startsWith(QStringLiteral("THINK X")) || device.name().toUpper().startsWith(QStringLiteral("THINK-"))) {
             THINK_X = true;
             qDebug() << "THINK X workaround enabled!";
         }

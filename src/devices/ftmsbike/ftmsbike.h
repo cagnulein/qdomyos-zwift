@@ -28,6 +28,7 @@
 
 #include "wheelcircumference.h"
 #include "devices/bike.h"
+#include "inclinationresistancetable.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -70,6 +71,7 @@ class ftmsbike : public bike {
     Q_OBJECT
   public:
     ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
+    ~ftmsbike();
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
@@ -103,8 +105,10 @@ class ftmsbike : public bike {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QByteArray lastPacketFromFTMS;
+    QDateTime lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChanged2ACE = QDateTime::currentDateTime();
+    bool ftmsFrameReceived = false;
     uint8_t firstStateChanged = 0;
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
@@ -121,6 +125,7 @@ class ftmsbike : public bike {
 
     bool resistance_lvl_mode = false;
     bool resistance_received = false;
+    inclinationResistanceTable _inclinationResistanceTable;
 
     bool DU30_bike = false;
     bool ICSE = false;
@@ -133,8 +138,27 @@ class ftmsbike : public bike {
     bool SS2K = false;
     bool DIRETO_XR = false;
     bool JFBK5_0 = false;
+    bool BIKE_ = false;
+    bool SMB1 = false;
+    bool LYDSTO = false;
+    bool SL010 = false;
+    bool REEBOK = false;
+    bool TITAN_7000 = false;
+    bool T2 = false;
+    bool FIT_BK = false;
+    bool YS_G1MPLUS = false;
+    bool EXPERT_SX9 = false;
+    bool PM5 = false;
+    bool THINK_X = false;
+
+    int16_t T2_lastGear = 0;
 
     uint8_t battery_level = 0;
+
+    uint16_t oldLastCrankEventTime = 0;
+    uint16_t oldCrankRevs = 0;
+    QDateTime lastGoodCadence = QDateTime::currentDateTime();
+    double lastRawRequestedInclinationValue = -100;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

@@ -15,7 +15,7 @@ import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.os.Bundle;
 import com.google.android.gms.common.api.Status;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ public class WearableMessageListenerService extends Service implements
     @Override
     public void onCreate() {
        super.onCreate();
-       Log.v("WearableMessageListenerService","onCreate");
+       QLog.v("WearableMessageListenerService","onCreate");
     }
 
     public static int getHeart() {
@@ -55,7 +55,7 @@ public class WearableMessageListenerService extends Service implements
         mWearableClient.addListener(this);
         Wearable.getDataClient(this).addListener(this);
 
-        Log.v("WearableMessageListenerService","onStartCommand");
+        QLog.v("WearableMessageListenerService","onStartCommand");
 
         // Return START_STICKY to restart the service if it's killed by the system
         return START_STICKY;
@@ -65,9 +65,9 @@ public class WearableMessageListenerService extends Service implements
     public void onDataChanged(DataEventBuffer dataEvents) {
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_DELETED) {
-                Log.d(TAG, "DataItem deleted: " + event.getDataItem().getUri());
+                QLog.d(TAG, "DataItem deleted: " + event.getDataItem().getUri());
             } else if (event.getType() == DataEvent.TYPE_CHANGED) {
-                Log.d(TAG, "DataItem changed: " + event.getDataItem().getUri() + " " + event.getDataItem().getUri().getPath());
+                QLog.d(TAG, "DataItem changed: " + event.getDataItem().getUri() + " " + event.getDataItem().getUri().getPath());
                 if(event.getDataItem().getUri().getPath().equals("/qz")) {
                     new Thread(new Runnable() {
                             @Override
@@ -78,14 +78,14 @@ public class WearableMessageListenerService extends Service implements
                                            heart_rate = DataMap.fromByteArray(result.get(0).getData())
                                                    .getInt("heart_rate", 0);
                                        } else {
-                                           Log.e(TAG, "Unexpected number of DataItems found.\n"
+                                           QLog.e(TAG, "Unexpected number of DataItems found.\n"
                                                     + "\tExpected: 1\n"
                                                     + "\tActual: " + result.getCount());
                                        }
-                                   } else if (Log.isLoggable(TAG, Log.DEBUG)) {
-                                       Log.d(TAG, "onHandleIntent: failed to get current alarm state");
+                                   } else {
+                                       QLog.d(TAG, "onHandleIntent: failed to get current alarm state");
                                    }
-                                Log.d(TAG, "Heart: " + heart_rate);
+                                QLog.d(TAG, "Heart: " + heart_rate);
                             }
                         }).start();
                 }
@@ -96,17 +96,17 @@ public class WearableMessageListenerService extends Service implements
 
     @Override
     public void onConnected(Bundle bundle) {
-        Log.v("WearableMessageListenerService","onConnected");
+        QLog.v("WearableMessageListenerService","onConnected");
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.v("WearableMessageListenerService","onConnectionSuspended");
+        QLog.v("WearableMessageListenerService","onConnectionSuspended");
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.v("WearableMessageListenerService","onConnectionFailed");
+        QLog.v("WearableMessageListenerService","onConnectionFailed");
     }
 
     @Override
@@ -117,8 +117,8 @@ public class WearableMessageListenerService extends Service implements
         // Handle the received message data here
         String messageData = new String(data); // Assuming it's a simple string message
 
-        Log.v("Wearable", path);
-        Log.v("Wearable", messageData);
+        QLog.v("Wearable", path);
+        QLog.v("Wearable", messageData);
 
         // You can then perform actions or update data in your service based on the received message
     }

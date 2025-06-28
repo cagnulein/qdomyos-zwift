@@ -218,10 +218,15 @@ void DeviceTestDataIndex::Initialize() {
                 }
             });
 
+    // Cyclops Phantom Bike
+    RegisterNewDeviceTestData(DeviceIndex::CyclopsPhantomBike)
+        ->expectDevice<cycleopsphantombike>()
+        ->acceptDeviceName("INDOORCYCLE", DeviceNameComparison::StartsWithIgnoreCase);
+
     // DeerRun Treadmill
     RegisterNewDeviceTestData(DeviceIndex::DeerRunTreadmill)
         ->expectDevice<deerruntreadmill>()
-        ->acceptDeviceName("PITPAT", DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceName("PITPAT-T", DeviceNameComparison::StartsWithIgnoreCase);
 
     // Domyos bike
     RegisterNewDeviceTestData(DeviceIndex::DomyosBike)
@@ -923,6 +928,10 @@ void DeviceTestDataIndex::Initialize() {
             }
         });
 
+    // Pitpat Bike
+    RegisterNewDeviceTestData(DeviceIndex::PitpatBike)
+        ->expectDevice<pitpatbike>()
+        ->acceptDeviceName("PITPAT-S", DeviceNameComparison::StartsWithIgnoreCase);
 
     // Proform Bike
     RegisterNewDeviceTestData(DeviceIndex::ProformBike)
@@ -1266,7 +1275,7 @@ void DeviceTestDataIndex::Initialize() {
     // Toorx AppGate USB Bike
     RegisterNewDeviceTestData(DeviceIndex::ToorxAppGateUSBBike)
         ->expectDevice<trxappgateusbbike>()        
-        ->acceptDeviceNames({"TUN ","PASYOU-"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"TUN ","PASYOU-","IBIKING+",}, DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(
             [](const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations) -> void
             {
@@ -1292,7 +1301,6 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("TOORX", DeviceNameComparison::StartsWith)
         ->acceptDeviceNames({"I-CONSOIE+",
                              "I-CONSOLE+",
-                             "IBIKING+",
                              "ICONSOLE+",
                              "VIFHTR2.1",
                              "REEBOK",
