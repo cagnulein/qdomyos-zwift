@@ -209,8 +209,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Write(ftpSessionMesg);
 
     fit::SessionMesg sessionMesg;
-    sessionMesg.AddDeveloperField(activityTitleField);
-    sessionMesg.AddDeveloperField(ftpSessionField);
     sessionMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetStartTime(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetTotalElapsedTime(session.last().elapsedTime);
@@ -344,6 +342,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
     fit::DeveloperField activityTitleField(activityTitle, devIdMesg);
     activityTitleField.SetSTRINGValue(workoutName.toStdWString());
+
+    sessionMesg.AddDeveloperField(activityTitleField);
+    sessionMesg.AddDeveloperField(ftpSessionField);
 
     fit::ActivityMesg activityMesg;
     activityMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
