@@ -54,6 +54,10 @@ function process_arr(arr) {
     let watts_max = 0;
     let heart_avg = 0;
     let heart_max = 0;
+    let speed_avg = 0;
+    let speed_max = 0;
+    let cadence_avg = 0;
+    let cadence_max = 0;
     saveScreenshot[0] = false;
     saveScreenshot[1] = false;
     saveScreenshot[2] = false;
@@ -89,6 +93,10 @@ function process_arr(arr) {
         watts_max = el.watts_max;
         heart_avg = el.heart_avg;
         heart_max = el.heart_max;
+        speed_avg = el.speed_avg;
+        speed_max = el.speed_max;
+        cadence_avg = el.cadence_avg;
+        cadence_max = el.cadence_max;
         maxEl = time;
         wattel.x = time;
         wattel.y = el.watts;
@@ -173,11 +181,17 @@ function process_arr(arr) {
     var totalJouls = watts_avg > 0 ? ((watts_avg * arr.length) / 1000).toFixed(1) : 0;
     
     $('.summary_watts_avg').text(Math.floor(watts_avg) + ' W');
+    $('.summary_watts_max').text(Math.floor(watts_max) + ' W');
     $('.summary_jouls').text(totalJouls + ' kJ');
     $('.summary_calories').text(totalCalories + ' kcal');
     $('.summary_distance').text(totalDistance.toFixed(2) + ' km');
-    $('.summary_cadence_avg').text(avgCadence + ' rpm');
+    $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' rpm');
+    $('.summary_cadence_max').text(Math.floor(cadence_max) + ' rpm');
     $('.summary_resistance_avg').text(avgResistance + ' lvl');
+    $('.summary_heart_avg').text(Math.floor(heart_avg) + ' bpm');
+    $('.summary_heart_max').text(Math.floor(heart_max) + ' bpm');
+    $('.summary_speed_avg').text(speed_avg.toFixed(1) + ' km/h');
+    $('.summary_speed_max').text(speed_max.toFixed(1) + ' km/h');
 
     const backgroundFill = {
       id: 'custom_canvas_background_color',
