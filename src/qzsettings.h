@@ -250,6 +250,9 @@ class QZSettings {
     static const QString run_cadence_sensor;
     static constexpr bool default_run_cadence_sensor = false;
 
+    static const QString rogue_echo_bike;
+    static constexpr bool default_rogue_echo_bike = false;
+
     static const QString bike_power_sensor;
     static constexpr bool default_bike_power_sensor = false;
 
