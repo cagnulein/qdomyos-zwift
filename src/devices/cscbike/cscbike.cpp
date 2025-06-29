@@ -72,7 +72,6 @@ void cscbike::update() {
         }
     }
 
-    QSettings settings;
     bool rogue_echo_bike = settings.value(QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike).toBool();
     
     if (rogue_echo_bike) {
