@@ -9,14 +9,22 @@ Page {
     // Signal for chart preview
     signal fitfile_preview_clicked(var url)
 
-    // Sport type to icon mapping
+    // Sport type to icon mapping (using FIT_SPORT values)
     function getSportIcon(sport) {
-        switch(sport) {
-            case 0: return "🏃"; // Running/Treadmill
-            case 1: return "🚴"; // Cycling
-            case 2: return "⭕"; // Elliptical
-            case 3: return "🚣"; // Rowing
-            default: return "💪";
+        switch(parseInt(sport)) {
+            case 1:  // FIT_SPORT_RUNNING
+            case 11: // FIT_SPORT_WALKING
+                return "🏃"; // Running/Walking
+            case 2:  // FIT_SPORT_CYCLING
+                return "🚴"; // Cycling
+            case 4:  // FIT_SPORT_FITNESS_EQUIPMENT (Elliptical)
+                return "⭕"; // Elliptical
+            case 15: // FIT_SPORT_ROWING
+                return "🚣"; // Rowing
+            case 84: // FIT_SPORT_JUMPROPE
+                return "🪢"; // Jump Rope
+            default: 
+                return "💪"; // Generic workout
         }
     }
 
@@ -56,7 +64,7 @@ Page {
 
             delegate: SwipeDelegate {
                 id: swipeDelegate
-                width: ListView.view.width
+                width: parent.width
                 height: 135
 
                 Component.onCompleted: {

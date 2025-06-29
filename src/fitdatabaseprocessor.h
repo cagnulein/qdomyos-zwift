@@ -41,6 +41,8 @@ class FitDatabaseProcessor : public QObject {
     bool saveWorkout(const QString& filePath,
                      const QList<SessionLine>& session,
                      FIT_SPORT sport,
+                     const QString& workoutName,
+                     int elapsedSeconds,
                      qint64& workoutId);
 
     QThread workerThread;

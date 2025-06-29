@@ -588,10 +588,12 @@ class Listener : public fit::FileIdMesgListener,
                  public fit::DeviceInfoMesgListener,
                  public fit::MesgListener,
                  public fit::DeveloperFieldDescriptionListener,
-                 public fit::RecordMesgListener {
+                 public fit::RecordMesgListener,
+                 public fit::SessionMesgListener {
   public:
     QList<SessionLine> *sessionOpening = nullptr;
     FIT_SPORT *sport = nullptr;
+    QString *workoutName = nullptr;
 
     static void PrintValues(const fit::FieldBase &field) {
         for (FIT_UINT8 j = 0; j < (FIT_UINT8)field.GetNumValues(); j++) {
@@ -817,6 +819,21 @@ class Listener : public fit::FileIdMesgListener,
         printf("   App Version: %d\n", desc.GetApplicationVersion());
         printf("   Field Number: %d\n", desc.GetFieldDefinitionNumber());
     }
+
+    void OnMesg(fit::SessionMesg &mesg) override {
+        printf("Session Message:\n");
+        if (workoutName != nullptr) {
+            for (auto devField : mesg.GetDeveloperFields()) {
+                std::string fieldName = devField.GetName();
+                if (fieldName == "Activity Title") {
+                    std::wstring wWorkoutName = devField.GetSTRINGValue(0);
+                    *workoutName = QString::fromStdWString(wWorkoutName);
+                    printf("   Found Activity Title: %s\n", workoutName->toStdString().c_str());
+                    break;
+                }
+            }
+        }
+    }
 };
 
 void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *sport) {
@@ -846,6 +863,41 @@ void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *
     mesgBroadcaster.AddListener((fit::MonitoringMesgListener &)listener);
     mesgBroadcaster.AddListener((fit::DeviceInfoMesgListener &)listener);
     mesgBroadcaster.AddListener((fit::RecordMesgListener &)listener);
+    mesgBroadcaster.AddListener((fit::SessionMesgListener &)listener);
+    mesgBroadcaster.AddListener((fit::MesgListener &)listener);
+    decode.Read(&s, &mesgBroadcaster, &mesgBroadcaster, &listener);
+
+    file.close();
+}
+
+void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *sport, QString *workoutName) {
+    std::fstream file;
+#ifdef _WIN32
+    file.open(QString(filename).toLocal8Bit().constData(), std::ios::in | std::ios::binary);
+#else
+    file.open(filename.toStdString(), std::ios::in | std::ios::binary);
+#endif
+
+    if (!file.is_open()) {
+        std::system_error(errno, std::system_category(), "failed to open " + filename.toStdString());
+        qDebug() << "opened " << filename << errno;
+        printf("Error opening file ExampleActivity.fit\n");
+        return;
+    }
+
+    fit::Decode decode;
+    std::istream &s = file;
+    fit::MesgBroadcaster mesgBroadcaster;
+    Listener listener;
+    listener.sport = sport;
+    listener.sessionOpening = output;
+    listener.workoutName = workoutName;
+    mesgBroadcaster.AddListener((fit::FileIdMesgListener &)listener);
+    mesgBroadcaster.AddListener((fit::UserProfileMesgListener &)listener);
+    mesgBroadcaster.AddListener((fit::MonitoringMesgListener &)listener);
+    mesgBroadcaster.AddListener((fit::DeviceInfoMesgListener &)listener);
+    mesgBroadcaster.AddListener((fit::RecordMesgListener &)listener);
+    mesgBroadcaster.AddListener((fit::SessionMesgListener &)listener);
     mesgBroadcaster.AddListener((fit::MesgListener &)listener);
     decode.Read(&s, &mesgBroadcaster, &mesgBroadcaster, &listener);
 

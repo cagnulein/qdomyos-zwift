@@ -27,7 +27,7 @@ void WorkoutLoaderWorker::loadWorkouts() {
     QList<QVariantMap> workouts;
     QSqlDatabase db = QSqlDatabase::database(FitDatabaseProcessor::DB_CONNECTION_NAME + "_worker");
     QSqlQuery query(db);
-    query.prepare("SELECT id, sport_type, start_time, total_time, "
+    query.prepare("SELECT id, sport_type, workout_name, start_time, total_time, "
                   "total_distance, total_calories FROM workouts "
                   "ORDER BY start_time DESC");
 
@@ -59,16 +59,30 @@ void WorkoutLoaderWorker::loadWorkouts() {
         workout["distance"] = query.value("total_distance").toDouble();
         workout["calories"] = query.value("total_calories");
 
-               // Generate title based on sport type
-        QString sportName;
-        switch (query.value("sport_type").toInt()) {
-        case 0: sportName = "Treadmill"; break;
-        case 1: sportName = "Bike"; break;
-        case 2: sportName = "Elliptical"; break;
-        case 3: sportName = "Rowing"; break;
-        default: sportName = "Workout"; break;
+        // Use workout name from database if available, otherwise generate fallback
+        QString workoutName = query.value("workout_name").toString();
+        if (workoutName.isEmpty()) {
+            QString sportName;
+            int sportType = query.value("sport_type").toInt();
+            switch (sportType) {
+            case 1:  // FIT_SPORT_RUNNING
+            case 11: // FIT_SPORT_WALKING
+                sportName = "Run"; break;
+            case 2:  // FIT_SPORT_CYCLING
+                sportName = "Ride"; break;
+            case 4:  // FIT_SPORT_FITNESS_EQUIPMENT (Elliptical)
+                sportName = "Elliptical"; break;
+            case 15: // FIT_SPORT_ROWING
+                sportName = "Row"; break;
+            case 84: // FIT_SPORT_JUMPROPE
+                sportName = "Jump Rope"; break;
+            default: sportName = "Workout"; break;
+            }
+            
+            int totalMinutes = query.value("total_time").toInt() / 60;
+            workoutName = QString("%1 minutes %2").arg(totalMinutes).arg(sportName);
         }
-        workout["title"] = QString("%1 Workout").arg(sportName);
+        workout["title"] = workoutName;
 
         workouts.append(workout);
     }

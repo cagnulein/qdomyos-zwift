@@ -52,6 +52,7 @@ bool FitDatabaseProcessor::initializeDatabase() {
                     "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     "file_hash TEXT UNIQUE,"
                     "file_path TEXT,"
+                    "workout_name TEXT,"
                     "sport_type INTEGER,"
                     "start_time DATETIME,"
                     "end_time DATETIME,"
@@ -79,6 +80,9 @@ bool FitDatabaseProcessor::initializeDatabase() {
 
     // Create index for better performance
     query.exec("CREATE INDEX IF NOT EXISTS idx_workout_start_time ON workouts(start_time)");
+
+    // Add workout_name column if it doesn't exist (for existing databases)
+    query.exec("ALTER TABLE workouts ADD COLUMN workout_name TEXT");
 
     return db.commit();
 }
@@ -132,6 +136,8 @@ bool FitDatabaseProcessor::isFileProcessed(const QString& filePath) {
 bool FitDatabaseProcessor::saveWorkout(const QString& filePath,
                                        const QList<SessionLine>& session,
                                        FIT_SPORT sport,
+                                       const QString& workoutName,
+                                       int elapsedSeconds,
                                        qint64& workoutId) {
     if (session.isEmpty()) {
         return false;
@@ -194,21 +200,22 @@ bool FitDatabaseProcessor::saveWorkout(const QString& filePath,
 
     QSqlQuery query(db);
     query.prepare("INSERT INTO workouts ("
-                  "file_hash, file_path, sport_type, start_time, end_time, "
+                  "file_hash, file_path, workout_name, sport_type, start_time, end_time, "
                   "total_time, total_distance, total_calories, "
                   "avg_heart_rate, max_heart_rate, avg_cadence, max_cadence, "
                   "avg_speed, max_speed, avg_power, max_power, "
                   "total_ascent, total_descent, avg_stride_length, total_strides"
                   ") VALUES ("
-                  "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
+                  "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
                   ")");
 
     query.addBindValue(fileHash);
     query.addBindValue(filePath);
+    query.addBindValue(workoutName);
     query.addBindValue(static_cast<int>(sport));
     query.addBindValue(session.first().time);
     query.addBindValue(session.last().time);
-    query.addBindValue(session.last().elapsedTime);
+    query.addBindValue(elapsedSeconds);
     query.addBindValue(totalDistance);
     query.addBindValue(session.last().calories);
     query.addBindValue(hrCount > 0 ? totalHr / hrCount : 0);
@@ -240,19 +247,66 @@ bool FitDatabaseProcessor::processFitFile(const QString& filePath) {
 
     QList<SessionLine> session;
     FIT_SPORT sport = FIT_SPORT_INVALID;
+    QString workoutName = "";  // Initialize to empty string
 
     try {
-        qfit::open(filePath, &session, &sport);
+        qfit::open(filePath, &session, &sport, &workoutName);
 
         if (session.isEmpty()) {
             emit error("No data found in file: " + filePath);
             return false;
         }
 
+        // Debug logging
+        qDebug() << "Processing FIT file:" << filePath;
+        qDebug() << "Sport type detected:" << static_cast<int>(sport);
+        qDebug() << "Session duration (elapsedTime):" << session.last().elapsedTime;
+        qDebug() << "Workout name from FIT:" << workoutName;
+
+        // Validate elapsed time (should be reasonable, between 1 minute and 24 hours)
+        int elapsedSeconds = session.last().elapsedTime;
+        if (elapsedSeconds < 60 || elapsedSeconds > 86400) {
+            qDebug() << "Warning: Unusual elapsed time detected:" << elapsedSeconds << "seconds. Using session duration calculation.";
+            // Calculate duration from first to last record
+            elapsedSeconds = session.first().time.secsTo(session.last().time);
+            if (elapsedSeconds < 60 || elapsedSeconds > 86400) {
+                qDebug() << "Warning: Still unusual duration. Setting to 1 minute minimum.";
+                elapsedSeconds = qMax(60, qMin(86400, elapsedSeconds));
+            }
+        }
+
+        // Generate fallback workout name based on sport and duration if not found in FIT file
+        if (workoutName.isEmpty()) {
+            QString sportName;
+            switch (sport) {
+            case FIT_SPORT_RUNNING:
+            case FIT_SPORT_WALKING:
+                sportName = "Run";
+                break;
+            case FIT_SPORT_CYCLING:
+                sportName = "Ride";
+                break;
+            case FIT_SPORT_FITNESS_EQUIPMENT:
+                sportName = "Elliptical";
+                break;
+            case FIT_SPORT_ROWING:
+                sportName = "Row";
+                break;
+            default:
+                sportName = "Workout";
+                qDebug() << "Unknown sport type, using default. Sport value:" << static_cast<int>(sport);
+                break;
+            }
+            
+            int totalMinutes = elapsedSeconds / 60;
+            workoutName = QString("%1 minutes %2").arg(totalMinutes).arg(sportName);
+            qDebug() << "Generated fallback workout name:" << workoutName;
+        }
+
         db.transaction();
 
         qint64 workoutId;
-        if (!saveWorkout(filePath, session, sport, workoutId)) {
+        if (!saveWorkout(filePath, session, sport, workoutName, elapsedSeconds, workoutId)) {
             db.rollback();
             return false;
         }
