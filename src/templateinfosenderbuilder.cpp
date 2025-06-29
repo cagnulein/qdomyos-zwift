@@ -1193,6 +1193,25 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *sessio
 void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport, const QString &workoutName) {
     clearPreviewSessionArray();
     buildContext(true);
+    
+    // Pre-calculate stats for performance
+    double avgWatts = 0, maxWatts = 0, avgHeart = 0, maxHeart = 0, avgSpeed = 0, maxSpeed = 0, avgCadence = 0, maxCadence = 0;
+    double totalWatts = 0, totalHeart = 0, totalSpeed = 0, totalCadence = 0;
+    int validWatts = 0, validHeart = 0, validSpeed = 0, validCadence = 0;
+    
+    // Single optimized pass
+    for (const SessionLine &s : *session) {
+        if (s.watt > 0) { totalWatts += s.watt; validWatts++; maxWatts = qMax((double)s.watt, maxWatts); }
+        if (s.heart > 0) { totalHeart += s.heart; validHeart++; maxHeart = qMax((double)s.heart, maxHeart); }
+        if (s.speed > 0) { totalSpeed += s.speed; validSpeed++; maxSpeed = qMax(s.speed, maxSpeed); }
+        if (s.cadence > 0) { totalCadence += s.cadence; validCadence++; maxCadence = qMax((double)s.cadence, maxCadence); }
+    }
+    
+    avgWatts = validWatts > 0 ? totalWatts / validWatts : 0;
+    avgHeart = validHeart > 0 ? totalHeart / validHeart : 0;
+    avgSpeed = validSpeed > 0 ? totalSpeed / validSpeed : 0;
+    avgCadence = validCadence > 0 ? totalCadence / validCadence : 0;
+    
     QJSValue glob = engine->globalObject();
     QJSValue obj;
     QSettings settings;
@@ -1227,18 +1246,17 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *sessio
         obj.setProperty(QStringLiteral("moving_m"), el.minute());
         obj.setProperty(QStringLiteral("moving_h"), el.hour());*/
         obj.setProperty(QStringLiteral("speed"), s.speed);
-        // obj.setProperty(QStringLiteral("speed_avg"), dep.average());
+        obj.setProperty(QStringLiteral("speed_avg"), avgSpeed);
+        obj.setProperty(QStringLiteral("speed_max"), maxSpeed);
         obj.setProperty(QStringLiteral("calories"), s.calories);
         obj.setProperty(QStringLiteral("distance"), s.distance);
         obj.setProperty(QStringLiteral("heart"), s.heart);
-        // obj.setProperty(QStringLiteral("heart_avg"), dep.average());
-        // obj.setProperty(QStringLiteral("heart_max"), dep.max());
-        // obj.setProperty(QStringLiteral("jouls"), device->jouls().value());
+        obj.setProperty(QStringLiteral("heart_avg"), avgHeart);
+        obj.setProperty(QStringLiteral("heart_max"), maxHeart);
         obj.setProperty(QStringLiteral("elevation"), s.elevationGain);
-        // obj.setProperty(QStringLiteral("difficult"), device->difficult());
         obj.setProperty(QStringLiteral("watts"), s.watt);
-        // obj.setProperty(QStringLiteral("watts_avg"), dep.average());
-        // obj.setProperty(QStringLiteral("watts_max"), dep.max());
+        obj.setProperty(QStringLiteral("watts_avg"), avgWatts);
+        obj.setProperty(QStringLiteral("watts_max"), maxWatts);
         // obj.setProperty(QStringLiteral("kgwatts"), (dep = device->wattKg()).value());
         // obj.setProperty(QStringLiteral("kgwatts_avg"), dep.average());
         // obj.setProperty(QStringLiteral("kgwatts_max"), dep.max());
@@ -1260,7 +1278,8 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *sessio
             //               (dep = ((bike *)device)->lastRequestedPelotonResistance()).value());
             // obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
             obj.setProperty(QStringLiteral("cadence"), s.cadence);
-            // obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
+            obj.setProperty(QStringLiteral("cadence_avg"), avgCadence);
+            obj.setProperty(QStringLiteral("cadence_max"), maxCadence);
             obj.setProperty(QStringLiteral("resistance"), s.resistance);
             // obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
             // obj.setProperty(QStringLiteral("cranks"), ((bike *)device)->currentCrankRevolutions());
@@ -1274,7 +1293,8 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *sessio
             //               (dep = ((rower *)device)->pelotonResistance()).value());
             // obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
             obj.setProperty(QStringLiteral("cadence"), s.cadence);
-            // obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
+            obj.setProperty(QStringLiteral("cadence_avg"), avgCadence);
+            obj.setProperty(QStringLiteral("cadence_max"), maxCadence);
             obj.setProperty(QStringLiteral("resistance"), s.resistance);
             // obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
             // obj.setProperty(QStringLiteral("cranks"), ((rower *)device)->currentCrankRevolutions());

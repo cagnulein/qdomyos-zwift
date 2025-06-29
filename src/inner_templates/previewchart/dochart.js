@@ -148,6 +148,36 @@ function process_arr(arr) {
     $('.watts_max').text('Watt MAX: ' + watts_max);
     $('.heart_avg').text('Heart Rate AVG: ' + Math.floor(heart_avg));
     $('.heart_max').text('Heart Rate MAX: ' + heart_max);
+    
+    // Update summary table - simplified for performance
+    var totalDistance = arr.length > 0 ? arr[arr.length - 1].distance : 0;
+    var totalCalories = arr.length > 0 ? Math.round(arr[arr.length - 1].calories) : 0;
+    
+    // Use simple array calculations
+    var cadenceSum = 0, resistanceSum = 0;
+    var validCadence = 0, validResistance = 0;
+    
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].cadence > 0) {
+            cadenceSum += arr[i].cadence;
+            validCadence++;
+        }
+        if (arr[i].resistance > 0) {
+            resistanceSum += arr[i].resistance;
+            validResistance++;
+        }
+    }
+    
+    var avgCadence = validCadence > 0 ? Math.round(cadenceSum / validCadence) : 0;
+    var avgResistance = validResistance > 0 ? Math.round(resistanceSum / validResistance) : 0;
+    var totalJouls = watts_avg > 0 ? ((watts_avg * arr.length) / 1000).toFixed(1) : 0;
+    
+    $('.summary_watts_avg').text(Math.floor(watts_avg) + ' W');
+    $('.summary_jouls').text(totalJouls + ' kJ');
+    $('.summary_calories').text(totalCalories + ' kcal');
+    $('.summary_distance').text(totalDistance.toFixed(2) + ' km');
+    $('.summary_cadence_avg').text(avgCadence + ' rpm');
+    $('.summary_resistance_avg').text(avgResistance + ' lvl');
 
     const backgroundFill = {
       id: 'custom_canvas_background_color',
