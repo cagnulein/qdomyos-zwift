@@ -579,6 +579,15 @@ void virtualtreadmill::treadmillProvider() {
 
         if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
             writeP2AD9->changeSlope(h->virtualtreadmill_getCurrentSlope(), 0, 0);
+        
+        // Check for requested speed from FTMS and apply it
+        double requestedSpeed = h->virtualtreadmill_getRequestedSpeed();
+        if (requestedSpeed > 0 && requestedSpeed != treadMill->currentSpeed().value()) {
+            if (treadMill->deviceType() == bluetoothdevice::TREADMILL) {
+                ((treadmill *)treadMill)->changeSpeed(requestedSpeed);
+                qDebug() << "virtualtreadmill: Applied requested speed from FTMS:" << requestedSpeed;
+            }
+        }
         }
         return;
     }

@@ -216,6 +216,15 @@ double lockscreen::virtualtreadmill_getPowerRequested()
     return 0;
 }
 
+double lockscreen::virtualtreadmill_getRequestedSpeed()
+{
+    if(_virtualtreadmill_zwift != nil)
+    {
+        return [_virtualtreadmill_zwift readRequestedSpeed];
+    }
+    return 0;
+}
+
 bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, unsigned short elapsedSeconds)
 {
     if(_virtualtreadmill_zwift != nil)

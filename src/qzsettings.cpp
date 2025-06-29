@@ -71,6 +71,7 @@ const QString QZSettings::pause_on_start_treadmill = QStringLiteral("pause_on_st
 const QString QZSettings::continuous_moving = QStringLiteral("continuous_moving");
 const QString QZSettings::bike_cadence_sensor = QStringLiteral("bike_cadence_sensor");
 const QString QZSettings::run_cadence_sensor = QStringLiteral("run_cadence_sensor");
+const QString QZSettings::rogue_echo_bike = QStringLiteral("rogue_echo_bike");
 const QString QZSettings::bike_power_sensor = QStringLiteral("bike_power_sensor");
 const QString QZSettings::heart_rate_belt_name = QStringLiteral("heart_rate_belt_name");
 const QString QZSettings::default_heart_rate_belt_name = QStringLiteral("Disabled");
@@ -940,7 +941,7 @@ const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("
 const QString QZSettings::floatingwindow_type = QStringLiteral("floatingwindow_type");
 
 
-const uint32_t allSettingsCount = 768;
+const uint32_t allSettingsCount = 769;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1729,6 +1730,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_elite_800, QZSettings::default_nordictrack_elite_800},
     {QZSettings::inclinationResistancePoints, QZSettings::default_inclinationResistancePoints},
     {QZSettings::floatingwindow_type, QZSettings::default_floatingwindow_type},
+    {QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

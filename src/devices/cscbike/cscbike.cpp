@@ -72,7 +72,15 @@ void cscbike::update() {
         }
     }
 
-    m_watt = wattFromHR(false);
+    QSettings settings;
+    bool rogue_echo_bike = settings.value(QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike).toBool();
+    
+    if (rogue_echo_bike) {
+        double rpm = currentCadence().value();
+        m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404;
+    } else {
+        m_watt = wattFromHR(false);
+    }
     emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
