@@ -8,6 +8,7 @@
 WorkoutModel::WorkoutModel(const QString& dbPath, QObject *parent)
     : QAbstractListModel(parent)
     , m_isLoading(false)
+    , m_isDatabaseProcessing(true)
     , m_dbPath(dbPath)
 {
     // Create main database connection
@@ -65,6 +66,17 @@ void WorkoutModel::onWorkoutsLoaded(const QList<QVariantMap>& workouts) {
 
 bool WorkoutModel::isLoading() const {
     return m_isLoading;
+}
+
+bool WorkoutModel::isDatabaseProcessing() const {
+    return m_isDatabaseProcessing;
+}
+
+void WorkoutModel::setDatabaseProcessing(bool processing) {
+    if (m_isDatabaseProcessing != processing) {
+        m_isDatabaseProcessing = processing;
+        emit databaseProcessingChanged();
+    }
 }
 
 bool WorkoutModel::deleteWorkout(int workoutId) {

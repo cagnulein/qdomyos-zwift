@@ -1187,6 +1187,10 @@ void TemplateInfoSenderBuilder::workoutEventStateChanged(bluetoothdevice::WORKOU
 }
 
 void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport) {
+    previewSessionOnChart(session, sport, "");
+}
+
+void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport, const QString &workoutName) {
     clearPreviewSessionArray();
     buildContext(true);
     QJSValue glob = engine->globalObject();
@@ -1238,9 +1242,9 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *sessio
         // obj.setProperty(QStringLiteral("kgwatts"), (dep = device->wattKg()).value());
         // obj.setProperty(QStringLiteral("kgwatts_avg"), dep.average());
         // obj.setProperty(QStringLiteral("kgwatts_max"), dep.max());
-        // obj.setProperty(QStringLiteral("workoutName"), workoutName);
-        // obj.setProperty(QStringLiteral("workoutStartDate"), workoutStartDate);
-        // obj.setProperty(QStringLiteral("instructorName"), instructorName);
+        obj.setProperty(QStringLiteral("workoutName"), workoutName.isEmpty() ? "FIT Workout" : workoutName);
+        obj.setProperty(QStringLiteral("workoutStartDate"), s.time.toString());
+        obj.setProperty(QStringLiteral("instructorName"), ""); // TODO: Extract from FIT file when available
         obj.setProperty(QStringLiteral("latitude"), s.coordinate.latitude());
         obj.setProperty(QStringLiteral("longitude"), s.coordinate.longitude());
         obj.setProperty(QStringLiteral("altitude"), s.coordinate.altitude());
@@ -1289,4 +1293,5 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *sessio
         }
         previewSessionArray.append(QJsonObject::fromVariantMap(obj.toVariant().toMap()));
     }
+    qDebug() << "previewSessionOnChart: Added" << previewSessionArray.size() << "elements to preview array";
 }

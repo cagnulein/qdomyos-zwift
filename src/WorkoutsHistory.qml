@@ -50,8 +50,18 @@ Page {
         BusyIndicator {
             id: loadingIndicator
             Layout.alignment: Qt.AlignHCenter
-            visible: workoutModel ? workoutModel.isLoading : false
+            visible: workoutModel ? (workoutModel.isLoading || workoutModel.isDatabaseProcessing) : false
             running: visible
+        }
+        
+        // Database processing message
+        Text {
+            Layout.alignment: Qt.AlignHCenter
+            visible: workoutModel ? workoutModel.isDatabaseProcessing : false
+            text: "Processing workout files...\nThis may take a few moments on first startup."
+            horizontalAlignment: Text.AlignHCenter
+            color: "#666666"
+            font.pixelSize: 16
         }
 
         // Workout List
@@ -169,11 +179,17 @@ Page {
                 }
 
                 onClicked: {
+                    console.log("Workout clicked, ID:", model.id)
+                    
                     // Get workout details from the model
                     var details = workoutModel.getWorkoutDetails(model.id)
+                    console.log("Workout details:", JSON.stringify(details))
 
                     // Emit signal with file URL for chart preview
-                    workoutHistoryPage.fitfile_preview_clicked(details.filePath)
+                    console.log("Emitting fitfile_preview_clicked with path:", details.filePath)
+                    var fileUrl = Qt.resolvedUrl("file://" + details.filePath)
+                    console.log("Converted to URL:", fileUrl)
+                    workoutHistoryPage.fitfile_preview_clicked(fileUrl)
 
                     // Push the ChartJsTest view
                     stackView.push("PreviewChart.qml")

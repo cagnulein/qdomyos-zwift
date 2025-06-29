@@ -698,14 +698,16 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             this, [](const QString& error) {
                 qDebug() << "FitDatabaseProcessor Error:" << error;
             });
+    WorkoutModel* workoutModel = new WorkoutModel(getWritableAppDir() + "ddb.sqlite");
+    engine->rootContext()->setContextProperty("workoutModel", workoutModel);
+    
     connect(processor, &FitDatabaseProcessor::processingStopped,
-            this, []() {
-                qDebug() << "FitDatabaseProcessor Processing stopped";
+            this, [workoutModel]() {
+                qDebug() << "FitDatabaseProcessor Processing stopped - refreshing workout model";
+                workoutModel->setDatabaseProcessing(false);
+                workoutModel->refresh();
             });
     processor->processDirectory(getWritableAppDir() + "fit");
-
-    WorkoutModel* workoutModel = new WorkoutModel(getWritableAppDir() + "ddb.sqlite");;
-    engine->rootContext()->setContextProperty("workoutModel", workoutModel);
 
     m_speech.setLocale(QLocale::English);
 
@@ -7313,17 +7315,29 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
 }
 
 void homeform::fitfile_preview_clicked(const QUrl &fileName) {
-    qDebug() << QStringLiteral("fitfile_preview_clicked") << fileName;
+    qDebug() << QStringLiteral("fitfile_preview_clicked called with URL:") << fileName;
+    qDebug() << QStringLiteral("URL toString:") << fileName.toString();
+    qDebug() << QStringLiteral("URL toLocalFile:") << fileName.toLocalFile();
 
-    QFile file(getWritableAppDir() + "fit/" + fileName.fileName());
-    qDebug() << file.fileName();
+    // Use the full file path directly instead of reconstructing it
+    QString filePath = fileName.toLocalFile();
+    QFile file(filePath);
+    qDebug() << "Opening FIT file:" << filePath;
 
-    if (!file.fileName().isEmpty()) {
+    if (file.exists()) {
         QList<SessionLine> a;
         FIT_SPORT sport;
-        qfit::open(file.fileName(), &a, &sport);
-        this->innerTemplateManager->previewSessionOnChart(&a, sport);
-        emit previewFitFile(fileName.toLocalFile(), QTime(0,0,0,0).addSecs(a.last().elapsedTime).toString());
+        QString workoutName;
+        qfit::open(filePath, &a, &sport, &workoutName);
+        qDebug() << "FIT file read:" << a.size() << "records, sport:" << sport << "workoutName:" << workoutName;
+        if (!a.isEmpty()) {
+            this->innerTemplateManager->previewSessionOnChart(&a, sport);
+            emit previewFitFile(filePath, QTime(0,0,0,0).addSecs(a.last().elapsedTime).toString());
+        } else {
+            qDebug() << "No data read from FIT file";
+        }
+    } else {
+        qDebug() << "FIT file does not exist:" << filePath;
     }
 }
 

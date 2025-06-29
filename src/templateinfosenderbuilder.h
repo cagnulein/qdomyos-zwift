@@ -24,6 +24,7 @@ class TemplateInfoSenderBuilder : public QObject {
     ~TemplateInfoSenderBuilder();
 
     void previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport);
+    void previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport, const QString &workoutName);
   signals:
     void activityDescriptionChanged(QString newDescription);
     void chartSaved(QString filename);

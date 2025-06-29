@@ -11,6 +11,7 @@ class WorkoutLoaderWorker;
 class WorkoutModel : public QAbstractListModel {
     Q_OBJECT
     Q_PROPERTY(bool isLoading READ isLoading NOTIFY loadingStatusChanged)
+    Q_PROPERTY(bool isDatabaseProcessing READ isDatabaseProcessing NOTIFY databaseProcessingChanged)
 
   public:
     enum WorkoutRoles {
@@ -35,10 +36,15 @@ class WorkoutModel : public QAbstractListModel {
     Q_INVOKABLE bool deleteWorkout(int workoutId);
 
     bool isLoading() const;
+    bool isDatabaseProcessing() const;
+
+  public slots:
+    void setDatabaseProcessing(bool processing);
 
   signals:
     void loadWorkoutsRequested();
     void loadingStatusChanged();
+    void databaseProcessingChanged();
 
   private slots:
     void onWorkoutsLoaded(const QList<QVariantMap>& workouts);
@@ -49,6 +55,7 @@ class WorkoutModel : public QAbstractListModel {
     QThread* m_workerThread;
     WorkoutLoaderWorker* m_worker;
     bool m_isLoading;
+    bool m_isDatabaseProcessing;
     QString m_dbPath;
 };
 

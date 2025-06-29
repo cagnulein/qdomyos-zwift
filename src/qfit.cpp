@@ -715,8 +715,6 @@ class Listener : public fit::FileIdMesgListener,
             printf("   Activity type: %d\n", mesg.GetActivityType());
         }
 
-        if (sport != nullptr)
-            *sport = mesg.GetActivityType();
 
         switch (mesg.GetActivityType()) // The Cycling field is dynamic
         {
@@ -822,6 +820,13 @@ class Listener : public fit::FileIdMesgListener,
 
     void OnMesg(fit::SessionMesg &mesg) override {
         printf("Session Message:\n");
+        
+        // Extract sport type from SessionMesg
+        if (sport != nullptr && mesg.IsSportValid()) {
+            *sport = mesg.GetSport();
+            printf("   Sport type from session: %d\n", static_cast<int>(*sport));
+        }
+        
         if (workoutName != nullptr) {
             for (auto devField : mesg.GetDeveloperFields()) {
                 std::string fieldName = devField.GetName();
@@ -829,7 +834,11 @@ class Listener : public fit::FileIdMesgListener,
                     std::wstring wWorkoutName = devField.GetSTRINGValue(0);
                     *workoutName = QString::fromStdWString(wWorkoutName);
                     printf("   Found Activity Title: %s\n", workoutName->toStdString().c_str());
-                    break;
+                } else if (fieldName == "Instructor Name" || fieldName == "Coach Name") {
+                    // Future: handle instructor name if needed
+                    printf("   Found Instructor/Coach field: %s\n", fieldName.c_str());
+                } else if (!fieldName.empty()) {
+                    printf("   Other developer field: %s\n", fieldName.c_str());
                 }
             }
         }
