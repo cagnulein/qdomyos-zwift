@@ -79,7 +79,6 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
                 this->signalBluetoothDeviceConnected(nordictrackifitadbBike);
             }  
         });
-        return;
     }
 
 #ifdef TEST
