@@ -162,6 +162,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Write(fileIdMesg);
     encode.Write(userMesg);
 
+    // Declare developer field descriptions (but don't write them yet)
     fit::FieldDescriptionMesg activityTitle;
     activityTitle.SetDeveloperDataIndex(0);
     activityTitle.SetFieldDefinitionNumber(0);
@@ -169,7 +170,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     activityTitle.SetFieldName(0, L"Activity Title");
     activityTitle.SetUnits(0, L"Title");
     activityTitle.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
-    encode.Write(activityTitle);
 
     fit::FieldDescriptionMesg targetCadenceMesg;
     targetCadenceMesg.SetDeveloperDataIndex(0);
@@ -178,7 +178,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     targetCadenceMesg.SetFieldName(0, L"Target Cadence");
     targetCadenceMesg.SetUnits(0, L"rpm");
     targetCadenceMesg.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
-    encode.Write(targetCadenceMesg);
 
     fit::FieldDescriptionMesg targetWattMesg;
     targetWattMesg.SetDeveloperDataIndex(0);
@@ -187,7 +186,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     targetWattMesg.SetFieldName(0, L"Target Watt");
     targetWattMesg.SetUnits(0, L"watts");
     targetWattMesg.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
-    encode.Write(targetWattMesg);
 
     fit::FieldDescriptionMesg targetResistanceMesg;
     targetResistanceMesg.SetDeveloperDataIndex(0);
@@ -196,7 +194,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     targetResistanceMesg.SetFieldName(0, L"Target Resistance");
     targetResistanceMesg.SetUnits(0, L"resistance");
     targetResistanceMesg.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
-    encode.Write(targetResistanceMesg);
 
     fit::FieldDescriptionMesg ftpSessionMesg;
     ftpSessionMesg.SetDeveloperDataIndex(0);
@@ -205,7 +202,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     ftpSessionMesg.SetFieldName(0, L"FTP");
     ftpSessionMesg.SetUnits(0, L"FTP");
     ftpSessionMesg.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
-    encode.Write(ftpSessionMesg);
 
     fit::SessionMesg sessionMesg;
     sessionMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
@@ -365,6 +361,14 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     eventMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     encode.Write(fileCreatorMesg);
     encode.Write(devIdMesg);
+    
+    // Write developer field descriptions (declared earlier)
+    encode.Write(activityTitle);
+    encode.Write(targetCadenceMesg);
+    encode.Write(targetWattMesg);
+    encode.Write(targetResistanceMesg);
+    encode.Write(ftpSessionMesg);
+    
     encode.Write(coreTemperatureFieldDesc);
     encode.Write(skinTemperatureFieldDesc);
     encode.Write(heatStrainIndexFieldDesc);
