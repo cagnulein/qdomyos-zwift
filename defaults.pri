@@ -10,6 +10,6 @@ INCLUDEPATH += $$PWD/src/qmdnsengine/src/include
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/src/android
 
-ANDROID_ABIS = armeabi-v7a arm64-v8a
+ANDROID_ABIS = arm64-v8a
 
 #QMAKE_CXXFLAGS += -Werror=suggest-override
