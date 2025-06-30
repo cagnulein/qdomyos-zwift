@@ -309,7 +309,7 @@ import Qt.labs.platform 1.1
             property bool horizon_paragon_x: false
 
             // from version 2.10.18
-            property real treadmill_step_speed: 0.5
+            property real treadmill_step_speed: 0.1
             property real treadmill_step_incline: 0.5
 
             // from version 2.10.19
@@ -918,7 +918,7 @@ import Qt.labs.platform 1.1
 
             // from version 2.16.45
             property bool toorx_srx_3500: false  
-            property real inclination_delay_seconds: 0.0
+            property real inclination_delay_seconds: 3.0
 
             // from version 2.16.47
             property string ergDataPoints: ""

@@ -1,0 +1,15 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.user";
+option java_outer_classname = "AddressProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message Address {
+  string address = 1;
+  string address2 = 2;
+  string city = 3;
+  string state = 4;
+  string country = 5;
+  string zip = 6;
+}
