@@ -708,7 +708,7 @@ void eslinkertreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotifyCharacteristic.isValid());
 
-        qDebug() << gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteWithoutResponse;
+        qDebug() << (gattWriteCharacteristic.properties() & QLowEnergyService::WriteWithoutResponse);
 
         // establish hook into notifications
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
