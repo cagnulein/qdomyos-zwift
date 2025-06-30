@@ -700,7 +700,7 @@ void nordictrackifitadbbike::update() {
             }
             requestInclination = -100;
             requestResistance = -1;
-        } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
+        } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && !nordictrackadbbike_resistance) {
             // in order to send the new gear value ASAP (similar to tacxneo2)
             setGrpcIncline(lastRawRequestedInclinationValue + gears());
             requestResistance = -1;
