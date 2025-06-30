@@ -6,7 +6,6 @@
 #include <ostream>
 #include <QDir>
 
-#include "QSettings"
 
 #include "fit_date_time.hpp"
 #include "fit_encode.hpp"
@@ -312,7 +311,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
            // Create developer field descriptions for custom temperature fields
     fit::FieldDescriptionMesg coreTemperatureFieldDesc;
     coreTemperatureFieldDesc.SetDeveloperDataIndex(0);
-    coreTemperatureFieldDesc.SetFieldDefinitionNumber(0);
+    coreTemperatureFieldDesc.SetFieldDefinitionNumber(5);
     coreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
     coreTemperatureFieldDesc.SetFieldName(0, L"core_temperature");
     coreTemperatureFieldDesc.SetUnits(0, L"°C");
@@ -321,7 +320,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
     fit::FieldDescriptionMesg skinTemperatureFieldDesc;
     skinTemperatureFieldDesc.SetDeveloperDataIndex(0);
-    skinTemperatureFieldDesc.SetFieldDefinitionNumber(1);
+    skinTemperatureFieldDesc.SetFieldDefinitionNumber(6);
     skinTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
     skinTemperatureFieldDesc.SetFieldName(0, L"skin_temperature");
     skinTemperatureFieldDesc.SetUnits(0, L"°C");
@@ -330,7 +329,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
     fit::FieldDescriptionMesg heatStrainIndexFieldDesc;
     heatStrainIndexFieldDesc.SetDeveloperDataIndex(0);
-    heatStrainIndexFieldDesc.SetFieldDefinitionNumber(2);
+    heatStrainIndexFieldDesc.SetFieldDefinitionNumber(7);
     heatStrainIndexFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
     heatStrainIndexFieldDesc.SetFieldName(0, L"heat_strain_index");
     heatStrainIndexFieldDesc.SetUnits(0, L"a.u.");
@@ -364,9 +363,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     eventMesg.SetData(0);
     eventMesg.SetEventGroup(0);
     eventMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
-
-    encode.Open(file);
-    encode.Write(fileIdMesg);
     encode.Write(fileCreatorMesg);
     encode.Write(devIdMesg);
     encode.Write(coreTemperatureFieldDesc);
@@ -568,8 +564,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_SESSION_END);
     lapMesg.SetMessageIndex(lap_index++);
     encode.Write(lapMesg);
-    encode.Write(sessionMesg);
-    encode.Write(activityMesg);
 
     if (!encode.Close()) {
 
