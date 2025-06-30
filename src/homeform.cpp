@@ -1110,10 +1110,7 @@ void homeform::backup() {
         QString filename = path + QString::number(index) + backupFitFileName;
         QFile::remove(filename);
         qfit::save(filename, Session, dev->deviceType(),
-#ifndef NO_NORDICTRACK
-                   qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE :
-#endif
-                       QFIT_PROCESS_NONE,
+                   qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
                    stravaPelotonWorkoutType, dev->bluetoothDevice.name());
 
         index++;
@@ -4829,13 +4826,11 @@ void homeform::handleRestoreDefaultWheelDiameter() {
     if (bluetoothManager && bluetoothManager->device() &&
         bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
 
-#ifndef NO_NORDICTRACK
         // Controlla se il dispositivo è un wahookickrsnapbike
         wahookickrsnapbike* kickrBike = dynamic_cast<wahookickrsnapbike*>(bluetoothManager->device());
         if (kickrBike) {
             kickrBike->restoreDefaultWheelDiameter();
         }
-#endif
     }
 }
 
@@ -5361,7 +5356,6 @@ void homeform::update() {
                 qDebug() << QStringLiteral("autoStartWhenSpeedIsGreaterThenZero!");
                 Start_inner(false);
             }
-#ifndef NO_NORDICTRACK
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::STAIRCLIMBER) {
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             stepCount = ((stairclimber *)bluetoothManager->device())->currentStepCount().value();
@@ -5467,7 +5461,6 @@ void homeform::update() {
                 this->target_zone->setValue(tr("N/A"));
                 break;
             }
-#endif
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
 
             bool pelotoncadence =
@@ -5692,7 +5685,7 @@ void homeform::update() {
                     this->pace->setValueFontColor(QStringLiteral("red"));
                 }
             }
-#ifndef NO_NORDICTRACK
+
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::JUMPROPE) {
                 odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
                 if (bluetoothManager->device()->currentSpeed().value()) {
@@ -5724,7 +5717,7 @@ void homeform::update() {
                 // Sequence of jumps resetted and number of jumps > 0, so i have to start a new lap
                 if(inclination == 0 && ((jumprope *)bluetoothManager->device())->JumpsCount.lapValue() > 0)
                     lapTrigger = true;
-#endif
+
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
 
             if (((elliptical *)bluetoothManager->device())->currentSpeed().value() > 2)
@@ -7176,10 +7169,7 @@ void homeform::fit_save_clicked() {
             workoutName = stravaPelotonActivityName + " - " + stravaPelotonInstructorName;
 
         qfit::save(filename, Session, dev->deviceType(),
-                   #ifndef NO_NORDICTRACK
-                   qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE :
-#endif
-                       QFIT_PROCESS_NONE,
+                   qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
                    stravaPelotonWorkoutType, workoutName, dev->bluetoothDevice.name());
         lastFitFileSaved = filename;
 
