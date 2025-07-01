@@ -2,7 +2,7 @@
 #define QZSETTINGS_H
 
 #include <QString>
-#include "fit_profile.hpp"
+#include "fit-sdk/fit_profile.hpp"
 
 class QZSettings {
   private:
