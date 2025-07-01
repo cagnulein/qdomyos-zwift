@@ -2,6 +2,7 @@
 #define QZSETTINGS_H
 
 #include <QString>
+#include "fit-sdk/fit_profile.hpp"
 
 class QZSettings {
   private:
@@ -2287,6 +2288,9 @@ class QZSettings {
 
     static const QString fit_file_garmin_device_training_effect;
     static constexpr bool default_fit_file_garmin_device_training_effect = false;
+
+    static const QString fit_file_garmin_device_training_effect_device;
+    static constexpr int default_fit_file_garmin_device_training_effect_device = FIT_GARMIN_PRODUCT_EDGE_830;
 
     static const QString proform_treadmill_705_cst_V80_44;
     static constexpr bool default_proform_treadmill_705_cst_V80_44 = false;
