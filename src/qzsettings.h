@@ -2,6 +2,7 @@
 #define QZSETTINGS_H
 
 #include <QString>
+#include "fit-sdk/fit_profile.hpp"
 
 class QZSettings {
   private:
@@ -249,6 +250,9 @@ class QZSettings {
 
     static const QString run_cadence_sensor;
     static constexpr bool default_run_cadence_sensor = false;
+
+    static const QString rogue_echo_bike;
+    static constexpr bool default_rogue_echo_bike = false;
 
     static const QString bike_power_sensor;
     static constexpr bool default_bike_power_sensor = false;
@@ -681,8 +685,8 @@ class QZSettings {
     static const QString proform_treadmill_carbon_tls;
     static constexpr bool default_proform_treadmill_carbon_tls = false;
 
-    // static const QString proform_treadmill_995i;
-    // static constexpr bool default_proform_treadmill_995i = false;
+    static const QString proform_treadmill_995i;
+    static constexpr bool default_proform_treadmill_995i = false;
 
     static const QString toorx_3_0;
     static constexpr bool default_toorx_3_0 = false;
@@ -2284,6 +2288,9 @@ class QZSettings {
 
     static const QString fit_file_garmin_device_training_effect;
     static constexpr bool default_fit_file_garmin_device_training_effect = false;
+
+    static const QString fit_file_garmin_device_training_effect_device;
+    static constexpr int default_fit_file_garmin_device_training_effect_device = FIT_GARMIN_PRODUCT_EDGE_830;
 
     static const QString proform_treadmill_705_cst_V80_44;
     static constexpr bool default_proform_treadmill_705_cst_V80_44 = false;

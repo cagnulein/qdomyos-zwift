@@ -46,6 +46,7 @@ win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc -llibcrypto-1_1-x
 
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
+mingw: QMAKE_CXXFLAGS += -Wa,-mbig-obj
 msvc {
    win32:QMAKE_CXXFLAGS_DEBUG += /RTC1
 }
@@ -1154,4 +1155,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.19.1
+VERSION = 2.19.2

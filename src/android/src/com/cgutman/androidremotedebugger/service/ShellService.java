@@ -48,14 +48,20 @@ public class ShellService extends Service implements DeviceConnectionListener {
 	
 	public class ShellServiceBinder extends Binder {
 		public DeviceConnection createConnection(String host, int port) {
+			QLog.d("ShellService", "createConnection - START: host=" + host + ", port=" + port + ", listener=" + listener);
 			DeviceConnection conn = new DeviceConnection(listener, host, port);
+			QLog.d("ShellService", "createConnection - CONNECTION_CREATED: conn=" + conn);
 			listener.addListener(conn, ShellService.this);
+			QLog.d("ShellService", "createConnection - LISTENER_ADDED: returning conn=" + conn);
 			return conn;
 		}
 		
 		public DeviceConnection findConnection(String host, int port) {
 			String connStr = host+":"+port;
-			return currentConnectionMap.get(connStr);
+			QLog.d("ShellService", "findConnection - SEARCH: connStr=" + connStr + ", mapSize=" + currentConnectionMap.size());
+			DeviceConnection found = currentConnectionMap.get(connStr);
+			QLog.d("ShellService", "findConnection - RESULT: found=" + (found != null ? "exists" : "null"));
+			return found;
 		}
 		
 		public void notifyPausingActivity(DeviceConnection devConn) {
@@ -76,68 +82,95 @@ public class ShellService extends Service implements DeviceConnectionListener {
 		}
 		
 		public void addListener(DeviceConnection conn, DeviceConnectionListener listener) {
+			QLog.d("ShellService", "addListener - START: conn=" + conn + ", listener=" + listener);
 			ShellService.this.listener.addListener(conn, listener);
+			QLog.d("ShellService", "addListener - END: listener added");
 		}
 		
 		public void removeListener(DeviceConnection conn, DeviceConnectionListener listener) {
+			QLog.d("ShellService", "removeListener - START: conn=" + conn + ", listener=" + listener);
 			ShellService.this.listener.removeListener(conn, listener);
+			QLog.d("ShellService", "removeListener - END: listener removed");
 		}
 	}
 
 	@Override
 	public IBinder onBind(Intent arg0) {
+		QLog.d("ShellService", "onBind - START: intent=" + arg0 + ", binder=" + binder);
+		QLog.d("ShellService", "onBind - END: returning binder");
 		return binder;
 	}
 
 	@Override
 	public boolean onUnbind(Intent intent) {
+		QLog.d("ShellService", "onUnbind - START: intent=" + intent + ", connections=" + currentConnectionMap.size());
 		/* Stop the service if no connections remain */
 		if (currentConnectionMap.isEmpty()) {
+			QLog.d("ShellService", "onUnbind - STOPPING_SERVICE: no connections remain");
 			stopSelf();
+		} else {
+			QLog.d("ShellService", "onUnbind - KEEPING_SERVICE: " + currentConnectionMap.size() + " connections remain");
 		}
 
+		QLog.d("ShellService", "onUnbind - END: returning false");
 		return false;
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		QLog.d("ShellService", "onStartCommand - START: intent=" + intent + ", flags=" + flags + ", startId=" + startId + ", foregroundId=" + foregroundId);
 		if (foregroundId == 0) {
                     try {
                         int serviceType = intent.getIntExtra(EXTRA_FOREGROUND_SERVICE_TYPE, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
 			// If we're not already running in the foreground, use a placeholder
 			// notification until a real connection is established. After connection
 			// establishment, the real notification will replace this one.
+			QLog.d("ShellService", "onStartCommand - FOREGROUND_START: serviceType=" + serviceType + ", SDK_INT=" + Build.VERSION.SDK_INT);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            QLog.d("ShellService", "onStartCommand - FOREGROUND_Q+: starting with service type");
                             startForeground(FOREGROUND_PLACEHOLDER_ID, createForegroundPlaceholderNotification(), serviceType);
                         } else {
+                            QLog.d("ShellService", "onStartCommand - FOREGROUND_LEGACY: starting without service type");
                             startForeground(FOREGROUND_PLACEHOLDER_ID, createForegroundPlaceholderNotification());
                         }
+                        QLog.d("ShellService", "onStartCommand - FOREGROUND_SUCCESS: foreground service started");
                     } catch (Exception e) {
                         QLog.e("ForegroundService", "Failed to start foreground service", e);
                         return START_NOT_STICKY;
                     }
+		} else {
+			QLog.d("ShellService", "onStartCommand - SKIP_FOREGROUND: already running in foreground with id=" + foregroundId);
 		}
 
 		// Don't restart if we've been killed. We will have already lost our connections
 		// when we died, so we'll just be running doing nothing if the OS restarted us.
+		QLog.d("ShellService", "onStartCommand - END: returning START_NOT_STICKY");
 		return Service.START_NOT_STICKY;
 	}
 
 	@Override
 	public void onCreate() {
+		QLog.d("ShellService", "onCreate - START: initializing service");
 		super.onCreate();
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			QLog.d("ShellService", "onCreate - NOTIFICATION_CHANNEL: creating notification channel");
 			NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Connection Info", NotificationManager.IMPORTANCE_DEFAULT);
 			NotificationManager notificationManager = getSystemService(NotificationManager.class);
 			notificationManager.createNotificationChannel(channel);
+			QLog.d("ShellService", "onCreate - NOTIFICATION_CHANNEL: channel created");
 		}
 
+		QLog.d("ShellService", "onCreate - WIFI_LOCK: creating wifi lock");
 		WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 		wlanLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL, "RemoteADBShell:ShellService");
+		QLog.d("ShellService", "onCreate - WIFI_LOCK: wlanLock=" + wlanLock);
 
+		QLog.d("ShellService", "onCreate - WAKE_LOCK: creating wake lock");
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "RemoteADBShell:ShellService");
+		QLog.d("ShellService", "onCreate - WAKE_LOCK: wakeLock=" + wakeLock);
+		QLog.d("ShellService", "onCreate - END: service initialization complete");
 	}
 
 	@Override
@@ -248,44 +281,76 @@ public class ShellService extends Service implements DeviceConnectionListener {
 	}
 	
 	private synchronized void addNewConnection(DeviceConnection devConn) {
+		QLog.d("ShellService", "addNewConnection - START: devConn=" + devConn + ", currentSize=" + currentConnectionMap.size());
 		if (currentConnectionMap.isEmpty()) {
+			QLog.d("ShellService", "addNewConnection - ACQUIRING_LOCKS: first connection, acquiring locks");
 			wakeLock.acquire();
 			wlanLock.acquire();
+			QLog.d("ShellService", "addNewConnection - LOCKS_ACQUIRED: wakeLock and wlanLock acquired");
 		}
 
-		currentConnectionMap.put(getConnectionString(devConn), devConn);
+		String connString = getConnectionString(devConn);
+		QLog.d("ShellService", "addNewConnection - ADDING: connString=" + connString);
+		currentConnectionMap.put(connString, devConn);
+		QLog.d("ShellService", "addNewConnection - END: connection added, newSize=" + currentConnectionMap.size());
 	}
 	
 	private synchronized void removeConnection(DeviceConnection devConn) {
-		currentConnectionMap.remove(getConnectionString(devConn));
+		String connString = getConnectionString(devConn);
+		QLog.d("ShellService", "removeConnection - START: devConn=" + devConn + ", connString=" + connString + ", currentSize=" + currentConnectionMap.size());
+		currentConnectionMap.remove(connString);
+		QLog.d("ShellService", "removeConnection - REMOVED: newSize=" + currentConnectionMap.size());
 
 		/* Stop the service if no connections remain */
 		if (currentConnectionMap.isEmpty()) {
+			QLog.d("ShellService", "removeConnection - STOPPING_SERVICE: no connections remain");
 			stopSelf();
+		} else {
+			QLog.d("ShellService", "removeConnection - KEEPING_SERVICE: " + currentConnectionMap.size() + " connections remain");
 		}
+		QLog.d("ShellService", "removeConnection - END");
 	}
 
 	@Override
 	public void notifyConnectionEstablished(DeviceConnection devConn) {
+		QLog.d("ShellService", "notifyConnectionEstablished - START: devConn=" + devConn + ", host=" + (devConn != null ? devConn.getHost() : "null") + ", port=" + (devConn != null ? devConn.getPort() : "null"));
 		addNewConnection(devConn);
+		QLog.d("ShellService", "notifyConnectionEstablished - CONNECTION_ADDED: updating notification");
 		updateNotification(devConn, true);
+		QLog.d("ShellService", "notifyConnectionEstablished - END: connection established successfully");
 	}
 
 	@Override
 	public void notifyConnectionFailed(DeviceConnection devConn, Exception e) {
+		QLog.d("ShellService", "notifyConnectionFailed - START: devConn=" + devConn + ", host=" + (devConn != null ? devConn.getHost() : "null") + ", port=" + (devConn != null ? devConn.getPort() : "null"));
+		QLog.e("ShellService", "notifyConnectionFailed - ERROR: " + (e != null ? e.getMessage() : "null exception"));
+		if (e != null) {
+			QLog.e("ShellService", "notifyConnectionFailed - STACK_TRACE: ", e);
+		}
 		/* No notification is displaying here */
+		QLog.d("ShellService", "notifyConnectionFailed - END");
 	}
 	
 	@Override
 	public void notifyStreamFailed(DeviceConnection devConn, Exception e) {
+		QLog.d("ShellService", "notifyStreamFailed - START: devConn=" + devConn + ", host=" + (devConn != null ? devConn.getHost() : "null") + ", port=" + (devConn != null ? devConn.getPort() : "null"));
+		QLog.e("ShellService", "notifyStreamFailed - ERROR: " + (e != null ? e.getMessage() : "null exception"));
+		if (e != null) {
+			QLog.e("ShellService", "notifyStreamFailed - STACK_TRACE: ", e);
+		}
 		updateNotification(devConn, false);
+		QLog.d("ShellService", "notifyStreamFailed - NOTIFICATION_UPDATED: removing connection");
 		removeConnection(devConn);
+		QLog.d("ShellService", "notifyStreamFailed - END");
 	}
 
 	@Override
 	public void notifyStreamClosed(DeviceConnection devConn) {
+		QLog.d("ShellService", "notifyStreamClosed - START: devConn=" + devConn + ", host=" + (devConn != null ? devConn.getHost() : "null") + ", port=" + (devConn != null ? devConn.getPort() : "null"));
 		updateNotification(devConn, false);
+		QLog.d("ShellService", "notifyStreamClosed - NOTIFICATION_UPDATED: removing connection");
 		removeConnection(devConn);
+		QLog.d("ShellService", "notifyStreamClosed - END");
 	}
 
 	@Override
