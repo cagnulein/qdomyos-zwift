@@ -79,13 +79,10 @@ void kineticinroadbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
 void kineticinroadbike::forceResistance(resistance_t requestResistance) {
     if (noWriteResistance) {
         return;
-    }
-    
-    // Convert resistance (1-32) to brake percentage (0.0-1.0)
-    float percent = (float)requestResistance / (float)max_resistance;
+    }    
     
     // Use Smart Control brake mode for direct resistance control
-    smart_control_set_mode_brake_data cmd = smart_control_set_mode_brake_command(percent);
+    smart_control_set_mode_brake_data cmd = smart_control_set_mode_brake_command(requestResistance);
     writeCharacteristic(cmd.bytes, sizeof(cmd.bytes), QStringLiteral("set brake resistance"), false, true);
 }
 
@@ -112,6 +109,9 @@ void kineticinroadbike::update() {
         if (requestInclination != -100) {
             qDebug() << QStringLiteral("writing inclination ") + QString::number(requestInclination);
             forceInclination(requestInclination);
+            if(!virtualbike || (virtualbike && !virtualbike->ftmsDeviceConnected())) {
+                Inclination = requestInclination;
+            }
             requestInclination = -100;
             requestResistance = -1; // Clear resistance request when handling inclination
         }
