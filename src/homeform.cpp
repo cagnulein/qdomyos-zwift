@@ -4901,19 +4901,50 @@ void homeform::update() {
         uint32_t seconds_zone4 = bluetoothManager->device()->secondsForHeartZone(3);
         uint32_t seconds_zone5 = bluetoothManager->device()->secondsForHeartZone(4);
 
-               // Calculate cumulative times (time in this zone or higher)
-        uint32_t seconds_zone1_plus = seconds_zone1 + seconds_zone2 + seconds_zone3 + seconds_zone4 + seconds_zone5;
-        uint32_t seconds_zone2_plus = seconds_zone2 + seconds_zone3 + seconds_zone4 + seconds_zone5;
-        uint32_t seconds_zone3_plus = seconds_zone3 + seconds_zone4 + seconds_zone5;
-        uint32_t seconds_zone4_plus = seconds_zone4 + seconds_zone5;
-        uint32_t seconds_zone5_plus = seconds_zone5; // Zone 5 is already just zone 5
+        // Check if individual mode is enabled
+        bool individual_mode = settings.value(QZSettings::tile_hr_time_in_zone_individual_mode, QZSettings::default_tile_hr_time_in_zone_individual_mode).toBool();
 
-               // Update the UI for each tile
-        tile_hr_time_in_zone_1->setValue(QTime(0, 0, 0).addSecs(seconds_zone1_plus).toString("h:mm:ss"));
-        tile_hr_time_in_zone_2->setValue(QTime(0, 0, 0).addSecs(seconds_zone2_plus).toString("h:mm:ss"));
-        tile_hr_time_in_zone_3->setValue(QTime(0, 0, 0).addSecs(seconds_zone3_plus).toString("h:mm:ss"));
-        tile_hr_time_in_zone_4->setValue(QTime(0, 0, 0).addSecs(seconds_zone4_plus).toString("h:mm:ss"));
-        tile_hr_time_in_zone_5->setValue(QTime(0, 0, 0).addSecs(seconds_zone5_plus).toString("h:mm:ss"));
+        uint32_t display_zone1, display_zone2, display_zone3, display_zone4, display_zone5;
+        
+        if (individual_mode) {
+            // Individual mode: show only time in specific zone
+            display_zone1 = seconds_zone1;
+            display_zone2 = seconds_zone2;
+            display_zone3 = seconds_zone3;
+            display_zone4 = seconds_zone4;
+            display_zone5 = seconds_zone5;
+        } else {
+            // Progressive mode: show cumulative time (time in this zone or higher)
+            display_zone1 = seconds_zone1 + seconds_zone2 + seconds_zone3 + seconds_zone4 + seconds_zone5;
+            display_zone2 = seconds_zone2 + seconds_zone3 + seconds_zone4 + seconds_zone5;
+            display_zone3 = seconds_zone3 + seconds_zone4 + seconds_zone5;
+            display_zone4 = seconds_zone4 + seconds_zone5;
+            display_zone5 = seconds_zone5;
+        }
+
+        // Update labels based on mode
+        if (individual_mode) {
+            // Individual mode: show specific zone labels
+            tile_hr_time_in_zone_1->setName(QStringLiteral("HR Zone 1"));
+            tile_hr_time_in_zone_2->setName(QStringLiteral("HR Zone 2"));
+            tile_hr_time_in_zone_3->setName(QStringLiteral("HR Zone 3"));
+            tile_hr_time_in_zone_4->setName(QStringLiteral("HR Zone 4"));
+            tile_hr_time_in_zone_5->setName(QStringLiteral("HR Zone 5"));
+        } else {
+            // Progressive mode: show cumulative zone labels
+            tile_hr_time_in_zone_1->setName(QStringLiteral("HR Zone 1+"));
+            tile_hr_time_in_zone_2->setName(QStringLiteral("HR Zone 2+"));
+            tile_hr_time_in_zone_3->setName(QStringLiteral("HR Zone 3+"));
+            tile_hr_time_in_zone_4->setName(QStringLiteral("HR Zone 4+"));
+            tile_hr_time_in_zone_5->setName(QStringLiteral("HR Zone 5"));
+        }
+
+        // Update the UI for each tile
+        tile_hr_time_in_zone_1->setValue(QTime(0, 0, 0).addSecs(display_zone1).toString("h:mm:ss"));
+        tile_hr_time_in_zone_2->setValue(QTime(0, 0, 0).addSecs(display_zone2).toString("h:mm:ss"));
+        tile_hr_time_in_zone_3->setValue(QTime(0, 0, 0).addSecs(display_zone3).toString("h:mm:ss"));
+        tile_hr_time_in_zone_4->setValue(QTime(0, 0, 0).addSecs(display_zone4).toString("h:mm:ss"));
+        tile_hr_time_in_zone_5->setValue(QTime(0, 0, 0).addSecs(display_zone5).toString("h:mm:ss"));
 
                // Set colors based on the zone
         tile_hr_time_in_zone_1->setValueFontColor(QStringLiteral("lightsteelblue"));

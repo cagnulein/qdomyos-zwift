@@ -2493,6 +2493,9 @@ class QZSettings {
     static const QString tile_coretemperature_order;
     static constexpr int default_tile_coretemperature_order = 67;
 
+    static const QString tile_hr_time_in_zone_individual_mode;
+    static constexpr bool default_tile_hr_time_in_zone_individual_mode = false;
+
     static const QString nordictrack_t65s_treadmill_81_miles;
     static constexpr bool default_nordictrack_t65s_treadmill_81_miles = false;
 
