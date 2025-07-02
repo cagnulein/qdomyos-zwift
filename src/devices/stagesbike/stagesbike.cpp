@@ -109,6 +109,21 @@ void stagesbike::update() {
                 requestResistance = 1;
             }
 
+            if (requestInclination != -100 || ((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100)) {
+                qDebug() << QStringLiteral("writing inclination ") << requestInclination << lastRawRequestedInclinationValue << gears();
+
+                if(eliteService != nullptr) {
+                    QByteArray a = setSimulationMode(
+                        lastRawRequestedInclinationValue + gears(), 0.005, 0.5, 0.0, 1.0); // since this bike doesn't have the concept of resistance,
+                                                                            // i'm using the gears in the inclination
+                    uint8_t b[20];
+                    memcpy(b, a.constData(), a.length());
+                    writeCharacteristic(eliteService, eliteWriteCharacteristic, b, a.length(), "forcePower", false, false);
+
+                    requestInclination = -100; // reset the requestInclination to -100 so that it doesn't get written again 
+                    requestResistance = -1; // reset the requestResistance so that it doesn't get written again
+                }
+            }
             if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 if(eliteService != nullptr) {

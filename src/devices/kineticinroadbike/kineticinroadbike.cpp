@@ -77,15 +77,13 @@ void kineticinroadbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
 }
 
 void kineticinroadbike::forceResistance(resistance_t requestResistance) {
-    /*uint8_t noOpData[] = {0xf0, 0xb1, 0x01, 0x00, 0x00};
-
-    noOpData[3] = requestResistance;
-
-    for (uint8_t i = 0; i < sizeof(noOpData) - 1; i++) {
-        noOpData[4] += noOpData[i]; // the last byte is a sort of a checksum
-    }
-
-    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("force resistance"), false, true);*/
+    if (noWriteResistance) {
+        return;
+    }    
+    
+    // Use Smart Control brake mode for direct resistance control
+    smart_control_set_mode_brake_data cmd = smart_control_set_mode_brake_command(requestResistance);
+    writeCharacteristic(cmd.bytes, sizeof(cmd.bytes), QStringLiteral("set brake resistance"), false, true);
 }
 
 void kineticinroadbike::update() {
@@ -108,6 +106,23 @@ void kineticinroadbike::update() {
             // updateDisplay(elapsed);
         }
 
+        if (requestInclination != -100) {
+            qDebug() << QStringLiteral("writing inclination ") + QString::number(requestInclination);
+            forceInclination(requestInclination);
+            if(!virtualbike || (virtualbike && !virtualbike->ftmsDeviceConnected())) {
+                Inclination = requestInclination;
+            }
+            requestInclination = -100;
+            requestResistance = -1; // Clear resistance request when handling inclination
+        }
+        
+        if (requestPower != -1) {
+            qDebug() << QStringLiteral("writing power ") + QString::number(requestPower);
+            changePower(requestPower);
+            requestPower = -1;
+            requestResistance = -1; // Clear resistance request when handling power
+        }
+        
         if (requestResistance != -1) {
             if (requestResistance > max_resistance)
                 requestResistance = max_resistance;
@@ -120,6 +135,7 @@ void kineticinroadbike::update() {
             }
             requestResistance = -1;
         }
+        
         if (requestStart != -1) {
             qDebug() << QStringLiteral("starting...");
 
@@ -134,6 +150,42 @@ void kineticinroadbike::update() {
             requestStop = -1;
         }
     }
+}
+
+void kineticinroadbike::changePower(int32_t power) {
+    if (noWriteResistance) {
+        return;
+    }
+    
+    RequestedPower = power;
+
+    if (power < 0)
+        power = 0;
+    
+    // Use Smart Control ERG mode for power-based training
+    smart_control_set_mode_erg_data cmd = smart_control_set_mode_erg_command((uint16_t)power);
+    writeCharacteristic(cmd.bytes, sizeof(cmd.bytes), QStringLiteral("set ERG power"), false, true);
+}
+
+void kineticinroadbike::forceInclination(double inclination) {
+    if (noWriteResistance) {
+        return;
+    }
+    
+    // Update resistance to match inclination (for UI consistency)
+    Resistance = inclination;
+    
+    // Smart Control simulation parameters
+    QSettings settings;
+    float weightKG = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    float rollingCoeff = 0.004f; // Standard rolling resistance for asphalt
+    float windCoeff = 0.6f;      // Standard wind resistance coefficient
+    float windSpeedMPS = 0.0f;   // No headwind/tailwind
+    
+    // Use Smart Control simulation mode for inclination control
+    smart_control_set_mode_simulation_data cmd = smart_control_set_mode_simulation_command(
+        weightKG, rollingCoeff, windCoeff, (float)inclination, windSpeedMPS);
+    writeCharacteristic(cmd.bytes, sizeof(cmd.bytes), QStringLiteral("set simulation inclination"), false, true);
 }
 
 void kineticinroadbike::serviceDiscovered(const QBluetoothUuid &gatt) {
