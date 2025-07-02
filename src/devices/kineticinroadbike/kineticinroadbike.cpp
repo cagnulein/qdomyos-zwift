@@ -109,7 +109,7 @@ void kineticinroadbike::update() {
         if (requestInclination != -100) {
             qDebug() << QStringLiteral("writing inclination ") + QString::number(requestInclination);
             forceInclination(requestInclination);
-            if(!virtualbike || (virtualbike && !virtualbike->ftmsDeviceConnected())) {
+            if(!VirtualBike() || (VirtualBike() && !VirtualBike()->ftmsDeviceConnected())) {
                 Inclination = requestInclination;
             }
             requestInclination = -100;
