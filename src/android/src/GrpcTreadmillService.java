@@ -60,7 +60,7 @@ public class GrpcTreadmillService {
     // Singleton instance for static access
     private static GrpcTreadmillService instance = null;
     private static Context staticContext = null;
-    private static final String SERVER_HOST = "localhost";
+    private static String serverHost = "localhost";
     private static final int SERVER_PORT = 54321;
     private static final int UPDATE_INTERVAL_MS = 500;
 
@@ -374,7 +374,7 @@ public class GrpcTreadmillService {
 
         SSLContext sslContext = createSSLContext(caCertStream, clientCertStream, clientKeyStream);
 
-        channel = OkHttpChannelBuilder.forAddress(SERVER_HOST, SERVER_PORT)
+        channel = OkHttpChannelBuilder.forAddress(serverHost, SERVER_PORT)
                 .sslSocketFactory(sslContext.getSocketFactory())
                 .build();
 
@@ -640,18 +640,24 @@ public class GrpcTreadmillService {
     
     // Static wrapper methods for JNI calls
     public static void initialize() {
+        initialize("localhost");
+    }
+    
+    public static void initialize(String host) {
         try {
             if (staticContext == null) {
                 QLog.e(TAG, "Context not set. Call setContext() first.");
                 return;
             }
             
+            serverHost = host;
+            
             if (instance == null) {
                 instance = new GrpcTreadmillService(staticContext);
             }
             
             instance.initializeInstance();
-            QLog.i(TAG, "Static initialize completed");
+            QLog.i(TAG, "Static initialize completed with host: " + host);
         } catch (Exception e) {
             QLog.e(TAG, "Static initialize failed", e);
         }

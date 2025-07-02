@@ -876,6 +876,9 @@ void nordictrackifitadbbike::initializeGrpcService() {
 #ifdef Q_OS_ANDROID
     if (!grpcInitialized) {
         try {
+            QSettings settings;
+            QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+            
             // Set Android context first
             QAndroidJniObject::callStaticMethod<void>(
                 "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
@@ -884,14 +887,16 @@ void nordictrackifitadbbike::initializeGrpcService() {
                 QtAndroid::androidContext().object()
             );
             
-            // Now initialize the service
+            // Now initialize the service with the host IP
+            QAndroidJniObject hostObj = QAndroidJniObject::fromString(ip);
             QAndroidJniObject::callStaticMethod<void>(
                 "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
                 "initialize",
-                "()V"
+                "(Ljava/lang/String;)V",
+                hostObj.object<jstring>()
             );
             grpcInitialized = true;
-            emit debug("gRPC service initialized successfully");
+            emit debug("gRPC service initialized successfully with host: " + ip);
         } catch (...) {
             emit debug("Failed to initialize gRPC service");
             grpcInitialized = false;
