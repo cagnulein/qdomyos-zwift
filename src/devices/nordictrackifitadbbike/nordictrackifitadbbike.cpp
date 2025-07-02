@@ -706,13 +706,16 @@ void nordictrackifitadbbike::update() {
             requestResistance = -1;
         }
         
-        // Update lastGearValue for gear change detection
-        lastGearValue = gears();
-
         if(requestResistance != - 1) {
             setGrpcResistance(requestResistance);
             requestResistance = -1;
+        } else if(!autoResistanceEnable && lastGearValue != gears() && nordictrackadbbike_resistance) {
+            qDebug() << QStringLiteral("Setting gRPC resistance based on gear change: ") << gears() << " lastGearValue: " << lastGearValue << " Resistance: " << Resistance.value();
+            setGrpcResistance(Resistance.value() + (gears() - lastGearValue));
         }
+
+        // Update lastGearValue for gear change detection
+        lastGearValue = gears();
     }
 #endif
 }
