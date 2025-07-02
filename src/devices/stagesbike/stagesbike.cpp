@@ -109,7 +109,7 @@ void stagesbike::update() {
                 requestResistance = 1;
             }
 
-            if (requestInclination != -100 || ((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100)) {
+            if (requestInclination != -100 || ((VirtualBike() && VirtualBike()->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100)) {
                 qDebug() << QStringLiteral("writing inclination ") << requestInclination << lastRawRequestedInclinationValue << gears();
 
                 if(eliteService != nullptr) {
