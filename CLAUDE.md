@@ -228,6 +228,8 @@ static constexpr bool default_proform_treadmill_newmodel = false;
 const QString QZSettings::proform_treadmill_newmodel = QStringLiteral("proform_treadmill_newmodel");
 ```
 
+* Update the `allSettingsCount` in `qzsettings.cpp`
+
 #### 4. Update QML Settings UI
 
 **In `src/settings.qml`:**
@@ -365,3 +367,8 @@ The ProForm 995i implementation serves as the reference example:
 - Add comprehensive logging using the project's logging framework
 - Test device detection thoroughly using the existing test infrastructure
 - Consider platform differences when adding new features
+
+## Additional Memories
+
+- When adding a new setting in QML (setting-tiles.qml), you must:
+  * Add the property at the END of the properties list  
