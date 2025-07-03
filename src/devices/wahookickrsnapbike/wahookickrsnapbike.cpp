@@ -334,7 +334,6 @@ void wahookickrsnapbike::update() {
             }
         }
 
-        // Update lastGearValue for both modes
         lastGearValue = gears();
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -942,7 +941,6 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     QSettings settings;
     
     if (settings.value(QZSettings::wahoo_without_wheel_diameter, QZSettings::default_wahoo_without_wheel_diameter).toBool()) {
-        // New simplified logic
         lastGrade = grade;
         emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
         double g = grade;
@@ -952,7 +950,6 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
         memcpy(b, a.constData(), a.length());
         writeCharacteristic(b, a.length(), "setSimGrade", false, false);
     } else {
-        // Original master logic
         if(lastCommandErgMode) {
             lastGrade = grade + 1; // to force a refresh
             initRequest = true;
