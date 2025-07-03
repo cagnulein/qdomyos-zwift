@@ -43,21 +43,21 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
         export QT_DIR="/usr/local/Qt/5.15.2/clang_64"
         export PATH="$QT_DIR/bin:$PATH"
     else
-        echo "aqt failed, using Homebrew with version pinning..."
+        echo "aqt failed, using Homebrew with specific Qt 5.15.2 formula..."
         
-        # Method 2: Install specific Qt 5.15.2 via Homebrew with exact commit
-        # Download the exact formula for Qt 5.15.2
-        TEMP_FORMULA_DIR="/tmp/homebrew-qt"
-        mkdir -p "$TEMP_FORMULA_DIR"
-        cd "$TEMP_FORMULA_DIR"
+        # Method 2: Download the exact Qt 5.15.2 formula and install it
+        cd /tmp
         
-        # Clone homebrew-core at the specific commit that has Qt 5.15.2
-        git clone --depth 1 https://github.com/Homebrew/homebrew-core.git
-        cd homebrew-core
-        git checkout 359cb0857099cdfa8b9ce8f421c680c9829dfe81
+        # Download the specific formula for Qt 5.15.2
+        echo "Downloading Qt 5.15.2 formula from specific commit..."
+        curl -O "https://raw.githubusercontent.com/Homebrew/homebrew-core/359cb0857099cdfa8b9ce8f421c680c9829dfe81/Formula/qt%405.rb"
         
-        # Install Qt from this specific commit
-        brew install --formula ./Formula/qt@5.rb
+        # Rename the file to qt5.rb as suggested
+        mv "qt@5.rb" qt5.rb
+        
+        # Install Qt 5.15.2 using the specific formula
+        echo "Installing Qt 5.15.2 using downloaded formula..."
+        brew install ./qt5.rb
         
         # Verify it's the right version
         QT_PATHS=(
