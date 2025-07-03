@@ -652,6 +652,54 @@ jobs:
   android-emulator-test:
     runs-on: ubuntu-latest
     needs: android-build
+    strategy:
+      matrix:
+        api-level: [23, 24, 26, 28, 29, 30, 31, 33, 34, 35, 36]
+        include:
+          - api-level: 23
+            target: default
+            arch: x86
+            android-version: "Android 6.0"
+          - api-level: 24
+            target: default
+            arch: x86
+            android-version: "Android 7.0"
+          - api-level: 26
+            target: default
+            arch: x86
+            android-version: "Android 8.0"
+          - api-level: 28
+            target: default
+            arch: x86
+            android-version: "Android 9.0"
+          - api-level: 29
+            target: default
+            arch: x86
+            android-version: "Android 10"
+          - api-level: 30
+            target: google_apis
+            arch: x86
+            android-version: "Android 11"
+          - api-level: 31
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 12"
+          - api-level: 33
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 13"
+          - api-level: 34
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 14"
+          - api-level: 35
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 15"
+          - api-level: 36
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 16"
     
     steps:
       - name: Checkout code
@@ -677,12 +725,12 @@ jobs:
           java-version: '17'
       
       # Use a smaller emulator configuration
-      - name: Run tests on emulator
+      - name: Run tests on emulator (${{ matrix.android-version }})
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          target: default  # Use default instead of Google APIs
-          arch: x86
-          api-level: 29
+          target: ${{ matrix.target }}
+          arch: ${{ matrix.arch }}
+          api-level: ${{ matrix.api-level }}
           profile: Nexus 6
           disable-animations: true
           script: |
@@ -730,7 +778,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-emulator-test-evidence
+          name: android-emulator-test-evidence-api${{ matrix.api-level }}
           path: |
             screenshot.png
             process_list.txt
