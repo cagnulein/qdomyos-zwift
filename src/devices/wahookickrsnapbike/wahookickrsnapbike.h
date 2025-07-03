@@ -43,6 +43,8 @@ class wahookickrsnapbike : public bike {
     bool connected() override;
     resistance_t maxResistance() override { return 100; }
     bool inclinationAvailableByHardware() override;
+    double maxGears() override;
+    double minGears() override;
 
 
     enum OperationCode : uint8_t {
