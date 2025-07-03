@@ -652,6 +652,55 @@ jobs:
   android-emulator-test:
     runs-on: ubuntu-latest
     needs: android-build
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: [23, 24, 26, 28, 29, 30, 31, 33, 34, 35, 36]
+        include:
+          - api-level: 23
+            target: default
+            arch: x86
+            android-version: "Android 6.0"
+          - api-level: 24
+            target: default
+            arch: x86
+            android-version: "Android 7.0"
+          - api-level: 26
+            target: default
+            arch: x86
+            android-version: "Android 8.0"
+          - api-level: 28
+            target: default
+            arch: x86
+            android-version: "Android 9.0"
+          - api-level: 29
+            target: default
+            arch: x86
+            android-version: "Android 10"
+          - api-level: 30
+            target: google_apis
+            arch: x86
+            android-version: "Android 11"
+          - api-level: 31
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 12"
+          - api-level: 33
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 13"
+          - api-level: 34
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 14"
+          - api-level: 35
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 15"
+          - api-level: 36
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 16"
     
     steps:
       - name: Checkout code
@@ -677,12 +726,12 @@ jobs:
           java-version: '17'
       
       # Use a smaller emulator configuration
-      - name: Run tests on emulator
+      - name: Run tests on emulator (${{ matrix.android-version }})
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          target: default  # Use default instead of Google APIs
-          arch: x86
-          api-level: 29
+          target: ${{ matrix.target }}
+          arch: ${{ matrix.arch }}
+          api-level: ${{ matrix.api-level }}
           profile: Nexus 6
           disable-animations: true
           script: |
@@ -705,15 +754,50 @@ jobs:
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WRITE_EXTERNAL_STORAGE || true
             
             # Start the main activity
-            adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
+            adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
             
-            # Wait for app to start
-            sleep 40
+            # Wait for app to start - longer wait for older Android versions
+            if [ ${{ matrix.api-level }} -le 26 ]; then
+              echo "Waiting 60 seconds for older Android version (API ${{ matrix.api-level }})"
+              sleep 60
+            else
+              echo "Waiting 40 seconds for newer Android version (API ${{ matrix.api-level }})"
+              sleep 40
+            fi
             
             # Verify the app is running
             echo "Checking if app is running..."
-            adb shell "ps -A" > process_list.txt
-            grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
+            # Use different ps commands for different Android versions
+            adb shell "ps -A 2>/dev/null || ps" > process_list.txt
+            
+            # Debug: show all processes to understand the format
+            echo "=== All running processes ==="
+            cat process_list.txt | head -20
+            echo "=== Looking for our app ==="
+            
+            # Try different patterns to find the app
+            if grep -q "qdomyos" process_list.txt; then
+                echo "Found qdomyos process"
+                grep "qdomyos" process_list.txt
+            elif grep -q "org.cagnulen.qdomyoszwift" process_list.txt; then
+                echo "Found full package name process"
+                grep "org.cagnulen.qdomyoszwift" process_list.txt
+            elif grep -q "cagnulen" process_list.txt; then
+                echo "Found cagnulen process"
+                grep "cagnulen" process_list.txt
+            else
+                echo "App process not found in process list"
+                echo "=== Checking if package is installed ==="
+                adb shell pm list packages | grep org.cagnulen.qdomyoszwift
+                echo "=== Checking app info ==="
+                adb shell dumpsys package org.cagnulen.qdomyoszwift | grep -A5 -B5 "state"
+                echo "=== Logcat output for debugging ==="
+                adb logcat -d | grep -i "qdomyos\|crash\|error\|exception\|fatal" | tail -n 50
+                echo "=== Full recent logcat ==="
+                adb logcat -d | tail -n 100
+                echo "TEST FAILED: App process not running"
+                exit 1
+            fi
             echo "App is running successfully"
             
             # Take a screenshot for verification
@@ -723,17 +807,21 @@ jobs:
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
             
-            # Display logcat output for debugging (just the last 100 lines)
-            adb logcat -d | grep -i qdomyos | tail -n 100
+            # Save logcat for debugging
+            echo "Saving logcat for analysis..."
+            adb logcat -d > full_logcat.txt
+            adb logcat -d | grep -i qdomyos > qdomyos_logcat.txt
 
       - name: Upload test evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-emulator-test-evidence
+          name: android-emulator-test-evidence-api${{ matrix.api-level }}
           path: |
             screenshot.png
             process_list.txt
+            full_logcat.txt
+            qdomyos_logcat.txt
           if-no-files-found: warn                
 
   ios-build:

@@ -104,6 +104,8 @@ class stagesbike : public bike {
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
+    void inclinationChanged(double grade, double percentage);
+
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
     void update();

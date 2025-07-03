@@ -82,7 +82,7 @@ import com.android.billingclient.api.QueryProductDetailsResult;
  ** Add Dependencies below to build.gradle file:
 
 dependencies {
-    def billing_version = "4.0.0"
+    def billing_version = "8.0.0"
     implementation "com.android.billingclient:billing:$billing_version"
 }
 
@@ -152,18 +152,23 @@ public class InAppPurchase implements PurchasesUpdatedListener
     public void onPurchasesUpdated(BillingResult billingResult, List<Purchase> purchases) {
 
         int responseCode = billingResult.getResponseCode();
+        QLog.d(TAG, "onPurchasesUpdated called. Response code: " + responseCode + ", Debug message: " + billingResult.getDebugMessage());
 
         if (purchases == null) {
+            QLog.e(TAG, "Purchase failed: Data missing from result (purchases is null)");
             purchaseFailed(purchaseRequestCode, FAILUREREASON_ERROR, "Data missing from result");
             return;
         }
 
         if (billingResult.getResponseCode() == RESULT_OK) {
+            QLog.d(TAG, "Purchase successful, handling " + purchases.size() + " purchases");
             handlePurchase(purchases);
         } else if (responseCode == RESULT_USER_CANCELED) {
+            QLog.d(TAG, "Purchase cancelled by user");
             purchaseFailed(purchaseRequestCode, FAILUREREASON_USERCANCELED, "");
         } else {
             String errorString = getErrorString(responseCode);
+            QLog.e(TAG, "Purchase failed with error: " + errorString + " (code: " + responseCode + ")");
             purchaseFailed(purchaseRequestCode, FAILUREREASON_ERROR, errorString);
         }
     }
@@ -287,7 +292,7 @@ public class InAppPurchase implements PurchasesUpdatedListener
                         List<ProductDetails> productDetailsList = productDetailsResult.getProductDetailsList();
 
                         if (billingResult.getResponseCode() != RESULT_OK) {
-                            QLog.e(TAG, "Unable to launch Google Play purchase screen");
+                            QLog.e(TAG, "Unable to launch Google Play purchase screen. Response code: " + billingResult.getResponseCode() + ", Debug message: " + billingResult.getDebugMessage());
                             String errorString = getErrorString(requestCode);
                             purchaseFailed(requestCode, FAILUREREASON_ERROR, errorString);
                             return;
@@ -298,9 +303,19 @@ public class InAppPurchase implements PurchasesUpdatedListener
                         }
 
                         ProductDetails productDetails = productDetailsList.get(0);
-                        BillingFlowParams.ProductDetailsParams productDetailsParams = BillingFlowParams.ProductDetailsParams.newBuilder()
-                                .setProductDetails(productDetails)
-                                .build();
+                        BillingFlowParams.ProductDetailsParams.Builder productDetailsParamsBuilder = BillingFlowParams.ProductDetailsParams.newBuilder()
+                                .setProductDetails(productDetails);
+                        
+                        // For subscriptions, we need to set the offer token
+                        if (productDetails.getSubscriptionOfferDetails() != null && !productDetails.getSubscriptionOfferDetails().isEmpty()) {
+                            String offerToken = productDetails.getSubscriptionOfferDetails().get(0).getOfferToken();
+                            QLog.d(TAG, "Setting offer token for subscription: " + offerToken);
+                            productDetailsParamsBuilder.setOfferToken(offerToken);
+                        } else {
+                            QLog.w(TAG, "No subscription offer details found for product: " + identifier);
+                        }
+                        
+                        BillingFlowParams.ProductDetailsParams productDetailsParams = productDetailsParamsBuilder.build();
                         
                         BillingFlowParams purchaseParams = BillingFlowParams.newBuilder()
                                 .setProductDetailsParamsList(java.util.Arrays.asList(productDetailsParams))
