@@ -292,11 +292,16 @@ void wahookickrsnapbike::update() {
                     uint8_t b[20];
                     memcpy(b, a.constData(), a.length());
                     writeCharacteristic(b, a.length(), "setResistance", false, false);
+                } else if (requestResistance != currentResistance().value() && ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
+                    emit debug(QStringLiteral("writing resistance ") + QString::number(lastForcedResistance));
+                    QByteArray a = setResistanceMode(((double)lastForcedResistance) / 100.0);
+                    uint8_t b[20];
+                    memcpy(b, a.constData(), a.length());
+                    writeCharacteristic(b, a.length(), "setResistance", false, false);
                 }
                 requestResistance = -1;
             }
 
-            // Handle gear changes with wheel diameter
             if (lastGearValue != gears()) {
                 if(KICKR_SNAP) {
                    inclinationChanged(lastGrade, lastGrade);
@@ -336,14 +341,12 @@ void wahookickrsnapbike::update() {
                     memcpy(b, a.constData(), a.length());
                     writeCharacteristic(b, a.length(), "setResistance", false, false);
                 } else if (requestResistance != currentResistance().value() &&
-                   ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
-                   if (lastGearValue != gears()) {
-                       emit debug(QStringLiteral("writing resistance due to gears changed ") + QString::number(lastForcedResistance));
-                       QByteArray a = setResistanceMode(((double)lastForcedResistance + (gears() - lastGearValue)) / 100.0);
-                       uint8_t b[20];
-                       memcpy(b, a.constData(), a.length());
-                       writeCharacteristic(b, a.length(), "setResistance", false, false);
-                   }
+                ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) && lastGearValue != gears()) {
+                emit debug(QStringLiteral("writing resistance due to gears changed ") + QString::number(lastForcedResistance));
+                QByteArray a = setResistanceMode(((double)lastForcedResistance + (gears() - lastGearValue)) / 100.0);
+                uint8_t b[20];
+                memcpy(b, a.constData(), a.length());
+                writeCharacteristic(b, a.length(), "setResistance", false, false);
                 } else if (virtualBike && virtualBike->ftmsDeviceConnected() && lastGearValue != gears()) {
                     inclinationChanged(lastGrade, lastGrade);
                 }
