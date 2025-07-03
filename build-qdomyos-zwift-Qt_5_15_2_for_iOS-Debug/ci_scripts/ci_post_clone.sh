@@ -49,9 +49,14 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
         cd ../..  # Go back to project root
         
         # Use the local Qt 5.15.2 formula included in the repository
-        echo "Installing Qt 5.15.2 using local formula..."
-        brew extract --version=5.15.2 qt5 homebrew/core
-        brew install qt5@5.15.2
+        brew tap dmuth/core https://github.com/dmuth/homebrew-core.git
+
+        # Reset the tap to the specific commit
+        cd $(brew --repository dmuth/core)
+        git reset --hard 7cc83b1e58fcd3026f0fb7d4130b1d36d9649b47
+
+        # Now install Qt
+        brew install dmuth/core/qt
         
         # Verify it's the right version
         QT_PATHS=(
