@@ -705,7 +705,7 @@ jobs:
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WRITE_EXTERNAL_STORAGE || true
             
             # Start the main activity
-            adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
+            adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
             
             # Wait for app to start
             sleep 40
