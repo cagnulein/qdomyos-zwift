@@ -655,12 +655,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api-level: [23, 24, 26, 28, 29, 30, 31, 33, 34, 35, 36]
+        api-level: [24, 26, 28, 29, 30, 31, 33, 34, 35, 36]
         include:
-          - api-level: 23
-            target: default
-            arch: x86
-            android-version: "Android 6.0"
           - api-level: 24
             target: default
             arch: x86
