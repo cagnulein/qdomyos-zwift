@@ -50,15 +50,8 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
         
         # Use the local Qt 5.15.2 formula included in the repository
         echo "Installing Qt 5.15.2 using local formula..."
-        if [[ -f "ci-scripts/homebrew-formulas/qt5.rb" ]]; then
-            echo "Found local Qt 5.15.2 formula"
-            brew install ./ci-scripts/homebrew-formulas/qt5.rb
-        else
-            echo "ERROR: Local Qt 5.15.2 formula not found at ci-scripts/homebrew-formulas/qt5.rb"
-            echo "Current directory: $(pwd)"
-            ls -la ci-scripts/ || echo "ci-scripts directory not found"
-            exit 1
-        fi
+        brew extract --version=5.15.2 qt5 homebrew/core
+        brew install qt5@5.15.2
         
         # Verify it's the right version
         QT_PATHS=(
