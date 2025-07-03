@@ -146,6 +146,8 @@ void kingsmithr2treadmill::update() {
                     debug("creating virtual treadmill interface...");
                     auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &kingsmithr2treadmill::debug);
+                    connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
+                            &kingsmithr2treadmill::changeInclinationRequested);                    
                     this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");

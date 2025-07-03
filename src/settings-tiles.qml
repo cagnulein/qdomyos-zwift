@@ -261,6 +261,8 @@ ScrollView {
         property int  tile_heat_time_in_zone_3_order: 70
         property bool tile_heat_time_in_zone_4_enabled: false
         property int  tile_heat_time_in_zone_4_order: 71
+        
+        property bool tile_hr_time_in_zone_individual_mode: false
     }
 
 
@@ -5018,6 +5020,35 @@ ScrollView {
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             Layout.fillWidth: true
             color: Material.color(Material.Lime)
+        }
+
+        RowLayout {
+            spacing: 10
+            Layout.fillWidth: true
+
+            CheckBox {
+                id: hrTimeInZoneIndividualModeCheckBox
+                text: qsTr("Show individual zone times (instead of cumulative)")
+                Layout.fillWidth: true
+                checked: settings.tile_hr_time_in_zone_individual_mode
+                onClicked: {
+                    settings.tile_hr_time_in_zone_individual_mode = checked
+                    toast.show("Setting saved!")
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("When enabled, each zone shows only the time spent in that specific zone. When disabled (default), each zone shows cumulative time spent in that zone or higher.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Orange)
         }
 
         AccordionCheckElement {
