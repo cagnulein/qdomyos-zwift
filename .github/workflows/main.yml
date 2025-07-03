@@ -760,7 +760,8 @@ jobs:
             
             # Verify the app is running
             echo "Checking if app is running..."
-            adb shell "ps -A" > process_list.txt
+            # Use different ps commands for different Android versions
+            adb shell "ps -A 2>/dev/null || ps" > process_list.txt
             grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
             echo "App is running successfully"
             
