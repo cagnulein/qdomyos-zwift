@@ -653,6 +653,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: android-build
     strategy:
+      fail-fast: false
       matrix:
         api-level: [23, 24, 26, 28, 29, 30, 31, 33, 34, 35, 36]
         include:
@@ -755,14 +756,48 @@ jobs:
             # Start the main activity
             adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
             
-            # Wait for app to start
-            sleep 40
+            # Wait for app to start - longer wait for older Android versions
+            if [ ${{ matrix.api-level }} -le 26 ]; then
+              echo "Waiting 60 seconds for older Android version (API ${{ matrix.api-level }})"
+              sleep 60
+            else
+              echo "Waiting 40 seconds for newer Android version (API ${{ matrix.api-level }})"
+              sleep 40
+            fi
             
             # Verify the app is running
             echo "Checking if app is running..."
             # Use different ps commands for different Android versions
             adb shell "ps -A 2>/dev/null || ps" > process_list.txt
-            grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
+            
+            # Debug: show all processes to understand the format
+            echo "=== All running processes ==="
+            cat process_list.txt | head -20
+            echo "=== Looking for our app ==="
+            
+            # Try different patterns to find the app
+            if grep -q "qdomyos" process_list.txt; then
+                echo "Found qdomyos process"
+                grep "qdomyos" process_list.txt
+            elif grep -q "org.cagnulen.qdomyoszwift" process_list.txt; then
+                echo "Found full package name process"
+                grep "org.cagnulen.qdomyoszwift" process_list.txt
+            elif grep -q "cagnulen" process_list.txt; then
+                echo "Found cagnulen process"
+                grep "cagnulen" process_list.txt
+            else
+                echo "App process not found in process list"
+                echo "=== Checking if package is installed ==="
+                adb shell pm list packages | grep org.cagnulen.qdomyoszwift
+                echo "=== Checking app info ==="
+                adb shell dumpsys package org.cagnulen.qdomyoszwift | grep -A5 -B5 "state"
+                echo "=== Logcat output for debugging ==="
+                adb logcat -d | grep -i "qdomyos\|crash\|error\|exception\|fatal" | tail -n 50
+                echo "=== Full recent logcat ==="
+                adb logcat -d | tail -n 100
+                echo "TEST FAILED: App process not running"
+                exit 1
+            fi
             echo "App is running successfully"
             
             # Take a screenshot for verification
@@ -772,8 +807,10 @@ jobs:
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
             
-            # Display logcat output for debugging (just the last 100 lines)
-            adb logcat -d | grep -i qdomyos | tail -n 100
+            # Save logcat for debugging
+            echo "Saving logcat for analysis..."
+            adb logcat -d > full_logcat.txt
+            adb logcat -d | grep -i qdomyos > qdomyos_logcat.txt
 
       - name: Upload test evidence
         if: always()
@@ -783,6 +820,8 @@ jobs:
           path: |
             screenshot.png
             process_list.txt
+            full_logcat.txt
+            qdomyos_logcat.txt
           if-no-files-found: warn                
 
   ios-build:
