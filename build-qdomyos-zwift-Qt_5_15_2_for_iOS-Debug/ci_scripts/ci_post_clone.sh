@@ -2,7 +2,7 @@
 set -e
 
 echo "=== QDomyos-Zwift CI Post Clone Script ==="
-echo "Installing Qt 5.15.2 and preparing environment"
+echo "Installing Qt 5.15.2 EXACTLY and preparing environment"
 
 # Exit if not on macOS (sanity check)
 if [[ "$OSTYPE" != "darwin"* ]]; then
@@ -10,72 +10,104 @@ if [[ "$OSTYPE" != "darwin"* ]]; then
     exit 1
 fi
 
-# Install Qt 5.15.2 using specific Homebrew formula
-echo "Installing Qt 5.15.2 via Homebrew with specific formula..."
-
 # Apply Xcode Cloud network workarounds
 export HOMEBREW_NO_AUTO_UPDATE=1
 export GIT_HTTP_MAX_REQUESTS=1
 
-# Check if Qt is already installed
+# Check if Qt 5.15.2 is already installed
 if command -v qmake &> /dev/null; then
     QT_VERSION=$(qmake -v | grep -o "5\.[0-9]*\.[0-9]*" | head -1)
     if [[ "$QT_VERSION" == "5.15.2" ]]; then
-        echo "Qt 5.15.2 already installed"
+        echo "Qt 5.15.2 already installed - PERFECT!"
         export QT_DIR=$(dirname $(dirname $(which qmake)))
         export PATH="$QT_DIR/bin:$PATH"
     else
-        echo "Wrong Qt version found: $QT_VERSION, installing correct version..."
+        echo "WRONG Qt version found: $QT_VERSION"
+        echo "MUST install Qt 5.15.2 exactly"
+        # Uninstall wrong version
+        brew uninstall --ignore-dependencies qt@5 qt || echo "No Qt to uninstall"
     fi
 fi
 
-# Install Qt 5.15.2 using the specific formula you found
+# Force install Qt 5.15.2 EXACTLY
 if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]*" | head -1)" != "5.15.2" ]]; then
-    echo "Installing Qt 5.15.2 using specific Homebrew formula..."
+    echo "Installing Qt 5.15.2 EXACTLY - NO OTHER VERSION ACCEPTED"
     
-    # Create temporary formula file with the specific Qt 5.15.2 formula
-    TEMP_FORMULA="/tmp/qt_5_15_2.rb"
-    curl -s "https://raw.githubusercontent.com/Homebrew/homebrew-core/359cb0857099cdfa8b9ce8f421c680c9829dfe81/Formula/qt%405.rb" -o "$TEMP_FORMULA"
+    # Method 1: Use aqt (Another Qt Installer) to get exact version
+    echo "Installing aqt (Another Qt Installer) for exact Qt version control..."
+    python3 -m pip install aqt || echo "aqt installation failed, trying homebrew method"
     
-    # Install from the specific formula
-    brew install --formula "$TEMP_FORMULA" || echo "Homebrew installation failed, trying alternatives..."
-    
-    # Alternative: Try installing qt@5 and verify version
-    if ! command -v qmake &> /dev/null; then
-        echo "Trying qt@5 formula..."
-        brew install qt@5 || echo "qt@5 installation failed"
-    fi
-    
-    # Set Qt environment variables
-    # Try different possible paths for Qt installation
-    QT_PATHS=(
-        "/usr/local/opt/qt@5"
-        "/usr/local/Cellar/qt@5"
-        "/usr/local/opt/qt"
-        "/opt/homebrew/opt/qt@5"
-        "/opt/homebrew/Cellar/qt@5"
-    )
-    
-    for qt_path in "${QT_PATHS[@]}"; do
-        if [[ -d "$qt_path" ]] && [[ -f "$qt_path/bin/qmake" ]]; then
-            export QT_DIR="$qt_path"
-            export PATH="$QT_DIR/bin:$PATH"
-            echo "Using Qt from: $QT_DIR"
-            break
+    if command -v aqt &> /dev/null; then
+        echo "Using aqt to install Qt 5.15.2 exactly..."
+        aqt install-qt mac desktop 5.15.2 --outputdir /usr/local/Qt
+        export QT_DIR="/usr/local/Qt/5.15.2/clang_64"
+        export PATH="$QT_DIR/bin:$PATH"
+    else
+        echo "aqt failed, using Homebrew with version pinning..."
+        
+        # Method 2: Install specific Qt 5.15.2 via Homebrew with exact commit
+        # Download the exact formula for Qt 5.15.2
+        TEMP_FORMULA_DIR="/tmp/homebrew-qt"
+        mkdir -p "$TEMP_FORMULA_DIR"
+        cd "$TEMP_FORMULA_DIR"
+        
+        # Clone homebrew-core at the specific commit that has Qt 5.15.2
+        git clone --depth 1 https://github.com/Homebrew/homebrew-core.git
+        cd homebrew-core
+        git checkout 359cb0857099cdfa8b9ce8f421c680c9829dfe81
+        
+        # Install Qt from this specific commit
+        brew install --formula ./Formula/qt@5.rb
+        
+        # Verify it's the right version
+        QT_PATHS=(
+            "/usr/local/opt/qt@5"
+            "/usr/local/Cellar/qt@5/5.15.2"
+            "/opt/homebrew/opt/qt@5"
+            "/opt/homebrew/Cellar/qt@5/5.15.2"
+        )
+        
+        QT_FOUND=false
+        for qt_path in "${QT_PATHS[@]}"; do
+            if [[ -d "$qt_path" ]] && [[ -f "$qt_path/bin/qmake" ]]; then
+                INSTALLED_VERSION=$("$qt_path/bin/qmake" -v | grep -o "5\.[0-9]*\.[0-9]*" | head -1)
+                if [[ "$INSTALLED_VERSION" == "5.15.2" ]]; then
+                    export QT_DIR="$qt_path"
+                    export PATH="$QT_DIR/bin:$PATH"
+                    echo "FOUND Qt 5.15.2 at: $QT_DIR"
+                    QT_FOUND=true
+                    break
+                else
+                    echo "Wrong version at $qt_path: $INSTALLED_VERSION"
+                fi
+            fi
+        done
+        
+        if [[ "$QT_FOUND" == "false" ]]; then
+            echo "ERROR: Could not install Qt 5.15.2 exactly"
+            echo "Available Qt installations:"
+            find /usr/local /opt/homebrew -name "qmake" 2>/dev/null || echo "No qmake found"
+            exit 1
         fi
-    done
+    fi
 fi
 
-# Final verification of Qt installation
-echo "Verifying Qt installation..."
+# MANDATORY verification - FAIL if not 5.15.2
+echo "MANDATORY Qt 5.15.2 verification..."
 if command -v qmake &> /dev/null; then
     QT_VERSION=$(qmake -v | grep -o "5\.[0-9]*\.[0-9]*" | head -1)
-    echo "Qt version found: $QT_VERSION"
+    if [[ "$QT_VERSION" != "5.15.2" ]]; then
+        echo "FATAL ERROR: Qt version is $QT_VERSION, NOT 5.15.2"
+        echo "Build CANNOT continue with wrong Qt version"
+        exit 1
+    fi
+    
+    echo "SUCCESS: Qt 5.15.2 verified!"
     qmake -v
     
     # Show Qt installation path
     QT_INSTALL_PATH=$(dirname $(dirname $(which qmake)))
-    echo "Qt installed at: $QT_INSTALL_PATH"
+    echo "Qt 5.15.2 installed at: $QT_INSTALL_PATH"
     
     # Copy patched Qt libraries from project to Qt installation
     echo "Copying patched Qt Bluetooth libraries..."
@@ -100,20 +132,15 @@ if command -v qmake &> /dev/null; then
         echo "Verifying patched libraries:"
         ls -la "$QT_LIB_DIR"/libQt5Bluetooth*
     else
-        echo "Warning: Patched libraries not found at $PATCHED_LIBS_DIR"
+        echo "ERROR: Patched libraries not found at $PATCHED_LIBS_DIR"
         echo "Current directory: $(pwd)"
-        echo "Searching for patched libraries..."
-        find . -name "libQt5Bluetooth*" || echo "No patched libraries found"
+        exit 1
     fi
     
     echo "Qt 5.15.2 installation and patching completed successfully"
 else
-    echo "ERROR: Qt installation failed"
-    echo "Available Homebrew packages:"
-    brew list | grep -i qt || echo "No Qt packages found"
-    echo "System paths:"
-    echo $PATH
+    echo "FATAL ERROR: No qmake found after installation"
     exit 1
 fi
 
-echo "Post-clone setup completed successfully"
+echo "Post-clone setup completed successfully - Qt 5.15.2 EXACTLY installed"
