@@ -43,21 +43,22 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
         export QT_DIR="/usr/local/Qt/5.15.2/clang_64"
         export PATH="$QT_DIR/bin:$PATH"
     else
-        echo "aqt failed, using Homebrew with specific Qt 5.15.2 formula..."
+        echo "aqt failed, using local Homebrew Qt 5.15.2 formula..."
         
-        # Method 2: Download the exact Qt 5.15.2 formula and install it
-        cd /tmp
+        # Method 2: Use the Qt 5.15.2 formula included in the repository
+        cd ../..  # Go back to project root
         
-        # Download the specific formula for Qt 5.15.2
-        echo "Downloading Qt 5.15.2 formula from specific commit..."
-        curl -O "https://raw.githubusercontent.com/Homebrew/homebrew-core/359cb0857099cdfa8b9ce8f421c680c9829dfe81/Formula/qt%405.rb"
-        
-        # Rename the file to qt5.rb as suggested
-        mv "qt@5.rb" qt5.rb
-        
-        # Install Qt 5.15.2 using the specific formula
-        echo "Installing Qt 5.15.2 using downloaded formula..."
-        brew install ./qt5.rb
+        # Use the local Qt 5.15.2 formula included in the repository
+        echo "Installing Qt 5.15.2 using local formula..."
+        if [[ -f "ci-scripts/homebrew-formulas/qt5.rb" ]]; then
+            echo "Found local Qt 5.15.2 formula"
+            brew install ./ci-scripts/homebrew-formulas/qt5.rb
+        else
+            echo "ERROR: Local Qt 5.15.2 formula not found at ci-scripts/homebrew-formulas/qt5.rb"
+            echo "Current directory: $(pwd)"
+            ls -la ci-scripts/ || echo "ci-scripts directory not found"
+            exit 1
+        fi
         
         # Verify it's the right version
         QT_PATHS=(
