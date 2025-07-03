@@ -48,15 +48,13 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
         # Method 2: Use the Qt 5.15.2 formula included in the repository
         cd ../..  # Go back to project root
         
-        # Use the local Qt 5.15.2 formula included in the repository
+        # Add the tap but skip bottles to force source compilation
         brew tap dmuth/core https://github.com/dmuth/homebrew-core.git
-
-        # Reset the tap to the specific commit
         cd $(brew --repository dmuth/core)
         git reset --hard 7cc83b1e58fcd3026f0fb7d4130b1d36d9649b47
 
-        # Now install Qt
-        brew install dmuth/core/qt
+        # Install without bottles (compile from source)
+        brew install --build-from-source dmuth/core/qt
         
         # Verify it's the right version
         QT_PATHS=(
