@@ -756,14 +756,8 @@ jobs:
             # Start the main activity
             adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
             
-            # Wait for app to start - longer wait for older Android versions
-            if [ ${{ matrix.api-level }} -le 26 ]; then \
-              echo "Waiting 60 seconds for older Android version (API ${{ matrix.api-level }})"; \
-              sleep 60; \
-            else \
-              echo "Waiting 40 seconds for newer Android version (API ${{ matrix.api-level }})"; \
-              sleep 40; \
-            fi
+            # Wait for app to start
+            sleep 60
             
             # Verify the app is running
             echo "Checking if app is running..."
