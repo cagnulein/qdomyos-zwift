@@ -191,6 +191,9 @@
 		872DCC3B2A18D4C000EC9F68 /* moc_virtualdevice.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872DCC3A2A18D4C000EC9F68 /* moc_virtualdevice.cpp */; };
 		873063BE259DF20000DA0F44 /* heartratebelt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873063BC259DF20000DA0F44 /* heartratebelt.cpp */; };
 		873063C0259DF2C500DA0F44 /* moc_heartratebelt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873063BF259DF2C500DA0F44 /* moc_heartratebelt.cpp */; };
+		8730A38B2B404081007E336D /* SwiftProtobuf in Link Binary With Libraries */ = {isa = PBXBuildFile; productRef = 8730A38A2B404081007E336D /* SwiftProtobuf */; };
+		8730A38D2B404081007E336D /* SwiftProtobufPluginLibrary in Link Binary With Libraries */ = {isa = PBXBuildFile; productRef = 8730A38C2B404081007E336D /* SwiftProtobufPluginLibrary */; };
+		8730A38F2B404081007E336D /* protoc-gen-swift in Link Binary With Libraries */ = {isa = PBXBuildFile; productRef = 8730A38E2B404081007E336D /* protoc-gen-swift */; };
 		8730A3922B404159007E336D /* zwift_protobuf_layer.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8730A3912B404159007E336D /* zwift_protobuf_layer.swift */; };
 		8730A3932B4078E6007E336D /* zwift_messages.pb.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8730A3902B4040AF007E336D /* zwift_messages.pb.swift */; };
 		87310B1E266FBB59008BA0D6 /* smartrowrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87310B1B266FBB54008BA0D6 /* smartrowrower.cpp */; };
@@ -3377,6 +3380,11 @@
 				876E4E312594748100BD5714 /* PBXTargetDependency */,
 			);
 			name = qdomyoszwift;
+			packageProductDependencies = (
+				8730A38A2B404081007E336D /* SwiftProtobuf */,
+				8730A38C2B404081007E336D /* SwiftProtobufPluginLibrary */,
+				8730A38E2B404081007E336D /* protoc-gen-swift */,
+			);
 			productName = qdomyoszwift;
 			productReference = 040B10E2EF2CEF79F2205FE2 /* qdomyoszwift.app */;
 			productType = "com.apple.product-type.application";
@@ -3449,6 +3457,9 @@
 				Base,
 			);
 			mainGroup = E8C543AB96796ECAA2E65C57 /* qdomyoszwift */;
+			packageReferences = (
+				8730A3892B404081007E336D /* XCRemoteSwiftPackageReference "swift-protobuf" */,
+			);
 			productRefGroup = FE0A091FDBFB3E9C31B7A1BD /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -5211,7 +5222,34 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		8730A3892B404081007E336D /* XCRemoteSwiftPackageReference "swift-protobuf" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-protobuf.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.25.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 
+/* Begin XCSwiftPackageProductDependency section */
+		8730A38A2B404081007E336D /* SwiftProtobuf */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8730A3892B404081007E336D /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobuf;
+		};
+		8730A38C2B404081007E336D /* SwiftProtobufPluginLibrary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8730A3892B404081007E336D /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobufPluginLibrary;
+		};
+		8730A38E2B404081007E336D /* protoc-gen-swift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8730A3892B404081007E336D /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = "protoc-gen-swift";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6DB9C3763D02B1415CD9D565 /* Project object */;
 }
