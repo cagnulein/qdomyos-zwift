@@ -21,6 +21,7 @@ ScrollView {
         property int gear_cog_size: 14
         property string gear_wheel_size: "700 x 18C"
         property real gear_circumference: 2070
+        property bool wahoo_without_wheel_diameter: false
     }
 
     property int selectedCranksetSize: settings.gear_crankset_size
@@ -322,6 +323,38 @@ ScrollView {
         anchors.margins: 20
         spacing: 20
         id: chainringColumn
+
+        // Wahoo Options
+        GroupBox {
+            title: "Wahoo Options"
+            Layout.fillWidth: true
+
+            ColumnLayout {
+                IndicatorOnlySwitch {
+                    id: wahooWithoutWheelDiameterDelegate
+                    text: qsTr("Without Wheel Diameter Protocol")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.wahoo_without_wheel_diameter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.wahoo_without_wheel_diameter = checked
+                }
+
+                Label {
+                    text: qsTr("Enable this for simplified Wahoo protocol that adds gears directly to grade instead of using wheel diameter changes. Default is false.")
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: chainringColumn.width - 20
+                    font.pixelSize: Qt.application.font.pixelSize - 2
+                    color: Material.accent
+                }
+            }
+        }
 
         // Crankset Size
         GroupBox {
