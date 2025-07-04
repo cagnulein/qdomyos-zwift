@@ -124,7 +124,7 @@ fi
 
 # Fix "legacy build locations" error for Xcode Cloud
 echo "Fixing Xcode project for Xcode Cloud compatibility..."
-cd ../../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug
+cd ..
 
 if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     echo "Applying Xcode Cloud build location fix..."
