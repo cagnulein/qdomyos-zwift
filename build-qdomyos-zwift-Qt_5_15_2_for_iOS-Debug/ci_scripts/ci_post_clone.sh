@@ -122,4 +122,4 @@ else
     exit 1
 fi
 
-echo "Post-clone setup completed successfully - Qt 5.15.2 EXACTLY installed"
+echo "Post-clone setup completed successfully - Qt 5.15.2 installed with local SwiftProtobuf"
