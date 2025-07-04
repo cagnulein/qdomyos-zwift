@@ -122,4 +122,24 @@ else
     exit 1
 fi
 
+# Fix "legacy build locations" error for Xcode Cloud
+echo "Fixing Xcode project for Xcode Cloud compatibility..."
+cd ../../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug
+
+if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
+    echo "Applying Xcode Cloud build location fix..."
+    
+    # Backup original project file
+    cp qdomyoszwift.xcodeproj/project.pbxproj qdomyoszwift.xcodeproj/project.pbxproj.backup
+    
+    # Disable legacy build locations in project settings
+    # This changes the build system to use recommended locations
+    sed -i '' 's/SYMROOT = /\/\* SYMROOT = /g' qdomyoszwift.xcodeproj/project.pbxproj || echo "SYMROOT already commented"
+    sed -i '' 's/UseNewBuildSystem = NO/UseNewBuildSystem = YES/g' qdomyoszwift.xcodeproj/project.pbxproj || echo "New build system already enabled"
+    
+    echo "Xcode project configuration updated for Xcode Cloud compatibility"
+else
+    echo "WARNING: Xcode project not found, cannot apply legacy build fix"
+fi
+
 echo "Post-clone setup completed successfully - Qt 5.15.2 EXACTLY installed"
