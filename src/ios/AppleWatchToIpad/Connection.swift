@@ -113,6 +113,27 @@ class Connection {
                         let pwr : String = message.slice(from: "PWR=", to: "#") ?? ""
                         WatchKitConnection.power = (Double(pwr) ?? WatchKitConnection.power)
                     }
+                    if sender?.contains("PAD") ?? false && message.contains("INCL=") {
+                        let incl : String = message.slice(from: "INCL=", to: "#") ?? ""
+                        WatchKitConnection.inclination = (Double(incl) ?? WatchKitConnection.inclination)
+                    }
+                    
+                    // Handle treadmill data from any sender except self (avoid echo)
+                    if message.contains("UUID=") {
+                        let remoteUUID = message.slice(from: "UUID=", to: "#") ?? ""
+                        if remoteUUID != WatchKitConnection.deviceUUID {
+                            // Process speed data from remote device
+                            if message.contains("SPD=") {
+                                let spd : String = message.slice(from: "SPD=", to: "#") ?? ""
+                                WatchKitConnection.tcpSpeed = (Double(spd) ?? WatchKitConnection.tcpSpeed)
+                            }
+                            // Process inclination data from remote device
+                            if message.contains("INCL=") {
+                                let incl : String = message.slice(from: "INCL=", to: "#") ?? ""
+                                WatchKitConnection.tcpInclination = (Double(incl) ?? WatchKitConnection.tcpInclination)
+                            }
+                        }
+                    }
 				}
             }
             if(self.connection.state == .ready) {

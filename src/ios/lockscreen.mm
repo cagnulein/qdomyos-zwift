@@ -89,6 +89,10 @@ void lockscreen::setSpeed(double speed)
 {
     [h setSpeedWithSpeed:speed];
 }
+void lockscreen::setInclination(double inclination)
+{
+    [h setInclinationWithInclination:inclination];
+}
 
 
 void lockscreen::virtualbike_ios()
@@ -383,6 +387,14 @@ QByteArray lockscreen::zwift_hub_inclinationCommand(double inclination) {
         NSUInteger length = [command length];
         return QByteArray(bytes, length);
     }
+}
+
+double lockscreen::getTcpSpeed() {
+    return [h getTcpSpeed];
+}
+
+double lockscreen::getTcpInclination() {
+    return [h getTcpInclination];
 }
 
 QByteArray lockscreen::zwift_hub_setGearsCommand(unsigned int gears) {

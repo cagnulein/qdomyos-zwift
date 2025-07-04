@@ -823,6 +823,8 @@ class homeform : public QObject {
     QTcpSocket *iphone_socket = nullptr;
     QMdnsEngine::Service iphone_service;
     QHostAddress iphone_address;
+    void processTcpMessage(const QString& message);
+    QString deviceUUID;
 #endif
 
   public slots:

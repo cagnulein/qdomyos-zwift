@@ -11,6 +11,9 @@
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
 
 #include <chrono>
 
@@ -85,6 +88,15 @@ void faketreadmill::update() {
                 this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
             }
         }
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        // Initialize lockscreen for iOS TCP data access
+        if (!h) {
+            h = new lockscreen();
+            h->virtualtreadmill_zwift_ios(false);
+        }
+#endif
+#endif
         if (!firstStateChanged)
             emit connectedAndDiscovered();
         firstStateChanged = 1;
@@ -111,6 +123,19 @@ void faketreadmill::update() {
         if (ios_peloton_workaround && cadence && h && firstStateChanged) {
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
+        }
+        
+        // Update from TCP data if available
+        if (h && firstStateChanged) {
+            double tcpSpeed = h->getTcpSpeed();
+            double tcpInclination = h->getTcpInclination();
+            
+            if (tcpSpeed > -100) {
+                Speed = tcpSpeed;
+            }
+            if (tcpInclination > -100) {
+                Inclination = tcpInclination;
+            }
         }
 #endif
 #endif

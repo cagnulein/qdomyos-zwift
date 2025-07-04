@@ -55,6 +55,16 @@ var pedometer = CMPedometer()
     {
         return WatchKitConnection.stepCadence;
     }
+    
+    @objc public func getTcpSpeed() -> Double
+    {
+        return WatchKitConnection.tcpSpeed;
+    }
+    
+    @objc public func getTcpInclination() -> Double
+    {
+        return WatchKitConnection.tcpInclination;
+    }
 
     @objc public func setSteps(steps: Int) -> Void
     {
@@ -128,8 +138,20 @@ var pedometer = CMPedometer()
         Server.server?.send(createString(sender: sender))
     }
     
+    @objc public func setInclination(inclination: Double) -> Void
+    {
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        WatchKitConnection.inclination = inclination;
+        Server.server?.send(createString(sender: sender))
+    }
+    
     func createString(sender: String) -> String {
-        return "SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#ODO=\(WatchKitConnection.distance)#";
+        return "SENDER=\(sender)#UUID=\(WatchKitConnection.deviceUUID)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#ODO=\(WatchKitConnection.distance)#INCL=\(WatchKitConnection.inclination)#";
     }
     
     @objc func updateHeartRate() {
