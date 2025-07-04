@@ -122,26 +122,4 @@ else
     exit 1
 fi
 
-# Fix "legacy build locations" error for Xcode Cloud
-echo "Fixing Xcode project for Xcode Cloud compatibility..."
-cd ..
-
-if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
-    echo "Applying Xcode Cloud build location fix..."
-    
-    # Backup original project file
-    cp qdomyoszwift.xcodeproj/project.pbxproj qdomyoszwift.xcodeproj/project.pbxproj.backup
-    
-    # Fix specific legacy build settings that cause Swift Package conflicts
-    # Change from Legacy (Original) to New Build System 
-    sed -i '' 's/DefaultBuildSystemTypeForWorkspace = Original/DefaultBuildSystemTypeForWorkspace = New/g' qdomyoszwift.xcodeproj/project.pbxproj || echo "Build system already set to New"
-    
-    # Comment out custom SYMROOT that conflicts with Swift Packages
-    sed -i '' 's/SYMROOT = "$(PROJECT_DIR)";/\/\* SYMROOT = "$(PROJECT_DIR)"; \*\//g' qdomyoszwift.xcodeproj/project.pbxproj || echo "SYMROOT already commented"
-    
-    echo "Xcode project configuration updated for Xcode Cloud compatibility"
-else
-    echo "WARNING: Xcode project not found, cannot apply legacy build fix"
-fi
-
 echo "Post-clone setup completed successfully - Qt 5.15.2 EXACTLY installed"
