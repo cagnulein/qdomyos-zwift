@@ -489,7 +489,7 @@ import Qt.labs.platform 1.1
             property bool eslinker_ypoo: false
 
             // from version 2.11.69
-            property bool wahoo_rgt_dircon: false
+            property bool wahoo_rgt_dircon: false            
 
             // from version 2.11.73
             property bool tts_description_enabled: true
@@ -1158,10 +1158,15 @@ import Qt.labs.platform 1.1
             property int  tile_heat_time_in_zone_4_order: 71
 
             property bool proform_treadmill_carbon_tls: false
+            
+            // 2.19.1            
             property bool proform_treadmill_995i: false
             property bool rogue_echo_bike: false
-            property int fit_file_garmin_device_training_effect_device: 3122
+            property int fit_file_garmin_device_training_effect_device: 3122            
+
+            // 2.19.2
             property bool tile_hr_time_in_zone_individual_mode: false
+            property bool wahoo_without_wheel_diameter: false
         }
 
         function paddingZeros(text, limit) {
