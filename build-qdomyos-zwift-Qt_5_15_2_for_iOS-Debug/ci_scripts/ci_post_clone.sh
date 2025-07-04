@@ -52,15 +52,15 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
         
         if [[ -f "qt-5.15.2.tar.xz" ]]; then
             echo "Extracting precompiled Qt 5.15.2..."
-            tar -xf qt-5.15.2.tar.xz
+            tar -mxf qt-5.15.2.tar.xz
             
-            # Install to standard location
-            echo "Installing Qt 5.15.2..."
-            sudo mkdir -p /usr/local/Qt-5.15.2
-            sudo cp -R qt-5.15.2/* /usr/local/Qt-5.15.2/
+            # Install to temp location (no sudo needed)
+            echo "Setting up Qt 5.15.2..."
+            mkdir -p /tmp/Qt-5.15.2
+            cp -R qt-5.15.2/* /tmp/Qt-5.15.2/
             
             # Set environment for iOS development
-            export QT_DIR="/usr/local/Qt-5.15.2/ios"
+            export QT_DIR="/tmp/Qt-5.15.2/ios"
             export PATH="$QT_DIR/bin:$PATH"
             
             echo "Qt 5.15.2 precompiled installation completed"
