@@ -372,3 +372,8 @@ The ProForm 995i implementation serves as the reference example:
 
 - When adding a new setting in QML (setting-tiles.qml), you must:
   * Add the property at the END of the properties list  
+
+## Code Style Rules
+
+- All comments MUST be written in English only
+- Avoid code duplication - unify repeated logic into shared functions or sections when possible

@@ -705,16 +705,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                                   []() { qDebug() << "iphone_socket connected!"; });
                                  QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::readyRead, []() {
                                      QString rec = homeform::singleton()->iphone_socket->readAll();
-                                     qDebug() << "iphone_socket received << " << rec;
-                                     QStringList fields = rec.split("#");
-                                     foreach (QString f, fields) {
-                                         if (f.contains("HR")) {
-                                             QStringList values = f.split("=");
-                                             if (values.length() > 1) {
-                                                 emit homeform::singleton()->heartRate(values[1].toDouble());
-                                             }
-                                         }
-                                     }
+                                     homeform::singleton()->processTcpMessage(rec);
                                  });
 
                                  homeform::singleton()->iphone_address = address;
@@ -745,16 +736,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                                   []() { qDebug() << "iphone_socket connected!"; });
                                  QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::readyRead, []() {
                                      QString rec = homeform::singleton()->iphone_socket->readAll();
-                                     qDebug() << "iphone_socket received << " << rec;
-                                     QStringList fields = rec.split("#");
-                                     foreach (QString f, fields) {
-                                         if (f.contains("HR")) {
-                                             QStringList values = f.split("=");
-                                             if (values.length() > 1) {
-                                                 emit homeform::singleton()->heartRate(values[1].toDouble());
-                                             }
-                                         }
-                                     }
+                                     homeform::singleton()->processTcpMessage(rec);
                                  });
                                  homeform::singleton()->iphone_address = address;
                                  homeform::singleton()->iphone_socket->connectToHost(
@@ -6973,7 +6955,17 @@ void homeform::update() {
                     "#SPD=" + QString::number(bluetoothManager->device()->currentSpeed().value()) +
                     "#PWR=" + QString::number(bluetoothManager->device()->wattsMetric().value()) +
                     "#CAD=" + QString::number(bluetoothManager->device()->currentCadence().value()) +
-                    "#ODO=" + QString::number(bluetoothManager->device()->odometer()) + "#";
+                    "#ODO=" + QString::number(bluetoothManager->device()->odometer());
+                
+                // Aggiungi inclinazione se il device connesso è un treadmill
+                if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                    treadmill* t = qobject_cast<treadmill*>(bluetoothManager->device());
+                    if (t) {
+                        toSend += "#INCL=" + QString::number(t->currentInclination().value());
+                    }
+                }
+                
+                toSend += "#";
                 int write = iphone_socket->write(toSend.toLocal8Bit(), toSend.length());
                 qDebug() << "iphone_socket send " << write << toSend;
             }
@@ -6997,6 +6989,51 @@ bool homeform::getDevice() {
     }
     return this->bluetoothManager->device()->connected();
 }
+
+#ifndef Q_OS_IOS
+void homeform::processTcpMessage(const QString& message) {
+    qDebug() << "iphone_socket received << " << message;
+    QStringList fields = message.split("#");
+    bool hasTreadmillData = false;
+    double speed = 0.0;
+    double incline = 0.0;
+    
+    foreach (QString f, fields) {
+        if (f.contains("HR")) {
+            QStringList values = f.split("=");
+            if (values.length() > 1) {
+                emit heartRate(values[1].toDouble());
+            }
+        } else if (f.contains("SPD=")) {
+            QStringList values = f.split("=");
+            if (values.length() > 1) {
+                speed = values[1].toDouble();
+            }
+        } else if (f.contains("INCL=")) {
+            QStringList values = f.split("=");
+            if (values.length() > 1) {
+                incline = values[1].toDouble();
+                hasTreadmillData = true;
+            }
+        }
+    }
+    
+    // If we receive treadmill data, check if a fake treadmill exists
+    if (hasTreadmillData && bluetoothManager) {
+        bluetooth* bt = bluetoothManager;
+        if (bt->device()) {
+            faketreadmill* ft = qobject_cast<faketreadmill*>(bt->device());
+            if (ft) {
+                // Update speed and incline of fake treadmill
+                if (speed > 0) {
+                    ft->changeSpeed(speed);
+                }
+                ft->changeInclination(incline, incline);
+            }
+        }
+    }
+}
+#endif
 
 bool homeform::getLap() {
     if (!this->bluetoothManager->device()) {

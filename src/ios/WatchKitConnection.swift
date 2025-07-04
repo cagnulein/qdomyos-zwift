@@ -30,6 +30,7 @@ class WatchKitConnection: NSObject {
     static var power = 0.0
     static var cadence = 0.0
     static var steps = 0
+    static var inclination = 0.0
     
     private override init() {
         super.init()

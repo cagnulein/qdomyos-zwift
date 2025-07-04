@@ -113,6 +113,10 @@ class Connection {
                         let pwr : String = message.slice(from: "PWR=", to: "#") ?? ""
                         WatchKitConnection.power = (Double(pwr) ?? WatchKitConnection.power)
                     }
+                    if sender?.contains("PAD") ?? false && message.contains("INCL=") {
+                        let incl : String = message.slice(from: "INCL=", to: "#") ?? ""
+                        WatchKitConnection.inclination = (Double(incl) ?? WatchKitConnection.inclination)
+                    }
 				}
             }
             if(self.connection.state == .ready) {
