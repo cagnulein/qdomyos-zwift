@@ -88,6 +88,15 @@ void faketreadmill::update() {
                 this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
             }
         }
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        // Initialize lockscreen for iOS TCP data access
+        if (!h) {
+            h = new lockscreen();
+            h->virtualtreadmill_zwift_ios(false);
+        }
+#endif
+#endif
         if (!firstStateChanged)
             emit connectedAndDiscovered();
         firstStateChanged = 1;
