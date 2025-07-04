@@ -824,6 +824,7 @@ class homeform : public QObject {
     QMdnsEngine::Service iphone_service;
     QHostAddress iphone_address;
     void processTcpMessage(const QString& message);
+    QString deviceUUID;
 #endif
 
   public slots:

@@ -38,6 +38,7 @@
 #include <QStandardPaths>
 #include <QTime>
 #include <QUrlQuery>
+#include <QUuid>
 #include <chrono>
 
 homeform *homeform::m_singleton = 0;
@@ -682,6 +683,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 
 #ifndef Q_OS_IOS
+    deviceUUID = QUuid::createUuid().toString();
     iphone_browser = new QMdnsEngine::Browser(&iphone_server, "_qz_iphone._tcp.local.", &iphone_cache);
 
     QObject::connect(iphone_browser, &QMdnsEngine::Browser::serviceAdded, [](const QMdnsEngine::Service &service) {
@@ -6949,7 +6951,8 @@ void homeform::update() {
 #ifndef Q_OS_IOS
             if (iphone_socket && iphone_socket->state() == QAbstractSocket::ConnectedState) {
                 QString toSend =
-                    "SENDER=PAD#HR=" + QString::number(bluetoothManager->device()->currentHeart().value()) +
+                    "SENDER=PAD#UUID=" + deviceUUID +
+                    "#HR=" + QString::number(bluetoothManager->device()->currentHeart().value()) +
                     "#KCAL=" + QString::number(bluetoothManager->device()->calories().value()) +
                     "#BCAD=" + QString::number(bluetoothManager->device()->currentCadence().value()) +
                     "#SPD=" + QString::number(bluetoothManager->device()->currentSpeed().value()) +
@@ -6997,12 +7000,18 @@ void homeform::processTcpMessage(const QString& message) {
     bool hasTreadmillData = false;
     double speed = 0.0;
     double incline = 0.0;
+    QString remoteUUID;
     
     foreach (QString f, fields) {
         if (f.contains("HR")) {
             QStringList values = f.split("=");
             if (values.length() > 1) {
                 emit heartRate(values[1].toDouble());
+            }
+        } else if (f.contains("UUID=")) {
+            QStringList values = f.split("=");
+            if (values.length() > 1) {
+                remoteUUID = values[1];
             }
         } else if (f.contains("SPD=")) {
             QStringList values = f.split("=");
@@ -7018,17 +7027,19 @@ void homeform::processTcpMessage(const QString& message) {
         }
     }
     
-    // If we receive treadmill data, check if a fake treadmill exists
-    if (hasTreadmillData && bluetoothManager) {
+    // Process treadmill data only if UUID is different (avoid echo)
+    if (hasTreadmillData && !remoteUUID.isEmpty() && remoteUUID != deviceUUID && bluetoothManager) {
         bluetooth* bt = bluetoothManager;
         if (bt->device()) {
             faketreadmill* ft = qobject_cast<faketreadmill*>(bt->device());
             if (ft) {
                 // Update speed and incline of fake treadmill
-                if (speed > 0) {
+                if (speed > -100) {
                     ft->changeSpeed(speed);
                 }
-                ft->changeInclination(incline, incline);
+                if (incline > -100) {
+                    ft->changeInclination(incline, incline);
+                }
             }
         }
     }
