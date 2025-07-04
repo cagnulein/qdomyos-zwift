@@ -62,15 +62,28 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
             echo "Setting up Qt 5.15.2..."
             mkdir -p /tmp/Qt-5.15.2
             
-            # Check if qt-5.15.2 directory exists or files are extracted directly
-            if [[ -d "qt-5.15.2" ]]; then
-                echo "Found qt-5.15.2 directory, copying contents..."
-                cp -R qt-5.15.2/* /tmp/Qt-5.15.2/
-            else
-                echo "Files extracted directly, moving to Qt directory..."
-                # Move everything except the tar file to Qt directory
-                find . -maxdepth 1 -type d ! -name "." ! -name ".." -exec cp -R {} /tmp/Qt-5.15.2/ \;
-                find . -maxdepth 1 -type f ! -name "qt-5.15.2.tar.xz" -exec cp {} /tmp/Qt-5.15.2/ \;
+            # Files are extracted directly - copy Qt directories
+            echo "Files extracted directly, copying Qt directories..."
+            
+            # Copy the Qt directories we need
+            if [[ -d "ios" ]]; then
+                cp -R ios /tmp/Qt-5.15.2/
+                echo "Copied ios directory"
+            fi
+            
+            if [[ -d "clang_64" ]]; then
+                cp -R clang_64 /tmp/Qt-5.15.2/
+                echo "Copied clang_64 directory"
+            fi
+            
+            if [[ -d "qthttpserver" ]]; then
+                cp -R qthttpserver /tmp/Qt-5.15.2/
+                echo "Copied qthttpserver directory"
+            fi
+            
+            if [[ -f "sha1s.txt" ]]; then
+                cp sha1s.txt /tmp/Qt-5.15.2/
+                echo "Copied sha1s.txt"
             fi
             
             # Set environment for iOS development
