@@ -132,10 +132,12 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     # Backup original project file
     cp qdomyoszwift.xcodeproj/project.pbxproj qdomyoszwift.xcodeproj/project.pbxproj.backup
     
-    # Disable legacy build locations in project settings
-    # This changes the build system to use recommended locations
-    sed -i '' 's/SYMROOT = /\/\* SYMROOT = /g' qdomyoszwift.xcodeproj/project.pbxproj || echo "SYMROOT already commented"
-    sed -i '' 's/UseNewBuildSystem = NO/UseNewBuildSystem = YES/g' qdomyoszwift.xcodeproj/project.pbxproj || echo "New build system already enabled"
+    # Fix specific legacy build settings that cause Swift Package conflicts
+    # Change from Legacy (Original) to New Build System 
+    sed -i '' 's/DefaultBuildSystemTypeForWorkspace = Original/DefaultBuildSystemTypeForWorkspace = New/g' qdomyoszwift.xcodeproj/project.pbxproj || echo "Build system already set to New"
+    
+    # Comment out custom SYMROOT that conflicts with Swift Packages
+    sed -i '' 's/SYMROOT = "$(PROJECT_DIR)";/\/\* SYMROOT = "$(PROJECT_DIR)"; \*\//g' qdomyoszwift.xcodeproj/project.pbxproj || echo "SYMROOT already commented"
     
     echo "Xcode project configuration updated for Xcode Cloud compatibility"
 else
