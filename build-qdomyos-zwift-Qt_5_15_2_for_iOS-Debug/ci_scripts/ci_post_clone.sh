@@ -54,10 +54,24 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
             echo "Extracting precompiled Qt 5.15.2..."
             tar -mxf qt-5.15.2.tar.xz
             
+            # Debug: Check extraction result
+            echo "Contents after extraction:"
+            ls -la
+            
             # Install to temp location (no sudo needed)
             echo "Setting up Qt 5.15.2..."
             mkdir -p /tmp/Qt-5.15.2
-            cp -R qt-5.15.2/* /tmp/Qt-5.15.2/
+            
+            # Check if qt-5.15.2 directory exists or files are extracted directly
+            if [[ -d "qt-5.15.2" ]]; then
+                echo "Found qt-5.15.2 directory, copying contents..."
+                cp -R qt-5.15.2/* /tmp/Qt-5.15.2/
+            else
+                echo "Files extracted directly, moving to Qt directory..."
+                # Move everything except the tar file to Qt directory
+                find . -maxdepth 1 -type d ! -name "." ! -name ".." -exec cp -R {} /tmp/Qt-5.15.2/ \;
+                find . -maxdepth 1 -type f ! -name "qt-5.15.2.tar.xz" -exec cp {} /tmp/Qt-5.15.2/ \;
+            fi
             
             # Set environment for iOS development
             export QT_DIR="/tmp/Qt-5.15.2/ios"
