@@ -125,12 +125,12 @@ class Connection {
                             // Process speed data from remote device
                             if message.contains("SPD=") {
                                 let spd : String = message.slice(from: "SPD=", to: "#") ?? ""
-                                WatchKitConnection.speed = (Double(spd) ?? WatchKitConnection.speed)
+                                WatchKitConnection.tcpSpeed = (Double(spd) ?? WatchKitConnection.tcpSpeed)
                             }
                             // Process inclination data from remote device
                             if message.contains("INCL=") {
                                 let incl : String = message.slice(from: "INCL=", to: "#") ?? ""
-                                WatchKitConnection.inclination = (Double(incl) ?? WatchKitConnection.inclination)
+                                WatchKitConnection.tcpInclination = (Double(incl) ?? WatchKitConnection.tcpInclination)
                             }
                         }
                     }

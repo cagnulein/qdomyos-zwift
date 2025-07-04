@@ -58,12 +58,12 @@ var pedometer = CMPedometer()
     
     @objc public func getTcpSpeed() -> Double
     {
-        return WatchKitConnection.speed;
+        return WatchKitConnection.tcpSpeed;
     }
     
     @objc public func getTcpInclination() -> Double
     {
-        return WatchKitConnection.inclination;
+        return WatchKitConnection.tcpInclination;
     }
 
     @objc public func setSteps(steps: Int) -> Void

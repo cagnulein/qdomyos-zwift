@@ -32,6 +32,8 @@ class WatchKitConnection: NSObject {
     static var steps = 0
     static var inclination = -100.0
     static var deviceUUID = UUID().uuidString
+    static var tcpSpeed = -100.0
+    static var tcpInclination = -100.0
     
     private override init() {
         super.init()
