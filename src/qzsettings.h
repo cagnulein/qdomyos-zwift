@@ -990,7 +990,7 @@ class QZSettings {
     static constexpr bool default_horizon_paragon_x = false;
 
     static const QString treadmill_step_speed;
-    static constexpr float default_treadmill_step_speed = 0.5;
+    static constexpr float default_treadmill_step_speed = 0.1;
 
     static const QString treadmill_step_incline;
     static constexpr float default_treadmill_step_incline = 0.5;
@@ -2050,7 +2050,7 @@ class QZSettings {
     static const QString stryd_speed_instead_treadmill;
     static constexpr bool default_stryd_speed_instead_treadmill = false;
     static const QString inclination_delay_seconds;
-    static constexpr float default_inclination_delay_seconds = 0.0;
+    static constexpr float default_inclination_delay_seconds = 3.0;
 
     static const QString ergDataPoints;
     static const QString default_ergDataPoints;

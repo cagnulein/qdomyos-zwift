@@ -22,6 +22,11 @@
 #include "devices/bike.h"
 #include "virtualdevices/virtualbike.h"
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
+
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
@@ -67,6 +72,8 @@ class nordictrackifitadbbike : public bike {
     bool inclinationAvailableByHardware() override;
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     bool ifitCompatible() override;
+    void changePower(int32_t power) override;
+    bool changeFanSpeed(uint8_t speed) override;
 
   private:
     const resistance_t max_resistance = 20; // max inclination for s22i
@@ -75,12 +82,29 @@ class nordictrackifitadbbike : public bike {
     double getDouble(QString v);
     uint16_t wattsFromResistance(double inclination, double cadence);
     double bikeResistanceToPeloton(resistance_t resistance);
+    
+    // gRPC integration methods
+    void initializeGrpcService();
+    void startGrpcMetricsUpdates();
+    void stopGrpcMetricsUpdates();
+    double getGrpcSpeed();
+    double getGrpcIncline();
+    double getGrpcWatts();
+    double getGrpcCadence();
+    double getGrpcResistance();
+    void setGrpcResistance(double resistance);
+    void setGrpcIncline(double inclination);
+    void setGrpcWatts(double watts);
+    void disableGrpcWatts();
+    void setGrpcFanSpeed(int fanSpeed);
+    int getGrpcFanSpeed();
 
     QTimer *refresh;
 
     uint8_t sec1Update = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastInclinationChanged = QDateTime::currentDateTime();
+    QDateTime lastGrpcInclinationChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
 
@@ -89,8 +113,12 @@ class nordictrackifitadbbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool grpcInitialized = false;
+    bool lastErgMode = true;
+    bool hasActiveWattsTarget = false;
 
     bool gearsAvailable = false;
+    double lastGearValue = 0;
 
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
