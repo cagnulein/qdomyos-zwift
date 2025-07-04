@@ -15,6 +15,7 @@ class lockscreen {
     void setSpeed(double speed);
     void setPower(double power);
     void setCadence(double cadence);
+    void setInclination(double inclination);
 
     // virtualbike
     void virtualbike_ios();

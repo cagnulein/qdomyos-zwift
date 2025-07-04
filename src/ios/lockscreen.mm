@@ -89,6 +89,10 @@ void lockscreen::setSpeed(double speed)
 {
     [h setSpeedWithSpeed:speed];
 }
+void lockscreen::setInclination(double inclination)
+{
+    [h setInclinationWithInclination:inclination];
+}
 
 
 void lockscreen::virtualbike_ios()

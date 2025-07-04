@@ -260,6 +260,7 @@ void bluetoothdevice::update_hr_from_external() {
             h.setPower(m_watt.value());
             h.setCadence(Cadence.value());
             h.setSteps(StepCount.value());
+            h.setInclination(Inclination.value());
             Heart = appleWatchHeartRate;
             qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
 #endif
