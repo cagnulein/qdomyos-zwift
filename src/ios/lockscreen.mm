@@ -385,6 +385,14 @@ QByteArray lockscreen::zwift_hub_inclinationCommand(double inclination) {
     }
 }
 
+double lockscreen::getTcpSpeed() {
+    return [h getTcpSpeed];
+}
+
+double lockscreen::getTcpInclination() {
+    return [h getTcpInclination];
+}
+
 QByteArray lockscreen::zwift_hub_setGearsCommand(unsigned int gears) {
     NSError *error = nil;
     NSData *command = [ZwiftHubBike setGearCommandWithGears:gears error:&error];

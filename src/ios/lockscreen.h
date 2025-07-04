@@ -97,6 +97,10 @@ class lockscreen {
     
     // Zwift Hub Protobuf
     static QByteArray zwift_hub_inclinationCommand(double inclination);
+    
+    // TCP Data Access
+    double getTcpSpeed();
+    double getTcpInclination();
     static QByteArray zwift_hub_setGearsCommand(unsigned int gears);
     static uint32_t zwift_hub_getPowerFromBuffer(const QByteArray& buffer);
     static uint32_t zwift_hub_getCadenceFromBuffer(const QByteArray& buffer);
