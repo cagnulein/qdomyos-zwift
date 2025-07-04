@@ -45,16 +45,113 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
     else
         echo "aqt failed, using local Homebrew Qt 5.15.2 formula..."
         
-        # Method 2: Use the Qt 5.15.2 formula included in the repository
-        cd ../..  # Go back to project root
+        # Method 2: Comprehensive Qt 5.15.2 installation with extensive debugging
+        echo "=== COMPREHENSIVE Qt 5.15.2 INSTALLATION DEBUG ==="
         
-        # Add the tap but skip bottles to force source compilation
-        brew tap dmuth/core https://github.com/dmuth/homebrew-core.git
+        # DEBUG: Show current state
+        echo "Current directory: $(pwd)"
+        echo "Available Qt installations:"
+        find /usr/local /opt/homebrew -name "qmake" 2>/dev/null || echo "No qmake found"
+        
+        # Go back to project root
+        cd ../..
+        echo "Project root: $(pwd)"
+        
+        # Try Method 2A: dmuth/core tap with fixes
+        echo "--- METHOD 2A: dmuth/core tap ---"
+        brew tap dmuth/core https://github.com/dmuth/homebrew-core.git || echo "Tap already exists"
+        
+        # DEBUG: Show tap information
+        echo "Tap repository location: $(brew --repository dmuth/core)"
         cd $(brew --repository dmuth/core)
-        git reset --hard 7cc83b1e58fcd3026f0fb7d4130b1d36d9649b47
-
-        # Install without bottles (compile from source)
-        brew install --build-from-source dmuth/core/qt
+        echo "Current commit: $(git rev-parse HEAD)"
+        
+        # Reset to specific commit
+        git reset --hard 7cc83b1e58fcd3026f0fb7d4130b1d36d9649b47 || echo "Reset failed"
+        echo "After reset commit: $(git rev-parse HEAD)"
+        
+        # DEBUG: List all formulas
+        echo "Available formulas in tap:"
+        ls -la Formula/ || echo "No Formula directory"
+        
+        # Try multiple formula names
+        FORMULA_CANDIDATES=("qt5.rb" "qt.rb" "qt@5.rb")
+        FORMULA_FILE=""
+        
+        for candidate in "${FORMULA_CANDIDATES[@]}"; do
+            if [[ -f "Formula/$candidate" ]]; then
+                echo "Found formula: Formula/$candidate"
+                FORMULA_FILE="Formula/$candidate"
+                break
+            fi
+        done
+        
+        if [[ -n "$FORMULA_FILE" ]]; then
+            echo "Using formula: $FORMULA_FILE"
+            
+            # DEBUG: Show formula content before fix
+            echo "Formula content (first 30 lines):"
+            head -30 "$FORMULA_FILE"
+            
+            # Backup and fix bottle syntax
+            cp "$FORMULA_FILE" "$FORMULA_FILE.backup"
+            
+            # Multiple fix strategies
+            echo "Applying bottle syntax fixes..."
+            
+            # Fix 1: Remove entire bottle section
+            sed -i '' '/bottle do/,/^  end$/d' "$FORMULA_FILE" || echo "Fix 1 failed"
+            
+            # Fix 2: Remove cellar: syntax specifically
+            sed -i '' 's/cellar: :any,//g' "$FORMULA_FILE" || echo "Fix 2 failed"
+            sed -i '' 's/cellar: :any_skip_relocation,//g' "$FORMULA_FILE" || echo "Fix 3 failed"
+            
+            # DEBUG: Show formula after fixes
+            echo "Formula after fixes (first 30 lines):"
+            head -30 "$FORMULA_FILE"
+            
+            # Try installation
+            echo "Installing Qt from fixed formula..."
+            brew install --build-from-source dmuth/core/qt5 || brew install --build-from-source dmuth/core/qt || echo "dmuth installation failed"
+        else
+            echo "No Qt formula found in dmuth/core tap"
+        fi
+        
+        # Try Method 2B: Direct formula download and install
+        if ! command -v qmake &> /dev/null; then
+            echo "--- METHOD 2B: Direct formula download ---"
+            cd /tmp
+            
+            # Try downloading the original formula
+            echo "Downloading original Qt@5 formula..."
+            curl -f "https://raw.githubusercontent.com/Homebrew/homebrew-core/359cb0857099cdfa8b9ce8f421c680c9829dfe81/Formula/qt%405.rb" -o qt5_original.rb || echo "Original formula download failed"
+            
+            if [[ -f "qt5_original.rb" ]]; then
+                # Fix the downloaded formula
+                echo "Fixing downloaded formula..."
+                sed '/bottle do/,/^  end$/d' qt5_original.rb > qt5_fixed.rb
+                
+                # Try to install it
+                echo "Installing from fixed downloaded formula..."
+                brew install --build-from-source ./qt5_fixed.rb || echo "Downloaded formula installation failed"
+            fi
+        fi
+        
+        # NO METHOD 2C - Never use official qt@5 as it won't be 5.15.2 exactly
+        
+        # DEBUG: Final Qt status
+        echo "=== FINAL Qt STATUS ==="
+        if command -v qmake &> /dev/null; then
+            echo "qmake found at: $(which qmake)"
+            echo "Qt version: $(qmake -v)"
+            echo "QT_DIR: $QT_DIR"
+        else
+            echo "ERROR: No qmake found after all attempts"
+            echo "Homebrew packages containing 'qt':"
+            brew list | grep -i qt || echo "No Qt packages found"
+            echo "System-wide qmake search:"
+            find /usr /opt -name "qmake" 2>/dev/null || echo "No qmake found system-wide"
+        fi
         
         # Verify it's the right version
         QT_PATHS=(
