@@ -1588,6 +1588,12 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith(QStringLiteral("THINK X")) || device.name().toUpper().startsWith(QStringLiteral("THINK-"))) {
             THINK_X = true;
             qDebug() << "THINK X workaround enabled!";
+        } else if(device.name().toUpper().startsWith(QStringLiteral("WLT8828"))) {
+            qDebug() << QStringLiteral("WLT8828 found");
+            WLT8828 = true;
+            max_resistance = 32;
+            resistance_lvl_mode = true;
+            ergModeSupported = false; // this bike doesn't have ERG mode natively
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
