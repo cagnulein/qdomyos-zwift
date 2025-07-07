@@ -247,6 +247,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
         bool nordictrackadbbike_resistance = settings.value(QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance).toBool();
+        bool nordictrackadbbike_gear_resistance_mode = settings.value(QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode).toBool();
 
         double speed = 0;
         double cadence = 0;
@@ -393,6 +394,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             lastInclinationChanged = now;
             if (nordictrack_ifit_adb_remote) {
                 bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+                bool nordictrackadbbike_gear_resistance_mode = settings.value(QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode).toBool();
                 
                 // Check if erg_mode has been disabled and we had an active watts target
                 if (!erg_mode && lastErgMode && hasActiveWattsTarget) {
@@ -654,6 +656,7 @@ void nordictrackifitadbbike::forceResistance(double resistance) {
 void nordictrackifitadbbike::update() {
 
     QSettings settings;
+    bool nordictrackadbbike_gear_resistance_mode = settings.value(QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode).toBool();
     update_metrics(false, 0);
 
     if (initRequest) {
