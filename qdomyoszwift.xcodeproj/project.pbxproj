@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 55;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -3722,7 +3722,7 @@
 		6DB9C3763D02B1415CD9D565 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				DefaultBuildSystemTypeForWorkspace = Original;
+				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1220;
 				TargetAttributes = {
 					799833E5566DEFFC37E4BF1E = {
@@ -3742,7 +3742,7 @@
 				};
 			};
 			buildConfigurationList = DAC4C1AA5EDEA1C85E9CA5E6 /* Build configuration list for PBXProject "qdomyoszwift" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 1;
 			knownRegions = (
