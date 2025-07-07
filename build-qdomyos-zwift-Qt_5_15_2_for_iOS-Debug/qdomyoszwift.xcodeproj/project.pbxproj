@@ -932,26 +932,26 @@
 		8703BAE9273C67A90058E206 /* pafersbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pafersbike.cpp; path = ../src/devices/pafersbike/pafersbike.cpp; sourceTree = "<group>"; };
 		8703BAEA273C67A90058E206 /* pafersbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pafersbike.h; path = ../src/devices/pafersbike/pafersbike.h; sourceTree = "<group>"; };
 		8703BAEC273C67B50058E206 /* moc_pafersbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_pafersbike.cpp; sourceTree = "<group>"; };
-		8706138F286D8B4F00D2446E /* libQt5PositioningQuick.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5PositioningQuick.a; path = ../../Qt/5.15.2/ios/lib/libQt5PositioningQuick.a; sourceTree = "<group>"; };
+		8706138F286D8B4F00D2446E /* libQt5PositioningQuick.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5PositioningQuick.a; path = /tmp/Qt-5.15.2/ios/lib/libQt5PositioningQuick.a; sourceTree = "<group>"; };
 		87061391286D8C4200D2446E /* Qt */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Qt; path = ../../Qt; sourceTree = "<group>"; };
-		87061393286D8C9900D2446E /* libdeclarative_positioning.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_positioning.a; path = ../../Qt/5.15.2/ios/qml/QtPositioning/libdeclarative_positioning.a; sourceTree = "<group>"; };
+		87061393286D8C9900D2446E /* libdeclarative_positioning.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_positioning.a; path = /tmp/Qt-5.15.2/ios/qml/QtPositioning/libdeclarative_positioning.a; sourceTree = "<group>"; };
 		87061395286D8CFE00D2446E /* PathController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PathController.cpp; path = ../src/PathController.cpp; sourceTree = "<group>"; };
 		87061396286D8CFE00D2446E /* PathController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PathController.h; path = ../src/PathController.h; sourceTree = "<group>"; };
 		87061398286D8D6500D2446E /* moc_wobjectdefs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_wobjectdefs.cpp; sourceTree = "<group>"; };
-		8706139A286D8DA200D2446E /* libdeclarative_location.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_location.a; path = ../../Qt/5.15.2/ios/qml/QtLocation/libdeclarative_location.a; sourceTree = "<group>"; };
-		8706139C286D8E7300D2446E /* libqtgeoservices_osm.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_osm.a; path = ../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_osm.a; sourceTree = "<group>"; };
-		8706139E286D8F1100D2446E /* libqtposition_positionpoll.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtposition_positionpoll.a; path = ../../Qt/5.15.2/ios/plugins/position/libqtposition_positionpoll.a; sourceTree = "<group>"; };
-		8706139F286D8F1200D2446E /* libqtposition_cl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtposition_cl.a; path = ../../Qt/5.15.2/ios/plugins/position/libqtposition_cl.a; sourceTree = "<group>"; };
-		870613A2286D917600D2446E /* libQt5Location.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Location.a; path = ../../Qt/5.15.2/ios/lib/libQt5Location.a; sourceTree = "<group>"; };
-		870613A3286D917700D2446E /* libQt5Positioning.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Positioning.a; path = ../../Qt/5.15.2/ios/lib/libQt5Positioning.a; sourceTree = "<group>"; };
-		870613AC286D969300D2446E /* libqtgeoservices_itemsoverlay.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_itemsoverlay.a; path = ../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_itemsoverlay.a; sourceTree = "<group>"; };
-		870613AD286D969300D2446E /* libqtgeoservices_mapboxgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_mapboxgl.a; path = ../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_mapboxgl.a; sourceTree = "<group>"; };
-		870613AE286D969400D2446E /* libqtgeoservices_esri.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_esri.a; path = ../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_esri.a; sourceTree = "<group>"; };
-		870613AF286D969400D2446E /* libqtgeoservices_nokia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_nokia.a; path = ../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_nokia.a; sourceTree = "<group>"; };
-		870613B0286D969500D2446E /* libqtgeoservices_mapbox.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_mapbox.a; path = ../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_mapbox.a; sourceTree = "<group>"; };
-		870613B7286D973B00D2446E /* libqsqlite.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqsqlite.a; path = ../../Qt/5.15.2/ios/plugins/sqldrivers/libqsqlite.a; sourceTree = "<group>"; };
-		870613B9286D979000D2446E /* libqmapboxgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqmapboxgl.a; path = ../../Qt/5.15.2/ios/lib/libqmapboxgl.a; sourceTree = "<group>"; };
-		870613BB286D97D100D2446E /* libQt5Sql.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Sql.a; path = ../../Qt/5.15.2/ios/lib/libQt5Sql.a; sourceTree = "<group>"; };
+		8706139A286D8DA200D2446E /* libdeclarative_location.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_location.a; path = /tmp/Qt-5.15.2/ios/qml/QtLocation/libdeclarative_location.a; sourceTree = "<group>"; };
+		8706139C286D8E7300D2446E /* libqtgeoservices_osm.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_osm.a; path = /tmp/Qt-5.15.2/ios/plugins/geoservices/libqtgeoservices_osm.a; sourceTree = "<group>"; };
+		8706139E286D8F1100D2446E /* libqtposition_positionpoll.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtposition_positionpoll.a; path = /tmp/Qt-5.15.2/ios/plugins/position/libqtposition_positionpoll.a; sourceTree = "<group>"; };
+		8706139F286D8F1200D2446E /* libqtposition_cl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtposition_cl.a; path = /tmp/Qt-5.15.2/ios/plugins/position/libqtposition_cl.a; sourceTree = "<group>"; };
+		870613A2286D917600D2446E /* libQt5Location.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Location.a; path = /tmp/Qt-5.15.2/ios/lib/libQt5Location.a; sourceTree = "<group>"; };
+		870613A3286D917700D2446E /* libQt5Positioning.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Positioning.a; path = /tmp/Qt-5.15.2/ios/lib/libQt5Positioning.a; sourceTree = "<group>"; };
+		870613AC286D969300D2446E /* libqtgeoservices_itemsoverlay.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_itemsoverlay.a; path = /tmp/Qt-5.15.2/ios/plugins/geoservices/libqtgeoservices_itemsoverlay.a; sourceTree = "<group>"; };
+		870613AD286D969300D2446E /* libqtgeoservices_mapboxgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_mapboxgl.a; path = /tmp/Qt-5.15.2/ios/plugins/geoservices/libqtgeoservices_mapboxgl.a; sourceTree = "<group>"; };
+		870613AE286D969400D2446E /* libqtgeoservices_esri.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_esri.a; path = /tmp/Qt-5.15.2/ios/plugins/geoservices/libqtgeoservices_esri.a; sourceTree = "<group>"; };
+		870613AF286D969400D2446E /* libqtgeoservices_nokia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_nokia.a; path = /tmp/Qt-5.15.2/ios/plugins/geoservices/libqtgeoservices_nokia.a; sourceTree = "<group>"; };
+		870613B0286D969500D2446E /* libqtgeoservices_mapbox.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_mapbox.a; path = /tmp/Qt-5.15.2/ios/plugins/geoservices/libqtgeoservices_mapbox.a; sourceTree = "<group>"; };
+		870613B7286D973B00D2446E /* libqsqlite.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqsqlite.a; path = /tmp/Qt-5.15.2/ios/plugins/sqldrivers/libqsqlite.a; sourceTree = "<group>"; };
+		870613B9286D979000D2446E /* libqmapboxgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqmapboxgl.a; path = /tmp/Qt-5.15.2/ios/lib/libqmapboxgl.a; sourceTree = "<group>"; };
+		870613BB286D97D100D2446E /* libQt5Sql.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Sql.a; path = /tmp/Qt-5.15.2/ios/lib/libQt5Sql.a; sourceTree = "<group>"; };
 		87083D9426678EFA0072410D /* zwiftworkout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zwiftworkout.h; path = ../src/zwiftworkout.h; sourceTree = "<group>"; };
 		87083D9526678EFA0072410D /* zwiftworkout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = zwiftworkout.cpp; path = ../src/zwiftworkout.cpp; sourceTree = "<group>"; };
 		87097D2D275EA9A20020EE6F /* sportsplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sportsplusbike.cpp; path = ../src/devices/sportsplusbike/sportsplusbike.cpp; sourceTree = "<group>"; };
@@ -963,10 +963,10 @@
 		8710706B29C48AEA0094D0F3 /* handleurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = handleurl.cpp; path = ../src/handleurl.cpp; sourceTree = "<group>"; };
 		8710706D29C48AF30094D0F3 /* moc_handleurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_handleurl.cpp; sourceTree = "<group>"; };
 		8710707229C4A5E70094D0F3 /* GarminConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GarminConnect.swift; path = ../src/ios/GarminConnect.swift; sourceTree = "<group>"; };
-		871189122893C92F006A04D1 /* libQt5Multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Multimedia.a; path = ../../Qt/5.15.2/ios/lib/libQt5Multimedia.a; sourceTree = "<group>"; };
-		871189142893CB51006A04D1 /* libdeclarative_multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_multimedia.a; path = ../../Qt/5.15.2/ios/qml/QtMultimedia/libdeclarative_multimedia.a; sourceTree = "<group>"; };
-		871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5MultimediaQuick.a; path = ../../Qt/5.15.2/ios/lib/libQt5MultimediaQuick.a; sourceTree = "<group>"; };
-		871189182893CECC006A04D1 /* libqavfmediaplayer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqavfmediaplayer.a; path = ../../Qt/5.15.2/ios/plugins/mediaservice/libqavfmediaplayer.a; sourceTree = "<group>"; };
+		871189122893C92F006A04D1 /* libQt5Multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Multimedia.a; path = /tmp/Qt-5.15.2/ios/lib/libQt5Multimedia.a; sourceTree = "<group>"; };
+		871189142893CB51006A04D1 /* libdeclarative_multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_multimedia.a; path = /tmp/Qt-5.15.2/ios/qml/QtMultimedia/libdeclarative_multimedia.a; sourceTree = "<group>"; };
+		871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5MultimediaQuick.a; path = /tmp/Qt-5.15.2/ios/lib/libQt5MultimediaQuick.a; sourceTree = "<group>"; };
+		871189182893CECC006A04D1 /* libqavfmediaplayer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqavfmediaplayer.a; path = /tmp/Qt-5.15.2/ios/plugins/mediaservice/libqavfmediaplayer.a; sourceTree = "<group>"; };
 		871235BD26B297660012D0F2 /* kingsmithr1protreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kingsmithr1protreadmill.h; path = ../src/devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h; sourceTree = "<group>"; };
 		871235BE26B297660012D0F2 /* kingsmithr1protreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kingsmithr1protreadmill.cpp; path = ../src/devices/kingsmithr1protreadmill/kingsmithr1protreadmill.cpp; sourceTree = "<group>"; };
 		871235C026B297720012D0F2 /* moc_kingsmithr1protreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_kingsmithr1protreadmill.cpp; sourceTree = "<group>"; };
@@ -1050,8 +1050,8 @@
 		872A20D828C5EC380037774D /* faketreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = faketreadmill.h; path = ../src/devices/faketreadmill/faketreadmill.h; sourceTree = "<group>"; };
 		872A20D928C5EC380037774D /* faketreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = faketreadmill.cpp; path = ../src/devices/faketreadmill/faketreadmill.cpp; sourceTree = "<group>"; };
 		872A20DB28C5F5CE0037774D /* moc_faketreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_faketreadmill.cpp; sourceTree = "<group>"; };
-		872BAB4D261750EE006A59AB /* libQt5Charts.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Charts.a; path = ../../Qt/5.15.2/ios/lib/libQt5Charts.a; sourceTree = "<group>"; };
-		872BAB4F261751FB006A59AB /* libqtchartsqml2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtchartsqml2.a; path = ../../Qt/5.15.2/ios/qml/QtCharts/libqtchartsqml2.a; sourceTree = "<group>"; };
+		872BAB4D261750EE006A59AB /* libQt5Charts.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Charts.a; path = /tmp/Qt-5.15.2/ios/lib/libQt5Charts.a; sourceTree = "<group>"; };
+		872BAB4F261751FB006A59AB /* libqtchartsqml2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtchartsqml2.a; path = /tmp/Qt-5.15.2/ios/qml/QtCharts/libqtchartsqml2.a; sourceTree = "<group>"; };
 		872DCC372A18D4A800EC9F68 /* virtualdevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = virtualdevice.h; path = ../src/virtualdevices/virtualdevice.h; sourceTree = "<group>"; };
 		872DCC382A18D4A800EC9F68 /* virtualdevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = virtualdevice.cpp; path = ../src/virtualdevices/virtualdevice.cpp; sourceTree = "<group>"; };
 		872DCC3A2A18D4C000EC9F68 /* moc_virtualdevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_virtualdevice.cpp; sourceTree = "<group>"; };
@@ -1069,7 +1069,7 @@
 		87318AAB2683799100770F13 /* echelonstride.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = echelonstride.cpp; path = ../src/devices/echelonstride/echelonstride.cpp; sourceTree = "<group>"; };
 		87318AAC2683799100770F13 /* echelonstride.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = echelonstride.h; path = ../src/devices/echelonstride/echelonstride.h; sourceTree = "<group>"; };
 		87318AAE2683799C00770F13 /* moc_echelonstride.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_echelonstride.cpp; sourceTree = "<group>"; };
-		87318AB026837AA500770F13 /* libQt5WebSockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5WebSockets.a; path = ../../Qt/5.15.2/ios/lib/libQt5WebSockets.a; sourceTree = "<group>"; };
+		87318AB026837AA500770F13 /* libQt5WebSockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5WebSockets.a; path = /tmp/Qt-5.15.2/ios/lib/libQt5WebSockets.a; sourceTree = "<group>"; };
 		8732C17D27353463006DF424 /* iconceptbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = iconceptbike.cpp; path = ../src/devices/iconceptbike/iconceptbike.cpp; sourceTree = "<group>"; };
 		8732C17E27353464006DF424 /* iconceptbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iconceptbike.h; path = ../src/devices/iconceptbike/iconceptbike.h; sourceTree = "<group>"; };
 		8732C1802735346E006DF424 /* moc_iconceptbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_iconceptbike.cpp; sourceTree = "<group>"; };
@@ -1166,9 +1166,9 @@
 		873F022D274BE471002D0349 /* mcfbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mcfbike.cpp; path = ../src/devices/mcfbike/mcfbike.cpp; sourceTree = "<group>"; };
 		873F022E274BE471002D0349 /* mcfbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mcfbike.h; path = ../src/devices/mcfbike/mcfbike.h; sourceTree = "<group>"; };
 		873F0230274BE47D002D0349 /* moc_mcfbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_mcfbike.cpp; sourceTree = "<group>"; };
-		87420DF5269D770F000C5EC6 /* libQt5WebView.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5WebView.a; path = ../../Qt/5.15.2/ios/lib/libQt5WebView.a; sourceTree = "<group>"; };
-		87420DF7269D7CE1000C5EC6 /* libqtwebview_darwin.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtwebview_darwin.a; path = ../../Qt/5.15.2/ios/plugins/webview/libqtwebview_darwin.a; sourceTree = "<group>"; };
-		87420DF9269D7F43000C5EC6 /* libdeclarative_webview.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_webview.a; path = ../../Qt/5.15.2/ios/qml/QtWebView/libdeclarative_webview.a; sourceTree = "<group>"; };
+		87420DF5269D770F000C5EC6 /* libQt5WebView.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5WebView.a; path = /tmp/Qt-5.15.2/ios/lib/libQt5WebView.a; sourceTree = "<group>"; };
+		87420DF7269D7CE1000C5EC6 /* libqtwebview_darwin.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtwebview_darwin.a; path = /tmp/Qt-5.15.2/ios/plugins/webview/libqtwebview_darwin.a; sourceTree = "<group>"; };
+		87420DF9269D7F43000C5EC6 /* libdeclarative_webview.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_webview.a; path = /tmp/Qt-5.15.2/ios/qml/QtWebView/libdeclarative_webview.a; sourceTree = "<group>"; };
 		8742C2B027C92C30007D3FA0 /* wahookickrsnapbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wahookickrsnapbike.h; path = ../src/devices/wahookickrsnapbike/wahookickrsnapbike.h; sourceTree = "<group>"; };
 		8742C2B127C92C30007D3FA0 /* wahookickrsnapbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wahookickrsnapbike.cpp; path = ../src/devices/wahookickrsnapbike/wahookickrsnapbike.cpp; sourceTree = "<group>"; };
 		8742C2B327C92C48007D3FA0 /* moc_wahookickrsnapbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_wahookickrsnapbike.cpp; sourceTree = "<group>"; };
@@ -1194,7 +1194,7 @@
 		8752C0E52B15D85600C3D1A5 /* eliteariafan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eliteariafan.h; path = ../src/devices/eliteariafan/eliteariafan.h; sourceTree = "<group>"; };
 		8752C0E62B15D85600C3D1A5 /* ios_eliteariafan.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_eliteariafan.mm; path = ../src/ios/ios_eliteariafan.mm; sourceTree = "<group>"; };
 		8752C0E72B15D85600C3D1A5 /* ios_eliteariafan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ios_eliteariafan.h; path = ../src/ios/ios_eliteariafan.h; sourceTree = "<group>"; };
-		87540FAC2848FD70005E0D44 /* libqtexttospeech_speechios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtexttospeech_speechios.a; path = ../../Qt/5.15.2/ios/plugins/texttospeech/libqtexttospeech_speechios.a; sourceTree = "<group>"; };
+		87540FAC2848FD70005E0D44 /* libqtexttospeech_speechios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtexttospeech_speechios.a; path = /tmp/Qt-5.15.2/ios/plugins/texttospeech/libqtexttospeech_speechios.a; sourceTree = "<group>"; };
 		8754D24B27F786F0003D7054 /* virtualrower.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = virtualrower.swift; path = ../src/ios/virtualrower.swift; sourceTree = "<group>"; };
 		87586A3F25B8340D00A243C4 /* proformbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformbike.h; path = ../src/devices/proformbike/proformbike.h; sourceTree = "<group>"; };
 		87586A4025B8340E00A243C4 /* proformbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformbike.cpp; path = ../src/devices/proformbike/proformbike.cpp; sourceTree = "<group>"; };
@@ -1348,7 +1348,7 @@
 		877758B22C98627300BB1697 /* moc_sportstechelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sportstechelliptical.cpp; sourceTree = "<group>"; };
 		877758B42C98629B00BB1697 /* sportstechelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sportstechelliptical.h; path = ../src/devices/sportstechelliptical/sportstechelliptical.h; sourceTree = "<group>"; };
 		877758B52C98629B00BB1697 /* sportstechelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sportstechelliptical.cpp; path = ../src/devices/sportstechelliptical/sportstechelliptical.cpp; sourceTree = "<group>"; };
-		877A7606269D8E0F0024DD2C /* libqtwebview_darwin_debug.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtwebview_darwin_debug.a; path = ../../Qt/5.15.2/ios/plugins/webview/libqtwebview_darwin_debug.a; sourceTree = "<group>"; };
+		877A7606269D8E0F0024DD2C /* libqtwebview_darwin_debug.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtwebview_darwin_debug.a; path = /tmp/Qt-5.15.2/ios/plugins/webview/libqtwebview_darwin_debug.a; sourceTree = "<group>"; };
 		877A7608269D8E9F0024DD2C /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		877FBA27276E684400F6C0C9 /* bowflextreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bowflextreadmill.cpp; path = ../src/devices/bowflextreadmill/bowflextreadmill.cpp; sourceTree = "<group>"; };
 		877FBA28276E684400F6C0C9 /* bowflextreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bowflextreadmill.h; path = ../src/devices/bowflextreadmill/bowflextreadmill.h; sourceTree = "<group>"; };
@@ -1360,8 +1360,8 @@
 		8781907C2615089D0085E656 /* peloton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = peloton.cpp; path = ../src/peloton.cpp; sourceTree = "<group>"; };
 		8781907D2615089D0085E656 /* peloton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = peloton.h; path = ../src/peloton.h; sourceTree = "<group>"; };
 		8781907F261508B10085E656 /* moc_peloton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_peloton.cpp; sourceTree = "<group>"; };
-		8781908126150B490085E656 /* libqtlabsplatformplugin.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtlabsplatformplugin.a; path = ../../Qt/5.15.2/ios/qml/Qt/labs/platform/libqtlabsplatformplugin.a; sourceTree = "<group>"; };
-		8781908326150C5B0085E656 /* libqtlabsplatformplugin_debug.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtlabsplatformplugin_debug.a; path = ../../Qt/5.15.2/ios/qml/Qt/labs/platform/libqtlabsplatformplugin_debug.a; sourceTree = "<group>"; };
+		8781908126150B490085E656 /* libqtlabsplatformplugin.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtlabsplatformplugin.a; path = /tmp/Qt-5.15.2/ios/qml/Qt/labs/platform/libqtlabsplatformplugin.a; sourceTree = "<group>"; };
+		8781908326150C5B0085E656 /* libqtlabsplatformplugin_debug.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtlabsplatformplugin_debug.a; path = /tmp/Qt-5.15.2/ios/qml/Qt/labs/platform/libqtlabsplatformplugin_debug.a; sourceTree = "<group>"; };
 		878225C234983ACB863D2D29 /* fit_nmea_sentence_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_nmea_sentence_mesg.hpp; path = "/Volumes/workspace/repository/src/fit-sdk/fit_nmea_sentence_mesg.hpp"; sourceTree = "<absolute>"; };
 		8783153A25E8D81E0007817C /* moc_sportstechbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sportstechbike.cpp; sourceTree = "<group>"; };
 		87842E7E25AF88FB00321E69 /* secret.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = secret.h; path = ../src/secret.h; sourceTree = "<group>"; };
@@ -1426,11 +1426,11 @@
 		879F16442847E55C00CE4945 /* proformellipticaltrainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformellipticaltrainer.cpp; path = ../src/devices/proformellipticaltrainer/proformellipticaltrainer.cpp; sourceTree = "<group>"; };
 		879F16452847E55C00CE4945 /* proformellipticaltrainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformellipticaltrainer.h; path = ../src/devices/proformellipticaltrainer/proformellipticaltrainer.h; sourceTree = "<group>"; };
 		879F16472847E57400CE4945 /* moc_proformellipticaltrainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformellipticaltrainer.cpp; sourceTree = "<group>"; };
-		879F74082893D4B5009A64C8 /* libQt5MultimediaWidgets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5MultimediaWidgets.a; path = ../../Qt/5.15.2/ios/lib/libQt5MultimediaWidgets.a; sourceTree = "<group>"; };
-		879F740A2893D4F9009A64C8 /* libqtaudio_coreaudio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtaudio_coreaudio.a; path = ../../Qt/5.15.2/ios/plugins/audio/libqtaudio_coreaudio.a; sourceTree = "<group>"; };
-		879F740B2893D4F9009A64C8 /* libqtmultimedia_m3u.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtmultimedia_m3u.a; path = ../../Qt/5.15.2/ios/plugins/playlistformats/libqtmultimedia_m3u.a; sourceTree = "<group>"; };
-		879F740E2893D591009A64C8 /* libqtmedia_audioengine.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtmedia_audioengine.a; path = ../../Qt/5.15.2/ios/plugins/mediaservice/libqtmedia_audioengine.a; sourceTree = "<group>"; };
-		879F74102893D5B7009A64C8 /* libqavfcamera.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqavfcamera.a; path = ../../Qt/5.15.2/ios/plugins/mediaservice/libqavfcamera.a; sourceTree = "<group>"; };
+		879F74082893D4B5009A64C8 /* libQt5MultimediaWidgets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5MultimediaWidgets.a; path = /tmp/Qt-5.15.2/ios/lib/libQt5MultimediaWidgets.a; sourceTree = "<group>"; };
+		879F740A2893D4F9009A64C8 /* libqtaudio_coreaudio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtaudio_coreaudio.a; path = /tmp/Qt-5.15.2/ios/plugins/audio/libqtaudio_coreaudio.a; sourceTree = "<group>"; };
+		879F740B2893D4F9009A64C8 /* libqtmultimedia_m3u.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtmultimedia_m3u.a; path = /tmp/Qt-5.15.2/ios/plugins/playlistformats/libqtmultimedia_m3u.a; sourceTree = "<group>"; };
+		879F740E2893D591009A64C8 /* libqtmedia_audioengine.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtmedia_audioengine.a; path = /tmp/Qt-5.15.2/ios/plugins/mediaservice/libqtmedia_audioengine.a; sourceTree = "<group>"; };
+		879F74102893D5B7009A64C8 /* libqavfcamera.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqavfcamera.a; path = /tmp/Qt-5.15.2/ios/plugins/mediaservice/libqavfcamera.a; sourceTree = "<group>"; };
 		879F74122893D705009A64C8 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		879F74142893D732009A64C8 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		87A0770E29B641D500A368BF /* wahookickrheadwind.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wahookickrheadwind.h; path = ../src/devices/wahookickrheadwind/wahookickrheadwind.h; sourceTree = "<group>"; };
@@ -1495,7 +1495,7 @@
 		87BAFE492B8CAA4200065FCD /* focustreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = focustreadmill.cpp; path = ../src/devices/focustreadmill/focustreadmill.cpp; sourceTree = "<group>"; };
 		87BAFE4A2B8CAA4200065FCD /* focustreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = focustreadmill.h; path = ../src/devices/focustreadmill/focustreadmill.h; sourceTree = "<group>"; };
 		87BB1773269E983200F46A1C /* moc_webserverinfosender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_webserverinfosender.cpp; sourceTree = "<group>"; };
-		87BB1775269E987000F46A1C /* libQt5HttpServer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5HttpServer.a; path = ../../Qt/5.15.2/ios/lib/libQt5HttpServer.a; sourceTree = "<group>"; };
+		87BB1775269E987000F46A1C /* libQt5HttpServer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5HttpServer.a; path = /tmp/Qt-5.15.2/ios/lib/libQt5HttpServer.a; sourceTree = "<group>"; };
 		87BCE6BB29F28F72001F70EB /* ypooelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ypooelliptical.h; path = ../src/devices/ypooelliptical/ypooelliptical.h; sourceTree = "<group>"; };
 		87BCE6BC29F28F72001F70EB /* ypooelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ypooelliptical.cpp; path = ../src/devices/ypooelliptical/ypooelliptical.cpp; sourceTree = "<group>"; };
 		87BCE6BE29F28F94001F70EB /* moc_ypooelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_ypooelliptical.cpp; sourceTree = "<group>"; };
@@ -1590,7 +1590,7 @@
 		87DA62A92D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicwriteprocessor0003.cpp; path = ../src/characteristics/characteristicwriteprocessor0003.cpp; sourceTree = SOURCE_ROOT; };
 		87DA62AD2D2426F2008ADA0F /* characteristicnotifier0004.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicnotifier0004.cpp; path = ../src/characteristics/characteristicnotifier0004.cpp; sourceTree = SOURCE_ROOT; };
 		87DA62AE2D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_characteristicnotifier0004.cpp; sourceTree = "<group>"; };
-		87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5TextToSpeech.a; path = ../../Qt/5.15.2/ios/lib/libQt5TextToSpeech.a; sourceTree = "<group>"; };
+		87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5TextToSpeech.a; path = /tmp/Qt-5.15.2/ios/lib/libQt5TextToSpeech.a; sourceTree = "<group>"; };
 		87DA8463284933D200B550E9 /* fakeelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fakeelliptical.h; path = ../src/devices/fakeelliptical/fakeelliptical.h; sourceTree = "<group>"; };
 		87DA8464284933D200B550E9 /* fakeelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fakeelliptical.cpp; path = ../src/devices/fakeelliptical/fakeelliptical.cpp; sourceTree = "<group>"; };
 		87DA8466284933DE00B550E9 /* moc_fakeelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fakeelliptical.cpp; sourceTree = "<group>"; };
@@ -4085,21 +4085,21 @@
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					../../Qt/5.15.2/ios/mkspecs/common/uikit,
+					/tmp/Qt-5.15.2/ios/mkspecs/common/uikit,
 					"../src/fit-sdk",
-					../../Qt/5.15.2/ios/include,
-					../../Qt/5.15.2/ios/include/QtWidgets,
-					../../Qt/5.15.2/ios/include/QtQuick,
-					../../Qt/5.15.2/ios/include/QtGui,
-					../../Qt/5.15.2/ios/include/QtBluetooth,
-					../../Qt/5.15.2/ios/include/QtXml,
-					../../Qt/5.15.2/ios/include/QtPositioning,
-					../../Qt/5.15.2/ios/include/QtQmlModels,
-					../../Qt/5.15.2/ios/include/QtQml,
-					../../Qt/5.15.2/ios/include/QtNetwork,
-					../../Qt/5.15.2/ios/include/QtCore,
+					/tmp/Qt-5.15.2/ios/include,
+					/tmp/Qt-5.15.2/ios/include/QtWidgets,
+					/tmp/Qt-5.15.2/ios/include/QtQuick,
+					/tmp/Qt-5.15.2/ios/include/QtGui,
+					/tmp/Qt-5.15.2/ios/include/QtBluetooth,
+					/tmp/Qt-5.15.2/ios/include/QtXml,
+					/tmp/Qt-5.15.2/ios/include/QtPositioning,
+					/tmp/Qt-5.15.2/ios/include/QtQmlModels,
+					/tmp/Qt-5.15.2/ios/include/QtQml,
+					/tmp/Qt-5.15.2/ios/include/QtNetwork,
+					/tmp/Qt-5.15.2/ios/include/QtCore,
 					.,
-					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
+					"/tmp/Qt-5.15.2/ios/mkspecs/macx-ios-clang",
 				);
 				INFOPLIST_FILE = ../src/ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -4240,21 +4240,21 @@
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					../../Qt/5.15.2/ios/mkspecs/common/uikit,
+					/tmp/Qt-5.15.2/ios/mkspecs/common/uikit,
 					"../src/fit-sdk",
-					../../Qt/5.15.2/ios/include,
-					../../Qt/5.15.2/ios/include/QtWidgets,
-					../../Qt/5.15.2/ios/include/QtQuick,
-					../../Qt/5.15.2/ios/include/QtGui,
-					../../Qt/5.15.2/ios/include/QtBluetooth,
-					../../Qt/5.15.2/ios/include/QtXml,
-					../../Qt/5.15.2/ios/include/QtPositioning,
-					../../Qt/5.15.2/ios/include/QtQmlModels,
-					../../Qt/5.15.2/ios/include/QtQml,
-					../../Qt/5.15.2/ios/include/QtNetwork,
-					../../Qt/5.15.2/ios/include/QtCore,
+					/tmp/Qt-5.15.2/ios/include,
+					/tmp/Qt-5.15.2/ios/include/QtWidgets,
+					/tmp/Qt-5.15.2/ios/include/QtQuick,
+					/tmp/Qt-5.15.2/ios/include/QtGui,
+					/tmp/Qt-5.15.2/ios/include/QtBluetooth,
+					/tmp/Qt-5.15.2/ios/include/QtXml,
+					/tmp/Qt-5.15.2/ios/include/QtPositioning,
+					/tmp/Qt-5.15.2/ios/include/QtQmlModels,
+					/tmp/Qt-5.15.2/ios/include/QtQml,
+					/tmp/Qt-5.15.2/ios/include/QtNetwork,
+					/tmp/Qt-5.15.2/ios/include/QtCore,
 					.,
-					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
+					"/tmp/Qt-5.15.2/ios/mkspecs/macx-ios-clang",
 				);
 				INFOPLIST_FILE = ../src/ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -4386,35 +4386,35 @@
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					../../Qt/5.15.2/ios/mkspecs/common/uikit,
+					/tmp/Qt-5.15.2/ios/mkspecs/common/uikit,
 					"../src/fit-sdk",
-					../../Qt/5.15.2/ios/include,
-					../../Qt/5.15.2/ios/include/QtWidgets,
-					../../Qt/5.15.2/ios/include/QtQuick,
-					../../Qt/5.15.2/ios/include/QtGui,
-					../../Qt/5.15.2/ios/include/QtBluetooth,
-					../../Qt/5.15.2/ios/include/QtXml,
-					../../Qt/5.15.2/ios/include/QtPositioning,
-					../../Qt/5.15.2/ios/include/QtQmlModels,
-					../../Qt/5.15.2/ios/include/QtQml,
-					../../Qt/5.15.2/ios/include/QtCharts,
-					../../Qt/5.15.2/ios/include/QtNetwork,
-					../../Qt/5.15.2/ios/include/QtCore,
+					/tmp/Qt-5.15.2/ios/include,
+					/tmp/Qt-5.15.2/ios/include/QtWidgets,
+					/tmp/Qt-5.15.2/ios/include/QtQuick,
+					/tmp/Qt-5.15.2/ios/include/QtGui,
+					/tmp/Qt-5.15.2/ios/include/QtBluetooth,
+					/tmp/Qt-5.15.2/ios/include/QtXml,
+					/tmp/Qt-5.15.2/ios/include/QtPositioning,
+					/tmp/Qt-5.15.2/ios/include/QtQmlModels,
+					/tmp/Qt-5.15.2/ios/include/QtQml,
+					/tmp/Qt-5.15.2/ios/include/QtCharts,
+					/tmp/Qt-5.15.2/ios/include/QtNetwork,
+					/tmp/Qt-5.15.2/ios/include/QtCore,
 					.,
-					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
-					../../Qt/5.15.2/ios/include/QtNetworkAuth,
-					../../Qt/5.15.2/ios/include/QtHttpServer,
+					"/tmp/Qt-5.15.2/ios/mkspecs/macx-ios-clang",
+					/tmp/Qt-5.15.2/ios/include/QtNetworkAuth,
+					/tmp/Qt-5.15.2/ios/include/QtHttpServer,
 					../src/qmdnsengine/src/include,
 					../src/purchasing/inapp,
 					../src/purchasing/qmltypes,
 					../src/purchasing/ios,
-					../../Qt/5.15.2/ios/include/QtTextToSpeech,
-					../../Qt/5.15.2/ios/include/QtMultimedia,
+					/tmp/Qt-5.15.2/ios/include/QtTextToSpeech,
+					/tmp/Qt-5.15.2/ios/include/QtMultimedia,
 					../src/devices,
 					../src/ios/adb/include,
-					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/private,
-					../../Qt/5.15.2/ios/include/QtCore/5.15.2,
-					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/,
+					/tmp/Qt-5.15.2/ios/include/QtCore/5.15.2/QtCore/private,
+					/tmp/Qt-5.15.2/ios/include/QtCore/5.15.2,
+					/tmp/Qt-5.15.2/ios/include/QtCore/5.15.2/QtCore/,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/tmp/Qt-5.15.2/ios/plugins/platforms,
@@ -4582,35 +4582,35 @@
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					../../Qt/5.15.2/ios/mkspecs/common/uikit,
+					/tmp/Qt-5.15.2/ios/mkspecs/common/uikit,
 					"../src/fit-sdk",
-					../../Qt/5.15.2/ios/include,
-					../../Qt/5.15.2/ios/include/QtWidgets,
-					../../Qt/5.15.2/ios/include/QtQuick,
-					../../Qt/5.15.2/ios/include/QtGui,
-					../../Qt/5.15.2/ios/include/QtBluetooth,
-					../../Qt/5.15.2/ios/include/QtXml,
-					../../Qt/5.15.2/ios/include/QtPositioning,
-					../../Qt/5.15.2/ios/include/QtQmlModels,
-					../../Qt/5.15.2/ios/include/QtQml,
-					../../Qt/5.15.2/ios/include/QtCharts,
-					../../Qt/5.15.2/ios/include/QtNetwork,
-					../../Qt/5.15.2/ios/include/QtCore,
+					/tmp/Qt-5.15.2/ios/include,
+					/tmp/Qt-5.15.2/ios/include/QtWidgets,
+					/tmp/Qt-5.15.2/ios/include/QtQuick,
+					/tmp/Qt-5.15.2/ios/include/QtGui,
+					/tmp/Qt-5.15.2/ios/include/QtBluetooth,
+					/tmp/Qt-5.15.2/ios/include/QtXml,
+					/tmp/Qt-5.15.2/ios/include/QtPositioning,
+					/tmp/Qt-5.15.2/ios/include/QtQmlModels,
+					/tmp/Qt-5.15.2/ios/include/QtQml,
+					/tmp/Qt-5.15.2/ios/include/QtCharts,
+					/tmp/Qt-5.15.2/ios/include/QtNetwork,
+					/tmp/Qt-5.15.2/ios/include/QtCore,
 					.,
-					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
-					../../Qt/5.15.2/ios/include/QtNetworkAuth,
-					../../Qt/5.15.2/ios/include/QtHttpServer,
+					"/tmp/Qt-5.15.2/ios/mkspecs/macx-ios-clang",
+					/tmp/Qt-5.15.2/ios/include/QtNetworkAuth,
+					/tmp/Qt-5.15.2/ios/include/QtHttpServer,
 					../src/qmdnsengine/src/include,
 					../src/purchasing/inapp,
 					../src/purchasing/qmltypes,
 					../src/purchasing/ios,
-					../../Qt/5.15.2/ios/include/QtTextToSpeech,
-					../../Qt/5.15.2/ios/include/QtMultimedia,
+					/tmp/Qt-5.15.2/ios/include/QtTextToSpeech,
+					/tmp/Qt-5.15.2/ios/include/QtMultimedia,
 					../src/devices,
 					../src/ios/adb/include,
-					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/private,
-					../../Qt/5.15.2/ios/include/QtCore/5.15.2,
-					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/,
+					/tmp/Qt-5.15.2/ios/include/QtCore/5.15.2/QtCore/private,
+					/tmp/Qt-5.15.2/ios/include/QtCore/5.15.2,
+					/tmp/Qt-5.15.2/ios/include/QtCore/5.15.2/QtCore/,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/tmp/Qt-5.15.2/ios/plugins/platforms,
@@ -5013,22 +5013,22 @@
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					../../Qt/5.15.2/ios/mkspecs/common/uikit,
+					/tmp/Qt-5.15.2/ios/mkspecs/common/uikit,
 					"../src/fit-sdk",
-					../../Qt/5.15.2/ios/include,
-					../../Qt/5.15.2/ios/include/QtWidgets,
-					../../Qt/5.15.2/ios/include/QtQuick,
-					../../Qt/5.15.2/ios/include/QtGui,
-					../../Qt/5.15.2/ios/include/QtBluetooth,
-					../../Qt/5.15.2/ios/include/QtXml,
-					../../Qt/5.15.2/ios/include/QtPositioning,
-					../../Qt/5.15.2/ios/include/QtQmlModels,
-					../../Qt/5.15.2/ios/include/QtQml,
-					../../Qt/5.15.2/ios/include/QtNetwork,
-					../../Qt/5.15.2/ios/include/QtCore,
+					/tmp/Qt-5.15.2/ios/include,
+					/tmp/Qt-5.15.2/ios/include/QtWidgets,
+					/tmp/Qt-5.15.2/ios/include/QtQuick,
+					/tmp/Qt-5.15.2/ios/include/QtGui,
+					/tmp/Qt-5.15.2/ios/include/QtBluetooth,
+					/tmp/Qt-5.15.2/ios/include/QtXml,
+					/tmp/Qt-5.15.2/ios/include/QtPositioning,
+					/tmp/Qt-5.15.2/ios/include/QtQmlModels,
+					/tmp/Qt-5.15.2/ios/include/QtQml,
+					/tmp/Qt-5.15.2/ios/include/QtNetwork,
+					/tmp/Qt-5.15.2/ios/include/QtCore,
 					.,
-					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
-					../../Qt/5.15.2/ios/include/QtMultimedia,
+					"/tmp/Qt-5.15.2/ios/mkspecs/macx-ios-clang",
+					/tmp/Qt-5.15.2/ios/include/QtMultimedia,
 				);
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5125,22 +5125,22 @@
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					../../Qt/5.15.2/ios/mkspecs/common/uikit,
+					/tmp/Qt-5.15.2/ios/mkspecs/common/uikit,
 					"../src/fit-sdk",
-					../../Qt/5.15.2/ios/include,
-					../../Qt/5.15.2/ios/include/QtWidgets,
-					../../Qt/5.15.2/ios/include/QtQuick,
-					../../Qt/5.15.2/ios/include/QtGui,
-					../../Qt/5.15.2/ios/include/QtBluetooth,
-					../../Qt/5.15.2/ios/include/QtXml,
-					../../Qt/5.15.2/ios/include/QtPositioning,
-					../../Qt/5.15.2/ios/include/QtQmlModels,
-					../../Qt/5.15.2/ios/include/QtQml,
-					../../Qt/5.15.2/ios/include/QtNetwork,
-					../../Qt/5.15.2/ios/include/QtCore,
+					/tmp/Qt-5.15.2/ios/include,
+					/tmp/Qt-5.15.2/ios/include/QtWidgets,
+					/tmp/Qt-5.15.2/ios/include/QtQuick,
+					/tmp/Qt-5.15.2/ios/include/QtGui,
+					/tmp/Qt-5.15.2/ios/include/QtBluetooth,
+					/tmp/Qt-5.15.2/ios/include/QtXml,
+					/tmp/Qt-5.15.2/ios/include/QtPositioning,
+					/tmp/Qt-5.15.2/ios/include/QtQmlModels,
+					/tmp/Qt-5.15.2/ios/include/QtQml,
+					/tmp/Qt-5.15.2/ios/include/QtNetwork,
+					/tmp/Qt-5.15.2/ios/include/QtCore,
 					.,
-					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
-					../../Qt/5.15.2/ios/include/QtMultimedia,
+					"/tmp/Qt-5.15.2/ios/mkspecs/macx-ios-clang",
+					/tmp/Qt-5.15.2/ios/include/QtMultimedia,
 				);
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
