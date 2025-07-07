@@ -860,6 +860,7 @@ class homeform : public QObject {
     void profile_open_clicked(const QUrl &fileName);
     void trainprogram_preview(const QUrl &fileName);
     void gpxpreview_open_clicked(const QUrl &fileName);
+    void fitfile_preview_clicked(const QUrl &fileName);
     void trainprogram_zwo_loaded(const QString &comp);
     void gpx_open_clicked(const QUrl &fileName);
     void gpx_save_clicked();
@@ -950,6 +951,9 @@ class homeform : public QObject {
     void previewWorkoutPointsChanged(int value);
     void previewWorkoutDescriptionChanged(QString value);
     void previewWorkoutTagsChanged(QString value);
+
+    void previewFitFile(const QString &filename, const QString &result);
+
     void stravaAuthUrlChanged(QString value);
     void stravaWebVisibleChanged(bool value);
     void pelotonAuthUrlChanged(QString value);
