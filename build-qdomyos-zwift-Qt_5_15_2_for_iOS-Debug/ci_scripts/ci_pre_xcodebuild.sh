@@ -47,15 +47,21 @@ fi
 echo "Current directory: $(pwd)"
 echo "Running qmake for iOS Debug build..."
 
-# Run qmake to generate Xcode project with MOC files
+# Run qmake to generate Xcode project and Makefiles
 # CONFIG+=debug for debug build
 # CONFIG+=device for device target (not simulator)
 qmake -spec macx-ios-clang CONFIG+=debug CONFIG+=device
 
 echo "qmake completed successfully"
 
-# Now restore WatchOS companion app references
-echo "Restoring WatchOS companion app references..."
+# CRITICAL: Run make to compile Qt project and generate MOC files
+echo "Running make to compile Qt project and generate MOC files..."
+make
+
+echo "make completed successfully - MOC files generated"
+
+# NOW restore WatchOS companion app references AFTER make
+echo "Restoring WatchOS companion app references AFTER make..."
 echo "Performing git checkout of build directory..."
 
 # Git reset della cartella build come fai tu manualmente
