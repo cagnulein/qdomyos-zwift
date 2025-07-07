@@ -56,6 +56,20 @@ qmake -spec macx-ios-clang CONFIG+=release CONFIG+=device CONFIG-=simulator CONF
 
 echo "qmake completed successfully"
 
+# CRITICAL: Debug Qt installation before make
+echo "Debugging Qt installation before make..."
+echo "Checking Qt include directories:"
+ls -la /tmp/Qt-5.15.2/ios/include/ 2>/dev/null || echo "No /tmp/Qt-5.15.2/ios/include/"
+ls -la /private/tmp/Qt-5.15.2/ios/include/ 2>/dev/null || echo "No /private/tmp/Qt-5.15.2/ios/include/"
+
+echo "Checking for QDebug specifically:"
+find /tmp/Qt-5.15.2/ios/include/ -name "*QDebug*" 2>/dev/null || echo "QDebug not found in /tmp/"
+find /private/tmp/Qt-5.15.2/ios/include/ -name "*QDebug*" 2>/dev/null || echo "QDebug not found in /private/tmp/"
+
+echo "Checking QtCore include directory:"
+ls -la /tmp/Qt-5.15.2/ios/include/QtCore/ 2>/dev/null || echo "No QtCore in /tmp/"
+ls -la /private/tmp/Qt-5.15.2/ios/include/QtCore/ 2>/dev/null || echo "No QtCore in /private/tmp/"
+
 # CRITICAL: Run make to compile Qt project and generate MOC files
 echo "Running make to compile Qt project and generate MOC files..."
 make

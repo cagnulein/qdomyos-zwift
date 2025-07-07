@@ -25,7 +25,7 @@ if command -v qmake &> /dev/null; then
         # CRITICAL: Save Qt path to persistent file for next script
         echo "Saving existing Qt installation path for ci_pre_xcodebuild.sh..."
         echo "export QT_DIR=\"$QT_DIR\"" > /tmp/qt_env.sh
-        echo "export PATH=\"$QT_DIR/bin:\$PATH\"" >> /tmp/qt_env.sh
+        echo "export PATH=\"$QT_DIR/bin:/tmp/Qt-5.15.2/ios/bin:/private/tmp/Qt-5.15.2/ios/bin:\$PATH\"" >> /tmp/qt_env.sh
         chmod +x /tmp/qt_env.sh
     else
         echo "WRONG Qt version found: $QT_VERSION"
@@ -52,7 +52,7 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
         # CRITICAL: Save Qt path to persistent file for next script
         echo "Saving aqt Qt installation path for ci_pre_xcodebuild.sh..."
         echo "export QT_DIR=\"/usr/local/Qt/5.15.2/clang_64\"" > /tmp/qt_env.sh
-        echo "export PATH=\"/usr/local/Qt/5.15.2/clang_64/bin:\$PATH\"" >> /tmp/qt_env.sh
+        echo "export PATH=\"/usr/local/Qt/5.15.2/clang_64/bin:/tmp/Qt-5.15.2/ios/bin:/private/tmp/Qt-5.15.2/ios/bin:\$PATH\"" >> /tmp/qt_env.sh
         chmod +x /tmp/qt_env.sh
     else
         echo "aqt failed, using precompiled Qt 5.15.2 from GitHub..."
@@ -98,14 +98,14 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
                 echo "Copied sha1s.txt"
             fi
             
-            # Set environment for iOS development
+            # Set environment for iOS development - support both /tmp and /private/tmp
             export QT_DIR="/tmp/Qt-5.15.2/ios"
             export PATH="$QT_DIR/bin:$PATH"
             
             # CRITICAL: Save Qt path to persistent file for next script
             echo "Saving Qt installation path for ci_pre_xcodebuild.sh..."
             echo "export QT_DIR=\"/tmp/Qt-5.15.2/ios\"" > /tmp/qt_env.sh
-            echo "export PATH=\"/tmp/Qt-5.15.2/ios/bin:\$PATH\"" >> /tmp/qt_env.sh
+            echo "export PATH=\"/tmp/Qt-5.15.2/ios/bin:/private/tmp/Qt-5.15.2/ios/bin:\$PATH\"" >> /tmp/qt_env.sh
             chmod +x /tmp/qt_env.sh
             
             echo "Qt 5.15.2 precompiled installation completed"
