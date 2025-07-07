@@ -1437,7 +1437,7 @@
 		876E4E2F2594748100BD5714 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = SOURCE_ROOT; };
 		876E4E3B259474CB00BD5714 /* ExtensionDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtensionDelegate.swift; sourceTree = SOURCE_ROOT; };
 		876E4E3C259474CB00BD5714 /* MainController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainController.swift; sourceTree = SOURCE_ROOT; };
-		876E4E3D259474CB00BD5714 /* WatchKit Extension.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = "WatchKit Extension.entitlements"; path = "watchkit Extension/WatchKit Extension.entitlements"; sourceTree = SOURCE_ROOT; };
+		876E4E3D259474CB00BD5714 /* WatchKit Extension.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = "WatchKit Extension.entitlements"; path = "build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/watchkit Extension/WatchKit Extension.entitlements"; sourceTree = SOURCE_ROOT; };
 		876E4E3E259474CB00BD5714 /* WatchWorkoutTracking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchWorkoutTracking.swift; sourceTree = SOURCE_ROOT; };
 		876E4E3F259474CC00BD5714 /* WatchKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchKitConnection.swift; sourceTree = SOURCE_ROOT; };
 		876E4E44259474E200BD5714 /* Interface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Interface.storyboard; sourceTree = SOURCE_ROOT; };
@@ -5093,7 +5093,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1110;
@@ -5190,7 +5190,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1110;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -5282,10 +5282,10 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1110;
-				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -5323,7 +5323,7 @@
 					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
 					../../Qt/5.15.2/ios/include/QtMultimedia,
 				);
-				INFOPLIST_FILE = "watchkit Extension/Info.plist";
+				INFOPLIST_FILE = "build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5398,11 +5398,11 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1110;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_PREVIEWS = YES;
@@ -5435,7 +5435,7 @@
 					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
 					../../Qt/5.15.2/ios/include/QtMultimedia,
 				);
-				INFOPLIST_FILE = "watchkit Extension/Info.plist";
+				INFOPLIST_FILE = "build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
