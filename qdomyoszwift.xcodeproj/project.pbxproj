@@ -4503,6 +4503,7 @@
 				QMAKE_SHORT_VERSION = 1.7;
 				QT_LIBRARY_SUFFIX = "";
 				SDKROOT = iphoneos;
+				SYMROOT = "$(PROJECT_DIR)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -4659,6 +4660,7 @@
 				QMAKE_SHORT_VERSION = 1.7;
 				QT_LIBRARY_SUFFIX = _debug;
 				SDKROOT = iphoneos;
+				SYMROOT = "$(PROJECT_DIR)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
