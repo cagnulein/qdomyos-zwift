@@ -111,7 +111,7 @@ void stagesbike::update() {
                                                                                        // i'm using the gears in the inclination
                 uint8_t b[20];
                 memcpy(b, a.constData(), a.length());
-                writeCharacteristic(eliteService, eliteWriteCharacteristic, b, a.length(), "forcePower", false, false);
+                writeCharacteristic(eliteService, eliteWriteCharacteristic, b, a.length(), "forceInclination", false, false);
 
                 requestInclination = -100; // reset the requestInclination to -100 so that it doesn't get written again
                 requestResistance = -1; // reset the requestResistance so that it doesn't get written again

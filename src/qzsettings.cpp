@@ -442,6 +442,7 @@ const QString QZSettings::default_horizon_treadmill_profile_user5 = QStringLiter
 const QString QZSettings::nordictrack_gx_2_7 = QStringLiteral("nordictrack_gx_2_7");
 const QString QZSettings::rolling_resistance = QStringLiteral("rolling_resistance");
 const QString QZSettings::wahoo_rgt_dircon = QStringLiteral("wahoo_rgt_dircon");
+const QString QZSettings::wahoo_without_wheel_diameter = QStringLiteral("wahoo_without_wheel_diameter");
 const QString QZSettings::tts_description_enabled = QStringLiteral("tts_description_enabled");
 const QString QZSettings::tile_preset_resistance_1_enabled = QStringLiteral("tile_preset_resistance_1_enabled");
 const QString QZSettings::tile_preset_resistance_1_order = QStringLiteral("tile_preset_resistance_1_order");

@@ -980,8 +980,11 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                        1000.0;
             index += 3;
         } else {
-            Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(now)));
+            // Only calculate distance if 2AD2 hasn't already done it recently (within 2000ms)
+            if (lastRefreshCharacteristicChanged2AD2.msecsTo(now) > 2000) {
+                Distance += ((Speed.value() / 3600000.0) *
+                ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(now)));
+            }
         }
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -1585,6 +1588,12 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith(QStringLiteral("THINK X")) || device.name().toUpper().startsWith(QStringLiteral("THINK-"))) {
             THINK_X = true;
             qDebug() << "THINK X workaround enabled!";
+        } else if(device.name().toUpper().startsWith(QStringLiteral("WLT8828"))) {
+            qDebug() << QStringLiteral("WLT8828 found");
+            WLT8828 = true;
+            max_resistance = 32;
+            resistance_lvl_mode = true;
+            ergModeSupported = false; // this bike doesn't have ERG mode natively
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
