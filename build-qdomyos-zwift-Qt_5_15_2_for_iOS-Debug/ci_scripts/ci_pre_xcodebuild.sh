@@ -4,6 +4,18 @@ set -e
 echo "=== QDomyos-Zwift CI Pre-Xcodebuild Script ==="
 echo "Running qmake to generate Xcode project with MOC files"
 
+# CRITICAL: Load Qt environment from persistent file
+echo "Loading Qt environment from ci_post_clone.sh..."
+if [[ -f "/tmp/qt_env.sh" ]]; then
+    echo "Found Qt environment file, loading..."
+    source /tmp/qt_env.sh
+    echo "Qt environment loaded from persistent file"
+    echo "QT_DIR: $QT_DIR"
+    echo "PATH: $PATH"
+else
+    echo "WARNING: No Qt environment file found, trying to find Qt anyway..."
+fi
+
 # Find Qt installation (should be 5.15.2 from post_clone script)
 if command -v qmake &> /dev/null; then
     QT_VERSION=$(qmake -v | grep -o "5\.[0-9]*\.[0-9]*" | head -1)
@@ -12,8 +24,12 @@ if command -v qmake &> /dev/null; then
         exit 1
     fi
     echo "Using Qt 5.15.2 - CORRECT!"
+    echo "qmake location: $(which qmake)"
 else
     echo "FATAL ERROR: qmake not found"
+    echo "Current PATH: $PATH"
+    echo "Listing /tmp for debugging:"
+    ls -la /tmp/ | grep -i qt || echo "No Qt directories in /tmp"
     exit 1
 fi
 
