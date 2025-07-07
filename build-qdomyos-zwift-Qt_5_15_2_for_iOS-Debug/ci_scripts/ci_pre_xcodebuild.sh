@@ -49,8 +49,10 @@ echo "Running qmake for iOS Debug build..."
 
 # Run qmake to generate Xcode project and Makefiles
 # Use release config since precompiled Qt doesn't have debug libs
-# CONFIG+=device for device target (not simulator)
-qmake -spec macx-ios-clang CONFIG+=release CONFIG+=device
+# Force iphoneos SDK for device builds (not simulator)
+export QMAKE_XCODE_DEVELOPER_PATH="/Applications/Xcode.app/Contents/Developer"
+export QMAKE_IOS_DEPLOYMENT_TARGET=12.0
+qmake -spec macx-ios-clang CONFIG+=release CONFIG+=device CONFIG-=simulator CONFIG+=iphoneos "QMAKE_APPLE_DEVICE_ARCHS=arm64"
 
 echo "qmake completed successfully"
 
