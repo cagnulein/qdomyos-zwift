@@ -467,23 +467,36 @@ public class GrpcTreadmillService {
     }
 
     private void fetchAllMetricsFromServer() {
+        long startTime = System.currentTimeMillis();
         try {
             QLog.d(TAG, "Making gRPC calls for all metrics...");
 
+            long headersStartTime = System.currentTimeMillis();
             Metadata headers = createHeaders();
             Empty request = Empty.newBuilder().build();
+            long headersEndTime = System.currentTimeMillis();
+            QLog.d(TAG, "Headers creation took: " + (headersEndTime - headersStartTime) + "ms");
 
             // Fetch speed
             try {
+                long speedStartTime = System.currentTimeMillis();
                 SpeedServiceGrpc.SpeedServiceBlockingStub speedStubWithHeaders = speedStub.withInterceptors(
                         MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
+                long speedInterceptorTime = System.currentTimeMillis();
+                QLog.d(TAG, "Speed interceptor setup took: " + (speedInterceptorTime - speedStartTime) + "ms");
+                
                 SpeedMetric speedResponse = speedStubWithHeaders.getSpeed(request);
+                long speedCallTime = System.currentTimeMillis();
+                QLog.d(TAG, "Speed gRPC call took: " + (speedCallTime - speedInterceptorTime) + "ms");
+                
                 currentSpeed = speedResponse.getLastKph();
                 
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onSpeedUpdated(currentSpeed));
                 }
+                long speedEndTime = System.currentTimeMillis();
+                QLog.d(TAG, "Speed total processing took: " + (speedEndTime - speedStartTime) + "ms");
             } catch (Exception e) {
                 QLog.w(TAG, "Failed to fetch speed", e);
                 if (metricsListener != null) {
@@ -493,15 +506,24 @@ public class GrpcTreadmillService {
 
             // Fetch inclination
             try {
+                long inclineStartTime = System.currentTimeMillis();
                 InclineServiceGrpc.InclineServiceBlockingStub inclineStubWithHeaders = inclineStub.withInterceptors(
                         MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
+                long inclineInterceptorTime = System.currentTimeMillis();
+                QLog.d(TAG, "Incline interceptor setup took: " + (inclineInterceptorTime - inclineStartTime) + "ms");
+                
                 InclineMetric inclineResponse = inclineStubWithHeaders.getIncline(request);
+                long inclineCallTime = System.currentTimeMillis();
+                QLog.d(TAG, "Incline gRPC call took: " + (inclineCallTime - inclineInterceptorTime) + "ms");
+                
                 currentIncline = inclineResponse.getLastInclinePercent();
                 
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onInclineUpdated(currentIncline));
                 }
+                long inclineEndTime = System.currentTimeMillis();
+                QLog.d(TAG, "Incline total processing took: " + (inclineEndTime - inclineStartTime) + "ms");
             } catch (Exception e) {
                 QLog.w(TAG, "Failed to fetch inclination", e);
                 if (metricsListener != null) {
@@ -511,15 +533,24 @@ public class GrpcTreadmillService {
 
             // Fetch watts
             try {
+                long wattsStartTime = System.currentTimeMillis();
                 WattsServiceGrpc.WattsServiceBlockingStub wattsStubWithHeaders = wattsStub.withInterceptors(
                         MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
+                long wattsInterceptorTime = System.currentTimeMillis();
+                QLog.d(TAG, "Watts interceptor setup took: " + (wattsInterceptorTime - wattsStartTime) + "ms");
+                
                 WattsMetric wattsResponse = wattsStubWithHeaders.getWatts(request);
+                long wattsCallTime = System.currentTimeMillis();
+                QLog.d(TAG, "Watts gRPC call took: " + (wattsCallTime - wattsInterceptorTime) + "ms");
+                
                 currentWatts = wattsResponse.getLastWatts();
                 
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onWattsUpdated(currentWatts));
                 }
+                long wattsEndTime = System.currentTimeMillis();
+                QLog.d(TAG, "Watts total processing took: " + (wattsEndTime - wattsStartTime) + "ms");
             } catch (Exception e) {
                 QLog.w(TAG, "Failed to fetch watts", e);
                 if (metricsListener != null) {
@@ -529,15 +560,24 @@ public class GrpcTreadmillService {
 
             // Fetch resistance
             try {
+                long resistanceStartTime = System.currentTimeMillis();
                 ResistanceServiceGrpc.ResistanceServiceBlockingStub resistanceStubWithHeaders = resistanceStub.withInterceptors(
                         MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
+                long resistanceInterceptorTime = System.currentTimeMillis();
+                QLog.d(TAG, "Resistance interceptor setup took: " + (resistanceInterceptorTime - resistanceStartTime) + "ms");
+                
                 ResistanceMetric resistanceResponse = resistanceStubWithHeaders.getResistance(request);
+                long resistanceCallTime = System.currentTimeMillis();
+                QLog.d(TAG, "Resistance gRPC call took: " + (resistanceCallTime - resistanceInterceptorTime) + "ms");
+                
                 currentResistance = resistanceResponse.getLastResistance();
                 
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onResistanceUpdated(currentResistance));
                 }
+                long resistanceEndTime = System.currentTimeMillis();
+                QLog.d(TAG, "Resistance total processing took: " + (resistanceEndTime - resistanceStartTime) + "ms");
             } catch (Exception e) {
                 QLog.w(TAG, "Failed to fetch resistance", e);
                 if (metricsListener != null) {
@@ -547,15 +587,24 @@ public class GrpcTreadmillService {
 
             // Fetch RPM (for bikes)
             try {
+                long rpmStartTime = System.currentTimeMillis();
                 RpmServiceGrpc.RpmServiceBlockingStub rpmStubWithHeaders = rpmStub.withInterceptors(
                         MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
+                long rpmInterceptorTime = System.currentTimeMillis();
+                QLog.d(TAG, "RPM interceptor setup took: " + (rpmInterceptorTime - rpmStartTime) + "ms");
+                
                 RpmMetric rpmResponse = rpmStubWithHeaders.getRpm(request);
+                long rpmCallTime = System.currentTimeMillis();
+                QLog.d(TAG, "RPM gRPC call took: " + (rpmCallTime - rpmInterceptorTime) + "ms");
+                
                 currentRpm = rpmResponse.getLastRpm();
                 
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onRpmUpdated(currentRpm));
                 }
+                long rpmEndTime = System.currentTimeMillis();
+                QLog.d(TAG, "RPM total processing took: " + (rpmEndTime - rpmStartTime) + "ms");
             } catch (Exception e) {
                 QLog.w(TAG, "Failed to fetch RPM", e);
                 if (metricsListener != null) {
@@ -565,15 +614,24 @@ public class GrpcTreadmillService {
 
             // Fetch cadence (for treadmills)
             try {
+                long cadenceStartTime = System.currentTimeMillis();
                 CadenceServiceGrpc.CadenceServiceBlockingStub cadenceStubWithHeaders = cadenceStub.withInterceptors(
                         MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
+                long cadenceInterceptorTime = System.currentTimeMillis();
+                QLog.d(TAG, "Cadence interceptor setup took: " + (cadenceInterceptorTime - cadenceStartTime) + "ms");
+                
                 CadenceMetric cadenceResponse = cadenceStubWithHeaders.getCadence(request);
+                long cadenceCallTime = System.currentTimeMillis();
+                QLog.d(TAG, "Cadence gRPC call took: " + (cadenceCallTime - cadenceInterceptorTime) + "ms");
+                
                 currentCadence = cadenceResponse.getLastStepsPerMinute();
                 
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onCadenceUpdated(currentCadence));
                 }
+                long cadenceEndTime = System.currentTimeMillis();
+                QLog.d(TAG, "Cadence total processing took: " + (cadenceEndTime - cadenceStartTime) + "ms");
             } catch (Exception e) {
                 QLog.w(TAG, "Failed to fetch cadence", e);
                 if (metricsListener != null) {
@@ -583,10 +641,16 @@ public class GrpcTreadmillService {
 
             // Fetch fan speed
             try {
+                long fanStartTime = System.currentTimeMillis();
                 FanStateServiceGrpc.FanStateServiceBlockingStub fanStubWithHeaders = fanStub.withInterceptors(
                         MetadataUtils.newAttachHeadersInterceptor(headers)
                 );
+                long fanInterceptorTime = System.currentTimeMillis();
+                QLog.d(TAG, "Fan interceptor setup took: " + (fanInterceptorTime - fanStartTime) + "ms");
+                
                 FanStateMessage fanResponse = fanStubWithHeaders.getFanState(request);
+                long fanCallTime = System.currentTimeMillis();
+                QLog.d(TAG, "Fan gRPC call took: " + (fanCallTime - fanInterceptorTime) + "ms");
                 
                 int fanSpeed;
                 switch (fanResponse.getState()) {
@@ -615,6 +679,8 @@ public class GrpcTreadmillService {
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onFanSpeedUpdated(currentFanSpeed));
                 }
+                long fanEndTime = System.currentTimeMillis();
+                QLog.d(TAG, "Fan total processing took: " + (fanEndTime - fanStartTime) + "ms");
             } catch (Exception e) {
                 QLog.w(TAG, "Failed to fetch fan speed", e);
                 if (metricsListener != null) {
@@ -622,10 +688,16 @@ public class GrpcTreadmillService {
                 }
             }
 
+            long totalEndTime = System.currentTimeMillis();
+            long totalTime = totalEndTime - startTime;
+            QLog.d(TAG, "=== TIMING SUMMARY ===");
+            QLog.d(TAG, "Total fetchAllMetricsFromServer execution time: " + totalTime + "ms");
             QLog.d(TAG, "Completed all metrics fetch");
 
         } catch (Exception e) {
-            QLog.e(TAG, "Failed to fetch metrics", e);
+            long totalEndTime = System.currentTimeMillis();
+            long totalTime = totalEndTime - startTime;
+            QLog.e(TAG, "Failed to fetch metrics after " + totalTime + "ms", e);
             if (metricsListener != null) {
                 mainHandler.post(() -> {
                     metricsListener.onError("speed", "Error");
