@@ -48,9 +48,9 @@ echo "Current directory: $(pwd)"
 echo "Running qmake for iOS Debug build..."
 
 # Run qmake to generate Xcode project and Makefiles
-# CONFIG+=debug for debug build
+# Use release config since precompiled Qt doesn't have debug libs
 # CONFIG+=device for device target (not simulator)
-qmake -spec macx-ios-clang CONFIG+=debug CONFIG+=device
+qmake -spec macx-ios-clang CONFIG+=release CONFIG+=device
 
 echo "qmake completed successfully"
 
