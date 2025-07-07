@@ -1162,6 +1162,7 @@ import Qt.labs.platform 1.1
             property bool rogue_echo_bike: false
             property int fit_file_garmin_device_training_effect_device: 3122
             property bool tile_hr_time_in_zone_individual_mode: false
+            property bool nordictrackadbbike_gear_resistance_mode: false
         }
 
         function paddingZeros(text, limit) {
@@ -3646,6 +3647,19 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrackadbbike_resistance = checked; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Gears Control Resistance (Separate Inc/Gear)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.nordictrackadbbike_gear_resistance_mode
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.nordictrackadbbike_gear_resistance_mode = checked; }
                             }
                         }
                     }

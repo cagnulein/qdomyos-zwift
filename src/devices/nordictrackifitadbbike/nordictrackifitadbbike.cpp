@@ -119,6 +119,9 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     bool nordictrack_ifit_adb_remote =
         settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
             .toBool();
+    bool nordictrackadbbike_gear_resistance_mode =
+        settings.value(QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode)
+            .toBool();
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -203,7 +206,12 @@ bool nordictrackifitadbbike::inclinationAvailableByHardware() {
     settings.value(QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021)
         .toBool();
     bool nordictrackadbbike_resistance = settings.value(QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance).toBool();
+    bool nordictrackadbbike_gear_resistance_mode = settings.value(QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode).toBool();
 
+    // In gear resistance mode, inclination is available since gears handle resistance separately
+    if (nordictrackadbbike_gear_resistance_mode)
+        return true;
+    
     if(proform_studio_NTEX71021 || nordictrackadbbike_resistance)
         return false;   
     else
@@ -266,9 +274,24 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     gear = getDouble(aValues.last());
-                    if(!nordictrackadbbike_resistance)
+                    
+                    if (nordictrackadbbike_gear_resistance_mode) {
+                        // In gear resistance mode: gears control resistance via gRPC, store for later use
+                        lastGearValue = gear;
+                        // Set gRPC resistance if gRPC is available
+                        #ifdef Q_OS_ANDROID
+                        if (grpcInitialized) {
+                            setGrpcResistance(gear);
+                        }
+                        #endif
+                        qDebug() << "Gear resistance mode: gear" << gear << "set as resistance via gRPC";
+                    } else if (!nordictrackadbbike_resistance) {
+                        // Standard mode: gears control inclination (existing behavior)
                         Resistance = gear;
-                    emit resistanceRead(Resistance.value());
+                        emit resistanceRead(Resistance.value());
+                    }
+                    // In resistance mode (nordictrackadbbike_resistance), gears are ignored for resistance
+                    
                     gearsAvailable = true;
                 }
             } else if (line.contains(QStringLiteral("Changed Resistance"))) {
@@ -388,16 +411,24 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                     if (inc != currentInclination().value()) {
                         bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();                        
                         int x1 = 75;
-                        int y2 = (int)(616.18 - (17.223 * (inc + gears())));
+                        
+                        // In gear resistance mode, gears control resistance separately via gRPC, so don't add to inclination
+                        double inclinationValue = nordictrackadbbike_gear_resistance_mode ? inc : (inc + gears());
+                        
+                        if (nordictrackadbbike_gear_resistance_mode) {
+                            qDebug() << "Gear resistance mode: setting inclination to" << inc << "(not adding gears)";
+                        }
+                        
+                        int y2 = (int)(616.18 - (17.223 * inclinationValue));
                         int y1Resistance = (int)(616.18 - (17.223 * currentInclination().value()));
 
                         if(proform_studio || freemotion_coachbike_b22_7) {
                             x1 = 1827;
-                            y2 = (int)(806 - (21.375 * (inc + gears())));
+                            y2 = (int)(806 - (21.375 * inclinationValue));
                             y1Resistance = (int)(806 - (21.375 * currentInclination().value()));
                         } else if(proform_tdf_10_0) {
                             x1 = 75;
-                            y2 = (int)(477 - (12.5 * (inc + gears())));
+                            y2 = (int)(477 - (12.5 * inclinationValue));
                             y1Resistance = (int)(477 - (12.5 * currentInclination().value()));
                         }
 
@@ -449,7 +480,9 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 requestInclination = -100;
             }
 
-            double r = currentResistance().value() + difficult() + gears(); // the inclination here is like the resistance for the other bikes
+            // In gear resistance mode, gears control resistance separately via gRPC, so don't add to message resistance
+            double gearValue = nordictrackadbbike_gear_resistance_mode ? 0 : gears();
+            double r = currentResistance().value() + difficult() + gearValue; // the inclination here is like the resistance for the other bikes
             QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";" + QString::number(r).toLocal8Bit();
             requestInclination = -100;
             int ret = socket->writeDatagram(message, message.size(), sender, 8003);
@@ -716,9 +749,16 @@ void nordictrackifitadbbike::update() {
         if(requestResistance != - 1) {
             setGrpcResistance(requestResistance);
             requestResistance = -1;
-        } else if(!autoResistanceEnable && lastGearValue != gears() && nordictrackadbbike_resistance) {
-            qDebug() << QStringLiteral("Setting gRPC resistance based on gear change: ") << gears() << " lastGearValue: " << lastGearValue << " Resistance: " << Resistance.value();
-            setGrpcResistance(Resistance.value() + (gears() - lastGearValue));
+        } else if (lastGearValue != gears()) {
+            if (nordictrackadbbike_gear_resistance_mode) {
+                // In gear resistance mode: gears directly set resistance value (magnet stays enabled)
+                qDebug() << QStringLiteral("Gear resistance mode: Setting gRPC resistance to gear value: ") << gears();
+                setGrpcResistance(gears());
+            } else if (!autoResistanceEnable && nordictrackadbbike_resistance) {
+                // Old resistance mode: gears change resistance incrementally (only when magnet is disabled)
+                qDebug() << QStringLiteral("Setting gRPC resistance based on gear change: ") << gears() << " lastGearValue: " << lastGearValue << " Resistance: " << Resistance.value();
+                setGrpcResistance(Resistance.value() + (gears() - lastGearValue));
+            }
         }
 
         // Update lastGearValue for gear change detection

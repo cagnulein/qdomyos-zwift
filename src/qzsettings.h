@@ -2109,6 +2109,9 @@ class QZSettings {
     static const QString nordictrackadbbike_resistance;
     static constexpr bool default_nordictrackadbbike_resistance = false;
 
+    static const QString nordictrackadbbike_gear_resistance_mode;
+    static constexpr bool default_nordictrackadbbike_gear_resistance_mode = false;
+
     static const QString proform_treadmill_carbon_t7;
     static constexpr bool default_proform_treadmill_carbon_t7 = false;
 
