@@ -737,7 +737,7 @@ void nordictrackifitadbbike::update() {
                 double currentInc = qRound(currentInclination().value() / 0.5) * 0.5;
                 if (inc != currentInc) {
                     emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-                    setGrpcIncline(lastRawRequestedInclinationValue + gears());
+                    setGrpcIncline(lastRawRequestedInclinationValue + (nordictrackadbbike_gear_resistance_mode ? 0 : gears()));
                     lastGrpcInclinationChanged = now;
                 }
             }
@@ -745,7 +745,7 @@ void nordictrackifitadbbike::update() {
             requestResistance = -1;
         } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && !nordictrackadbbike_resistance) {
             // in order to send the new gear value ASAP (similar to tacxneo2)
-            setGrpcIncline(lastRawRequestedInclinationValue + gears());
+            setGrpcIncline(lastRawRequestedInclinationValue + (nordictrackadbbike_gear_resistance_mode ? 0 : gears()));
             requestResistance = -1;
         }
         
