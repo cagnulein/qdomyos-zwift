@@ -2203,8 +2203,7 @@ void peloton::replyDataReceived(const QByteArray &v) {
     tempAccessToken = jsonResponse[QStringLiteral("access_token")].toString();
     tempRefreshToken = jsonResponse[QStringLiteral("refresh_token")].toString();
 
-    qDebug() << jsonResponse[QStringLiteral("access_token")] << jsonResponse[QStringLiteral("refresh_token")]
-             << jsonResponse[QStringLiteral("expires_at")];
+    qDebug() << "Peloton tokens received successfully, expires at:" << jsonResponse[QStringLiteral("expires_at")];
 
     QString urlstr = QStringLiteral("https://www.peloton.com/oauth/token?");
     QUrlQuery params;
@@ -2268,7 +2267,7 @@ void peloton::networkRequestFinished(QNetworkReply *reply) {
         tempRefreshToken = refresh_token;
         tempExpiresAt = QDateTime::currentDateTime();
 
-        qDebug() << access_token << refresh_token;
+        qDebug() << "Peloton tokens refreshed successfully";
 
     } else {
 
