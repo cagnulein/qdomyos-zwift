@@ -1025,14 +1025,10 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                                 }
                                 qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
                                 trainrows.append(row);
-                                atLeastOnePower = true;
                             }
                         } else {
                             r.duration = QTime(0, len / 60, len % 60, 0);
                             r.power = -1;
-                            if (r.power != -1) {
-                                atLeastOnePower = true;
-                            }
                             trainrows.append(r);
                         }
                     } else if (!zone.toUpper().compare(QStringLiteral("DESCENDING RECOVERY"))) {
@@ -1054,38 +1050,25 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                             }
                             qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
                             trainrows.append(row);
-                            atLeastOnePower = true;
                         }
                     } else if (!zone.toUpper().compare(QStringLiteral("RECOVERY"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.45;
-                        if (r.power != -1) {
-                            atLeastOnePower = true;
-                        }
                         trainrows.append(r);
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("FLAT ROAD"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.50;
-                        if (r.power != -1) {
-                            atLeastOnePower = true;
-                        }
                         trainrows.append(r);
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("SWEET SPOT"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.91;
-                        if (r.power != -1) {
-                            atLeastOnePower = true;
-                        }
                         trainrows.append(r);
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("INTERVALS"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.75;
-                        if (r.power != -1) {
-                            atLeastOnePower = true;
-                        }
                         trainrows.append(r);
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 1"))) {
@@ -1148,9 +1131,6 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         if(len > 0 && atLeastOnePower) {
                             r.duration = QTime(0, len / 60, len % 60, 0);
                             r.power = -1;
-                            if (r.power != -1) {
-                                atLeastOnePower = true;
-                            }
                             qDebug() << "ERROR not handled!" << zone;
                             trainrows.append(r);
                         }
