@@ -66,6 +66,8 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
             echo "Extracting precompiled Qt 5.15.2..."
             tar -mxf qt-5.15.2.tar.xz
             
+            cd 5.15.2 || { echo "Extraction failed or directory not found"; exit 1; }
+
             # Debug: Check extraction result
             echo "Contents after extraction:"
             ls -la
