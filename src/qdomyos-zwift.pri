@@ -966,10 +966,14 @@ ios {
     TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
     
-    # iOS Code Signing Configuration
-    QMAKE_DEVELOPMENT_TEAM = 6335M7T29D
-    QMAKE_PROVISIONING_PROFILE = 
-    QMAKE_CODE_SIGN_STYLE = Automatic
+    # iOS Code Signing Configuration - Auto-restore from git after qmake
+    # Custom target to restore project.pbxproj from git
+    restore_xcode_project.target = restore-xcode-signing
+    restore_xcode_project.commands = cd $$shell_path($$OUT_PWD) && git checkout HEAD -- qdomyoszwift.xcodeproj/project.pbxproj || echo "Git restore failed - project.pbxproj will use qmake defaults"
+    restore_xcode_project.depends = FORCE
+    
+    QMAKE_EXTRA_TARGETS += restore_xcode_project
+    PRE_TARGETDEPS += restore-xcode-signing
     
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
