@@ -70,11 +70,47 @@ echo "Checking QtCore include directory:"
 ls -la /tmp/Qt-5.15.2/ios/include/QtCore/ 2>/dev/null || echo "No QtCore in /tmp/"
 ls -la /private/tmp/Qt-5.15.2/ios/include/QtCore/ 2>/dev/null || echo "No QtCore in /private/tmp/"
 
+# Setup build cache for faster compilation
+BUILD_CACHE_DIR="$HOME/Library/Caches/XcodeCloud/QDomyos-Zwift-Build"
+mkdir -p "$BUILD_CACHE_DIR"
+
+# Check if we have cached object files
+if [[ -d "$BUILD_CACHE_DIR/objects" && -f "$BUILD_CACHE_DIR/build_hash.txt" ]]; then
+    CURRENT_HASH=$(find ../src -name "*.cpp" -o -name "*.h" -o -name "*.mm" | sort | xargs cat | shasum -a 256 | cut -d' ' -f1)
+    CACHED_HASH=$(cat "$BUILD_CACHE_DIR/build_hash.txt" 2>/dev/null || echo "none")
+    
+    if [[ "$CURRENT_HASH" == "$CACHED_HASH" ]]; then
+        echo "Source files unchanged, restoring build cache..."
+        if cp -r "$BUILD_CACHE_DIR/objects/"* . 2>/dev/null; then
+            echo "Build cache restored successfully"
+        else
+            echo "Cache restoration failed, will build from scratch"
+        fi
+    else
+        echo "Source files changed, cache invalid"
+        rm -rf "$BUILD_CACHE_DIR/objects" "$BUILD_CACHE_DIR/build_hash.txt"
+    fi
+fi
+
 # CRITICAL: Run make to compile Qt project and generate MOC files
 echo "Running make to compile Qt project and generate MOC files..."
-make
+# Use parallel compilation for faster builds
+make -j$(sysctl -n hw.ncpu)
 
 echo "make completed successfully - MOC files generated"
+
+# Cache the build results for next time
+echo "Caching build results..."
+mkdir -p "$BUILD_CACHE_DIR/objects"
+# Cache compiled object files and MOC files
+find . -name "*.o" -o -name "moc_*.cpp" -o -name "moc_*.h" | while read file; do
+    cp "$file" "$BUILD_CACHE_DIR/objects/" 2>/dev/null || echo "Could not cache $file"
+done
+
+# Store hash of source files for cache validation
+CURRENT_HASH=$(find ../src -name "*.cpp" -o -name "*.h" -o -name "*.mm" | sort | xargs cat | shasum -a 256 | cut -d' ' -f1)
+echo "$CURRENT_HASH" > "$BUILD_CACHE_DIR/build_hash.txt"
+echo "Build cache updated"
 
 # NOW restore WatchOS companion app references AFTER make
 echo "Restoring WatchOS companion app references AFTER make..."
