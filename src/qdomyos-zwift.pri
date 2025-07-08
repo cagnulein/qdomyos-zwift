@@ -969,7 +969,6 @@ ios {
     # iOS Code Signing Configuration
     QMAKE_DEVELOPMENT_TEAM = 6335M7T29D
     QMAKE_PROVISIONING_PROFILE = 
-    QMAKE_CODE_SIGN_IDENTITY = "Apple Development"
     QMAKE_CODE_SIGN_STYLE = Automatic
     
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
