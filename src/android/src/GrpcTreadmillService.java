@@ -640,6 +640,7 @@ public class GrpcTreadmillService {
             }
 
             // Fetch fan speed
+            /*
             try {
                 long fanStartTime = System.currentTimeMillis();
                 FanStateServiceGrpc.FanStateServiceBlockingStub fanStubWithHeaders = fanStub.withInterceptors(
@@ -687,6 +688,7 @@ public class GrpcTreadmillService {
                     mainHandler.post(() -> metricsListener.onError("fan", "Error"));
                 }
             }
+            */
 
             long totalEndTime = System.currentTimeMillis();
             long totalTime = totalEndTime - startTime;
