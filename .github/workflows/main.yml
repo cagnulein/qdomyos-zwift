@@ -1536,7 +1536,7 @@ jobs:
   nordictrack-build:
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
-    #if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -1669,6 +1669,7 @@ jobs:
 
             ## Other Platforms:
             - **fdroid-android-trial**: Android build
+            - **nordictrack-android-trial**: Nordictrack build for iFIT2 Tablets
             - **raspberry-pi-binary**: Raspberry Pi build
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
@@ -1681,5 +1682,6 @@ jobs:
             windows-binary-no-python/*
             windows-binary/*
             fdroid-android-trial/*
+            nordictrack-android-trial/*
             raspberry-pi-binary/qdomyos-zwift-32bit
             raspberry-pi-binary/qdomyos-zwift-64bit
