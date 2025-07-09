@@ -95,7 +95,7 @@ fi
 # CRITICAL: Run make to compile Qt project and generate MOC files
 echo "Running make to compile Qt project and generate MOC files..."
 # Use parallel compilation for faster builds
-make -f Makefile.qdomyos-zwift-lib -j$(sysctl -n hw.ncpu)
+make -f src/Makefile.qdomyos-zwift-lib -j$(sysctl -n hw.ncpu)
 
 echo "make completed successfully - MOC files generated"
 
