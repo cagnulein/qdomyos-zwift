@@ -1,13 +1,10 @@
 include(qdomyos-zwift.pri)
 
 # For iOS: Skip actual build and just succeed 
-ios {
-    message("iOS build: Using manual Xcode project configuration")
-    TEMPLATE = aux
-    
-    # Create a dummy target that always succeeds
-    dummy_target.target = dummy
-    dummy_target.commands = echo "iOS build completed successfully - using manual Xcode configuration"
-    QMAKE_EXTRA_TARGETS += dummy_target
-    PRE_TARGETDEPS += dummy
+ios {    
+    # Team signing configuration
+    QMAKE_IOS_DEPLOYMENT_TARGET = 11.0
+    QMAKE_DEVELOPMENT_TEAM = 6335M7T29D
+    QMAKE_PROVISIONING_PROFILE = automatic
+    QMAKE_CODE_SIGN_IDENTITY = "Apple Development"
 }

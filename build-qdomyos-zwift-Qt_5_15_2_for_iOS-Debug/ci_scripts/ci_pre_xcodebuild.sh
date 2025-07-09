@@ -35,7 +35,6 @@ fi
 
 # Change to project root directory
 cd ../..
-cd src
 
 # Verify we're in the correct directory
 if [[ ! -f "qdomyos-zwift.pro" ]]; then
@@ -53,7 +52,7 @@ echo "Running qmake for iOS Debug build..."
 # Force iphoneos SDK for device builds (not simulator)
 export QMAKE_XCODE_DEVELOPER_PATH="/Applications/Xcode.app/Contents/Developer"
 export QMAKE_IOS_DEPLOYMENT_TARGET=12.0
-qmake qdomyos-zwift.pro -spec macx-ios-clang CONFIG+=release CONFIG+=device CONFIG-=simulator CONFIG+=iphoneos "QMAKE_APPLE_DEVICE_ARCHS=arm64"
+qmake -spec macx-ios-clang CONFIG+=release CONFIG+=device CONFIG-=simulator CONFIG+=iphoneos "QMAKE_APPLE_DEVICE_ARCHS=arm64"
 
 echo "qmake completed successfully"
 
