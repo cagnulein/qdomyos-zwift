@@ -35,6 +35,7 @@ fi
 
 # Change to project root directory
 cd ../..
+cd src
 
 # Verify we're in the correct directory
 if [[ ! -f "qdomyos-zwift.pro" ]]; then
