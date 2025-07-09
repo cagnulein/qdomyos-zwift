@@ -966,10 +966,16 @@ ios {
     TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
     
-    # iOS Code Signing Configuration - Skip xcodebuild completely  
-    # Override xcodebuild to prevent regeneration of project.pbxproj
-    # We want to use manually configured signing settings
-    QMAKE_XCODEBUILD = /bin/echo "Skipping xcodebuild - using manual Xcode project configuration"
+    # iOS Code Signing Configuration - Skip xcodebuild completely
+    # Create a fake xcodebuild script that does nothing but succeeds
+    fake_xcodebuild.target = fake-xcodebuild
+    fake_xcodebuild.commands = echo "#!/bin/bash" > $$shell_path($$OUT_PWD)/fake_xcodebuild && echo "echo 'Fake xcodebuild called - skipping for manual configuration'" >> $$shell_path($$OUT_PWD)/fake_xcodebuild && echo "exit 0" >> $$shell_path($$OUT_PWD)/fake_xcodebuild && chmod +x $$shell_path($$OUT_PWD)/fake_xcodebuild
+    
+    QMAKE_EXTRA_TARGETS += fake_xcodebuild
+    PRE_TARGETDEPS += fake-xcodebuild
+    
+    # Override the xcodebuild path in environment
+    QMAKE_PRE_LINK += export PATH="$$shell_path($$OUT_PWD):$$PATH"
     
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
