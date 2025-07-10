@@ -119,8 +119,7 @@ echo "Performing git checkout of build directory..."
 # Return to project root for git operations
 cd ..
 
-# Git reset della cartella build come fai tu manualmente
-git ls-files build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/ | xargs git checkout --
+git checkout -- build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/
 
 echo "WatchOS references restored successfully"
 
