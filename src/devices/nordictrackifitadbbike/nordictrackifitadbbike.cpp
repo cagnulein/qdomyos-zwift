@@ -129,6 +129,13 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbbike::update);
+    
+    // Initialize gear debounce timer
+    gearDebounceTimer = new QTimer(this);
+    gearDebounceTimer->setSingleShot(true);
+    int debounceMs = settings.value(QZSettings::nordictrackadbbike_gear_debounce_ms, QZSettings::default_nordictrackadbbike_gear_debounce_ms).toInt();
+    gearDebounceTimer->setInterval(debounceMs);
+    connect(gearDebounceTimer, &QTimer::timeout, this, &nordictrackifitadbbike::onGearDebounceTimeout);
     ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     refresh->start(200ms);
 
@@ -754,9 +761,17 @@ void nordictrackifitadbbike::update() {
             requestResistance = -1;
         } else if (lastGearValue != gears()) {
             if (nordictrackadbbike_gear_resistance_mode) {
-                // In gear resistance mode: gears directly set resistance value (magnet stays enabled)
-                qDebug() << QStringLiteral("Gear resistance mode: Setting gRPC resistance to gear value: ") << gears();
-                setGrpcResistance(gears());
+                // In gear resistance mode: use debounced gear changes to avoid overloading gRPC
+                pendingGearValue = gears();
+                gearChangesPending = true;
+                
+                // Update debounce timer interval and reset it
+                int debounceMs = settings.value(QZSettings::nordictrackadbbike_gear_debounce_ms, QZSettings::default_nordictrackadbbike_gear_debounce_ms).toInt();
+                gearDebounceTimer->setInterval(debounceMs);
+                gearDebounceTimer->stop();
+                gearDebounceTimer->start();
+                
+                qDebug() << QStringLiteral("Gear resistance mode: Debouncing gear change to: ") << gears() << QStringLiteral(" (debounce: ") << debounceMs << QStringLiteral("ms)");
             } else if (!autoResistanceEnable && nordictrackadbbike_resistance) {
                 // Old resistance mode: gears change resistance incrementally (only when magnet is disabled)
                 qDebug() << QStringLiteral("Setting gRPC resistance based on gear change: ") << gears() << " lastGearValue: " << lastGearValue << " Resistance: " << Resistance.value();
@@ -764,13 +779,40 @@ void nordictrackifitadbbike::update() {
             }
         }
 
-        // Update lastGearValue for gear change detection
-        lastGearValue = gears();
+        // Update lastGearValue for gear change detection (only if not using debounced mode)
+        if (!nordictrackadbbike_gear_resistance_mode || !gearChangesPending) {
+            lastGearValue = gears();
+        }
     }
 #endif
 }
 
 uint16_t nordictrackifitadbbike::watts() { return m_watt.value(); }
+
+void nordictrackifitadbbike::onGearDebounceTimeout() {
+    QSettings settings;
+    bool nordictrackadbbike_gear_resistance_mode = settings.value(QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode).toBool();
+    
+    if (gearChangesPending && nordictrackadbbike_gear_resistance_mode) {
+        // Apply the final debounced gear value
+        qDebug() << QStringLiteral("Gear resistance mode: Applying debounced gRPC resistance to final gear value: ") << pendingGearValue;
+        setGrpcResistance(pendingGearValue);
+        
+        // Update tracking variables
+        lastGearValue = pendingGearValue;
+        gearChangesPending = false;
+        
+        emit debug(QString("Debounced gear change completed: gear %1 -> resistance %2").arg(pendingGearValue).arg(pendingGearValue));
+    }
+}
+
+void nordictrackifitadbbike::processPendingGearChange() {
+    // This method can be called externally to force immediate processing if needed
+    if (gearChangesPending) {
+        gearDebounceTimer->stop();
+        onGearDebounceTimeout();
+    }
+}
 
 void nordictrackifitadbbike::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)

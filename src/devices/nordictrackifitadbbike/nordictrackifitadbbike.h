@@ -98,6 +98,9 @@ class nordictrackifitadbbike : public bike {
     void disableGrpcWatts();
     void setGrpcFanSpeed(int fanSpeed);
     int getGrpcFanSpeed();
+    
+    // Gear change debouncing
+    void processPendingGearChange();
 
     QTimer *refresh;
 
@@ -119,6 +122,11 @@ class nordictrackifitadbbike : public bike {
 
     bool gearsAvailable = false;
     double lastGearValue = 0;
+    
+    // Gear change debouncing
+    QTimer *gearDebounceTimer = nullptr;
+    double pendingGearValue = 0;
+    bool gearChangesPending = false;
 
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
@@ -142,6 +150,7 @@ class nordictrackifitadbbike : public bike {
     void processPendingDatagrams();
     void changeInclinationRequested(double grade, double percentage);
     void onHRM(int hrm);
+    void onGearDebounceTimeout();
 
     void update();
 };
