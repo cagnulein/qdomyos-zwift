@@ -647,7 +647,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fdroid-android-trial
-          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
+          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
 
   android-emulator-test:
     runs-on: ubuntu-latest
@@ -1624,6 +1624,7 @@ jobs:
           cp src/android-qdomyos-zwift-deployment-settings.json src/android-qdomyos-zwift-nordictrack-deployment-settings.json
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-nordictrack-deployment-settings.json
           sed -i 's/"android-debug"/"android-nordictrack"/g' src/android-qdomyos-zwift-nordictrack-deployment-settings.json
+          sed -i 's/android-debug\.apk/android-debug-nordictrack.apk/g' src/android-qdomyos-zwift-nordictrack-deployment-settings.json
           cat src/android-qdomyos-zwift-nordictrack-deployment-settings.json
 
       - name: Build APK (not usable for production due to unpatched QT library)
@@ -1633,12 +1634,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nordictrack-android-trial
-          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
+          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack.apk
           
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-22.04 
-    if: github.event_name == 'schedule'
+    #if: github.event_name == 'schedule'
     needs: [linux-x86-build, window-msvc2019-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]
     steps:
       - name: Checkout code
@@ -1683,7 +1684,7 @@ jobs:
             windows-msvc2019-ai-server-binary/*            
             windows-binary-no-python/*
             windows-binary/*
-            fdroid-android-trial/*
-            nordictrack-android-trial/*
+            fdroid-android-trial/android-debug.apk
+            nordictrack-android-trial/android-debug-nordictrack.apk
             raspberry-pi-binary/qdomyos-zwift-32bit
             raspberry-pi-binary/qdomyos-zwift-64bit
