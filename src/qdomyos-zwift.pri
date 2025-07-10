@@ -2,6 +2,7 @@ include(../defaults.pri)
 QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia
 QTPLUGIN += qavfmediaplayer
 QT+= charts core-private
+LIBS += -lwiringPi
 
 qtHaveModule(httpserver) {
     QT += httpserver
@@ -156,6 +157,8 @@ characteristics/characteristicnotifier2a5b.cpp \
 characteristics/characteristicnotifier2acc.cpp \
 characteristics/characteristicnotifier2acd.cpp \
 characteristics/characteristicnotifier2ad9.cpp \
+ConsoleReader.cpp \
+gpiotreadmill.cpp \
 characteristics/characteristicwriteprocessor.cpp \
 characteristics/characteristicwriteprocessore005.cpp \
 devices/computrainerbike/computrainerbike.cpp \
@@ -453,6 +456,8 @@ characteristics/characteristicnotifier2ad9.h \
 characteristics/characteristicwriteprocessore005.h \
 devices/computrainerbike/computrainerbike.h \
 definitions.h \
+ConsoleReader.h \
+gpiotreadmill.h \
 devices/fakeelliptical/fakeelliptical.h \
 devices/faketreadmill/faketreadmill.h \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.h \
