@@ -75,6 +75,7 @@ bool horizon_treadmill_7_8 = false;
 bool horizon_treadmill_force_ftms = false;
 bool nordictrack_10_treadmill = false;
 bool gpiotreadmill = false;
+bool proform_performance_300i_treadmill = false;
 bool reebok_fr30_treadmill = false;
 bool zwift_play = false;
 bool zwift_click = false;
@@ -135,6 +136,7 @@ void displayHelp() {
     printf("  -horizon-treadmill-7-8        Enable Horizon 7.8 treadmill support\n");
     printf("  -horizon-treadmill-force-ftms Force FTMS for Horizon treadmill\n");
     printf("  -nordictrack-10-treadmill     Enable NordicTrack 10 treadmill support\n");
+    printf("  -proform-perf-300i-treadmill  Enable Proform Performance 300i support\n");
     printf("  -reebok_fr30_treadmill        Enable Reebok FR30 treadmill support\n");
 
     printf("\nBluetooth options:\n");
@@ -294,6 +296,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             nordictrack_10_treadmill = true;
         if (!qstrcmp(argv[i], "-gpiotreadmill"))
             gpiotreadmill = true;
+        if (!qstrcmp(argv[i], "-proform-perf-300i-treadmill"))
+            proform_performance_300i_treadmill = true;
         if (!qstrcmp(argv[i], "-reebok_fr30_treadmill"))
             reebok_fr30_treadmill = true;
         if (!qstrcmp(argv[i], "-zwift_play"))
@@ -585,6 +589,7 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::horizon_treadmill_7_8, horizon_treadmill_7_8);
         settings.setValue(QZSettings::horizon_treadmill_force_ftms, horizon_treadmill_force_ftms);
         settings.setValue(QZSettings::nordictrack_10_treadmill, nordictrack_10_treadmill);
+        settings.setValue(QZSettings::proform_performance_300i, proform_performance_300i_treadmill);
         settings.setValue(QZSettings::reebok_fr30_treadmill, reebok_fr30_treadmill);
         settings.setValue(QZSettings::zwift_click, zwift_click);
         settings.setValue(QZSettings::zwift_play, zwift_play);

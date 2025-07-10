@@ -199,10 +199,20 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     else if ((newValue.length() != 12) && bowflex_t8j == true)
         return;
 
-    if (bowflex_t6 == true && characteristic.uuid() != QBluetoothUuid(QStringLiteral("a46a4a80-9803-11e3-8f3c-0002a5d5c51b")))
+    if(bowflex_T128 && characteristic.uuid() != QBluetoothUuid(QStringLiteral("a46a4a80-9803-11e3-8f3c-0002a5d5c51b"))) {
+        double incline = GetInclinationFromPacket(value);
+        qDebug() << QStringLiteral("Current incline: ") << incline;
+        if (Inclination.value() != incline) {
+            emit inclinationChanged(0.0, incline);
+        }
+        Inclination = incline;
+        return;
+    }
+
+    if ((bowflex_t6 == true || bowflex_T128 == true) && characteristic.uuid() != QBluetoothUuid(QStringLiteral("a46a4a80-9803-11e3-8f3c-0002a5d5c51b")))
         return;
 
-    double speed = GetSpeedFromPacket(value);
+    double speed = GetSpeedFromPacket(value);    
     double incline = GetInclinationFromPacket(value);
     // double kcal = GetKcalFromPacket(value);
     // double distance = GetDistanceFromPacket(value);
@@ -226,10 +236,13 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         emit speedChanged(speed);
     }
     Speed = speed;
-    if (Inclination.value() != incline) {
-        emit inclinationChanged(0.0, incline);
+
+    if(bowflex_T128 == false) {
+        if (Inclination.value() != incline) {
+            emit inclinationChanged(0.0, incline);
+        }
+        Inclination = incline;
     }
-    Inclination = incline;
 
     // KCal = kcal;
     // Distance = distance;
@@ -271,6 +284,10 @@ double bowflext216treadmill::GetSpeedFromPacket(const QByteArray &packet) {
         uint16_t convertedData = (uint16_t)((uint8_t)packet.at(3)) + ((uint16_t)((uint8_t)packet.at(4)) << 8);
         double data = (double)convertedData / 100.0f;
         return data * 1.60934;
+    } else if(bowflex_T128) {
+        uint16_t convertedData = (uint16_t)((uint8_t)packet.at(9)) + ((uint16_t)((uint8_t)packet.at(10)) << 8);
+        double data = (double)convertedData / 100.0f;
+        return data * 1.60934;
     } else if (bowflex_t6 == false) {
         uint16_t convertedData = (uint16_t)((uint8_t)packet.at(6)) + (((uint16_t)((uint8_t)packet.at(7)) << 8) & 0xFF00);
         double data = (double)convertedData / 100.0f;
@@ -294,6 +311,12 @@ double bowflext216treadmill::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 double bowflext216treadmill::GetInclinationFromPacket(const QByteArray &packet) {
+    if (bowflex_T128) {
+        uint16_t convertedData = packet.at(7);
+        double data = convertedData;
+
+        return data;
+    }
     if (bowflex_t8j) {
         uint16_t convertedData = packet.at(6);
         double data = convertedData;
@@ -447,6 +470,12 @@ void bowflext216treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        if(bluetoothDevice.name().toUpper().startsWith("BOWFLEX T128")) {
+            qDebug() << "BOWFLEX T128 workaround found!";
+            bowflex_T128 = true;
+        }
+
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &bowflext216treadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &bowflext216treadmill::serviceScanDone);

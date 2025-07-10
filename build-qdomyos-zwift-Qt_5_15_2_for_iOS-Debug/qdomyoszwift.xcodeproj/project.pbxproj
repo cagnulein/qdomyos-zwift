@@ -299,6 +299,10 @@
 		8762D5132601F89500F6F049 /* scanrecordresult.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8762D5112601F89500F6F049 /* scanrecordresult.cpp */; };
 		87646C2027B5064600F82131 /* bhfitnesselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87646C1E27B5064500F82131 /* bhfitnesselliptical.cpp */; };
 		87646C2227B5065100F82131 /* moc_bhfitnesselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87646C2127B5065100F82131 /* moc_bhfitnesselliptical.cpp */; };
+		8767CA552DA3C1FD0003001F /* elitesquarecontroller.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA532DA3C1FD0003001F /* elitesquarecontroller.cpp */; };
+		8767CA562DA3C1FD0003001F /* moc_elitesquarecontroller.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA542DA3C1FD0003001F /* moc_elitesquarecontroller.cpp */; };
+		8767CA5D2DA7F5170003001F /* ios_wahookickrsnapbike.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA5C2DA7F5170003001F /* ios_wahookickrsnapbike.mm */; };
+		8767CA602DA800590003001F /* ios_zwiftclickremote.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA5F2DA800590003001F /* ios_zwiftclickremote.mm */; };
 		8767EF1E29448D6700810C0F /* characteristicwriteprocessor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767EF1D29448D6700810C0F /* characteristicwriteprocessor.cpp */; };
 		8768C8BA2BBC11C80099DBE1 /* file_sync_client.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C89C2BBC11C70099DBE1 /* file_sync_client.c */; };
 		8768C8BB2BBC11C80099DBE1 /* protocol.txt in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8768C89D2BBC11C70099DBE1 /* protocol.txt */; };
@@ -392,8 +396,11 @@
 		8785D5442B3DD105005A2EB7 /* moc_zwift_client_auth.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8785D5422B3DD105005A2EB7 /* moc_zwift_client_auth.cpp */; };
 		87873AEE2D09A8AA005F86B4 /* moc_sportsplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87873AED2D09A8AA005F86B4 /* moc_sportsplusrower.cpp */; };
 		87873AF12D09A8CE005F86B4 /* sportsplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87873AF02D09A8CE005F86B4 /* sportsplusrower.cpp */; };
+		878895DB2DD48AB100BF5162 /* moc_inclinationresistancetable.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878895DA2DD48AB100BF5162 /* moc_inclinationresistancetable.cpp */; };
 		878A331A25AB4FF800BD13E1 /* yesoulbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878A331725AB4FF800BD13E1 /* yesoulbike.cpp */; };
 		878A331D25AB50C300BD13E1 /* moc_yesoulbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878A331B25AB50C200BD13E1 /* moc_yesoulbike.cpp */; };
+		878C9DC92DF01C16001114D5 /* speraxtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878C9DC82DF01C16001114D5 /* speraxtreadmill.cpp */; };
+		878C9DCA2DF01C16001114D5 /* moc_speraxtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878C9DC62DF01C16001114D5 /* moc_speraxtreadmill.cpp */; };
 		878C9E6928B77E7C00669129 /* nordictrackifitadbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878C9E6828B77E7B00669129 /* nordictrackifitadbbike.cpp */; };
 		878C9E6B28B77E9800669129 /* moc_nordictrackifitadbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878C9E6A28B77E9800669129 /* moc_nordictrackifitadbbike.cpp */; };
 		878D83742A1F33C600D7F004 /* bkoolbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878D83732A1F33C600D7F004 /* bkoolbike.cpp */; };
@@ -472,6 +479,7 @@
 		87BE6FDE272D2A3E00C35795 /* moc_horizongr7bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BE6FDD272D2A3E00C35795 /* moc_horizongr7bike.cpp */; };
 		87BF116D298E28CA00B5B6E7 /* pelotonbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BF116C298E28CA00B5B6E7 /* pelotonbike.cpp */; };
 		87BF116F298E28EC00B5B6E7 /* moc_pelotonbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BF116E298E28EC00B5B6E7 /* moc_pelotonbike.cpp */; };
+		87BFEA2F2CEDDEEE00BDD759 /* ios_echelonconnectsport.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BFEA2E2CEDDEEE00BDD759 /* ios_echelonconnectsport.mm */; };
 		87C424262BC1294000503687 /* moc_treadmillErgTable.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C424252BC1294000503687 /* moc_treadmillErgTable.cpp */; };
 		87C481FA26DFA7C3006211AD /* eliterizer.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C481F926DFA7C3006211AD /* eliterizer.cpp */; };
 		87C481FC26DFA7D1006211AD /* moc_eliterizer.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C481FB26DFA7D1006211AD /* moc_eliterizer.cpp */; };
@@ -523,6 +531,12 @@
 		87D5DC4228230496008CCDE7 /* moc_truetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D5DC4128230496008CCDE7 /* moc_truetreadmill.cpp */; };
 		87D91F9A2800B9970026D43C /* proformwifibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D91F992800B9970026D43C /* proformwifibike.cpp */; };
 		87D91F9C2800B9B90026D43C /* moc_proformwifibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D91F9B2800B9B90026D43C /* moc_proformwifibike.cpp */; };
+		87DA62A42D2305E4008ADA0F /* moc_characteristicnotifier0002.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62A22D2305E4008ADA0F /* moc_characteristicnotifier0002.cpp */; };
+		87DA62A52D2305E4008ADA0F /* moc_characteristicwriteprocessor0003.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62A32D2305E4008ADA0F /* moc_characteristicwriteprocessor0003.cpp */; };
+		87DA62AA2D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62A92D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp */; };
+		87DA62AB2D2305F5008ADA0F /* characteristicnotifier0002.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62A72D2305F5008ADA0F /* characteristicnotifier0002.cpp */; };
+		87DA62AF2D2426F2008ADA0F /* characteristicnotifier0004.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62AD2D2426F2008ADA0F /* characteristicnotifier0004.cpp */; };
+		87DA62B02D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA62AE2D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp */; };
 		87DA76502848F98200A71B64 /* libQt5TextToSpeech.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */; };
 		87DA8465284933D200B550E9 /* fakeelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA8464284933D200B550E9 /* fakeelliptical.cpp */; };
 		87DA8467284933DE00B550E9 /* moc_fakeelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA8466284933DE00B550E9 /* moc_fakeelliptical.cpp */; };
@@ -532,6 +546,12 @@
 		87DAE16926E9FF5000B0527E /* moc_shuaa5treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DAE16626E9FF5000B0527E /* moc_shuaa5treadmill.cpp */; };
 		87DAE16A26E9FF5000B0527E /* moc_kingsmithr2treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DAE16726E9FF5000B0527E /* moc_kingsmithr2treadmill.cpp */; };
 		87DAE16B26E9FF5000B0527E /* moc_solef80treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DAE16826E9FF5000B0527E /* moc_solef80treadmill.cpp */; };
+		87DC27EA2D9BDB53007A1B9D /* echelonstairclimber.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DC27E72D9BDB53007A1B9D /* echelonstairclimber.cpp */; };
+		87DC27EB2D9BDB53007A1B9D /* stairclimber.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DC27E92D9BDB53007A1B9D /* stairclimber.cpp */; };
+		87DC27EE2D9BDB8F007A1B9D /* moc_stairclimber.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DC27ED2D9BDB8F007A1B9D /* moc_stairclimber.cpp */; };
+		87DC27EF2D9BDB8F007A1B9D /* moc_echelonstairclimber.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DC27EC2D9BDB8F007A1B9D /* moc_echelonstairclimber.cpp */; };
+		87DC27F32D9BDC43007A1B9D /* moc_moxy5sensor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DC27F02D9BDC43007A1B9D /* moc_moxy5sensor.cpp */; };
+		87DC27F42D9BDC43007A1B9D /* moxy5sensor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DC27F22D9BDC43007A1B9D /* moxy5sensor.cpp */; };
 		87DED80627D1273900BE4FBB /* filedownloader.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DED80427D1273800BE4FBB /* filedownloader.cpp */; };
 		87DED80827D1274600BE4FBB /* moc_filedownloader.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DED80727D1274500BE4FBB /* moc_filedownloader.cpp */; };
 		87DF68B825E2673B00FCDA46 /* eslinkertreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DF68B625E2673600FCDA46 /* eslinkertreadmill.cpp */; };
@@ -567,6 +587,10 @@
 		87F02E4029178524000DB52C /* octaneelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F02E3E29178523000DB52C /* octaneelliptical.cpp */; };
 		87F02E4229178545000DB52C /* moc_octaneelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F02E4129178545000DB52C /* moc_octaneelliptical.cpp */; };
 		87F1179E26A5FBDE00541B3A /* libqtwebview_darwin.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87420DF7269D7CE1000C5EC6 /* libqtwebview_darwin.a */; };
+		87F1BD682DBFBCE700416506 /* moc_android_antbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F1BD672DBFBCE700416506 /* moc_android_antbike.cpp */; };
+		87F1BD692DBFBCE700416506 /* android_antbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F1BD662DBFBCE700416506 /* android_antbike.cpp */; };
+		87F1BD712DC0D59600416506 /* moc_coresensor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F1BD702DC0D59600416506 /* moc_coresensor.cpp */; };
+		87F1BD722DC0D59600416506 /* coresensor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F1BD6F2DC0D59600416506 /* coresensor.cpp */; };
 		87F4FB5A29D550C00061BB4A /* schwinn170bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F4FB5829D550BF0061BB4A /* schwinn170bike.cpp */; };
 		87F4FB5C29D550E00061BB4A /* moc_schwinn170bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F4FB5B29D550DF0061BB4A /* moc_schwinn170bike.cpp */; };
 		87F527BE28EEB5AA00A9F8D5 /* qzsettings.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F527BC28EEB5AA00A9F8D5 /* qzsettings.cpp */; };
@@ -1199,6 +1223,13 @@
 		87646C1E27B5064500F82131 /* bhfitnesselliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bhfitnesselliptical.cpp; path = ../src/devices/bhfitnesselliptical/bhfitnesselliptical.cpp; sourceTree = "<group>"; };
 		87646C1F27B5064500F82131 /* bhfitnesselliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bhfitnesselliptical.h; path = ../src/devices/bhfitnesselliptical/bhfitnesselliptical.h; sourceTree = "<group>"; };
 		87646C2127B5065100F82131 /* moc_bhfitnesselliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_bhfitnesselliptical.cpp; sourceTree = "<group>"; };
+		8767CA522DA3C1FD0003001F /* elitesquarecontroller.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = elitesquarecontroller.h; path = ../src/devices/elitesquarecontroller/elitesquarecontroller.h; sourceTree = SOURCE_ROOT; };
+		8767CA532DA3C1FD0003001F /* elitesquarecontroller.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = elitesquarecontroller.cpp; path = ../src/devices/elitesquarecontroller/elitesquarecontroller.cpp; sourceTree = SOURCE_ROOT; };
+		8767CA542DA3C1FD0003001F /* moc_elitesquarecontroller.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_elitesquarecontroller.cpp; sourceTree = "<group>"; };
+		8767CA5B2DA7F5170003001F /* ios_wahookickrsnapbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_wahookickrsnapbike.h; path = ../src/ios/ios_wahookickrsnapbike.h; sourceTree = SOURCE_ROOT; };
+		8767CA5C2DA7F5170003001F /* ios_wahookickrsnapbike.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_wahookickrsnapbike.mm; path = ../src/ios/ios_wahookickrsnapbike.mm; sourceTree = SOURCE_ROOT; };
+		8767CA5E2DA800590003001F /* ios_zwiftclickremote.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_zwiftclickremote.h; path = ../src/ios/ios_zwiftclickremote.h; sourceTree = SOURCE_ROOT; };
+		8767CA5F2DA800590003001F /* ios_zwiftclickremote.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_zwiftclickremote.mm; path = ../src/ios/ios_zwiftclickremote.mm; sourceTree = SOURCE_ROOT; };
 		8767EF1D29448D6700810C0F /* characteristicwriteprocessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicwriteprocessor.cpp; path = ../src/characteristics/characteristicwriteprocessor.cpp; sourceTree = "<group>"; };
 		8768C89C2BBC11C70099DBE1 /* file_sync_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = file_sync_client.c; path = ../src/ios/adb/adb/file_sync_client.c; sourceTree = "<group>"; };
 		8768C89D2BBC11C70099DBE1 /* protocol.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = protocol.txt; path = ../src/ios/adb/adb/protocol.txt; sourceTree = "<group>"; };
@@ -1347,10 +1378,15 @@
 		87873AED2D09A8AA005F86B4 /* moc_sportsplusrower.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sportsplusrower.cpp; sourceTree = "<group>"; };
 		87873AF02D09A8CE005F86B4 /* sportsplusrower.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sportsplusrower.cpp; sourceTree = "<group>"; };
 		87873AF22D09AADF005F86B4 /* sportsplusrower.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sportsplusrower.h; path = ../src/devices/sportsplusrower/sportsplusrower.h; sourceTree = SOURCE_ROOT; };
+		878895D92DD48AB100BF5162 /* inclinationresistancetable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = inclinationresistancetable.h; path = ../src/inclinationresistancetable.h; sourceTree = SOURCE_ROOT; };
+		878895DA2DD48AB100BF5162 /* moc_inclinationresistancetable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inclinationresistancetable.cpp; sourceTree = "<group>"; };
 		8789DCDB6A4F681A76DF3F92 /* Qt5Widgets */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Widgets; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5Widgets$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		878A331725AB4FF800BD13E1 /* yesoulbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = yesoulbike.cpp; path = ../src/devices/yesoulbike/yesoulbike.cpp; sourceTree = "<group>"; };
 		878A331825AB4FF800BD13E1 /* yesoulbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = yesoulbike.h; path = ../src/devices/yesoulbike/yesoulbike.h; sourceTree = "<group>"; };
 		878A331B25AB50C200BD13E1 /* moc_yesoulbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_yesoulbike.cpp; sourceTree = "<group>"; };
+		878C9DC62DF01C16001114D5 /* moc_speraxtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_speraxtreadmill.cpp; sourceTree = "<group>"; };
+		878C9DC72DF01C16001114D5 /* speraxtreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = speraxtreadmill.h; path = ../src/devices/speraxtreadmill/speraxtreadmill.h; sourceTree = SOURCE_ROOT; };
+		878C9DC82DF01C16001114D5 /* speraxtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = speraxtreadmill.cpp; path = ../src/devices/speraxtreadmill/speraxtreadmill.cpp; sourceTree = SOURCE_ROOT; };
 		878C9E6728B77E7B00669129 /* nordictrackifitadbbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nordictrackifitadbbike.h; path = ../src/devices/nordictrackifitadbbike/nordictrackifitadbbike.h; sourceTree = "<group>"; };
 		878C9E6828B77E7B00669129 /* nordictrackifitadbbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = nordictrackifitadbbike.cpp; path = ../src/devices/nordictrackifitadbbike/nordictrackifitadbbike.cpp; sourceTree = "<group>"; };
 		878C9E6A28B77E9800669129 /* moc_nordictrackifitadbbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_nordictrackifitadbbike.cpp; sourceTree = "<group>"; };
@@ -1469,6 +1505,8 @@
 		87BF116B298E28CA00B5B6E7 /* pelotonbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pelotonbike.h; path = ../src/devices/pelotonbike/pelotonbike.h; sourceTree = "<group>"; };
 		87BF116C298E28CA00B5B6E7 /* pelotonbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pelotonbike.cpp; path = ../src/devices/pelotonbike/pelotonbike.cpp; sourceTree = "<group>"; };
 		87BF116E298E28EC00B5B6E7 /* moc_pelotonbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_pelotonbike.cpp; sourceTree = "<group>"; };
+		87BFEA2D2CEDDEEE00BDD759 /* ios_echelonconnectsport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_echelonconnectsport.h; path = ../src/ios/ios_echelonconnectsport.h; sourceTree = SOURCE_ROOT; };
+		87BFEA2E2CEDDEEE00BDD759 /* ios_echelonconnectsport.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_echelonconnectsport.mm; path = ../src/ios/ios_echelonconnectsport.mm; sourceTree = SOURCE_ROOT; };
 		87C424252BC1294000503687 /* moc_treadmillErgTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_treadmillErgTable.cpp; sourceTree = "<group>"; };
 		87C481F826DFA7C3006211AD /* eliterizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eliterizer.h; path = ../src/devices/eliterizer/eliterizer.h; sourceTree = "<group>"; };
 		87C481F926DFA7C3006211AD /* eliterizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = eliterizer.cpp; path = ../src/devices/eliterizer/eliterizer.cpp; sourceTree = "<group>"; };
@@ -1546,6 +1584,12 @@
 		87D91F982800B9970026D43C /* proformwifibike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformwifibike.h; path = ../src/devices/proformwifibike/proformwifibike.h; sourceTree = "<group>"; };
 		87D91F992800B9970026D43C /* proformwifibike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformwifibike.cpp; path = ../src/devices/proformwifibike/proformwifibike.cpp; sourceTree = "<group>"; };
 		87D91F9B2800B9B90026D43C /* moc_proformwifibike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformwifibike.cpp; sourceTree = "<group>"; };
+		87DA62A22D2305E4008ADA0F /* moc_characteristicnotifier0002.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_characteristicnotifier0002.cpp; sourceTree = "<group>"; };
+		87DA62A32D2305E4008ADA0F /* moc_characteristicwriteprocessor0003.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_characteristicwriteprocessor0003.cpp; sourceTree = "<group>"; };
+		87DA62A72D2305F5008ADA0F /* characteristicnotifier0002.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicnotifier0002.cpp; path = ../src/characteristics/characteristicnotifier0002.cpp; sourceTree = SOURCE_ROOT; };
+		87DA62A92D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicwriteprocessor0003.cpp; path = ../src/characteristics/characteristicwriteprocessor0003.cpp; sourceTree = SOURCE_ROOT; };
+		87DA62AD2D2426F2008ADA0F /* characteristicnotifier0004.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicnotifier0004.cpp; path = ../src/characteristics/characteristicnotifier0004.cpp; sourceTree = SOURCE_ROOT; };
+		87DA62AE2D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_characteristicnotifier0004.cpp; sourceTree = "<group>"; };
 		87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5TextToSpeech.a; path = ../../Qt/5.15.2/ios/lib/libQt5TextToSpeech.a; sourceTree = "<group>"; };
 		87DA8463284933D200B550E9 /* fakeelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fakeelliptical.h; path = ../src/devices/fakeelliptical/fakeelliptical.h; sourceTree = "<group>"; };
 		87DA8464284933D200B550E9 /* fakeelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fakeelliptical.cpp; path = ../src/devices/fakeelliptical/fakeelliptical.cpp; sourceTree = "<group>"; };
@@ -1559,6 +1603,15 @@
 		87DAE16626E9FF5000B0527E /* moc_shuaa5treadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_shuaa5treadmill.cpp; sourceTree = "<group>"; };
 		87DAE16726E9FF5000B0527E /* moc_kingsmithr2treadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_kingsmithr2treadmill.cpp; sourceTree = "<group>"; };
 		87DAE16826E9FF5000B0527E /* moc_solef80treadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_solef80treadmill.cpp; sourceTree = "<group>"; };
+		87DC27E62D9BDB53007A1B9D /* echelonstairclimber.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = echelonstairclimber.h; path = ../src/devices/echelonstairclimber/echelonstairclimber.h; sourceTree = SOURCE_ROOT; };
+		87DC27E72D9BDB53007A1B9D /* echelonstairclimber.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = echelonstairclimber.cpp; path = ../src/devices/echelonstairclimber/echelonstairclimber.cpp; sourceTree = SOURCE_ROOT; };
+		87DC27E82D9BDB53007A1B9D /* stairclimber.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = stairclimber.h; path = ../src/devices/stairclimber.h; sourceTree = SOURCE_ROOT; };
+		87DC27E92D9BDB53007A1B9D /* stairclimber.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = stairclimber.cpp; path = ../src/devices/stairclimber.cpp; sourceTree = SOURCE_ROOT; };
+		87DC27EC2D9BDB8F007A1B9D /* moc_echelonstairclimber.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_echelonstairclimber.cpp; sourceTree = "<group>"; };
+		87DC27ED2D9BDB8F007A1B9D /* moc_stairclimber.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_stairclimber.cpp; sourceTree = "<group>"; };
+		87DC27F02D9BDC43007A1B9D /* moc_moxy5sensor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_moxy5sensor.cpp; sourceTree = "<group>"; };
+		87DC27F12D9BDC43007A1B9D /* moxy5sensor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = moxy5sensor.h; path = ../src/devices/moxy5sensor/moxy5sensor.h; sourceTree = SOURCE_ROOT; };
+		87DC27F22D9BDC43007A1B9D /* moxy5sensor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moxy5sensor.cpp; path = ../src/devices/moxy5sensor/moxy5sensor.cpp; sourceTree = SOURCE_ROOT; };
 		87DED80427D1273800BE4FBB /* filedownloader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = filedownloader.cpp; path = ../src/filedownloader.cpp; sourceTree = "<group>"; };
 		87DED80527D1273900BE4FBB /* filedownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = filedownloader.h; path = ../src/filedownloader.h; sourceTree = "<group>"; };
 		87DED80727D1274500BE4FBB /* moc_filedownloader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_filedownloader.cpp; sourceTree = "<group>"; };
@@ -1609,6 +1662,12 @@
 		87F02E3E29178523000DB52C /* octaneelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = octaneelliptical.cpp; path = ../src/devices/octaneelliptical/octaneelliptical.cpp; sourceTree = "<group>"; };
 		87F02E3F29178524000DB52C /* octaneelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = octaneelliptical.h; path = ../src/devices/octaneelliptical/octaneelliptical.h; sourceTree = "<group>"; };
 		87F02E4129178545000DB52C /* moc_octaneelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_octaneelliptical.cpp; sourceTree = "<group>"; };
+		87F1BD652DBFBCE700416506 /* android_antbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = android_antbike.h; path = ../src/devices/android_antbike/android_antbike.h; sourceTree = SOURCE_ROOT; };
+		87F1BD662DBFBCE700416506 /* android_antbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = android_antbike.cpp; path = ../src/devices/android_antbike/android_antbike.cpp; sourceTree = SOURCE_ROOT; };
+		87F1BD672DBFBCE700416506 /* moc_android_antbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_android_antbike.cpp; sourceTree = "<group>"; };
+		87F1BD6E2DC0D59600416506 /* coresensor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = coresensor.h; path = ../src/devices/coresensor/coresensor.h; sourceTree = SOURCE_ROOT; };
+		87F1BD6F2DC0D59600416506 /* coresensor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = coresensor.cpp; path = ../src/devices/coresensor/coresensor.cpp; sourceTree = SOURCE_ROOT; };
+		87F1BD702DC0D59600416506 /* moc_coresensor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_coresensor.cpp; sourceTree = "<group>"; };
 		87F4FB5829D550BF0061BB4A /* schwinn170bike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = schwinn170bike.cpp; path = ../src/devices/schwinn170bike/schwinn170bike.cpp; sourceTree = "<group>"; };
 		87F4FB5929D550BF0061BB4A /* schwinn170bike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = schwinn170bike.h; path = ../src/devices/schwinn170bike/schwinn170bike.h; sourceTree = "<group>"; };
 		87F4FB5B29D550DF0061BB4A /* moc_schwinn170bike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_schwinn170bike.cpp; sourceTree = "<group>"; };
@@ -2007,6 +2066,8 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				878895D92DD48AB100BF5162 /* inclinationresistancetable.h */,
+				878895DA2DD48AB100BF5162 /* moc_inclinationresistancetable.cpp */,
 				87C4E5BC2C1C1D2600D0750E /* moc_crossrope.cpp */,
 				87C424252BC1294000503687 /* moc_treadmillErgTable.cpp */,
 				874823FD2B935ADA006F3CA1 /* moc_ergtable.cpp */,
@@ -2179,6 +2240,26 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				878C9DC62DF01C16001114D5 /* moc_speraxtreadmill.cpp */,
+				878C9DC72DF01C16001114D5 /* speraxtreadmill.h */,
+				878C9DC82DF01C16001114D5 /* speraxtreadmill.cpp */,
+				87F1BD6E2DC0D59600416506 /* coresensor.h */,
+				87F1BD6F2DC0D59600416506 /* coresensor.cpp */,
+				87F1BD702DC0D59600416506 /* moc_coresensor.cpp */,
+				8767CA5E2DA800590003001F /* ios_zwiftclickremote.h */,
+				8767CA5F2DA800590003001F /* ios_zwiftclickremote.mm */,
+				8767CA5B2DA7F5170003001F /* ios_wahookickrsnapbike.h */,
+				8767CA5C2DA7F5170003001F /* ios_wahookickrsnapbike.mm */,
+				87BFEA2D2CEDDEEE00BDD759 /* ios_echelonconnectsport.h */,
+				87BFEA2E2CEDDEEE00BDD759 /* ios_echelonconnectsport.mm */,
+				8767CA522DA3C1FD0003001F /* elitesquarecontroller.h */,
+				8767CA532DA3C1FD0003001F /* elitesquarecontroller.cpp */,
+				8767CA542DA3C1FD0003001F /* moc_elitesquarecontroller.cpp */,
+				87DC27F02D9BDC43007A1B9D /* moc_moxy5sensor.cpp */,
+				87DC27F12D9BDC43007A1B9D /* moxy5sensor.h */,
+				87DC27F22D9BDC43007A1B9D /* moxy5sensor.cpp */,
+				87DC27EC2D9BDB8F007A1B9D /* moc_echelonstairclimber.cpp */,
+				87DC27ED2D9BDB8F007A1B9D /* moc_stairclimber.cpp */,
 				8798FDC02D66075B00CF8EE8 /* osxbluetooth_p.h */,
 				8798FDC12D66075B00CF8EE8 /* osxbtcentralmanager_p.h */,
 				8798FDC22D66075B00CF8EE8 /* osxbtgcdtimer_p.h */,
@@ -2674,6 +2755,13 @@
 				87FE06822D170D5600CDAAF6 /* trxappgateusbrower.h */,
 				87FE06832D170D5600CDAAF6 /* trxappgateusbrower.cpp */,
 				87FE06802D170D3C00CDAAF6 /* moc_trxappgateusbrower.cpp */,
+				87DC27E62D9BDB53007A1B9D /* echelonstairclimber.h */,
+				87DC27E72D9BDB53007A1B9D /* echelonstairclimber.cpp */,
+				87DC27E82D9BDB53007A1B9D /* stairclimber.h */,
+				87DC27E92D9BDB53007A1B9D /* stairclimber.cpp */,
+				87F1BD652DBFBCE700416506 /* android_antbike.h */,
+				87F1BD662DBFBCE700416506 /* android_antbike.cpp */,
+				87F1BD672DBFBCE700416506 /* moc_android_antbike.cpp */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -2825,6 +2913,19 @@
 				87917A7128E768D200F8D9AC /* Server.swift */,
 			);
 			name = AppleWatchToIpad;
+			sourceTree = "<group>";
+		};
+		8798FDCA2D6F338200CF8EE8 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				87DA62A92D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp */,
+				87DA62A72D2305F5008ADA0F /* characteristicnotifier0002.cpp */,
+				87DA62A22D2305E4008ADA0F /* moc_characteristicnotifier0002.cpp */,
+				87DA62A32D2305E4008ADA0F /* moc_characteristicwriteprocessor0003.cpp */,
+				87DA62AD2D2426F2008ADA0F /* characteristicnotifier0004.cpp */,
+				87DA62AE2D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		87DF60DE337FB58864343E39 /* Resources */ = {
@@ -3245,6 +3346,7 @@
 				AF39DD055C3EF8226FBE929D /* Frameworks */,
 				858FCAB0EB1F29CF8B07677C /* Bundle Data */,
 				FE0A091FDBFB3E9C31B7A1BD /* Products */,
+				8798FDCA2D6F338200CF8EE8 /* Recovered References */,
 			);
 			name = qdomyoszwift;
 			sourceTree = "<group>";
@@ -3441,6 +3543,8 @@
 				873824C027E64707004F1B46 /* moc_dirconmanager.cpp in Compile Sources */,
 				2F0E70F826316F3600E11F3A /* virtualbike_zwift.swift in Compile Sources */,
 				8772A0E825E43AE70080718C /* moc_trxappgateusbbike.cpp in Compile Sources */,
+				87DC27EE2D9BDB8F007A1B9D /* moc_stairclimber.cpp in Compile Sources */,
+				87DC27EF2D9BDB8F007A1B9D /* moc_echelonstairclimber.cpp in Compile Sources */,
 				87062646259480B200D06586 /* ViewController.swift in Compile Sources */,
 				87D269A425F535340076AA48 /* moc_m3ibike.cpp in Compile Sources */,
 				87BAFE482B8CA7AA00065FCD /* moc_focustreadmill.cpp in Compile Sources */,
@@ -3461,6 +3565,8 @@
 				873824BC27E64707004F1B46 /* moc_resolver.cpp in Compile Sources */,
 				87FA11AD27C5ECE4008AC5D1 /* moc_ultrasportbike.cpp in Compile Sources */,
 				871235BF26B297670012D0F2 /* kingsmithr1protreadmill.cpp in Compile Sources */,
+				87DA62AA2D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp in Compile Sources */,
+				87DA62AB2D2305F5008ADA0F /* characteristicnotifier0002.cpp in Compile Sources */,
 				8772B7F72CB55E98004AB8E9 /* deerruntreadmill.cpp in Compile Sources */,
 				20A50533946A39CBD2C89104 /* bluetoothdevice.cpp in Compile Sources */,
 				87C5F0D126285E7E0067A1B5 /* moc_stagesbike.cpp in Compile Sources */,
@@ -3497,9 +3603,12 @@
 				87F02E4229178545000DB52C /* moc_octaneelliptical.cpp in Compile Sources */,
 				87E2F85D291ED308002BDC65 /* lifefitnesstreadmill.cpp in Compile Sources */,
 				8752C0E82B15D85600C3D1A5 /* eliteariafan.cpp in Compile Sources */,
+				8767CA602DA800590003001F /* ios_zwiftclickremote.mm in Compile Sources */,
 				87917A7328E768D200F8D9AC /* Browser.swift in Compile Sources */,
 				873CD20B27EF8D8A000131BC /* inapptransaction.cpp in Compile Sources */,
 				8727C7D52B3BF1E4005429EB /* moc_proformtelnetbike.cpp in Compile Sources */,
+				8767CA552DA3C1FD0003001F /* elitesquarecontroller.cpp in Compile Sources */,
+				8767CA562DA3C1FD0003001F /* moc_elitesquarecontroller.cpp in Compile Sources */,
 				873824EF27E647A9004F1B46 /* query.cpp in Compile Sources */,
 				876F45FF279350D9003CDA5A /* moc_concept2skierg.cpp in Compile Sources */,
 				BE93C6EF2C2A6BFEEC9EA565 /* fit_buffered_mesg_broadcaster.cpp in Compile Sources */,
@@ -3507,6 +3616,7 @@
 				87DAE16426E9FF3A00B0527E /* kingsmithr2treadmill.cpp in Compile Sources */,
 				87F93427278E0EC00088B596 /* domyosrower.cpp in Compile Sources */,
 				87B617EE25F25FED0094A1CB /* snodebike.cpp in Compile Sources */,
+				878895DB2DD48AB100BF5162 /* moc_inclinationresistancetable.cpp in Compile Sources */,
 				87C5F0B526285E5F0067A1B5 /* mimemessage.cpp in Compile Sources */,
 				8768C8C92BBC11C80099DBE1 /* adb_client.c in Compile Sources */,
 				873063C0259DF2C500DA0F44 /* moc_heartratebelt.cpp in Compile Sources */,
@@ -3576,6 +3686,8 @@
 				8772B7F42CB55E80004AB8E9 /* moc_deerruntreadmill.cpp in Compile Sources */,
 				87CC3BA425A0885F001EC5A8 /* elliptical.cpp in Compile Sources */,
 				4AD2C93A2B8FD5855E521630 /* fit_encode.cpp in Compile Sources */,
+				87DC27F32D9BDC43007A1B9D /* moc_moxy5sensor.cpp in Compile Sources */,
+				87DC27F42D9BDC43007A1B9D /* moxy5sensor.cpp in Compile Sources */,
 				87EB918C27EE5FE7002535E1 /* moc_inappproduct.cpp in Compile Sources */,
 				87E34C2D2886F99A00CEDE4B /* moc_octanetreadmill.cpp in Compile Sources */,
 				87D91F9A2800B9970026D43C /* proformwifibike.cpp in Compile Sources */,
@@ -3604,6 +3716,7 @@
 				87EFB56E25BD703D0039DD5A /* proformtreadmill.cpp in Compile Sources */,
 				87DA8465284933D200B550E9 /* fakeelliptical.cpp in Compile Sources */,
 				876E50F52B701C050080FAAF /* moc_zwiftclickremote.cpp in Compile Sources */,
+				8767CA5D2DA7F5170003001F /* ios_wahookickrsnapbike.mm in Compile Sources */,
 				87FE5BAF2692F3130056EFC8 /* tacxneo2.cpp in Compile Sources */,
 				8718CBAC263063CE004BF4EE /* moc_tcpclientinfosender.cpp in Compile Sources */,
 				873824B527E64707004F1B46 /* moc_provider_p.cpp in Compile Sources */,
@@ -3631,6 +3744,8 @@
 				8720890E2CE65451008C2C17 /* qmqttsubscriptionproperties.cpp in Compile Sources */,
 				8720890F2CE65451008C2C17 /* qmqttconnectionproperties.cpp in Compile Sources */,
 				872089102CE65451008C2C17 /* qmqttconnection.cpp in Compile Sources */,
+				878C9DC92DF01C16001114D5 /* speraxtreadmill.cpp in Compile Sources */,
+				878C9DCA2DF01C16001114D5 /* moc_speraxtreadmill.cpp in Compile Sources */,
 				872089112CE65451008C2C17 /* qmqttsubscription.cpp in Compile Sources */,
 				872089122CE65451008C2C17 /* qmqttclient.cpp in Compile Sources */,
 				872089132CE65451008C2C17 /* qmqtttopicfilter.cpp in Compile Sources */,
@@ -3707,6 +3822,7 @@
 				873824BB27E64707004F1B46 /* moc_prober_p.cpp in Compile Sources */,
 				877758B32C98627300BB1697 /* moc_sportstechelliptical.cpp in Compile Sources */,
 				8742C2B227C92C30007D3FA0 /* wahookickrsnapbike.cpp in Compile Sources */,
+				87BFEA2F2CEDDEEE00BDD759 /* ios_echelonconnectsport.mm in Compile Sources */,
 				87EB918327EE5FE7002535E1 /* moc_inappstore.cpp in Compile Sources */,
 				87CF516B293C87B000A7CABC /* moc_characteristicwriteprocessore005.cpp in Compile Sources */,
 				8780D949264FB8B800192D41 /* moc_smartspin2k.cpp in Compile Sources */,
@@ -3804,7 +3920,11 @@
 				1FBBC7C86C436CAAAFD37E56 /* moc_domyostreadmill.cpp in Compile Sources */,
 				876BFCA027BE35D8001D7645 /* moc_proformelliptical.cpp in Compile Sources */,
 				873824BD27E64707004F1B46 /* moc_resolver_p.cpp in Compile Sources */,
+				87DA62A42D2305E4008ADA0F /* moc_characteristicnotifier0002.cpp in Compile Sources */,
+				87DA62A52D2305E4008ADA0F /* moc_characteristicwriteprocessor0003.cpp in Compile Sources */,
 				876ED21A25C3E9010065F3DC /* moc_material.cpp in Compile Sources */,
+				87DC27EA2D9BDB53007A1B9D /* echelonstairclimber.cpp in Compile Sources */,
+				87DC27EB2D9BDB53007A1B9D /* stairclimber.cpp in Compile Sources */,
 				87A4B76125AF27CB0027EF3C /* metric.cpp in Compile Sources */,
 				87D10552290996EA00B3935B /* mepanelbike.cpp in Compile Sources */,
 				9D9484EED654597C394345DE /* moc_echelonconnectsport.cpp in Compile Sources */,
@@ -3824,6 +3944,8 @@
 				87A33F1A2D611D8400BFFF29 /* moc_logwriter.cpp in Compile Sources */,
 				87D105542909971100B3935B /* moc_mepanelbike.cpp in Compile Sources */,
 				87B617F325F260150094A1CB /* moc_snodebike.cpp in Compile Sources */,
+				87F1BD712DC0D59600416506 /* moc_coresensor.cpp in Compile Sources */,
+				87F1BD722DC0D59600416506 /* coresensor.cpp in Compile Sources */,
 				87DA8467284933DE00B550E9 /* moc_fakeelliptical.cpp in Compile Sources */,
 				87C5F0D726285E7E0067A1B5 /* moc_mimefile.cpp in Compile Sources */,
 				877FBA29276E684500F6C0C9 /* bowflextreadmill.cpp in Compile Sources */,
@@ -3845,6 +3967,8 @@
 				873824B227E64706004F1B46 /* moc_hostname.cpp in Compile Sources */,
 				873824EB27E647A8004F1B46 /* prober.cpp in Compile Sources */,
 				875CA9462D0C740000667EE6 /* moc_kineticinroadbike.cpp in Compile Sources */,
+				87DA62AF2D2426F2008ADA0F /* characteristicnotifier0004.cpp in Compile Sources */,
+				87DA62B02D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp in Compile Sources */,
 				8767EF1E29448D6700810C0F /* characteristicwriteprocessor.cpp in Compile Sources */,
 				87B617F425F260150094A1CB /* moc_screencapture.cpp in Compile Sources */,
 				87B617ED25F25FED0094A1CB /* fitshowtreadmill.cpp in Compile Sources */,
@@ -3865,6 +3989,8 @@
 				87A0771029B641D600A368BF /* wahookickrheadwind.cpp in Compile Sources */,
 				87EAC3D32D1D8D1D004FE975 /* moc_pitpatbike.cpp in Compile Sources */,
 				8791A8AB25C861BD003B50B2 /* inspirebike.cpp in Compile Sources */,
+				87F1BD682DBFBCE700416506 /* moc_android_antbike.cpp in Compile Sources */,
+				87F1BD692DBFBCE700416506 /* android_antbike.cpp in Compile Sources */,
 				876BFC9D27BE35C5001D7645 /* bowflext216treadmill.cpp in Compile Sources */,
 				871235C126B297720012D0F2 /* moc_kingsmithr1protreadmill.cpp in Compile Sources */,
 				87061397286D8CFE00D2446E /* PathController.cpp in Compile Sources */,
@@ -4255,7 +4381,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1037;
+				CURRENT_PROJECT_VERSION = 1121;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = "ADB_HOST=1";
@@ -4337,7 +4463,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
 					"/Users/cagnulein/qdomyos-zwift/src/ios/adb",
 				);
-				MARKETING_VERSION = 2.18;
+				MARKETING_VERSION = 2.20;
 				OTHER_CFLAGS = (
 					"-pipe",
 					"-g",
@@ -4449,7 +4575,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1037;
+				CURRENT_PROJECT_VERSION = 1121;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -4533,7 +4659,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
 					"/Users/cagnulein/qdomyos-zwift/src/ios/adb",
 				);
-				MARKETING_VERSION = 2.18;
+				MARKETING_VERSION = 2.20;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-pipe",
@@ -4679,7 +4805,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1037;
+				CURRENT_PROJECT_VERSION = 1121;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -4704,7 +4830,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.18;
+				MARKETING_VERSION = 2.20;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";
@@ -4775,7 +4901,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1037;
+				CURRENT_PROJECT_VERSION = 1121;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -4796,7 +4922,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.18;
+				MARKETING_VERSION = 2.20;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";
@@ -4867,7 +4993,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1037;
+				CURRENT_PROJECT_VERSION = 1121;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -4912,7 +5038,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.18;
+				MARKETING_VERSION = 2.20;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";
@@ -4983,7 +5109,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1037;
+				CURRENT_PROJECT_VERSION = 1121;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
@@ -5024,7 +5150,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.18;
+				MARKETING_VERSION = 2.20;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";

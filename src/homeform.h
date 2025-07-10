@@ -699,6 +699,11 @@ class homeform : public QObject {
     DataObject *tile_hr_time_in_zone_3;
     DataObject *tile_hr_time_in_zone_4;
     DataObject *tile_hr_time_in_zone_5;
+    DataObject *tile_heat_time_in_zone_1;
+    DataObject *tile_heat_time_in_zone_2;
+    DataObject *tile_heat_time_in_zone_3;
+    DataObject *tile_heat_time_in_zone_4;
+    DataObject *coreTemperature;
 
   private:
     static homeform *m_singleton;
@@ -891,6 +896,7 @@ class homeform : public QObject {
     void bluetoothDeviceDisconnected();
     void onToastRequested(QString message);
     void strava_upload_file_prepare();
+    void handleRestoreDefaultWheelDiameter();
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
     void licenseReply(QNetworkReply *reply);
@@ -948,6 +954,8 @@ class homeform : public QObject {
     void stravaWebVisibleChanged(bool value);
     void pelotonAuthUrlChanged(QString value);
     void pelotonWebVisibleChanged(bool value);
+
+    void restoreDefaultWheelDiameter();
 
     void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 
