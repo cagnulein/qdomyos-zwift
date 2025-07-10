@@ -117,7 +117,7 @@ echo "Restoring WatchOS companion app references AFTER make..."
 echo "Performing git checkout of build directory..."
 
 # Git reset della cartella build come fai tu manualmente
-git checkout HEAD -- build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/
+git checkout -- build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/
 
 echo "WatchOS references restored successfully"
 
