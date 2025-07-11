@@ -57,18 +57,20 @@ ApplicationWindow {
     property bool settings_restart_to_apply: false
     
     // Debug Android status bar
-    property int androidApiLevel: {
-        if (Qt.platform.os === "android") {
-            return rootItem.getAndroidApiLevel()
-        }
-        return 0
-    }
+    property int androidApiLevel: 0
+    property int statusBarHeight: 0
     
-    property int statusBarHeight: {
+    Component.onCompleted: {
         if (Qt.platform.os === "android") {
-            return rootItem.getStatusBarHeight()
+            console.log("Calling Android debug functions...")
+            try {
+                androidApiLevel = rootItem.getAndroidApiLevel()
+                statusBarHeight = rootItem.getStatusBarHeight()
+                console.log("Debug values set: API=" + androidApiLevel + ", StatusBar=" + statusBarHeight)
+            } catch (e) {
+                console.log("Error calling Android functions:", e)
+            }
         }
-        return 0
     }
 
     Settings {
@@ -948,33 +950,5 @@ ApplicationWindow {
 
             event.accepted = settings.volume_change_gears;
         }
-    }
-    
-    // Debug Button - Temporary for Android status bar debugging
-    Rectangle {
-        id: debugButton
-        width: 200
-        height: 50
-        color: "red"
-        visible: Qt.platform.os === "android"
-        anchors.top: parent.top
-        anchors.right: parent.right
-        z: 9999
-        
-        Text {
-            anchors.centerIn: parent
-            text: "Debug: API=" + androidApiLevel + " SB=" + statusBarHeight
-            color: "white"
-            font.pixelSize: 12
-        }
-        
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                if (Qt.platform.os === "android") {
-                    console.log(rootItem.getAndroidDebugInfo())
-                }
-            }
-        }
-    }
+    }    
 }
