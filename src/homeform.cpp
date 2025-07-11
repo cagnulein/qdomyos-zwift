@@ -781,7 +781,29 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                               QtAndroid::androidContext().object());
 #endif    
 
+    // Initialize GPIO gear worker if enabled
+    gpioGearsEnabled = settings.value(QZSettings::gpio_gears_enabled, QZSettings::default_gpio_gears_enabled).toBool();
+    if (gpioGearsEnabled) {
+        gpioGearWorker = new GPIOGearWorkerThread(this);
+        connect(gpioGearWorker, &GPIOGearWorkerThread::gearUpPressed, this, &homeform::onGPIOGearUpPressed);
+        connect(gpioGearWorker, &GPIOGearWorkerThread::gearDownPressed, this, &homeform::onGPIOGearDownPressed);
+        gpioGearWorker->start();
+        qDebug() << "GPIO Gear Worker initialized for Raspberry Pi";
+    }
+    
     bluetoothManager->homeformLoaded = true;
+}
+
+homeform::~homeform() {
+    // Cleanup GPIO gear worker
+    if (gpioGearWorker) {
+        gpioGearWorker->stop();
+        gpioGearWorker->quit();
+        gpioGearWorker->wait(1000);
+        delete gpioGearWorker;
+        gpioGearWorker = nullptr;
+        qDebug() << "GPIO Gear Worker cleaned up";
+    }
 }
 
 #ifdef Q_OS_ANDROID
@@ -8568,3 +8590,99 @@ extern "C" {
     }
 }
 #endif
+
+// GPIO Gear Worker Thread Implementation
+GPIOGearWorkerThread::GPIOGearWorkerThread(QObject *parent)
+    : QThread(parent), m_running(false) {
+#if __has_include(<wiringPi.h>)
+    if (wiringPiSetup() == -1) {
+        qDebug() << "wiringPiSetup failed for GPIO Gear Worker";
+        return;
+    }
+    
+    // Setup GPIO pins as inputs with pull-up resistors
+    pinMode(GPIO_GEAR_UP, INPUT);
+    pinMode(GPIO_GEAR_DOWN, INPUT);
+    pullUpDnControl(GPIO_GEAR_UP, PUD_UP);
+    pullUpDnControl(GPIO_GEAR_DOWN, PUD_UP);
+    
+    qDebug() << "GPIO Gear Worker: Pins" << GPIO_GEAR_UP << "and" << GPIO_GEAR_DOWN << "initialized";
+#endif
+}
+
+GPIOGearWorkerThread::~GPIOGearWorkerThread() {
+    stop();
+    if (isRunning()) {
+        quit();
+        wait(1000);
+    }
+}
+
+void GPIOGearWorkerThread::run() {
+    m_running = true;
+    m_lastUpState = HIGH;
+    m_lastDownState = HIGH;
+    m_lastTriggerTime = QDateTime::currentDateTime().addMSecs(-GPIO_DEBOUNCE_MS);
+    
+    qDebug() << "GPIO Gear Worker thread started";
+    
+    while (m_running) {
+#if __has_include(<wiringPi.h>)
+        int upState = digitalRead(GPIO_GEAR_UP);
+        int downState = digitalRead(GPIO_GEAR_DOWN);
+        QDateTime currentTime = QDateTime::currentDateTime();
+        
+        // Check for gear up (GPIO 17) - falling edge (button pressed)
+        if (m_lastUpState == HIGH && upState == LOW) {
+            if (m_lastTriggerTime.msecsTo(currentTime) >= GPIO_DEBOUNCE_MS) {
+                emit gearUpPressed();
+                m_lastTriggerTime = currentTime;
+                qDebug() << "GPIO Gear Up pressed";
+            }
+        }
+        
+        // Check for gear down (GPIO 27) - falling edge (button pressed)
+        if (m_lastDownState == HIGH && downState == LOW) {
+            if (m_lastTriggerTime.msecsTo(currentTime) >= GPIO_DEBOUNCE_MS) {
+                emit gearDownPressed();
+                m_lastTriggerTime = currentTime;
+                qDebug() << "GPIO Gear Down pressed";
+            }
+        }
+        
+        m_lastUpState = upState;
+        m_lastDownState = downState;
+#endif
+        
+        msleep(GPIO_POLL_MS);
+    }
+    
+    qDebug() << "GPIO Gear Worker thread stopped";
+}
+
+void GPIOGearWorkerThread::stop() {
+    m_running = false;
+}
+
+// GPIO Gear Control Methods in homeform
+void homeform::onGPIOGearUpPressed() {
+    QDateTime currentTime = QDateTime::currentDateTime();
+    if (lastGearGpioTime.msecsTo(currentTime) < 100) {
+        return; // Additional debouncing protection
+    }
+    lastGearGpioTime = currentTime;
+    
+    qDebug() << "GPIO Gear Up processed";
+    Plus(QStringLiteral("gears"));
+}
+
+void homeform::onGPIOGearDownPressed() {
+    QDateTime currentTime = QDateTime::currentDateTime();
+    if (lastGearGpioTime.msecsTo(currentTime) < 100) {
+        return; // Additional debouncing protection
+    }
+    lastGearGpioTime = currentTime;
+    
+    qDebug() << "GPIO Gear Down processed";
+    Minus(QStringLiteral("gears"));
+}

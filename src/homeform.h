@@ -24,6 +24,21 @@
 #include <QQuickItem>
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
+#include <QThread>
+#include <QDateTime>
+
+#if __has_include(<wiringPi.h>)
+#include <wiringPi.h>
+#else
+#define INPUT 0
+#define HIGH 1
+#define LOW 0
+#define PUD_UP 2
+int digitalRead(int pin) { return HIGH; }
+void pinMode(int pin, int mode) { Q_UNUSED(pin); Q_UNUSED(mode); }
+void pullUpDnControl(int pin, int pud) { Q_UNUSED(pin); Q_UNUSED(pud); }
+int wiringPiSetup() { return 0; }
+#endif
 
 #ifdef Q_OS_ANDROID
 
@@ -41,6 +56,31 @@
 #warning "DEFINE STRAVA_SECRET_KEY!!!"
 #endif
 #endif
+
+class GPIOGearWorkerThread : public QThread {
+    Q_OBJECT
+
+public:
+    explicit GPIOGearWorkerThread(QObject *parent = nullptr);
+    ~GPIOGearWorkerThread();
+    void run() override;
+    void stop();
+
+signals:
+    void gearUpPressed();
+    void gearDownPressed();
+
+private:
+    static const uint8_t GPIO_GEAR_UP = 17;    // GPIO 17 (Physical pin 11)
+    static const uint8_t GPIO_GEAR_DOWN = 27;  // GPIO 27 (Physical pin 13)
+    static const uint16_t GPIO_DEBOUNCE_MS = 100;
+    static const uint16_t GPIO_POLL_MS = 50;
+    
+    bool m_running = false;
+    int m_lastUpState = HIGH;
+    int m_lastDownState = HIGH;
+    QDateTime m_lastTriggerTime;
+};
 
 class DataObject : public QObject {
 
@@ -709,6 +749,9 @@ class homeform : public QObject {
     static homeform *m_singleton;
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
+    GPIOGearWorkerThread *gpioGearWorker = nullptr;
+    QDateTime lastGearGpioTime;
+    bool gpioGearsEnabled = false;
     QList<QObject *> dataList;
     QList<SessionLine> Session;
     QQmlApplicationEngine *engine;
@@ -888,6 +931,8 @@ class homeform : public QObject {
     void sortTilesTimeout();
     void gearUp();
     void gearDown();
+    void onGPIOGearUpPressed();
+    void onGPIOGearDownPressed();
     void changeTimestamp(QTime source, QTime actual);
     void pelotonOffset_Plus();
     void pelotonOffset_Minus();
