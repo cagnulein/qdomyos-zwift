@@ -19,14 +19,16 @@ public class CustomQtActivity extends QtActivity {
             getWindow().setDecorFitsSystemWindows(false);
             WindowInsetsController controller = getWindow().getDecorView().getWindowInsetsController();
             if (controller != null) {
-                controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+                // Hide only navigation bar, keep status bar visible for notifications access
+                controller.hide(WindowInsets.Type.navigationBars());
+                // Allow swipe to show navigation bar temporarily
                 controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
             }
         } else {
             // Fallback for older Android versions (API < 30)
             getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                View.SYSTEM_UI_FLAG_FULLSCREEN |
+                // Remove SYSTEM_UI_FLAG_FULLSCREEN to keep status bar visible
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             );
         }

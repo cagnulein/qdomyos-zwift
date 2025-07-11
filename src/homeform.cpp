@@ -779,6 +779,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                               "registerReceiver",
                                               "(Landroid/content/Context;)V",
                                               QtAndroid::androidContext().object());
+    
+    // Create .nomedia files to hide QZ files from Android gallery
+    createNoMediaFiles();
 #endif    
 
     bluetoothManager->homeformLoaded = true;
@@ -8252,6 +8255,33 @@ QString homeform::getAndroidDataAppDir() {
     }
     path = out;
     return out;
+}
+
+void homeform::createNoMediaFiles() {
+    QString rootPath = getWritableAppDir();
+    
+    // Create .nomedia file in root QZ directory
+    QString noMediaPath = rootPath + QStringLiteral(".nomedia");
+    QFile noMediaFile(noMediaPath);
+    if (!noMediaFile.exists()) {
+        noMediaFile.open(QIODevice::WriteOnly);
+        noMediaFile.close();
+    }
+    
+    // Create .nomedia files in all subdirectories
+    QDir rootDir(rootPath);
+    if (rootDir.exists()) {
+        QStringList subDirs = rootDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const QString &subDir : subDirs) {
+            QString subDirPath = rootPath + subDir + QStringLiteral("/");
+            QString subNoMediaPath = subDirPath + QStringLiteral(".nomedia");
+            QFile subNoMediaFile(subNoMediaPath);
+            if (!subNoMediaFile.exists()) {
+                subNoMediaFile.open(QIODevice::WriteOnly);
+                subNoMediaFile.close();
+            }
+        }
+    }
 }
 #endif
 

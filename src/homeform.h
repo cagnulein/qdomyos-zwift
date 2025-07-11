@@ -521,6 +521,10 @@ class homeform : public QObject {
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
 
+#ifdef Q_OS_ANDROID
+    static void createNoMediaFiles();
+#endif
+
     double wattMaxChart() {
         QSettings settings;
         if (bluetoothManager && bluetoothManager->device() &&
