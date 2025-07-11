@@ -943,6 +943,7 @@ const QString QZSettings::inclinationResistancePoints = QStringLiteral("inclinat
 const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("");
 
 const QString QZSettings::floatingwindow_type = QStringLiteral("floatingwindow_type");
+const QString QZSettings::gpio_gears_enabled = QStringLiteral("gpio_gears_enabled");
 
 
 const uint32_t allSettingsCount = 772;
@@ -1737,6 +1738,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_elite_800, QZSettings::default_nordictrack_elite_800},
     {QZSettings::inclinationResistancePoints, QZSettings::default_inclinationResistancePoints},
     {QZSettings::floatingwindow_type, QZSettings::default_floatingwindow_type},
+    {QZSettings::gpio_gears_enabled, QZSettings::default_gpio_gears_enabled},
     {QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike},
 };
 

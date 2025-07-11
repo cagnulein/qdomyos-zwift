@@ -2516,6 +2516,9 @@ class QZSettings {
     static const QString floatingwindow_type;
     static constexpr int default_floatingwindow_type = 0;
 
+    static const QString gpio_gears_enabled;
+    static constexpr bool default_gpio_gears_enabled = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
