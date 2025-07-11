@@ -8283,6 +8283,28 @@ void homeform::createNoMediaFiles() {
         }
     }
 }
+
+int homeform::getStatusBarHeight() {
+    QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
+    if (activity.isValid()) {
+        QAndroidJniObject resources = activity.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
+        if (resources.isValid()) {
+            jint resourceId = resources.callMethod<jint>("getIdentifier", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I",
+                                                        QAndroidJniObject::fromString("status_bar_height").object<jstring>(),
+                                                        QAndroidJniObject::fromString("dimen").object<jstring>(),
+                                                        QAndroidJniObject::fromString("android").object<jstring>());
+            if (resourceId > 0) {
+                jint result = resources.callMethod<jint>("getDimensionPixelSize", "(I)I", resourceId);
+                return result;
+            }
+        }
+    }
+    return 0;
+}
+
+int homeform::getAndroidApiLevel() {
+    return QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT");
+}
 #endif
 
 quint64 homeform::cryptoKeySettingsProfiles() {

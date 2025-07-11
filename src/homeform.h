@@ -523,6 +523,8 @@ class homeform : public QObject {
 
 #ifdef Q_OS_ANDROID
     static void createNoMediaFiles();
+    Q_INVOKABLE static int getStatusBarHeight();
+    Q_INVOKABLE static int getAndroidApiLevel();
 #endif
 
     double wattMaxChart() {
