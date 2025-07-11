@@ -8268,6 +8268,72 @@ quint64 homeform::cryptoKeySettingsProfiles() {
     return v;
 }
 
+#ifdef Q_OS_ANDROID
+int homeform::getStatusBarHeight() {
+    QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
+    if (activity.isValid()) {
+        QAndroidJniObject resources = activity.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
+        if (resources.isValid()) {
+            jint resourceId = resources.callMethod<jint>("getIdentifier", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I",
+                                                        QAndroidJniObject::fromString("status_bar_height").object<jstring>(),
+                                                        QAndroidJniObject::fromString("dimen").object<jstring>(),
+                                                        QAndroidJniObject::fromString("android").object<jstring>());
+            if (resourceId > 0) {
+                jint result = resources.callMethod<jint>("getDimensionPixelSize", "(I)I", resourceId);
+                qDebug() << "Status bar height (pixels):" << result;
+                return result;
+            } else {
+                qDebug() << "Status bar height resource not found";
+            }
+        } else {
+            qDebug() << "Resources object invalid";
+        }
+    } else {
+        qDebug() << "Activity object invalid";
+    }
+    qDebug() << "Status bar height: returning 0 (fallback)";
+    return 0;
+}
+
+int homeform::getAndroidApiLevel() {
+    jint apiLevel = QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT");
+    qDebug() << "Android API level:" << apiLevel;
+    return apiLevel;
+}
+
+QString homeform::getAndroidDebugInfo() {
+    int statusBarHeight = getStatusBarHeight();
+    int apiLevel = getAndroidApiLevel();
+    
+    QString info = QString("Android Debug Info:\n");
+    info += QString("API Level: %1\n").arg(apiLevel);
+    info += QString("Status Bar Height: %1px\n").arg(statusBarHeight);
+    
+    // Get screen dimensions
+    QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
+    if (activity.isValid()) {
+        QAndroidJniObject windowManager = activity.callObjectMethod("getWindowManager", "()Landroid/view/WindowManager;");
+        if (windowManager.isValid()) {
+            QAndroidJniObject display = windowManager.callObjectMethod("getDefaultDisplay", "()Landroid/view/Display;");
+            if (display.isValid()) {
+                QAndroidJniObject metrics = QAndroidJniObject("android/util/DisplayMetrics");
+                display.callMethod<void>("getMetrics", "(Landroid/util/DisplayMetrics;)V", metrics.object());
+                
+                int width = metrics.getField<jint>("widthPixels");
+                int height = metrics.getField<jint>("heightPixels");
+                float density = metrics.getField<jfloat>("density");
+                
+                info += QString("Screen: %1x%2px\n").arg(width).arg(height);
+                info += QString("Density: %1\n").arg(density);
+            }
+        }
+    }
+    
+    qDebug() << info;
+    return info;
+}
+#endif
+
 void homeform::saveSettings(const QUrl &filename) {
     Q_UNUSED(filename)
     QString path = getWritableAppDir();
