@@ -3780,6 +3780,30 @@ import Qt.labs.platform 1.1
                             }
                         }
                     }
+
+                    AccordionElement {
+                        id: soleBikeAccordion
+                        title: qsTr("Sole Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                text: qsTr("Miles unit from the device")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.sole_treadmill_miles
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.sole_treadmill_miles = checked
+                            }
+                        }
+                    }
                 }                
             }
 
