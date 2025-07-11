@@ -13,14 +13,14 @@ ApplicationWindow {
     id: window
     width: 640
     height: 480
-    visibility: (Qt.platform.os === "android" && statusBarOffset > 0) ? Qt.WindowMaximized : Qt.WindowFullScreen
+    visibility: (OS_VERSION === "Android" && statusBarOffset > 0) ? Qt.WindowMaximized : Qt.WindowFullScreen
     visible: true
 	 objectName: "stack"
     title: qsTr("qDomyos-Zwift")
     
     // Android status bar offset (only for Android API 31+ / Android 12+)
     property int statusBarOffset: {
-        if (Qt.platform.os === "android" && rootItem.getAndroidApiLevel() >= 31) {
+        if (OS_VERSION === "Android" && rootItem.getAndroidApiLevel() >= 31) {
             return rootItem.getStatusBarHeight()
         }
         return 0
@@ -61,7 +61,7 @@ ApplicationWindow {
     property int statusBarHeight: 0
     
     Component.onCompleted: {
-        if (Qt.platform.os === "android") {
+        if(OS_VERSION === "Android") {
             console.log("Calling Android debug functions...")
             try {
                 androidApiLevel = rootItem.getAndroidApiLevel()
