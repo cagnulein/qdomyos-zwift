@@ -95,7 +95,7 @@ fi
 # CRITICAL: Run make to compile Qt project and generate MOC files
 echo "Running make to compile Qt project and generate MOC files..."
 # Use parallel compilation for faster builds
-cd src/ && ( test -e Makefile.qdomyos-zwift-lib || /tmp/Qt-5.15.2/ios/bin/qmake -o Makefile.qdomyos-zwift-lib /Volumes/workspace/repository/src/qdomyos-zwift-lib.pro -spec macx-ios-clang CONFIG+=release CONFIG+=device CONFIG-=simulator CONFIG+=iphoneos QMAKE_APPLE_DEVICE_ARCHS=arm64 ) && /Applications/Xcode.app/Contents/Developer/usr/bin/make -f Makefile.qdomyos-zwift-lib  -j$(sysctl -n hw.ncpu)
+make  -j$(sysctl -n hw.ncpu)
 
 echo "make completed successfully - MOC files generated"
 
