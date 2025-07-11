@@ -34,10 +34,10 @@
 #define HIGH 1
 #define LOW 0
 #define PUD_UP 2
-int digitalRead(int pin) { return HIGH; }
-void pinMode(int pin, int mode) { Q_UNUSED(pin); Q_UNUSED(mode); }
-void pullUpDnControl(int pin, int pud) { Q_UNUSED(pin); Q_UNUSED(pud); }
-int wiringPiSetup() { return 0; }
+inline int digitalRead(int pin) { Q_UNUSED(pin); return HIGH; }
+inline void pinMode(int pin, int mode) { Q_UNUSED(pin); Q_UNUSED(mode); }
+inline void pullUpDnControl(int pin, int pud) { Q_UNUSED(pin); Q_UNUSED(pud); }
+inline int wiringPiSetup() { return 0; }
 #endif
 
 #ifdef Q_OS_ANDROID
