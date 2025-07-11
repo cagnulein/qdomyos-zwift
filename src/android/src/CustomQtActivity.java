@@ -16,7 +16,8 @@ public class CustomQtActivity extends QtActivity {
         // Handle Android 16 API 36 WindowInsetsController for fullscreen support
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Android 11 (API 30) and above - use WindowInsetsController
-            getWindow().setDecorFitsSystemWindows(false);
+            // Keep system UI decorations (status bar) but allow content to extend under navigation bar
+            getWindow().setDecorFitsSystemWindows(true);
             WindowInsetsController controller = getWindow().getDecorView().getWindowInsetsController();
             if (controller != null) {
                 // Hide only navigation bar, keep status bar visible for notifications access
@@ -26,6 +27,7 @@ public class CustomQtActivity extends QtActivity {
             }
         } else {
             // Fallback for older Android versions (API < 30)
+            // Don't use setDecorFitsSystemWindows to prevent overlap with status bar
             getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
                 // Remove SYSTEM_UI_FLAG_FULLSCREEN to keep status bar visible
