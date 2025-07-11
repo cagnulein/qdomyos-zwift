@@ -522,6 +522,7 @@ class homeform : public QObject {
     Q_INVOKABLE static void clearFiles();
 
 #ifdef Q_OS_ANDROID
+    static void createNoMediaFiles();
     Q_INVOKABLE static int getStatusBarHeight();
     Q_INVOKABLE static int getAndroidApiLevel();
     Q_INVOKABLE static QString getAndroidDebugInfo();

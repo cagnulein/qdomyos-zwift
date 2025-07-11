@@ -13,10 +13,18 @@ ApplicationWindow {
     id: window
     width: 640
     height: 480
-    visibility: Qt.WindowFullScreen
+    visibility: (Qt.platform.os === "android" && statusBarOffset > 0) ? Qt.WindowMaximized : Qt.WindowFullScreen
     visible: true
 	 objectName: "stack"
     title: qsTr("qDomyos-Zwift")
+    
+    // Android status bar offset (only for Android API 31+ / Android 12+)
+    property int statusBarOffset: {
+        if (Qt.platform.os === "android" && rootItem.getAndroidApiLevel() >= 31) {
+            return rootItem.getStatusBarHeight()
+        }
+        return 0
+    }
 
     signal gpx_open_clicked(url name)
     signal gpxpreview_open_clicked(url name)
@@ -924,6 +932,7 @@ ApplicationWindow {
         id: stackView
         initialItem: "Home.qml"
         anchors.fill: parent
+        anchors.topMargin: statusBarOffset
         focus: true
         Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
         Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
