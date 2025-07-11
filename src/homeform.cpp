@@ -795,6 +795,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 }
 
 homeform::~homeform() {
+
+    gpx_save_clicked();
+    fit_save_clicked();
+
     // Cleanup GPIO gear worker
     if (gpioGearWorker) {
         gpioGearWorker->stop();
@@ -1161,11 +1165,6 @@ void homeform::refresh_bluetooth_devices_clicked() {
 
     bluetoothManager->onlyDiscover = true;
     bluetoothManager->restart();
-}
-
-homeform::~homeform() {
-    gpx_save_clicked();
-    fit_save_clicked();
 }
 
 void homeform::aboutToQuit() {
