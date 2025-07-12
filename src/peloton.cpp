@@ -1384,12 +1384,16 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
             qDebug() << duration << r.duration;
         }
 
-        int diff = current_pedaling_duration - QTime(0,0,0,0).secsTo(duration);
-        if (diff > 0 && diff < 10) {
-            qDebug() << "WARNING: The difference between expected and actual duration is positive but less than 10 seconds:" << diff << "seconds";
-        } else if(diff > 0) {
-            qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << diff << current_pedaling_duration;
-            trainrows.clear();
+        if (current_workout_type.contains("bootcamp", Qt::CaseInsensitive)) {
+            qDebug() << "Skipping pedaling duration check due to bootcamp workout type:" << current_workout_type;
+        } else {
+            int diff = current_pedaling_duration - QTime(0,0,0,0).secsTo(duration);
+            if (diff > 0 && diff < 10) {
+                qDebug() << "WARNING: The difference between expected and actual duration is positive but less than 10 seconds:" << diff << "seconds";
+            } else if(diff > 0) {
+                qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << diff << current_pedaling_duration;
+                trainrows.clear();
+            }
         }
 
         // this list doesn't have nothing useful for this session
@@ -1527,12 +1531,16 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                 duration = duration.addSecs(QTime(0,0,0,0).secsTo(r.duration));
                 qDebug() << duration << r.duration;
             }
-            int diff = current_pedaling_duration - QTime(0,0,0,0).secsTo(duration);
-            if (diff > 0 && diff < 10) {
-                qDebug() << "WARNING: The difference between expected and actual duration is positive but less than 10 seconds:" << diff << "seconds";
-            } else if(diff > 0) {
-                qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << diff << current_pedaling_duration;
-                trainrows.clear();
+            if (current_workout_type.contains("bootcamp", Qt::CaseInsensitive)) {
+                qDebug() << "Skipping pedaling duration check due to bootcamp workout type:" << current_workout_type;
+            } else {
+                int diff = current_pedaling_duration - QTime(0,0,0,0).secsTo(duration);
+                if (diff > 0 && diff < 10) {
+                    qDebug() << "WARNING: The difference between expected and actual duration is positive but less than 10 seconds:" << diff << "seconds";
+                } else if(diff > 0) {
+                    qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << diff << current_pedaling_duration;
+                    trainrows.clear();
+                }
             }
         }
     }
