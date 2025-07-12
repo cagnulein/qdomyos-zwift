@@ -159,7 +159,6 @@ class ftmsbike : public bike {
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
-    double lastRawRequestedInclinationValue = -100;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
