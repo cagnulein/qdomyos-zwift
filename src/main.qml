@@ -473,7 +473,7 @@ ApplicationWindow {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
-        topPadding: Qt.platform.os === "android" ? SafeArea.top / 2 : 0
+        topPadding: Qt.platform.os === "android" ? SafeArea.top / 4 : 0
 
         ToolButton {
             id: toolButton
