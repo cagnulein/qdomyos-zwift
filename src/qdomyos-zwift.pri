@@ -970,11 +970,11 @@ ios {
 
 HEADERS += \
     mqttpublisher.h \
-    safearea.h
+    androidstatusbar.h
 
 SOURCES += \
     mqttpublisher.cpp \
-    safearea.cpp
+    androidstatusbar.cpp
 
 include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
