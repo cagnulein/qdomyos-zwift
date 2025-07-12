@@ -27,6 +27,7 @@
 #endif
 
 #include "mqttpublisher.h"
+#include "androidstatusbar.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -796,6 +797,7 @@ int main(int argc, char *argv[]) {
     if (forceQml)
 #endif
     {
+        AndroidStatusBar::registerQmlType();
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(
