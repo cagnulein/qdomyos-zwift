@@ -58,4 +58,39 @@ public class CustomQtActivity extends QtActivity {
         }
         return 72; // fallback value ~24dp
     }
+    
+    // Native method that can be called from C++/Qt for navigation bar
+    public static int getNavigationBarHeight() {
+        try {
+            if (instance == null) {
+                Log.e("CustomQtActivity", "Activity instance not available for navigation bar");
+                return 48; // fallback value
+            }
+            
+            Resources resources = instance.getResources();
+            android.util.DisplayMetrics metrics = resources.getDisplayMetrics();
+            
+            int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                int heightPx = resources.getDimensionPixelSize(resourceId);
+                float heightInDp = heightPx / metrics.density;
+                
+                Log.d("CustomQtActivity", "Navigation bar height analysis:");
+                Log.d("CustomQtActivity", "  getDimensionPixelSize: " + heightPx + "px");
+                Log.d("CustomQtActivity", "  Calculated DP: " + heightInDp + "dp");
+                Log.d("CustomQtActivity", "  Returning DP value: " + Math.round(heightInDp));
+                
+                // Return DP value instead of pixel value to let Qt handle scaling
+                return Math.round(heightInDp);
+            }
+        } catch (Exception e) {
+            Log.e("CustomQtActivity", "Error getting navigation bar height", e);
+        }
+        return 48; // fallback value ~16dp
+    }
+    
+    // Native method that can be called from C++/Qt to get API level
+    public static int getApiLevel() {
+        return android.os.Build.VERSION.SDK_INT;
+    }
 }

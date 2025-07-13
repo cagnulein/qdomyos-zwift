@@ -807,6 +807,25 @@ jobs:
             adb shell screencap -p /sdcard/screenshot.png
             adb pull /sdcard/screenshot.png
             
+            # Test orientamento automatico con screenshot
+            echo "Starting orientation test with automatic screenshots..."
+            
+            # Screenshot iniziale (orientamento corrente)  
+            adb shell screencap -p /sdcard/screenshot_orientation_0.png
+            adb pull /sdcard/screenshot_orientation_0.png
+            
+            # Loop per 3 rotazioni aggiuntive (90°, 180°, 270°)
+            for i in 1 2 3; do
+              echo "Rotating to orientation $i (90° * $i)"
+              adb shell settings put system user_rotation $i
+              sleep 5
+              echo "Taking screenshot for orientation $i"
+              adb shell screencap -p /sdcard/screenshot_orientation_$i.png
+              adb pull /sdcard/screenshot_orientation_$i.png
+            done
+            
+            echo "Orientation test completed - 4 screenshots captured"
+            
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
             
@@ -822,6 +841,7 @@ jobs:
           name: android-emulator-test-evidence-api${{ matrix.api-level }}
           path: |
             screenshot.png
+            screenshot_orientation_*.png
             process_list.txt
             full_logcat.txt
             qdomyos_logcat.txt
