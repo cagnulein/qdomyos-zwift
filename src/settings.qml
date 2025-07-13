@@ -3675,7 +3675,7 @@ import Qt.labs.platform 1.1
                                 }
                                 SpinBox {
                                     id: nordictrackadbbike_gear_debounce_ms
-                                    from: 100
+                                    from: 10
                                     to: 1000
                                     stepSize: 50
                                     editable: true
