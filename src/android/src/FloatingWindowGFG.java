@@ -29,6 +29,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.webkit.JavascriptInterface;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 public class FloatingWindowGFG extends Service {
 
@@ -45,6 +46,9 @@ public class FloatingWindowGFG extends Service {
 	 private boolean isDraggingEnabled = false;
 	 private int originalHeight;
 	 private boolean isExpanded = false;
+	 private WebView webView;
+	 private int originalMargin = 20; // in dp, matching the XML layout
+	 private int reducedMargin = 2;   // minimal margin when not dragging
 
          // Retrieve the user preference node for the package com.mycompany
          SharedPreferences sharedPreferences;
@@ -84,27 +88,30 @@ public class FloatingWindowGFG extends Service {
 		  // inflate a new view hierarchy from the floating_layout xml
 		  floatView = (ViewGroup) inflater.inflate(R.layout.floating_layout, null);
 
-                  WebView wv = (WebView)floatView.findViewById(R.id.webview);
-		  wv.setWebViewClient(new WebViewClient(){
+                  webView = (WebView)floatView.findViewById(R.id.webview);
+		  webView.setWebViewClient(new WebViewClient(){
 			   public boolean shouldOverrideUrlLoading(WebView view, String url) {
 					 view.loadUrl(url);
 					 return true;
 					}
 		  });
-                  WebSettings settings = wv.getSettings();
+                  WebSettings settings = webView.getSettings();
                   settings.setJavaScriptEnabled(true);
                   
                   // Add JavaScript interface for communication with HTML
-                  wv.addJavascriptInterface(new WebAppInterface(), "Android");
+                  webView.addJavascriptInterface(new WebAppInterface(), "Android");
                   
-                  wv.loadUrl("http://localhost:" + FloatingHandler._port + "/floating/" + FloatingHandler._htmlPage);
-                  wv.clearView();
-                  wv.measure(100, 100);
-                  wv.setAlpha(Float.valueOf(FloatingHandler._alpha) / 100.0f);
+                  webView.loadUrl("http://localhost:" + FloatingHandler._port + "/floating/" + FloatingHandler._htmlPage);
+                  webView.clearView();
+                  webView.measure(100, 100);
+                  webView.setAlpha(Float.valueOf(FloatingHandler._alpha) / 100.0f);
                   settings.setBuiltInZoomControls(true);
                   settings.setUseWideViewPort(true);
                   settings.setDomStorageEnabled(true);
                   QLog.d("QZ","loadurl");
+                  
+                  // Initially set reduced margin for normal operation
+                  setWebViewMargin(reducedMargin);
 
 
 		  // WindowManager.LayoutParams takes a lot of parameters to set the
@@ -259,6 +266,9 @@ public class FloatingWindowGFG extends Service {
 	 private void enableDraggingTemporarily() {
 	     isDraggingEnabled = true;
 	     
+	     // Increase margin for better dragging experience
+	     setWebViewMargin(originalMargin);
+	     
 	     // Cancel any existing timeout
 	     if (paddingTimeoutRunnable != null) {
 	         handler.removeCallbacks(paddingTimeoutRunnable);
@@ -269,7 +279,9 @@ public class FloatingWindowGFG extends Service {
 	         @Override
 	         public void run() {
 	             isDraggingEnabled = false;
-	             QLog.d("QZ", "Dragging disabled after timeout");
+	             // Restore reduced margin for normal operation
+	             setWebViewMargin(reducedMargin);
+	             QLog.d("QZ", "Dragging disabled after timeout, margin restored");
 	         }
 	     };
 	     
@@ -306,6 +318,17 @@ public class FloatingWindowGFG extends Service {
 	         floatWindowLayoutParam.height = originalHeight;
 	         windowManager.updateViewLayout(floatView, floatWindowLayoutParam);
 	         QLog.d("QZ", "Window restored to original height: " + originalHeight);
+	     }
+	 }
+	 
+	 // Method to set WebView margin dynamically
+	 private void setWebViewMargin(int marginDp) {
+	     if (webView != null) {
+	         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) webView.getLayoutParams();
+	         int marginPx = (int) (marginDp * getResources().getDisplayMetrics().density);
+	         params.setMargins(marginPx, marginPx, marginPx, marginPx);
+	         webView.setLayoutParams(params);
+	         QLog.d("QZ", "WebView margin set to: " + marginDp + "dp (" + marginPx + "px)");
 	     }
 	 }
 	 

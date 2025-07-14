@@ -15,12 +15,6 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
-      transition: padding 0.3s ease;
-    }
-
-    /* Dragging mode - add padding for better touch interaction */
-    body.dragging-enabled {
-      padding: 10px;
     }
 
     @font-face {
@@ -504,9 +498,6 @@
                       !event.target.classList.contains("quick-action-btn")) {
                     toggleControlsPanel();
                   }
-                  
-                  // Enable dragging padding temporarily on click as well
-                  enableDraggingPadding();
                 });
 
                 // Add touch events for better mobile experience with quick actions
@@ -522,20 +513,7 @@
                       }
                     }, 3000);
                   }
-                  
-                  // Enable dragging padding temporarily
-                  enableDraggingPadding();
                 });
-
-                // Function to enable dragging padding temporarily
-                function enableDraggingPadding() {
-                  document.body.classList.add('dragging-enabled');
-                  
-                  // Remove the class after 5 seconds
-                  setTimeout(function() {
-                    document.body.classList.remove('dragging-enabled');
-                  }, 5000);
-                }
 
                 // Function to toggle controls panel
                 function toggleControlsPanel() {
