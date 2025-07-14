@@ -59,11 +59,10 @@ void apexbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
 
     if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
-                                                             QLowEnergyService::WriteWithoutResponse);
+                                                            QLowEnergyService::WriteWithoutResponse);
     } else {
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
     }
-
 
     if (!disable_log) {
         qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
@@ -154,11 +153,11 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         qDebug() << QStringLiteral("Current resistance: ") + QString::number(Resistance.value());
     }
 
-    if (newValue.length() != 10 || newValue.at(2) != 0x30) {
+    if (newValue.length() != 10 || newValue.at(2) != 0x31) {
         return;
     }
 
-    uint16_t distanceData = (newValue.at(3) << 8) | ((uint8_t)newValue.at(4));
+    uint16_t distanceData = (newValue.at(7) << 8) | ((uint8_t)newValue.at(8));
     double distance = ((double)distanceData);
 
     if(distance != lastDistance) {
@@ -183,6 +182,19 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         lastDistance = distance;
         lastTS = now;
         qDebug() << "lastDistance" << lastDistance << "lastTS" << lastTS;
+    } else {
+        // Check if speed and cadence should be reset due to timeout (2 seconds)
+        if (lastTS.msecsTo(now) > 2000) {
+            if (Speed.value() > 0) {
+                Speed = 0;
+                qDebug() << "Speed reset to 0 due to timeout";
+            }
+            if (Cadence.value() > 0) {
+                Cadence = 0;
+                qDebug() << "Cadence reset to 0 due to timeout";
+            }
+            lastTS = now;
+        }
     }
 
     if (watts())

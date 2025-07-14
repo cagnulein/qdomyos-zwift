@@ -2,6 +2,7 @@
 #define QZSETTINGS_H
 
 #include <QString>
+#include "fit-sdk/fit_profile.hpp"
 
 class QZSettings {
   private:
@@ -249,6 +250,9 @@ class QZSettings {
 
     static const QString run_cadence_sensor;
     static constexpr bool default_run_cadence_sensor = false;
+
+    static const QString rogue_echo_bike;
+    static constexpr bool default_rogue_echo_bike = false;
 
     static const QString bike_power_sensor;
     static constexpr bool default_bike_power_sensor = false;
@@ -1339,6 +1343,9 @@ class QZSettings {
     static const QString wahoo_rgt_dircon;
     static constexpr bool default_wahoo_rgt_dircon = false;
 
+    static const QString wahoo_without_wheel_diameter;
+    static constexpr bool default_wahoo_without_wheel_diameter = false;
+
     static const QString tts_description_enabled;
     static constexpr bool default_tts_description_enabled = true;
 
@@ -2285,6 +2292,9 @@ class QZSettings {
     static const QString fit_file_garmin_device_training_effect;
     static constexpr bool default_fit_file_garmin_device_training_effect = false;
 
+    static const QString fit_file_garmin_device_training_effect_device;
+    static constexpr int default_fit_file_garmin_device_training_effect_device = FIT_GARMIN_PRODUCT_EDGE_830;
+
     static const QString proform_treadmill_705_cst_V80_44;
     static constexpr bool default_proform_treadmill_705_cst_V80_44 = false;
 
@@ -2485,6 +2495,9 @@ class QZSettings {
 
     static const QString tile_coretemperature_order;
     static constexpr int default_tile_coretemperature_order = 67;
+
+    static const QString tile_hr_time_in_zone_individual_mode;
+    static constexpr bool default_tile_hr_time_in_zone_individual_mode = false;
 
     static const QString nordictrack_t65s_treadmill_81_miles;
     static constexpr bool default_nordictrack_t65s_treadmill_81_miles = false;
