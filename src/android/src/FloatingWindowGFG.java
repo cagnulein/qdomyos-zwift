@@ -26,6 +26,9 @@ import android.webkit.WebSettings;
 import android.webkit.WebViewClient;
 import org.cagnulen.qdomyoszwift.QLog;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
+import android.webkit.JavascriptInterface;
 
 public class FloatingWindowGFG extends Service {
 
@@ -37,6 +40,11 @@ public class FloatingWindowGFG extends Service {
 	 private WindowManager.LayoutParams floatWindowLayoutParam;
 	 private WindowManager windowManager;
 	 private Button maximizeBtn;
+	 private Handler handler;
+	 private Runnable paddingTimeoutRunnable;
+	 private boolean isDraggingEnabled = false;
+	 private int originalHeight;
+	 private boolean isExpanded = false;
 
          // Retrieve the user preference node for the package com.mycompany
          SharedPreferences sharedPreferences;
@@ -55,6 +63,9 @@ public class FloatingWindowGFG extends Service {
 	 @Override
 	 public void onCreate() {
 		  super.onCreate();
+
+		  // Initialize handler for timeout operations
+		  handler = new Handler(Looper.getMainLooper());
 
 		  // The screen height and width are calculated, cause
 		  // the height and width of the floating window is set depending on this
@@ -82,6 +93,10 @@ public class FloatingWindowGFG extends Service {
 		  });
                   WebSettings settings = wv.getSettings();
                   settings.setJavaScriptEnabled(true);
+                  
+                  // Add JavaScript interface for communication with HTML
+                  wv.addJavascriptInterface(new WebAppInterface(), "Android");
+                  
                   wv.loadUrl("http://localhost:" + FloatingHandler._port + "/floating/" + FloatingHandler._htmlPage);
                   wv.clearView();
                   wv.measure(100, 100);
@@ -116,9 +131,10 @@ public class FloatingWindowGFG extends Service {
 		  // 5) Next parameter is Layout_Format. System chooses a format that supports
 		  // translucency by PixelFormat.TRANSLUCENT
 
+		  originalHeight = FloatingHandler._height;
 		  floatWindowLayoutParam = new WindowManager.LayoutParams(
                           (int) (FloatingHandler._width ),
-                                         (int) (FloatingHandler._height ),
+                                         (int) (originalHeight ),
 					 LAYOUT_TYPE,
 					 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
 					 PixelFormat.TRANSLUCENT
@@ -165,6 +181,9 @@ public class FloatingWindowGFG extends Service {
 								initialTouchX = event.getRawX();
 								initialTouchY = event.getRawY();
 								isDragging = false;
+								
+								// Enable dragging for 5 seconds
+								enableDraggingTemporarily();
 								break;
 
 						  case MotionEvent.ACTION_MOVE:
@@ -177,7 +196,8 @@ public class FloatingWindowGFG extends Service {
 								    isDragging = true;
 								}
 								
-								if (isDragging) {
+								// Only allow dragging if it's temporarily enabled
+								if (isDragging && isDraggingEnabled) {
 								    // Get screen dimensions for boundary checking
 								    DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
 								    int screenWidth = displayMetrics.widthPixels;
@@ -220,7 +240,7 @@ public class FloatingWindowGFG extends Service {
 						      isDragging = false;
 						      break;
 								}
-							return isDragging; // Consume the event only if we're dragging
+							return isDragging && isDraggingEnabled; // Consume the event only if we're dragging and dragging is enabled
 					}
 			});
 	 }
@@ -234,4 +254,81 @@ public class FloatingWindowGFG extends Service {
 		  // Window is removed from the screen
 		  windowManager.removeView(floatView);
 		}
+	 
+	 // Method to enable dragging temporarily for 5 seconds
+	 private void enableDraggingTemporarily() {
+	     isDraggingEnabled = true;
+	     
+	     // Cancel any existing timeout
+	     if (paddingTimeoutRunnable != null) {
+	         handler.removeCallbacks(paddingTimeoutRunnable);
+	     }
+	     
+	     // Create new timeout runnable
+	     paddingTimeoutRunnable = new Runnable() {
+	         @Override
+	         public void run() {
+	             isDraggingEnabled = false;
+	             QLog.d("QZ", "Dragging disabled after timeout");
+	         }
+	     };
+	     
+	     // Schedule timeout for 5 seconds
+	     handler.postDelayed(paddingTimeoutRunnable, 5000);
+	 }
+	 
+	 // Method to expand window height dynamically
+	 private void expandWindow(int additionalHeight) {
+	     if (!isExpanded) {
+	         isExpanded = true;
+	         floatWindowLayoutParam.height = originalHeight + additionalHeight;
+	         
+	         // Adjust Y position to keep window within screen bounds
+	         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+	         int screenHeight = displayMetrics.heightPixels;
+	         
+	         if (floatWindowLayoutParam.y + floatWindowLayoutParam.height > screenHeight) {
+	             floatWindowLayoutParam.y = screenHeight - floatWindowLayoutParam.height;
+	             if (floatWindowLayoutParam.y < 0) {
+	                 floatWindowLayoutParam.y = 0;
+	             }
+	         }
+	         
+	         windowManager.updateViewLayout(floatView, floatWindowLayoutParam);
+	         QLog.d("QZ", "Window expanded to height: " + floatWindowLayoutParam.height);
+	     }
+	 }
+	 
+	 // Method to restore original window height
+	 private void restoreWindow() {
+	     if (isExpanded) {
+	         isExpanded = false;
+	         floatWindowLayoutParam.height = originalHeight;
+	         windowManager.updateViewLayout(floatView, floatWindowLayoutParam);
+	         QLog.d("QZ", "Window restored to original height: " + originalHeight);
+	     }
+	 }
+	 
+	 // JavaScript interface class
+	 public class WebAppInterface {
+	     @JavascriptInterface
+	     public void expandFloatingWindow(int additionalHeight) {
+	         handler.post(new Runnable() {
+	             @Override
+	             public void run() {
+	                 expandWindow(additionalHeight);
+	             }
+	         });
+	     }
+	     
+	     @JavascriptInterface
+	     public void restoreFloatingWindow() {
+	         handler.post(new Runnable() {
+	             @Override
+	             public void run() {
+	                 restoreWindow();
+	             }
+	         });
+	     }
+	 }
 }

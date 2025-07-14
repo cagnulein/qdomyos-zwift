@@ -15,6 +15,12 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
+      transition: padding 0.3s ease;
+    }
+
+    /* Dragging mode - add padding for better touch interaction */
+    body.dragging-enabled {
+      padding: 10px;
     }
 
     @font-face {
@@ -498,6 +504,9 @@
                       !event.target.classList.contains("quick-action-btn")) {
                     toggleControlsPanel();
                   }
+                  
+                  // Enable dragging padding temporarily on click as well
+                  enableDraggingPadding();
                 });
 
                 // Add touch events for better mobile experience with quick actions
@@ -513,7 +522,20 @@
                       }
                     }, 3000);
                   }
+                  
+                  // Enable dragging padding temporarily
+                  enableDraggingPadding();
                 });
+
+                // Function to enable dragging padding temporarily
+                function enableDraggingPadding() {
+                  document.body.classList.add('dragging-enabled');
+                  
+                  // Remove the class after 5 seconds
+                  setTimeout(function() {
+                    document.body.classList.remove('dragging-enabled');
+                  }, 5000);
+                }
 
                 // Function to toggle controls panel
                 function toggleControlsPanel() {
@@ -522,8 +544,16 @@
 
                   if (controlsPanel.style.display === "block") {
                     controlsPanel.style.display = "none";
+                    // Restore window height when panel is hidden
+                    if (typeof Android !== 'undefined' && Android.restoreFloatingWindow) {
+                      Android.restoreFloatingWindow();
+                    }
                   } else {
                     controlsPanel.style.display = "block";
+                    // Expand window height when panel is shown (controls-panel height is approximately 150px)
+                    if (typeof Android !== 'undefined' && Android.expandFloatingWindow) {
+                      Android.expandFloatingWindow(150);
+                    }
                     // Hide other panels
                     metricSelector.style.display = "none";
                     document.getElementById("complete-panel").style.display = "none";
@@ -537,8 +567,16 @@
 
                   if (completePanel.style.display === "block") {
                     completePanel.style.display = "none";
+                    // Restore window height when panel is hidden
+                    if (typeof Android !== 'undefined' && Android.restoreFloatingWindow) {
+                      Android.restoreFloatingWindow();
+                    }
                   } else {
                     completePanel.style.display = "block";
+                    // Expand window height when panel is shown (complete-panel needs more space, approximately 300px)
+                    if (typeof Android !== 'undefined' && Android.expandFloatingWindow) {
+                      Android.expandFloatingWindow(300);
+                    }
                     // Hide regular controls panel
                     controlsPanel.style.display = "none";
                   }
@@ -551,10 +589,18 @@
 
                   if (metricSelector.style.display === "block") {
                     metricSelector.style.display = "none";
+                    // Restore window height when panel is hidden
+                    if (typeof Android !== 'undefined' && Android.restoreFloatingWindow) {
+                      Android.restoreFloatingWindow();
+                    }
                   } else {
                     // Populate the metric selector grid
                     populateMetricSelector();
                     metricSelector.style.display = "block";
+                    // Expand window height when panel is shown (metric-selector-panel height is approximately 200px)
+                    if (typeof Android !== 'undefined' && Android.expandFloatingWindow) {
+                      Android.expandFloatingWindow(200);
+                    }
                     // Hide controls panel
                     controlsPanel.style.display = "none";
                   }
@@ -646,8 +692,11 @@
                   // Update the display
                   updateHorizontalMetrics();
 
-                  // Hide selector
+                  // Hide selector and restore window height
                   document.getElementById("metric-selector").style.display = "none";
+                  if (typeof Android !== 'undefined' && Android.restoreFloatingWindow) {
+                    Android.restoreFloatingWindow();
+                  }
                 }
 
                 // Create HTML for a horizontal metric
