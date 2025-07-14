@@ -741,13 +741,41 @@ jobs:
             # Install the APK
             adb install apk-debug/android-debug.apk
             
-            # Grant necessary permissions for API 25
-            echo "Granting permissions..."
+            # Grant necessary permissions - comprehensive list for all Android APIs
+            echo "Granting all required permissions..."
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_FINE_LOCATION || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_COARSE_LOCATION || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADMIN || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADVERTISE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_CONNECT || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_SCAN || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.READ_EXTERNAL_STORAGE || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WRITE_EXTERNAL_STORAGE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.MANAGE_EXTERNAL_STORAGE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.CAMERA || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.RECORD_AUDIO || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.INTERNET || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_NETWORK_STATE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_WIFI_STATE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.CHANGE_WIFI_STATE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WAKE_LOCK || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.VIBRATE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.READ_PHONE_STATE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.FOREGROUND_SERVICE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS || true
+            
+            # Additional permissions for newer Android versions (12+)
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.POST_NOTIFICATIONS || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.SCHEDULE_EXACT_ALARM || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.USE_EXACT_ALARM || true
+            
+            # Enable all app ops permissions  
+            adb shell appops set org.cagnulen.qdomyoszwift MANAGE_EXTERNAL_STORAGE allow || true
+            adb shell appops set org.cagnulen.qdomyoszwift SYSTEM_ALERT_WINDOW allow || true
+            adb shell appops set org.cagnulen.qdomyoszwift WRITE_SETTINGS allow || true
+            
+            echo "All permissions granted successfully"
             
             # Start the main activity
             adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
@@ -779,6 +807,18 @@ jobs:
             adb shell screencap -p /sdcard/screenshot.png
             adb pull /sdcard/screenshot.png
             
+            # Test orientamento automatico con screenshot
+            echo "Starting orientation test with automatic screenshots..."
+            
+            # Screenshot iniziale (orientamento corrente)  
+            adb shell screencap -p /sdcard/screenshot_orientation_0.png
+            adb pull /sdcard/screenshot_orientation_0.png
+            
+            # Loop per 3 rotazioni aggiuntive (90°, 180°, 270°)
+            for i in 1 2 3; do echo "Rotating to orientation $i (90° * $i)"; adb shell settings put system user_rotation $i; sleep 5; echo "Taking screenshot for orientation $i"; adb shell screencap -p /sdcard/screenshot_orientation_$i.png; adb pull /sdcard/screenshot_orientation_$i.png; done
+            
+            echo "Orientation test completed - 4 screenshots captured"
+            
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
             
@@ -794,6 +834,7 @@ jobs:
           name: android-emulator-test-evidence-api${{ matrix.api-level }}
           path: |
             screenshot.png
+            screenshot_orientation_*.png
             process_list.txt
             full_logcat.txt
             qdomyos_logcat.txt

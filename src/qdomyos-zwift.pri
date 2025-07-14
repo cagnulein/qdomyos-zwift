@@ -969,10 +969,12 @@ ios {
 }
 
 HEADERS += \
-    mqttpublisher.h
+    mqttpublisher.h \
+    androidstatusbar.h
 
 SOURCES += \
-    mqttpublisher.cpp
+    mqttpublisher.cpp \
+    androidstatusbar.cpp
 
 include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
@@ -980,4 +982,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.20.0
+VERSION = 2.20.1

@@ -8,6 +8,7 @@ import QtMultimedia 5.15
 import org.cagnulein.qdomyoszwift 1.0
 import QtQuick.Window 2.12
 import Qt.labs.platform 1.1
+import AndroidStatusBar 1.0
 
 ApplicationWindow {
     id: window
@@ -472,6 +473,7 @@ ApplicationWindow {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
+        topPadding: (Qt.platform.os === "android" && AndroidStatusBar.apiLevel >= 31) ? AndroidStatusBar.height : 0
 
         ToolButton {
             id: toolButton
@@ -680,6 +682,8 @@ ApplicationWindow {
         id: drawer
         width: window.width * 0.66
         height: window.height
+        topPadding: (Qt.platform.os === "android" && AndroidStatusBar.apiLevel >= 31) ? AndroidStatusBar.height : 0
+        bottomPadding: (Qt.platform.os === "android" && AndroidStatusBar.apiLevel >= 31) ? AndroidStatusBar.navigationBarHeight : 0
 
         ScrollView {
             contentWidth: -1
@@ -844,7 +848,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.20.0"
+                    text: "version 2.20.1"
                     width: parent.width
                 }
 
@@ -909,6 +913,7 @@ ApplicationWindow {
         id: stackView
         initialItem: "Home.qml"
         anchors.fill: parent
+        anchors.bottomMargin: (Qt.platform.os === "android" && AndroidStatusBar.apiLevel >= 31) ? AndroidStatusBar.navigationBarHeight : 0
         focus: true
         Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
         Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
@@ -926,3 +931,9 @@ ApplicationWindow {
         }
     }
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;height:480;width:640}
+}
+##^##*/
