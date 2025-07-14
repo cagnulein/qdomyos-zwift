@@ -490,6 +490,11 @@
 
                 // Toggle the controls panel when clicking on the metrics bar
                 document.getElementById("metrics-bar").addEventListener("click", function(event) {
+                  // Enable dragging margins on any click
+                  if (typeof Android !== 'undefined' && Android.enableDraggingMargins) {
+                    Android.enableDraggingMargins();
+                  }
+                  
                   // Only toggle if the click was directly on the metrics bar, not on a button or another panel
                   if (event.target.closest("#controls-panel") === null &&
                       event.target.closest("#metric-selector") === null &&
@@ -502,6 +507,11 @@
 
                 // Add touch events for better mobile experience with quick actions
                 document.getElementById("metrics-bar").addEventListener("touchstart", function(event) {
+                  // Enable dragging margins on any touch
+                  if (typeof Android !== 'undefined' && Android.enableDraggingMargins) {
+                    Android.enableDraggingMargins();
+                  }
+                  
                   // Show quick actions on touch start for mobile devices
                   var quickActions = document.querySelector(".quick-actions");
                   if (quickActions) {
@@ -1624,6 +1634,19 @@
 
                                                                                                   // Initialize the template when the page loads
                                                                                                   setTimeout(initializeTemplate, 0);
+                                                                                                  
+                                                                                                  // Add global event listeners for any touch/click to enable dragging margins
+                                                                                                  document.addEventListener('click', function(event) {
+                                                                                                    if (typeof Android !== 'undefined' && Android.enableDraggingMargins) {
+                                                                                                      Android.enableDraggingMargins();
+                                                                                                    }
+                                                                                                  });
+                                                                                                  
+                                                                                                  document.addEventListener('touchstart', function(event) {
+                                                                                                    if (typeof Android !== 'undefined' && Android.enableDraggingMargins) {
+                                                                                                      Android.enableDraggingMargins();
+                                                                                                    }
+                                                                                                  });
                                                                                                 </script>
                                                                                               </body>
 

@@ -934,27 +934,16 @@
     }
     setTimeout(a, 0);
     
-    // Add event listeners for dynamic margin control
-    document.addEventListener('DOMContentLoaded', function() {
-      var mainTable = document.getElementById('maintable');
-      if (mainTable) {
-        // Add click event listener
-        mainTable.addEventListener('click', function(event) {
-          // Enable dragging margins temporarily when clicking on the table
-          if (typeof Android !== 'undefined' && Android.enableDraggingTemporarily) {
-            // Note: Android.enableDraggingTemporarily is called internally by the Java touch handler
-            // This is just to ensure consistency with touch events
-          }
-        });
-        
-        // Add touch event listener for better mobile experience
-        mainTable.addEventListener('touchstart', function(event) {
-          // Enable dragging margins temporarily when touching the table
-          if (typeof Android !== 'undefined' && Android.enableDraggingTemporarily) {
-            // Note: Android.enableDraggingTemporarily is called internally by the Java touch handler
-            // This is just to ensure consistency with touch events
-          }
-        });
+    // Add global event listeners for any touch/click to enable dragging margins
+    document.addEventListener('click', function(event) {
+      if (typeof Android !== 'undefined' && Android.enableDraggingMargins) {
+        Android.enableDraggingMargins();
+      }
+    });
+    
+    document.addEventListener('touchstart', function(event) {
+      if (typeof Android !== 'undefined' && Android.enableDraggingMargins) {
+        Android.enableDraggingMargins();
       }
     });
   </script>

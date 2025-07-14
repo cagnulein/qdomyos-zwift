@@ -353,5 +353,15 @@ public class FloatingWindowGFG extends Service {
 	             }
 	         });
 	     }
+	     
+	     @JavascriptInterface
+	     public void enableDraggingMargins() {
+	         handler.post(new Runnable() {
+	             @Override
+	             public void run() {
+	                 enableDraggingTemporarily();
+	             }
+	         });
+	     }
 	 }
 }
