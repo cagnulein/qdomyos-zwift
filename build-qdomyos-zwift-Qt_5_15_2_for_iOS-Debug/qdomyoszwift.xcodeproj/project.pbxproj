@@ -454,6 +454,8 @@
 		87A4B76125AF27CB0027EF3C /* metric.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A4B75F25AF27CB0027EF3C /* metric.cpp */; };
 		87A6825A2CE3AB3100586A2A /* moc_sramAXSController.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A682592CE3AB3100586A2A /* moc_sramAXSController.cpp */; };
 		87A6825D2CE3AB4000586A2A /* sramAXSController.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A6825C2CE3AB4000586A2A /* sramAXSController.cpp */; };
+		87ACBE9E2E250F7D00F1B6EA /* moc_androidstatusbar.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87ACBE9D2E250F7D00F1B6EA /* moc_androidstatusbar.cpp */; };
+		87ACBE9F2E250F7D00F1B6EA /* androidstatusbar.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87ACBE9C2E250F7D00F1B6EA /* androidstatusbar.cpp */; };
 		87ADD2BB27634C1500B7A0AB /* technogymmyruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87ADD2B927634C1400B7A0AB /* technogymmyruntreadmill.cpp */; };
 		87ADD2BD27634C2100B7A0AB /* moc_technogymmyruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87ADD2BC27634C2100B7A0AB /* moc_technogymmyruntreadmill.cpp */; };
 		87AE0CB227760DCB00E547E9 /* virtualtreadmill_zwift.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87AE0CB127760DCB00E547E9 /* virtualtreadmill_zwift.swift */; };
@@ -1471,6 +1473,9 @@
 		87A682592CE3AB3100586A2A /* moc_sramAXSController.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sramAXSController.cpp; sourceTree = "<group>"; };
 		87A6825B2CE3AB4000586A2A /* sramAXSController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sramAXSController.h; path = ../src/devices/sramAXSController/sramAXSController.h; sourceTree = SOURCE_ROOT; };
 		87A6825C2CE3AB4000586A2A /* sramAXSController.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sramAXSController.cpp; path = ../src/devices/sramAXSController/sramAXSController.cpp; sourceTree = SOURCE_ROOT; };
+		87ACBE9B2E250F7D00F1B6EA /* androidstatusbar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = androidstatusbar.h; path = ../src/androidstatusbar.h; sourceTree = SOURCE_ROOT; };
+		87ACBE9C2E250F7D00F1B6EA /* androidstatusbar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = androidstatusbar.cpp; path = ../src/androidstatusbar.cpp; sourceTree = SOURCE_ROOT; };
+		87ACBE9D2E250F7D00F1B6EA /* moc_androidstatusbar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_androidstatusbar.cpp; sourceTree = "<group>"; };
 		87ADD2B927634C1400B7A0AB /* technogymmyruntreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = technogymmyruntreadmill.cpp; path = ../src/devices/technogymmyruntreadmill/technogymmyruntreadmill.cpp; sourceTree = "<group>"; };
 		87ADD2BA27634C1400B7A0AB /* technogymmyruntreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = technogymmyruntreadmill.h; path = ../src/devices/technogymmyruntreadmill/technogymmyruntreadmill.h; sourceTree = "<group>"; };
 		87ADD2BC27634C2100B7A0AB /* moc_technogymmyruntreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_technogymmyruntreadmill.cpp; sourceTree = "<group>"; };
@@ -2240,6 +2245,9 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87ACBE9B2E250F7D00F1B6EA /* androidstatusbar.h */,
+				87ACBE9C2E250F7D00F1B6EA /* androidstatusbar.cpp */,
+				87ACBE9D2E250F7D00F1B6EA /* moc_androidstatusbar.cpp */,
 				878C9DC62DF01C16001114D5 /* moc_speraxtreadmill.cpp */,
 				878C9DC72DF01C16001114D5 /* speraxtreadmill.h */,
 				878C9DC82DF01C16001114D5 /* speraxtreadmill.cpp */,
@@ -3686,6 +3694,8 @@
 				8772B7F42CB55E80004AB8E9 /* moc_deerruntreadmill.cpp in Compile Sources */,
 				87CC3BA425A0885F001EC5A8 /* elliptical.cpp in Compile Sources */,
 				4AD2C93A2B8FD5855E521630 /* fit_encode.cpp in Compile Sources */,
+				87ACBE9E2E250F7D00F1B6EA /* moc_androidstatusbar.cpp in Compile Sources */,
+				87ACBE9F2E250F7D00F1B6EA /* androidstatusbar.cpp in Compile Sources */,
 				87DC27F32D9BDC43007A1B9D /* moc_moxy5sensor.cpp in Compile Sources */,
 				87DC27F42D9BDC43007A1B9D /* moxy5sensor.cpp in Compile Sources */,
 				87EB918C27EE5FE7002535E1 /* moc_inappproduct.cpp in Compile Sources */,
@@ -4381,7 +4391,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1123;
+				CURRENT_PROJECT_VERSION = 1124;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = "ADB_HOST=1";
@@ -4575,7 +4585,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1123;
+				CURRENT_PROJECT_VERSION = 1124;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -4805,7 +4815,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1123;
+				CURRENT_PROJECT_VERSION = 1124;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -4901,7 +4911,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1123;
+				CURRENT_PROJECT_VERSION = 1124;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -4993,7 +5003,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1123;
+				CURRENT_PROJECT_VERSION = 1124;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -5109,7 +5119,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1123;
+				CURRENT_PROJECT_VERSION = 1124;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
