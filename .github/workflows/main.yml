@@ -815,14 +815,7 @@ jobs:
             adb pull /sdcard/screenshot_orientation_0.png
             
             # Loop per 3 rotazioni aggiuntive (90°, 180°, 270°)
-            for i in 1 2 3; do
-              echo "Rotating to orientation $i (90° * $i)"
-              adb shell settings put system user_rotation $i
-              sleep 5
-              echo "Taking screenshot for orientation $i"
-              adb shell screencap -p /sdcard/screenshot_orientation_$i.png
-              adb pull /sdcard/screenshot_orientation_$i.png
-            done
+            for i in 1 2 3; do echo "Rotating to orientation $i (90° * $i)"; adb shell settings put system user_rotation $i; sleep 5; echo "Taking screenshot for orientation $i"; adb shell screencap -p /sdcard/screenshot_orientation_$i.png; adb pull /sdcard/screenshot_orientation_$i.png; done
             
             echo "Orientation test completed - 4 screenshots captured"
             
