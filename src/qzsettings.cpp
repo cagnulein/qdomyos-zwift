@@ -442,6 +442,7 @@ const QString QZSettings::default_horizon_treadmill_profile_user5 = QStringLiter
 const QString QZSettings::nordictrack_gx_2_7 = QStringLiteral("nordictrack_gx_2_7");
 const QString QZSettings::rolling_resistance = QStringLiteral("rolling_resistance");
 const QString QZSettings::wahoo_rgt_dircon = QStringLiteral("wahoo_rgt_dircon");
+const QString QZSettings::wahoo_without_wheel_diameter = QStringLiteral("wahoo_without_wheel_diameter");
 const QString QZSettings::tts_description_enabled = QStringLiteral("tts_description_enabled");
 const QString QZSettings::tile_preset_resistance_1_enabled = QStringLiteral("tile_preset_resistance_1_enabled");
 const QString QZSettings::tile_preset_resistance_1_order = QStringLiteral("tile_preset_resistance_1_order");
@@ -826,6 +827,7 @@ const QString QZSettings::proform_trainer_8_0 = QStringLiteral("proform_trainer_
 const QString QZSettings::tile_biggears_swap = QStringLiteral("tile_biggears_swap");
 const QString QZSettings::treadmill_follow_wattage = QStringLiteral("treadmill_follow_wattage");
 const QString QZSettings::fit_file_garmin_device_training_effect = QStringLiteral("fit_file_garmin_device_training_effect");
+const QString QZSettings::fit_file_garmin_device_training_effect_device = QStringLiteral("fit_file_garmin_device_training_effect_device");
 const QString QZSettings::proform_treadmill_705_cst_V80_44 = QStringLiteral("proform_treadmill_705_cst_V80_44");
 const QString QZSettings::nordictrack_treadmill_1750_adb = QStringLiteral("nordictrack_treadmill_1750_adb");
 
@@ -930,6 +932,8 @@ const QString QZSettings::tacxneo2_disable_negative_inclination = QStringLiteral
 const QString QZSettings::tile_coretemperature_enabled = QStringLiteral("tile_coretemperature_enabled");
 const QString QZSettings::tile_coretemperature_order = QStringLiteral("tile_coretemperature_order");
 
+const QString QZSettings::tile_hr_time_in_zone_individual_mode = QStringLiteral("tile_hr_time_in_zone_individual_mode");
+
 const QString QZSettings::nordictrack_t65s_treadmill_81_miles = QStringLiteral("nordictrack_t65s_treadmill_81_miles");
 const QString QZSettings::nordictrack_elite_800 = QStringLiteral("nordictrack_elite_800");
 
@@ -941,7 +945,7 @@ const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("
 const QString QZSettings::floatingwindow_type = QStringLiteral("floatingwindow_type");
 
 
-const uint32_t allSettingsCount = 769;
+const uint32_t allSettingsCount = 772;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1643,6 +1647,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_biggears_swap, QZSettings::default_tile_biggears_swap},
     {QZSettings::treadmill_follow_wattage, QZSettings::default_treadmill_follow_wattage},
     {QZSettings::fit_file_garmin_device_training_effect, QZSettings::default_fit_file_garmin_device_training_effect},
+    {QZSettings::fit_file_garmin_device_training_effect_device, QZSettings::default_fit_file_garmin_device_training_effect_device},
     {QZSettings::proform_treadmill_705_cst_V80_44, QZSettings::default_proform_treadmill_705_cst_V80_44},
     {QZSettings::nordictrack_treadmill_1750_adb, QZSettings::default_nordictrack_treadmill_1750_adb},
     
@@ -1725,6 +1730,8 @@ QVariant allSettings[allSettingsCount][2] = {
 
     {QZSettings::tile_coretemperature_enabled, QZSettings::default_tile_coretemperature_enabled},
     {QZSettings::tile_coretemperature_order, QZSettings::default_tile_coretemperature_order},
+
+    {QZSettings::tile_hr_time_in_zone_individual_mode, QZSettings::default_tile_hr_time_in_zone_individual_mode},
 
     {QZSettings::nordictrack_t65s_treadmill_81_miles, QZSettings::default_nordictrack_t65s_treadmill_81_miles},
     {QZSettings::nordictrack_elite_800, QZSettings::default_nordictrack_elite_800},

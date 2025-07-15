@@ -1025,14 +1025,10 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                                 }
                                 qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
                                 trainrows.append(row);
-                                atLeastOnePower = true;
                             }
                         } else {
                             r.duration = QTime(0, len / 60, len % 60, 0);
                             r.power = -1;
-                            if (r.power != -1) {
-                                atLeastOnePower = true;
-                            }
                             trainrows.append(r);
                         }
                     } else if (!zone.toUpper().compare(QStringLiteral("DESCENDING RECOVERY"))) {
@@ -1054,38 +1050,25 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                             }
                             qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
                             trainrows.append(row);
-                            atLeastOnePower = true;
                         }
                     } else if (!zone.toUpper().compare(QStringLiteral("RECOVERY"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.45;
-                        if (r.power != -1) {
-                            atLeastOnePower = true;
-                        }
                         trainrows.append(r);
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("FLAT ROAD"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.50;
-                        if (r.power != -1) {
-                            atLeastOnePower = true;
-                        }
                         trainrows.append(r);
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("SWEET SPOT"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.91;
-                        if (r.power != -1) {
-                            atLeastOnePower = true;
-                        }
                         trainrows.append(r);
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("INTERVALS"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.75;
-                        if (r.power != -1) {
-                            atLeastOnePower = true;
-                        }
                         trainrows.append(r);
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 1"))) {
@@ -1148,9 +1131,6 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         if(len > 0 && atLeastOnePower) {
                             r.duration = QTime(0, len / 60, len % 60, 0);
                             r.power = -1;
-                            if (r.power != -1) {
-                                atLeastOnePower = true;
-                            }
                             qDebug() << "ERROR not handled!" << zone;
                             trainrows.append(r);
                         }
@@ -1167,7 +1147,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         QJsonArray pace_intensities_list = target_metrics_data_list[QStringLiteral("pace_intensities")].toArray();
 
         int pace_count = 0;        
-        rower_pace_offset = 0;
+        rower_pace_offset = -1;
 
         foreach (QJsonValue o, pace_intensities_list) {
             if(o["value"].toInt() < 0) {
@@ -1404,12 +1384,16 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
             qDebug() << duration << r.duration;
         }
 
-        int diff = current_pedaling_duration - QTime(0,0,0,0).secsTo(duration);
-        if (diff > 0 && diff < 10) {
-            qDebug() << "WARNING: The difference between expected and actual duration is positive but less than 10 seconds:" << diff << "seconds";
-        } else if(diff > 0) {
-            qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << diff << current_pedaling_duration;
-            trainrows.clear();
+        if (current_workout_type.contains("bootcamp", Qt::CaseInsensitive)) {
+            qDebug() << "Skipping pedaling duration check due to bootcamp workout type:" << current_workout_type;
+        } else {
+            int diff = current_pedaling_duration - QTime(0,0,0,0).secsTo(duration);
+            if (diff > 0 && diff < 10) {
+                qDebug() << "WARNING: The difference between expected and actual duration is positive but less than 10 seconds:" << diff << "seconds";
+            } else if(diff > 0) {
+                qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << diff << current_pedaling_duration;
+                trainrows.clear();
+            }
         }
 
         // this list doesn't have nothing useful for this session
@@ -1547,12 +1531,16 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                 duration = duration.addSecs(QTime(0,0,0,0).secsTo(r.duration));
                 qDebug() << duration << r.duration;
             }
-            int diff = current_pedaling_duration - QTime(0,0,0,0).secsTo(duration);
-            if (diff > 0 && diff < 10) {
-                qDebug() << "WARNING: The difference between expected and actual duration is positive but less than 10 seconds:" << diff << "seconds";
-            } else if(diff > 0) {
-                qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << diff << current_pedaling_duration;
-                trainrows.clear();
+            if (current_workout_type.contains("bootcamp", Qt::CaseInsensitive)) {
+                qDebug() << "Skipping pedaling duration check due to bootcamp workout type:" << current_workout_type;
+            } else {
+                int diff = current_pedaling_duration - QTime(0,0,0,0).secsTo(duration);
+                if (diff > 0 && diff < 10) {
+                    qDebug() << "WARNING: The difference between expected and actual duration is positive but less than 10 seconds:" << diff << "seconds";
+                } else if(diff > 0) {
+                    qDebug() << "peloton sends less metrics than expected, let's remove this and fallback on HFB" << diff << current_pedaling_duration;
+                    trainrows.clear();
+                }
             }
         }
     }
@@ -2203,8 +2191,7 @@ void peloton::replyDataReceived(const QByteArray &v) {
     tempAccessToken = jsonResponse[QStringLiteral("access_token")].toString();
     tempRefreshToken = jsonResponse[QStringLiteral("refresh_token")].toString();
 
-    qDebug() << jsonResponse[QStringLiteral("access_token")] << jsonResponse[QStringLiteral("refresh_token")]
-             << jsonResponse[QStringLiteral("expires_at")];
+    qDebug() << "Peloton tokens received successfully, expires at:" << jsonResponse[QStringLiteral("expires_at")];
 
     QString urlstr = QStringLiteral("https://www.peloton.com/oauth/token?");
     QUrlQuery params;
@@ -2268,7 +2255,7 @@ void peloton::networkRequestFinished(QNetworkReply *reply) {
         tempRefreshToken = refresh_token;
         tempExpiresAt = QDateTime::currentDateTime();
 
-        qDebug() << access_token << refresh_token;
+        qDebug() << "Peloton tokens refreshed successfully";
 
     } else {
 

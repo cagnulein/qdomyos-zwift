@@ -69,6 +69,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     }
 
     bool fit_file_garmin_device_training_effect = settings.value(QZSettings::fit_file_garmin_device_training_effect, QZSettings::default_fit_file_garmin_device_training_effect).toBool();
+    int fit_file_garmin_device_training_effect_device = settings.value(QZSettings::fit_file_garmin_device_training_effect_device, QZSettings::default_fit_file_garmin_device_training_effect_device).toInt();
     fit::FileIdMesg fileIdMesg; // Every FIT file requires a File ID message
     fileIdMesg.SetType(FIT_FILE_ACTIVITY);
     if(bluetooth_device_name.toUpper().startsWith("DOMYOS"))
@@ -80,7 +81,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
     }
     if(fit_file_garmin_device_training_effect) {
-        fileIdMesg.SetProduct(FIT_GARMIN_PRODUCT_EDGE_830);
+        fileIdMesg.SetProduct(fit_file_garmin_device_training_effect_device);
         fileIdMesg.SetSerialNumber(3313379353);
     } else {
         fileIdMesg.SetProduct(1);
@@ -101,8 +102,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     if(fit_file_garmin_device_training_effect) {
         deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
         deviceInfoMesg.SetSerialNumber(3313379353);
-        deviceInfoMesg.SetProduct(FIT_GARMIN_PRODUCT_EDGE_830);
-        deviceInfoMesg.SetGarminProduct(FIT_GARMIN_PRODUCT_EDGE_830);
+        deviceInfoMesg.SetProduct(fit_file_garmin_device_training_effect_device);
+        deviceInfoMesg.SetGarminProduct(fit_file_garmin_device_training_effect_device);
         deviceInfoMesg.SetSoftwareVersion(21.19);
     } else {
         deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
@@ -215,7 +216,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         sessionMesg.SetSubSport(FIT_SUB_SPORT_STAIR_CLIMBING);
     } else if (type == bluetoothdevice::JUMPROPE) {
 
-        sessionMesg.SetSport(FIT_SPORT_JUMPROPE);
+        sessionMesg.SetSport(FIT_SPORT_JUMP_ROPE);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
         if (session.last().stepCount)
             sessionMesg.SetJumpCount(session.last().stepCount);
@@ -362,7 +363,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         lapMesg.SetSport(FIT_SPORT_ROWING);
     } else if (type == bluetoothdevice::JUMPROPE) {
 
-        lapMesg.SetSport(FIT_SPORT_JUMPROPE);
+        lapMesg.SetSport(FIT_SPORT_JUMP_ROPE);
     } else if (type == bluetoothdevice::STAIRCLIMBER) {
 
         lapMesg.SetSport(FIT_SPORT_GENERIC);

@@ -48,7 +48,7 @@ class kineticinroadbike : public bike {
     bool connected() override;
 
   private:
-    const resistance_t max_resistance = 32;
+    const resistance_t max_resistance = 999;
     double bikeResistanceToPeloton(double resistance);
     double GetDistanceFromPacket(const QByteArray &packet);
     QTime GetElapsedFromPacket(const QByteArray &packet);

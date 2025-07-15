@@ -647,11 +647,56 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fdroid-android-trial
-          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
+          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
 
   android-emulator-test:
     runs-on: ubuntu-latest
     needs: android-build
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: [24, 26, 28, 29, 30, 31, 33, 34, 35, 36]
+        include:
+          - api-level: 24
+            target: default
+            arch: x86
+            android-version: "Android 7.0"
+          - api-level: 26
+            target: default
+            arch: x86
+            android-version: "Android 8.0"
+          - api-level: 28
+            target: default
+            arch: x86
+            android-version: "Android 9.0"
+          - api-level: 29
+            target: default
+            arch: x86
+            android-version: "Android 10"
+          - api-level: 30
+            target: google_apis
+            arch: x86
+            android-version: "Android 11"
+          - api-level: 31
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 12"
+          - api-level: 33
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 13"
+          - api-level: 34
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 14"
+          - api-level: 35
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 15"
+          - api-level: 36
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 16"
     
     steps:
       - name: Checkout code
@@ -677,12 +722,12 @@ jobs:
           java-version: '17'
       
       # Use a smaller emulator configuration
-      - name: Run tests on emulator
+      - name: Run tests on emulator (${{ matrix.android-version }})
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          target: default  # Use default instead of Google APIs
-          arch: x86
-          api-level: 29
+          target: ${{ matrix.target }}
+          arch: ${{ matrix.arch }}
+          api-level: ${{ matrix.api-level }}
           profile: Nexus 6
           disable-animations: true
           script: |
@@ -696,44 +741,103 @@ jobs:
             # Install the APK
             adb install apk-debug/android-debug.apk
             
-            # Grant necessary permissions for API 25
-            echo "Granting permissions..."
+            # Grant necessary permissions - comprehensive list for all Android APIs
+            echo "Granting all required permissions..."
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_FINE_LOCATION || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_COARSE_LOCATION || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADMIN || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADVERTISE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_CONNECT || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_SCAN || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.READ_EXTERNAL_STORAGE || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WRITE_EXTERNAL_STORAGE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.MANAGE_EXTERNAL_STORAGE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.CAMERA || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.RECORD_AUDIO || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.INTERNET || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_NETWORK_STATE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_WIFI_STATE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.CHANGE_WIFI_STATE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WAKE_LOCK || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.VIBRATE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.READ_PHONE_STATE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.FOREGROUND_SERVICE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS || true
+            
+            # Additional permissions for newer Android versions (12+)
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.POST_NOTIFICATIONS || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.SCHEDULE_EXACT_ALARM || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.USE_EXACT_ALARM || true
+            
+            # Enable all app ops permissions  
+            adb shell appops set org.cagnulen.qdomyoszwift MANAGE_EXTERNAL_STORAGE allow || true
+            adb shell appops set org.cagnulen.qdomyoszwift SYSTEM_ALERT_WINDOW allow || true
+            adb shell appops set org.cagnulen.qdomyoszwift WRITE_SETTINGS allow || true
+            
+            echo "All permissions granted successfully"
             
             # Start the main activity
-            adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
+            adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
             
             # Wait for app to start
-            sleep 40
+            sleep 60
             
             # Verify the app is running
             echo "Checking if app is running..."
-            adb shell "ps -A" > process_list.txt
+            # Use different ps commands for different Android versions
+            adb shell "ps -A 2>/dev/null || ps" > process_list.txt
+            
+            # Debug: show all processes to understand the format
+            echo "=== All running processes ==="
+            cat process_list.txt | head -20
+            echo "=== Looking for our app ==="
+
             grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
+            adb shell pm list packages | grep org.cagnulen.qdomyoszwift
+            echo "=== Checking app info ==="
+            adb shell dumpsys package org.cagnulen.qdomyoszwift | grep -A5 -B5 "state"
+            echo "=== Logcat output for debugging ==="
+            adb logcat -d | grep -i "qdomyos\|crash\|error\|exception\|fatal" | tail -n 50
+            echo "=== Full recent logcat ==="
+            adb logcat -d | tail -n 100
             echo "App is running successfully"
             
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
             adb pull /sdcard/screenshot.png
             
+            # Test orientamento automatico con screenshot
+            echo "Starting orientation test with automatic screenshots..."
+            
+            # Screenshot iniziale (orientamento corrente)  
+            adb shell screencap -p /sdcard/screenshot_orientation_0.png
+            adb pull /sdcard/screenshot_orientation_0.png
+            
+            # Loop per 3 rotazioni aggiuntive (90°, 180°, 270°)
+            for i in 1 2 3; do echo "Rotating to orientation $i (90° * $i)"; adb shell settings put system user_rotation $i; sleep 5; echo "Taking screenshot for orientation $i"; adb shell screencap -p /sdcard/screenshot_orientation_$i.png; adb pull /sdcard/screenshot_orientation_$i.png; done
+            
+            echo "Orientation test completed - 4 screenshots captured"
+            
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
             
-            # Display logcat output for debugging (just the last 100 lines)
-            adb logcat -d | grep -i qdomyos | tail -n 100
+            # Save logcat for debugging
+            echo "Saving logcat for analysis..."
+            adb logcat -d > full_logcat.txt
+            adb logcat -d | grep -i qdomyos > qdomyos_logcat.txt
 
       - name: Upload test evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-emulator-test-evidence
+          name: android-emulator-test-evidence-api${{ matrix.api-level }}
           path: |
             screenshot.png
+            screenshot_orientation_*.png
             process_list.txt
+            full_logcat.txt
+            qdomyos_logcat.txt
           if-no-files-found: warn                
 
   ios-build:
@@ -1469,11 +1573,114 @@ jobs:
           name: windows-msvc2022-binary-no-python
           path: windows-msvc2022-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
+
+  nordictrack-build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'schedule'
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Xvfb install and run
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
+
+      - name: Checkout PR code
+        uses: actions/checkout@v3
+        with:
+          ref: refs/pull/3478/head
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
+        
+      - name: Checkout submodules with specific branches
+        run: |
+          git submodule init
+          git submodule update --init --recursive 
+
+      - name: Fix qmdnsengine submodule
+        run: |
+          cd src/qmdnsengine
+          git fetch
+          git checkout 602da51dc43c55bd9aa8a83c47ea3594a9b01b98
+
+      - name: Install packages required to run QZ inside workflow
+        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+
+      - name: Install Qt Android
+        uses: jdpurcell/install-qt-action@v5
+        with:
+          version: '5.15.0'
+          host: 'linux'
+          target: 'android'
+          arch: 'android'
+          modules: 'qtcharts  qtnetworkauth'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android'                    
+
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '11.0.23+9'
+          
+      - name: patching qt for bluetooth
+        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+
+      - name: download 3rd party files for qthttpserver
+        run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+
+      - name: Set Android NDK 21 && build
+        run: |
+          # Install NDK 21 after GitHub update
+          # https://github.com/actions/virtual-environments/issues/5595
+          ANDROID_ROOT="/usr/local/lib/android"
+          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
+          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
+          export ANDROID_NDK_ROOT="${ANDROID_NDK}"
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          echo "#define LICENSE" >> secret.h
+          cd ..          
+
+          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
+          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+
+          # QTHTTPSERVER must use the same NDK
+          cd src/qthttpserver 
+          qmake
+          make -j8
+          make install
+          cd ../..          
+          
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          cp src/android-qdomyos-zwift-deployment-settings.json src/android-qdomyos-zwift-nordictrack-deployment-settings.json
+          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-nordictrack-deployment-settings.json
+          sed -i 's/"android-debug"/"android-nordictrack"/g' src/android-qdomyos-zwift-nordictrack-deployment-settings.json
+          sed -i 's/android-debug\.apk/android-debug-nordictrack.apk/g' src/android-qdomyos-zwift-nordictrack-deployment-settings.json
+          cat src/android-qdomyos-zwift-nordictrack-deployment-settings.json
+
+      - name: Build APK (not usable for production due to unpatched QT library)
+        run: cd src; androiddeployqt --input android-qdomyos-zwift-nordictrack-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+
+      - name: Archive nordictrack binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: nordictrack-android-trial
+          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack.apk
           
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-22.04 
-    if: github.event_name == 'schedule'
+    #if: github.event_name == 'schedule'
     needs: [linux-x86-build, window-msvc2019-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]
     steps:
       - name: Checkout code
@@ -1506,6 +1713,7 @@ jobs:
 
             ## Other Platforms:
             - **fdroid-android-trial**: Android build
+            - **nordictrack-android-trial**: Nordictrack build for iFIT2 Tablets
             - **raspberry-pi-binary**: Raspberry Pi build
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
@@ -1517,6 +1725,7 @@ jobs:
             windows-msvc2019-ai-server-binary/*            
             windows-binary-no-python/*
             windows-binary/*
-            fdroid-android-trial/*
+            fdroid-android-trial/android-debug.apk
+            nordictrack-android-trial/android-debug-nordictrack.apk
             raspberry-pi-binary/qdomyos-zwift-32bit
             raspberry-pi-binary/qdomyos-zwift-64bit

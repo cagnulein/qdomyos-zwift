@@ -431,6 +431,10 @@ double trxappgateusbbike::GetWattFromPacket(const QByteArray &packet) {
 
 double trxappgateusbbike::GetCadenceFromPacket(const QByteArray &packet) {
 
+    QSettings settings;
+    double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
+    double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
+
     uint16_t convertedData;
     if (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08 && bike_type != HAMMER_SPEED_BIKE_S) {
         convertedData = (packet.at(9) - 1) + ((packet.at(8) - 1) * 100);
@@ -441,7 +445,7 @@ double trxappgateusbbike::GetCadenceFromPacket(const QByteArray &packet) {
     if (data < 0) {
         return 0;
     }
-    return data;
+    return (data * cadence_gain) + cadence_offset   ;
 }
 
 double trxappgateusbbike::GetResistanceFromPacket(const QByteArray &packet) {

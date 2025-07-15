@@ -1027,6 +1027,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("YPOO-U3-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SCH_590E")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER ")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("FEIER-EM-")) ||
                         (b.name().startsWith(QStringLiteral("Domyos-EL")) && settings.value(QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts).toBool()) ||
                         (b.name().toUpper().startsWith("SF-") && b.name().midRef(3).toInt() > 0) ||
                         b.name().toUpper().startsWith(QStringLiteral("MYELLIPTICAL ")) ||
@@ -1049,7 +1050,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(ypooElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS E")) || 
-                        b.name().toUpper().startsWith(QStringLiteral("NAUTILUS M"))) &&
+                        b.name().toUpper().startsWith(QStringLiteral("NAUTILUS M")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("NAUTILUS 616"))) && // actually this is a bike that uses the same Bluetooth characteristics of the elliptical 
                        !nautilusElliptical && // NAUTILUS E616
                        filter) {
                 this->setLastBluetoothDevice(b);
@@ -1698,10 +1700,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("LYDSTO")) ||
                         (b.name().toUpper().startsWith("CYCLO_")) ||
                         (b.name().toUpper().startsWith("SL010-")) ||
-                        (b.name().toUpper().startsWith("EXPERT-SX9")) ||                         
-                        (b.name().toUpper().startsWith("LCR")) ||
+                        (b.name().toUpper().startsWith("EXPERT-SX9")) ||                                                 
                         (b.name().toUpper().startsWith("MRK-S26S-")) ||
                         (b.name().toUpper().startsWith("ROBX")) ||
+                        (b.name().toUpper().startsWith("SPEEDMAGPRO")) ||                        
                         (b.name().toUpper().startsWith("XCX-")) ||
                         (b.name().toUpper().startsWith("NEO BIKE PLUS ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) && !b.name().toUpper().endsWith(QStringLiteral("SKI")) && !b.name().toUpper().endsWith(QStringLiteral("ROW"))) || 
@@ -2462,6 +2464,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 keepBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(keepBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("LCB")) ||
+                        b.name().toUpper().startsWith("LCR") ||
                         b.name().toUpper().startsWith(QStringLiteral("R92"))) &&
                        !soleBike && filter) {
                 this->setLastBluetoothDevice(b);

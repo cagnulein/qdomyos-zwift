@@ -217,25 +217,34 @@ uint16_t ftmsbike::wattsFromResistance(double resistance) {
 }
 
 resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
+
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
     if (Cadence.value() == 0)
         return 1;
 
+    resistance_t best_resistance_match = 1;
+    int min_watt_difference = 1000; 
+
     for (resistance_t i = 1; i < max_resistance; i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
+        uint16_t current_watts = wattsFromResistance(i);
+        uint16_t next_watts = wattsFromResistance(i + 1);
+
+        if (current_watts <= power && next_watts >= power) {
+            qDebug() << current_watts << next_watts << power;
             return i;
         }
+
+        int diff = abs(current_watts - power);
+        if (diff < min_watt_difference) {
+            min_watt_difference = diff;
+            best_resistance_match = i;
+            qDebug() << QStringLiteral("best match") << best_resistance_match << "with watts" << current_watts << "diff" << diff;
+        }
     }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        if(DU30_bike)
-            return max_resistance;
-        else
-            return _ergTable.getMaxResistance();
+
+    qDebug() << "Bracketing not found, best match:" << best_resistance_match;
+    return best_resistance_match;
 }
 
 void ftmsbike::forceResistance(resistance_t requestResistance) {
@@ -980,8 +989,11 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                        1000.0;
             index += 3;
         } else {
-            Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(now)));
+            // Only calculate distance if 2AD2 hasn't already done it recently (within 2000ms)
+            if (lastRefreshCharacteristicChanged2AD2.msecsTo(now) > 2000) {
+                Distance += ((Speed.value() / 3600000.0) *
+                ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(now)));
+            }
         }
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -1585,6 +1597,12 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith(QStringLiteral("THINK X")) || device.name().toUpper().startsWith(QStringLiteral("THINK-"))) {
             THINK_X = true;
             qDebug() << "THINK X workaround enabled!";
+        } else if(device.name().toUpper().startsWith(QStringLiteral("WLT8828"))) {
+            qDebug() << QStringLiteral("WLT8828 found");
+            WLT8828 = true;
+            max_resistance = 32;
+            resistance_lvl_mode = true;
+            ergModeSupported = false; // this bike doesn't have ERG mode natively
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
