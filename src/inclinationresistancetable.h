@@ -249,28 +249,41 @@ public:
     uint16_t estimateResistance(double givenInclination) {
         if (dataPoints.isEmpty()) return 0;
 
-        // Skip invalid inclination
-        if (qAbs(givenInclination) < 0.01) {
-            qDebug() << "estimateResistance: Invalid inclination (near zero), returning 0";
+        // Sort points by inclination for easier processing
+        QList<inclinationResistanceDataPoint> sortedPoints = dataPoints;
+        std::sort(sortedPoints.begin(), sortedPoints.end(),
+                  [](const inclinationResistanceDataPoint& a, const inclinationResistanceDataPoint& b) {
+                      return a.inclination < b.inclination;
+                  });
+
+        // If inclination is very low, return the lowest resistance
+        if (qAbs(givenInclination) < 0.1) {
+            qDebug() << "estimateResistance: Inclination near zero, returning lowest resistance";
+            if (!sortedPoints.isEmpty()) {
+                return sortedPoints.first().resistance;
+            }
             return 0;
         }
 
-        // Find the closest point or interpolate if possible
-        double minInclinationDiff = 9999.0;
+        // If the given inclination is smaller than the smallest one in the table,
+        // return the resistance of the smallest inclination point
+        if (givenInclination < sortedPoints.first().inclination) {
+            qDebug() << "estimateResistance: Inclination is lower than the minimum, returning lowest resistance";
+            return sortedPoints.first().resistance;
+        }
+
+        // If the given inclination is larger than the largest one in the table,
+        // return the resistance of the largest inclination point
+        if (givenInclination > sortedPoints.last().inclination) {
+            qDebug() << "estimateResistance: Inclination is higher than the maximum, returning highest resistance";
+            return sortedPoints.last().resistance;
+        }
+
+        // Find points for interpolation
         double lowerInclination = -9999.0, upperInclination = 9999.0;
         uint16_t lowerResistance = 0, upperResistance = 0;
-        uint16_t closestResistance = 0;
 
-        for (const auto& point : dataPoints) {
-            double inclinationDiff = qAbs(point.inclination - givenInclination);
-            
-            // Find the closest point
-            if (inclinationDiff < minInclinationDiff) {
-                minInclinationDiff = inclinationDiff;
-                closestResistance = point.resistance;
-            }
-            
-            // Find points for interpolation
+        for (const auto& point : sortedPoints) {
             if (point.inclination <= givenInclination && point.inclination > lowerInclination) {
                 lowerInclination = point.inclination;
                 lowerResistance = point.resistance;
@@ -282,14 +295,23 @@ public:
         }
 
         // Interpolate if possible
-        if (lowerInclination > -9999.0 && upperInclination < 9999.0 && 
+        if (lowerInclination > -9999.0 && upperInclination < 9999.0 &&
             lowerInclination != upperInclination) {
-            double ratio = (givenInclination - lowerInclination) / 
+            double ratio = (givenInclination - lowerInclination) /
                            (upperInclination - lowerInclination);
             return lowerResistance + ratio * (upperResistance - lowerResistance);
         }
-        
-        // Otherwise use the closest value
+
+        // If interpolation is not possible, find the closest point
+        double minInclinationDiff = 9999.0;
+        uint16_t closestResistance = 0;
+        for (const auto& point : sortedPoints) {
+            double inclinationDiff = qAbs(point.inclination - givenInclination);
+            if (inclinationDiff < minInclinationDiff) {
+                minInclinationDiff = inclinationDiff;
+                closestResistance = point.resistance;
+            }
+        }
         return closestResistance;
     }
 
