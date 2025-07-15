@@ -431,6 +431,7 @@ double trxappgateusbbike::GetWattFromPacket(const QByteArray &packet) {
 
 double trxappgateusbbike::GetCadenceFromPacket(const QByteArray &packet) {
 
+    QSettings settings;
     double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
     double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
 
