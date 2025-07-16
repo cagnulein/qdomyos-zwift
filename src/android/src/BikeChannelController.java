@@ -88,9 +88,9 @@ public class BikeChannelController {
 
     public BikeChannelController() {
         this.context = Ant.activity;
-        openChannel();
+        //openChannel();
         openPowerSensorChannel();
-        openSpeedCadenceSensorChannel();
+        //openSpeedCadenceSensorChannel();
     }
 
     public boolean openChannel() {
