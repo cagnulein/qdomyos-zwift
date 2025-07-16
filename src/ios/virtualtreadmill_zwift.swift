@@ -36,6 +36,11 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
         return peripheralManager.PowerRequested;
     }
     
+    @objc public func readRequestedSpeed() -> Double
+    {
+        return peripheralManager.RequestedSpeed;
+    }
+    
     @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16, currentInclination: UInt16, currentDistance: UInt64, elapsedTimeSeconds: UInt16) -> Bool
     {
         peripheralManager.NormalizeSpeed = normalizeSpeed
@@ -52,6 +57,7 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
 class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate {
   private var garmin_bluetooth_compatibility: Bool = false
   private var peripheralManager: CBPeripheralManager!
+  let SwiftDebug = swiftDebug()
 
   private var heartRateService: CBMutableService!
   private var heartRateCharacteristic: CBMutableCharacteristic!
@@ -75,6 +81,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     public var CurrentDistance: UInt64! = 0
     public var ElapsedTimeSeconds: UInt16! = 0
     public var lastCurrentSlope: UInt64! = 0;
+    public var RequestedSpeed: Double! = 0
     
     public var serviceToggle: UInt8 = 0
 
@@ -98,7 +105,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
     switch peripheral.state {
     case .poweredOn:
-      print("Peripheral manager is up and running")
+      SwiftDebug.qtDebug("virtualtreadmill_zwift: Peripheral manager is up and running")
       
         if(!garmin_bluetooth_compatibility) {
             self.heartRateService = CBMutableService(type: heartRateServiceUUID, primary: true)
@@ -209,13 +216,13 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
         self.peripheralManager.add(rscService)
 
     default:
-      print("Peripheral manager is down")
+      SwiftDebug.qtDebug("virtualtreadmill_zwift: Peripheral manager is down")
     }
   }
     
   func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
     if let uwError = error {
-      print("Failed to add service with error: \(uwError.localizedDescription)")
+      SwiftDebug.qtDebug("virtualtreadmill_zwift: Failed to add service with error: \(uwError.localizedDescription)")
       return
     }
     
@@ -229,17 +236,17 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
           peripheralManager.startAdvertising(advertisementData)
       }
     
-    print("Successfully added service")
+    SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully added service")
   }
   
   
   func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
     if let uwError = error {
-      print("Failed to advertise with error: \(uwError.localizedDescription)")
+      SwiftDebug.qtDebug("virtualtreadmill_zwift: Failed to advertise with error: \(uwError.localizedDescription)")
       return
     }
     
-    print("Started advertising")
+    SwiftDebug.qtDebug("virtualtreadmill_zwift: Started advertising")
     
   }
   
@@ -264,9 +271,22 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                 var high : UInt16 = (((UInt16)(requests.first!.value![2])) << 8);
                 self.PowerRequested = (Double)((UInt16)(requests.first!.value![1]) + high);
           }
+          else if(requests.first!.value?.first == 0x02)
+          {
+                // Set Target Speed
+                let a = requests.first!.value![1]
+                let b = requests.first!.value![2]
+                
+                let uspeed = UInt16(a) + (UInt16(b) << 8)
+                let requestSpeed = Double(uspeed) / 100.0
+                
+                self.RequestedSpeed = requestSpeed
+                
+                SwiftDebug.qtDebug("virtualtreadmill_zwift: new requested speed \(requestSpeed)")
+          }
           self.connected = true;
           self.peripheralManager.respond(to: requests.first!, withResult: .success)
-          print("Responded successfully to a read request")
+          SwiftDebug.qtDebug("virtualtreadmill_zwift: Responded successfully to a read request")
            
           let funcCode: UInt8 = requests.first!.value![0]
           var response: [UInt8] = [0x80, funcCode , 0x01]
@@ -280,12 +300,12 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     if request.characteristic == self.heartRateCharacteristic {
       request.value = self.calculateHeartRate()
       self.peripheralManager.respond(to: request, withResult: .success)
-      print("Responded successfully to a read request")
+      SwiftDebug.qtDebug("virtualtreadmill_zwift: Responded successfully to a read request")
     }
   }
   
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
-    print("Successfully subscribed")
+    SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully subscribed")
      self.connected = true
     updateSubscribers();
     self.startSendingDataToSubscribers()
@@ -294,7 +314,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
     //self.notificationTimer.invalidate()
      self.connected = false
-    print("Successfully unsubscribed")
+    SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully unsubscribed")
   }
 
   func startSendingDataToSubscribers() {
@@ -304,7 +324,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   }
 
   func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
-    print("Peripheral manager is ready to update subscribers")
+    SwiftDebug.qtDebug("virtualtreadmill_zwift: Peripheral manager is ready to update subscribers")
     updateSubscribers();
     self.startSendingDataToSubscribers()
   }

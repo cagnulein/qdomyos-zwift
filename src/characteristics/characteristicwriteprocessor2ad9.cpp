@@ -63,6 +63,12 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 reply.append((quint8)FTMS_RESPONSE_CODE);
                 reply.append((quint8)FTMS_START_RESUME);
                 reply.append((quint8)FTMS_SUCCESS);
+            } else if (cmd == FTMS_STOP_PAUSE) {
+                qDebug() << QStringLiteral("stop/pause simulation! ignoring it");
+
+                reply.append((quint8)FTMS_RESPONSE_CODE);
+                reply.append((quint8)FTMS_STOP_PAUSE);
+                reply.append((quint8)FTMS_SUCCESS);
             } else if (cmd == FTMS_REQUEST_CONTROL) {
                 qDebug() << QStringLiteral("control requested");
 
