@@ -1168,7 +1168,7 @@ import Qt.labs.platform 1.1
             property bool tile_hr_time_in_zone_individual_mode: false
             property bool wahoo_without_wheel_diameter: false
             property bool nordictrackadbbike_gear_resistance_mode: false
-            property int nordictrackadbbike_gear_debounce_ms: 250
+            property int nordictrackadbbike_gear_debounce_ms: 100
         }
 
         function paddingZeros(text, limit) {

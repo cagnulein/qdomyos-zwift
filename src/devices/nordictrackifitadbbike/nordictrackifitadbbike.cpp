@@ -137,7 +137,7 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     gearDebounceTimer->setInterval(debounceMs);
     connect(gearDebounceTimer, &QTimer::timeout, this, &nordictrackifitadbbike::onGearDebounceTimeout);
     ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
-    refresh->start(200ms);
+    refresh->start(debounceMs);
 
     socket = new QUdpSocket(this);
     bool result = socket->bind(QHostAddress::AnyIPv4, 8002);
