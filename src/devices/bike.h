@@ -52,6 +52,7 @@ class bike : public bluetoothdevice {
     metric currentSteeringAngle() { return m_steeringAngle; }
     virtual bool inclinationAvailableByHardware();
     bool ergModeSupportedAvailableByHardware() { return ergModeSupported; }
+    virtual bool ergModeSupportedAvailableBySoftware() { return ergModeSupported; }
 
   public Q_SLOTS:
     void changeResistance(resistance_t res) override;
