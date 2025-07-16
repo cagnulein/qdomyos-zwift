@@ -184,6 +184,36 @@ class ergTable : public QObject {
         return sameResPoints.first().wattage;
     }
 
+    uint16_t resistanceFromPowerRequest(uint16_t power, uint16_t cadence, uint16_t maxResistance) {
+        qDebug() << QStringLiteral("resistanceFromPowerRequest") << cadence;
+
+        if (cadence == 0)
+            return 1;
+
+        uint16_t best_resistance_match = 1;
+        int min_watt_difference = 1000; 
+
+        for (uint16_t i = 1; i < maxResistance; i++) {
+            uint16_t current_watts = estimateWattage(cadence, i);
+            uint16_t next_watts = estimateWattage(cadence, i + 1);
+
+            if (current_watts <= power && next_watts >= power) {
+                qDebug() << current_watts << next_watts << power;
+                return i;
+            }
+
+            int diff = abs(current_watts - power);
+            if (diff < min_watt_difference) {
+                min_watt_difference = diff;
+                best_resistance_match = i;
+                qDebug() << QStringLiteral("best match") << best_resistance_match << "with watts" << current_watts << "diff" << diff;
+            }
+        }
+
+        qDebug() << "Bracketing not found, best match:" << best_resistance_match;
+        return best_resistance_match;
+    }
+
     QList<ergDataPoint> getConsolidatedData() const {
         return consolidatedData;
     }

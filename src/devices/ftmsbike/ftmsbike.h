@@ -79,6 +79,9 @@ class ftmsbike : public bike {
     double maxGears() override;
     double minGears() override;
 
+    // true because or the bike supports it by hardware or because QZ is emulating this in this module
+    bool ergModeSupportedAvailableBySoftware() override { return true; }
+
   private:
     bool writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);

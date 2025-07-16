@@ -217,34 +217,7 @@ uint16_t ftmsbike::wattsFromResistance(double resistance) {
 }
 
 resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
-
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-    if (Cadence.value() == 0)
-        return 1;
-
-    resistance_t best_resistance_match = 1;
-    int min_watt_difference = 1000; 
-
-    for (resistance_t i = 1; i < max_resistance; i++) {
-        uint16_t current_watts = wattsFromResistance(i);
-        uint16_t next_watts = wattsFromResistance(i + 1);
-
-        if (current_watts <= power && next_watts >= power) {
-            qDebug() << current_watts << next_watts << power;
-            return i;
-        }
-
-        int diff = abs(current_watts - power);
-        if (diff < min_watt_difference) {
-            min_watt_difference = diff;
-            best_resistance_match = i;
-            qDebug() << QStringLiteral("best match") << best_resistance_match << "with watts" << current_watts << "diff" << diff;
-        }
-    }
-
-    qDebug() << "Bracketing not found, best match:" << best_resistance_match;
-    return best_resistance_match;
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
 
 void ftmsbike::forceResistance(resistance_t requestResistance) {
