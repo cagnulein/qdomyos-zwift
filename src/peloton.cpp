@@ -1147,7 +1147,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         QJsonArray pace_intensities_list = target_metrics_data_list[QStringLiteral("pace_intensities")].toArray();
 
         int pace_count = 0;        
-        rower_pace_offset = -1;
+        rower_pace_offset = 1;
 
         foreach (QJsonValue o, pace_intensities_list) {
             if(o["value"].toInt() < 0) {
