@@ -1167,6 +1167,7 @@ import Qt.labs.platform 1.1
             // 2.19.2
             property bool tile_hr_time_in_zone_individual_mode: false
             property bool wahoo_without_wheel_diameter: false
+            property bool technogym_group_cycle: false
         }
 
         function paddingZeros(text, limit) {
@@ -3801,6 +3802,37 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.sole_treadmill_miles = checked
+                            }
+                        }
+                    }
+
+                    AccordionElement {
+                        id: technogymBikeAccordion
+                        title: qsTr("Technogym Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: technogymGroupCycleDelegate
+                                text: qsTr("Group Cycle")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.technogym_group_cycle
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { 
+                                    settings.technogym_group_cycle = checked; 
+                                    if (checked) {
+                                        settings.android_antbike = true;
+                                    }
+                                    window.settings_restart_to_apply = true; 
+                                }
                             }
                         }
                     }

@@ -86,10 +86,17 @@ public class BikeChannelController {
             }
         };
 
-    public BikeChannelController() {
+    public BikeChannelController(boolean technoGymGroupCycle) {
         this.context = Ant.activity;
-        //openChannel();
-        openPowerSensorChannel();
+        
+        if (technoGymGroupCycle) {
+            // For Technogym Group Cycle: disable openChannel, enable openPowerSensorChannel
+            openPowerSensorChannel();
+        } else {
+            // Standard behavior: enable openChannel, disable openPowerSensorChannel
+            openChannel();
+        }
+        
         //openSpeedCadenceSensorChannel();
     }
 

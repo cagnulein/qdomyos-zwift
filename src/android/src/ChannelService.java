@@ -330,7 +330,7 @@ public class ChannelService extends Service {
 
         // Add initialization for BikeChannelController (receiver)
         if (Ant.bikeRequest && bikeChannelController == null) {
-            bikeChannelController = new BikeChannelController();
+            bikeChannelController = new BikeChannelController(Ant.technoGymGroupCycle);
         }
 
         // Add initialization for BikeTransmitterController (transmitter) - only when NOT treadmill
