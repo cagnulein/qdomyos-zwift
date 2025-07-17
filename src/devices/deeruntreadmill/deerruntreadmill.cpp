@@ -314,6 +314,9 @@ void deerruntreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // lastState = value.at(0);
 
     double speed = ((double)(((value[9] << 8) & 0xff) + value[10]) / 100.0);
+    if(pitpat) {
+        speed = ((double)(((value[3] << 8) & 0xff) + value[4]) / 1000.0);
+    }
     double incline = 0.0;
 
 #ifdef Q_OS_ANDROID
