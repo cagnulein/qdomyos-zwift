@@ -1669,7 +1669,7 @@ jobs:
           cat src/android-qdomyos-zwift-nordictrack-deployment-settings.json
 
       - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-nordictrack-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+        run: cd src; androiddeployqt --input android-qdomyos-zwift-nordictrack-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab; mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack.apk
 
       - name: Archive nordictrack binary
         uses: actions/upload-artifact@v4
