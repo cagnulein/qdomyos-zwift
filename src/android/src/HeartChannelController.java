@@ -42,14 +42,14 @@ public class HeartChannelController {
     private boolean isConnected = false;
     public int heart = 0; // Public to be accessible from ChannelService
 
-    public HeartChannelController() {
+    public HeartChannelController(int antHeartDeviceNumber) {
         this.context = Ant.activity;
-        openChannel();
+        openChannel(antHeartDeviceNumber);
     }
 
-    public boolean openChannel() {
-        // Request access to first available heart rate device
-        releaseHandle = AntPlusHeartRatePcc.requestAccess((Activity)context, 0, 0, // 0 means first available device
+    public boolean openChannel(int deviceNumber) {
+        // Request access to heart rate device (deviceNumber = 0 means first available)
+        releaseHandle = AntPlusHeartRatePcc.requestAccess((Activity)context, deviceNumber, 0,
             new IPluginAccessResultReceiver<AntPlusHeartRatePcc>() {
                 @Override
                 public void onResultReceived(AntPlusHeartRatePcc result, RequestAccessResult resultCode, DeviceState initialDeviceState) {
@@ -57,7 +57,7 @@ public class HeartChannelController {
                         case SUCCESS:
                             hrPcc = result;
                             isConnected = true;
-                            QLog.d(TAG, "Connected to heart rate monitor: " + result.getDeviceName());
+                            QLog.d(TAG, "Connected to heart rate monitor: " + result.getDeviceName() + " (Device #" + deviceNumber + ")");
                             subscribeToHrEvents();
                             break;
                         case CHANNEL_NOT_AVAILABLE:
