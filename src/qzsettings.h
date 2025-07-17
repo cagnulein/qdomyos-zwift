@@ -781,6 +781,9 @@ class QZSettings {
     static const QString ant_bike_device_number;
     static constexpr int default_ant_bike_device_number = 0;
 
+    static const QString ant_heart_device_number;
+    static constexpr int default_ant_heart_device_number = 0;
+
     static const QString trainprogram_random;
     static constexpr bool default_trainprogram_random = false;
 

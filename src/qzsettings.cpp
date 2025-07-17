@@ -255,6 +255,7 @@ const QString QZSettings::technogym_myrun_treadmill_experimental =
     QStringLiteral("technogym_myrun_treadmill_experimental");
 const QString QZSettings::technogym_group_cycle = QStringLiteral("technogym_group_cycle");
 const QString QZSettings::ant_bike_device_number = QStringLiteral("ant_bike_device_number");
+const QString QZSettings::ant_heart_device_number = QStringLiteral("ant_heart_device_number");
 const QString QZSettings::trainprogram_random = QStringLiteral("trainprogram_random");
 const QString QZSettings::trainprogram_total = QStringLiteral("trainprogram_total");
 const QString QZSettings::trainprogram_period_seconds = QStringLiteral("trainprogram_period_seconds");
@@ -947,7 +948,7 @@ const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("
 const QString QZSettings::floatingwindow_type = QStringLiteral("floatingwindow_type");
 
 
-const uint32_t allSettingsCount = 774;
+const uint32_t allSettingsCount = 775;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1164,6 +1165,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::technogym_myrun_treadmill_experimental, QZSettings::default_technogym_myrun_treadmill_experimental},
     {QZSettings::technogym_group_cycle, QZSettings::default_technogym_group_cycle},
     {QZSettings::ant_bike_device_number, QZSettings::default_ant_bike_device_number},
+    {QZSettings::ant_heart_device_number, QZSettings::default_ant_heart_device_number},
     {QZSettings::trainprogram_random, QZSettings::default_trainprogram_random},
     {QZSettings::trainprogram_total, QZSettings::default_trainprogram_total},
     {QZSettings::trainprogram_period_seconds, QZSettings::default_trainprogram_period_seconds},

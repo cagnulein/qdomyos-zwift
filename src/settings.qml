@@ -1169,6 +1169,7 @@ import Qt.labs.platform 1.1
             property bool wahoo_without_wheel_diameter: false
             property bool technogym_group_cycle: false
             property int ant_bike_device_number: 0
+            property int ant_heart_device_number: 0
         }
 
         function paddingZeros(text, limit) {
@@ -4003,6 +4004,30 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.ant_heart = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("ANT+ Heart Device Number (0=Auto):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: antHeartDeviceNumberTextField
+                            text: settings.ant_heart_device_number
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.ant_heart_device_number = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okAntHeartDeviceNumberButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ant_heart_device_number = antHeartDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                        }
                     }
 
                     Label {

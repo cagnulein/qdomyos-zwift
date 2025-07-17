@@ -37,9 +37,10 @@ public class Ant {
  static boolean treadmill = false;
  static boolean technoGymGroupCycle = false;
  static int antBikeDeviceNumber = 0;
+ static int antHeartDeviceNumber = 0;
 
  // Updated antStart method with BikeRequest parameter at the end
- public void antStart(Activity a, boolean SpeedRequest, boolean HeartRequest, boolean GarminKey, boolean Treadmill, boolean BikeRequest, boolean TechnoGymGroupCycle, int AntBikeDeviceNumber) {
+ public void antStart(Activity a, boolean SpeedRequest, boolean HeartRequest, boolean GarminKey, boolean Treadmill, boolean BikeRequest, boolean TechnoGymGroupCycle, int AntBikeDeviceNumber, int AntHeartDeviceNumber) {
      QLog.v(TAG, "antStart");
      speedRequest = SpeedRequest;
      heartRequest = HeartRequest;
@@ -48,6 +49,7 @@ public class Ant {
      bikeRequest = BikeRequest; // Set bike request flag
      technoGymGroupCycle = TechnoGymGroupCycle;
      antBikeDeviceNumber = AntBikeDeviceNumber;
+     antHeartDeviceNumber = AntHeartDeviceNumber;
      activity = a;
      if(a != null)
         QLog.v(TAG, "antStart activity is valid");
