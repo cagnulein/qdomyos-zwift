@@ -315,7 +315,7 @@ void deerruntreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     double speed = ((double)(((value[9] << 8) & 0xff) + value[10]) / 100.0);
     if(pitpat) {
-        speed = ((double)(((value[3] << 8) & 0xff) + value[4]) / 1000.0);
+        speed = ((double)((value[3] << 8) | ((uint8_t)value[4])) / 1000.0);
     }
     double incline = 0.0;
 
