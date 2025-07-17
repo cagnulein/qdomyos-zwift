@@ -3842,15 +3842,21 @@ import Qt.labs.platform 1.1
                                     text: qsTr("ANT+ Bike Device Number (0=Auto):")
                                     Layout.fillWidth: true
                                 }
-                                SpinBox {
-                                    id: antBikeDeviceNumberSpinBox
-                                    from: 0
-                                    to: 65535
-                                    value: settings.ant_bike_device_number
-                                    onValueChanged: {
-                                        settings.ant_bike_device_number = value
-                                        window.settings_restart_to_apply = true
-                                    }
+                                TextField {
+                                    id: antBikeDeviceNumberTextField
+                                    text: settings.ant_bike_device_number
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.ant_bike_device_number = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okAntBikeDeviceNumberButton
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.ant_bike_device_number = antBikeDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                 }
                             }
                         }

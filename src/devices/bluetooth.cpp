@@ -3041,7 +3041,7 @@ void bluetooth::connectedAndDiscovered() {
         QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
                                                                                "activity", "()Landroid/app/Activity;");
         KeepAwakeHelper::antObject(true)->callMethod<void>(
-            "antStart", "(Landroid/app/Activity;ZZZZZI)V", activity.object<jobject>(),
+            "antStart", "(Landroid/app/Activity;ZZZZZZI)V", activity.object<jobject>(),
             settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool(),
             settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool(),
             settings.value(QZSettings::ant_garmin, QZSettings::default_ant_garmin).toBool(),
