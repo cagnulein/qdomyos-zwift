@@ -86,12 +86,12 @@ public class BikeChannelController {
             }
         };
 
-    public BikeChannelController(boolean technoGymGroupCycle) {
+    public BikeChannelController(boolean technoGymGroupCycle, int antBikeDeviceNumber) {
         this.context = Ant.activity;
         
         if (technoGymGroupCycle) {
             // For Technogym Group Cycle: disable openChannel, enable openPowerSensorChannel
-            openPowerSensorChannel();
+            openPowerSensorChannel(antBikeDeviceNumber);
         } else {
             // Standard behavior: enable openChannel, disable openPowerSensorChannel
             openChannel();
@@ -155,9 +155,9 @@ public class BikeChannelController {
         return isConnected;
     }
 
-    public boolean openPowerSensorChannel() {
-        // Request access to first available power sensor device
-        powerReleaseHandle = AntPlusBikePowerPcc.requestAccess((Activity)context, 0, 0,
+    public boolean openPowerSensorChannel(int deviceNumber) {
+        // Request access to power sensor device (deviceNumber = 0 means first available)
+        powerReleaseHandle = AntPlusBikePowerPcc.requestAccess((Activity)context, deviceNumber, 0,
             new IPluginAccessResultReceiver<AntPlusBikePowerPcc>() {
                 @Override
                 public void onResultReceived(AntPlusBikePowerPcc result, RequestAccessResult resultCode, DeviceState initialDeviceState) {
@@ -165,7 +165,7 @@ public class BikeChannelController {
                         case SUCCESS:
                             powerPcc = result;
                             isPowerConnected = true;
-                            QLog.d(TAG, "Connected to power sensor: " + result.getDeviceName());
+                            QLog.d(TAG, "Connected to power sensor: " + result.getDeviceName() + " (Device #" + deviceNumber + ")");
                             subscribeToPowerSensorEvents();
                             break;
                         case CHANNEL_NOT_AVAILABLE:

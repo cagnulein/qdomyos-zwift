@@ -1168,6 +1168,7 @@ import Qt.labs.platform 1.1
             property bool tile_hr_time_in_zone_individual_mode: false
             property bool wahoo_without_wheel_diameter: false
             property bool technogym_group_cycle: false
+            property int ant_bike_device_number: 0
         }
 
         function paddingZeros(text, limit) {
@@ -3832,6 +3833,24 @@ import Qt.labs.platform 1.1
                                         settings.android_antbike = true;
                                     }
                                     window.settings_restart_to_apply = true; 
+                                }
+                            }
+                            
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("ANT+ Bike Device Number (0=Auto):")
+                                    Layout.fillWidth: true
+                                }
+                                SpinBox {
+                                    id: antBikeDeviceNumberSpinBox
+                                    from: 0
+                                    to: 65535
+                                    value: settings.ant_bike_device_number
+                                    onValueChanged: {
+                                        settings.ant_bike_device_number = value
+                                        window.settings_restart_to_apply = true
+                                    }
                                 }
                             }
                         }

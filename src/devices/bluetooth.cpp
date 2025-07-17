@@ -3041,14 +3041,15 @@ void bluetooth::connectedAndDiscovered() {
         QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
                                                                                "activity", "()Landroid/app/Activity;");
         KeepAwakeHelper::antObject(true)->callMethod<void>(
-            "antStart", "(Landroid/app/Activity;ZZZZZZ)V", activity.object<jobject>(),
+            "antStart", "(Landroid/app/Activity;ZZZZZI)V", activity.object<jobject>(),
             settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool(),
             settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool(),
             settings.value(QZSettings::ant_garmin, QZSettings::default_ant_garmin).toBool(),
             device()->deviceType() == bluetoothdevice::TREADMILL ||
             device()->deviceType() == bluetoothdevice::ELLIPTICAL,
             settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool(),
-            settings.value(QZSettings::technogym_group_cycle, QZSettings::default_technogym_group_cycle).toBool());
+            settings.value(QZSettings::technogym_group_cycle, QZSettings::default_technogym_group_cycle).toBool(),
+            settings.value(QZSettings::ant_bike_device_number, QZSettings::default_ant_bike_device_number).toInt());
     }
 
     if (settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {

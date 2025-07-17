@@ -778,6 +778,9 @@ class QZSettings {
     static const QString technogym_group_cycle;
     static constexpr bool default_technogym_group_cycle = false;
 
+    static const QString ant_bike_device_number;
+    static constexpr int default_ant_bike_device_number = 0;
+
     static const QString trainprogram_random;
     static constexpr bool default_trainprogram_random = false;
 
