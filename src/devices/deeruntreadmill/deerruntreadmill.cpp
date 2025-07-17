@@ -307,7 +307,7 @@ void deerruntreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
     emit packetReceived();
 
-    if ((newValue.length() < 51 && !pitpat) || (newValue.length() < 50 && pitpat)) {
+    if ((newValue.length() < 51 && !pitpat) || (newValue.length() < 50 && pitpat))
         return;
 
     lastPacket = value;
