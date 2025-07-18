@@ -162,6 +162,7 @@ class peloton : public QObject {
     } _peloton_treadmill_pace_intensities;
 
     _peloton_treadmill_pace_intensities treadmill_pace[7];
+    _peloton_treadmill_pace_intensities walking_pace[5];
 
     int first_target_metrics_start_offset = 60;
 
