@@ -1,0 +1,43 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.appstore";
+option java_outer_classname = "AppStoreStateProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message AppStoreState {
+  oneof state {
+    Idle idle = 1;
+    Loading loading = 2;
+    Checking checking = 3;
+    Uninstalling uninstalling = 4;
+    Error error = 5;
+    Downloading downloading = 6;
+    Installing installing = 7;
+  }
+}
+
+message Idle {}
+
+message Loading {}
+
+message Checking {}
+
+message Uninstalling {
+  string fqn = 1;
+}
+
+message Error {
+  int32 errorCode = 1;
+  optional string fqn = 2;
+}
+
+message Downloading {
+  string fqn = 1;
+  float progress = 2;
+}
+
+message Installing {
+  string fqn = 1;
+  float progress = 2;
+}

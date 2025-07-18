@@ -1,0 +1,11 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.util";
+option java_outer_classname = "NetworkErrorProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message NetworkError {
+  int32 code = 1;
+  string message = 2;
+}
