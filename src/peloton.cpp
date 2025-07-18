@@ -595,39 +595,39 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
         walking_pace[0].levels[i].slug = QStringLiteral("level_%1").arg(i+1);
     }
     // Recovery pace levels (< 1.3 mph to < 5.0 mph)
-    walking_pace[0].levels[0].slow_pace = 0.0;      // 0.0 mph
+    walking_pace[0].levels[0].slow_pace = 1.0;      // 0.0 mph
     walking_pace[0].levels[0].fast_pace = 2.09214;  // 1.3 mph
     walking_pace[0].levels[0].speed = (walking_pace[0].levels[0].slow_pace + walking_pace[0].levels[0].fast_pace) / 2.0;
     
-    walking_pace[0].levels[1].slow_pace = 0.0;      // 0.0 mph
+    walking_pace[0].levels[1].slow_pace = 1.0;      // 0.0 mph
     walking_pace[0].levels[1].fast_pace = 2.89681;  // 1.8 mph
     walking_pace[0].levels[1].speed = (walking_pace[0].levels[1].slow_pace + walking_pace[0].levels[1].fast_pace) / 2.0;
     
-    walking_pace[0].levels[2].slow_pace = 0.0;      // 0.0 mph
+    walking_pace[0].levels[2].slow_pace = 1.0;      // 0.0 mph
     walking_pace[0].levels[2].fast_pace = 3.70148;  // 2.3 mph
     walking_pace[0].levels[2].speed = (walking_pace[0].levels[2].slow_pace + walking_pace[0].levels[2].fast_pace) / 2.0;
     
-    walking_pace[0].levels[3].slow_pace = 0.0;      // 0.0 mph
+    walking_pace[0].levels[3].slow_pace = 1.0;      // 0.0 mph
     walking_pace[0].levels[3].fast_pace = 4.18428;  // 2.6 mph
     walking_pace[0].levels[3].speed = (walking_pace[0].levels[3].slow_pace + walking_pace[0].levels[3].fast_pace) / 2.0;
     
-    walking_pace[0].levels[4].slow_pace = 0.0;      // 0.0 mph
+    walking_pace[0].levels[4].slow_pace = 1.0;      // 0.0 mph
     walking_pace[0].levels[4].fast_pace = 5.31082;  // 3.3 mph
     walking_pace[0].levels[4].speed = (walking_pace[0].levels[4].slow_pace + walking_pace[0].levels[4].fast_pace) / 2.0;
     
-    walking_pace[0].levels[5].slow_pace = 0.0;      // 0.0 mph
+    walking_pace[0].levels[5].slow_pace = 1.0;      // 0.0 mph
     walking_pace[0].levels[5].fast_pace = 5.95456;  // 3.7 mph
     walking_pace[0].levels[5].speed = (walking_pace[0].levels[5].slow_pace + walking_pace[0].levels[5].fast_pace) / 2.0;
     
-    walking_pace[0].levels[6].slow_pace = 0.0;      // 0.0 mph
+    walking_pace[0].levels[6].slow_pace = 1.0;      // 0.0 mph
     walking_pace[0].levels[6].fast_pace = 6.759;    // 4.2 mph
     walking_pace[0].levels[6].speed = (walking_pace[0].levels[6].slow_pace + walking_pace[0].levels[6].fast_pace) / 2.0;
     
-    walking_pace[0].levels[7].slow_pace = 0.0;      // 0.0 mph
+    walking_pace[0].levels[7].slow_pace = 1.0;      // 0.0 mph
     walking_pace[0].levels[7].fast_pace = 7.40296;  // 4.6 mph
     walking_pace[0].levels[7].speed = (walking_pace[0].levels[7].slow_pace + walking_pace[0].levels[7].fast_pace) / 2.0;
     
-    walking_pace[0].levels[8].slow_pace = 0.0;      // 0.0 mph
+    walking_pace[0].levels[8].slow_pace = 1.0;      // 0.0 mph
     walking_pace[0].levels[8].fast_pace = 8.04670;  // 5.0 mph
     walking_pace[0].levels[8].speed = (walking_pace[0].levels[8].slow_pace + walking_pace[0].levels[8].fast_pace) / 2.0;
 
@@ -1674,7 +1674,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                             speed_lower = treadmill_pace[pace_intensity_lower].levels[peloton_treadmill_level].slow_pace;
                             speed_upper = treadmill_pace[pace_intensity_upper].levels[peloton_treadmill_level].fast_pace;
                         }
-
+                        
                         miles = 1; // the pace intensity are always in km/h
                     }
                     else if (metricName == "speed") {
