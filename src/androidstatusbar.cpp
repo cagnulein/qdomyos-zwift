@@ -1,29 +1,27 @@
 #include "androidstatusbar.h"
 #include <QQmlEngine>
-#include <QGuiApplication>
-#include <QScreen>
+#include <QDebug>
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
-#include <QAndroidJniObject>
 #include <QAndroidJniEnvironment>
 #endif
 
-AndroidStatusBar::AndroidStatusBar(QObject *parent)
-    : QObject(parent)
-    , m_cachedHeight(-1)
-    , m_cachedNavigationBarHeight(-1)
+AndroidStatusBar* AndroidStatusBar::m_instance = nullptr;
+
+AndroidStatusBar::AndroidStatusBar(QObject *parent) : QObject(parent)
 {
-    // Listen for orientation changes
-    if (QGuiApplication::primaryScreen()) {
-        connect(QGuiApplication::primaryScreen(), &QScreen::orientationChanged,
-                this, &AndroidStatusBar::onOrientationChanged);
-    }
+    m_instance = this;
+}
+
+AndroidStatusBar* AndroidStatusBar::instance()
+{
+    return m_instance;
 }
 
 void AndroidStatusBar::registerQmlType()
 {
-    qmlRegisterSingletonType<AndroidStatusBar>("AndroidStatusBar", 1, 0, "AndroidStatusBar", 
+    qmlRegisterSingletonType<AndroidStatusBar>("AndroidStatusBar", 1, 0, "AndroidStatusBar",
         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject* {
             Q_UNUSED(engine)
             Q_UNUSED(scriptEngine)
@@ -31,99 +29,36 @@ void AndroidStatusBar::registerQmlType()
         });
 }
 
-int AndroidStatusBar::height() const
-{
-    if (m_cachedHeight == -1) {
-        m_cachedHeight = getStatusBarHeightFromAndroid();
-    }
-    return m_cachedHeight;
-}
-
-int AndroidStatusBar::navigationBarHeight() const
-{
-    if (m_cachedNavigationBarHeight == -1) {
-        m_cachedNavigationBarHeight = getNavigationBarHeightFromAndroid();
-    }
-    return m_cachedNavigationBarHeight;
-}
-
 int AndroidStatusBar::apiLevel() const
 {
-    return getApiLevelFromAndroid();
-}
-
-void AndroidStatusBar::onOrientationChanged()
-{
-    invalidateCache();
-}
-
-void AndroidStatusBar::invalidateCache()
-{
-    m_cachedHeight = -1;
-    m_cachedNavigationBarHeight = -1;
-    emit heightChanged();
-    emit navigationBarHeightChanged();
-}
-
-int AndroidStatusBar::getStatusBarHeightFromAndroid() const
-{
 #ifdef Q_OS_ANDROID
-    try {
-        // Call the static method that returns int directly
-        int height = QAndroidJniObject::callStaticMethod<jint>(
-            "org/cagnulen/qdomyoszwift/CustomQtActivity",
-            "getStatusBarHeight",
-            "()I"
-        );
-        
-        return height;
-    } catch (...) {
-        // Fallback: return a reasonable default
-        return 72; // ~24dp for typical Android devices
-    }
+    return QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CustomQtActivity", "getApiLevel", "()I");
 #else
-    return 0; // Non-Android platforms don't have status bar
+    return 0;
 #endif
 }
 
-int AndroidStatusBar::getNavigationBarHeightFromAndroid() const
+void AndroidStatusBar::onInsetsChanged(int top, int bottom, int left, int right)
 {
-#ifdef Q_OS_ANDROID
-    try {
-        // Call the static method that returns int directly
-        int height = QAndroidJniObject::callStaticMethod<jint>(
-            "org/cagnulen/qdomyoszwift/CustomQtActivity",
-            "getNavigationBarHeight",
-            "()I"
-        );
-        
-        return height;
-    } catch (...) {
-        // Fallback: return a reasonable default
-        return 48; // ~16dp for typical Android devices
+    if (m_top != top || m_bottom != bottom || m_left != left || m_right != right) {
+        m_top = top;
+        m_bottom = bottom;
+        m_left = left;
+        m_right = right;
+        qDebug() << "Insets changed - Top:" << m_top << "Bottom:" << m_bottom << "Left:" << m_left << "Right:" << m_right;
+        emit insetsChanged();
     }
-#else
-    return 0; // Non-Android platforms don't have navigation bar
-#endif
 }
 
-int AndroidStatusBar::getApiLevelFromAndroid() const
-{
 #ifdef Q_OS_ANDROID
-    try {
-        // Call the static method that returns int directly
-        int apiLevel = QAndroidJniObject::callStaticMethod<jint>(
-            "org/cagnulen/qdomyoszwift/CustomQtActivity",
-            "getApiLevel",
-            "()I"
-        );
-        
-        return apiLevel;
-    } catch (...) {
-        // Fallback: return a reasonable default
-        return 30; // Default to API 30 if we can't get it
+// JNI method with standard naming convention
+extern "C" JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_onInsetsChanged(JNIEnv *env, jobject thiz, jint top, jint bottom, jint left, jint right)
+{
+    Q_UNUSED(env);
+    Q_UNUSED(thiz);
+    if (AndroidStatusBar::instance()) {
+        AndroidStatusBar::instance()->onInsetsChanged(top, bottom, left, right);
     }
-#else
-    return 0; // Non-Android platforms
-#endif
 }
+#endif

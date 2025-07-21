@@ -18,6 +18,41 @@ ApplicationWindow {
     visible: true
 	 objectName: "stack"
     title: qsTr("qDomyos-Zwift")
+    
+    // Force update on orientation change
+    property int currentOrientation: Screen.orientation
+    onCurrentOrientationChanged: {
+        if (Qt.platform.os === "android") {
+            console.log("Orientation changed to:", currentOrientation)
+            // Force property binding updates by accessing the properties
+            var temp = AndroidStatusBar.height + AndroidStatusBar.navigationBarHeight + AndroidStatusBar.leftInset + AndroidStatusBar.rightInset
+        }
+    }
+    
+    // Helper functions for cleaner padding calculations
+    function getTopPadding() {
+        if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
+               AndroidStatusBar.height : AndroidStatusBar.leftInset;
+    }
+    
+    function getBottomPadding() {
+        if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
+               AndroidStatusBar.navigationBarHeight : AndroidStatusBar.rightInset;
+    }
+    
+    function getLeftPadding() {
+        if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
+        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 
+               AndroidStatusBar.leftInset : 0;
+    }
+    
+    function getRightPadding() {
+        if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
+        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 
+               AndroidStatusBar.rightInset : 0;
+    }
 
     signal gpx_open_clicked(url name)
     signal gpxpreview_open_clicked(url name)
@@ -185,7 +220,7 @@ ApplicationWindow {
 		 Label {
              anchors.horizontalCenter: parent.horizontalCenter
 		     text: qsTr("Program has been loaded correctly. Press start to begin!")
-			}
+		 }
 		 }
 	}
 
@@ -473,7 +508,9 @@ ApplicationWindow {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
-        topPadding: (Qt.platform.os === "android" && AndroidStatusBar.apiLevel >= 31) ? AndroidStatusBar.height : 0
+        topPadding: getTopPadding()
+        leftPadding: getLeftPadding()
+        rightPadding: getRightPadding()
 
         ToolButton {
             id: toolButton
@@ -682,8 +719,10 @@ ApplicationWindow {
         id: drawer
         width: window.width * 0.66
         height: window.height
-        topPadding: (Qt.platform.os === "android" && AndroidStatusBar.apiLevel >= 31) ? AndroidStatusBar.height : 0
-        bottomPadding: (Qt.platform.os === "android" && AndroidStatusBar.apiLevel >= 31) ? AndroidStatusBar.navigationBarHeight : 0
+        topPadding: getTopPadding()
+        bottomPadding: getBottomPadding()
+        leftPadding: getLeftPadding()
+        rightPadding: getRightPadding()
 
         ScrollView {
             contentWidth: -1
@@ -913,7 +952,9 @@ ApplicationWindow {
         id: stackView
         initialItem: "Home.qml"
         anchors.fill: parent
-        anchors.bottomMargin: (Qt.platform.os === "android" && AndroidStatusBar.apiLevel >= 31) ? AndroidStatusBar.navigationBarHeight : 0
+        anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
+        anchors.rightMargin: getRightPadding()
+        anchors.leftMargin: getLeftPadding()
         focus: true
         Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
         Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
