@@ -1,0 +1,28 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "appnavigation/ForegroundFqns.proto";
+import "appnavigation/TouchEvent.proto";
+import "appnavigation/ForegroundClasses.proto";
+import "appnavigation/ForegroundRequest.proto";
+option java_package = "com.ifit.glassos.appnavigation";
+option java_outer_classname = "AppNavigationServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+service AppNavigationService {
+  rpc ForegroundFQNsFlowSubscription(Empty) returns (stream ForegroundFqns) {}
+  rpc TouchFlowSubscription(Empty) returns (stream TouchEvent) {}
+  rpc EnabledSubscription(Empty) returns (stream BooleanResponse) {}
+  rpc KeyboardVisibleFlowSubscription(Empty) returns (stream BooleanResponse) {}
+  rpc ForegroundClassNameFlowSubscription(Empty) returns (stream ListStringResponse) {}
+  rpc ForegroundClassesFlowSubscription(Empty) returns (stream ForegroundClasses) {}
+
+  rpc PerformBackButton(Empty) returns (Empty) {}
+  rpc GetForegroundFqns(Empty) returns (ForegroundFqns) {}
+  rpc SetCurrentForegroundFQN(ForegroundFqnRequest) returns (Empty) {}
+  rpc RemoveCurrentForegroundFQN(ForegroundFqnRequest) returns (Empty) {}
+  rpc RemoveForegroundFQNFromHistory(ForegroundFqnRequest) returns (Empty) {}
+  rpc SetCurrentForegroundClass(ForegroundClassNameRequest) returns (Empty) {}
+  rpc NavigatedToThirdParty(ForegroundFqnRequest) returns (Empty) {}
+}

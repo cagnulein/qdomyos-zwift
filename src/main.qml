@@ -239,18 +239,6 @@ ApplicationWindow {
            visible: false
        }
 
-    Timer {
-       id: pelotonAuthCheck
-       interval: 1000  // 1 second delay after startup
-       running: true
-       repeat: false
-       onTriggered: {
-           if (settings.peloton_password !== "password") {
-               popupPelotonAuth.visible = true
-           }
-       }
-    }
-
     Popup {
         id: popupClassificaHelper
          parent: Overlay.overlay

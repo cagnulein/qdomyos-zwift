@@ -1,0 +1,19 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "settings/heartrate/HeartRateZone.proto";
+option java_package = "com.ifit.glassos.settings.heartrate";
+option java_outer_classname = "HeartRateSettingsProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message HeartRateSettings {
+  int32 restingHeartRate = 1;
+  int32 maxHeartRate = 2;
+  int32 heartRateReserve = 3;
+  HeartRateZone zone0 = 4;
+  HeartRateZone zone1 = 5;
+  HeartRateZone zone2 = 6;
+  HeartRateZone zone3 = 7;
+  HeartRateZone zone4 = 8;
+  HeartRateZone zone5 = 9;
+}
