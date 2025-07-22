@@ -44,10 +44,11 @@ class kineticinroadbike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    void changePower(int32_t power) override;
     bool connected() override;
 
   private:
-    const resistance_t max_resistance = 32;
+    const resistance_t max_resistance = 999;
     double bikeResistanceToPeloton(double resistance);
     double GetDistanceFromPacket(const QByteArray &packet);
     QTime GetElapsedFromPacket(const QByteArray &packet);
@@ -56,6 +57,7 @@ class kineticinroadbike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     void forceResistance(resistance_t requestResistance);
+    void forceInclination(double inclination);
     uint16_t watts() override;
 
     QTimer *refresh;

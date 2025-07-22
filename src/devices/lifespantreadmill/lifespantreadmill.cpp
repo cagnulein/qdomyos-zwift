@@ -52,6 +52,8 @@ void lifespantreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, con
         currentCommand = CommandState::Start;
     } else if (command.startsWith(QByteArray::fromHex("E0"))) {
         currentCommand = CommandState::Stop;
+    } else if (command.startsWith(QByteArray::fromHex("A188"))) {
+        currentCommand = CommandState::QuerySteps;
     }
 
     if (wait_for_response) {
@@ -97,7 +99,7 @@ void lifespantreadmill::btinit(bool startTape) {
 
 double lifespantreadmill::GetSpeedFromPacket(const QByteArray& packet) {
     if (packet.length() < 4) return 0.0;
-    return packet[2] + (packet[3] / 100.0);
+    return ((double)((uint16_t)((uint8_t)packet.at(2)) + ((uint16_t)((uint8_t)packet.at(3))) / 100.0));
 }
 
 double lifespantreadmill::GetInclinationFromPacket(const QByteArray& packet) {
@@ -138,12 +140,18 @@ void lifespantreadmill::changeInclinationRequested(double grade, double percenta
     changeInclination(grade, percentage);
 }
 
+uint32_t lifespantreadmill::GetStepsFromPacket(const QByteArray& packet) {
+    if (packet.length() < 4) return 0;
+    return ((uint16_t)((uint8_t)packet[2]) << 8) | (uint16_t)((uint8_t)packet[3]);
+}
 
 void lifespantreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
     }
+
+    static uint8_t queue = 0;
 
     qDebug() << m_control->state() << bluetoothDevice.isValid() << gattCommunicationChannelService
              << gattWriteCharacteristic.isValid() << initDone << requestSpeed << requestInclination;
@@ -170,9 +178,16 @@ void lifespantreadmill::update() {
         }
         // ********************************************************************************************************
 
-        // Query metrics periodically
-        uint8_t speedQuery[] = {0xA1, 0x82, 0x00, 0x00, 0x00};
-        writeCharacteristic(speedQuery, sizeof(speedQuery), QStringLiteral("query speed"), true, true);
+        if(queue == 0) {
+            // Query metrics periodically
+            uint8_t speedQuery[] = {0xA1, 0x82, 0x00, 0x00, 0x00};
+            writeCharacteristic(speedQuery, sizeof(speedQuery), QStringLiteral("query speed"), false, true);
+            queue = 1;
+        } else {
+            uint8_t stepQuery[] = {0xA1, 0x88, 0x00, 0x00, 0x00};
+            writeCharacteristic(stepQuery, sizeof(stepQuery), QStringLiteral("query steps"), false, true);
+            queue = 0;
+        }
 
         if (requestStart != -1) {
             uint8_t start[] = {0xE1, 0x00, 0x00, 0x00, 0x00};
@@ -196,16 +211,16 @@ void lifespantreadmill::characteristicChanged(const QLowEnergyCharacteristic& ch
                                            const QByteArray& newValue) {
     QSettings settings;
     QByteArray value = newValue;
-    emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
+    qDebug() << " << " << value.length() << value.toHex(' ') << (int)currentCommand;
 
     double speed = 0.0;
     switch(currentCommand) {
         case CommandState::QuerySpeed:
             speed = GetSpeedFromPacket(value);
             if (Speed.value() != speed) {
-                emit speedChanged(speed);
-                emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+                emit speedChanged(speed);                
             }
+            emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
             Speed = speed;
             if (speed > 0) {
                 lastSpeed = speed;
@@ -217,6 +232,15 @@ void lifespantreadmill::characteristicChanged(const QLowEnergyCharacteristic& ch
         case CommandState::QueryCalories:
             KCal = GetKcalFromPacket(value);
             break;
+        case CommandState::QuerySteps:
+        {
+            uint32_t newSteps = GetStepsFromPacket(value);
+            if (uint32_t(StepCount.value()) != newSteps) {
+                StepCount = newSteps;
+                emit debug(QStringLiteral("Current steps: ") + QString::number(StepCount.value()));
+            }
+        }
+        break;
         default:
             break;
     }
@@ -297,8 +321,9 @@ void lifespantreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
     if (state == QLowEnergyService::ServiceDiscovered) {
         QBluetoothUuid _gattWriteCharacteristicId((uint16_t)0xfff2);
+        QBluetoothUuid _gattNotifyCharacteristicId((uint16_t)0xfff1);
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
-        gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
+        gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
 
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
                 &lifespantreadmill::characteristicChanged);
@@ -311,7 +336,7 @@ void lifespantreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 &lifespantreadmill::descriptorWritten);
 
         QByteArray descriptor;
-        descriptor.append((char)0x02);
+        descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
             gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);

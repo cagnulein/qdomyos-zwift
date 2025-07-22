@@ -147,6 +147,11 @@ class bluetoothdevice : public QObject {
     virtual QTime lapElapsedTime();
 
     /**
+     * @brief lapOdometer Gets the distance elapsed on the current lap.
+     */
+    virtual double lapOdometer();
+
+    /**
      * @brief connected Gets a value to indicate if the device is connected.
      */
     virtual bool connected();
@@ -366,6 +371,24 @@ class bluetoothdevice : public QObject {
     uint32_t secondsForHeartZone(uint8_t zone);
 
     /**
+     * @brief currentHeatZone Gets a metric object to get or set the current heat zone. Units: depends on
+     * implementation (based on Heat Strain Index: Zone 1: 0-1.99, Zone 2: 2-2.99, Zone 3: 3-6.99, Zone 4: 7+)
+     */
+    metric currentHeatZone() { return HeatZone; }
+
+    /**
+     * @brief maxHeatZone Gets the maximum number of heat zones.
+     */
+    uint8_t maxHeatZone() { return maxheatzone; }
+
+    /**
+     * @brief secondsForHeatZone Gets the number of seconds in the current heat zone.
+     * 
+     * @param zone The heat zone.
+     */
+    uint32_t secondsForHeatZone(uint8_t zone);
+
+    /**
      * @brief currentPowerZone Gets a metric object to get or set the current power zome. Units: depends on
      * implementation.
      * @return
@@ -400,6 +423,13 @@ class bluetoothdevice : public QObject {
     void setHeartZone(double hz);
 
     /**
+     * @brief setHeatZone Set the current heat zone based on Heat Strain Index.
+     * This is equivalent to currentHeatZone().setvalue(hz)
+     * @param heatStrainIndex The heat strain index to determine zone. Unit: depends on implementation.
+     */
+    void setHeatZone(double heatStrainIndex);
+
+    /**
      * @brief setPowerZone Set the current power zone.
      * This is equivalent to currentPowerZone().setvalue(pz)
      * @param pz The power zone. Unit: depends on implementation.
@@ -413,7 +443,7 @@ class bluetoothdevice : public QObject {
      */
     void setTargetPowerZone(double pz) { TargetPowerZone = pz; }
 
-    enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL, JUMPROPE };
+    enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL, JUMPROPE, STAIRCLIMBER };
     enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
 
     /**
@@ -438,6 +468,11 @@ class bluetoothdevice : public QObject {
      */
     virtual resistance_t maxResistance();
 
+    // Metrics for core temperature data
+    metric CoreBodyTemperature;  // Core body temperature in °C or °F
+    metric SkinTemperature;      // Skin temperature in °C or °F
+    metric HeatStrainIndex;      // Heat Strain Index (0-25.4, scaled by 10)
+
   public Q_SLOTS:
     virtual void start();
     virtual void stop(bool pause);
@@ -445,6 +480,10 @@ class bluetoothdevice : public QObject {
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void speedSensor(double speed);
+    virtual void coreBodyTemperature(double coreBodyTemperature);
+    virtual void skinTemperature(double skinTemperature);
+    virtual void heatStrainIndex(double heatStrainIndex);
+    virtual void inclinationSensor(double grade, double inclination);
     virtual void changeResistance(resistance_t res);
     virtual void changePower(int32_t power);
     virtual void changeInclination(double grade, double percentage);
@@ -580,9 +619,14 @@ class bluetoothdevice : public QObject {
     metric elevationAcc;
 
     /**
-     * @brief m_watt Metric to get and set the power expended in the session. Unit: watts
+     * @brief m_watt Metric to get and set the power read from the trainer or from the power sensor Unit: watts
      */
     metric m_watt;
+    
+    /**
+     * @brief m_rawWatt Metric to get and set the power from the trainer only. Unit: watts
+     */
+    metric m_rawWatt;
 
     /**
      * @brief WattKg Metric to get and set the watt kg for the session (what's this?). Unit: watt kg
@@ -663,6 +707,11 @@ class bluetoothdevice : public QObject {
     metric HeartZone;
 
     /**
+     * @brief HeatZone A metric to get and set the current heat zone. Unit: depends on implementation
+     */
+    metric HeatZone;
+
+    /**
      * @brief PowerZone A metric to get and set the current power zone. Unit: depends on implementation
      */
     metric PowerZone;
@@ -676,12 +725,23 @@ class bluetoothdevice : public QObject {
      * @brief _ergTable The current erg table
      */
     ergTable _ergTable;
+    
+    /**
+     * @brief StepCount A metric to get and set the step count. Unit: step
+     */
+    metric StepCount;
 
     /**
      * @brief Collect the number of seconds in each zone for the current heart rate
      */
     static const uint8_t maxhrzone = 5;
     metric hrZonesSeconds[maxhrzone];
+
+    /**
+     * @brief Collect the number of seconds in each zone for the current heat strain index
+     */
+    static const uint8_t maxheatzone = 4;
+    metric heatZonesSeconds[maxheatzone];
 
     bluetoothdevice::WORKOUT_EVENT_STATE lastState;
 

@@ -127,8 +127,7 @@ void heartratebelt::error(QLowEnergyController::Error err) {
 
 void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QSettings settings;
-    // QString heartRateBeltName = settings.value(QZSettings::heart_rate_belt_name),
-    // QStringLiteral("Disabled")).toString();//NOTE: clazy-unused-non-trivial-variable
+    
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
 
@@ -180,6 +179,13 @@ bool heartratebelt::connected() {
 
 void heartratebelt::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
+    
+    if (state == QLowEnergyController::ConnectingState) {
+        connectingTime = QDateTime::currentDateTime();
+    } else {
+        connectingTime = QDateTime();  // Reset timestamp for other states
+    }
+    
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         m_control->connectToDevice();

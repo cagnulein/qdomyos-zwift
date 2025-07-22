@@ -330,6 +330,7 @@ void domyostreadmill::update() {
                     if (requestInclination != -100 && lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > inclination_delay_seconds) {
                         lastInclinationChanged = QDateTime::currentDateTime();
                         // only 0.5 steps ara available
+                        requestInclination = treadmillInclinationOverrideReverse(requestInclination);
                         requestInclination = qRound(requestInclination * 2.0) / 2.0;
                         inc = requestInclination;
                         requestInclination = -100;
@@ -641,7 +642,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
        and speed status return;*/
 
     double speed = GetSpeedFromPacket(value);
-    double incline = GetInclinationFromPacket(value);
+    double incline = treadmillInclinationOverride(GetInclinationFromPacket(value));
     double kcal = GetKcalFromPacket(value);
     double distance = GetDistanceFromPacket(value);
     bool disable_hr_frommachinery =

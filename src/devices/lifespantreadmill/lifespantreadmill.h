@@ -53,6 +53,7 @@ class lifespantreadmill : public treadmill {
     void startDiscover();
     bool noConsole = false;
     bool noHeartService = false;
+    uint32_t GetStepsFromPacket(const QByteArray& packet);
     uint32_t pollDeviceTime = 200;
     uint8_t sec1Update = 0;
     uint8_t firstInit = 0;

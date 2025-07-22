@@ -17,7 +17,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.os.Looper;
 import android.os.Handler;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.content.BroadcastReceiver;
 import android.content.ContextWrapper;
 import android.content.IntentFilter;
@@ -44,12 +44,12 @@ public class ZapClickLayer {
     }
 
     public static int processCharacteristic(byte[] value) {
-        Log.d(TAG, "processCharacteristic");
+        QLog.d(TAG, "processCharacteristic");
         return device.processCharacteristic("QZ", value);
     }
 
     public static byte[] buildHandshakeStart() {
-        Log.d(TAG, "buildHandshakeStart");
+        QLog.d(TAG, "buildHandshakeStart");
         return device.buildHandshakeStart();
     }
 }

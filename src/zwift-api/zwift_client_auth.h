@@ -100,7 +100,7 @@ private slots:
             access_token_expiration = now.toMSecsSinceEpoch() + (expires_in - 5) * 1000;
             refresh_token_expiration = now.toMSecsSinceEpoch() + (refresh_expires_in - 5) * 1000;
 
-            qDebug() << "Access Token: " << access_token;
+            qDebug() << "Access Token received successfully";
         } else {
             qDebug() << "Error fetching token: " << reply->errorString();
         }

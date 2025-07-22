@@ -17,7 +17,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.os.Looper;
 import android.os.Handler;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import com.garmin.android.connectiq.ConnectIQ;
 import com.garmin.android.connectiq.ConnectIQAdbStrategy;
 import com.garmin.android.connectiq.IQApp;
@@ -53,22 +53,22 @@ public class Garmin {
     private static Integer Power = 0;
 
     public static int getHR() {
-        Log.d(TAG, "getHR " + HR);
+        QLog.d(TAG, "getHR " + HR);
         return HR;
     }
 
     public static int getPower() {
-        Log.d(TAG, "getPower " + Power);
+        QLog.d(TAG, "getPower " + Power);
         return Power;
     }
 
     public static double getSpeed() {
-        Log.d(TAG, "getSpeed " + Speed);
+        QLog.d(TAG, "getSpeed " + Speed);
         return Speed;
     }
 
     public static int getFootCad() {
-        Log.d(TAG, "getFootCad " + FootCad);
+        QLog.d(TAG, "getFootCad " + FootCad);
         return FootCad;
     }
 
@@ -83,7 +83,7 @@ public class Garmin {
 
                 @Override
                 public void onInitializeError(ConnectIQ.IQSdkErrorStatus errStatus) {
-                    Log.e(TAG, errStatus.toString());
+                    QLog.e(TAG, errStatus.toString());
                     connectIqReady = false;
                 }
 
@@ -91,7 +91,7 @@ public class Garmin {
                 public void onSdkReady() {
                     connectIqInitializing = false;
                     connectIqReady = true;
-                    Log.i(TAG, " onSdkReady");
+                    QLog.i(TAG, " onSdkReady");
 
                     registerWatchMessagesReceiver();
                     registerDeviceStatusReceiver();
@@ -118,16 +118,16 @@ public class Garmin {
         try {
             List<IQDevice> devices = connectIQ.getConnectedDevices();
             if (devices != null && devices.size() > 0) {
-                Log.v(TAG, "getDevice connected: " + devices.get(0).toString() );
+                QLog.v(TAG, "getDevice connected: " + devices.get(0).toString() );
                 deviceCache = devices.get(0);
                 return deviceCache;
             } else {
                 return deviceCache;
             }
         } catch (InvalidStateException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         } catch (ServiceUnavailableException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         }
         return null;
     }
@@ -193,33 +193,33 @@ public class Garmin {
 
                 @Override
                 public void onApplicationInfoReceived(IQApp app) {
-                    Log.d(TAG, "App installed.");
+                    QLog.d(TAG, "App installed.");
                 }
 
                 @Override
                 public void onApplicationNotInstalled(String applicationId) {
                     if (getDevice() != null) {
                         Toast.makeText(context, "App not installed on your Garmin watch", Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "watch app not installed.");
+                        QLog.d(TAG, "watch app not installed.");
                     }
                 }
             });
         } catch (InvalidStateException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         } catch (ServiceUnavailableException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         }
     }
 
     private static void registerDeviceStatusReceiver() {
-        Log.d(TAG, "registerDeviceStatusReceiver");
+        QLog.d(TAG, "registerDeviceStatusReceiver");
         IQDevice device = getDevice();
         try {
             if (device != null) {
                 connectIQ.registerForDeviceEvents(device, new ConnectIQ.IQDeviceEventListener() {
                     @Override
                     public void onDeviceStatusChanged(IQDevice device, IQDevice.IQDeviceStatus newStatus) {
-                        Log.d(TAG, "Device status changed, now " + newStatus);
+                        QLog.d(TAG, "Device status changed, now " + newStatus);
                     }
                 });
             }
@@ -229,7 +229,7 @@ public class Garmin {
     }
 
     private static void registerWatchMessagesReceiver(){
-        Log.d(TAG, "registerWatchMessageReceiver");
+        QLog.d(TAG, "registerWatchMessageReceiver");
         IQDevice device = getDevice();
         try {
             if (device != null) {
@@ -238,7 +238,7 @@ public class Garmin {
                     public void onMessageReceived(IQDevice device, IQApp app, List<Object> message, ConnectIQ.IQMessageStatus status) {
                         if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
                             //MessageHandler.getInstance().handleMessageFromWatchUsingCIQ(message, status, context);
-                            Log.d(TAG, "onMessageReceived, status: " + status.toString() + message.get(0));
+                            QLog.d(TAG, "onMessageReceived, status: " + status.toString() + message.get(0));
                             try {
                                 String var[] = message.toArray()[0].toString().split(",");
                                 HR = Integer.parseInt(var[0].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
@@ -249,21 +249,21 @@ public class Garmin {
                                         Speed = Double.parseDouble(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
                                     }
                                 }
-                                Log.d(TAG, "HR " + HR);
-                                Log.d(TAG, "FootCad " + FootCad);
+                                QLog.d(TAG, "HR " + HR);
+                                QLog.d(TAG, "FootCad " + FootCad);
                             } catch (Exception e) {
-                                Log.e(TAG, "Processing error", e);
+                                QLog.e(TAG, "Processing error", e);
                             }
                         } else {
-                            Log.d(TAG, "onMessageReceived error, status: " + status.toString());
+                            QLog.d(TAG, "onMessageReceived error, status: " + status.toString());
                         }
                     }
                 });
             } else {
-                Log.d(TAG, "registerWatchMessagesReceiver: No device found.");
+                QLog.d(TAG, "registerWatchMessagesReceiver: No device found.");
             }
         } catch (InvalidStateException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         }
     }
 
@@ -273,19 +273,19 @@ public class Garmin {
 
         try {
             if (context != null) {
-                Log.d(TAG,  "Shutting down with wrapped context");
+                QLog.d(TAG,  "Shutting down with wrapped context");
                 connectIQ.shutdown(context);
             } else {
-                Log.d(TAG,  "Shutting down without wrapped context");
+                QLog.d(TAG,  "Shutting down without wrapped context");
                 connectIQ.shutdown(applicationContext);
             }
         } catch (InvalidStateException e) {
             // This is usually because the SDK was already shut down so no worries.
-            Log.e(TAG, "This is usually because the SDK was already shut down so no worries.", e);
+            QLog.e(TAG, "This is usually because the SDK was already shut down so no worries.", e);
         } catch (IllegalArgumentException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         } catch (RuntimeException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         }
     }
 
@@ -299,11 +299,11 @@ public class Garmin {
                 }
             }
         } catch (InvalidStateException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         } catch (IllegalArgumentException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         } catch (RuntimeException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         }
     }
 }
