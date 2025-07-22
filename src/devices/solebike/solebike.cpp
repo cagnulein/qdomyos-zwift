@@ -249,6 +249,11 @@ void solebike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         return;
     }
 
+    if (((unsigned char)newValue.at(1)) != 0x13) {
+        qDebug() << QStringLiteral("not a valid packet");
+        return;
+    }
+
     double distance = GetDistanceFromPacket(newValue);
 
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
