@@ -17,6 +17,13 @@ heartratebelt::heartratebelt() {
     refresh->start(500ms);
 }
 
+heartratebelt::~heartratebelt() {
+    if (refresh) {
+        refresh->stop();
+        delete refresh;
+    }
+}
+
 void heartratebelt::update() {
     if(m_control->state() == QLowEnergyController::DiscoveredState && gattCommunicationChannelService &&
             gattNotifyCharacteristic.isValid() && gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement)).properties() & QLowEnergyCharacteristic::Read) {
