@@ -24,6 +24,7 @@
 
 #include <QObject>
 #include <QTime>
+#include <QTimer>
 #include <QDateTime>
 
 #include "treadmill.h"
@@ -41,6 +42,8 @@ class heartratebelt : public treadmill {
     QDateTime connectingTime;  // Timestamp when entering connecting state
     static const int CONNECTION_TIMEOUT = 10000; // 10 seconds in milliseconds
     QTimer* updateTimer;  // Timer for periodic updates
+
+    QTimer *refresh;
 
   signals:
     void disconnected();
