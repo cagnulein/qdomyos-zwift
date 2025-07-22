@@ -1167,6 +1167,9 @@ import Qt.labs.platform 1.1
             // 2.19.2
             property bool tile_hr_time_in_zone_individual_mode: false
             property bool wahoo_without_wheel_diameter: false
+            property bool technogym_group_cycle: false
+            property int ant_bike_device_number: 0
+            property int ant_heart_device_number: 0
         }
 
         function paddingZeros(text, limit) {
@@ -3804,6 +3807,61 @@ import Qt.labs.platform 1.1
                             }
                         }
                     }
+
+                    AccordionElement {
+                        id: technogymBikeAccordion
+                        title: qsTr("Technogym Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: technogymGroupCycleDelegate
+                                text: qsTr("Group Cycle")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.technogym_group_cycle
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { 
+                                    settings.technogym_group_cycle = checked; 
+                                    if (checked) {
+                                        settings.android_antbike = true;
+                                    }
+                                    window.settings_restart_to_apply = true; 
+                                }
+                            }
+                            
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("ANT+ Bike Device Number (0=Auto):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: antBikeDeviceNumberTextField
+                                    text: settings.ant_bike_device_number
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.ant_bike_device_number = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okAntBikeDeviceNumberButton
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.ant_bike_device_number = antBikeDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                }
+                            }
+                        }
+                    }
                 }                
             }
 
@@ -3946,6 +4004,30 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.ant_heart = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("ANT+ Heart Device Number (0=Auto):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: antHeartDeviceNumberTextField
+                            text: settings.ant_heart_device_number
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.ant_heart_device_number = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okAntHeartDeviceNumberButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ant_heart_device_number = antHeartDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                        }
                     }
 
                     Label {
