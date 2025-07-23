@@ -1627,9 +1627,13 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                                                       QZSettings::default_treadmill_force_speed).toBool();
             int peloton_treadmill_level = settings.value(QZSettings::peloton_treadmill_level,
                                                        QZSettings::default_peloton_treadmill_level).toInt() - 1;
+            int peloton_treadmill_walk_level = settings.value(QZSettings::peloton_treadmill_walk_level,
+                                                       QZSettings::default_peloton_treadmill_walk_level).toInt() - 1;
             
             if (peloton_treadmill_level < 0 || peloton_treadmill_level > 9)
                 peloton_treadmill_level = 0;
+            if (peloton_treadmill_walk_level < 0 || peloton_treadmill_walk_level > 9)
+                peloton_treadmill_walk_level = 0;
 
             double miles = 1.0;
             if (settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool()) { // i didn't find the unit in the json
@@ -1668,8 +1672,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         pace_intensity_upper = metricObj["upper"].toInt();
                         
                         if (current_workout_type == "walking") {
-                            speed_lower = walking_pace[pace_intensity_lower].levels[peloton_treadmill_level].slow_pace;
-                            speed_upper = walking_pace[pace_intensity_upper].levels[peloton_treadmill_level].fast_pace;
+                            speed_lower = walking_pace[pace_intensity_lower].levels[peloton_treadmill_walk_level].slow_pace;
+                            speed_upper = walking_pace[pace_intensity_upper].levels[peloton_treadmill_walk_level].fast_pace;
                         } else {
                             speed_lower = treadmill_pace[pace_intensity_lower].levels[peloton_treadmill_level].slow_pace;
                             speed_upper = treadmill_pace[pace_intensity_upper].levels[peloton_treadmill_level].fast_pace;
@@ -2006,8 +2010,13 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         int peloton_treadmill_level =
             settings.value(QZSettings::peloton_treadmill_level, QZSettings::default_peloton_treadmill_level).toInt() -
             1;
+        int peloton_treadmill_walk_level =
+            settings.value(QZSettings::peloton_treadmill_walk_level, QZSettings::default_peloton_treadmill_walk_level).toInt() -
+            1;
         if(peloton_treadmill_level < 0 || peloton_treadmill_level > 9)
             peloton_treadmill_level = 0;
+        if(peloton_treadmill_walk_level < 0 || peloton_treadmill_walk_level > 9)
+            peloton_treadmill_walk_level = 0;
         QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
         QJsonObject splits_data = json[QStringLiteral("splits_data")].toObject();
         if (!splits_data[QStringLiteral("distance_marker_display_unit")].toString().toUpper().compare("MI"))
@@ -2046,8 +2055,8 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                         paceintensity_avg = ((paceintensity_upper - paceintensity_lower) / 2.0) + paceintensity_lower;
                         if(paceintensity_lower < 7) {
                             if (current_workout_type == "walking") {
-                                speed_lower = walking_pace[paceintensity_lower].levels[peloton_treadmill_level].slow_pace;
-                                speed_upper = walking_pace[paceintensity_upper].levels[peloton_treadmill_level].fast_pace;
+                                speed_lower = walking_pace[paceintensity_lower].levels[peloton_treadmill_walk_level].slow_pace;
+                                speed_upper = walking_pace[paceintensity_upper].levels[peloton_treadmill_walk_level].fast_pace;
                             } else {
                                 speed_lower = treadmill_pace[paceintensity_lower].levels[peloton_treadmill_level].slow_pace;
                                 speed_upper = treadmill_pace[paceintensity_upper].levels[peloton_treadmill_level].fast_pace;

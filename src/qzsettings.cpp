@@ -755,6 +755,7 @@ const QString QZSettings::stryd_add_inclination_gain = QStringLiteral("stryd_add
 const QString QZSettings::toorx_bike_srx_500 = QStringLiteral("toorx_bike_srx_500");
 const QString QZSettings::atletica_lightspeed_treadmill = QStringLiteral("atletica_lightspeed_treadmill");
 const QString QZSettings::peloton_treadmill_level = QStringLiteral("peloton_treadmill_level");
+const QString QZSettings::peloton_treadmill_walk_level = QStringLiteral("peloton_treadmill_walk_level");
 const QString QZSettings::nordictrackadbbike_resistance = QStringLiteral("nordictrackadbbike_resistance");
 const QString QZSettings::proform_treadmill_carbon_t7 = QStringLiteral("proform_treadmill_carbon_t7");
 const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordictrack_treadmill_exp_5i");
@@ -948,7 +949,7 @@ const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("
 const QString QZSettings::floatingwindow_type = QStringLiteral("floatingwindow_type");
 
 
-const uint32_t allSettingsCount = 775;
+const uint32_t allSettingsCount = 776;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1592,6 +1593,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::toorx_bike_srx_500, QZSettings::default_toorx_bike_srx_500},
     {QZSettings::atletica_lightspeed_treadmill, QZSettings::default_atletica_lightspeed_treadmill},
     {QZSettings::peloton_treadmill_level, QZSettings::default_peloton_treadmill_level},
+    {QZSettings::peloton_treadmill_walk_level, QZSettings::default_peloton_treadmill_walk_level},
     {QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance},
     {QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7},
     {QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i},

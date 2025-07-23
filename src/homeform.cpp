@@ -5332,6 +5332,9 @@ void homeform::update() {
                 }
             }
 
+            // Use different zone names for walking vs running workouts
+            bool isWalkingWorkout = pelotonHandler && pelotonHandler->current_workout_type.toLower().startsWith("walking");
+            
             switch (trainProgram->currentRow().pace_intensity) {
             case 0:
                 this->target_zone->setValue(tr("Rec."));
@@ -5340,13 +5343,25 @@ void homeform::update() {
                 this->target_zone->setValue(tr("Easy"));
                 break;
             case 2:
-                this->target_zone->setValue(tr("Moder."));
+                if (isWalkingWorkout) {
+                    this->target_zone->setValue(tr("Brisk"));
+                } else {
+                    this->target_zone->setValue(tr("Moder."));
+                }
                 break;
             case 3:
-                this->target_zone->setValue(tr("Chall."));
+                if (isWalkingWorkout) {
+                    this->target_zone->setValue(tr("Power"));
+                } else {
+                    this->target_zone->setValue(tr("Chall."));
+                }
                 break;
             case 4:
-                this->target_zone->setValue(tr("Hard"));
+                if (isWalkingWorkout) {
+                    this->target_zone->setValue(tr("Max"));
+                } else {
+                    this->target_zone->setValue(tr("Hard"));
+                }
                 break;
             case 5:
                 this->target_zone->setValue(tr("V.Hard"));

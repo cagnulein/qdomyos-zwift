@@ -1167,9 +1167,12 @@ import Qt.labs.platform 1.1
             // 2.19.2
             property bool tile_hr_time_in_zone_individual_mode: false
             property bool wahoo_without_wheel_diameter: false
+
+            // 2.20.3
             property bool technogym_group_cycle: false
             property int ant_bike_device_number: 0
             property int ant_heart_device_number: 0
+            property int peloton_treadmill_walk_level: 1
         }
 
         function paddingZeros(text, limit) {
@@ -4684,6 +4687,44 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Difficulty level for peloton treadmill classes. 1 is easy 10 is hard.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Treadmill Walk Level:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonTreadmillWalkLevelTextField
+                            model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
+                            displayText: settings.peloton_treadmill_walk_level
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonTreadmillWalkLevelTextField.currentIndex)
+                                displayText = pelotonTreadmillWalkLevelTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_treadmill_walk_level = parseInt(pelotonTreadmillWalkLevelTextField.displayText); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Difficulty level for peloton treadmill walking classes. 1 is easy 10 is hard.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
