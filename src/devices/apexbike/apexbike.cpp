@@ -432,7 +432,7 @@ bool apexbike::connected() {
 }
 
 uint16_t apexbike::watts() {
-    // Calculate watts based on resistance and cadence using polynomial equation
+    // Calculate watts based on resistance and cadence using lookup table
     double resistance = Resistance.value();
     double cadence = Cadence.value();
     
@@ -440,27 +440,43 @@ uint16_t apexbike::watts() {
         return 0;
     }
     
-    // Based on data points: R6@92rpm=167W, R1@107rpm=130W, R6@120rpm=218W, R10@69rpm=160W, R20@69rpm=244W
-    // Create equation: Watts = (a*R + b*R²) * (c*C + d*C²) + base
-    // Where R = resistance, C = cadence
+    // Data points from your table:
+    // Resistance 6, Cadence 92  -> 167W
+    // Resistance 1, Cadence 107 -> 130W  
+    // Resistance 6, Cadence 120 -> 218W
+    // Resistance 10, Cadence 69 -> 160W
+    // Resistance 20, Cadence 69 -> 244W
     
-    // Resistance factor: increases with resistance level
-    double resistanceFactor = 0.8 + (resistance * 0.35) + (resistance * resistance * 0.01);
-    
-    // Cadence factor: roughly linear with slight curve
-    double cadenceFactor = cadence * 1.2 + (cadence * cadence * 0.002);
-    
-    // Base power calculation combining both factors
-    double watts = resistanceFactor * cadenceFactor * 0.12;
-    
-    // Apply correction factors based on known data points to improve accuracy
-    if (resistance >= 15) {
-        // Higher resistance correction (based on R20 data point)
-        watts *= 1.1;
-    } else if (resistance <= 3) {
-        // Lower resistance correction (based on R1 data point)  
-        watts *= 0.95;
+    // Calculate base watts per resistance level at 80 RPM baseline
+    double baseWatts = 0;
+    if (resistance <= 1) {
+        baseWatts = 97.0; // Interpolated for R1 at 80rpm
+    } else if (resistance <= 6) {
+        // Linear interpolation between R1 and R6
+        double ratio = (resistance - 1) / 5.0;
+        baseWatts = 97.0 + ratio * (145.0 - 97.0); // R6 at 80rpm ≈ 145W
+    } else if (resistance <= 10) {
+        // Linear interpolation between R6 and R10  
+        double ratio = (resistance - 6) / 4.0;
+        baseWatts = 145.0 + ratio * (186.0 - 145.0); // R10 at 80rpm ≈ 186W
+    } else if (resistance <= 20) {
+        // Linear interpolation between R10 and R20
+        double ratio = (resistance - 10) / 10.0;
+        baseWatts = 186.0 + ratio * (283.0 - 186.0); // R20 at 80rpm ≈ 283W
+    } else {
+        // Extrapolate beyond R20
+        baseWatts = 283.0 + (resistance - 20) * 9.7; // ~9.7W per resistance level
     }
+    
+    // Apply cadence multiplier (relative to 80 RPM baseline)
+    double cadenceMultiplier = cadence / 80.0;
+    
+    // Slight power curve - higher cadence gives diminishing returns
+    if (cadenceMultiplier > 1.0) {
+        cadenceMultiplier = 1.0 + (cadenceMultiplier - 1.0) * 0.85;
+    }
+    
+    double watts = baseWatts * cadenceMultiplier;
     
     return (uint16_t)qMax(0.0, watts);
 }
