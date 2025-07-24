@@ -947,9 +947,10 @@ const QString QZSettings::inclinationResistancePoints = QStringLiteral("inclinat
 const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("");
 
 const QString QZSettings::floatingwindow_type = QStringLiteral("floatingwindow_type");
+const QString QZSettings::pid_heart_zone_erg_mode_watt_step = QStringLiteral("pid_heart_zone_erg_mode_watt_step");
 
 
-const uint32_t allSettingsCount = 776;
+const uint32_t allSettingsCount = 777;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1745,6 +1746,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_elite_800, QZSettings::default_nordictrack_elite_800},
     {QZSettings::inclinationResistancePoints, QZSettings::default_inclinationResistancePoints},
     {QZSettings::floatingwindow_type, QZSettings::default_floatingwindow_type},
+    {QZSettings::pid_heart_zone_erg_mode_watt_step, QZSettings::default_pid_heart_zone_erg_mode_watt_step},
     {QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike},
 };
 

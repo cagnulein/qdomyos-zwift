@@ -2528,6 +2528,9 @@ class QZSettings {
     static const QString floatingwindow_type;
     static constexpr int default_floatingwindow_type = 0;
 
+    static const QString pid_heart_zone_erg_mode_watt_step;
+    static constexpr int default_pid_heart_zone_erg_mode_watt_step = 5;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

@@ -6521,7 +6521,7 @@ void homeform::update() {
                         double step = 1;
                         bool ergMode = ((bike*)bluetoothManager->device())->ergModeSupportedAvailableBySoftware();
                         if(ergMode) {
-                            step = 5;
+                            step = settings.value(QZSettings::pid_heart_zone_erg_mode_watt_step, QZSettings::default_pid_heart_zone_erg_mode_watt_step).toInt();
                         }
                         resistance_t currentResistance =
                             ((bike *)bluetoothManager->device())->currentResistance().value();

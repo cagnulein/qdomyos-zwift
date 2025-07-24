@@ -1173,6 +1173,7 @@ import Qt.labs.platform 1.1
             property int ant_bike_device_number: 0
             property int ant_heart_device_number: 0
             property int peloton_treadmill_walk_level: 1
+            property int pid_heart_zone_erg_mode_watt_step: 5
         }
 
         function paddingZeros(text, limit) {
@@ -6128,6 +6129,43 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Select the default Pace to be used when the ZWO file does not indicate a precise pace.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPidHeartZoneErgModeWattStep
+                            text: qsTr("ERG Mode Watt Step:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pidHeartZoneErgModeWattStepTextField
+                            text: settings.pid_heart_zone_erg_mode_watt_step.toString()
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okPidHeartZoneErgModeWattStep
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.pid_heart_zone_erg_mode_watt_step = parseInt(pidHeartZoneErgModeWattStepTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Set the wattage step increment for ERG mode heart rate zone training. Default: 5 watts.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
