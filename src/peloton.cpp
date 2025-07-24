@@ -803,7 +803,7 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     walking_pace[4].levels[8].fast_pace = 13.19659; // 8.2 mph
     walking_pace[4].levels[8].speed = (walking_pace[4].levels[8].slow_pace + walking_pace[4].levels[8].fast_pace) / 2.0;
 
-    connect(timer, &QTimer::timeout, this, &peloton::startEngine);
+    connect(timer, &QTimer::timeout, this, &peloton::checkWorkoutStatus);
 
     PZP = new powerzonepack(bl, this);
     HFB = new homefitnessbuddy(bl, this);
@@ -811,6 +811,10 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     connect(PZP, &powerzonepack::workoutStarted, this, &peloton::pzp_trainrows);
     connect(PZP, &powerzonepack::loginState, this, &peloton::pzp_loginState);
     connect(HFB, &homefitnessbuddy::workoutStarted, this, &peloton::hfb_trainrows);
+
+    // Connect signal for user profile changes
+    connect(homeform::singleton(), &homeform::userProfileChanged, 
+            this, &peloton::onUserProfileChanged, Qt::QueuedConnection);
 
     QString userId = settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString();
     qDebug() << "userId" << userId;
@@ -871,6 +875,22 @@ void peloton::startEngine() {
     //qDebug() << getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toLatin1() << request.rawHeader(QByteArray("authorization"));
     
     mgr->get(request);
+}
+
+void peloton::checkWorkoutStatus() {
+    if (peloton_credentials_wrong) {
+        return;
+    }
+    
+    // Controllo prioritario per re-auth
+    if (needsReauth) {
+        needsReauth = false;
+        startEngine(); // Re-autenticazione sicura
+        return;
+    }
+    
+    timer->stop();
+    getWorkoutList(1);
 }
 
 void peloton::login_onfinish(QNetworkReply *reply) {
@@ -948,8 +968,9 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
 
     if (data.isEmpty()) {
         qDebug() << QStringLiteral(
-            "peloton::workoutlist_onfinish Peloton API doesn't answer, trying back in 10 seconds...");
-        timer->start(10s);
+            "peloton::workoutlist_onfinish Peloton API doesn't answer, triggering re-auth");
+        needsReauth = true;  // Forza re-auth al prossimo ciclo
+        timer->start(10s);   // Mantiene timing originale
         return;
     }
 
@@ -2390,6 +2411,11 @@ void peloton::onPelotonGranted() {
         peloton_credentials_wrong = false;
         startEngine();
     }
+}
+
+void peloton::onUserProfileChanged() {
+    qDebug() << "User profile changed, scheduling re-authentication";
+    needsReauth = true;
 }
 
 void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {

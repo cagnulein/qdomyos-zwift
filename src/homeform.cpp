@@ -8337,10 +8337,19 @@ void homeform::loadSettings(const QUrl &filename) {
             }
         }
     }
+    
+    // Emit signal when settings are loaded as they might contain user profile changes
+    if (homeform::singleton()) {
+        emit homeform::singleton()->userProfileChanged();
+    }
 }
 
 void homeform::deleteSettings(const QUrl &filename) { QFile(filename.toLocalFile()).remove(); }
-void homeform::restoreSettings() { QZSettings::restoreAll(); }
+void homeform::restoreSettings() { 
+    QZSettings::restoreAll(); 
+    // Emit signal when settings are restored as this might affect user profiles
+    emit userProfileChanged();
+}
 
 QString homeform::getProfileDir() {
     QString path = getWritableAppDir() + "profiles";

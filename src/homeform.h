@@ -943,6 +943,7 @@ class homeform : public QObject {
     void pelotonLoginChanged(int ok);    
     void pzpLoginChanged(int ok);
     void zwiftLoginChanged(int ok);
+    void userProfileChanged();
     void workoutNameChanged(QString name);
     void workoutStartDateChanged(QString name);
     void instructorNameChanged(QString name);
