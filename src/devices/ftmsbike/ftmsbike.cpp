@@ -1576,6 +1576,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             max_resistance = 32;
             resistance_lvl_mode = true;
             ergModeSupported = false; // this bike doesn't have ERG mode natively
+        } else if(device.name().toUpper().startsWith("VANRYSEL-HT")) {
+            qDebug() << QStringLiteral("VANRYSEL-HT found");
+            VANRYSEL_HT = true;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
@@ -1634,7 +1637,7 @@ void ftmsbike::setWheelDiameter(double diameter) {
 }
 
 uint16_t ftmsbike::watts() {
-    if (currentCadence().value() == 0) {
+    if (currentCadence().value() == 0 && !VANRYSEL_HT) {
         return 0;
     }
 
