@@ -1307,8 +1307,20 @@ jobs:
           args: >
             bash -c "
             set -ex &&
-            apt-get update && 
-            apt-get install -y build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 &&
+            apt-get update &&
+            apt-get install -y build-essential git cmake wget
+            qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools
+            libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev
+            qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev
+            libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation gettext-base
+            qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5
+            qtquickcontrols2-5-dev qml-module-qtquick-controls2 &&
+            cd /tmp &&
+            git clone https://github.com/WiringPi/WiringPi.git &&
+            cd WiringPi &&
+            ./build debian &&
+            mv debian-template/wiringpi_3.10_armhf.deb . &&
+            apt install -y ./wiringpi_3.10_armhf.deb &&
             export QT_SELECT=qt5 &&
             export PATH=/usr/lib/qt5/bin:$PATH &&
             cd /github/workspace &&
@@ -1366,8 +1378,20 @@ jobs:
           args: >
             bash -c "
             set -ex &&
-            apt-get update && 
-            apt-get install -y build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 &&
+            apt-get update &&
+            apt-get install -y build-essential git cmake wget
+            qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools
+            libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev
+            qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev
+            libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation
+            qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 gettext-base
+            qtquickcontrols2-5-dev qml-module-qtquick-controls2 &&
+            cd /tmp &&
+            git clone https://github.com/WiringPi/WiringPi.git &&
+            cd WiringPi &&
+            ./build debian &&
+            mv debian-template/wiringpi_3.10_arm64.deb . &&
+            apt install -y ./wiringpi_3.10_arm64.deb &&
             export QT_SELECT=qt5 &&
             export PATH=/usr/lib/qt5/bin:$PATH &&
             cd /github/workspace &&

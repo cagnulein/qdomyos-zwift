@@ -450,6 +450,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         powerSensorName.startsWith(QStringLiteral("Disabled")) || power_as_bike || power_as_treadmill;
     bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
     bool eliteSterzoSmartFound = eliteSterzoSmartName.startsWith(QStringLiteral("Disabled"));
+    bool gpio_treadmill = true; // TO FIX!! settings.value(QStringLiteral("gpio_treadmill"), false).toBool();
     bool fake_bike =
         settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
     bool fakedevice_elliptical =
@@ -686,6 +687,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(fakeBike);
+            } else if (gpio_treadmill && !gpioTreadmill) {
+                discoveryAgent->stop();
+                gpioTreadmill = new gpiotreadmill(noWriteResistance, noHeartService);
+                emit deviceConnected(b);
+                connect(gpioTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(gpioTreadmill, &gpiotreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
+                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                // connect(this, SIGNAL(searchingStop()), gpioTreadmill, SLOT(searchingStop())); //NOTE: Commented due
+                // to #358
+                if (!discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }                
+                this->signalBluetoothDeviceConnected(gpioTreadmill);
             } else if (fakedevice_elliptical && !fakeElliptical) {
                 this->stopDiscovery();
                 fakeElliptical = new fakeelliptical(noWriteResistance, noHeartService, false);
@@ -3353,6 +3368,11 @@ void bluetooth::restart() {
         delete fakeBike;
         fakeBike = nullptr;
     }
+    if (gpioTreadmill) {
+
+        delete gpioTreadmill;
+        gpioTreadmill = nullptr;
+    }
     if (fakeElliptical) {
 
         delete fakeElliptical;
@@ -3822,6 +3842,8 @@ bluetoothdevice *bluetooth::device() {
         return powerTreadmill;
     } else if (fakeBike) {
         return fakeBike;
+    } else if (gpioTreadmill) {
+        return gpioTreadmill;
     } else if (fakeElliptical) {
         return fakeElliptical;
     } else if (fakeRower) {

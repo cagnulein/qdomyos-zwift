@@ -20,6 +20,8 @@
 #include "devices/discoveryoptions.h"
 #include "qzsettings.h"
 
+#include "gpiotreadmill.h"
+
 #include "devices/activiotreadmill/activiotreadmill.h"
 #include "devices/speraxtreadmill/speraxtreadmill.h"
 #include "devices/antbike/antbike.h"
@@ -223,6 +225,7 @@ class bluetooth : public QObject, public SignalHandler {
     nordictrackifitadbbike *nordictrackifitadbBike = nullptr;
     nordictrackifitadbelliptical *nordictrackifitadbElliptical = nullptr;
     octaneelliptical *octaneElliptical = nullptr;
+    gpiotreadmill *gpioTreadmill = nullptr;
     octanetreadmill *octaneTreadmill = nullptr;
     pelotonbike *pelotonBike = nullptr;
     proformrower *proformRower = nullptr;
