@@ -119,6 +119,34 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         advertisingData.setServices(services);
         //! [Advertising Data]
 
+        QLowEnergyCharacteristicData manufacturerNameChar;
+        manufacturerNameChar.setUuid(QBluetoothUuid::CharacteristicType::ManufacturerNameString);
+        manufacturerNameChar.setProperties(QLowEnergyCharacteristic::Read);
+        manufacturerNameChar.setValue(QByteArray("Wahoo Fitness")); 
+
+        QLowEnergyCharacteristicData firmwareRevChar;
+        firmwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::FirmwareRevisionString);
+        firmwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
+        firmwareRevChar.setValue(QByteArray("5.4.29"));
+
+        QLowEnergyCharacteristicData hardwareRevChar;
+        hardwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::HardwareRevisionString);
+        hardwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
+        hardwareRevChar.setValue(QByteArray("7"));
+
+        QLowEnergyCharacteristicData serialNumberChar;
+        serialNumberChar.setUuid(QBluetoothUuid::CharacteristicType::SerialNumberString);
+        serialNumberChar.setProperties(QLowEnergyCharacteristic::Read);
+        serialNumberChar.setValue(QByteArray("223002139"));        
+
+        // Create Device Information Service        
+        serviceDataDIS.setType(QLowEnergyServiceData::ServiceTypePrimary);
+        serviceDataDIS.setUuid(QBluetoothUuid::DeviceInformation);
+        serviceDataDIS.addCharacteristic(manufacturerNameChar);
+        serviceDataDIS.addCharacteristic(firmwareRevChar);
+        serviceDataDIS.addCharacteristic(serialNumberChar);
+        serviceDataDIS.addCharacteristic(hardwareRevChar);
+
         if (!echelon && !ifit) {
             if (!heart_only) {
                 if (!cadence && !power) {
@@ -467,6 +495,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             service = leController->addService(serviceData);
         }
         QThread::msleep(100); // give time to Android to add the service async.ly
+
+        serviceDIS = leController->addService(serviceDataDIS);
+        QThread::msleep(100);
 
         if (battery) {
             serviceBattery = leController->addService(serviceDataBattery);
@@ -1301,6 +1332,9 @@ void virtualbike::reconnect() {
         service = leController->addService(serviceData);
     }
     QThread::msleep(100); // give time to Android to add the service async.ly
+
+    serviceDIS = leController->addService(serviceDataDIS);
+    QThread::msleep(100);
 
     if (battery)
         serviceBattery = leController->addService(serviceDataBattery);
