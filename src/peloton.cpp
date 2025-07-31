@@ -740,7 +740,7 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     walking_pace[3].levels[3].fast_pace = 6.43736;  // 4.0 mph
     walking_pace[3].levels[3].speed = (walking_pace[3].levels[3].slow_pace + walking_pace[3].levels[3].fast_pace) / 2.0;
     
-    walking_pace[3].levels[4].slow_pace = 6.92016;  // 4.3 mph
+    walking_pace[3].levels[4].slow_pace = 6.75923;  // 4.2 mph
     walking_pace[3].levels[4].fast_pace = 7.24203;  // 4.5 mph
     walking_pace[3].levels[4].speed = (walking_pace[3].levels[4].slow_pace + walking_pace[3].levels[4].fast_pace) / 2.0;
     
@@ -784,7 +784,7 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     walking_pace[4].levels[3].speed = (walking_pace[4].levels[3].slow_pace + walking_pace[4].levels[3].fast_pace) / 2.0;
     
     walking_pace[4].levels[4].slow_pace = 7.40296;  // 4.6 mph
-    walking_pace[4].levels[4].fast_pace = 10.62165; // 6.6 mph
+    walking_pace[4].levels[4].fast_pace = 12.23098; // 7.6 mph
     walking_pace[4].levels[4].speed = (walking_pace[4].levels[4].slow_pace + walking_pace[4].levels[4].fast_pace) / 2.0;
     
     walking_pace[4].levels[5].slow_pace = 8.20764;  // 5.1 mph
