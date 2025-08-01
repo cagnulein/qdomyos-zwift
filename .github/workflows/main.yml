@@ -577,7 +577,6 @@ jobs:
           host: 'linux'
           target: 'android'
           arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
           dir: '${{ github.workspace }}/output/android/'
           cache: 'true'
           cache-key-prefix: 'install-qt-action-android'                    
