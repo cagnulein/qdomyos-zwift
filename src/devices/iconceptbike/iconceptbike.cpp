@@ -47,9 +47,6 @@ void iconceptbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 void iconceptbike::serviceFinished() {
     qDebug() << QStringLiteral("iconceptbike::serviceFinished") << socket;
     if (socket) {
-#ifdef Q_OS_ANDROID
-        socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
-#endif
 
         emit debug(QStringLiteral("Create socket"));
         socket->connectToService(serialPortService);

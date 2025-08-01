@@ -18,7 +18,7 @@ QT+= charts
              DEFINES += CHARTJS
                 }
 
-unix:android: QT += androidextras gui-private
+unix:android: QT += gui-private
 
 android: include(android_openssl/openssl.pri)
 

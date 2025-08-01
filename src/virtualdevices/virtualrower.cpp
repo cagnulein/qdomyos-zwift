@@ -12,7 +12,7 @@
 #ifdef Q_OS_ANDROID
 #include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
-#include <QAndroidJniObject>
+#include <QJniObject>
 #endif
 
 using namespace std::chrono_literals;
@@ -178,8 +178,8 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         }
 
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
-                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
+                                                  "(Landroid/content/Context;)V", QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object());
 #else
         leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif
@@ -319,8 +319,8 @@ void virtualrower::reconnect() {
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
-                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
+                                              "(Landroid/content/Context;)V", QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object());
 #else
     leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif

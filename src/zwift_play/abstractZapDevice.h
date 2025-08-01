@@ -12,8 +12,8 @@
 #include "zapConstants.h"
 #include "qzsettings.h"
 #ifdef Q_OS_ANDROID
-#include <QAndroidJniObject>
-#include <QAndroidJniEnvironment>
+#include <QJniObject>
+#include <QJniEnvironment>
 #endif
 
 class AbstractZapDevice: public QObject {
@@ -58,14 +58,14 @@ class AbstractZapDevice: public QObject {
 #define DEBOUNCE (!gears_volume_debouncing || risingEdge <= 0)
 
 #ifdef Q_OS_ANDROID_ENCRYPTION
-        QAndroidJniEnvironment env;
+        QJniEnvironment env;
         jbyteArray d = env->NewByteArray(bytes.length());
         jbyte *b = env->GetByteArrayElements(d, 0);
         for (int i = 0; i < bytes.length(); i++)
             b[i] = bytes[i];
         env->SetByteArrayRegion(d, 0, bytes.length(), b);
 
-        int button = QAndroidJniObject::callStaticMethod<int>(
+        int button = QJniObject::callStaticMethod<int>(
             "org/cagnulen/qdomyoszwift/ZapClickLayer", "processCharacteristic", "([B)I", d);
         env->DeleteLocalRef(d);
         if(button == 1)
@@ -303,13 +303,13 @@ class AbstractZapDevice: public QObject {
 
     QByteArray buildHandshakeStart() {
 #ifdef Q_OS_ANDROID_ENCRYPTION
-        QAndroidJniObject result =
-            QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/ZapClickLayer", "buildHandshakeStart", "()[B");
+        QJniObject result =
+            QJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/ZapClickLayer", "buildHandshakeStart", "()[B");
         if (result.isValid()) {
-            jsize length = QAndroidJniEnvironment()->GetArrayLength(result.object<jbyteArray>());
-            jbyte* bytes = QAndroidJniEnvironment()->GetByteArrayElements(result.object<jbyteArray>(), nullptr);
+            jsize length = QJniEnvironment()->GetArrayLength(result.object<jbyteArray>());
+            jbyte* bytes = QJniEnvironment()->GetByteArrayElements(result.object<jbyteArray>(), nullptr);
             QByteArray byteArray(reinterpret_cast<char*>(bytes), length);
-            QAndroidJniEnvironment()->ReleaseByteArrayElements(result.object<jbyteArray>(), bytes, JNI_ABORT);
+            QJniEnvironment()->ReleaseByteArrayElements(result.object<jbyteArray>(), bytes, JNI_ABORT);
             return byteArray;
         }
 #endif

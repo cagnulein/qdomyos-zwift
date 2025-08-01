@@ -5,7 +5,7 @@
 #include <QTime>
 
 #ifdef Q_OS_ANDROID
-#include <QAndroidJniObject>
+#include <QJniObject>
 #endif
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -240,7 +240,7 @@ void bluetoothdevice::update_hr_from_external() {
     QSettings settings;
     if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
 #ifdef Q_OS_ANDROID
-        Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
+        Heart = QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
 #endif
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -266,7 +266,7 @@ void bluetoothdevice::update_hr_from_external() {
 #endif
 #ifdef Q_OS_ANDROID
     if (!settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
-        Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/WearableController", "getHeart", "()I");
+        Heart = QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/WearableController", "getHeart", "()I");
         qDebug() << "WearOS Companion Heart:" << Heart.value();
     }
 #endif

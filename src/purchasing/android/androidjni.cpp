@@ -48,7 +48,7 @@
 **
 ****************************************************************************/
 
-#include <QAndroidJniObject>
+#include <QJniObject>
 #include <QtCore/qdatetime.h>
 #include <jni.h>
 
@@ -65,9 +65,9 @@ static void registerProduct(JNIEnv *, jclass, jlong nativePointer, jstring produ
                             jstring description) {
     AndroidInAppPurchaseBackend *backend = reinterpret_cast<AndroidInAppPurchaseBackend *>(nativePointer);
     QMetaObject::invokeMethod(
-        backend, "registerProduct", Qt::AutoConnection, Q_ARG(QString, QAndroidJniObject(productId).toString()),
-        Q_ARG(QString, QAndroidJniObject(price).toString()), Q_ARG(QString, QAndroidJniObject(title).toString()),
-        Q_ARG(QString, QAndroidJniObject(description).toString()));
+        backend, "registerProduct", Qt::AutoConnection, Q_ARG(QString, QJniObject(productId).toString()),
+        Q_ARG(QString, QJniObject(price).toString()), Q_ARG(QString, QJniObject(title).toString()),
+        Q_ARG(QString, QJniObject(description).toString()));
 }
 
 static void registerPurchased(JNIEnv *, jclass, jlong nativePointer, jstring identifier, jstring signature,
@@ -77,10 +77,10 @@ static void registerPurchased(JNIEnv *, jclass, jlong nativePointer, jstring ide
 
     AndroidInAppPurchaseBackend *backend = reinterpret_cast<AndroidInAppPurchaseBackend *>(nativePointer);
     QMetaObject::invokeMethod(
-        backend, "registerPurchased", Qt::AutoConnection, Q_ARG(QString, QAndroidJniObject(identifier).toString()),
-        Q_ARG(QString, QAndroidJniObject(signature).toString()), Q_ARG(QString, QAndroidJniObject(data).toString()),
-        Q_ARG(QString, QAndroidJniObject(purchaseToken).toString()),
-        Q_ARG(QString, QAndroidJniObject(orderId).toString()), Q_ARG(QDateTime, dateTime));
+        backend, "registerPurchased", Qt::AutoConnection, Q_ARG(QString, QJniObject(identifier).toString()),
+        Q_ARG(QString, QJniObject(signature).toString()), Q_ARG(QString, QJniObject(data).toString()),
+        Q_ARG(QString, QJniObject(purchaseToken).toString()),
+        Q_ARG(QString, QJniObject(orderId).toString()), Q_ARG(QDateTime, dateTime));
 }
 
 static void purchaseSucceeded(JNIEnv *, jclass, jlong nativePointer, jint requestCode, jstring signature, jstring data,
@@ -90,10 +90,10 @@ static void purchaseSucceeded(JNIEnv *, jclass, jlong nativePointer, jint reques
 
     AndroidInAppPurchaseBackend *backend = reinterpret_cast<AndroidInAppPurchaseBackend *>(nativePointer);
     QMetaObject::invokeMethod(backend, "purchaseSucceeded", Qt::AutoConnection, Q_ARG(int, int(requestCode)),
-                              Q_ARG(QString, QAndroidJniObject(signature).toString()),
-                              Q_ARG(QString, QAndroidJniObject(data).toString()),
-                              Q_ARG(QString, QAndroidJniObject(purchaseToken).toString()),
-                              Q_ARG(QString, QAndroidJniObject(orderId).toString()), Q_ARG(QDateTime, dateTime));
+                              Q_ARG(QString, QJniObject(signature).toString()),
+                              Q_ARG(QString, QJniObject(data).toString()),
+                              Q_ARG(QString, QJniObject(purchaseToken).toString()),
+                              Q_ARG(QString, QJniObject(orderId).toString()), Q_ARG(QDateTime, dateTime));
 }
 
 static void purchaseFailed(JNIEnv *, jclass, jlong nativePointer, jint requestCode, jint failureReason,
@@ -101,7 +101,7 @@ static void purchaseFailed(JNIEnv *, jclass, jlong nativePointer, jint requestCo
     AndroidInAppPurchaseBackend *backend = reinterpret_cast<AndroidInAppPurchaseBackend *>(nativePointer);
     QMetaObject::invokeMethod(backend, "purchaseFailed", Qt::AutoConnection, Q_ARG(int, int(requestCode)),
                               Q_ARG(int, int(failureReason)),
-                              Q_ARG(QString, QAndroidJniObject(errorString).toString()));
+                              Q_ARG(QString, QJniObject(errorString).toString()));
 }
 
 static JNINativeMethod methods[] = {

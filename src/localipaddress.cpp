@@ -2,8 +2,8 @@
 #include <QNetworkInterface>
 
 #ifdef Q_OS_ANDROID
-#include <QAndroidJniEnvironment>
-#include <QtAndroid>
+#include <QJniEnvironment>
+#include <QCoreApplication>
 #include <QtEndian>
 #endif
 
@@ -115,10 +115,11 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
         }
     }
 #ifdef Q_OS_ANDROID
-    QAndroidJniEnvironment env;
-    jobject wifiManagerObj = getWifiManagerObj(env, QtAndroid::androidContext().object());
-    jobject wifiInfoObj = getWifiInfoObj(env, wifiManagerObj);
-    int ip = getIpAddress(env, wifiInfoObj);
+    QJniEnvironment env;
+    QJniObject context = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+    jobject wifiManagerObj = getWifiManagerObj(env.jniEnv(), context.object());
+    jobject wifiInfoObj = getWifiInfoObj(env.jniEnv(), wifiManagerObj);
+    int ip = getIpAddress(env.jniEnv(), wifiInfoObj);
     QHostAddress qip = QHostAddress(qFromBigEndian<quint32>(ip));
     qDebug() << "getIP from JNI" << qip;
     return qip;

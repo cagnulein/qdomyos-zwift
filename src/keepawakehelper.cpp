@@ -11,19 +11,19 @@ KeepAwakeHelper::KeepAwakeHelper() {
         return;
     }
 
-    activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity",
+    activity = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity",
                                                          "()Landroid/app/Activity;");
     if (activity.isValid()) {
-        QAndroidJniObject serviceName =
-            QAndroidJniObject::getStaticObjectField<jstring>("android/content/Context", "POWER_SERVICE");
+        QJniObject serviceName =
+            QJniObject::getStaticObjectField<jstring>("android/content/Context", "POWER_SERVICE");
         if (serviceName.isValid()) {
-            QAndroidJniObject powerMgr = activity.callObjectMethod(
+            QJniObject powerMgr = activity.callObjectMethod(
                 "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;", serviceName.object<jobject>());
             if (powerMgr.isValid()) {
                 jint levelAndFlags =
-                    QAndroidJniObject::getStaticField<jint>("android/os/PowerManager", "SCREEN_DIM_WAKE_LOCK");
+                    QJniObject::getStaticField<jint>("android/os/PowerManager", "SCREEN_DIM_WAKE_LOCK");
 
-                QAndroidJniObject tag = QAndroidJniObject::fromString("My Tag");
+                QJniObject tag = QJniObject::fromString("My Tag");
 
                 m_wakeLock =
                     powerMgr.callObjectMethod("newWakeLock", "(ILjava/lang/String;)Landroid/os/PowerManager$WakeLock;",
@@ -47,27 +47,26 @@ KeepAwakeHelper::KeepAwakeHelper() {
 }
 
 void KeepAwakeHelper::keepScreenOn(bool on) {
-    QtAndroid::runOnAndroidThread([on] {
-        QAndroidJniObject activity = QtAndroid::androidActivity();
-        if (activity.isValid()) {
-            QAndroidJniObject window = activity.callObjectMethod("getWindow", "()Landroid/view/Window;");
+    QJniObject activity = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity",
+                                                               "()Landroid/app/Activity;");
+    if (activity.isValid()) {
+        QJniObject window = activity.callObjectMethod("getWindow", "()Landroid/view/Window;");
 
-            if (window.isValid()) {
-                const int FLAG_KEEP_SCREEN_ON = 128;
-                if (on) {
-                    window.callMethod<void>("addFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
-                    qDebug() << "Activated : Keep screen ON";
-                } else {
-                    window.callMethod<void>("clearFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
-                    qDebug() << "Deactivated : Keep screen ON";
-                }
+        if (window.isValid()) {
+            const int FLAG_KEEP_SCREEN_ON = 128;
+            if (on) {
+                window.callMethod<void>("addFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
+                qDebug() << "Activated : Keep screen ON";
+            } else {
+                window.callMethod<void>("clearFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
+                qDebug() << "Deactivated : Keep screen ON";
             }
         }
-        QAndroidJniEnvironment env;
-        if (env->ExceptionCheck()) {
-            env->ExceptionClear();
-        }
-    });
+    }
+    QJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+    }
 }
 
 int KeepAwakeHelper::heart() {
@@ -76,9 +75,9 @@ int KeepAwakeHelper::heart() {
     return heart;
 }
 
-QAndroidJniObject *KeepAwakeHelper::antObject(bool forceCreate) {
+QJniObject *KeepAwakeHelper::antObject(bool forceCreate) {
     if (!ant && forceCreate)
-        ant = new QAndroidJniObject("org/cagnulen/qdomyoszwift/Ant");
+        ant = new QJniObject("org/cagnulen/qdomyoszwift/Ant");
     return ant;
 }
 

@@ -8,7 +8,7 @@
 #ifdef Q_OS_ANDROID
 #include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
-#include <QAndroidJniObject>
+#include <QJniObject>
 #elif defined(Q_OS_WINDOWS)
 #include "windows_zwift_incline_paddleocr_thread.h"
 #include "windows_zwift_workout_paddleocr_thread.h"
@@ -650,19 +650,19 @@ void trainprogram::scheduler() {
                         float distance = 0;
 #endif
 #elif defined(Q_OS_ANDROID)
-                        QAndroidJniEnvironment env;
+                        QJniEnvironment env;
                         jbyteArray d = env->NewByteArray(bb.length());
                         jbyte *b = env->GetByteArrayElements(d, 0);
                         for (int i = 0; i < bb.length(); i++)
                             b[i] = bb[i];
                         env->SetByteArrayRegion(d, 0, bb.length(), b);
 
-                        QAndroidJniObject::callStaticMethod<void>(
+                        QJniObject::callStaticMethod<void>(
                             "org/cagnulen/qdomyoszwift/ZwiftAPI", "zwift_api_decodemessage_player", "([B)V", d);
                         env->DeleteLocalRef(d);
 
-                        float alt = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
-                        float distance = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
+                        float alt = QJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
+                        float distance = QJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
 #elif defined Q_CC_MSVC
                         PlayerState state;
                         float alt = 0;
@@ -737,18 +737,18 @@ void trainprogram::scheduler() {
 
 #ifdef Q_OS_ANDROID
             {
-                QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                QJniObject text = QJniObject::callStaticObjectMethod<jstring>(
                     "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
                 QString t = text.toString();
-                QAndroidJniObject textExtended = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                QJniObject textExtended = QJniObject::callStaticObjectMethod<jstring>(
                     "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastTextExtended");
                 // 2272 1027
-                jint w = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                jint w = QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
                                                                    "getImageWidth", "()I");
-                jint h = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                jint h = QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
                                                                    "getImageHeight", "()I");
                 QString tExtended = textExtended.toString();
-                QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                QJniObject packageNameJava = QJniObject::callStaticObjectMethod<jstring>(
                     "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
                 QString packageName = packageNameJava.toString();
                 if (packageName.contains("com.zwift.zwiftgame")) {
@@ -822,10 +822,10 @@ void trainprogram::scheduler() {
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr).toBool()) {
-        QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+        QJniObject text = QJniObject::callStaticObjectMethod<jstring>(
             "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
         QString t = text.toString();
-        QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
+        QJniObject packageNameJava = QJniObject::callStaticObjectMethod<jstring>(
             "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
         QString packageName = packageNameJava.toString();
         if (packageName.contains("com.onepeloton.callisto")) {

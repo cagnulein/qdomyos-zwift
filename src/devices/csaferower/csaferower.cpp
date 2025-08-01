@@ -167,8 +167,9 @@ int csaferowerThread::openPort() {
 qDebug() << "Opening serial port " << deviceFilename.toLatin1();
 
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "open",
-                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+    QJniObject context = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "open",
+                                              "(Landroid/content/Context;)V", context.object());
 #elif !defined(WIN32)
 
     // LINUX AND MAC USES TERMIO / IOCTL / STDIO
@@ -239,13 +240,13 @@ int csaferowerThread::rawWrite(uint8_t *bytes, int size) // unix!!
 
 #ifdef Q_OS_ANDROID
 
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     jbyteArray d = env->NewByteArray(size);
     jbyte *b = env->GetByteArrayElements(d, 0);
     for (int i = 0; i < size; i++)
         b[i] = bytes[i];
     env->SetByteArrayRegion(d, 0, size, b);
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "write", "([B)V", d);
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "write", "([B)V", d);
 #elif defined(WIN32)
     DWORD cBytes;
     rc = WriteFile(devicePort, bytes, size, &cBytes, NULL);
@@ -279,10 +280,10 @@ int csaferowerThread::rawRead(uint8_t bytes[], int size) {
     jint len = 0;
 
     do {
-        QAndroidJniEnvironment env;
-        QAndroidJniObject dd =
-            QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "read", "()[B");
-        len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "readLen", "()I");
+        QJniEnvironment env;
+        QJniObject dd =
+            QJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "read", "()[B");
+        len = QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "readLen", "()I");
         if (len > 0) {
             jbyteArray d = dd.object<jbyteArray>();
             jbyte *b = env->GetByteArrayElements(d, 0);

@@ -9,7 +9,7 @@
 #ifdef Q_OS_ANDROID
 #include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
-#include <QAndroidJniObject>
+#include <QJniObject>
 #endif
 
 #ifdef Q_CC_MSVC
@@ -3044,7 +3044,7 @@ void bluetooth::connectedAndDiscovered() {
         settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool();
     if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() || android_antbike ||
         settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
-        QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
+        QJniObject activity = QJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
                                                                                "activity", "()Landroid/app/Activity;");
         KeepAwakeHelper::antObject(true)->callMethod<void>(
             "antStart", "(Landroid/app/Activity;ZZZZZZII)V", activity.object<jobject>(),
@@ -3060,10 +3060,11 @@ void bluetooth::connectedAndDiscovered() {
     }
 
     if (settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
-        QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
-        QAndroidJniObject::callStaticMethod<void>(
+        QJniObject javaNotification = QJniObject::fromString("QZ is running!");
+        QJniObject contextNotif = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+        QJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
-            QtAndroid::androidContext().object(), javaNotification.object<jstring>());
+            contextNotif.object(), javaNotification.object<jstring>());
     }
 #endif
 
@@ -3072,20 +3073,26 @@ void bluetooth::connectedAndDiscovered() {
         settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() ||
         settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool()) {
         AndroidActivityResultReceiver *a = new AndroidActivityResultReceiver();
-        QAndroidJniObject MediaProjectionManager = QtAndroid::androidActivity().callObjectMethod(
+        QJniObject activityProj = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity", "()Landroid/app/Activity;");
+        QJniObject MediaProjectionManager = activityProj.callObjectMethod(
             "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",
-            QAndroidJniObject::fromString("media_projection").object<jstring>());
-        QAndroidJniObject intent =
+            QJniObject::fromString("media_projection").object<jstring>());
+        QJniObject intent =
             MediaProjectionManager.callObjectMethod("createScreenCaptureIntent", "()Landroid/content/Intent;");
-        QtAndroid::startActivity(intent, 100, a);
+        // Qt6: Use QJniObject instead of QtAndroid::startActivity
+        QJniEnvironment env;
+        jclass activityClass = env->GetObjectClass(activityProj.object<jobject>());
+        jmethodID startActivityMethod = env->GetMethodID(activityClass, "startActivityForResult", "(Landroid/content/Intent;I)V");
+        env->CallVoidMethod(activityProj.object<jobject>(), startActivityMethod, intent.object<jobject>(), 100);
     }
 #endif
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
     if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Garmin", "init",
-                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        QJniObject contextGarmin = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Garmin", "init",
+                                                  "(Landroid/content/Context;)V", contextGarmin.object());
 #else
 #ifndef IO_UNDER_QT
         if (!h) {

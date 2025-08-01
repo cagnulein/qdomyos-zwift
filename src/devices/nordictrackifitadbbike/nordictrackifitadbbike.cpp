@@ -163,10 +163,11 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
 
     if (nordictrack_ifit_adb_remote) {
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject IP = QAndroidJniObject::fromString(ip).object<jstring>();
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "createConnection",
+        QJniObject IP = QJniObject::fromString(ip).object<jstring>();
+        QJniObject context = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "createConnection",
                                                   "(Ljava/lang/String;Landroid/content/Context;)V",
-                                                  IP.object<jstring>(), QtAndroid::androidContext().object());
+                                                  IP.object<jstring>(), context.object());
 #elif defined Q_OS_WIN
         logcatAdbThread = new nordictrackifitadbbikeLogcatAdbThread("logcatAdbThread");
         /*connect(logcatAdbThread, &nordictrackifitadbbikeLogcatAdbThread::onSpeedInclination, this,
@@ -330,8 +331,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                                       QString::number(x1) + " " + QString::number(y2) + " 200";
                         qDebug() << " >> " + lastCommand;
 #ifdef Q_OS_ANDROID
-                        QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-                        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
+                        QJniObject command = QJniObject::fromString(lastCommand).object<jstring>();
+                        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
                                                                   "sendCommand", "(Ljava/lang/String;)V",
                                                                   command.object<jstring>());
 #elif defined(Q_OS_WIN)
@@ -384,8 +385,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                                       QString::number(x1) + " " + QString::number(y2) + " 200";
                         qDebug() << " >> " + lastCommand;
 #ifdef Q_OS_ANDROID
-                        QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-                        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
+                        QJniObject command = QJniObject::fromString(lastCommand).object<jstring>();
+                        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
                                                                   "sendCommand", "(Ljava/lang/String;)V",
                                                                   command.object<jstring>());
 #elif defined(Q_OS_WIN)
@@ -408,8 +409,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                                         QString::number(x1) + " " + QString::number(y2) + " 200";
                             qDebug() << " >> " + lastCommand;
     #ifdef Q_OS_ANDROID
-                            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-                            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
+                            QJniObject command = QJniObject::fromString(lastCommand).object<jstring>();
+                            QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
                                                                     "sendCommand", "(Ljava/lang/String;)V",
                                                                     command.object<jstring>());
     #elif defined(Q_OS_WIN)

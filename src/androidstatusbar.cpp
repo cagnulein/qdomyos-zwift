@@ -3,8 +3,8 @@
 #include <QDebug>
 
 #ifdef Q_OS_ANDROID
-#include <QtAndroid>
-#include <QAndroidJniEnvironment>
+#include <QCoreApplication>
+#include <QJniEnvironment>
 #endif
 
 AndroidStatusBar* AndroidStatusBar::m_instance = nullptr;
@@ -32,7 +32,7 @@ void AndroidStatusBar::registerQmlType()
 int AndroidStatusBar::apiLevel() const
 {
 #ifdef Q_OS_ANDROID
-    return QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CustomQtActivity", "getApiLevel", "()I");
+    return QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CustomQtActivity", "getApiLevel", "()I");
 #else
     return 0;
 #endif

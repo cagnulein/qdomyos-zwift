@@ -7,7 +7,7 @@
 #ifdef Q_OS_ANDROID
 #include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
-#include <QAndroidJniObject>
+#include <QJniObject>
 #endif
 
 using namespace std::chrono_literals;
@@ -382,10 +382,11 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         }  
 
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+        QJniObject context = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                  "startAdvertisingTreadmill",
                                                  "(Landroid/content/Context;)V",
-                                                 QtAndroid::androidContext().object());
+                                                 context.object());
 
 #elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         pars.setInterval(30, 50);
@@ -502,10 +503,11 @@ void virtualtreadmill::reconnect() {
 
     if (serviceFTMS || serviceRSC || serviceWahoo) {
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+        QJniObject context = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                  "startAdvertisingTreadmill",
                                                  "(Landroid/content/Context;)V",
-                                                 QtAndroid::androidContext().object());
+                                                 context.object());
 #else
         leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif

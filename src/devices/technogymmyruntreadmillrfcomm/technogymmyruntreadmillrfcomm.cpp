@@ -57,9 +57,6 @@ void technogymmyruntreadmillrfcomm::serviceFinished(void) {
                 QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::errorOccurred),
                 this, &technogymmyruntreadmillrfcomm::onSocketErrorOccurred);
 
-#ifdef Q_OS_ANDROID
-        socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
-#endif
 
         emit debug(QStringLiteral("Create socket"));
         if(!found) {

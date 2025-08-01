@@ -6,10 +6,10 @@ static const int ScanTypeId = qRegisterMetaType<ScanRecordResult>();
 ScanRecordResult ScanRecordResult::fromJObject(JNIEnv *env, jobject java) {
     if (!java)
         return ScanRecordResult();
-    QAndroidJniObject srr(java);
+    QJniObject srr(java);
     // qDebug() << "SRR tos "<<srr.toString();
     int rssi = srr.callMethod<jint>("getRssi");
-    QAndroidJniObject tmp = srr.callObjectMethod("getName", "()Ljava/lang/String;");
+    QJniObject tmp = srr.callObjectMethod("getName", "()Ljava/lang/String;");
     QString name(tmp.toString());
     tmp = srr.callObjectMethod("getAddress", "()Ljava/lang/String;");
     QString address(tmp.toString());

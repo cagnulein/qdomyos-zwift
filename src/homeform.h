@@ -27,8 +27,8 @@
 
 #ifdef Q_OS_ANDROID
 
-#include <QAndroidJniEnvironment>
-#include <QtAndroid>
+#include <QJniEnvironment>
+#include <QCoreApplication>
 #endif
 
 #if __has_include("secret.h")
@@ -402,8 +402,9 @@ class homeform : public QObject {
 
     Q_INVOKABLE void enableLocationServices() {
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/LocationHelper", "requestPermissions",
-                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        QJniObject context = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/LocationHelper", "requestPermissions",
+                                                  "(Landroid/content/Context;)V", context.object());
 #endif
     }
 

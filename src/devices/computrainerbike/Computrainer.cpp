@@ -769,8 +769,9 @@ int Computrainer::closePort() {
 
 int Computrainer::openPort() {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "open",
-                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+    QJniObject context = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "open",
+                                              "(Landroid/content/Context;)V", context.object());
 #elif !defined(WIN32)
 
     // LINUX AND MAC USES TERMIO / IOCTL / STDIO
@@ -895,13 +896,13 @@ int Computrainer::rawWrite(uint8_t *bytes, int size) // unix!!
 
 #ifdef Q_OS_ANDROID
 
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     jbyteArray d = env->NewByteArray(size);
     jbyte *b = env->GetByteArrayElements(d, 0);
     for (int i = 0; i < size; i++)
         b[i] = bytes[i];
     env->SetByteArrayRegion(d, 0, size, b);
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
 #elif defined(WIN32)
     DWORD cBytes;
     rc = WriteFile(devicePort, bytes, size, &cBytes, NULL);
@@ -946,11 +947,11 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
         }
     }
 
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     while (fullLen < size) {
-        QAndroidJniObject dd =
-            QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
-        jint len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
+        QJniObject dd =
+            QJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
+        jint len = QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
         jbyteArray d = dd.object<jbyteArray>();
         jbyte *b = env->GetByteArrayElements(d, 0);
         if (len + fullLen > size) {

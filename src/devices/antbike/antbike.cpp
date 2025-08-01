@@ -50,14 +50,14 @@ void antbike::update() {
 #endif
 
 #ifdef Q_OS_ANDROID
-    Cadence = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
-    m_watt = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getPower", "()I");
+    Cadence = QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
+    m_watt = QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getPower", "()I");
     if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = metric::calculateSpeedFromPower(
             m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
             speedLimit());
     } else {
-        Speed = QAndroidJniObject::callStaticMethod<jdouble>("org/cagnulen/qdomyoszwift/Garmin", "getSpeed", "()D");
+        Speed = QJniObject::callStaticMethod<jdouble>("org/cagnulen/qdomyoszwift/Garmin", "getSpeed", "()D");
     }
     qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
 #endif

@@ -6,7 +6,7 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <jni.h>
-#include <QAndroidJniObject>
+#include <QJniObject>
 #endif
 #include "material.h"
 #include "qfit.h"
@@ -131,8 +131,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 
 #ifdef Q_OS_ANDROID
-    m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
-                                              "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
+    QJniObject context = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+    m_locationServices = QJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
+                                              "(Landroid/content/Context;)Z", context.object());
     if(m_locationServices) {
         QSettings settings;
         // so if someone pressed the skip message but now he forgot to enable GPS it will prompt out
@@ -783,14 +784,15 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
     
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject javaPath = QAndroidJniObject::fromString(getWritableAppDir());
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
-                                                "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
+    QJniObject javaPath = QJniObject::fromString(getWritableAppDir());
+    QJniObject context2 = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
+                                                "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), context2.object());
 
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
                                               "registerReceiver",
                                               "(Landroid/content/Context;)V",
-                                              QtAndroid::androidContext().object());
+                                              context2.object());
 #endif    
 
     bluetoothManager->homeformLoaded = true;
@@ -896,18 +898,19 @@ void homeform::floatingOpen() {
         // Determine which HTML file to use based on the setting
         QString htmlFile = (floatingWindowType == 0) ? "floating.htm" : "hfloating.htm";
         
-        QAndroidJniObject javaHtmlFile = QAndroidJniObject::fromString(htmlFile);
+        QJniObject javaHtmlFile = QJniObject::fromString(htmlFile);
         
-        QAndroidJniObject::callStaticMethod<void>(
+        QJniObject context3 = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+        QJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/FloatingHandler", "show", "(Landroid/content/Context;IIIILjava/lang/String;)V",
-            QtAndroid::androidContext().object(), 
+            context3.object(), 
             settings.value("template_inner_QZWS_port", 6666).toInt(),
             settings.value(QZSettings::floating_width, QZSettings::default_floating_width).toInt(),
             settings.value(QZSettings::floating_height, QZSettings::default_floating_height).toInt(),
             settings.value(QZSettings::floating_transparency, QZSettings::default_floating_transparency).toInt(),
             javaHtmlFile.object<jstring>());
     } else {
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "hide", "()V");
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "hide", "()V");
     }
     floating_open = !floating_open;
 #endif
@@ -1171,7 +1174,7 @@ void homeform::aboutToQuit() {
     // closing floating window
     if (floating_open)
         floatingOpen();
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
 #endif
 
     QSettings settings;
@@ -3749,8 +3752,9 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
              .toString()
              .compare(QZSettings::default_heart_rate_belt_name) &&
         !settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/WearableController", "start",
-                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        QJniObject context4 = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/WearableController", "start",
+                                                  "(Landroid/content/Context;)V", context4.object());
     }
 #endif
 
@@ -7052,13 +7056,14 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
     }
 #ifdef Q_OS_ANDROID
 
-    QAndroidJniObject jUriString = QAndroidJniObject::fromString(uriString);
-    QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod("android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
-    QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+    QJniObject jUriString = QJniObject::fromString(uriString);
+    QJniObject jUri = QJniObject::callStaticObjectMethod("android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
+    QJniObject context5 = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+    QJniObject result = QJniObject::callStaticObjectMethod(
         "org/cagnulen/qdomyoszwift/ContentHelper",
         "getFileName",
         "(Landroid/content/Context;Landroid/net/Uri;)Ljava/lang/String;",
-        QtAndroid::androidContext().object(),
+        context5.object(),
         jUri.object());
     return result.toString();
 #else
@@ -8225,13 +8230,13 @@ void homeform::sendMail() {
 
 QString homeform::getBluetoothName()
 {
-    QAndroidJniObject bluetoothAdapter = QAndroidJniObject::callStaticObjectMethod(
+    QJniObject bluetoothAdapter = QJniObject::callStaticObjectMethod(
         "android/bluetooth/BluetoothAdapter",
         "getDefaultAdapter",
         "()Landroid/bluetooth/BluetoothAdapter;");
     
     if (bluetoothAdapter.isValid()) {
-        QAndroidJniObject name = bluetoothAdapter.callObjectMethod(
+        QJniObject name = bluetoothAdapter.callObjectMethod(
             "getName",
             "()Ljava/lang/String;");
         
@@ -8250,19 +8255,20 @@ QString homeform::getAndroidDataAppDir() {
         return path;
     }
 
-    QAndroidJniObject filesArr = QtAndroid::androidActivity().callObjectMethod(
+    QJniObject activity = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity", "()Landroid/app/Activity;");
+    QJniObject filesArr = activity.callObjectMethod(
         "getExternalFilesDirs", "(Ljava/lang/String;)[Ljava/io/File;", nullptr);
     jobjectArray dataArray = filesArr.object<jobjectArray>();
     QString out;
     if (dataArray) {
-        QAndroidJniEnvironment env;
+        QJniEnvironment env;
         jsize dataSize = env->GetArrayLength(dataArray);
         if (dataSize) {
-            QAndroidJniObject mediaPath;
-            QAndroidJniObject file;
+            QJniObject mediaPath;
+            QJniObject file;
             for (int i = 0; i < dataSize; i++) {
                 file = env->GetObjectArrayElement(dataArray, i);
-                jboolean val = QAndroidJniObject::callStaticMethod<jboolean>(
+                jboolean val = QJniObject::callStaticMethod<jboolean>(
                     "android/os/Environment", "isExternalStorageRemovable", "(Ljava/io/File;)Z", file.object());
                 mediaPath = file.callObjectMethod("getAbsolutePath", "()Ljava/lang/String;");
                 out = mediaPath.toString();

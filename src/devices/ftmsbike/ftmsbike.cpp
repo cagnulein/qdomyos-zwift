@@ -366,7 +366,7 @@ void ftmsbike::update() {
             QByteArray proto;
 #endif
 #elif defined Q_OS_ANDROID
-            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+            QJniObject result = QJniObject::callStaticObjectMethod(
                 "org/cagnulen/qdomyoszwift/ZwiftHubBike",
                 "setGearCommand",
                 "(I)[B",
@@ -378,7 +378,7 @@ void ftmsbike::update() {
             }
 
             jbyteArray array = result.object<jbyteArray>();
-            QAndroidJniEnvironment env;
+            QJniEnvironment env;
             jbyte* bytes = env->GetByteArrayElements(array, nullptr);
             jsize length = env->GetArrayLength(array);
 
@@ -1363,7 +1363,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             QByteArray message;
 #endif
 #elif defined(Q_OS_ANDROID)
-            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+            QJniObject result = QJniObject::callStaticObjectMethod(
                 "org/cagnulen/qdomyoszwift/ZwiftHubBike",
                 "inclinationCommand",
                 "(D)[B",
@@ -1375,7 +1375,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             }
 
             jbyteArray array = result.object<jbyteArray>();
-            QAndroidJniEnvironment env;
+            QJniEnvironment env;
             jbyte* bytes = env->GetByteArrayElements(array, nullptr);
             jsize length = env->GetArrayLength(array);
 
