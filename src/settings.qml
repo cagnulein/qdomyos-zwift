@@ -1174,6 +1174,7 @@ import Qt.labs.platform 1.1
             property int ant_heart_device_number: 0
             property int peloton_treadmill_walk_level: 1
             property int pid_heart_zone_erg_mode_watt_step: 5
+            property bool waterrower_usb: false
         }
 
         function paddingZeros(text, limit) {
@@ -8323,7 +8324,7 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ftms_rower = ftmsRowerTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
-                    }
+                    }                   
 
                     Button {
                         text: "Refresh Devices List"
@@ -8342,6 +8343,21 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    CheckBox {
+                        id: waterrowerUSBCheckBox
+                        text: qsTr("WaterRower USB")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.waterrower_usb
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.waterrower_usb = checked; window.settings_restart_to_apply = true; }
                     }
 
                     AccordionElement {
