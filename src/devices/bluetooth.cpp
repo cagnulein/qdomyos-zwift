@@ -473,6 +473,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString computrainerSerialPort =
         settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
     QString csaferowerSerialPort = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
+    bool waterrowerUSBEnabled = settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
     QString csafeellipticalSerialPort =
         settings.value(QZSettings::csafe_elliptical_port, QZSettings::default_csafe_elliptical_port).toString();
     bool manufacturerDeviceFound = false;
@@ -790,6 +791,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(csafeRower);
+
+            } else if (waterrowerUSBEnabled && !waterRowerUSB) {
+                this->stopDiscovery();
+                waterRowerUSB = new waterrowerusb(noWriteResistance, noHeartService, false);
+                emit deviceConnected(b);
+                connect(waterRowerUSB, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(waterRowerUSB, &waterrowerusb::debug, this, &bluetooth::debug);
+                waterRowerUSB->deviceDiscovered(b);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(waterRowerUSB);
 
             } else if (!csafeellipticalSerialPort.isEmpty() && !csafeElliptical) {
                 this->stopDiscovery();
