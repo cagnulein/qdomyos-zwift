@@ -49,7 +49,7 @@ dependencies {
 
     def appcompat_version = "1.3.1"
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-         implementation "com.android.billingclient:billing:6.0.1"
+         implementation "com.android.billingclient:billing:8.0.0"
          implementation 'com.android.support:appcompat-v7:28.0.0'
 
          implementation "androidx.appcompat:appcompat:$appcompat_version"
@@ -148,7 +148,7 @@ android {
         resConfig "en"
                   compileSdkVersion 33
 		  minSdkVersion = 21
-                  targetSdkVersion = 34
+                  targetSdkVersion = 36
     }
 
 tasks.all { task ->

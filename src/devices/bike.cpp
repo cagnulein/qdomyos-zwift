@@ -62,17 +62,28 @@ void bike::changePower(int32_t power) {
         return;
     }
 
-    requestPower = power; // used by some bikes that have ERG mode builtin
     QSettings settings;
+    bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                             .toString()
+                             .startsWith(QStringLiteral("Disabled"));
+    double erg_filter_upper =
+        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+    double erg_filter_lower =
+        settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+
+    requestPower = power; // used by some bikes that have ERG mode builtin
+    
+    if(power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0 && fabs(requestPower - m_watt.average5s()) < qMax(erg_filter_upper, erg_filter_lower)) {
+        qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s() << "watt" << m_watt.average5s() << "req" << requestPower;
+        // the concept here is to trying to add or decrease the delta from the power sensor
+        requestPower += (requestPower - m_watt.average5s());
+    }
+        
     bool force_resistance =
         settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
             .toBool();
     // bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(); //Not used
     // anywhere in code
-    double erg_filter_upper =
-        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
-    double erg_filter_lower =
-        settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
     double deltaDown = wattsMetric().value() - ((double)power);
     double deltaUp = ((double)power) - wattsMetric().value();
     qDebug() << QStringLiteral("filter  ") + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +
@@ -104,27 +115,60 @@ void bike::setGears(double gears) {
     gears -= gears_offset;
     qDebug() << "setGears" << gears;
 
-    // Check for boundaries and emit failure signals
+    // Gear boundary handling with smart clamping logic:
+    // - If we're trying to set a gear outside valid range AND we're already at a valid gear,
+    //   reject the change (normal case: user at gear 1 tries to go to 0.5, should fail)
+    // - If we're trying to set a gear outside valid range BUT we're currently below minimum,
+    //   clamp to valid range (startup case: system starts at 0, first gearUp with 0.5 gain 
+    //   goes to 0.5, should be clamped to 1 to allow the system to reach valid state)
+    // This prevents the system from getting stuck below minGears due to fractional gains
+    // while preserving normal boundary rejection behavior for users at valid gear positions
     if(gears_zwift_ratio && (gears > 24 || gears < 1)) {
-        qDebug() << "new gear value ignored because of gears_zwift_ratio setting!";
         if(gears > 24) {
-            emit gearFailedUp();
+            if(m_gears >= 24) {
+                qDebug() << "new gear value ignored - already at zwift ratio maximum: 24";
+                emit gearFailedUp();
+                return;
+            } else {
+                qDebug() << "gear value clamped to zwift ratio maximum: 24";
+                gears = 24;
+                emit gearFailedUp();
+            }
         } else {
-            emit gearFailedDown();
+            if(m_gears >= 1) {
+                qDebug() << "new gear value ignored - already at zwift ratio minimum: 1";
+                emit gearFailedDown();
+                return;
+            } else {
+                qDebug() << "gear value clamped to zwift ratio minimum: 1"; 
+                gears = 1;
+                emit gearFailedDown();
+            }
         }
-        return;
     }
 
     if(gears > maxGears()) {
-        qDebug() << "new gear value ignored because of maxGears" << maxGears();
-        emit gearFailedUp();
-        return;
+        if(m_gears >= maxGears()) {
+            qDebug() << "new gear value ignored - already at maxGears" << maxGears();
+            emit gearFailedUp();
+            return;
+        } else {
+            qDebug() << "gear value clamped to maxGears" << maxGears();
+            gears = maxGears();
+            emit gearFailedUp();
+        }
     }
 
     if(gears < minGears()) {
-        qDebug() << "new gear value ignored because of minGears" << minGears();
-        emit gearFailedDown();
-        return;
+        if(m_gears >= minGears()) {
+            qDebug() << "new gear value ignored - already at or above minGears" << minGears();
+            emit gearFailedDown();
+            return;
+        } else {
+            qDebug() << "gear value clamped to minGears" << minGears();
+            gears = minGears();
+            emit gearFailedDown();
+        }
     }
 
     if(m_gears > gears) {
@@ -176,6 +220,7 @@ void bike::clearStats() {
     m_jouls.clear(true);
     elevationAcc = 0;
     m_watt.clear(false);
+    m_rawWatt.clear(false);
     WeightLoss.clear(false);
 
     RequestedPelotonResistance.clear(false);
@@ -203,6 +248,7 @@ void bike::setPaused(bool p) {
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
+    m_rawWatt.setPaused(p);
     WeightLoss.setPaused(p);
     m_pelotonResistance.setPaused(p);
     Cadence.setPaused(p);
@@ -228,6 +274,7 @@ void bike::setLap() {
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);
+    m_rawWatt.setLap(false);
     WeightLoss.setLap(false);
     WattKg.setLap(false);
 

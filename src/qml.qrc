@@ -114,5 +114,7 @@
         <file>StaticAccordionElement.qml</file>
         <file>inner_templates/chartjs/dotreadmillchartlive.js</file>
         <file>inner_templates/chartjs/treadmillchartlive.htm</file>
+        <file>WebPelotonAuth.qml</file>
+        <file>inner_templates/floating/hfloating.htm</file>
     </qresource>
 </RCC>

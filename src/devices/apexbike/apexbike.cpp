@@ -57,7 +57,12 @@ void apexbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
+                                                            QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+    }
 
     if (!disable_log) {
         qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
@@ -141,18 +146,20 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     lastPacket = newValue;
 
     if (newValue.length() == 10 && newValue.at(2) == 0x31) {
-        Resistance = newValue.at(5);
+        // Invert resistance: bike resistance 1-32 maps to app display 32-1
+        uint8_t rawResistance = newValue.at(5);
+        Resistance = 33 - rawResistance;  // Invert: 1->32, 32->1
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = Resistance.value();
 
-        qDebug() << QStringLiteral("Current resistance: ") + QString::number(Resistance.value());
+        qDebug() << QStringLiteral("Raw resistance: ") + QString::number(rawResistance) + QStringLiteral(", Inverted resistance: ") + QString::number(Resistance.value());
     }
 
-    if (newValue.length() != 10 || newValue.at(2) != 0x30) {
+    if (newValue.length() != 10 || newValue.at(2) != 0x31) {
         return;
     }
 
-    uint16_t distanceData = (newValue.at(3) << 8) | ((uint8_t)newValue.at(4));
+    uint16_t distanceData = (newValue.at(7) << 8) | ((uint8_t)newValue.at(8));
     double distance = ((double)distanceData);
 
     if(distance != lastDistance) {
@@ -177,6 +184,19 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         lastDistance = distance;
         lastTS = now;
         qDebug() << "lastDistance" << lastDistance << "lastTS" << lastTS;
+    } else {
+        // Check if speed and cadence should be reset due to timeout (2 seconds)
+        if (lastTS.msecsTo(now) > 2000) {
+            if (Speed.value() > 0) {
+                Speed = 0;
+                qDebug() << "Speed reset to 0 due to timeout";
+            }
+            if (Cadence.value() > 0) {
+                Cadence = 0;
+                qDebug() << "Cadence reset to 0 due to timeout";
+            }
+            lastTS = now;
+        }
     }
 
     if (watts())
@@ -411,7 +431,55 @@ bool apexbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-uint16_t apexbike::watts() { return wattFromHR(true); }
+uint16_t apexbike::watts() {
+    // Calculate watts based on resistance and cadence using lookup table
+    double resistance = Resistance.value();
+    double cadence = Cadence.value();
+    
+    if (cadence <= 0 || resistance <= 0) {
+        return 0;
+    }
+    
+    // Data points from your table:
+    // Resistance 6, Cadence 92  -> 167W
+    // Resistance 1, Cadence 107 -> 130W  
+    // Resistance 6, Cadence 120 -> 218W
+    // Resistance 10, Cadence 69 -> 160W
+    // Resistance 20, Cadence 69 -> 244W
+    
+    // Calculate base watts per resistance level at 80 RPM baseline
+    double baseWatts = 0;
+    if (resistance <= 1) {
+        baseWatts = 97.0; // Interpolated for R1 at 80rpm
+    } else if (resistance <= 6) {
+        // Linear interpolation between R1 and R6
+        double ratio = (resistance - 1) / 5.0;
+        baseWatts = 97.0 + ratio * (145.0 - 97.0); // R6 at 80rpm ≈ 145W
+    } else if (resistance <= 10) {
+        // Linear interpolation between R6 and R10  
+        double ratio = (resistance - 6) / 4.0;
+        baseWatts = 145.0 + ratio * (186.0 - 145.0); // R10 at 80rpm ≈ 186W
+    } else if (resistance <= 20) {
+        // Linear interpolation between R10 and R20
+        double ratio = (resistance - 10) / 10.0;
+        baseWatts = 186.0 + ratio * (283.0 - 186.0); // R20 at 80rpm ≈ 283W
+    } else {
+        // Extrapolate beyond R20
+        baseWatts = 283.0 + (resistance - 20) * 9.7; // ~9.7W per resistance level
+    }
+    
+    // Apply cadence multiplier (relative to 80 RPM baseline)
+    double cadenceMultiplier = cadence / 80.0;
+    
+    // Slight power curve - higher cadence gives diminishing returns
+    if (cadenceMultiplier > 1.0) {
+        cadenceMultiplier = 1.0 + (cadenceMultiplier - 1.0) * 0.85;
+    }
+    
+    double watts = baseWatts * cadenceMultiplier;
+    
+    return (uint16_t)qMax(0.0, watts);
+}
 
 void apexbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

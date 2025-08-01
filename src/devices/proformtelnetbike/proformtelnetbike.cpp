@@ -18,6 +18,7 @@ proformtelnetbike::proformtelnetbike(bool noWriteResistance, bool noHeartService
                                  double bikeResistanceGain) {
     QSettings settings;
     m_watt.setType(metric::METRIC_WATT);
+    m_rawWatt.setType(metric::METRIC_WATT);
     target_watts.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -298,11 +299,11 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
     QStringList packet = QString::fromLocal8Bit(newValue).split(" ");
     qDebug() << packet;    
     if (newValue.contains("Current Watts")) {
-        double watt = packet[3].toDouble();
+        m_rawWatt = packet[3].toDouble();
         if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")))
-            m_watt = watt;
+            m_watt = m_rawWatt.value();
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
     } else if (newValue.contains("Cur RPM")) {
         double RPM = packet[3].toDouble();
@@ -396,20 +397,5 @@ uint16_t proformtelnetbike::wattsFromResistance(resistance_t resistance) {
 }
 
 resistance_t proformtelnetbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-    if (Cadence.value() == 0)
-        return 1;
-
-    for (resistance_t i = 1; i < maxResistance(); i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                    << wattsFromResistance(i + 1) << power;
-            return i;
-        }
-    }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        return maxResistance();
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), maxResistance());
 }
