@@ -7,13 +7,12 @@ import de.tbressler.waterrower.WaterRower;
 import de.tbressler.waterrower.IWaterRowerConnectionListener;
 import de.tbressler.waterrower.discovery.WaterRowerAutoDiscovery;
 import de.tbressler.waterrower.io.transport.SerialDeviceAddress;
-import de.tbressler.waterrower.io.msg.AbstractMessage;
 import de.tbressler.waterrower.model.ErrorCode;
 import de.tbressler.waterrower.model.ModelInformation;
+import de.tbressler.waterrower.model.StrokeType;
 import de.tbressler.waterrower.subscriptions.values.*;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -36,80 +35,55 @@ public class WaterRowerBridge {
             
             // Subscribe to rowing metrics
             try {
-                // Subscribe to stroke rate  
+                // Subscribe to stroke events  
                 waterRower.subscribe(new StrokeSubscription() {
                     @Override
-                    public void onStrokeReceived(int strokeRate) {
-                        lastStrokeRate = strokeRate;
+                    protected void onStroke(StrokeType strokeType) {
+                        // Track stroke events - could calculate stroke rate here
                         lastDataUpdate = System.currentTimeMillis();
-                        Log.d(TAG, "Stroke rate: " + strokeRate);
-                    }
-                    
-                    @Override
-                    public void handle(AbstractMessage message) {
-                        // Handle stroke messages
+                        Log.d(TAG, "Stroke: " + strokeType);
                     }
                 });
                 
                 // Subscribe to distance
                 waterRower.subscribe(new DistanceSubscription() {
                     @Override
-                    public void onDistanceReceived(int distance) {
+                    protected void onDistanceUpdated(double distance) {
                         lastDistance = distance;
                         lastDataUpdate = System.currentTimeMillis();
                         Log.d(TAG, "Distance: " + distance);
-                    }
-                    
-                    @Override
-                    public void handle(AbstractMessage message) {
-                        // Handle distance messages
                     }
                 });
                 
                 // Subscribe to total velocity (pace)
                 waterRower.subscribe(new TotalVelocitySubscription() {
                     @Override
-                    public void onVelocityReceived(int velocity) {
+                    protected void onVelocityUpdated(double velocity) {
                         if (velocity > 0) {
                             lastPace = 500.0 / velocity; // Convert to seconds per 500m
                         }
                         lastDataUpdate = System.currentTimeMillis();
                         Log.d(TAG, "Velocity: " + velocity + ", Pace: " + lastPace);
                     }
-                    
-                    @Override
-                    public void handle(AbstractMessage message) {
-                        // Handle velocity messages
-                    }
                 });
                 
                 // Subscribe to watts
                 waterRower.subscribe(new WattsSubscription() {
                     @Override
-                    public void onWattsReceived(int watts) {
+                    protected void onWattsUpdated(int watts) {
                         lastWatts = watts;
                         lastDataUpdate = System.currentTimeMillis();
                         Log.d(TAG, "Watts: " + watts);
-                    }
-                    
-                    @Override
-                    public void handle(AbstractMessage message) {
-                        // Handle watts messages
                     }
                 });
                 
                 // Subscribe to calories
                 waterRower.subscribe(new TotalCaloriesSubscription() {
                     @Override
-                    public void onCaloriesReceived(int calories) {
+                    protected void onCaloriesUpdated(int calories) {
                         lastCalories = calories;
                         lastDataUpdate = System.currentTimeMillis();
                         Log.d(TAG, "Calories: " + calories);
-                    }
-                    
-                    @Override
-                    public void handle(AbstractMessage message) {
-                        // Handle calories messages
                     }
                 });
                 
@@ -139,41 +113,18 @@ public class WaterRowerBridge {
         }
         
         try {
-            // Auto-discover WaterRower devices
-            WaterRowerAutoDiscovery discovery = new WaterRowerAutoDiscovery();
-            List<SerialDeviceAddress> devices = discovery.discover();
-            
-            if (devices.isEmpty()) {
-                Log.w(TAG, "No WaterRower devices found");
-                return "NO_DEVICE_FOUND";
-            }
-            
-            Log.d(TAG, "Found " + devices.size() + " WaterRower device(s)");
-            
-            // Connect to the first available device
-            SerialDeviceAddress deviceAddress = devices.get(0);
-            Log.d(TAG, "Connecting to device: " + deviceAddress.getAddress());
-            
+            // Create WaterRower instance and set up auto-discovery
             waterRower = new WaterRower();
             waterRower.addConnectionListener(connectionListener);
             
-            // Connect with timeout
-            CompletableFuture<Void> connectFuture = CompletableFuture.runAsync(() -> {
-                try {
-                    waterRower.connect(deviceAddress);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            // Set up auto-discovery
+            WaterRowerAutoDiscovery discovery = new WaterRowerAutoDiscovery(waterRower);
             
-            try {
-                connectFuture.get(10, TimeUnit.SECONDS);
-                Log.d(TAG, "WaterRower connection initiated");
-                return "SUCCESS";
-            } catch (Exception e) {
-                Log.e(TAG, "Connection timeout or failed", e);
-                return "CONNECTION_FAILED";
-            }
+            // Start auto-discovery (this will automatically connect when a device is found)
+            discovery.start();
+            
+            Log.d(TAG, "WaterRower auto-discovery started");
+            return "SUCCESS";
             
         } catch (Exception e) {
             Log.e(TAG, "Failed to initialize WaterRower", e);
