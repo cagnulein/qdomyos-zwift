@@ -768,19 +768,19 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     }
     // Max pace levels (≥ 2.6 mph to ≥ 6.6 mph)
     walking_pace[4].levels[0].slow_pace = 4.18428;  // 2.6 mph
-    walking_pace[4].levels[0].fast_pace = 8.04670;  // 5.0 mph (reasonable upper limit)
+    walking_pace[4].levels[0].fast_pace = 9.01231;  // 5.6 mph (2.6 + 3.0 mph)
     walking_pace[4].levels[0].speed = (walking_pace[4].levels[0].slow_pace + walking_pace[4].levels[0].fast_pace) / 2.0;
     
     walking_pace[4].levels[1].slow_pace = 4.98895;  // 3.1 mph
-    walking_pace[4].levels[1].fast_pace = 8.69044;  // 5.4 mph
+    walking_pace[4].levels[1].fast_pace = 9.81698;  // 6.1 mph (3.1 + 3.0 mph)
     walking_pace[4].levels[1].speed = (walking_pace[4].levels[1].slow_pace + walking_pace[4].levels[1].fast_pace) / 2.0;
     
     walking_pace[4].levels[2].slow_pace = 5.79362;  // 3.6 mph
-    walking_pace[4].levels[2].fast_pace = 9.33418;  // 5.8 mph
+    walking_pace[4].levels[2].fast_pace = 10.62165; // 6.6 mph (3.6 + 3.0 mph)
     walking_pace[4].levels[2].speed = (walking_pace[4].levels[2].slow_pace + walking_pace[4].levels[2].fast_pace) / 2.0;
     
     walking_pace[4].levels[3].slow_pace = 6.59829;  // 4.1 mph
-    walking_pace[4].levels[3].fast_pace = 9.97791;  // 6.2 mph
+    walking_pace[4].levels[3].fast_pace = 11.42632; // 7.1 mph (4.1 + 3.0 mph)
     walking_pace[4].levels[3].speed = (walking_pace[4].levels[3].slow_pace + walking_pace[4].levels[3].fast_pace) / 2.0;
     
     walking_pace[4].levels[4].slow_pace = 7.40296;  // 4.6 mph
@@ -788,19 +788,19 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     walking_pace[4].levels[4].speed = (walking_pace[4].levels[4].slow_pace + walking_pace[4].levels[4].fast_pace) / 2.0;
     
     walking_pace[4].levels[5].slow_pace = 8.20764;  // 5.1 mph
-    walking_pace[4].levels[5].fast_pace = 11.26538; // 7.0 mph
+    walking_pace[4].levels[5].fast_pace = 13.03565; // 8.1 mph (5.1 + 3.0 mph)
     walking_pace[4].levels[5].speed = (walking_pace[4].levels[5].slow_pace + walking_pace[4].levels[5].fast_pace) / 2.0;
     
     walking_pace[4].levels[6].slow_pace = 9.01231;  // 5.6 mph
-    walking_pace[4].levels[6].fast_pace = 11.90912; // 7.4 mph
+    walking_pace[4].levels[6].fast_pace = 13.84032; // 8.6 mph (5.6 + 3.0 mph)
     walking_pace[4].levels[6].speed = (walking_pace[4].levels[6].slow_pace + walking_pace[4].levels[6].fast_pace) / 2.0;
     
     walking_pace[4].levels[7].slow_pace = 9.81698;  // 6.1 mph
-    walking_pace[4].levels[7].fast_pace = 12.55285; // 7.8 mph
+    walking_pace[4].levels[7].fast_pace = 14.64498; // 9.1 mph (6.1 + 3.0 mph)
     walking_pace[4].levels[7].speed = (walking_pace[4].levels[7].slow_pace + walking_pace[4].levels[7].fast_pace) / 2.0;
     
     walking_pace[4].levels[8].slow_pace = 10.62165; // 6.6 mph
-    walking_pace[4].levels[8].fast_pace = 13.19659; // 8.2 mph
+    walking_pace[4].levels[8].fast_pace = 15.44965; // 9.6 mph (6.6 + 3.0 mph)
     walking_pace[4].levels[8].speed = (walking_pace[4].levels[8].slow_pace + walking_pace[4].levels[8].fast_pace) / 2.0;
 
     connect(timer, &QTimer::timeout, this, &peloton::checkWorkoutStatus);
