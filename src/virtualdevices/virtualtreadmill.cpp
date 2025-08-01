@@ -557,6 +557,8 @@ void virtualtreadmill::treadmillProvider() {
     uint16_t swiftWatt = (uint16_t)((treadmill *)treadMill)->wattsMetric().value();
     uint16_t swiftInclination = (uint16_t)(inclination * 10.0);
     uint64_t swiftDistance = (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0);
+    uint16_t swiftCalories = ((treadmill *)treadMill)->calories().value();
+    qint32 swiftSteps = ((treadmill *)treadMill)->currentStepCount().value();
 
     // Calculate Elapsed Time to pass
     QTime swift_elapsed = treadMill->elapsedTime();
@@ -568,11 +570,13 @@ void virtualtreadmill::treadmillProvider() {
 
     if (h->virtualtreadmill_updateFTMS(  // uses @objc public func updateFTMS in virtualtreadmill_zwift.swift
             swiftSpeed,
-            swiftCadence,
             swiftResistance,
+            swiftCadence,
             swiftWatt,
             swiftInclination,
             swiftDistance,
+            swiftCalories,
+            swiftSteps,
             swiftElapsedTimeSeconds
             )) {
         h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());

@@ -25,8 +25,10 @@
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
 
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
 #ifdef Q_OS_ANDROID
-
 #include <QAndroidJniEnvironment>
 #include <QtAndroid>
 #endif
@@ -815,6 +817,9 @@ class homeform : public QObject {
     bool floating_open = false;    
 #endif
 
+#ifdef Q_OS_IOS
+    lockscreen *h = nullptr;
+#endif
     bool m_locationServices = true;
 
 #ifndef Q_OS_IOS

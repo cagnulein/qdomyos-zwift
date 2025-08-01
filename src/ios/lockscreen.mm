@@ -225,8 +225,11 @@ double lockscreen::virtualtreadmill_getRequestedSpeed()
     return 0;
 }
 
-bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, unsigned short elapsedSeconds)
+bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, UInt16 currentCalories, qint32 currentSteps, unsigned short elapsedSeconds)
 {
+    if(workoutTracking != nil && !appleWatchAppInstalled())
+        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:currentSteps deviceType:bluetoothdevice::BLUETOOTH_TYPE::TREADMILL distance:currentDistance];
+
     if(_virtualtreadmill_zwift != nil)
         return [_virtualtreadmill_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt currentInclination:currentInclination currentDistance:currentDistance elapsedTimeSeconds:elapsedSeconds];
     return 0;
