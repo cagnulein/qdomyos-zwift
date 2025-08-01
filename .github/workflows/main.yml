@@ -1,4 +1,197 @@
+name: CI
 
+env:
+  DISPLAY: ':99'
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master,  github-workflow-playground ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: "0 0 * * *"
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  window-build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        config:
+          - {python: true}
+          - {python: false}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: cagnulein/qmdnsengine
+          path: "src/qmdnsengine/"
+          ref: "zwift"   
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: microsoft/MSIX-Toolkit
+          path: "src/MSIX-Toolkit/"
+          ref: b82af826d29e93e4c85d34fad8a405b6c49905e7
+
+      - uses: actions/checkout@v2
+      - name: Checkout qHttpServer
+        uses: actions/checkout@v2
+        with:
+          repository: qt-labs/qthttpserver
+          path: "src/qthttpserver"
+
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
+      - name: download python and paddleocr
+        run: |
+          python -VV
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade setuptools
+          python -m pip install "protobuf<=3.20.2,>=3.1.0"
+          python -m pip install paddlepaddle==2.5.1
+          python -m pip install paddleocr
+          python -m pip install imutils
+          python -m pip install "Pillow<10.0.0"
+          python -m pip install opencv-python
+          python -m pip install numpy
+          python -m pip install pywin32
+        if: matrix.config.python
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview
+          msystem: mingw64
+          release: false
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.9
+        with:
+          cmake-version: '3.20.x'
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.8.2'
+          host: 'windows'
+          modules: 'qtnetworkauth qtcharts'
+          target: "desktop"
+          arch: win64_mingw81
+          dir: "${{github.workspace}}/qt/"
+          install-deps: "true"
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-windows'          
+
+      - name: download 3rd party files for qthttpserver
+        run: |
+            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+      - name: Build qthttpserver
+        run: |
+            cd src\qthttpserver 
+            qmake
+            make -j8
+            make install
+            cd ../..
+      - name: Secrets
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/qt6'
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          cd ..  
+      - name: Build
+        run: |
+            qmake
+            make -j8
+            cd src/debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.* output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp "C:/mingw64/bin/libwinpthread-1.dll" .
+            cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
+            cp "C:/mingw64/bin/libstdc++-6.dll" .
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .
+            cp ../../AppxManifest.xml .
+            cp ../../windows/*.py .
+            cp ../../windows/*.bat .
+            cp ../../../windows_openssl/*.* .
+            mkdir adb
+            mkdir python
+            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
+            cp ../../adb/* adb/
+            cd ..
+            cd appx
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
+        if: matrix.config.python
+            
+      - name: Build without python
+        run: |
+            qmake
+            make -j8
+            cd src/debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.* output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp "C:/mingw64/bin/libwinpthread-1.dll" .
+            cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
+            cp "C:/mingw64/bin/libstdc++-6.dll" .
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .
+            cp ../../AppxManifest.xml .
+            cp ../../../windows_openssl/*.* .
+            mkdir adb
+            cp ../../adb/* adb/
+            cd ..
+            cd appx
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
+        if: matrix.config.python == false
+
+      - name: patching qt for bluetooth
+        run: cp qt-patches/windows/5.15.2/binary/mingw64/*.* ${{ github.workspace }}/src/debug/output/
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-binary.zip
+        if: matrix.config.python
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-binary-no-python.zip
+        if:  ${{ ! matrix.config.python }}
+
+      - name: Archive windows binary
+        uses: actions/upload-artifact@v4
         with:
           name: windows-binary
           path: windows-binary.zip
