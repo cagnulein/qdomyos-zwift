@@ -157,7 +157,7 @@ void deerruntreadmill::update() {
         initRequest = false;
         btinit((lastSpeed > 0 ? true : false));
     } else if (/*bluetoothDevice.isValid() &&*/
-                   m_control->state() == QLowEnergyController::DiscoveredState && gattCommunicationChannelService &&
+               m_control->state() == QLowEnergyController::DiscoveredState && gattCommunicationChannelService &&
                gattWriteCharacteristic.isValid() && gattNotifyCharacteristic.isValid() && initDone) {
 
         QSettings settings;
@@ -188,7 +188,7 @@ void deerruntreadmill::update() {
         }
         // ********************************************************************************************************
 
-               // debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
+        // debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
 
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
@@ -239,14 +239,14 @@ void deerruntreadmill::update() {
                 requestStart = -1;
                 emit tapeStarted();
             } else if (requestStop != -1) {
-                emit debug(QStringLiteral("stopping... ") + (paused ? "true" : "false"));
+                emit debug(QStringLiteral("stopping... ") + QString::number(paused));
                 /*if (lastState == PAUSED) {
                     uint8_t pause[] = {0x05, 0x00, 0x00, 0x00, 0x00, 0x2a, 0x07};
 
-                     writeCharacteristic(gattWriteCharacteristic, pause, sizeof(pause), QStringLiteral("pause"), false,
-                                         true);
+                    writeCharacteristic(gattWriteCharacteristic, pause, sizeof(pause), QStringLiteral("pause"), false,
+                                        true);
 
-                  } else*/ {
+                } else*/ {
                     uint8_t stop[] = {0x4d, 0x00, 0x48, 0x17, 0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x50, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x85, 0x11, 0xd6, 0x43};
                     stop[2] = pollCounter;
 
@@ -272,20 +272,20 @@ void deerruntreadmill::update() {
             /*if (requestFanSpeed != -1) {
                 emit debug(QStringLiteral("changing fan speed..."));
 
-                 sendChangeFanSpeed(requestFanSpeed);
-                 requestFanSpeed = -1;
-             }
-             if (requestIncreaseFan != -1) {
-                 emit debug(QStringLiteral("increasing fan speed..."));
+                sendChangeFanSpeed(requestFanSpeed);
+                requestFanSpeed = -1;
+            }
+            if (requestIncreaseFan != -1) {
+                emit debug(QStringLiteral("increasing fan speed..."));
 
-                  sendChangeFanSpeed(FanSpeed + 1);
-                  requestIncreaseFan = -1;
-              } else if (requestDecreaseFan != -1) {
-                  emit debug(QStringLiteral("decreasing fan speed..."));
+                sendChangeFanSpeed(FanSpeed + 1);
+                requestIncreaseFan = -1;
+            } else if (requestDecreaseFan != -1) {
+                emit debug(QStringLiteral("decreasing fan speed..."));
 
-                   sendChangeFanSpeed(FanSpeed - 1);
-                   requestDecreaseFan = -1;
-               }*/
+                sendChangeFanSpeed(FanSpeed - 1);
+                requestDecreaseFan = -1;
+            }*/
         }
     }
 }
@@ -332,7 +332,7 @@ void deerruntreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 update_hr_from_external();
             } else
 
-            Heart = heart;
+                Heart = heart;
         }
     }
 
@@ -345,7 +345,7 @@ void deerruntreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                 now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                         // kg * 3.5) / 200 ) / 60
+                                                                  // kg * 3.5) / 200 ) / 60
 
         Distance += ((speed / (double)3600.0) /
                      ((double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(now))));
@@ -417,14 +417,14 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
-    if (state == QLowEnergyService::RemoteServiceDiscovered) {
+    if (state == QLowEnergyService::ServiceDiscovered) {
 
         QLowEnergyService* service = qobject_cast<QLowEnergyService*>(sender());
         if (service == unlock_service && pitpat) {
             // Handle unlock service characteristics
             auto characteristics_list = unlock_service->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("unlock char uuid") << c.uuid() << QStringLiteral("handle") << c.handle()
+                qDebug() << QStringLiteral("unlock char uuid") << c.uuid() << QStringLiteral("handle")
                          << c.properties();
             }
             
@@ -438,7 +438,7 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         // qDebug() << gattCommunicationChannelService->characteristics();
         auto characteristics_list = gattCommunicationChannelService->characteristics();
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-            qDebug() << QStringLiteral("char uuid") << c.uuid()
+            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle")
                      << c.properties();
         }
 
@@ -453,15 +453,12 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotifyCharacteristic.isValid());
 
-               // establish hook into notifications
+        // establish hook into notifications
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
                 &deerruntreadmill::characteristicChanged);
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &deerruntreadmill::characteristicWritten);
-
-        connect(gattCommunicationChannelService,
-                &QLowEnergyService::errorOccurred,
-                this, &deerruntreadmill::errorService);
+        connect(gattCommunicationChannelService, &QLowEnergyService::errorOccurred, this, &deerruntreadmill::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &deerruntreadmill::descriptorWritten);
 
@@ -545,15 +542,10 @@ void deerruntreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &deerruntreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &deerruntreadmill::serviceScanDone);
-
-        connect(m_control,
-                &QLowEnergyController::errorOccurred,
-                this, &deerruntreadmill::error);
+        connect(m_control, &QLowEnergyController::errorOccurred, this, &deerruntreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &deerruntreadmill::controllerStateChanged);
 
-        connect(m_control,
-                &QLowEnergyController::errorOccurred,
-                this, [this](QLowEnergyController::Error error) {
+        connect(m_control, &QLowEnergyController::errorOccurred, this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
                     emit debug(QStringLiteral("Cannot connect to remote device."));
@@ -572,7 +564,7 @@ void deerruntreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             emit disconnected();
         });
 
-               // Connect
+        // Connect
         m_control->connectToDevice();
         return;
     }
@@ -597,101 +589,3 @@ bool deerruntreadmill::connected() {
 }
 
 void deerruntreadmill::searchingStop() { searchStopped = true; }
-
-
-void deerruntreadmill::startScan() {
-    QBluetoothDeviceDiscoveryAgent *discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
-    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this,
-            &deerruntreadmill::deviceDiscovered);
-    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &deerruntreadmill::scanFinished);
-    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::errorOccurred, this, &deerruntreadmill::scanError);
-    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-}
-
-void deerruntreadmill::scanFinished() {
-    qDebug() << QStringLiteral("scanFinished");
-    if (!m_control) {
-        emit disconnected();
-    }
-}
-
-void deerruntreadmill::scanError(QBluetoothDeviceDiscoveryAgent::Error error) {
-    qDebug() << QStringLiteral("scanError") << error;
-    emit disconnected();
-}
-
-void deerruntreadmill::connectToDevice(const QString &name) {
-    QSettings settings;
-    QString deviceName =
-        settings.value(QZSettings::deerrun_treadmill_name, QZSettings::default_deerrun_treadmill_name).toString();
-    if (name.isEmpty() || name == deviceName) {
-        startScan();
-    }
-}
-
-void deerruntreadmill::disconnect() {
-    if (m_control) {
-        m_control->disconnectFromDevice();
-    }
-}
-
-deerruntreadmill::~deerruntreadmill() {
-    if (m_control) {
-        m_control->disconnectFromDevice();
-    }
-}
-
-void deerruntreadmill::changeSpeed(double value) { requestSpeed = value; }
-
-void deerruntreadmill::changeInclination(double value, double percentage) { requestInclination = value; }
-
-void deerruntreadmill::startTape() { requestStart = 1; }
-
-void deerruntreadmill::stopTape() { requestStop = 1; }
-
-void deerruntreadmill::pauseTape() { requestStop = 1; }
-
-void deerruntreadmill::increaseFan() { requestIncreaseFan = 1; }
-
-void deerruntreadmill::decreaseFan() { requestDecreaseFan = 1; }
-
-void deerruntreadmill::changeFanSpeed(int value) { requestFanSpeed = value; }
-
-double deerruntreadmill::watts(float weight) {
-    double w = 0;
-    if (Speed.value() > 0) {
-        w = (0.027 * 9.8 * weight * (Speed.value() / 3.6)) +
-            (1.02 * 9.8 * weight * (Speed.value() / 3.6) * (Inclination.value() / 100));
-    }
-    m_watt = w;
-    return w;
-}
-
-void deerruntreadmill::update_hr_from_external() {
-    QSettings settings;
-    QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-        return;
-    }
-    if (lastTimeHrCheck.msecsTo(QDateTime::currentDateTime()) > 1000) {
-        lastTimeHrCheck = QDateTime::currentDateTime();
-        QFile inputFile(QStringLiteral("hr.txt"));
-        if (inputFile.open(QIODevice::ReadOnly)) {
-            QTextStream in(&inputFile);
-            QString line = in.readLine();
-            if (line.toInt() > 0)
-                Heart = line.toInt();
-            inputFile.close();
-        }
-    }
-}
-
-void deerruntreadmill::update_metrics(bool force, double watts) {
-    QSettings settings;
-    if (force || lastTimeUpdate.msecsTo(QDateTime::currentDateTime()) >
-                     settings.value(QZSettings::metric_send_time, QZSettings::default_metric_send_time).toInt()) {
-        lastTimeUpdate = QDateTime::currentDateTime();
-        emit metrics(Speed, Distance, Heart, KCal, Inclination, m_watt, Pace, 0, 0, 0);
-    }
-}

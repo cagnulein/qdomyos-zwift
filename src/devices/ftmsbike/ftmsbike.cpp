@@ -730,7 +730,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         lastRefreshCharacteristicChanged2AD2 = now;
         ftmsFrameReceived = true;
-    } else if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement && !ftmsFrameReceived) {
+    } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement && !ftmsFrameReceived) {
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
         bool cadence_present = false;
         bool wheel_revs = false;
