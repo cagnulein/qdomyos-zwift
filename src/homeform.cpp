@@ -1087,6 +1087,12 @@ QString homeform::getWritableAppDir() {
     if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
         QDir().mkdir(path);
+        // Create .nomedia file to prevent gallery indexing
+        QFile nomediaFile(path + ".nomedia");
+        if (!nomediaFile.exists()) {
+            nomediaFile.open(QIODevice::WriteOnly);
+            nomediaFile.close();
+        }
     } else {
         path = getAndroidDataAppDir() + "/";
     }
@@ -4167,9 +4173,12 @@ void homeform::Plus(const QString &name) {
                 double perc = ((elliptical *)bluetoothManager->device())->currentInclination().value() + step;
                 ((elliptical *)bluetoothManager->device())->changeInclination(perc, perc);
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                double step =
+                    settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline)
+                        .toDouble();
                 ((bike *)bluetoothManager->device())
-                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() + 0.5,
-                                        ((bike *)bluetoothManager->device())->currentInclination().value() + 0.5);
+                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() + step,
+                                        ((bike *)bluetoothManager->device())->currentInclination().value() + step);
             }
         }
     } else if (name.contains(QStringLiteral("pid_hr"))) {
@@ -4429,9 +4438,12 @@ void homeform::Minus(const QString &name) {
                 double perc = ((elliptical *)bluetoothManager->device())->currentInclination().value() - step;
                 ((elliptical *)bluetoothManager->device())->changeInclination(perc, perc);
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                double step =
+                    settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline)
+                        .toDouble();
                 ((bike *)bluetoothManager->device())
-                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() - 0.5,
-                                        ((bike *)bluetoothManager->device())->currentInclination().value() - 0.5);
+                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() - step,
+                                        ((bike *)bluetoothManager->device())->currentInclination().value() - step);
             }
         }
     } else if (name.contains(QStringLiteral("pid_hr"))) {
@@ -4918,19 +4930,50 @@ void homeform::update() {
         uint32_t seconds_zone4 = bluetoothManager->device()->secondsForHeartZone(3);
         uint32_t seconds_zone5 = bluetoothManager->device()->secondsForHeartZone(4);
 
-               // Calculate cumulative times (time in this zone or higher)
-        uint32_t seconds_zone1_plus = seconds_zone1 + seconds_zone2 + seconds_zone3 + seconds_zone4 + seconds_zone5;
-        uint32_t seconds_zone2_plus = seconds_zone2 + seconds_zone3 + seconds_zone4 + seconds_zone5;
-        uint32_t seconds_zone3_plus = seconds_zone3 + seconds_zone4 + seconds_zone5;
-        uint32_t seconds_zone4_plus = seconds_zone4 + seconds_zone5;
-        uint32_t seconds_zone5_plus = seconds_zone5; // Zone 5 is already just zone 5
+        // Check if individual mode is enabled
+        bool individual_mode = settings.value(QZSettings::tile_hr_time_in_zone_individual_mode, QZSettings::default_tile_hr_time_in_zone_individual_mode).toBool();
 
-               // Update the UI for each tile
-        tile_hr_time_in_zone_1->setValue(QTime(0, 0, 0).addSecs(seconds_zone1_plus).toString("h:mm:ss"));
-        tile_hr_time_in_zone_2->setValue(QTime(0, 0, 0).addSecs(seconds_zone2_plus).toString("h:mm:ss"));
-        tile_hr_time_in_zone_3->setValue(QTime(0, 0, 0).addSecs(seconds_zone3_plus).toString("h:mm:ss"));
-        tile_hr_time_in_zone_4->setValue(QTime(0, 0, 0).addSecs(seconds_zone4_plus).toString("h:mm:ss"));
-        tile_hr_time_in_zone_5->setValue(QTime(0, 0, 0).addSecs(seconds_zone5_plus).toString("h:mm:ss"));
+        uint32_t display_zone1, display_zone2, display_zone3, display_zone4, display_zone5;
+        
+        if (individual_mode) {
+            // Individual mode: show only time in specific zone
+            display_zone1 = seconds_zone1;
+            display_zone2 = seconds_zone2;
+            display_zone3 = seconds_zone3;
+            display_zone4 = seconds_zone4;
+            display_zone5 = seconds_zone5;
+        } else {
+            // Progressive mode: show cumulative time (time in this zone or higher)
+            display_zone1 = seconds_zone1 + seconds_zone2 + seconds_zone3 + seconds_zone4 + seconds_zone5;
+            display_zone2 = seconds_zone2 + seconds_zone3 + seconds_zone4 + seconds_zone5;
+            display_zone3 = seconds_zone3 + seconds_zone4 + seconds_zone5;
+            display_zone4 = seconds_zone4 + seconds_zone5;
+            display_zone5 = seconds_zone5;
+        }
+
+        // Update labels based on mode
+        if (individual_mode) {
+            // Individual mode: show specific zone labels
+            tile_hr_time_in_zone_1->setName(QStringLiteral("HR Zone 1"));
+            tile_hr_time_in_zone_2->setName(QStringLiteral("HR Zone 2"));
+            tile_hr_time_in_zone_3->setName(QStringLiteral("HR Zone 3"));
+            tile_hr_time_in_zone_4->setName(QStringLiteral("HR Zone 4"));
+            tile_hr_time_in_zone_5->setName(QStringLiteral("HR Zone 5"));
+        } else {
+            // Progressive mode: show cumulative zone labels
+            tile_hr_time_in_zone_1->setName(QStringLiteral("HR Zone 1+"));
+            tile_hr_time_in_zone_2->setName(QStringLiteral("HR Zone 2+"));
+            tile_hr_time_in_zone_3->setName(QStringLiteral("HR Zone 3+"));
+            tile_hr_time_in_zone_4->setName(QStringLiteral("HR Zone 4+"));
+            tile_hr_time_in_zone_5->setName(QStringLiteral("HR Zone 5"));
+        }
+
+        // Update the UI for each tile
+        tile_hr_time_in_zone_1->setValue(QTime(0, 0, 0).addSecs(display_zone1).toString("h:mm:ss"));
+        tile_hr_time_in_zone_2->setValue(QTime(0, 0, 0).addSecs(display_zone2).toString("h:mm:ss"));
+        tile_hr_time_in_zone_3->setValue(QTime(0, 0, 0).addSecs(display_zone3).toString("h:mm:ss"));
+        tile_hr_time_in_zone_4->setValue(QTime(0, 0, 0).addSecs(display_zone4).toString("h:mm:ss"));
+        tile_hr_time_in_zone_5->setValue(QTime(0, 0, 0).addSecs(display_zone5).toString("h:mm:ss"));
 
                // Set colors based on the zone
         tile_hr_time_in_zone_1->setValueFontColor(QStringLiteral("lightsteelblue"));
@@ -5306,6 +5349,9 @@ void homeform::update() {
                 }
             }
 
+            // Use different zone names for walking vs running workouts
+            bool isWalkingWorkout = pelotonHandler && pelotonHandler->current_workout_type.toLower().startsWith("walking");
+            
             switch (trainProgram->currentRow().pace_intensity) {
             case 0:
                 this->target_zone->setValue(tr("Rec."));
@@ -5314,13 +5360,25 @@ void homeform::update() {
                 this->target_zone->setValue(tr("Easy"));
                 break;
             case 2:
-                this->target_zone->setValue(tr("Moder."));
+                if (isWalkingWorkout) {
+                    this->target_zone->setValue(tr("Brisk"));
+                } else {
+                    this->target_zone->setValue(tr("Moder."));
+                }
                 break;
             case 3:
-                this->target_zone->setValue(tr("Chall."));
+                if (isWalkingWorkout) {
+                    this->target_zone->setValue(tr("Power"));
+                } else {
+                    this->target_zone->setValue(tr("Chall."));
+                }
                 break;
             case 4:
-                this->target_zone->setValue(tr("Hard"));
+                if (isWalkingWorkout) {
+                    this->target_zone->setValue(tr("Max"));
+                } else {
+                    this->target_zone->setValue(tr("Hard"));
+                }
                 break;
             case 5:
                 this->target_zone->setValue(tr("V.Hard"));
@@ -5543,7 +5601,7 @@ void homeform::update() {
                 QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
 
             if ((!trainProgram || (trainProgram && !trainProgram->isStarted())) &&
-                !((bike *)bluetoothManager->device())->ergModeSupportedAvailableByHardware() &&
+                !((bike *)bluetoothManager->device())->ergModeSupportedAvailableBySoftware() &&
                 ((bike *)bluetoothManager->device())->lastRequestedPower().value() > 0 && m_overridePower) {
                 qDebug() << QStringLiteral("using target power tile for ERG workout manually");
                 ((bike *)bluetoothManager->device())
@@ -6478,9 +6536,9 @@ void homeform::update() {
                         }
                     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                         double step = 1;
-                        bool ergMode = ((bike*)bluetoothManager->device())->ergModeSupportedAvailableByHardware();
+                        bool ergMode = ((bike*)bluetoothManager->device())->ergModeSupportedAvailableBySoftware();
                         if(ergMode) {
-                            step = 5;
+                            step = settings.value(QZSettings::pid_heart_zone_erg_mode_watt_step, QZSettings::default_pid_heart_zone_erg_mode_watt_step).toInt();
                         }
                         resistance_t currentResistance =
                             ((bike *)bluetoothManager->device())->currentResistance().value();
@@ -7575,7 +7633,7 @@ void homeform::onStravaGranted() {
     settings.setValue(QZSettings::strava_accesstoken, strava->token());
     settings.setValue(QZSettings::strava_refreshtoken, strava->refreshToken());
     settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
-    qDebug() << QStringLiteral("strava authenticathed") << strava->token() << strava->refreshToken();
+    qDebug() << QStringLiteral("strava authenticated successfully");
     strava_refreshtoken();
     setGeneralPopupVisible(true);
 }
@@ -7613,8 +7671,7 @@ void homeform::replyDataReceived(const QByteArray &v) {
     settings.setValue(QZSettings::strava_refreshtoken, jsonResponse[QStringLiteral("refresh_token")]);
     settings.setValue(QZSettings::strava_expires, jsonResponse[QStringLiteral("expires_at")]);
 
-    qDebug() << jsonResponse[QStringLiteral("access_token")] << jsonResponse[QStringLiteral("refresh_token")]
-             << jsonResponse[QStringLiteral("expires_at")];
+    qDebug() << "Strava tokens received successfully, expires at:" << jsonResponse[QStringLiteral("expires_at")];
 
     QString urlstr = QStringLiteral("https://www.strava.com/oauth/token?");
     QUrlQuery params;
@@ -7677,7 +7734,7 @@ void homeform::networkRequestFinished(QNetworkReply *reply) {
         settings.setValue(QZSettings::strava_refreshtoken, refresh_token);
         settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
 
-        qDebug() << access_token << refresh_token;
+        qDebug() << "Strava tokens refreshed successfully";
 
     } else {
 
@@ -7956,7 +8013,9 @@ void homeform::sendMail() {
         QStringLiteral("Moving Time: ") + bluetoothManager->device()->movingTime().toString() + QStringLiteral("\n");
     textMessage += QStringLiteral("Weight Loss (") + weightLossUnit + "): " + QString::number(WeightLoss, 'f', 2) +
                    QStringLiteral("\n");
-    textMessage += QStringLiteral("Estimated VO2Max: ") + QString::number(metric::calculateVO2Max(&Session), 'f', 0) +
+    double vo2max = metric::calculateVO2Max(&Session);
+    if(vo2max)
+        textMessage += QStringLiteral("Estimated VO2Max: ") + QString::number(vo2max, 'f', 0) +
                    QStringLiteral("\n");
     if(bluetoothManager->device()->deviceType() == bluetoothdevice::BLUETOOTH_TYPE::TREADMILL) {
         textMessage += QStringLiteral("Running Stress Score: ") + QString::number(((treadmill*)bluetoothManager->device())->runningStressScore(), 'f', 0) +
@@ -8295,10 +8354,19 @@ void homeform::loadSettings(const QUrl &filename) {
             }
         }
     }
+    
+    // Emit signal when settings are loaded as they might contain user profile changes
+    if (homeform::singleton()) {
+        emit homeform::singleton()->userProfileChanged();
+    }
 }
 
 void homeform::deleteSettings(const QUrl &filename) { QFile(filename.toLocalFile()).remove(); }
-void homeform::restoreSettings() { QZSettings::restoreAll(); }
+void homeform::restoreSettings() { 
+    QZSettings::restoreAll(); 
+    // Emit signal when settings are restored as this might affect user profiles
+    emit userProfileChanged();
+}
 
 QString homeform::getProfileDir() {
     QString path = getWritableAppDir() + "profiles";

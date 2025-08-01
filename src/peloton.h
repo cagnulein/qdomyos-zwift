@@ -75,6 +75,7 @@ class peloton : public QObject {
     const int peloton_workout_second_resolution = 1;
     int workout_retry_count = 0;
     bool peloton_credentials_wrong = false;
+    bool needsReauth = false;
     QNetworkAccessManager *mgr = nullptr;
 
     QJsonDocument current_workout;
@@ -162,11 +163,13 @@ class peloton : public QObject {
     } _peloton_treadmill_pace_intensities;
 
     _peloton_treadmill_pace_intensities treadmill_pace[7];
+    _peloton_treadmill_pace_intensities walking_pace[5];
 
     int first_target_metrics_start_offset = 60;
 
   public slots:
     void peloton_connect_clicked();
+    void onUserProfileChanged();
 
   private slots:
     void login_onfinish(QNetworkReply *reply);
@@ -189,6 +192,7 @@ class peloton : public QObject {
     void callbackReceived(const QVariantMap &values);
 
     void startEngine();
+    void checkWorkoutStatus();
 
   signals:
     void loginState(bool ok);

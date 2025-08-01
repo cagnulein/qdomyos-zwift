@@ -54,20 +54,26 @@ extension WorkoutTracking {
         switch statistics.quantityType {
         case HKQuantityType.quantityType(forIdentifier: .distanceCycling):
             let distanceUnit = HKUnit.mile()
-            let value = statistics.mostRecentQuantity()?.doubleValue(for: distanceUnit)
-            let roundedValue = Double( round( 1 * value! ) / 1 )
+            guard let value = statistics.mostRecentQuantity()?.doubleValue(for: distanceUnit) else {
+                return
+            }
+            let roundedValue = Double( round( 1 * value ) / 1 )
             delegate?.didReceiveHealthKitDistanceCycling(roundedValue)
             
         case HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned):
             let energyUnit = HKUnit.kilocalorie()
-            let value = statistics.mostRecentQuantity()?.doubleValue(for: energyUnit)
-            let roundedValue = Double( round( 1 * value! ) / 1 )
+            guard let value = statistics.mostRecentQuantity()?.doubleValue(for: energyUnit) else {
+                return
+            }
+            let roundedValue = Double( round( 1 * value ) / 1 )
             delegate?.didReceiveHealthKitActiveEnergyBurned(roundedValue)
         
         case HKQuantityType.quantityType(forIdentifier: .heartRate):
             let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
-            let value = statistics.mostRecentQuantity()?.doubleValue(for: heartRateUnit)
-            let roundedValue = Double( round( 1 * value! ) / 1 )
+            guard let value = statistics.mostRecentQuantity()?.doubleValue(for: heartRateUnit) else {
+                return
+            }
+            let roundedValue = Double( round( 1 * value ) / 1 )
             delegate?.didReceiveHealthKitHeartRate(roundedValue)
             
         case HKQuantityType.quantityType(forIdentifier: .stepCount):
@@ -227,13 +233,11 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         let quantity = HKQuantity(unit: unit,
                                   doubleValue: totalEnergyBurned)
         
-        if workoutSession.startDate == nil {
-            return
-        }
+        let startDate = workoutSession.startDate ?? WorkoutTracking.lastDateMetric
         
         let sample = HKCumulativeQuantitySeriesSample(type: quantityType,
                                                       quantity: quantity,
-                                                      start: workoutSession.startDate!,
+                                                      start: startDate,
                                                       end: Date())
         
         workoutBuilder.add([sample]) {(success, error) in}
@@ -253,7 +257,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             
             let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
                                                           quantity: quantityMiles,
-                                                          start: workoutSession.startDate!,
+                                                          start: startDate,
                                                           end: Date())
             
             workoutBuilder.add([sampleDistance]) {(success, error) in
@@ -285,7 +289,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
              let sampleSteps = HKCumulativeQuantitySeriesSample(
                  type: quantityTypeSteps,
                  quantity: stepsQuantity,
-                 start: workoutSession.startDate!,
+                 start: startDate,
                  end: Date())
 
              // Add the steps sample to workout builder
@@ -314,7 +318,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
        
              let sampleDistance = HKCumulativeQuantitySeriesSample(type: typeDistance,
                                                            quantity: quantityMiles,
-                                                           start: workoutSession.startDate!,
+                                                           start: startDate,
                                                            end: Date())
              
              workoutBuilder.add([sampleDistance]) {(success, error) in
@@ -347,7 +351,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             let sampleSteps = HKCumulativeQuantitySeriesSample(
                 type: quantityTypeSteps,
                 quantity: stepsQuantity,  // Use your steps quantity here
-                start: workoutSession.startDate!,
+                start: startDate,
                 end: Date())
 
             // Add the steps sample to workout builder
@@ -379,7 +383,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
       
             let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
                                                           quantity: quantityMiles,
-                                                          start: workoutSession.startDate!,
+                                                          start: startDate,
                                                           end: Date())
             
             workoutBuilder.add([sampleDistance]) {(success, error) in

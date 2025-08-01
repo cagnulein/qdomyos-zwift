@@ -1053,6 +1053,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("YPOO-U3-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SCH_590E")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER ")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("FEIER-EM-")) ||
                         (b.name().startsWith(QStringLiteral("Domyos-EL")) && settings.value(QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts).toBool()) ||
                         (b.name().toUpper().startsWith("SF-") && b.name().midRef(3).toInt() > 0) ||
                         b.name().toUpper().startsWith(QStringLiteral("MYELLIPTICAL ")) ||
@@ -1075,7 +1076,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(ypooElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS E")) || 
-                        b.name().toUpper().startsWith(QStringLiteral("NAUTILUS M"))) &&
+                        b.name().toUpper().startsWith(QStringLiteral("NAUTILUS M")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("NAUTILUS 616"))) && // actually this is a bike that uses the same Bluetooth characteristics of the elliptical 
                        !nautilusElliptical && // NAUTILUS E616
                        filter) {
                 this->setLastBluetoothDevice(b);
@@ -1479,7 +1481,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("MOBVOI WMTP")) ||                        // FTMS
                             b.name().toUpper().startsWith(QStringLiteral("LB600")) ||                        // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-")) ||                     // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("TUNTURI T80-")) ||                     // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T90-")) ||                     // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) ||                // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("ASSAULTRUNNER")) ||                    // FTMS
@@ -1724,10 +1725,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("LYDSTO")) ||
                         (b.name().toUpper().startsWith("CYCLO_")) ||
                         (b.name().toUpper().startsWith("SL010-")) ||
-                        (b.name().toUpper().startsWith("EXPERT-SX9")) ||                         
-                        (b.name().toUpper().startsWith("LCR")) ||
+                        (b.name().toUpper().startsWith("EXPERT-SX9")) ||                                                 
                         (b.name().toUpper().startsWith("MRK-S26S-")) ||
                         (b.name().toUpper().startsWith("ROBX")) ||
+                        (b.name().toUpper().startsWith("SPEEDMAGPRO")) ||                        
                         (b.name().toUpper().startsWith("XCX-")) ||
                         (b.name().toUpper().startsWith("NEO BIKE PLUS ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) && !b.name().toUpper().endsWith(QStringLiteral("SKI")) && !b.name().toUpper().endsWith(QStringLiteral("ROW"))) || 
@@ -1742,7 +1743,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("DIRETO X")) || (b.name().toUpper().startsWith("MERACH-667-")) ||
                         !b.name().compare(ftms_bike, Qt::CaseInsensitive) || (b.name().toUpper().startsWith("SMB1")) ||
                         (b.name().toUpper().startsWith("UBIKE FTMS")) || (b.name().toUpper().startsWith("INRIDE"))) &&
-                       !ftmsBike && !snodeBike && !fitPlusBike && !stagesBike && filter) {
+                        ftms_rower.contains(QZSettings::default_ftms_rower) &&
+                       !ftmsBike && !ftmsRower && !snodeBike && !fitPlusBike && !stagesBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 ftmsBike = new ftmsbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -1817,6 +1819,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         ((b.name().toUpper().startsWith("KU")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith("ELITETRAINER")) ||
                         (b.name().toUpper().startsWith("TOUR 600")) ||
+                        (b.name().toUpper().startsWith("SMART+ #")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("QD")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith(QStringLiteral("RM")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith(QStringLiteral("DR")) && b.name().length() == 2) ||
@@ -2486,6 +2489,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 keepBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(keepBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("LCB")) ||
+                        b.name().toUpper().startsWith("LCR") ||
                         b.name().toUpper().startsWith(QStringLiteral("R92"))) &&
                        !soleBike && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2585,6 +2589,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14 &&
                          !b.name().contains('(') && !b.name().contains(')') && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("WINFITA"))) || //  also FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TUNTURI T80-")) ||   // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("SW-BLE"))) ||       // FTMS
                         (b.name().startsWith(QStringLiteral("BF70")))) &&
                        !fitshowTreadmill && !iconsole_elliptical && !horizonTreadmill && filter) {
@@ -3055,18 +3060,23 @@ void bluetooth::connectedAndDiscovered() {
         }
     }
 #ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() ||
+    bool android_antbike =
+        settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool();
+    if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() || android_antbike ||
         settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
                                                                                "activity", "()Landroid/app/Activity;");
         KeepAwakeHelper::antObject(true)->callMethod<void>(
-            "antStart", "(Landroid/app/Activity;ZZZZZ)V", activity.object<jobject>(),
+            "antStart", "(Landroid/app/Activity;ZZZZZZII)V", activity.object<jobject>(),
             settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool(),
             settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool(),
             settings.value(QZSettings::ant_garmin, QZSettings::default_ant_garmin).toBool(),
             device()->deviceType() == bluetoothdevice::TREADMILL ||
             device()->deviceType() == bluetoothdevice::ELLIPTICAL,
-            settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool());
+            settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool(),
+            settings.value(QZSettings::technogym_group_cycle, QZSettings::default_technogym_group_cycle).toBool(),
+            settings.value(QZSettings::ant_bike_device_number, QZSettings::default_ant_bike_device_number).toInt(),
+            settings.value(QZSettings::ant_heart_device_number, QZSettings::default_ant_heart_device_number).toInt());
     }
 
     if (settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {

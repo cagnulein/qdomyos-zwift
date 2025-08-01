@@ -11,6 +11,7 @@ import com.cgutman.adblib.AdbConnection;
 import com.cgutman.adblib.AdbCrypto;
 import com.cgutman.adblib.AdbStream;
 import com.cgutman.androidremotedebugger.AdbUtils;
+import org.cagnulen.qdomyoszwift.QLog;
 
 public class DeviceConnection implements Closeable {
 	private static final int CONN_TIMEOUT = 5000;
@@ -59,42 +60,58 @@ public class DeviceConnection implements Closeable {
 	}
 	
 	public void startConnect() {
+		QLog.d("DeviceConnection", "startConnect - START: host=" + host + ", port=" + port + ", listener=" + listener);
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				QLog.d("DeviceConnection", "startConnect.run - THREAD_START: host=" + host + ", port=" + port);
 				boolean connected = false;
 				Socket socket = new Socket();
 				AdbCrypto crypto;
 				
 				/* Load the crypto config */
+				QLog.d("DeviceConnection", "startConnect.run - LOADING_CRYPTO: calling loadAdbCrypto");
 				crypto = listener.loadAdbCrypto(DeviceConnection.this);
 				if (crypto == null) {
+					QLog.e("DeviceConnection", "startConnect.run - CRYPTO_FAILED: crypto is null, returning");
 					return;
 				}
+				QLog.d("DeviceConnection", "startConnect.run - CRYPTO_LOADED: crypto=" + crypto);
 				
 				try {
 					/* Establish a connect to the remote host */
+					QLog.d("DeviceConnection", "startConnect.run - SOCKET_CONNECT: connecting to " + host + ":" + port + " with timeout=" + CONN_TIMEOUT);
 					socket.connect(new InetSocketAddress(host, port), CONN_TIMEOUT);
+					QLog.d("DeviceConnection", "startConnect.run - SOCKET_CONNECTED: socket connected successfully");
 				} catch (IOException e) {
+					QLog.e("DeviceConnection", "startConnect.run - SOCKET_FAILED: connection failed", e);
 					listener.notifyConnectionFailed(DeviceConnection.this, e);
 					return;
 				}
 
 				try {
 					/* Establish the application layer connection */
+					QLog.d("DeviceConnection", "startConnect.run - ADB_CONNECTION: creating AdbConnection");
 					connection = AdbConnection.create(socket, crypto);
+					QLog.d("DeviceConnection", "startConnect.run - ADB_CONNECT: calling connection.connect()");
 					connection.connect();
+					QLog.d("DeviceConnection", "startConnect.run - ADB_CONNECTED: ADB connection established");
 					
 					/* Open the shell stream */
+					QLog.d("DeviceConnection", "startConnect.run - SHELL_STREAM: opening shell stream");
 					shellStream = connection.open("shell:");
+					QLog.d("DeviceConnection", "startConnect.run - SHELL_OPENED: shell stream opened successfully");
 					connected = true;
 				} catch (IOException e) {
+					QLog.e("DeviceConnection", "startConnect.run - ADB_IO_ERROR: IOException during ADB connection", e);
 					listener.notifyConnectionFailed(DeviceConnection.this, e);
 				} catch (InterruptedException e) {
+					QLog.e("DeviceConnection", "startConnect.run - ADB_INTERRUPTED: InterruptedException during ADB connection", e);
 					listener.notifyConnectionFailed(DeviceConnection.this, e);
 				} finally {
 					/* Cleanup if the connection failed */
 					if (!connected) {
+						QLog.d("DeviceConnection", "startConnect.run - CLEANUP: connection failed, cleaning up");
 						AdbUtils.safeClose(shellStream);
 						
 						/* The AdbConnection object will close the underlying socket
@@ -112,12 +129,16 @@ public class DeviceConnection implements Closeable {
 				}
 				
 				/* Notify the listener that the connection is complete */
+				QLog.d("DeviceConnection", "startConnect.run - NOTIFY_SUCCESS: calling listener.notifyConnectionEstablished");
 				listener.notifyConnectionEstablished(DeviceConnection.this);
+				QLog.d("DeviceConnection", "startConnect.run - NOTIFIED: notifyConnectionEstablished called");
 				
 				/* Start the receive thread */
+				QLog.d("DeviceConnection", "startConnect.run - START_RECEIVE: starting receive thread");
 				startReceiveThread();
 				
 				/* Enter the blocking send loop */
+				QLog.d("DeviceConnection", "startConnect.run - SEND_LOOP: entering send loop");
 				sendLoop();
 			}
 		}).start();
@@ -148,23 +169,32 @@ public class DeviceConnection implements Closeable {
 	}
 	
 	private void startReceiveThread() {
+		QLog.d("DeviceConnection", "startReceiveThread - START: creating receive thread");
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				QLog.d("DeviceConnection", "startReceiveThread.run - THREAD_START: receive thread started");
 				try {
 					while (!shellStream.isClosed()) {
+						QLog.d("DeviceConnection", "startReceiveThread.run - READING: waiting for data from shellStream");
 						byte[] data = shellStream.read();
+						QLog.d("DeviceConnection", "startReceiveThread.run - DATA_RECEIVED: " + data.length + " bytes received");
 						listener.receivedData(DeviceConnection.this, data, 0, data.length);
 					}
+					QLog.d("DeviceConnection", "startReceiveThread.run - STREAM_CLOSED: shellStream is closed");
 					listener.notifyStreamClosed(DeviceConnection.this);
 				} catch (IOException e) {
+					QLog.e("DeviceConnection", "startReceiveThread.run - IO_ERROR: IOException in receive thread", e);
 					listener.notifyStreamFailed(DeviceConnection.this, e);
 				} catch (InterruptedException e) {
+					QLog.d("DeviceConnection", "startReceiveThread.run - INTERRUPTED: receive thread interrupted");
 				} finally {
+					QLog.d("DeviceConnection", "startReceiveThread.run - CLEANUP: cleaning up receive thread");
 					AdbUtils.safeClose(DeviceConnection.this);
 				}
 			}
 		}).start();
+		QLog.d("DeviceConnection", "startReceiveThread - END: receive thread started");
 	}
 	
 	public boolean isClosed() {

@@ -272,8 +272,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (Flags.heartRate) {
 
             heart = ((double)(((uint8_t)newValue.at(index))));
-            // index += 1; //NOTE: clang-analyzer-deadcode..DeadStores
-            emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
+            // index += 1; //NOTE: clang-analyzer-deadcode..DeadStores            
         }
     }
 
@@ -369,12 +368,13 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
 
-        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+                h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
     }
 #endif
 #endif
 
+    emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
     emit debug(QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value()));
     emit debug(QStringLiteral("Current Calculated Resistance: ") + QString::number(Resistance.value()));
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));

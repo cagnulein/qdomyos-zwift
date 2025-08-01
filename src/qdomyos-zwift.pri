@@ -46,6 +46,7 @@ win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc -llibcrypto-1_1-x
 
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
+mingw: QMAKE_CXXFLAGS += -Wa,-mbig-obj
 msvc {
    win32:QMAKE_CXXFLAGS_DEBUG += /RTC1
 }
@@ -968,10 +969,12 @@ ios {
 }
 
 HEADERS += \
-    mqttpublisher.h
+    mqttpublisher.h \
+    androidstatusbar.h
 
 SOURCES += \
-    mqttpublisher.cpp
+    mqttpublisher.cpp \
+    androidstatusbar.cpp
 
 include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
@@ -979,4 +982,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.19.0
+VERSION = 2.20.5

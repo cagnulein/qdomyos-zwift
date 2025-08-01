@@ -65,13 +65,16 @@ import com.android.billingclient.api.BillingFlowParams;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.ConsumeParams;
 import com.android.billingclient.api.ConsumeResponseListener;
+import com.android.billingclient.api.PendingPurchasesParams;
+import com.android.billingclient.api.ProductDetails;
+import com.android.billingclient.api.ProductDetailsResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.Purchase.PurchaseState;
 import com.android.billingclient.api.PurchasesResponseListener;
 import com.android.billingclient.api.PurchasesUpdatedListener;
-import com.android.billingclient.api.SkuDetails;
-import com.android.billingclient.api.SkuDetailsParams;
-import com.android.billingclient.api.SkuDetailsResponseListener;
+import com.android.billingclient.api.QueryProductDetailsParams;
+import com.android.billingclient.api.QueryPurchasesParams;
+import com.android.billingclient.api.QueryProductDetailsResult;
 
 
 /***********************************************************************
@@ -79,7 +82,7 @@ import com.android.billingclient.api.SkuDetailsResponseListener;
  ** Add Dependencies below to build.gradle file:
 
 dependencies {
-    def billing_version = "4.0.0"
+    def billing_version = "8.0.0"
     implementation "com.android.billingclient:billing:$billing_version"
 }
 
@@ -97,8 +100,8 @@ public class InAppPurchase implements PurchasesUpdatedListener
 
     public static final int RESULT_OK = BillingClient.BillingResponseCode.OK;
     public static final int RESULT_USER_CANCELED = BillingClient.BillingResponseCode.USER_CANCELED;
-	 public static final String TYPE_INAPP = BillingClient.SkuType.INAPP;
-	 public static final String TYPE_SUBS = BillingClient.SkuType.SUBS;
+	 public static final String TYPE_INAPP = BillingClient.ProductType.INAPP;
+	 public static final String TYPE_SUBS = BillingClient.ProductType.SUBS;
     public static final String TAG = "InAppPurchase";
 
     // Should be in sync with InAppTransaction::FailureReason
@@ -120,8 +123,11 @@ public class InAppPurchase implements PurchasesUpdatedListener
 
     public void initializeConnection(){
 		  QLog.w(TAG, "initializeConnection start");
+        PendingPurchasesParams pendingPurchasesParams = PendingPurchasesParams.newBuilder()
+                .enableOneTimeProducts()
+                .build();
         billingClient = BillingClient.newBuilder(m_context)
-                .enablePendingPurchases()
+                .enablePendingPurchases(pendingPurchasesParams)
                 .setListener(this)
                 .build();
         billingClient.startConnection(new BillingClientStateListener() {
@@ -146,18 +152,23 @@ public class InAppPurchase implements PurchasesUpdatedListener
     public void onPurchasesUpdated(BillingResult billingResult, List<Purchase> purchases) {
 
         int responseCode = billingResult.getResponseCode();
+        QLog.d(TAG, "onPurchasesUpdated called. Response code: " + responseCode + ", Debug message: " + billingResult.getDebugMessage());
 
         if (purchases == null) {
+            QLog.e(TAG, "Purchase failed: Data missing from result (purchases is null)");
             purchaseFailed(purchaseRequestCode, FAILUREREASON_ERROR, "Data missing from result");
             return;
         }
 
         if (billingResult.getResponseCode() == RESULT_OK) {
+            QLog.d(TAG, "Purchase successful, handling " + purchases.size() + " purchases");
             handlePurchase(purchases);
         } else if (responseCode == RESULT_USER_CANCELED) {
+            QLog.d(TAG, "Purchase cancelled by user");
             purchaseFailed(purchaseRequestCode, FAILUREREASON_USERCANCELED, "");
         } else {
             String errorString = getErrorString(responseCode);
+            QLog.e(TAG, "Purchase failed with error: " + errorString + " (code: " + responseCode + ")");
             purchaseFailed(purchaseRequestCode, FAILUREREASON_ERROR, errorString);
         }
     }
@@ -209,31 +220,44 @@ public class InAppPurchase implements PurchasesUpdatedListener
             }
             index += productIdList.size();
 
-            SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
-				params.setSkusList(productIdList).setType(TYPE_SUBS);
-            billingClient.querySkuDetailsAsync(params.build(),
-                    new SkuDetailsResponseListener() {
-                        @Override
-                        public void onSkuDetailsResponse(BillingResult billingResult, List<SkuDetails> skuDetailsList) {
+            List<QueryProductDetailsParams.Product> productList = new ArrayList<>();
+            for (String productId : productIdList) {
+                productList.add(
+                    QueryProductDetailsParams.Product.newBuilder()
+                        .setProductId(productId)
+                        .setProductType(TYPE_SUBS)
+                        .build());
+            }
+            QueryProductDetailsParams params = QueryProductDetailsParams.newBuilder()
+                    .setProductList(productList)
+                    .build();
+            billingClient.queryProductDetailsAsync(params,
+                    (billingResult, productDetailsResult) -> {
+                            List<ProductDetails> productDetailsList = productDetailsResult.getProductDetailsList();
                             int responseCode = billingResult.getResponseCode();
-									 QLog.d(TAG, "onSkuDetailsResponse: responseCode " + responseCode);
+									 QLog.d(TAG, "onProductDetailsResponse: responseCode " + responseCode);
 
                             if (responseCode != RESULT_OK) {
-                                QLog.e(TAG, "queryDetails: Couldn't retrieve sku details.");
+                                QLog.e(TAG, "queryDetails: Couldn't retrieve product details.");
                                 return;
                             }
-                            if (skuDetailsList == null) {
+                            if (productDetailsList == null || productDetailsList.isEmpty()) {
                                 QLog.e(TAG, "queryDetails: No details list in response.");
                                 return;
                             }
 
-								    QLog.d(TAG, "onSkuDetailsResponse: skuDetailsList " + skuDetailsList);
-                            for (SkuDetails skuDetails : skuDetailsList) {
+								    QLog.d(TAG, "onProductDetailsResponse: productDetailsList " + productDetailsList);
+                            for (ProductDetails productDetails : productDetailsList) {
                                 try {
-                                    String queriedProductId = skuDetails.getSku();
-                                    String queriedPrice = skuDetails.getPrice();
-                                    String queriedTitle = skuDetails.getTitle();
-                                    String queriedDescription = skuDetails.getDescription();
+                                    String queriedProductId = productDetails.getProductId();
+                                    String queriedPrice = "";
+                                    String queriedTitle = productDetails.getTitle();
+                                    String queriedDescription = productDetails.getDescription();
+                                    
+                                    // Get price from subscription offer details
+                                    if (productDetails.getSubscriptionOfferDetails() != null && !productDetails.getSubscriptionOfferDetails().isEmpty()) {
+                                        queriedPrice = productDetails.getSubscriptionOfferDetails().get(0).getPricingPhases().getPricingPhaseList().get(0).getFormattedPrice();
+                                    }
                                     registerProduct(m_nativePointer,
                                             queriedProductId,
                                             queriedPrice,
@@ -243,7 +267,6 @@ public class InAppPurchase implements PurchasesUpdatedListener
                                     e.printStackTrace();
                                 }
                             }
-                        }
                     });
 
 
@@ -255,33 +278,51 @@ public class InAppPurchase implements PurchasesUpdatedListener
     public void launchBillingFlow(String identifier, final int requestCode){
 
         purchaseRequestCode = requestCode;
-        List<String> skuList = new ArrayList<>();
-        skuList.add(identifier);
-        SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
-		  params.setSkusList(skuList).setType(TYPE_SUBS);
-        billingClient.querySkuDetailsAsync(params.build(),
-                new SkuDetailsResponseListener() {
-                    @Override
-                    public void onSkuDetailsResponse(BillingResult billingResult, List<SkuDetails> skuDetailsList) {
+        List<QueryProductDetailsParams.Product> productList = new ArrayList<>();
+        productList.add(
+            QueryProductDetailsParams.Product.newBuilder()
+                .setProductId(identifier)
+                .setProductType(TYPE_SUBS)
+                .build());
+        QueryProductDetailsParams params = QueryProductDetailsParams.newBuilder()
+                .setProductList(productList)
+                .build();
+        billingClient.queryProductDetailsAsync(params,
+                (billingResult, productDetailsResult) -> {
+                        List<ProductDetails> productDetailsList = productDetailsResult.getProductDetailsList();
 
                         if (billingResult.getResponseCode() != RESULT_OK) {
-                            QLog.e(TAG, "Unable to launch Google Play purchase screen");
+                            QLog.e(TAG, "Unable to launch Google Play purchase screen. Response code: " + billingResult.getResponseCode() + ", Debug message: " + billingResult.getDebugMessage());
                             String errorString = getErrorString(requestCode);
                             purchaseFailed(requestCode, FAILUREREASON_ERROR, errorString);
                             return;
                         }
-                        else if (skuDetailsList == null){
+                        else if (productDetailsList == null || productDetailsList.isEmpty()){
                             purchaseFailed(purchaseRequestCode, FAILUREREASON_ERROR, "Data missing from result");
                             return;
                         }
 
+                        ProductDetails productDetails = productDetailsList.get(0);
+                        BillingFlowParams.ProductDetailsParams.Builder productDetailsParamsBuilder = BillingFlowParams.ProductDetailsParams.newBuilder()
+                                .setProductDetails(productDetails);
+                        
+                        // For subscriptions, we need to set the offer token
+                        if (productDetails.getSubscriptionOfferDetails() != null && !productDetails.getSubscriptionOfferDetails().isEmpty()) {
+                            String offerToken = productDetails.getSubscriptionOfferDetails().get(0).getOfferToken();
+                            QLog.d(TAG, "Setting offer token for subscription: " + offerToken);
+                            productDetailsParamsBuilder.setOfferToken(offerToken);
+                        } else {
+                            QLog.w(TAG, "No subscription offer details found for product: " + identifier);
+                        }
+                        
+                        BillingFlowParams.ProductDetailsParams productDetailsParams = productDetailsParamsBuilder.build();
+                        
                         BillingFlowParams purchaseParams = BillingFlowParams.newBuilder()
-                                .setSkuDetails(skuDetailsList.get(0))
+                                .setProductDetailsParamsList(java.util.Arrays.asList(productDetailsParams))
                                 .build();
 
                         //Results will be delivered to onPurchasesUpdated
                         billingClient.launchBillingFlow((Activity) m_context, purchaseParams);
-                    }
                 });
     }
 
@@ -321,18 +362,21 @@ public class InAppPurchase implements PurchasesUpdatedListener
 
     public void queryPurchasedProducts(final List<String> productIdList) {
 
-        billingClient.queryPurchasesAsync(TYPE_INAPP, new PurchasesResponseListener() {
+        QueryPurchasesParams queryPurchasesParams = QueryPurchasesParams.newBuilder()
+                .setProductType(TYPE_SUBS)
+                .build();
+        billingClient.queryPurchasesAsync(queryPurchasesParams, new PurchasesResponseListener() {
             @Override
             public void onQueryPurchasesResponse(BillingResult billingResult, List<Purchase> list) {
                 for (Purchase purchase : list) {
 
-                    if (productIdList.contains(purchase.getSkus().get(0))) {
+                    if (productIdList.contains(purchase.getProducts().get(0))) {
                         registerPurchased(m_nativePointer,
-                                purchase.getSkus().get(0),
+                                purchase.getProducts().get(0),
                                 purchase.getSignature(),
                                 purchase.getOriginalJson(),
                                 purchase.getPurchaseToken(),
-                                purchase.getDeveloperPayload(),
+                                "", // getDeveloperPayload() is deprecated
                                 purchase.getPurchaseTime());
                     }
                 }
