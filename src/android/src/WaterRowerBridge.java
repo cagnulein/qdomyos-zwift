@@ -34,62 +34,57 @@ public class WaterRowerBridge {
             isConnected = true;
             
             // Subscribe to rowing metrics
-            try {
-                // Subscribe to stroke events  
-                waterRower.subscribe(new StrokeSubscription() {
-                    @Override
-                    protected void onStroke(StrokeType strokeType) {
-                        // Track stroke events - could calculate stroke rate here
-                        lastDataUpdate = System.currentTimeMillis();
-                        Log.d(TAG, "Stroke: " + strokeType);
+            // Subscribe to stroke events  
+            waterRower.subscribe(new StrokeSubscription() {
+                @Override
+                protected void onStroke(StrokeType strokeType) {
+                    // Track stroke events - could calculate stroke rate here
+                    lastDataUpdate = System.currentTimeMillis();
+                    Log.d(TAG, "Stroke: " + strokeType);
+                }
+            });
+            
+            // Subscribe to distance
+            waterRower.subscribe(new DistanceSubscription() {
+                @Override
+                protected void onDistanceUpdated(double distance) {
+                    lastDistance = distance;
+                    lastDataUpdate = System.currentTimeMillis();
+                    Log.d(TAG, "Distance: " + distance);
+                }
+            });
+            
+            // Subscribe to total velocity (pace)
+            waterRower.subscribe(new TotalVelocitySubscription() {
+                @Override
+                protected void onVelocityUpdated(double velocity) {
+                    if (velocity > 0) {
+                        lastPace = 500.0 / velocity; // Convert to seconds per 500m
                     }
-                });
-                
-                // Subscribe to distance
-                waterRower.subscribe(new DistanceSubscription() {
-                    @Override
-                    protected void onDistanceUpdated(double distance) {
-                        lastDistance = distance;
-                        lastDataUpdate = System.currentTimeMillis();
-                        Log.d(TAG, "Distance: " + distance);
-                    }
-                });
-                
-                // Subscribe to total velocity (pace)
-                waterRower.subscribe(new TotalVelocitySubscription() {
-                    @Override
-                    protected void onVelocityUpdated(double velocity) {
-                        if (velocity > 0) {
-                            lastPace = 500.0 / velocity; // Convert to seconds per 500m
-                        }
-                        lastDataUpdate = System.currentTimeMillis();
-                        Log.d(TAG, "Velocity: " + velocity + ", Pace: " + lastPace);
-                    }
-                });
-                
-                // Subscribe to watts
-                waterRower.subscribe(new WattsSubscription() {
-                    @Override
-                    protected void onWattsUpdated(int watts) {
-                        lastWatts = watts;
-                        lastDataUpdate = System.currentTimeMillis();
-                        Log.d(TAG, "Watts: " + watts);
-                    }
-                });
-                
-                // Subscribe to calories
-                waterRower.subscribe(new TotalCaloriesSubscription() {
-                    @Override
-                    protected void onCaloriesUpdated(int calories) {
-                        lastCalories = calories;
-                        lastDataUpdate = System.currentTimeMillis();
-                        Log.d(TAG, "Calories: " + calories);
-                    }
-                });
-                
-            } catch (IOException e) {
-                Log.e(TAG, "Failed to subscribe to WaterRower metrics", e);
-            }
+                    lastDataUpdate = System.currentTimeMillis();
+                    Log.d(TAG, "Velocity: " + velocity + ", Pace: " + lastPace);
+                }
+            });
+            
+            // Subscribe to watts
+            waterRower.subscribe(new WattsSubscription() {
+                @Override
+                protected void onWattsUpdated(int watts) {
+                    lastWatts = watts;
+                    lastDataUpdate = System.currentTimeMillis();
+                    Log.d(TAG, "Watts: " + watts);
+                }
+            });
+            
+            // Subscribe to calories
+            waterRower.subscribe(new TotalCaloriesSubscription() {
+                @Override
+                protected void onCaloriesUpdated(int calories) {
+                    lastCalories = calories;
+                    lastDataUpdate = System.currentTimeMillis();
+                    Log.d(TAG, "Calories: " + calories);
+                }
+            });
         }
         
         @Override
