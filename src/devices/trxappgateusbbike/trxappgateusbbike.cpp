@@ -431,6 +431,10 @@ double trxappgateusbbike::GetWattFromPacket(const QByteArray &packet) {
 
 double trxappgateusbbike::GetCadenceFromPacket(const QByteArray &packet) {
 
+    QSettings settings;
+    double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
+    double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
+
     uint16_t convertedData;
     if (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08 && bike_type != HAMMER_SPEED_BIKE_S) {
         convertedData = (packet.at(9) - 1) + ((packet.at(8) - 1) * 100);
@@ -441,7 +445,7 @@ double trxappgateusbbike::GetCadenceFromPacket(const QByteArray &packet) {
     if (data < 0) {
         return 0;
     }
-    return data;
+    return (data * cadence_gain) + cadence_offset   ;
 }
 
 double trxappgateusbbike::GetResistanceFromPacket(const QByteArray &packet) {
@@ -1276,28 +1280,7 @@ uint16_t trxappgateusbbike::wattsFromResistance(double resistance) {
 }
 
 resistance_t trxappgateusbbike::resistanceFromPowerRequest(uint16_t power) {
-    //QSettings settings;
-    //bool toorx_srx_3500 = settings.value(QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500).toBool();
-    /*if(toorx_srx_3500)*/ {
-        qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-        if (Cadence.value() == 0)
-            return 1;
-
-        for (resistance_t i = 1; i < maxResistance(); i++) {
-            if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-                qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                        << wattsFromResistance(i + 1) << power;
-                return i;
-            }
-        }
-        if (power < wattsFromResistance(1))
-            return 1;
-        else
-            return maxResistance();
-    } /*else {
-        return power / 10;
-    }*/
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), maxResistance());
 }
 
 void trxappgateusbbike::resistanceFromFTMSAccessory(resistance_t res) {

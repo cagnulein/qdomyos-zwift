@@ -358,6 +358,8 @@ class homeform : public QObject {
 
     Q_INVOKABLE bool firstRun() {
         QSettings settings;
+        
+        bool android_antbike = settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool();
         QString proformtdf4ip = settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString();
         QString proformtdf1ip = settings.value(QZSettings::proformtdf1ip, QZSettings::default_proformtdf1ip).toString();
         QString proformtreadmillip = settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString();
@@ -378,7 +380,7 @@ class homeform : public QObject {
 
         return settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString().isEmpty() && 
                 nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical &&
-                !fakedevice_rower && !fakedevice_treadmill && !antbike && proform_elliptical_ip.isEmpty() && 
+                !fakedevice_rower && !fakedevice_treadmill && !antbike && !android_antbike && proform_elliptical_ip.isEmpty() && 
                 proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty();
     }
 
@@ -699,6 +701,10 @@ class homeform : public QObject {
     DataObject *tile_hr_time_in_zone_3;
     DataObject *tile_hr_time_in_zone_4;
     DataObject *tile_hr_time_in_zone_5;
+    DataObject *tile_heat_time_in_zone_1;
+    DataObject *tile_heat_time_in_zone_2;
+    DataObject *tile_heat_time_in_zone_3;
+    DataObject *tile_heat_time_in_zone_4;
     DataObject *coreTemperature;
 
   private:
@@ -937,6 +943,7 @@ class homeform : public QObject {
     void pelotonLoginChanged(int ok);    
     void pzpLoginChanged(int ok);
     void zwiftLoginChanged(int ok);
+    void userProfileChanged();
     void workoutNameChanged(QString name);
     void workoutStartDateChanged(QString name);
     void instructorNameChanged(QString name);

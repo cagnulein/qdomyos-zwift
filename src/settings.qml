@@ -489,7 +489,7 @@ import Qt.labs.platform 1.1
             property bool eslinker_ypoo: false
 
             // from version 2.11.69
-            property bool wahoo_rgt_dircon: false
+            property bool wahoo_rgt_dircon: false            
 
             // from version 2.11.73
             property bool tts_description_enabled: true
@@ -1144,7 +1144,36 @@ import Qt.labs.platform 1.1
             property bool ios_btdevice_native: false            
             property string inclinationResistancePoints: ""
             property int floatingwindow_type: 0
-            property bool horizon_treadmill_7_0_at_24: false
+            property bool horizon_treadmill_7_0_at_24: false  // not used
+
+            property bool nordictrack_treadmill_ultra_le: false            
+
+            property bool tile_heat_time_in_zone_1_enabled: false
+            property int  tile_heat_time_in_zone_1_order: 68
+            property bool tile_heat_time_in_zone_2_enabled: false
+            property int  tile_heat_time_in_zone_2_order: 69
+            property bool tile_heat_time_in_zone_3_enabled: false
+            property int  tile_heat_time_in_zone_3_order: 70
+            property bool tile_heat_time_in_zone_4_enabled: false
+            property int  tile_heat_time_in_zone_4_order: 71
+
+            property bool proform_treadmill_carbon_tls: false
+            
+            // 2.19.1            
+            property bool proform_treadmill_995i: false
+            property bool rogue_echo_bike: false
+            property int fit_file_garmin_device_training_effect_device: 3122            
+
+            // 2.19.2
+            property bool tile_hr_time_in_zone_individual_mode: false
+            property bool wahoo_without_wheel_diameter: false
+
+            // 2.20.3
+            property bool technogym_group_cycle: false
+            property int ant_bike_device_number: 0
+            property int ant_heart_device_number: 0
+            property int peloton_treadmill_walk_level: 1
+            property int pid_heart_zone_erg_mode_watt_step: 5
         }
 
         function paddingZeros(text, limit) {
@@ -3758,6 +3787,85 @@ import Qt.labs.platform 1.1
                             }
                         }
                     }
+
+                    AccordionElement {
+                        id: soleBikeAccordion
+                        title: qsTr("Sole Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                text: qsTr("Miles unit from the device")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.sole_treadmill_miles
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.sole_treadmill_miles = checked
+                            }
+                        }
+                    }
+
+                    AccordionElement {
+                        id: technogymBikeAccordion
+                        title: qsTr("Technogym Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: technogymGroupCycleDelegate
+                                text: qsTr("Group Cycle")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.technogym_group_cycle
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { 
+                                    settings.technogym_group_cycle = checked; 
+                                    if (checked) {
+                                        settings.android_antbike = true;
+                                    }
+                                    window.settings_restart_to_apply = true; 
+                                }
+                            }
+                            
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("ANT+ Bike Device Number (0=Auto):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: antBikeDeviceNumberTextField
+                                    text: settings.ant_bike_device_number
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.ant_bike_device_number = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okAntBikeDeviceNumberButton
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.ant_bike_device_number = antBikeDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                }
+                            }
+                        }
+                    }
                 }                
             }
 
@@ -3900,6 +4008,30 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.ant_heart = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("ANT+ Heart Device Number (0=Auto):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: antHeartDeviceNumberTextField
+                            text: settings.ant_heart_device_number
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.ant_heart_device_number = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okAntHeartDeviceNumberButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ant_heart_device_number = antHeartDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                        }
                     }
 
                     Label {
@@ -4556,6 +4688,44 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Difficulty level for peloton treadmill classes. 1 is easy 10 is hard.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Treadmill Walk Level:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonTreadmillWalkLevelTextField
+                            model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
+                            displayText: settings.peloton_treadmill_walk_level
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonTreadmillWalkLevelTextField.currentIndex)
+                                displayText = pelotonTreadmillWalkLevelTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_treadmill_walk_level = parseInt(pelotonTreadmillWalkLevelTextField.displayText); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Difficulty level for peloton treadmill walking classes. 1 is easy 10 is hard.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5336,7 +5506,7 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }                          
+                    }               
 
                     IndicatorOnlySwitch {
                         text: qsTr("Zwift Treadmill Auto Inclination")
@@ -5970,6 +6140,43 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPidHeartZoneErgModeWattStep
+                            text: qsTr("ERG Mode Watt Step:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pidHeartZoneErgModeWattStepTextField
+                            text: settings.pid_heart_zone_erg_mode_watt_step.toString()
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okPidHeartZoneErgModeWattStep
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.pid_heart_zone_erg_mode_watt_step = parseInt(pidHeartZoneErgModeWattStepTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Set the wattage step increment for ERG mode heart rate zone training. Default: 5 watts.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     AccordionCheckElement {
                         id: trainingProgramRandomAccordion
                         title: qsTr("Training Program Random Options")
@@ -6351,43 +6558,6 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            id: labelTreadmillStepInclination
-                            text: qsTr("Inclination Step:")
-                            Layout.fillWidth: true
-                        }
-                        TextField {
-                            id: treadmillInclinationStepTextField
-                            text: settings.treadmill_step_incline
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.treadmill_step_incline = text
-                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                        }
-                        Button {
-                            id: okTreadmillInclinationStepButton
-                            text: "OK"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_step_incline = treadmillInclinationStepTextField.text; toast.show("Setting saved!"); }
-                        }
-                    }
-
-                    Label {
-                        text: qsTr("(Incline Tile) This controls the amount of the increase or decrease in the inclination when you press the plus or minus button in the Incline Tile. Default is 0.5.")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
 
                     RowLayout {
                         spacing: 10
@@ -6630,6 +6800,9 @@ import Qt.labs.platform 1.1
                                     "Proform Performance 300i",
                                     "Nordictrack T6.5S v81 Miles",
                                     "Nordictrack Elite 800",
+                                    "Nordictrack Ultra LE",
+                                    "Proform Carbon TLS",
+                                    "Proform 995i",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -6695,7 +6868,10 @@ import Qt.labs.platform 1.1
                                                     settings.nordictrack_treadmill_1750_adb ? 46 : 
                                                     settings.proform_performance_300i ? 47 :
                                                     settings.nordictrack_t65s_treadmill_81_miles ? 48 : 
-                                                    settings.nordictrack_elite_800 ? 49 : 0;
+                                                    settings.nordictrack_elite_800 ? 49 :
+                                                    settings.nordictrack_treadmill_ultra_le ? 50 :
+                                                    settings.proform_treadmill_carbon_tls ? 51 :
+                                                    settings.proform_treadmill_995i ? 52 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -6759,6 +6935,9 @@ import Qt.labs.platform 1.1
                                     settings.nordictrack_treadmill_1750_adb = false;
                                     settings.nordictrack_t65s_treadmill_81_miles = false;
                                     settings.nordictrack_elite_800 = false;
+                                    settings.nordictrack_treadmill_ultra_le = false;
+                                    settings.proform_treadmill_carbon_tls = false;
+                                    settings.proform_treadmill_995i = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -6811,6 +6990,9 @@ import Qt.labs.platform 1.1
                                         case 47: settings.proform_performance_300i = true; break;
                                         case 48: settings.nordictrack_t65s_treadmill_81_miles = true; break;
                                         case 49: settings.nordictrack_elite_800 = true; break;
+                                        case 50: settings.nordictrack_treadmill_ultra_le = true; break;
+                                        case 51: settings.proform_treadmill_carbon_tls = true; break;
+                                        case 52: settings.proform_treadmill_995i = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -7111,7 +7293,7 @@ import Qt.labs.platform 1.1
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("T900A")
+                                text: qsTr("T900")
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -7577,20 +7759,6 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.horizon_treadmill_force_ftms = checked; window.settings_restart_to_apply = true; }
-                            }
-                            IndicatorOnlySwitch {
-                                id: horizonTreadmill70At24Delegate
-                                text: qsTr("Horizon 7.0 AT/24")
-                                spacing: 0
-                                bottomPadding: 0
-                                topPadding: 0
-                                rightPadding: 0
-                                leftPadding: 0
-                                clip: false
-                                checked: settings.horizon_treadmill_7_0_at_24
-                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                Layout.fillWidth: true
-                                onClicked: { settings.horizon_treadmill_7_0_at_24 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
                                 id: horizon78TreadmillDelegate
@@ -8833,7 +9001,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("WIth this enabled, QZ will write the FIT file as a Garmin device so Garmin will consider this fit file for the training effect. Default: disabled.")
+                        text: qsTr("With this enabled, QZ will write the FIT file as a Garmin device so Garmin will consider this fit file for the training effect. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -8843,6 +9011,140 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    Label {
+                        text: qsTr("Garmin device for FIT file")
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                    }
+
+                    ComboBox {
+                        id: garminDeviceComboBoxDelegate
+                        model: [
+                            "Edge 130 (2909)",
+                            "Edge 200 (1325)", 
+                            "Edge 520 (2067)",
+                            "Edge 530 (3121)",
+                            "Edge 810 (1567)",
+                            "Edge 820 (2530)",
+                            "Edge 830 (3122)",
+                            "Edge 1000 (1836)",
+                            "Edge 1030 (2713)",
+                            "Edge Explore (3011)",
+                            "Fenix (1551)",
+                            "Fenix 2 (1967)",
+                            "Fenix 3 (2050)",
+                            "Fenix 3 HR (2413)",
+                            "Fenix 3 Chronos (2432)",
+                            "Fenix 5 (2697)",
+                            "Fenix 5S (2544)",
+                            "Fenix 5X (2604)",
+                            "Fenix 5S Plus (2900)",
+                            "Fenix 5 Plus (3110)",
+                            "Fenix 5X Plus (3111)",
+                            "Fenix 6 (3290)",
+                            "Fenix 6S (3288)",
+                            "Fenix 6X (3291)",
+                            "Fenix 7 (3906)",
+                            "Fenix 7S (3905)",
+                            "Fenix 7X (3907)",
+                            "Fenix 8 (4536)",
+                            "Venu (3226)",
+                            "Venu 2 (3703)",
+                            "Venu 2S (3704)",
+                            "Venu 3 (4260)",
+                            "Venu 3S (4261)",
+                            "VenuSq (3600)",
+                            "VenuSq Music (3596)",
+                            "Vivoactive 3 (2700)",
+                            "Vivoactive 4 Small (3224)",
+                            "Vivoactive 4 Large (3225)"
+                        ]
+                        currentIndex: {
+                            if (settings.fit_file_garmin_device_training_effect_device === 2909) return 0;  // Edge 130
+                            if (settings.fit_file_garmin_device_training_effect_device === 1325) return 1;  // Edge 200
+                            if (settings.fit_file_garmin_device_training_effect_device === 2067) return 2;  // Edge 520
+                            if (settings.fit_file_garmin_device_training_effect_device === 3121) return 3;  // Edge 530
+                            if (settings.fit_file_garmin_device_training_effect_device === 1567) return 4;  // Edge 810
+                            if (settings.fit_file_garmin_device_training_effect_device === 2530) return 5;  // Edge 820
+                            if (settings.fit_file_garmin_device_training_effect_device === 3122) return 6;  // Edge 830
+                            if (settings.fit_file_garmin_device_training_effect_device === 1836) return 7;  // Edge 1000
+                            if (settings.fit_file_garmin_device_training_effect_device === 2713) return 8;  // Edge 1030
+                            if (settings.fit_file_garmin_device_training_effect_device === 3011) return 9;  // Edge Explore
+                            if (settings.fit_file_garmin_device_training_effect_device === 1551) return 10; // Fenix
+                            if (settings.fit_file_garmin_device_training_effect_device === 1967) return 11; // Fenix 2
+                            if (settings.fit_file_garmin_device_training_effect_device === 2050) return 12; // Fenix 3
+                            if (settings.fit_file_garmin_device_training_effect_device === 2413) return 13; // Fenix 3 HR
+                            if (settings.fit_file_garmin_device_training_effect_device === 2432) return 14; // Fenix 3 Chronos
+                            if (settings.fit_file_garmin_device_training_effect_device === 2697) return 15; // Fenix 5
+                            if (settings.fit_file_garmin_device_training_effect_device === 2544) return 16; // Fenix 5S
+                            if (settings.fit_file_garmin_device_training_effect_device === 2604) return 17; // Fenix 5X
+                            if (settings.fit_file_garmin_device_training_effect_device === 2900) return 18; // Fenix 5S Plus
+                            if (settings.fit_file_garmin_device_training_effect_device === 3110) return 19; // Fenix 5 Plus
+                            if (settings.fit_file_garmin_device_training_effect_device === 3111) return 20; // Fenix 5X Plus
+                            if (settings.fit_file_garmin_device_training_effect_device === 3290) return 21; // Fenix 6
+                            if (settings.fit_file_garmin_device_training_effect_device === 3288) return 22; // Fenix 6S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3291) return 23; // Fenix 6X
+                            if (settings.fit_file_garmin_device_training_effect_device === 3906) return 24; // Fenix 7
+                            if (settings.fit_file_garmin_device_training_effect_device === 3905) return 25; // Fenix 7S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3907) return 26; // Fenix 7X
+                            if (settings.fit_file_garmin_device_training_effect_device === 4536) return 27; // Fenix 8
+                            if (settings.fit_file_garmin_device_training_effect_device === 3226) return 28; // Venu
+                            if (settings.fit_file_garmin_device_training_effect_device === 3703) return 29; // Venu 2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3704) return 30; // Venu 2S
+                            if (settings.fit_file_garmin_device_training_effect_device === 4260) return 31; // Venu 3
+                            if (settings.fit_file_garmin_device_training_effect_device === 4261) return 32; // Venu 3S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 33; // VenuSq
+                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 34; // VenuSq Music
+                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 35; // Vivoactive 3
+                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 36; // Vivoactive 4 Small
+                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 37; // Vivoactive 4 Large
+                            return 6; // Default to Edge 830
+                        }
+                        onCurrentIndexChanged: {
+                            switch(currentIndex) {
+                                case 0: settings.fit_file_garmin_device_training_effect_device = 2909; break;  // Edge 130
+                                case 1: settings.fit_file_garmin_device_training_effect_device = 1325; break;  // Edge 200
+                                case 2: settings.fit_file_garmin_device_training_effect_device = 2067; break;  // Edge 520
+                                case 3: settings.fit_file_garmin_device_training_effect_device = 3121; break;  // Edge 530
+                                case 4: settings.fit_file_garmin_device_training_effect_device = 1567; break;  // Edge 810
+                                case 5: settings.fit_file_garmin_device_training_effect_device = 2530; break;  // Edge 820
+                                case 6: settings.fit_file_garmin_device_training_effect_device = 3122; break;  // Edge 830
+                                case 7: settings.fit_file_garmin_device_training_effect_device = 1836; break;  // Edge 1000
+                                case 8: settings.fit_file_garmin_device_training_effect_device = 2713; break;  // Edge 1030
+                                case 9: settings.fit_file_garmin_device_training_effect_device = 3011; break;  // Edge Explore
+                                case 10: settings.fit_file_garmin_device_training_effect_device = 1551; break; // Fenix
+                                case 11: settings.fit_file_garmin_device_training_effect_device = 1967; break; // Fenix 2
+                                case 12: settings.fit_file_garmin_device_training_effect_device = 2050; break; // Fenix 3
+                                case 13: settings.fit_file_garmin_device_training_effect_device = 2413; break; // Fenix 3 HR
+                                case 14: settings.fit_file_garmin_device_training_effect_device = 2432; break; // Fenix 3 Chronos
+                                case 15: settings.fit_file_garmin_device_training_effect_device = 2697; break; // Fenix 5
+                                case 16: settings.fit_file_garmin_device_training_effect_device = 2544; break; // Fenix 5S
+                                case 17: settings.fit_file_garmin_device_training_effect_device = 2604; break; // Fenix 5X
+                                case 18: settings.fit_file_garmin_device_training_effect_device = 2900; break; // Fenix 5S Plus
+                                case 19: settings.fit_file_garmin_device_training_effect_device = 3110; break; // Fenix 5 Plus
+                                case 20: settings.fit_file_garmin_device_training_effect_device = 3111; break; // Fenix 5X Plus
+                                case 21: settings.fit_file_garmin_device_training_effect_device = 3290; break; // Fenix 6
+                                case 22: settings.fit_file_garmin_device_training_effect_device = 3288; break; // Fenix 6S
+                                case 23: settings.fit_file_garmin_device_training_effect_device = 3291; break; // Fenix 6X
+                                case 24: settings.fit_file_garmin_device_training_effect_device = 3906; break; // Fenix 7
+                                case 25: settings.fit_file_garmin_device_training_effect_device = 3905; break; // Fenix 7S
+                                case 26: settings.fit_file_garmin_device_training_effect_device = 3907; break; // Fenix 7X
+                                case 27: settings.fit_file_garmin_device_training_effect_device = 4536; break; // Fenix 8
+                                case 28: settings.fit_file_garmin_device_training_effect_device = 3226; break; // Venu
+                                case 29: settings.fit_file_garmin_device_training_effect_device = 3703; break; // Venu 2
+                                case 30: settings.fit_file_garmin_device_training_effect_device = 3704; break; // Venu 2S
+                                case 31: settings.fit_file_garmin_device_training_effect_device = 4260; break; // Venu 3
+                                case 32: settings.fit_file_garmin_device_training_effect_device = 4261; break; // Venu 3S
+                                case 33: settings.fit_file_garmin_device_training_effect_device = 3600; break; // VenuSq
+                                case 34: settings.fit_file_garmin_device_training_effect_device = 3596; break; // VenuSq Music
+                                case 35: settings.fit_file_garmin_device_training_effect_device = 2700; break; // Vivoactive 3
+                                case 36: settings.fit_file_garmin_device_training_effect_device = 3224; break; // Vivoactive 4 Small
+                                case 37: settings.fit_file_garmin_device_training_effect_device = 3225; break; // Vivoactive 4 Large
+                            }
+                        }
+                        Layout.fillWidth: true
                     }
 
                     IndicatorOnlySwitch {
@@ -9178,6 +9480,43 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelInclinationStep
+                            text: qsTr("Inclination Step:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: inclinationStepTextField
+                            text: settings.treadmill_step_incline
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.treadmill_step_incline = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okInclinationStepButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.treadmill_step_incline = inclinationStepTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("(Incline Tile) This controls the amount of the increase or decrease in the inclination when you press the plus or minus button in the Incline Tile for both treadmills and bikes. Default is 0.5.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }           
 
                     IndicatorOnlySwitch {
                         text: qsTr("Send real inclination to virtual bridge")
@@ -9469,6 +9808,33 @@ import Qt.labs.platform 1.1
 
                             Label {
                                 text: qsTr("Wheel ratio is the multiplier used by QZ to calculate your speed based on your cadence. For example, if you enter 1 for your wheel ratio and you are riding at a cadence of 30, QZ will display your speed as 30 km/h. The default of 0.33 is correct for most bikes.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Rogue Echo Bike")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.rogue_echo_bike
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.rogue_echo_bike = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Enable special wattage calculation for Rogue Echo Bike: m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404. Default is off.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2

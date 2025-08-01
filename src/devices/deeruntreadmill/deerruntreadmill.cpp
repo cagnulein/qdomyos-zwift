@@ -75,6 +75,38 @@ void deerruntreadmill::writeCharacteristic(const QLowEnergyCharacteristic charac
     }
 }
 
+void deerruntreadmill::writeUnlockCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log) {
+    QEventLoop loop;
+    QTimer timeout;
+
+    connect(unlock_service, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+    timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+
+    if (unlock_service->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
+        m_control->state() == QLowEnergyController::UnconnectedState) {
+        emit debug(QStringLiteral("writeUnlockCharacteristic error because the connection is closed"));
+        return;
+    }
+
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    unlock_service->writeCharacteristic(unlock_characteristic, *writeBuffer);
+
+    if (!disable_log) {
+        emit debug(QStringLiteral(" >> unlock ") + writeBuffer->toHex(' ') +
+                   QStringLiteral(" // ") + info);
+    }
+
+    loop.exec();
+
+    if (timeout.isActive() == false) {
+        emit debug(QStringLiteral(" exit for timeout"));
+    }
+}
+
 uint8_t deerruntreadmill::calculateXOR(uint8_t arr[], size_t size) {
     uint8_t result = 0;
 
@@ -183,21 +215,26 @@ void deerruntreadmill::update() {
                     lastSpeed = 0.5;
                 }
 
-                       // should be:
-                       // 0x49 = inited
-                       // 0x8a = tape stopped after a pause
-                /*if (lastState == 0x49)*/ {
-                    uint8_t initData2[] = {0x4d, 0x00, 0x0c, 0x17, 0x6a, 0x17, 0x02, 0x00, 0x06, 0x40, 0x03, 0xe8, 0x00, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x85, 0x11, 0x2a, 0x43};
-                    initData2[2] = pollCounter;
+                if (pitpat) {
+                    uint8_t startData[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x81, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x93, 0x43};
+                    writeCharacteristic(gattWriteCharacteristic, startData, sizeof(startData), QStringLiteral("pitpat start"), false, true);
+                } else {
+                    // should be:
+                    // 0x49 = inited
+                    // 0x8a = tape stopped after a pause
+                    /*if (lastState == 0x49)*/ {
+                        uint8_t initData2[] = {0x4d, 0x00, 0x0c, 0x17, 0x6a, 0x17, 0x02, 0x00, 0x06, 0x40, 0x03, 0xe8, 0x00, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x85, 0x11, 0x2a, 0x43};
+                        initData2[2] = pollCounter;
 
-                    writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("start"),
-                                        false, true);
-                } /*else {
-                    uint8_t pause[] = {0x05, 0x00, 0x00, 0x00, 0x00, 0x2a, 0x07};
+                        writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("start"),
+                                            false, true);
+                    } /*else {
+                        uint8_t pause[] = {0x05, 0x00, 0x00, 0x00, 0x00, 0x2a, 0x07};
 
-                     writeCharacteristic(gattWriteCharacteristic, pause, sizeof(pause), QStringLiteral("pause"), false,
-                                         true);
-                 }*/
+                        writeCharacteristic(gattWriteCharacteristic, pause, sizeof(pause), QStringLiteral("pause"), false,
+                                            true);
+                    }*/
+                }
 
                 requestStart = -1;
                 emit tapeStarted();
@@ -219,11 +256,16 @@ void deerruntreadmill::update() {
 
                 requestStop = -1;
             } else {
-                uint8_t poll[] = {0x4d, 0x00, 0x00, 0x05, 0x6a, 0x05, 0xfd, 0xf8, 0x43};
-                poll[2] = pollCounter;
+                if (pitpat) {
+                    uint8_t poll[] = {0x6a, 0x05, 0xfd, 0xf8, 0x43};
+                    writeCharacteristic(gattWriteCharacteristic, poll, sizeof(poll), QStringLiteral("pitpat poll"), false, true);
+                } else {
+                    uint8_t poll[] = {0x4d, 0x00, 0x00, 0x05, 0x6a, 0x05, 0xfd, 0xf8, 0x43};
+                    poll[2] = pollCounter;
 
-                writeCharacteristic(gattWriteCharacteristic, poll, sizeof(poll), QStringLiteral("poll"), false,
-                                    true);
+                    writeCharacteristic(gattWriteCharacteristic, poll, sizeof(poll), QStringLiteral("poll"), false,
+                                        true);
+                }
             }
 
             pollCounter++;
@@ -265,13 +307,16 @@ void deerruntreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
     emit packetReceived();
 
-    if (newValue.length() < 51)
+    if ((newValue.length() < 51 && !pitpat) || (newValue.length() < 50 && pitpat))
         return;
 
     lastPacket = value;
     // lastState = value.at(0);
 
     double speed = ((double)(((value[9] << 8) & 0xff) + value[10]) / 100.0);
+    if(pitpat) {
+        speed = ((double)((value[3] << 8) | ((uint8_t)value[4])) / 1000.0);
+    }
     double incline = 0.0;
 
 #ifdef Q_OS_ANDROID
@@ -343,6 +388,20 @@ void deerruntreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 }
 
 void deerruntreadmill::btinit(bool startTape) {
+    if (pitpat) {
+        // PitPat treadmill initialization sequence
+        uint8_t initData1[] = {0x6a, 0x05, 0xfd, 0xf8, 0x43};
+        writeCharacteristic(gattWriteCharacteristic, initData1, sizeof(initData1), QStringLiteral("pitpat init 1"), false, true);
+        
+        uint8_t unlockData[] = {0x6b, 0x05, 0x9d, 0x98, 0x43};
+        writeUnlockCharacteristic(unlockData, sizeof(unlockData), QStringLiteral("pitpat unlock"), false);
+        
+        uint8_t initData2[] = {0x6a, 0x05, 0xd7, 0xd2, 0x43};
+        writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("pitpat init 2"), false, true);
+        
+        uint8_t startData[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x81, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x93, 0x43};
+        writeCharacteristic(gattWriteCharacteristic, startData, sizeof(startData), QStringLiteral("pitpat start"), false, true);
+    }
     initDone = true;
 }
 
@@ -352,20 +411,45 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QBluetoothUuid _gattWriteCharacteristicId((quint16)0xfff1);
     QBluetoothUuid _gattNotifyCharacteristicId((quint16)0xfff2);
+    QBluetoothUuid _pitpatWriteCharacteristicId((quint16)0xfba1);
+    QBluetoothUuid _pitpatNotifyCharacteristicId((quint16)0xfba2);
+    QBluetoothUuid _unlockCharacteristicId((quint16)0x2b2a);
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
     if (state == QLowEnergyService::RemoteServiceDiscovered) {
 
-               // qDebug() << gattCommunicationChannelService->characteristics();
+        QLowEnergyService* service = qobject_cast<QLowEnergyService*>(sender());
+        if (service == unlock_service && pitpat) {
+            // Handle unlock service characteristics
+            auto characteristics_list = unlock_service->characteristics();
+            for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+                qDebug() << QStringLiteral("unlock char uuid") << c.uuid() << QStringLiteral("handle") << c.handle()
+                         << c.properties();
+            }
+            
+            unlock_characteristic = unlock_service->characteristic(_unlockCharacteristicId);
+            if (unlock_characteristic.isValid()) {
+                emit debug(QStringLiteral("unlock characteristic found"));
+            }
+            return;
+        }
+
+        // qDebug() << gattCommunicationChannelService->characteristics();
         auto characteristics_list = gattCommunicationChannelService->characteristics();
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
             qDebug() << QStringLiteral("char uuid") << c.uuid()
                      << c.properties();
         }
 
-        gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
-        gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
+        if (pitpat) {
+            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_pitpatWriteCharacteristicId);
+            gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_pitpatNotifyCharacteristicId);
+        } else {
+            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
+            gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
+        }
+        
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotifyCharacteristic.isValid());
 
@@ -404,6 +488,8 @@ void deerruntreadmill::characteristicWritten(const QLowEnergyCharacteristic &cha
 
 void deerruntreadmill::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xfff0);
+    QBluetoothUuid _pitpatServiceId((quint16)0xfba0);
+    QBluetoothUuid _unlockServiceId((quint16)0x1801);
     emit debug(QStringLiteral("serviceScanDone"));
 
     auto services_list = m_control->services();
@@ -412,13 +498,29 @@ void deerruntreadmill::serviceScanDone(void) {
         emit debug(s.toString());
     }
 
-    gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    // Check if this is a pitpat treadmill by looking for the 0xfba0 service
+    if (services_list.contains(_pitpatServiceId)) {
+        pitpat = true;
+        emit debug(QStringLiteral("Detected pitpat treadmill variant"));
+        gattCommunicationChannelService = m_control->createServiceObject(_pitpatServiceId);
+        unlock_service = m_control->createServiceObject(_unlockServiceId);
+    } else {
+        pitpat = false;
+        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    }
+    
     if (gattCommunicationChannelService) {
         connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
                 &deerruntreadmill::stateChanged);
         gattCommunicationChannelService->discoverDetails();
     } else {
         emit debug(QStringLiteral("error on find Service"));
+    }
+    
+    if (pitpat && unlock_service) {
+        connect(unlock_service, &QLowEnergyService::stateChanged, this,
+                &deerruntreadmill::stateChanged);
+        unlock_service->discoverDetails();
     }
 }
 
@@ -495,3 +597,101 @@ bool deerruntreadmill::connected() {
 }
 
 void deerruntreadmill::searchingStop() { searchStopped = true; }
+
+
+void deerruntreadmill::startScan() {
+    QBluetoothDeviceDiscoveryAgent *discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this,
+            &deerruntreadmill::deviceDiscovered);
+    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &deerruntreadmill::scanFinished);
+    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::errorOccurred, this, &deerruntreadmill::scanError);
+    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+}
+
+void deerruntreadmill::scanFinished() {
+    qDebug() << QStringLiteral("scanFinished");
+    if (!m_control) {
+        emit disconnected();
+    }
+}
+
+void deerruntreadmill::scanError(QBluetoothDeviceDiscoveryAgent::Error error) {
+    qDebug() << QStringLiteral("scanError") << error;
+    emit disconnected();
+}
+
+void deerruntreadmill::connectToDevice(const QString &name) {
+    QSettings settings;
+    QString deviceName =
+        settings.value(QZSettings::deerrun_treadmill_name, QZSettings::default_deerrun_treadmill_name).toString();
+    if (name.isEmpty() || name == deviceName) {
+        startScan();
+    }
+}
+
+void deerruntreadmill::disconnect() {
+    if (m_control) {
+        m_control->disconnectFromDevice();
+    }
+}
+
+deerruntreadmill::~deerruntreadmill() {
+    if (m_control) {
+        m_control->disconnectFromDevice();
+    }
+}
+
+void deerruntreadmill::changeSpeed(double value) { requestSpeed = value; }
+
+void deerruntreadmill::changeInclination(double value, double percentage) { requestInclination = value; }
+
+void deerruntreadmill::startTape() { requestStart = 1; }
+
+void deerruntreadmill::stopTape() { requestStop = 1; }
+
+void deerruntreadmill::pauseTape() { requestStop = 1; }
+
+void deerruntreadmill::increaseFan() { requestIncreaseFan = 1; }
+
+void deerruntreadmill::decreaseFan() { requestDecreaseFan = 1; }
+
+void deerruntreadmill::changeFanSpeed(int value) { requestFanSpeed = value; }
+
+double deerruntreadmill::watts(float weight) {
+    double w = 0;
+    if (Speed.value() > 0) {
+        w = (0.027 * 9.8 * weight * (Speed.value() / 3.6)) +
+            (1.02 * 9.8 * weight * (Speed.value() / 3.6) * (Inclination.value() / 100));
+    }
+    m_watt = w;
+    return w;
+}
+
+void deerruntreadmill::update_hr_from_external() {
+    QSettings settings;
+    QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        return;
+    }
+    if (lastTimeHrCheck.msecsTo(QDateTime::currentDateTime()) > 1000) {
+        lastTimeHrCheck = QDateTime::currentDateTime();
+        QFile inputFile(QStringLiteral("hr.txt"));
+        if (inputFile.open(QIODevice::ReadOnly)) {
+            QTextStream in(&inputFile);
+            QString line = in.readLine();
+            if (line.toInt() > 0)
+                Heart = line.toInt();
+            inputFile.close();
+        }
+    }
+}
+
+void deerruntreadmill::update_metrics(bool force, double watts) {
+    QSettings settings;
+    if (force || lastTimeUpdate.msecsTo(QDateTime::currentDateTime()) >
+                     settings.value(QZSettings::metric_send_time, QZSettings::default_metric_send_time).toInt()) {
+        lastTimeUpdate = QDateTime::currentDateTime();
+        emit metrics(Speed, Distance, Heart, KCal, Inclination, m_watt, Pace, 0, 0, 0);
+    }
+}

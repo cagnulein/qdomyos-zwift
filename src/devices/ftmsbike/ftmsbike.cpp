@@ -217,22 +217,7 @@ uint16_t ftmsbike::wattsFromResistance(double resistance) {
 }
 
 resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-    if (Cadence.value() == 0)
-        return 1;
-
-    for (resistance_t i = 1; i < max_resistance; i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
-            return i;
-        }
-    }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        return max_resistance;
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
 
 void ftmsbike::forceResistance(resistance_t requestResistance) {
@@ -246,7 +231,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
         if(ergModeNotSupported) {
-            requestResistance = _inclinationResistanceTable.estimateInclination(requestResistance);
+            requestResistance = _inclinationResistanceTable.estimateInclination(requestResistance) * 10.0;
             qDebug() << "ergMode Not Supported so the resistance will be" << requestResistance;
         } else {
             requestResistance = fr;
@@ -744,6 +729,181 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         lastRefreshCharacteristicChanged2AD2 = now;
+        ftmsFrameReceived = true;
+    } else if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement && !ftmsFrameReceived) {
+        uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
+        bool cadence_present = false;
+        bool wheel_revs = false;
+        bool crank_rev_present = false;
+        uint16_t time_division = 1024;
+        uint8_t index = 4;
+
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            if (newValue.length() > 3) {
+                m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+            }
+
+            emit powerChanged(m_watt.value());
+            emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+        }
+
+        if(THINK_X) {
+
+            if ((flags & 0x1) == 0x01) // Pedal Power Balance Present
+            {
+                index += 1;
+            }
+            if ((flags & 0x2) == 0x02) // Pedal Power Balance Reference
+            {
+            }
+            if ((flags & 0x4) == 0x04) // Accumulated Torque Present
+            {
+                index += 2;
+            }
+            if ((flags & 0x8) == 0x08) // Accumulated Torque Source
+            {
+            }
+
+            if ((flags & 0x10) == 0x10) // Wheel Revolution Data Present
+            {
+                cadence_present = true;
+                wheel_revs = true;
+            }
+
+            if ((flags & 0x20) == 0x20) // Crank Revolution Data Present
+            {
+                cadence_present = true;
+                crank_rev_present = true;
+            }
+
+            if (cadence_present) {
+                if (wheel_revs && !crank_rev_present) {
+                    time_division = 2048;
+                    CrankRevs =
+                        (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) |
+                         ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                         ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
+                    index += 4;
+
+                    LastCrankEventTime =
+                        (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+
+                    index += 2; // wheel event time
+
+                } else if (wheel_revs && crank_rev_present) {
+                    index += 4; // wheel revs
+                    index += 2; // wheel event time
+                }
+
+                if (crank_rev_present) {
+                    CrankRevs =
+                        (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+                    index += 2;
+
+                    LastCrankEventTime =
+                        (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+                    index += 2;
+                }
+
+                int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
+                if (deltaT < 0) {
+                    deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
+                }
+
+                if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                        .toString()
+                        .startsWith(QStringLiteral("Disabled"))) {
+                    if (CrankRevs != oldCrankRevs && deltaT) {
+                        double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
+                        if (!crank_rev_present)
+                            cadence =
+                                cadence /
+                                2; // I really don't like this, there is no relationship between wheel rev and crank rev
+                        if (cadence >= 0) {
+                            Cadence = cadence;
+                        }
+                        lastGoodCadence = now;
+                    } else if (lastGoodCadence.msecsTo(now) > 2000) {
+                        Cadence = 0;
+                    }
+                }
+
+                qDebug() << QStringLiteral("Current Cadence: ") << Cadence.value() << CrankRevs << oldCrankRevs << deltaT
+                         << time_division << LastCrankEventTime << oldLastCrankEventTime;
+
+                oldLastCrankEventTime = LastCrankEventTime;
+                oldCrankRevs = CrankRevs;
+
+                if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                    Speed = Cadence.value() * settings
+                                                  .value(QZSettings::cadence_sensor_speed_ratio,
+                                                         QZSettings::default_cadence_sensor_speed_ratio)
+                                                  .toDouble();
+                } else {
+                    Speed = metric::calculateSpeedFromPower(
+                        watts(), Inclination.value(), Speed.value(),
+                        fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                }
+                emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+
+                Distance += ((Speed.value() / 3600000.0) *
+                             ((double)lastRefreshCharacteristicChangedPower.msecsTo(now)));
+                emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+
+                // if we change this, also change the wattsFromResistance function. We can create a standard function in
+                // order to have all the costants in one place (I WANT MORE TIME!!!)
+                double ac = 0.01243107769;
+                double bc = 1.145964912;
+                double cc = -23.50977444;
+
+                double ar = 0.1469553975;
+                double br = -5.841344538;
+                double cr = 97.62165482;
+
+                double res =
+                    (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                               (cr - (m_watt.value() * 132.0 /
+                                                      (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                       br) /
+                      (2.0 * ar)) *
+                     settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+
+                if (isnan(res)) {
+                    if (Cadence.value() > 0) {
+                        // let's keep the last good value
+                    } else {
+                        m_pelotonResistance = 0;
+                    }
+                } else {
+                    m_pelotonResistance = res;
+                }
+
+                qDebug() << QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value());
+
+                if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
+                        .toBool())
+                    Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
+                else
+                    Resistance = m_pelotonResistance;
+                emit resistanceRead(Resistance.value());
+                qDebug() << QStringLiteral("Current Resistance Calculated: ") + QString::number(Resistance.value());
+
+                if (watts())
+                    KCal +=
+                        ((((0.048 * ((double)watts()) + 1.19) *
+                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                          200.0) /
+                         (60000.0 / ((double)lastRefreshCharacteristicChangedPower.msecsTo(
+                                        now)))); //(( (0.048* Output in watts +1.19) * body weight
+                                                                          // in kg * 3.5) / 200 ) / 60
+                emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+
+                lastRefreshCharacteristicChangedPower = now;
+            }
+        }        
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE)) {
         union flags {
             struct {
@@ -804,8 +964,11 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                        1000.0;
             index += 3;
         } else {
-            Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(now)));
+            // Only calculate distance if 2AD2 hasn't already done it recently (within 2000ms)
+            if (lastRefreshCharacteristicChanged2AD2.msecsTo(now) > 2000) {
+                Distance += ((Speed.value() / 3600000.0) *
+                ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(now)));
+            }
         }
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -953,7 +1116,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         update_hr_from_external();
     }
 
-    if(resistance_received)
+    if(resistance_received && requestPower == -1)
         _inclinationResistanceTable.collectData(Inclination.value(), Resistance.value(), m_watt.value());
 
 #ifdef Q_OS_IOS
@@ -1094,6 +1257,10 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
         settings.setValue(QZSettings::domyosbike_notfmts, true);
         if(homeform::singleton())
             homeform::singleton()->setToastRequested("Domyos bike presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
+    } else if(gattFTMSService == nullptr && PM5) {
+        settings.setValue(QZSettings::ftms_rower, bluetoothDevice.name());
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("PM5 rower found. Restart QZ to apply the fix, thanks.");
     }
 
     if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
@@ -1399,6 +1566,21 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("YS_G1MPLUS found");
             YS_G1MPLUS = true;
             max_resistance = 100;
+        } else if (bluetoothDevice.name().toUpper().startsWith(QStringLiteral("PM5"))) {
+            PM5 = true;
+            qDebug() << QStringLiteral("PM5 found");
+        } else if(device.name().toUpper().startsWith(QStringLiteral("THINK X")) || device.name().toUpper().startsWith(QStringLiteral("THINK-"))) {
+            THINK_X = true;
+            qDebug() << "THINK X workaround enabled!";
+        } else if(device.name().toUpper().startsWith(QStringLiteral("WLT8828"))) {
+            qDebug() << QStringLiteral("WLT8828 found");
+            WLT8828 = true;
+            max_resistance = 32;
+            resistance_lvl_mode = true;
+            ergModeSupported = false; // this bike doesn't have ERG mode natively
+        } else if(device.name().toUpper().startsWith("VANRYSEL-HT")) {
+            qDebug() << QStringLiteral("VANRYSEL-HT found");
+            VANRYSEL_HT = true;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
@@ -1457,7 +1639,7 @@ void ftmsbike::setWheelDiameter(double diameter) {
 }
 
 uint16_t ftmsbike::watts() {
-    if (currentCadence().value() == 0) {
+    if (currentCadence().value() == 0 && !VANRYSEL_HT) {
         return 0;
     }
 
