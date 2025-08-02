@@ -95,7 +95,7 @@ android {
 
     compileSdkVersion androidCompileSdkVersion.toInteger()
 
-    buildToolsVersion '29.0.2'
+    buildToolsVersion androidBuildToolsVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -127,9 +127,8 @@ android {
 
     defaultConfig {
         resConfig "en"
-                  compileSdkVersion 33
-		  minSdkVersion = 23
-                  targetSdkVersion = 36
+        minSdkVersion 23
+        targetSdkVersion 36
     }
 
 tasks.all { task ->
