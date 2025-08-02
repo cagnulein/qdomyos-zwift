@@ -395,25 +395,50 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 )
 
 # Link Qt6 libraries
-target_link_libraries(${TARGET_NAME} PRIVATE
-    Qt6::Core
-    Qt6::Widgets
-    Qt6::Bluetooth
-    Qt6::Xml
-    Qt6::Positioning
-    Qt6::Quick
-    Qt6::NetworkAuth
-    Qt6::WebSockets
-    Qt6::TextToSpeech
-    Qt6::Location
-    Qt6::Multimedia
-    Qt6::MultimediaWidgets
-    Qt6::Network
-    Qt6::Gui
-    Qt6::WebView
-    Qt6::Charts
-    Qt6::Core5Compat
-)
+if(ANDROID)
+    # Android specific libraries
+    target_link_libraries(${TARGET_NAME} PRIVATE
+        Qt6::Core
+        Qt6::Quick
+        Qt6::Xml
+        Qt6::Positioning
+        Qt6::NetworkAuth
+        Qt6::WebSockets
+        Qt6::Location
+        Qt6::Multimedia
+        Qt6::Network
+        Qt6::Gui
+        Qt6::Charts
+        Qt6::Core5Compat
+    )
+    # Link Bluetooth if available
+    if(TARGET Qt6::Bluetooth)
+        target_link_libraries(${TARGET_NAME} PRIVATE Qt6::Bluetooth)
+        target_compile_definitions(${TARGET_NAME} PRIVATE HAVE_BLUETOOTH)
+    endif()
+else()
+    # Desktop/full libraries
+    target_link_libraries(${TARGET_NAME} PRIVATE
+        Qt6::Core
+        Qt6::Widgets
+        Qt6::Bluetooth
+        Qt6::Xml
+        Qt6::Positioning
+        Qt6::Quick
+        Qt6::NetworkAuth
+        Qt6::WebSockets
+        Qt6::TextToSpeech
+        Qt6::Location
+        Qt6::Multimedia
+        Qt6::MultimediaWidgets
+        Qt6::Network
+        Qt6::Gui
+        Qt6::WebView
+        Qt6::Charts
+        Qt6::Core5Compat
+    )
+    target_compile_definitions(${TARGET_NAME} PRIVATE HAVE_BLUETOOTH)
+endif()
 
 # Link purchasing library
 target_link_libraries(${TARGET_NAME} PRIVATE purchasing)

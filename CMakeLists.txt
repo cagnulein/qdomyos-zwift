@@ -22,27 +22,55 @@ if(WIN32 AND NOT DEFINED CMAKE_PREFIX_PATH)
 endif()
 
 # Find required Qt6 components
-find_package(Qt6 REQUIRED COMPONENTS 
-    Core 
-    Widgets 
-    Bluetooth 
-    Xml 
-    Positioning 
-    Quick 
-    Qml
-    QuickControls2
-    NetworkAuth 
-    WebSockets 
-    TextToSpeech 
-    Location 
-    Multimedia 
-    MultimediaWidgets 
-    Network 
-    Gui 
-    WebView
-    Charts
-    Core5Compat
-)
+if(ANDROID)
+    # Android specific components (some modules not available)
+    find_package(Qt6 REQUIRED COMPONENTS 
+        Core 
+        Quick 
+        Qml
+        QuickControls2
+        Network 
+        Gui 
+        Xml 
+        Positioning 
+        NetworkAuth 
+        WebSockets 
+        Location 
+        Multimedia 
+        Charts
+        Core5Compat
+    )
+    # Try to find Bluetooth (might not be available on all Android Qt builds)
+    find_package(Qt6Bluetooth QUIET)
+    if(Qt6Bluetooth_FOUND)
+        message(STATUS "Qt6Bluetooth found for Android")
+    else()
+        message(WARNING "Qt6Bluetooth not found for Android - Bluetooth features will be disabled")
+    endif()
+else()
+    # Desktop/full components
+    find_package(Qt6 REQUIRED COMPONENTS 
+        Core 
+        Widgets 
+        Bluetooth 
+        Xml 
+        Positioning 
+        Quick 
+        Qml
+        QuickControls2
+        NetworkAuth 
+        WebSockets 
+        TextToSpeech 
+        Location 
+        Multimedia 
+        MultimediaWidgets 
+        Network 
+        Gui 
+        WebView
+        Charts
+        Core5Compat
+    )
+endif()
 
 # Qt6 policies
 qt_policy(SET QTP0001 NEW)
