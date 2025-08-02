@@ -682,7 +682,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 #endif
 
+#ifdef HAVE_TEXTTOSPEECH
     m_speech.setLocale(QLocale::English);
+#endif
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QBluetoothDeviceInfo b;
@@ -4588,8 +4590,11 @@ void homeform::Start_inner(bool send_event_to_device) {
 
     m_overridePower = false;
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+#ifdef HAVE_TEXTTOSPEECH
         m_speech.say("Start pressed");
+#endif
+    }
 
     if (!paused && !stopped) {
         paused = true;
@@ -4713,8 +4718,11 @@ void homeform::Stop() {
         this->innerTemplateManager->reinit();
 #endif
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+#ifdef HAVE_TEXTTOSPEECH
         m_speech.say("Stop pressed");
+#endif
+    }
 
     if (bluetoothManager->device()) {
 
@@ -6745,6 +6753,7 @@ void homeform::update() {
                 }
             }
 
+#ifdef HAVE_TEXTTOSPEECH
             if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
                 static double tts_speed_played = 0;
                 bool description =
@@ -6982,6 +6991,7 @@ void homeform::update() {
                     }
                 }
             }
+#endif
 
             if(bluetoothManager->device()->currentSpeed().value() > 0 && !isinf(bluetoothManager->device()->currentSpeed().value()))
                 bluetoothManager->device()->addCurrentDistance1s((bluetoothManager->device()->currentSpeed().value() / 3600.0));
