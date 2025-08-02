@@ -128,7 +128,7 @@ android {
     defaultConfig {
         resConfig "en"
         minSdkVersion 23
-        targetSdkVersion 36
+        targetSdkVersion 34
     }
 
 tasks.all { task ->
