@@ -419,6 +419,10 @@ if(ANDROID)
         target_link_libraries(${TARGET_NAME} PRIVATE Qt6::Core5Compat)
         target_compile_definitions(${TARGET_NAME} PRIVATE HAVE_CORE5COMPAT)
     endif()
+    if(TARGET Qt6::TextToSpeech)
+        target_link_libraries(${TARGET_NAME} PRIVATE Qt6::TextToSpeech)
+        target_compile_definitions(${TARGET_NAME} PRIVATE HAVE_TEXTTOSPEECH)
+    endif()
 else()
     # Desktop/full libraries
     target_link_libraries(${TARGET_NAME} PRIVATE

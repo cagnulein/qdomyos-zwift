@@ -23,7 +23,9 @@
 #include <QQmlApplicationEngine>
 #include <QQuickItem>
 #include <QQuickItemGrabResult>
+#ifdef HAVE_TEXTTOSPEECH
 #include <QTextToSpeech>
+#endif
 
 #ifdef Q_OS_ANDROID
 

@@ -53,6 +53,13 @@ if(ANDROID)
     else()
         message(WARNING "Qt6Core5Compat not found for Android - Qt5 compatibility features will be disabled")
     endif()
+    
+    find_package(Qt6TextToSpeech QUIET)
+    if(Qt6TextToSpeech_FOUND)
+        message(STATUS "Qt6TextToSpeech found for Android")
+    else()
+        message(WARNING "Qt6TextToSpeech not found for Android - Text-to-speech features will be disabled")
+    endif()
 else()
     # Desktop/full components
     find_package(Qt6 REQUIRED COMPONENTS 
