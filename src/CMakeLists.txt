@@ -409,12 +409,15 @@ if(ANDROID)
         Qt6::Network
         Qt6::Gui
         Qt6::Charts
-        Qt6::Core5Compat
     )
-    # Link Bluetooth if available
+    # Link optional Android modules
     if(TARGET Qt6::Bluetooth)
         target_link_libraries(${TARGET_NAME} PRIVATE Qt6::Bluetooth)
         target_compile_definitions(${TARGET_NAME} PRIVATE HAVE_BLUETOOTH)
+    endif()
+    if(TARGET Qt6::Core5Compat)
+        target_link_libraries(${TARGET_NAME} PRIVATE Qt6::Core5Compat)
+        target_compile_definitions(${TARGET_NAME} PRIVATE HAVE_CORE5COMPAT)
     endif()
 else()
     # Desktop/full libraries
@@ -437,7 +440,7 @@ else()
         Qt6::Charts
         Qt6::Core5Compat
     )
-    target_compile_definitions(${TARGET_NAME} PRIVATE HAVE_BLUETOOTH)
+    target_compile_definitions(${TARGET_NAME} PRIVATE HAVE_BLUETOOTH HAVE_CORE5COMPAT)
 endif()
 
 # Link purchasing library

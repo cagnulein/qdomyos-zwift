@@ -38,14 +38,20 @@ if(ANDROID)
         Location 
         Multimedia 
         Charts
-        Core5Compat
     )
-    # Try to find Bluetooth (might not be available on all Android Qt builds)
+    # Try to find optional Android modules
     find_package(Qt6Bluetooth QUIET)
     if(Qt6Bluetooth_FOUND)
         message(STATUS "Qt6Bluetooth found for Android")
     else()
         message(WARNING "Qt6Bluetooth not found for Android - Bluetooth features will be disabled")
+    endif()
+    
+    find_package(Qt6Core5Compat QUIET)
+    if(Qt6Core5Compat_FOUND)
+        message(STATUS "Qt6Core5Compat found for Android")
+    else()
+        message(WARNING "Qt6Core5Compat not found for Android - Qt5 compatibility features will be disabled")
     endif()
 else()
     # Desktop/full components
