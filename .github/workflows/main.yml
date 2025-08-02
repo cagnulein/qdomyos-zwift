@@ -570,16 +570,59 @@ jobs:
 #          ndk-version: r21d
 
 # waiting github.com/jurplel/install-qt-action/issues/63
-      - name: Install Qt Android
-        uses: jdpurcell/install-qt-action@v5
+      - name: Install Qt Android (Host tools)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.1'
+          host: 'linux'
+          target: 'desktop'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android-host'
+
+      - name: Install Qt Android (ARM64)
+        uses: jurplel/install-qt-action@v3
         with:
           version: '6.5.1'
           host: 'linux'
           target: 'android'
-          arch: 'android'
+          arch: 'android_arm64_v8a'
           dir: '${{ github.workspace }}/output/android/'
           cache: 'true'
-          cache-key-prefix: 'install-qt-action-android'                    
+          cache-key-prefix: 'install-qt-action-android-arm64'
+
+      - name: Install Qt Android (ARMv7)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.1'
+          host: 'linux'
+          target: 'android'
+          arch: 'android_armv7'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android-armv7'
+
+      - name: Install Qt Android (x86)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.1'
+          host: 'linux'
+          target: 'android'
+          arch: 'android_x86'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android-x86'
+
+      - name: Install Qt Android (x86_64)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.1'
+          host: 'linux'
+          target: 'android'
+          arch: 'android_x86_64'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android-x86_64'                    
 
       - name: Install Java
         uses: actions/setup-java@v3
@@ -621,38 +664,36 @@ jobs:
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
           
           # Clean previous build
-          rm -rf build-android-ci
-          mkdir build-android-ci
-          cd build-android-ci
+          rm -rf build-android-multiabi
+          mkdir build-android-multiabi
+          cd build-android-multiabi
           
-          # Configure with CMake for multi-ABI build
+          # Configure with CMake for multi-ABI build - single APK with all architectures
           cmake .. \
             -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" \
             -DQT_HOST_PATH="${{ github.workspace }}/output/android/Qt/6.5.1/gcc_64" \
-            -DCMAKE_PREFIX_PATH="${{ github.workspace }}/output/android/Qt/6.5.1/android" \
+            -DCMAKE_PREFIX_PATH="${{ github.workspace }}/output/android/Qt/6.5.1/android_arm64_v8a" \
             -DANDROID_ABI=arm64-v8a \
             -DANDROID_PLATFORM=android-23 \
             -DANDROID_STL=c++_shared \
             -DCMAKE_BUILD_TYPE=Release \
             -DQT_ANDROID_BUILD_ALL_ABIS=ON \
             -DQT_ANDROID_ABIS="armeabi-v7a;arm64-v8a;x86;x86_64" \
+            -DQT_ANDROID_ABIS_PATH="${{ github.workspace }}/output/android/Qt/6.5.1/android_armv7;${{ github.workspace }}/output/android/Qt/6.5.1/android_arm64_v8a;${{ github.workspace }}/output/android/Qt/6.5.1/android_x86;${{ github.workspace }}/output/android/Qt/6.5.1/android_x86_64" \
             -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH \
             -DANDROID_SDK_ROOT="$ANDROID_SDK_ROOT" \
             -DANDROID_NDK_ROOT="$ANDROID_NDK_ROOT"
           
-          # Build the project
+          # Build the project for all ABIs
           cmake --build . --parallel 4
-          
-          # Install to output directory
-          cmake --install . --prefix ${{ github.workspace }}/output/android/
           
           cd ..
           
-          # Create deployment settings for androiddeployqt
+          # Create deployment settings for androiddeployqt with multi-ABI support
           cat > android-qdomyos-zwift-deployment-settings.json << EOF
           {
              "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",
-             "description": "This file is generated by qmake to be read by androiddeployqt and should not be modified by hand.",
+             "description": "This file is generated by CMake to be read by androiddeployqt and should not be modified by hand.",
              "qt": "${{ github.workspace }}/output/android/Qt/6.5.1/android",
              "sdk": "$ANDROID_SDK_ROOT",
              "ndk": "$ANDROID_NDK_ROOT",
@@ -660,13 +701,21 @@ jobs:
              "tool-prefix": "llvm",
              "toolchain-version": "21.4.7075529",
              "ndk-host": "linux-x86_64",
+             "android-abis": ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"],
              "target-architecture": "arm64-v8a",
-             "application-binary": "qdomyos-zwift"
+             "application-binary": "build-android-multiabi/qdomyos-zwift"
           }
           EOF
           cat android-qdomyos-zwift-deployment-settings.json
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+      - name: Build APK with Multi-ABI support
+        run: |
+          # Use androiddeployqt to build APK with all ABIs
+          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json \
+            --output ${{ github.workspace }}/output/android/ \
+            --android-platform android-31 \
+            --gradle \
+            --aab \
+            --verbose
 
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
@@ -958,7 +1007,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=C:\a\qdomyos-zwift\vcpkg\installed
+          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
         working-directory: ${{ runner.workspace }}
   
       - name: Build
@@ -1144,7 +1193,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=C:\a\qdomyos-zwift\vcpkg\installed
+          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
         working-directory: ${{ runner.workspace }}
 
       - name: Build
