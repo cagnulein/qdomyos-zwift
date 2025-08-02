@@ -1,5 +1,9 @@
 #include "scanrecordresult.h"
 
+#if defined(Q_OS_ANDROID)
+#include <QJniObject>
+#endif
+
 static const int ScanTypeId = qRegisterMetaType<ScanRecordResult>();
 
 #if defined(Q_OS_ANDROID)

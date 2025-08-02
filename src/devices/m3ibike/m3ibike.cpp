@@ -15,6 +15,7 @@ using namespace std::chrono_literals;
 #if defined(Q_OS_ANDROID)
 #include "scanrecordresult.h"
 #include <QJniEnvironment>
+#include <QJniObject>
 #include <QMetaObject>
 #include <QCoreApplication>
 #endif

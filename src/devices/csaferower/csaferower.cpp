@@ -1,5 +1,9 @@
 #include "csaferower.h"
 
+#ifdef Q_OS_ANDROID
+#include <QJniObject>
+#endif
+
 using namespace std::chrono_literals;
 
 csaferower::csaferower(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {

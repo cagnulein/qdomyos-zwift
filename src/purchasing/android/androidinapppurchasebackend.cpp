@@ -49,6 +49,7 @@
 ****************************************************************************/
 
 #include <QJniEnvironment>
+#include <QJniObject>
 #include <QDebug>
 #include <QCoreApplication>
 #include <QtCore>

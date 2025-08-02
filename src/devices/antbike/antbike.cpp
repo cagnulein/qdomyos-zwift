@@ -11,6 +11,7 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
+#include <QJniObject>
 #endif
 #include <chrono>
 

@@ -2,6 +2,7 @@
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include <QJniObject>
 #endif
 #include <QDateTime>
 #include <QFile>

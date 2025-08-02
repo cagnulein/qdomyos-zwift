@@ -2,6 +2,7 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include "qzsettings.h"
+#include <QJniObject>
 
 KeepAwakeHelper::KeepAwakeHelper() {
     QSettings settings;

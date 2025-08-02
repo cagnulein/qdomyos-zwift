@@ -32,6 +32,7 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QCoreApplication>
+#include <QJniObject>
 #endif
 
 #ifdef Q_OS_MACOS

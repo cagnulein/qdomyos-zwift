@@ -1,5 +1,6 @@
 #include "androidactivityresultreceiver.h"
 #ifdef Q_OS_ANDROID
+#include <QJniObject>
 AndroidActivityResultReceiver::AndroidActivityResultReceiver() { qDebug() << "AndroidActivityResultReceiver"; }
 
 void AndroidActivityResultReceiver::handleActivityResult(int receiverRequestCode, int resultCode,

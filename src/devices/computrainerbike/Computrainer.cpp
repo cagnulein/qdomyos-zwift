@@ -24,6 +24,10 @@
 
 #include "Computrainer.h"
 
+#ifdef Q_OS_ANDROID
+#include <QJniObject>
+#endif
+
 const static uint8_t ergo_command[56] =
     {
         //                        Ergo            various
