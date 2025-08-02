@@ -1420,7 +1420,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
         stream.readNext();
 
         // Handle repeat tag start
-        if (stream.isStartElement() && stream.name() == "repeat") {
+        if (stream.isStartElement() && stream.name() == QStringLiteral("repeat")) {
             insideRepeat = true;
             repeatRows.clear();
             QXmlStreamAttributes attrs = stream.attributes();
@@ -1431,7 +1431,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::
         }
 
         // Handle repeat tag end
-        if (stream.isEndElement() && stream.name() == "repeat") {
+        if (stream.isEndElement() && stream.name() == QStringLiteral("repeat")) {
             insideRepeat = false;
             for (int i = 0; i < repeatTimes; i++) {
                 list.append(repeatRows);
