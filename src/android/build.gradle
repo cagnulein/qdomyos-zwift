@@ -93,7 +93,12 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
 
-    compileSdkVersion androidCompileSdkVersion.toInteger()
+    // Handle SDK extension parsing issue (android-36-ext18)
+    def compileSdk = androidCompileSdkVersion
+    if (compileSdk.contains('-ext')) {
+        compileSdk = compileSdk.split('-')[1] // Extract just the number (36)
+    }
+    compileSdkVersion compileSdk.toInteger()
 
     buildToolsVersion androidBuildToolsVersion
 
@@ -128,7 +133,7 @@ android {
     defaultConfig {
         resConfig "en"
         minSdkVersion 23
-        targetSdkVersion 34
+        targetSdkVersion 36
     }
 
 tasks.all { task ->
