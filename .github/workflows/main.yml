@@ -654,6 +654,7 @@ jobs:
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          echo "y" | $SDKMANAGER "platforms;android-36"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
