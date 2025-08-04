@@ -946,11 +946,17 @@ const QString QZSettings::ios_btdevice_native = QStringLiteral("ios_btdevice_nat
 const QString QZSettings::inclinationResistancePoints = QStringLiteral("inclinationResistancePoints");
 const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("");
 
+const QString QZSettings::automatic_virtual_shifting_enabled = QStringLiteral("automatic_virtual_shifting_enabled");
+const QString QZSettings::automatic_virtual_shifting_gear_up_cadence = QStringLiteral("automatic_virtual_shifting_gear_up_cadence");
+const QString QZSettings::automatic_virtual_shifting_gear_up_time = QStringLiteral("automatic_virtual_shifting_gear_up_time");
+const QString QZSettings::automatic_virtual_shifting_gear_down_cadence = QStringLiteral("automatic_virtual_shifting_gear_down_cadence");
+const QString QZSettings::automatic_virtual_shifting_gear_down_time = QStringLiteral("automatic_virtual_shifting_gear_down_time");
+
 const QString QZSettings::floatingwindow_type = QStringLiteral("floatingwindow_type");
 const QString QZSettings::pid_heart_zone_erg_mode_watt_step = QStringLiteral("pid_heart_zone_erg_mode_watt_step");
 
 
-const uint32_t allSettingsCount = 777;
+const uint32_t allSettingsCount = 782;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1745,6 +1751,11 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_t65s_treadmill_81_miles, QZSettings::default_nordictrack_t65s_treadmill_81_miles},
     {QZSettings::nordictrack_elite_800, QZSettings::default_nordictrack_elite_800},
     {QZSettings::inclinationResistancePoints, QZSettings::default_inclinationResistancePoints},
+    {QZSettings::automatic_virtual_shifting_enabled, QZSettings::default_automatic_virtual_shifting_enabled},
+    {QZSettings::automatic_virtual_shifting_gear_up_cadence, QZSettings::default_automatic_virtual_shifting_gear_up_cadence},
+    {QZSettings::automatic_virtual_shifting_gear_up_time, QZSettings::default_automatic_virtual_shifting_gear_up_time},
+    {QZSettings::automatic_virtual_shifting_gear_down_cadence, QZSettings::default_automatic_virtual_shifting_gear_down_cadence},
+    {QZSettings::automatic_virtual_shifting_gear_down_time, QZSettings::default_automatic_virtual_shifting_gear_down_time},
     {QZSettings::floatingwindow_type, QZSettings::default_floatingwindow_type},
     {QZSettings::pid_heart_zone_erg_mode_watt_step, QZSettings::default_pid_heart_zone_erg_mode_watt_step},
     {QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike},
