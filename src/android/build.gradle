@@ -1,11 +1,11 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath 'com.android.tools.build:gradle:8.4.2'
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.4'
     }
 }
@@ -16,7 +16,7 @@ plugins {
 
 repositories {
     google()
-    jcenter()
+    mavenCentral()
     maven { url 'https://jitpack.io' }
 }
 
@@ -93,6 +93,8 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
 
+    namespace 'org.cagnulen.qdomyoszwift'
+
     // Handle SDK extension parsing issue (android-36-ext18)
     def compileSdk = androidCompileSdkVersion
     if (compileSdk.contains('-ext')) {
@@ -120,13 +122,19 @@ android {
        }
     }
 
-    lintOptions {
+    lint {
         abortOnError false
-		  checkReleaseBuilds false
+        checkReleaseBuilds false
     }
 
     // Do not compress Qt binary resources file
-    aaptOptions {
+    packaging {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+    
+    androidResources {
         noCompress 'rcc'
     }
 

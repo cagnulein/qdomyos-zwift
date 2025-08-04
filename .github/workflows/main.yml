@@ -655,6 +655,7 @@ jobs:
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529"
           echo "y" | $SDKMANAGER "platforms;android-36"
+          echo "y" | $SDKMANAGER "build-tools;34.0.0"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -695,6 +696,16 @@ jobs:
           
           cd ..
           
+          # Create gradle.properties with AAPT2 override for Android 36 compatibility
+          cat > src/android/gradle.properties << EOF
+          android.useAndroidX=true
+          android.enableJetifier=true
+          android.aapt2Version=8.6.1-11315950
+          androidBuildToolsVersion=34.0.0
+          androidCompileSdkVersion=36
+          qt5AndroidDir=/opt/Qt/5.15.2/android
+          EOF
+          
           # Create deployment settings for androiddeployqt with multi-ABI support
           cat > android-qdomyos-zwift-deployment-settings.json << EOF
           {
@@ -706,6 +717,7 @@ jobs:
              "toolchain-prefix": "llvm",
              "tool-prefix": "llvm",
              "toolchain-version": "21.4.7075529",
+             "build-tools-version": "34.0.0",
              "ndk-host": "linux-x86_64",
              "android-abis": ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"],
              "target-architecture": "arm64-v8a",
