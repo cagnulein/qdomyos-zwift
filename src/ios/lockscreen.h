@@ -17,7 +17,7 @@ class lockscreen {
     void setCadence(double cadence);
     void startWorkout(unsigned short deviceType);
     void stopWorkout();
-    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories);
+    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance);
     bool appleWatchAppInstalled();
 
     // virtualbike
@@ -30,9 +30,7 @@ class lockscreen {
     double virtualbike_getCurrentCRR();
     double virtualbike_getCurrentCW();
     double virtualbike_getPowerRequested();
-    bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
-                                unsigned short currentCadence, unsigned short currentWatt,
-                                unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears);
+    bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears, unsigned short currentCalories, unsigned int Distance);
     int virtualbike_getLastFTMSMessage(unsigned char *message);
 
     // virtualrower
