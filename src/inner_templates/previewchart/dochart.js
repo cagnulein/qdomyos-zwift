@@ -242,24 +242,7 @@ function process_arr(arr) {
         options: {
             animation: {
               onComplete: function() {
-                  if(saveScreenshot[0])
-                      return;
-                  saveScreenshot[0] = true;
-                  let el = new MainWSQueueElement({
-                      msg: 'savechart',
-                      content: {
-                          name: 'power',
-                          image: powerChart.toBase64Image()
-                      }
-                  }, function(msg) {
-                      if (msg.msg === 'R_savechart') {
-                          return msg.content;
-                      }
-                      return null;
-                  }, 15000, 3);
-                  el.enqueue().catch(function(err) {
-                      console.error('Error is ' + err);
-                  });
+                  // Preview mode - no chart saving
               }
             },
             responsive: true,
@@ -427,24 +410,7 @@ function process_arr(arr) {
         options: {
             animation: {
               onComplete: function() {
-                  if(saveScreenshot[1])
-                      return;
-                  saveScreenshot[1] = true;
-                  let el = new MainWSQueueElement({
-                      msg: 'savechart',
-                      content: {
-                          name: 'heart',
-                          image: heartChart.toBase64Image()
-                      }
-                  }, function(msg) {
-                      if (msg.msg === 'R_savechart') {
-                          return msg.content;
-                      }
-                      return null;
-                  }, 15000, 3);
-                  el.enqueue().catch(function(err) {
-                      console.error('Error is ' + err);
-                  });
+                  // Preview mode - no chart saving
               }
             },
             responsive: true,
@@ -596,24 +562,7 @@ function process_arr(arr) {
         options: {
             animation: {
               onComplete: function() {
-                  if(saveScreenshot[2])
-                      return;
-                  saveScreenshot[2] = true;
-                  let el = new MainWSQueueElement({
-                      msg: 'savechart',
-                      content: {
-                          name: 'resistance',
-                          image: resistanceChart.toBase64Image()
-                      }
-                  }, function(msg) {
-                      if (msg.msg === 'R_savechart') {
-                          return msg.content;
-                      }
-                      return null;
-                  }, 15000, 3);
-                  el.enqueue().catch(function(err) {
-                      console.error('Error is ' + err);
-                  });
+                  // Preview mode - no chart saving
               }
             },
             responsive: true,
@@ -713,24 +662,7 @@ function process_arr(arr) {
         options: {
             animation: {
               onComplete: function() {
-                  if(saveScreenshot[3])
-                      return;
-                  saveScreenshot[3] = true;
-                  let el = new MainWSQueueElement({
-                      msg: 'savechart',
-                      content: {
-                          name: 'pelotonresistance',
-                          image: pelotonresistanceChart.toBase64Image()
-                      }
-                  }, function(msg) {
-                      if (msg.msg === 'R_savechart') {
-                          return msg.content;
-                      }
-                      return null;
-                  }, 15000, 3);
-                  el.enqueue().catch(function(err) {
-                      console.error('Error is ' + err);
-                  });
+                  // Preview mode - no chart saving
               }
             },
             responsive: true,
@@ -830,24 +762,7 @@ function process_arr(arr) {
         options: {
             animation: {
               onComplete: function() {
-                  if(saveScreenshot[4])
-                      return;
-                  saveScreenshot[4] = true;
-                  let el = new MainWSQueueElement({
-                      msg: 'savechart',
-                      content: {
-                          name: 'cadence',
-                          image: cadenceChart.toBase64Image()
-                      }
-                  }, function(msg) {
-                      if (msg.msg === 'R_savechart') {
-                          return msg.content;
-                      }
-                      return null;
-                  }, 15000, 3);
-                  el.enqueue().catch(function(err) {
-                      console.error('Error is ' + err);
-                  });
+                  // Preview mode - no chart saving
               }
             },
             responsive: true,
@@ -934,24 +849,7 @@ function process_arr(arr) {
         options: {
             animation: {
               onComplete: function() {
-                  if(saveScreenshot[5])
-                      return;
-                  saveScreenshot[5] = true;
-                  let el = new MainWSQueueElement({
-                      msg: 'savechart',
-                      content: {
-                          name: 'powerDistribution',
-                          image: powerDistributionChart.toBase64Image()
-                      }
-                  }, function(msg) {
-                      if (msg.msg === 'R_savechart') {
-                          return msg.content;
-                      }
-                      return null;
-                  }, 15000, 3);
-                  el.enqueue().catch(function(err) {
-                      console.error('Error is ' + err);
-                  });
+                  // Preview mode - no chart saving
               }
             },
             responsive: true,
@@ -1027,24 +925,7 @@ function process_arr(arr) {
         options: {
             animation: {
               onComplete: function() {
-                  if(saveScreenshot[6])
-                      return;
-                  saveScreenshot[6] = true;
-                  let el = new MainWSQueueElement({
-                      msg: 'savechart',
-                      content: {
-                          name: 'speedInclination',
-                          image: speedInclinationChart.toBase64Image()
-                      }
-                  }, function(msg) {
-                      if (msg.msg === 'R_savechart') {
-                          return msg.content;
-                      }
-                      return null;
-                  }, 15000, 3);
-                  el.enqueue().catch(function(err) {
-                      console.error('Error is ' + err);
-                  });
+                  // Preview mode - no chart saving
               }
             },
             responsive: true,
