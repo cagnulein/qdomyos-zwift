@@ -7,6 +7,7 @@
 #import <ConnectIQ/ConnectIQ.h>
 #import "qdomyoszwift-Swift2.h"
 #include "ios/lockscreen.h"
+#include "devices/bluetoothdevice.h"
 #include <QDebug>
 #include "ios/AdbClient.h"
 #include "ios/ios_eliteariafan.h"
@@ -41,19 +42,28 @@ static NSString* profile_selected;
 
 bool lockscreen::appleWatchAppInstalled() {
     if ([WCSession isSupported]) {
+        // Get the default session
         WCSession *session = [WCSession defaultSession];
         
+        // Activate the session
+        [session activateSession];
+        
+        // Check if a watch is paired and the app is installed
         if (session.isPaired && session.isWatchAppInstalled) {
+            // An Apple Watch is paired and has the companion app installed
             qDebug() << "Apple Watch is paired and app is installed";
             return true;
         } else if (session.isPaired) {
+            // An Apple Watch is paired but doesn't have the companion app
             qDebug() << "Apple Watch is paired but app is not installed";
             return false;
         } else {
+            // No Apple Watch is paired
             qDebug() << "No Apple Watch is paired";
             return false;
         }
     } else {
+        // This device doesn't support Watch connectivity
         qDebug() << "Watch connectivity is not supported on this device";
         return false;
     }
@@ -72,20 +82,21 @@ void lockscreen::request()
     if (@available(iOS 13, *)) {
         Garmin = [[GarminConnect alloc] init];
     }
+    // just to be sure, I built the library for iOS17 only but theorically we can use any iOS version
     if (@available(iOS 17, *)) {
         workoutTracking = [[WorkoutTracking alloc] init];
         [WorkoutTracking requestAuth];
+        _adb = [[AdbClient alloc] initWithVerbose:YES];
     }
-    _adb = [[AdbClient alloc] initWithVerbose:YES];
 }
 
 void lockscreen::startWorkout(unsigned short deviceType) {
-    if(workoutTracking != nil)
+    if(workoutTracking != nil && !appleWatchAppInstalled())
         [workoutTracking startWorkOutWithDeviceType:deviceType];
 }
 
 void lockscreen::stopWorkout() {
-    if(workoutTracking != nil)
+    if(workoutTracking != nil && !appleWatchAppInstalled())
         [workoutTracking stopWorkOut];
 }
 
@@ -127,11 +138,6 @@ void lockscreen::setSpeed(double speed)
     [h setSpeedWithSpeed:speed];
 }
 
-void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories) {
-    if(workoutTracking != nil)
-        [workoutTracking addMetricsWithPower:watt cadence:cadence*2 speed:speed * 100 kcal:currentCalories];
-}
-
 
 void lockscreen::virtualbike_ios()
 {
@@ -150,6 +156,11 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
 {
     if(_virtualbike != nil)
         [_virtualbike updateCadenceWithCrankRevolutions:crankRevolutions LastCrankEventTime:lastCrankEventTime];
+}
+
+void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance) {
+    if(workoutTracking != nil && !appleWatchAppInstalled())
+        [workoutTracking addMetricsWithPower:watt cadence:cadence*2 speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance];
 }
 
 void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator)
@@ -198,15 +209,21 @@ double lockscreen::virtualbike_getPowerRequested()
     return 0;
 }
 
-bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, signed short Gears)
+bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, signed short Gears, UInt16 currentCalories, UInt32 Distance)
 {
+    if(workoutTracking != nil && !appleWatchAppInstalled())
+        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:0 deviceType: bluetoothdevice::BLUETOOTH_TYPE::BIKE distance:Distance];
+
     if(_virtualbike_zwift != nil)
         return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime Gears:Gears];
     return 0;
 }
 
-bool lockscreen::virtualrower_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, UInt16 StrokesCount, UInt32 Distance, UInt16 KCal, UInt16 Pace)
+bool lockscreen::virtualrower_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, UInt16 StrokesCount, UInt32 Distance, UInt16 KCal, UInt16 Pace, UInt16 currentCalories)
 {
+    if(workoutTracking != nil && !appleWatchAppInstalled())
+        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:0 deviceType: bluetoothdevice::BLUETOOTH_TYPE::ROWING distance:Distance];
+
     if(_virtualrower != nil)
         return [_virtualrower updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime StrokesCount:StrokesCount Distance:Distance KCal:KCal Pace:Pace];
     return 0;
@@ -260,6 +277,9 @@ double lockscreen::virtualtreadmill_getPowerRequested()
 
 double lockscreen::virtualtreadmill_getRequestedSpeed()
 {
+    if(workoutTracking != nil && !appleWatchAppInstalled())
+        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:currentSteps deviceType:bluetoothdevice::BLUETOOTH_TYPE::TREADMILL distance:currentDistance elapsedTimeSeconds:elapsedSeconds];
+
     if(_virtualtreadmill_zwift != nil)
     {
         return [_virtualtreadmill_zwift readRequestedSpeed];
@@ -267,11 +287,9 @@ double lockscreen::virtualtreadmill_getRequestedSpeed()
     return 0;
 }
 
-bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, UInt16 currentCalories, qint32 currentSteps, unsigned short elapsedSeconds)
+bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, unsigned short currentCalories, 
+                                     qint32 currentSteps,  unsigned short elapsedSeconds)
 {
-    if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:currentSteps deviceType:1 distance:currentDistance];
-
     if(_virtualtreadmill_zwift != nil)
         return [_virtualtreadmill_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt currentInclination:currentInclination currentDistance:currentDistance elapsedTimeSeconds:elapsedSeconds];
     return 0;
