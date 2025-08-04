@@ -654,6 +654,9 @@ jobs:
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          # Force remove android-36 to avoid conflicts
+          echo "y" | $SDKMANAGER --uninstall "platforms;android-36" || true
+          rm -rf /usr/local/lib/android/sdk/platforms/android-36 || true
           echo "y" | $SDKMANAGER "platforms;android-35"
           echo "y" | $SDKMANAGER "build-tools;34.0.0"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
@@ -676,6 +679,8 @@ jobs:
           cd build-android-multiabi
           
           # Configure with CMake for multi-ABI build - single APK with all architectures
+          export ANDROID_COMPILE_SDK_VERSION=35
+          export ANDROID_TARGET_SDK_VERSION=35
           cmake .. \
             -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" \
             -DQT_HOST_PATH="${{ github.workspace }}/output/android/Qt/6.5.1/gcc_64" \
