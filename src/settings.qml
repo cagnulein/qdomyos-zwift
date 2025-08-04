@@ -1174,6 +1174,13 @@ import Qt.labs.platform 1.1
             property int ant_heart_device_number: 0
             property int peloton_treadmill_walk_level: 1
             property int pid_heart_zone_erg_mode_watt_step: 5
+            
+            // Automatic Virtual Shifting settings
+            property bool automatic_virtual_shifting_enabled: false
+            property int automatic_virtual_shifting_gear_up_cadence: 95
+            property real automatic_virtual_shifting_gear_up_time: 2.0
+            property int automatic_virtual_shifting_gear_down_cadence: 65
+            property real automatic_virtual_shifting_gear_down_time: 2.0
         }
 
         function paddingZeros(text, limit) {
@@ -2693,6 +2700,142 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
+                    AccordionElement {
+                        id: automaticVirtualShiftingAccordion
+                        title: qsTr("Automatic Virtual Shifting")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Red)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+
+                            IndicatorOnlySwitch {
+                                id: automaticVirtualShiftingEnabledDelegate
+                                text: qsTr("Enable Automatic Virtual Shifting")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.automatic_virtual_shifting_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.automatic_virtual_shifting_enabled = checked
+                            }
+
+                            Label {
+                                text: qsTr("Enable automatic gear shifting based on cadence thresholds. When enabled, QZ will automatically shift gears up or down based on your pedaling cadence.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Gear Up Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingGearUpCadenceTextField
+                                    text: settings.automatic_virtual_shifting_gear_up_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_gear_up_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_gear_up_cadence = automaticVirtualShiftingGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Gear Up Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingGearUpTimeTextField
+                                    text: settings.automatic_virtual_shifting_gear_up_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_gear_up_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_gear_up_time = automaticVirtualShiftingGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Gear Down Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingGearDownCadenceTextField
+                                    text: settings.automatic_virtual_shifting_gear_down_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_gear_down_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_gear_down_cadence = automaticVirtualShiftingGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Gear Down Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingGearDownTimeTextField
+                                    text: settings.automatic_virtual_shifting_gear_down_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_gear_down_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_gear_down_time = automaticVirtualShiftingGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+                        }
+                    }
+
                     Label {
                         text: qsTr("FTMS Bike:")
                         Layout.fillWidth: true
@@ -2743,7 +2886,7 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
+                    }                    
 
                     NewPageElement {
                         title: qsTr("Wahoo Options")

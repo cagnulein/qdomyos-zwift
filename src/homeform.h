@@ -746,6 +746,10 @@ class homeform : public QObject {
     bool stopped = false;
     bool lapTrigger = false;
 
+    // Automatic Virtual Shifting variables
+    QDateTime automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
+    QDateTime automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
+
     peloton *pelotonHandler = nullptr;
     bool m_pelotonAskStart = false;
     QString m_pelotonProvider = "";
@@ -777,6 +781,7 @@ class homeform : public QObject {
 
     QTimer *timer;
     QTimer *backupTimer;
+    QTimer *automaticShiftingTimer;
 
     QString strava_code;
     QOAuth2AuthorizationCodeFlow *strava_connect();
@@ -796,6 +801,7 @@ class homeform : public QObject {
     int16_t fanOverride = 0;
 
     void update();
+    void ten_hz();
     double heartRateMax();
     void backup();
     bool getDevice();

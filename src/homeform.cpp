@@ -567,6 +567,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(backupTimer, &QTimer::timeout, this, &homeform::backup);
     backupTimer->start(1min);
 
+    automaticShiftingTimer = new QTimer(this);
+    connect(automaticShiftingTimer, &QTimer::timeout, this, &homeform::ten_hz);
+    automaticShiftingTimer->start(100); // 100ms = 10Hz
+
     QObject *stack = nullptr;
 
     if(engine->rootObjects().count() > 0) {
@@ -1140,6 +1144,72 @@ void homeform::backup() {
     }
 }
 
+void homeform::ten_hz() {
+    // Automatic Virtual Shifting logic - only for bikes and when device is connected
+    if (!bluetoothManager->device() || bluetoothManager->device()->deviceType() != bluetoothdevice::BIKE) {
+        return;
+    }
+    
+    QSettings settings;
+    if (!settings.value(QZSettings::automatic_virtual_shifting_enabled, QZSettings::default_automatic_virtual_shifting_enabled).toBool()) {
+        return;
+    }
+    
+    uint8_t cadence = bluetoothManager->device()->currentCadence().value();
+    if (cadence == 0) {
+        return; // No cadence data available
+    }
+    
+    int gearUpCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_up_cadence, QZSettings::default_automatic_virtual_shifting_gear_up_cadence).toInt();
+    float gearUpTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_up_time, QZSettings::default_automatic_virtual_shifting_gear_up_time).toFloat();
+    int gearDownCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_down_cadence, QZSettings::default_automatic_virtual_shifting_gear_down_cadence).toInt();
+    float gearDownTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_down_time, QZSettings::default_automatic_virtual_shifting_gear_down_time).toFloat();
+    
+    QDateTime now = QDateTime::currentDateTime();
+    
+    // Check for gear up condition
+    if (cadence >= gearUpCadenceThreshold) {
+        // Start or continue timing for gear up
+        if (automaticShiftingGearUpStartTime.isNull() || automaticShiftingGearUpStartTime.msecsTo(now) < 0) {
+            automaticShiftingGearUpStartTime = now;
+        }
+        // Reset gear down timer since we're above gear up threshold
+        automaticShiftingGearDownStartTime = now;
+        
+        // Check if enough time has passed for gear up
+        if (automaticShiftingGearUpStartTime.msecsTo(now) >= (gearUpTimeThreshold * 1000)) {
+            qDebug() << "Automatic gear up triggered: cadence" << cadence << "threshold" << gearUpCadenceThreshold << "time" << automaticShiftingGearUpStartTime.msecsTo(now) / 1000.0;
+            ((bike *)bluetoothManager->device())->gearUp();
+            // Reset both timers after shifting
+            automaticShiftingGearUpStartTime = now;
+            automaticShiftingGearDownStartTime = now;
+        }
+    }
+    // Check for gear down condition
+    else if (cadence <= gearDownCadenceThreshold) {
+        // Start or continue timing for gear down
+        if (automaticShiftingGearDownStartTime.isNull() || automaticShiftingGearDownStartTime.msecsTo(now) < 0) {
+            automaticShiftingGearDownStartTime = now;
+        }
+        // Reset gear up timer since we're below gear down threshold
+        automaticShiftingGearUpStartTime = now;
+        
+        // Check if enough time has passed for gear down
+        if (automaticShiftingGearDownStartTime.msecsTo(now) >= (gearDownTimeThreshold * 1000)) {
+            qDebug() << "Automatic gear down triggered: cadence" << cadence << "threshold" << gearDownCadenceThreshold << "time" << automaticShiftingGearDownStartTime.msecsTo(now) / 1000.0;
+            ((bike *)bluetoothManager->device())->gearDown();
+            // Reset both timers after shifting
+            automaticShiftingGearUpStartTime = now;
+            automaticShiftingGearDownStartTime = now;
+        }
+    }
+    // Cadence is between thresholds - reset both timers
+    else {
+        automaticShiftingGearUpStartTime = now;
+        automaticShiftingGearDownStartTime = now;
+    }
+}
+
 QString homeform::stopColor() { return QStringLiteral("#00000000"); }
 
 QString homeform::startColor() {
@@ -1335,13 +1405,21 @@ QStringList homeform::tile_order() {
 
 // these events are coming from the SS2K, so when the auto resistance is off, this event shouldn't be processed
 void homeform::gearUp() {
-    if (autoResistance())
+    if (autoResistance()) {
         Plus(QStringLiteral("gears"));
+        // Reset automatic shifting timers when user manually changes gears
+        automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
+        automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
+    }
 }
 
 void homeform::gearDown() {
-    if (autoResistance())
+    if (autoResistance()) {
         Minus(QStringLiteral("gears"));
+        // Reset automatic shifting timers when user manually changes gears
+        automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
+        automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
+    }
 }
 
 void homeform::ftmsAccessoryConnected(smartspin2k *d) {
@@ -5201,6 +5279,7 @@ void homeform::update() {
             QString::number(((bike *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
             QStringLiteral(" MAX: ") +
             QString::number(((bike *)bluetoothManager->device())->currentCadence().max(), 'f', 0));
+
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT

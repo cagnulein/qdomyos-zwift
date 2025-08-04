@@ -2523,6 +2523,36 @@ class QZSettings {
     static const QString default_inclinationResistancePoints;
 
     /**
+     * @brief Enable automatic virtual shifting based on cadence thresholds
+     */
+    static const QString automatic_virtual_shifting_enabled;
+    static constexpr bool default_automatic_virtual_shifting_enabled = false;
+
+    /**
+     * @brief Cadence threshold for gear up (RPM)
+     */
+    static const QString automatic_virtual_shifting_gear_up_cadence;
+    static constexpr int default_automatic_virtual_shifting_gear_up_cadence = 95;
+
+    /**
+     * @brief Time above cadence threshold before gear up (seconds)
+     */
+    static const QString automatic_virtual_shifting_gear_up_time;
+    static constexpr float default_automatic_virtual_shifting_gear_up_time = 2.0;
+
+    /**
+     * @brief Cadence threshold for gear down (RPM)
+     */
+    static const QString automatic_virtual_shifting_gear_down_cadence;
+    static constexpr int default_automatic_virtual_shifting_gear_down_cadence = 65;
+
+    /**
+     * @brief Time below cadence threshold before gear down (seconds)
+     */
+    static const QString automatic_virtual_shifting_gear_down_time;
+    static constexpr float default_automatic_virtual_shifting_gear_down_time = 2.0;
+
+    /**
      * @brief Type of floating window to use. 0 = classic, 1 = horizontal
      */
     static const QString floatingwindow_type;
