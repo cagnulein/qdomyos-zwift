@@ -41,6 +41,8 @@ static zwift_protobuf_layer* zwiftProtobufLayer = nil;
 static NSString* profile_selected;
 
 bool lockscreen::appleWatchAppInstalled() {
+    static int lastState = -1; // -1 = not initialized, 0 = not supported/not paired, 1 = paired but no app, 2 = paired with app
+    
     if ([WCSession isSupported]) {
         // Get the default session
         WCSession *session = [WCSession defaultSession];
@@ -51,20 +53,32 @@ bool lockscreen::appleWatchAppInstalled() {
         // Check if a watch is paired and the app is installed
         if (session.isPaired && session.isWatchAppInstalled) {
             // An Apple Watch is paired and has the companion app installed
-            qDebug() << "Apple Watch is paired and app is installed";
+            if (lastState != 2) {
+                qDebug() << "Apple Watch is paired and app is installed";
+                lastState = 2;
+            }
             return true;
         } else if (session.isPaired) {
             // An Apple Watch is paired but doesn't have the companion app
-            qDebug() << "Apple Watch is paired but app is not installed";
+            if (lastState != 1) {
+                qDebug() << "Apple Watch is paired but app is not installed";
+                lastState = 1;
+            }
             return false;
         } else {
             // No Apple Watch is paired
-            qDebug() << "No Apple Watch is paired";
+            if (lastState != 0) {
+                qDebug() << "No Apple Watch is paired";
+                lastState = 0;
+            }
             return false;
         }
     } else {
         // This device doesn't support Watch connectivity
-        qDebug() << "Watch connectivity is not supported on this device";
+        if (lastState != 0) {
+            qDebug() << "Watch connectivity is not supported on this device";
+            lastState = 0;
+        }
         return false;
     }
     return false;

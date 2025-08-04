@@ -47,7 +47,15 @@ class Server {
     }
 
     func send(_ message: String) {
-        SwiftDebug.qtDebug("Server.send \(message) \(connections)")
+        // Throttle logging to max 1 per second
+        let now = Date()
+        static var lastLogTime: Date = Date.distantPast
+        
+        if now.timeIntervalSince(lastLogTime) >= 1.0 {
+            SwiftDebug.qtDebug("Server.send \(message) \(connections)")
+            lastLogTime = now
+        }
+        
         connections.forEach {
             if($0.connection.state == .ready) {
                 $0.send(message)
