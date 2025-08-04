@@ -185,9 +185,10 @@ Page {
                     var details = workoutModel.getWorkoutDetails(model.id)
                     console.log("Workout details:", JSON.stringify(details))
 
-                    // Emit signal with file URL for chart preview
+                    // Emit signal with file URL for chart preview - same pattern as profiles.qml
                     console.log("Emitting fitfile_preview_clicked with path:", details.filePath)
-                    var fileUrl = Qt.resolvedUrl("file://" + details.filePath)
+                    // Convert to URL like profiles.qml does with FolderListModel
+                    var fileUrl = "file://" + details.filePath
                     console.log("Converted to URL:", fileUrl)
                     workoutHistoryPage.fitfile_preview_clicked(fileUrl)
 
