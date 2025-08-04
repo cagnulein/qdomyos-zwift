@@ -702,7 +702,7 @@ jobs:
           android.enableJetifier=true
           android.aapt2Version=8.6.1-11315950
           androidBuildToolsVersion=34.0.0
-androidCompileSdkVersion=35
+          androidCompileSdkVersion=35
           qt5AndroidDir=/opt/Qt/5.15.2/android
           EOF
           
