@@ -58,10 +58,12 @@ ApplicationWindow {
     signal gpxpreview_open_clicked(url name)
     signal profile_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
+    signal fitfile_preview_clicked(url name)
     signal trainprogram_open_other_folder(url name)
     signal gpx_open_other_folder(url name)
     signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
+    signal fitfile_preview(string s)
     signal gpx_save_clicked()
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
@@ -759,6 +761,15 @@ ApplicationWindow {
                     }
                 }
 
+            ItemDelegate {
+                text: qsTr("📅 Workouts History")
+                width: parent.width
+                onClicked: {
+                    stackView.push("WorkoutsHistory.qml")
+                    stackView.currentItem.fitfile_preview_clicked.connect(fitfile_preview_clicked)
+                    drawer.close()
+                }
+            }
                 ItemDelegate {
                     text: qsTr("👜Swag Bag")
                     width: parent.width
