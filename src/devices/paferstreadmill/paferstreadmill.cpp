@@ -200,10 +200,12 @@ void paferstreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         value.at(3) == 0x01) {
         qDebug() << "Paferstreadmill: pressing start button";
         emit tapeStarted();
+        requestStart = 1;
         return;
     } else if (newValue.length() == 4 && value.at(0) == 0x55 && value.at(1) == 0x09 && value.at(2) == 0x01 &&
         value.at(3) == 0x00) {
         qDebug() << "Paferstreadmill: pressing stop button";
+        requestStop = 1;
         return;
     }
 
