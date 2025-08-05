@@ -767,10 +767,7 @@ ApplicationWindow {
                 }
 
             ItemDelegate {
-                text: Qt.platform.os === "android" ? 
-                      '<font face="' + emojiFont.name + '">📅</font> Workouts History' : 
-                      qsTr("📅 Workouts History")
-                textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                text: qsTr("Workouts History")
                 width: parent.width
                 onClicked: {
                     stackView.push("WorkoutsHistory.qml")
@@ -779,10 +776,7 @@ ApplicationWindow {
                 }
             }
                 ItemDelegate {
-                    text: Qt.platform.os === "android" ? 
-                          '<font face="' + emojiFont.name + '">👜</font>Swag Bag' : 
-                          qsTr("👜Swag Bag")
-                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                    text: qsTr("Swag Bag")
                     width: parent.width
                     onClicked: {
                         stackView.push("SwagBagView.qml")
@@ -804,10 +798,7 @@ ApplicationWindow {
                 }
                 ItemDelegate {
                     id: gpx_open
-                    text: Qt.platform.os === "android" ? 
-                          '<font face="' + emojiFont.name + '">🗺️</font> Open GPX' : 
-                          qsTr("🗺️ Open GPX")
-                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                    text: qsTr("Open GPX")
                     width: parent.width
                     onClicked: {
                         stackView.push("GPXList.qml")
@@ -823,10 +814,7 @@ ApplicationWindow {
                 }
                 ItemDelegate {
                     id: trainprogram_open
-                    text: Qt.platform.os === "android" ? 
-                          '<font face="' + emojiFont.name + '">📈</font> Open Train Program' : 
-                          qsTr("📈 Open Train Program")
-                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                    text: qsTr("Open Train Program")
                     width: parent.width
                     onClicked: {
                         stackView.push("TrainingProgramsList.qml")

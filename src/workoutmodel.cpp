@@ -4,6 +4,8 @@
 #include <QSqlError>
 #include <QDebug>
 #include <QDateTime>
+#include <QSet>
+#include <algorithm>
 
 WorkoutModel::WorkoutModel(const QString& dbPath, QObject *parent)
     : QAbstractListModel(parent)
@@ -13,6 +15,8 @@ WorkoutModel::WorkoutModel(const QString& dbPath, QObject *parent)
     , m_currentStreak(0)
     , m_longestStreak(0)
     , m_streakMessage("")
+    , m_isDateFiltered(false)
+    , m_filteredDate()
 {
     // Create main database connection
     {
@@ -63,10 +67,18 @@ void WorkoutModel::refresh() {
 
 void WorkoutModel::onWorkoutsLoaded(const QList<QVariantMap>& workouts) {
     beginResetModel();
-    m_workouts = workouts;
+    m_allWorkouts = workouts;
+    
+    // Apply current filter if active
+    if (m_isDateFiltered) {
+        applyDateFilter();
+    } else {
+        m_workouts = workouts;
+    }
+    
     endResetModel();
 
-    // Calculate streaks after loading workouts
+    // Calculate streaks after loading workouts (always use all workouts for streaks)
     calculateStreaks();
 
     m_isLoading = false;
@@ -253,6 +265,80 @@ QHash<int, QByteArray> WorkoutModel::roleNames() const {
     roles[CaloriesRole] = "calories";
     roles[IdRole] = "id";
     return roles;
+}
+
+bool WorkoutModel::isDateFiltered() const {
+    return m_isDateFiltered;
+}
+
+QDate WorkoutModel::filteredDate() const {
+    return m_filteredDate;
+}
+
+void WorkoutModel::setDateFilter(const QDate& date) {
+    if (!date.isValid()) return;
+    
+    m_isDateFiltered = true;
+    m_filteredDate = date;
+    
+    beginResetModel();
+    applyDateFilter();
+    endResetModel();
+    
+    emit dateFilterChanged();
+}
+
+void WorkoutModel::clearDateFilter() {
+    if (!m_isDateFiltered) return;
+    
+    m_isDateFiltered = false;
+    m_filteredDate = QDate();
+    
+    beginResetModel();
+    m_workouts = m_allWorkouts;
+    endResetModel();
+    
+    emit dateFilterChanged();
+}
+
+void WorkoutModel::applyDateFilter() {
+    if (!m_isDateFiltered) {
+        m_workouts = m_allWorkouts;
+        return;
+    }
+    
+    m_workouts.clear();
+    QString targetDateStr = m_filteredDate.toString("yyyy-MM-dd");
+    
+    for (const QVariantMap& workout : m_allWorkouts) {
+        QString workoutDateStr = workout["date"].toString();
+        if (workoutDateStr.startsWith(targetDateStr)) {
+            m_workouts.append(workout);
+        }
+    }
+}
+
+QList<QDate> WorkoutModel::getWorkoutDates() {
+    QList<QDate> dates;
+    QSet<QDate> uniqueDates;
+    
+    for (const QVariantMap& workout : m_allWorkouts) {
+        QString dateStr = workout["date"].toString();
+        // Extract just the date part if it includes time
+        QDate workoutDate = QDateTime::fromString(dateStr, Qt::ISODate).date();
+        if (!workoutDate.isValid()) {
+            // Try parsing as date only
+            workoutDate = QDate::fromString(dateStr, "yyyy-MM-dd");
+        }
+        
+        if (workoutDate.isValid() && !uniqueDates.contains(workoutDate)) {
+            uniqueDates.insert(workoutDate);
+            dates.append(workoutDate);
+        }
+    }
+    
+    std::sort(dates.begin(), dates.end());
+    return dates;
 }
 
 void WorkoutModel::calculateStreaks() {

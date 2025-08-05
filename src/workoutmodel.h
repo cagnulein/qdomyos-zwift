@@ -4,6 +4,7 @@
 #include <QAbstractListModel>
 #include <QSqlDatabase>
 #include <QThread>
+#include <QDate>
 #include "fitdatabaseprocessor.h"
 
 class WorkoutLoaderWorker;
@@ -15,6 +16,8 @@ class WorkoutModel : public QAbstractListModel {
     Q_PROPERTY(int currentStreak READ currentStreak NOTIFY streakChanged)
     Q_PROPERTY(int longestStreak READ longestStreak NOTIFY streakChanged)
     Q_PROPERTY(QString streakMessage READ streakMessage NOTIFY streakChanged)
+    Q_PROPERTY(bool isDateFiltered READ isDateFiltered NOTIFY dateFilterChanged)
+    Q_PROPERTY(QDate filteredDate READ filteredDate NOTIFY dateFilterChanged)
 
   public:
     enum WorkoutRoles {
@@ -37,12 +40,17 @@ class WorkoutModel : public QAbstractListModel {
     Q_INVOKABLE void refresh();
     Q_INVOKABLE QVariantMap getWorkoutDetails(int workoutId);
     Q_INVOKABLE bool deleteWorkout(int workoutId);
+    Q_INVOKABLE void setDateFilter(const QDate& date);
+    Q_INVOKABLE void clearDateFilter();
+    Q_INVOKABLE QList<QDate> getWorkoutDates();
 
     bool isLoading() const;
     bool isDatabaseProcessing() const;
     int currentStreak() const;
     int longestStreak() const;
     QString streakMessage() const;
+    bool isDateFiltered() const;
+    QDate filteredDate() const;
 
   public slots:
     void setDatabaseProcessing(bool processing);
@@ -52,6 +60,7 @@ class WorkoutModel : public QAbstractListModel {
     void loadingStatusChanged();
     void databaseProcessingChanged();
     void streakChanged();
+    void dateFilterChanged();
 
   private slots:
     void onWorkoutsLoaded(const QList<QVariantMap>& workouts);
@@ -59,8 +68,10 @@ class WorkoutModel : public QAbstractListModel {
   private:
     void calculateStreaks();
     QString getStreakMessage(int streak) const;
+    void applyDateFilter();
     
     QList<QVariantMap> m_workouts;
+    QList<QVariantMap> m_allWorkouts;
     QSqlDatabase m_db;
     QThread* m_workerThread;
     WorkoutLoaderWorker* m_worker;
@@ -70,6 +81,8 @@ class WorkoutModel : public QAbstractListModel {
     int m_currentStreak;
     int m_longestStreak;
     QString m_streakMessage;
+    bool m_isDateFiltered;
+    QDate m_filteredDate;
 };
 
 #endif // WORKOUTMODEL_H

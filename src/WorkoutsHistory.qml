@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtCharts 2.15
+import Qt.labs.calendar 1.0
 
 Page {
     id: workoutHistoryPage
@@ -43,11 +44,90 @@ Page {
             height: 60
             color: "#f5f5f5"
 
-            Text {
-                anchors.centerIn: parent
-                text: "Workout History"
-                font.pixelSize: 24
-                font.bold: true
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: 12
+                spacing: 16
+
+                // Calendar Icon Button
+                Button {
+                    id: calendarButton
+                    Layout.preferredWidth: 48
+                    Layout.preferredHeight: 48
+                    Layout.alignment: Qt.AlignVCenter
+                    
+                    background: Rectangle {
+                        radius: 8
+                        color: calendarButton.pressed ? "#e0e0e0" : "#f0f0f0"
+                        border.color: "#d0d0d0"
+                        border.width: 1
+                    }
+                    
+                    contentItem: Text {
+                        text: Qt.platform.os === "android" ? 
+                              '<font face="' + emojiFont.name + '">📅</font>' : 
+                              "📅"
+                        textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                        font.pixelSize: 20
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                    
+                    onClicked: {
+                        calendarPopup.open()
+                    }
+                }
+
+                // Title with filter status
+                Column {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignVCenter
+                    
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: "Workout History"
+                        font.pixelSize: 24
+                        font.bold: true
+                    }
+                    
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: workoutModel && workoutModel.isDateFiltered ? 
+                              "Filtered: " + workoutModel.filteredDate.toLocaleDateString() : ""
+                        font.pixelSize: 12
+                        color: "#666666"
+                        visible: workoutModel && workoutModel.isDateFiltered
+                    }
+                }
+
+                // Clear Filter Button
+                Button {
+                    id: clearFilterButton
+                    Layout.preferredWidth: 100
+                    Layout.preferredHeight: 36
+                    Layout.alignment: Qt.AlignVCenter
+                    visible: workoutModel && workoutModel.isDateFiltered
+                    
+                    background: Rectangle {
+                        radius: 6
+                        color: clearFilterButton.pressed ? "#ff6666" : "#ff8888"
+                        border.color: "#ff4444"
+                        border.width: 1
+                    }
+                    
+                    contentItem: Text {
+                        text: "Clear Filter"
+                        color: "white"
+                        font.pixelSize: 12
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                    
+                    onClicked: {
+                        workoutModel.clearDateFilter()
+                    }
+                }
             }
         }
 
@@ -423,5 +503,186 @@ Page {
                 GradientStop { position: 1.0; color: "#00000000" }
             }
         }
+    }
+
+    // Calendar Popup
+    Popup {
+        id: calendarPopup
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+        width: Math.min(parent.width * 0.9, 400)
+        height: Math.min(parent.height * 0.8, 500)
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        background: Rectangle {
+            color: "white"
+            radius: 12
+            border.color: "#d0d0d0"
+            border.width: 1
+            
+            // Shadow effect
+            Rectangle {
+                anchors.fill: parent
+                anchors.topMargin: 2
+                anchors.leftMargin: 2
+                radius: parent.radius
+                color: "#40000000"
+                z: -1
+            }
+        }
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 16
+            spacing: 12
+
+            // Calendar Header
+            RowLayout {
+                Layout.fillWidth: true
+                
+                Button {
+                    text: "<"
+                    onClicked: calendar.selectedDate = new Date(calendar.selectedDate.getFullYear(), calendar.selectedDate.getMonth() - 1, 1)
+                }
+                
+                Text {
+                    Layout.fillWidth: true
+                    text: calendar.selectedDate.toLocaleDateString(Qt.locale(), "MMMM yyyy")
+                    font.pixelSize: 18
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                }
+                
+                Button {
+                    text: ">"
+                    onClicked: calendar.selectedDate = new Date(calendar.selectedDate.getFullYear(), calendar.selectedDate.getMonth() + 1, 1)
+                }
+            }
+
+            // Calendar Grid
+            GridLayout {
+                id: calendar
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                columns: 7
+                
+                property date selectedDate: new Date()
+                property var workoutDates: workoutModel ? workoutModel.getWorkoutDates() : []
+                
+                // Day headers
+                Repeater {
+                    model: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 30
+                        text: modelData
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        color: "#666666"
+                    }
+                }
+                
+                // Calendar days
+                Repeater {
+                    model: getCalendarDays()
+                    
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        Layout.minimumHeight: 40
+                        
+                        property date dayDate: modelData.date
+                        property bool isCurrentMonth: modelData.currentMonth
+                        property bool hasWorkout: modelData.hasWorkout
+                        property bool isToday: dayDate.toDateString() === new Date().toDateString()
+                        
+                        color: {
+                            if (mouseArea.pressed) return "#e3f2fd"
+                            if (isToday) return "#bbdefb"
+                            if (!isCurrentMonth) return "#f5f5f5"
+                            return "white"
+                        }
+                        
+                        border.color: isToday ? "#2196f3" : "#e0e0e0"
+                        border.width: isToday ? 2 : 1
+                        radius: 4
+                        
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: 2
+                            
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: dayDate.getDate()
+                                color: isCurrentMonth ? "black" : "#cccccc"
+                                font.pixelSize: 14
+                            }
+                            
+                            // Workout indicator dot
+                            Rectangle {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                width: 6
+                                height: 6
+                                radius: 3
+                                color: "#ff6b35"
+                                visible: hasWorkout
+                            }
+                        }
+                        
+                        MouseArea {
+                            id: mouseArea
+                            anchors.fill: parent
+                            
+                            onClicked: {
+                                if (isCurrentMonth) {
+                                    workoutModel.setDateFilter(dayDate)
+                                    calendarPopup.close()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Close button
+            Button {
+                Layout.alignment: Qt.AlignHCenter
+                text: "Close"
+                onClicked: calendarPopup.close()
+            }
+        }
+    }
+
+    // JavaScript functions for calendar
+    function getCalendarDays() {
+        var days = []
+        var firstDay = new Date(calendar.selectedDate.getFullYear(), calendar.selectedDate.getMonth(), 1)
+        var lastDay = new Date(calendar.selectedDate.getFullYear(), calendar.selectedDate.getMonth() + 1, 0)
+        var startDate = new Date(firstDay)
+        startDate.setDate(startDate.getDate() - firstDay.getDay()) // Go back to start of week
+        
+        var workoutDates = calendar.workoutDates || []
+        var workoutDateStrings = workoutDates.map(function(date) {
+            return date.toDateString()
+        })
+        
+        for (var i = 0; i < 42; i++) { // 6 rows x 7 days
+            var currentDate = new Date(startDate)
+            currentDate.setDate(startDate.getDate() + i)
+            
+            var hasWorkout = workoutDateStrings.indexOf(currentDate.toDateString()) !== -1
+            var isCurrentMonth = currentDate.getMonth() === calendar.selectedDate.getMonth()
+            
+            days.push({
+                date: currentDate,
+                currentMonth: isCurrentMonth,
+                hasWorkout: hasWorkout
+            })
+        }
+        
+        return days
     }
 }
