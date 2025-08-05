@@ -1183,6 +1183,11 @@ import Qt.labs.platform 1.1
             property real automatic_virtual_shifting_gear_down_time: 2.0
         }
 
+        FontLoader {
+            id: emojiFont
+            source: "qrc:/fonts/NotoColorEmoji_WindowsCompatible.ttf"
+        }
+
         function paddingZeros(text, limit) {
           if (text.length < limit) {
             return paddingZeros("0" + text, limit);
@@ -11216,6 +11221,7 @@ import Qt.labs.platform 1.1
             AccordionElement {
                 id: mapsAccordion
                 title: qsTr("Maps 🗺️")
+                font.family: Qt.platform.os === "android" ? emojiFont.name : ""
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor

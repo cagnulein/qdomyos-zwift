@@ -95,6 +95,11 @@ ApplicationWindow {
         property string peloton_password: "password"
     }
 
+    FontLoader {
+        id: emojiFont
+        source: "qrc:/fonts/NotoColorEmoji_WindowsCompatible.ttf"
+    }
+
     Store {
         id: iapStore
     }
@@ -763,6 +768,7 @@ ApplicationWindow {
 
             ItemDelegate {
                 text: qsTr("📅 Workouts History")
+                font.family: Qt.platform.os === "android" ? emojiFont.name : ""
                 width: parent.width
                 onClicked: {
                     stackView.push("WorkoutsHistory.qml")
@@ -772,6 +778,7 @@ ApplicationWindow {
             }
                 ItemDelegate {
                     text: qsTr("👜Swag Bag")
+                    font.family: Qt.platform.os === "android" ? emojiFont.name : ""
                     width: parent.width
                     onClicked: {
                         stackView.push("SwagBagView.qml")
@@ -794,6 +801,7 @@ ApplicationWindow {
                 ItemDelegate {
                     id: gpx_open
                     text: qsTr("🗺️ Open GPX")
+                    font.family: Qt.platform.os === "android" ? emojiFont.name : ""
                     width: parent.width
                     onClicked: {
                         stackView.push("GPXList.qml")
@@ -810,6 +818,7 @@ ApplicationWindow {
                 ItemDelegate {
                     id: trainprogram_open
                     text: qsTr("📈 Open Train Program")
+                    font.family: Qt.platform.os === "android" ? emojiFont.name : ""
                     width: parent.width
                     onClicked: {
                         stackView.push("TrainingProgramsList.qml")
