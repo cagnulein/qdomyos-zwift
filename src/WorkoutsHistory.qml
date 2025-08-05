@@ -6,6 +6,11 @@ import QtCharts 2.15
 Page {
     id: workoutHistoryPage
 
+    FontLoader {
+        id: emojiFont
+        source: "qrc:/fonts/NotoColorEmoji_WindowsCompatible.ttf"
+    }
+
     // Signal for chart preview
     signal fitfile_preview_clicked(var url)
 
@@ -103,6 +108,7 @@ Page {
 
                         Text {
                             text: "🗑️ Delete"
+                            font.family: Qt.platform.os === "android" ? emojiFont.name : ""
                             color: "white"
                             font.pixelSize: 16
                             anchors.verticalCenter: parent.verticalCenter
@@ -135,6 +141,7 @@ Page {
                             Layout.alignment: Qt.AlignVCenter
                             Text {
                                 text: getSportIcon(sport)
+                                font.family: Qt.platform.os === "android" ? emojiFont.name : ""
                                 font.pixelSize: 32
                             }
                         }
@@ -173,6 +180,7 @@ Page {
 
                                 Text {
                                     text: "🔥 " + Math.round(calories) + " kcal"
+                                    font.family: Qt.platform.os === "android" ? emojiFont.name : ""
                                 }
                             }
                         }
@@ -287,6 +295,7 @@ Page {
                           workoutModel && workoutModel.currentStreak >= 90 ? "🦁🔥" :
                           workoutModel && workoutModel.currentStreak >= 30 ? "🎊🔥" :
                           workoutModel && workoutModel.currentStreak >= 7 ? "🏆🔥" : "🔥"
+                    font.family: Qt.platform.os === "android" ? emojiFont.name : ""
                     font.pixelSize: workoutModel && workoutModel.currentStreak >= 7 ? 28 : 24
 
                     SequentialAnimation on scale {
@@ -330,6 +339,7 @@ Page {
                           workoutModel && workoutModel.currentStreak >= 90 ? "🔥🦁" :
                           workoutModel && workoutModel.currentStreak >= 30 ? "🔥🎊" :
                           workoutModel && workoutModel.currentStreak >= 7 ? "🔥🏆" : "🔥"
+                    font.family: Qt.platform.os === "android" ? emojiFont.name : ""
                     font.pixelSize: workoutModel && workoutModel.currentStreak >= 365 ? 28 : 24
 
                     SequentialAnimation on scale {
