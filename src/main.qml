@@ -767,8 +767,10 @@ ApplicationWindow {
                 }
 
             ItemDelegate {
-                text: qsTr("📅 Workouts History")
-                font.family: Qt.platform.os === "android" ? emojiFont.name : ""
+                text: Qt.platform.os === "android" ? 
+                      '<font face="' + emojiFont.name + '">📅</font> Workouts History' : 
+                      qsTr("📅 Workouts History")
+                textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                 width: parent.width
                 onClicked: {
                     stackView.push("WorkoutsHistory.qml")
@@ -777,8 +779,10 @@ ApplicationWindow {
                 }
             }
                 ItemDelegate {
-                    text: qsTr("👜Swag Bag")
-                    font.family: Qt.platform.os === "android" ? emojiFont.name : ""
+                    text: Qt.platform.os === "android" ? 
+                          '<font face="' + emojiFont.name + '">👜</font>Swag Bag' : 
+                          qsTr("👜Swag Bag")
+                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                     width: parent.width
                     onClicked: {
                         stackView.push("SwagBagView.qml")
@@ -800,8 +804,10 @@ ApplicationWindow {
                 }
                 ItemDelegate {
                     id: gpx_open
-                    text: qsTr("🗺️ Open GPX")
-                    font.family: Qt.platform.os === "android" ? emojiFont.name : ""
+                    text: Qt.platform.os === "android" ? 
+                          '<font face="' + emojiFont.name + '">🗺️</font> Open GPX' : 
+                          qsTr("🗺️ Open GPX")
+                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                     width: parent.width
                     onClicked: {
                         stackView.push("GPXList.qml")
@@ -817,8 +823,10 @@ ApplicationWindow {
                 }
                 ItemDelegate {
                     id: trainprogram_open
-                    text: qsTr("📈 Open Train Program")
-                    font.family: Qt.platform.os === "android" ? emojiFont.name : ""
+                    text: Qt.platform.os === "android" ? 
+                          '<font face="' + emojiFont.name + '">📈</font> Open Train Program' : 
+                          qsTr("📈 Open Train Program")
+                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                     width: parent.width
                     onClicked: {
                         stackView.push("TrainingProgramsList.qml")

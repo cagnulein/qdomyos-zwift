@@ -107,8 +107,10 @@ Page {
                         anchors.rightMargin: 20
 
                         Text {
-                            text: "🗑️ Delete"
-                            font.family: Qt.platform.os === "android" ? emojiFont.name : ""
+                            text: Qt.platform.os === "android" ? 
+                                  '<font face="' + emojiFont.name + '">🗑️</font> Delete' : 
+                                  "🗑️ Delete"
+                            textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                             color: "white"
                             font.pixelSize: 16
                             anchors.verticalCenter: parent.verticalCenter
@@ -140,8 +142,10 @@ Page {
                         Column {
                             Layout.alignment: Qt.AlignVCenter
                             Text {
-                                text: getSportIcon(sport)
-                                font.family: Qt.platform.os === "android" ? emojiFont.name : ""
+                                text: Qt.platform.os === "android" ? 
+                                      '<font face="' + emojiFont.name + '">' + getSportIcon(sport) + '</font>' : 
+                                      getSportIcon(sport)
+                                textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                                 font.pixelSize: 32
                             }
                         }
@@ -179,8 +183,10 @@ Page {
                                 spacing: 16
 
                                 Text {
-                                    text: "🔥 " + Math.round(calories) + " kcal"
-                                    font.family: Qt.platform.os === "android" ? emojiFont.name : ""
+                                    text: Qt.platform.os === "android" ? 
+                                          '<font face="' + emojiFont.name + '">🔥</font> ' + Math.round(calories) + ' kcal' : 
+                                          "🔥 " + Math.round(calories) + " kcal"
+                                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                                 }
                             }
                         }
@@ -290,12 +296,20 @@ Page {
 
                 // Fire emoji with animation
                 Text {
-                    text: workoutModel && workoutModel.currentStreak >= 365 ? "👑🔥" :
+                    text: Qt.platform.os === "android" ? (
+                          workoutModel && workoutModel.currentStreak >= 365 ? '<font face="' + emojiFont.name + '">👑🔥</font>' :
+                          workoutModel && workoutModel.currentStreak >= 180 ? '<font face="' + emojiFont.name + '">🎖️🔥</font>' :
+                          workoutModel && workoutModel.currentStreak >= 90 ? '<font face="' + emojiFont.name + '">🦁🔥</font>' :
+                          workoutModel && workoutModel.currentStreak >= 30 ? '<font face="' + emojiFont.name + '">🎊🔥</font>' :
+                          workoutModel && workoutModel.currentStreak >= 7 ? '<font face="' + emojiFont.name + '">🏆🔥</font>' : '<font face="' + emojiFont.name + '">🔥</font>'
+                          ) : (
+                          workoutModel && workoutModel.currentStreak >= 365 ? "👑🔥" :
                           workoutModel && workoutModel.currentStreak >= 180 ? "🎖️🔥" :
                           workoutModel && workoutModel.currentStreak >= 90 ? "🦁🔥" :
                           workoutModel && workoutModel.currentStreak >= 30 ? "🎊🔥" :
                           workoutModel && workoutModel.currentStreak >= 7 ? "🏆🔥" : "🔥"
-                    font.family: Qt.platform.os === "android" ? emojiFont.name : ""
+                          )
+                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                     font.pixelSize: workoutModel && workoutModel.currentStreak >= 7 ? 28 : 24
 
                     SequentialAnimation on scale {
@@ -334,12 +348,20 @@ Page {
 
                 // Another fire emoji
                 Text {
-                    text: workoutModel && workoutModel.currentStreak >= 365 ? "🔥👑" :
+                    text: Qt.platform.os === "android" ? (
+                          workoutModel && workoutModel.currentStreak >= 365 ? '<font face="' + emojiFont.name + '">🔥👑</font>' :
+                          workoutModel && workoutModel.currentStreak >= 180 ? '<font face="' + emojiFont.name + '">🔥🎖️</font>' :
+                          workoutModel && workoutModel.currentStreak >= 90 ? '<font face="' + emojiFont.name + '">🔥🦁</font>' :
+                          workoutModel && workoutModel.currentStreak >= 30 ? '<font face="' + emojiFont.name + '">🔥🎊</font>' :
+                          workoutModel && workoutModel.currentStreak >= 7 ? '<font face="' + emojiFont.name + '">🔥🏆</font>' : '<font face="' + emojiFont.name + '">🔥</font>'
+                          ) : (
+                          workoutModel && workoutModel.currentStreak >= 365 ? "🔥👑" :
                           workoutModel && workoutModel.currentStreak >= 180 ? "🔥🎖️" :
                           workoutModel && workoutModel.currentStreak >= 90 ? "🔥🦁" :
                           workoutModel && workoutModel.currentStreak >= 30 ? "🔥🎊" :
                           workoutModel && workoutModel.currentStreak >= 7 ? "🔥🏆" : "🔥"
-                    font.family: Qt.platform.os === "android" ? emojiFont.name : ""
+                          )
+                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                     font.pixelSize: workoutModel && workoutModel.currentStreak >= 365 ? 28 : 24
 
                     SequentialAnimation on scale {
