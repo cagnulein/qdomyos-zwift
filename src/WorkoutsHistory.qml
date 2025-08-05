@@ -234,7 +234,7 @@ Page {
         anchors.left: parent.left
         anchors.right: parent.right
         height: 80
-        visible: workoutModel && (workoutModel.currentStreak > 0 || workoutModel.longestStreak > 0)
+        visible: workoutModel
         
         // Special pulsing effect for major milestones
         SequentialAnimation on opacity {
