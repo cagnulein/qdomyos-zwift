@@ -18,6 +18,7 @@ class FitDatabaseProcessor : public QObject {
     ~FitDatabaseProcessor();
 
     void processDirectory(const QString& dirPath);
+    void processFile(const QString& filePath);
     void stopProcessing();
 
     static const QString DB_CONNECTION_NAME;

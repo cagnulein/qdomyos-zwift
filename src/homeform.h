@@ -4,6 +4,7 @@
 #include "PathController.h"
 #include "bluetooth.h"
 #include "fit_profile.hpp"
+#include "fitdatabaseprocessor.h"
 #include "gpx.h"
 #include "OAuth2.h"
 #include "peloton.h"
@@ -14,6 +15,7 @@
 #include "sessionline.h"
 #include "smtpclient/src/SmtpMime"
 #include "trainprogram.h"
+#include "workoutmodel.h"
 #include <QChart>
 #include <QColor>
 #include <QGraphicsScene>
@@ -753,6 +755,8 @@ class homeform : public QObject {
     QString m_pelotonProvider = "";
     QString m_toastRequested = "";
     bool m_stravaUploadRequested = false;
+    FitDatabaseProcessor *fitProcessor = nullptr;
+    WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
     int m_zwiftLoginState = -1;

@@ -689,29 +689,29 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 #endif
 
-    auto processor = new FitDatabaseProcessor(getWritableAppDir() + "ddb.sqlite");
-    connect(processor, &FitDatabaseProcessor::fileProcessed,
+    fitProcessor = new FitDatabaseProcessor(getWritableAppDir() + "ddb.sqlite");
+    connect(fitProcessor, &FitDatabaseProcessor::fileProcessed,
             this, [](const QString& filename) {
                 qDebug() << "FitDatabaseProcessor Processing:" << filename;
             });
-    connect(processor, &FitDatabaseProcessor::progress,
+    connect(fitProcessor, &FitDatabaseProcessor::progress,
             this, [](int processed, int total) {
                 qDebug() << "FitDatabaseProcessor Progress:" << processed << "/" << total;
             });
-    connect(processor, &FitDatabaseProcessor::error,
+    connect(fitProcessor, &FitDatabaseProcessor::error,
             this, [](const QString& error) {
                 qDebug() << "FitDatabaseProcessor Error:" << error;
             });
-    WorkoutModel* workoutModel = new WorkoutModel(getWritableAppDir() + "ddb.sqlite");
+    workoutModel = new WorkoutModel(getWritableAppDir() + "ddb.sqlite");
     engine->rootContext()->setContextProperty("workoutModel", workoutModel);
     
-    connect(processor, &FitDatabaseProcessor::processingStopped,
-            this, [workoutModel]() {
+    connect(fitProcessor, &FitDatabaseProcessor::processingStopped,
+            this, [this]() {
                 qDebug() << "FitDatabaseProcessor Processing stopped - refreshing workout model";
                 workoutModel->setDatabaseProcessing(false);
                 workoutModel->refresh();
             });
-    processor->processDirectory(getWritableAppDir() + "fit");
+    fitProcessor->processDirectory(getWritableAppDir() + "fit");
 
     m_speech.setLocale(QLocale::English);
 
@@ -7364,6 +7364,12 @@ void homeform::fit_save_clicked() {
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
                    stravaPelotonWorkoutType, workoutName, dev->bluetoothDevice.name());
         lastFitFileSaved = filename;
+
+        // Process the newly saved file immediately and refresh workout model
+        if (fitProcessor && workoutModel) {
+            fitProcessor->processFile(filename);
+            workoutModel->refresh();
+        }
 
         QSettings settings;
         if (!settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken)

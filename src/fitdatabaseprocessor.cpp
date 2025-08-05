@@ -97,6 +97,20 @@ void FitDatabaseProcessor::processDirectory(const QString& dirPath) {
     }
 }
 
+void FitDatabaseProcessor::processFile(const QString& filePath) {
+    if (!initializeDatabase()) {
+        emit error("Failed to initialize database for single file processing");
+        return;
+    }
+
+    if (!processFitFile(filePath)) {
+        emit error(QString("Failed to process file: %1").arg(filePath));
+        return;
+    }
+
+    emit fileProcessed(filePath);
+}
+
 void FitDatabaseProcessor::stopProcessing() {
     stopRequested.storeRelease(1);
     workerThread.quit();
