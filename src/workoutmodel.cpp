@@ -10,6 +10,9 @@ WorkoutModel::WorkoutModel(const QString& dbPath, QObject *parent)
     , m_isLoading(false)
     , m_isDatabaseProcessing(true)
     , m_dbPath(dbPath)
+    , m_currentStreak(0)
+    , m_longestStreak(0)
+    , m_streakMessage("")
 {
     // Create main database connection
     {
@@ -39,6 +42,9 @@ WorkoutModel::WorkoutModel(const QString& dbPath, QObject *parent)
 
     // Initial load
     refresh();
+    
+    // Calculate initial streaks from existing data
+    calculateStreaks();
 }
 
 WorkoutModel::~WorkoutModel() {
@@ -60,6 +66,9 @@ void WorkoutModel::onWorkoutsLoaded(const QList<QVariantMap>& workouts) {
     m_workouts = workouts;
     endResetModel();
 
+    // Calculate streaks after loading workouts
+    calculateStreaks();
+
     m_isLoading = false;
     emit loadingStatusChanged();
 }
@@ -77,6 +86,18 @@ void WorkoutModel::setDatabaseProcessing(bool processing) {
         m_isDatabaseProcessing = processing;
         emit databaseProcessingChanged();
     }
+}
+
+int WorkoutModel::currentStreak() const {
+    return m_currentStreak;
+}
+
+int WorkoutModel::longestStreak() const {
+    return m_longestStreak;
+}
+
+QString WorkoutModel::streakMessage() const {
+    return m_streakMessage;
 }
 
 bool WorkoutModel::deleteWorkout(int workoutId) {
@@ -232,4 +253,135 @@ QHash<int, QByteArray> WorkoutModel::roleNames() const {
     roles[CaloriesRole] = "calories";
     roles[IdRole] = "id";
     return roles;
+}
+
+void WorkoutModel::calculateStreaks() {
+    QSqlQuery query(m_db);
+    query.prepare("SELECT DISTINCT DATE(start_time) as workout_date FROM workouts "
+                  "ORDER BY workout_date DESC");
+    
+    if (!query.exec()) {
+        qDebug() << "Failed to calculate streaks:" << query.lastError().text();
+        return;
+    }
+
+    QList<QDate> workoutDates;
+    while (query.next()) {
+        QDate date = query.value("workout_date").toDate();
+        if (date.isValid()) {
+            workoutDates.append(date);
+        }
+    }
+
+    if (workoutDates.isEmpty()) {
+        m_currentStreak = 0;
+        m_longestStreak = 0;
+        emit streakChanged();
+        return;
+    }
+
+    // Calculate current streak (consecutive days from today backwards)
+    QDate today = QDate::currentDate();
+    int currentStreak = 0;
+    
+    // Check if today has a workout
+    if (workoutDates.contains(today)) {
+        currentStreak = 1;
+        QDate checkDate = today.addDays(-1);
+        
+        while (workoutDates.contains(checkDate)) {
+            currentStreak++;
+            checkDate = checkDate.addDays(-1);
+        }
+    } else {
+        // Check if yesterday has a workout (allow for timezone differences)
+        QDate yesterday = today.addDays(-1);
+        if (workoutDates.contains(yesterday)) {
+            currentStreak = 1;
+            QDate checkDate = yesterday.addDays(-1);
+            
+            while (workoutDates.contains(checkDate)) {
+                currentStreak++;
+                checkDate = checkDate.addDays(-1);
+            }
+        }
+    }
+
+    // Calculate longest streak ever
+    int longestStreak = 0;
+    int tempStreak = 1;
+    
+    if (!workoutDates.isEmpty()) {
+        longestStreak = 1; // At least one workout exists
+        
+        for (int i = 1; i < workoutDates.size(); i++) {
+            QDate currentDate = workoutDates[i];
+            QDate previousDate = workoutDates[i-1];
+            
+            // Check if dates are consecutive (previous date should be exactly one day before current)
+            if (currentDate.addDays(1) == previousDate) {
+                tempStreak++;
+                longestStreak = qMax(longestStreak, tempStreak);
+            } else {
+                tempStreak = 1;
+            }
+        }
+    }
+
+    // Update values and emit signal if changed
+    QString newMessage = getStreakMessage(currentStreak);
+    bool changed = (m_currentStreak != currentStreak || m_longestStreak != longestStreak || m_streakMessage != newMessage);
+    m_currentStreak = currentStreak;
+    m_longestStreak = longestStreak;
+    m_streakMessage = newMessage;
+    
+    if (changed) {
+        emit streakChanged();
+    }
+    
+    qDebug() << "Streak calculation: Current=" << m_currentStreak << "Longest=" << m_longestStreak;
+}
+
+QString WorkoutModel::getStreakMessage(int streak) const {
+    if (streak == 0) {
+        return "Let's create a streak!";
+    } else if (streak == 1) {
+        return "Great start! 🚀";
+    } else if (streak == 2) {
+        return "Building momentum! 💪";
+    } else if (streak == 3) {
+        return "Three days strong! 🎯";
+    } else if (streak >= 4 && streak <= 6) {
+        return "Amazing dedication! ⭐";
+    } else if (streak == 7) {
+        return "One week warrior! 🏆";
+    } else if (streak >= 8 && streak <= 13) {
+        return "Unstoppable force! 🔥";
+    } else if (streak == 14) {
+        return "Two weeks champion! 👑";
+    } else if (streak >= 15 && streak <= 20) {
+        return "Legendary consistency! ⚡";
+    } else if (streak >= 21 && streak <= 29) {
+        return "Fitness machine! 🤖";
+    } else if (streak == 30) {
+        return "One month master! 🎊";
+    } else if (streak >= 31 && streak <= 59) {
+        return "Discipline incarnate! 💎";
+    } else if (streak == 60) {
+        return "Two months titan! 🏅";
+    } else if (streak >= 61 && streak <= 89) {
+        return "Workout legend! 🌟";
+    } else if (streak == 90) {
+        return "Three months beast! 🦁";
+    } else if (streak >= 91 && streak <= 179) {
+        return "Fitness deity! ✨";
+    } else if (streak == 180) {
+        return "Half-year hero! 🎖️";
+    } else if (streak >= 181 && streak <= 364) {
+        return "Unstoppable legend! 🔱";
+    } else if (streak == 365) {
+        return "FULL YEAR CHAMPION! 👑🔥";
+    } else {
+        return "Beyond legendary! 🌟✨";
+    }
 }

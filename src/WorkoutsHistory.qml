@@ -68,6 +68,7 @@ Page {
         ListView {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.bottomMargin: streakBanner.height + 10
             model: workoutModel
             spacing: 8
             clip: true
@@ -223,6 +224,172 @@ Page {
         }
         onRejected: {
             swipeDelegate.swipe.close()
+        }
+    }
+
+    // Streak Banner at the bottom
+    Rectangle {
+        id: streakBanner
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 80
+        visible: workoutModel && (workoutModel.currentStreak > 0 || workoutModel.longestStreak > 0)
+        
+        // Special pulsing effect for major milestones
+        SequentialAnimation on opacity {
+            running: workoutModel && workoutModel.currentStreak >= 30
+            loops: Animation.Infinite
+            NumberAnimation { from: 0.9; to: 1.0; duration: 1500; easing.type: Easing.InOutSine }
+            NumberAnimation { from: 1.0; to: 0.9; duration: 1500; easing.type: Easing.InOutSine }
+        }
+        
+        gradient: Gradient {
+            GradientStop { 
+                position: 0.0; 
+                color: workoutModel && (workoutModel.currentStreak >= 365) ? "#FFD700" : 
+                       workoutModel && (workoutModel.currentStreak >= 180) ? "#9932CC" : 
+                       workoutModel && (workoutModel.currentStreak >= 90) ? "#FF1493" : 
+                       workoutModel && (workoutModel.currentStreak >= 30) ? "#FF4500" : 
+                       workoutModel && (workoutModel.currentStreak >= 7) ? "#FF6347" : "#FF6B35"
+            }
+            GradientStop { 
+                position: 1.0; 
+                color: workoutModel && (workoutModel.currentStreak >= 365) ? "#FFA500" : 
+                       workoutModel && (workoutModel.currentStreak >= 180) ? "#8A2BE2" : 
+                       workoutModel && (workoutModel.currentStreak >= 90) ? "#DC143C" : 
+                       workoutModel && (workoutModel.currentStreak >= 30) ? "#FF6B35" : 
+                       workoutModel && (workoutModel.currentStreak >= 7) ? "#FF4500" : "#F7931E"
+            }
+        }
+        
+        Rectangle {
+            anchors.fill: parent
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "#40FFFFFF" }
+                GradientStop { position: 1.0; color: "#00FFFFFF" }
+            }
+        }
+        
+        ColumnLayout {
+            anchors.centerIn: parent
+            spacing: 4
+
+            // Current streak with count
+            RowLayout {
+                Layout.alignment: Qt.AlignHCenter
+                spacing: 15
+
+                // Fire emoji with animation
+                Text {
+                    text: workoutModel && workoutModel.currentStreak >= 365 ? "👑🔥" :
+                          workoutModel && workoutModel.currentStreak >= 180 ? "🎖️🔥" :
+                          workoutModel && workoutModel.currentStreak >= 90 ? "🦁🔥" :
+                          workoutModel && workoutModel.currentStreak >= 30 ? "🎊🔥" :
+                          workoutModel && workoutModel.currentStreak >= 7 ? "🏆🔥" : "🔥"
+                    font.pixelSize: workoutModel && workoutModel.currentStreak >= 7 ? 28 : 24
+
+                    SequentialAnimation on scale {
+                        running: workoutModel && workoutModel.currentStreak > 0
+                        loops: Animation.Infinite
+                        NumberAnimation {
+                            from: 1.0;
+                            to: workoutModel && workoutModel.currentStreak >= 7 ? 1.4 : 1.2;
+                            duration: workoutModel && workoutModel.currentStreak >= 365 ? 600 : 800;
+                            easing.type: Easing.InOutSine
+                        }
+                        NumberAnimation {
+                            from: workoutModel && workoutModel.currentStreak >= 7 ? 1.4 : 1.2;
+                            to: 1.0;
+                            duration: workoutModel && workoutModel.currentStreak >= 7 ? 600 : 800;
+                            easing.type: Easing.InOutSine
+                        }
+                    }
+
+                    // Special sparkle effect for year achievement
+                    SequentialAnimation on rotation {
+                        running: workoutModel && workoutModel.currentStreak >= 7
+                        loops: Animation.Infinite
+                        NumberAnimation { from: 0; to: 360; duration: 3000; easing.type: Easing.Linear }
+                    }
+                }
+
+                // Current streak count
+                Text {
+                    text: workoutModel ? workoutModel.currentStreak + " day" + (workoutModel.currentStreak !== 1 ? "s" : "") + " streak" : ""
+                    font.pixelSize: 18
+                    font.bold: true
+                    color: "white"
+                    visible: workoutModel
+                }
+
+                // Another fire emoji
+                Text {
+                    text: workoutModel && workoutModel.currentStreak >= 365 ? "🔥👑" :
+                          workoutModel && workoutModel.currentStreak >= 180 ? "🔥🎖️" :
+                          workoutModel && workoutModel.currentStreak >= 90 ? "🔥🦁" :
+                          workoutModel && workoutModel.currentStreak >= 30 ? "🔥🎊" :
+                          workoutModel && workoutModel.currentStreak >= 7 ? "🔥🏆" : "🔥"
+                    font.pixelSize: workoutModel && workoutModel.currentStreak >= 365 ? 28 : 24
+
+                    SequentialAnimation on scale {
+                        running: workoutModel && workoutModel.currentStreak > 0
+                        loops: Animation.Infinite
+                        NumberAnimation {
+                            from: 1.0;
+                            to: workoutModel && workoutModel.currentStreak >= 7 ? 1.4 : 1.2;
+                            duration: workoutModel && workoutModel.currentStreak >= 7 ? 700 : 1000;
+                            easing.type: Easing.InOutSine
+                        }
+                        NumberAnimation {
+                            from: workoutModel && workoutModel.currentStreak >= 7 ? 1.4 : 1.2;
+                            to: 1.0;
+                            duration: workoutModel && workoutModel.currentStreak >= 7 ? 700 : 1000;
+                            easing.type: Easing.InOutSine
+                        }
+                    }
+
+                    // Counter-rotation for variety
+                    SequentialAnimation on rotation {
+                        running: workoutModel && workoutModel.currentStreak >= 7
+                        loops: Animation.Infinite
+                        NumberAnimation { from: 0; to: -360; duration: 3500; easing.type: Easing.Linear }
+                    }
+                }
+            }
+            
+            // Motivational message
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                text: workoutModel ? workoutModel.streakMessage : ""
+                font.pixelSize: 14
+                font.italic: true
+                color: "white"
+                visible: workoutModel && workoutModel.streakMessage !== ""
+                opacity: 0.9
+            }
+            
+            // Best streak (smaller text)
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                text: workoutModel ? "Personal best: " + workoutModel.longestStreak + " day" + (workoutModel.longestStreak !== 1 ? "s" : "") : ""
+                font.pixelSize: 12
+                color: "white"
+                visible: workoutModel && workoutModel.longestStreak > workoutModel.currentStreak && workoutModel.longestStreak > 0
+                opacity: 0.7
+            }
+        }
+        
+        // Subtle shadow effect at the top
+        Rectangle {
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: 2
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "#40000000" }
+                GradientStop { position: 1.0; color: "#00000000" }
+            }
         }
     }
 }
