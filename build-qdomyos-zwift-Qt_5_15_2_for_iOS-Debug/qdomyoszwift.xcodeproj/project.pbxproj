@@ -388,6 +388,7 @@
 		8781908526150C8E0085E656 /* libqtlabsplatformplugin.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 8781908126150B490085E656 /* libqtlabsplatformplugin.a */; };
 		8783153B25E8D81E0007817C /* moc_sportstechbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8783153A25E8D81E0007817C /* moc_sportstechbike.cpp */; };
 		8783153C25E8DAFD0007817C /* sportstechbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3EBBA25D2CFED0040EB4C /* sportstechbike.cpp */; };
+		878521CD2E42552A00922796 /* libqtlabscalendarplugin.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 878521CC2E42552A00922796 /* libqtlabscalendarplugin.a */; };
 		878531642711A3E1004B153D /* fakebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878531602711A3E0004B153D /* fakebike.cpp */; };
 		878531652711A3E1004B153D /* activiotreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878531612711A3E1004B153D /* activiotreadmill.cpp */; };
 		878531682711A3EC004B153D /* moc_activiotreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878531662711A3EB004B153D /* moc_activiotreadmill.cpp */; };
@@ -1373,6 +1374,7 @@
 		878225C234983ACB863D2D29 /* fit_nmea_sentence_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_nmea_sentence_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_nmea_sentence_mesg.hpp"; sourceTree = "<absolute>"; };
 		8783153A25E8D81E0007817C /* moc_sportstechbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sportstechbike.cpp; sourceTree = "<group>"; };
 		87842E7E25AF88FB00321E69 /* secret.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = secret.h; path = ../src/secret.h; sourceTree = "<group>"; };
+		878521CC2E42552A00922796 /* libqtlabscalendarplugin.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtlabscalendarplugin.a; path = ../../Qt/5.15.2/ios/qml/Qt/labs/calendar/libqtlabscalendarplugin.a; sourceTree = "<group>"; };
 		878531602711A3E0004B153D /* fakebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fakebike.cpp; path = ../src/devices/fakebike/fakebike.cpp; sourceTree = "<group>"; };
 		878531612711A3E1004B153D /* activiotreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = activiotreadmill.cpp; path = ../src/devices/activiotreadmill/activiotreadmill.cpp; sourceTree = "<group>"; };
 		878531622711A3E1004B153D /* activiotreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = activiotreadmill.h; path = ../src/devices/activiotreadmill/activiotreadmill.h; sourceTree = "<group>"; };
@@ -1924,6 +1926,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				878521CD2E42552A00922796 /* libqtlabscalendarplugin.a in Link Binary With Libraries */,
 				8768C9282BBC13220099DBE1 /* libcrypto.a in Link Binary With Libraries */,
 				87FA94672B6B89FD00B6AB9A /* SwiftUI.framework in Link Binary With Libraries */,
 				879F74112893D5B8009A64C8 /* libqavfcamera.a in Link Binary With Libraries */,
@@ -2972,6 +2975,7 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				878521CC2E42552A00922796 /* libqtlabscalendarplugin.a */,
 				8768C9262BBC12D10099DBE1 /* libcrypto.a */,
 				87FA94682B6B8A5A00B6AB9A /* libSystem.B.tbd */,
 				87FA94662B6B89FD00B6AB9A /* SwiftUI.framework */,
@@ -4503,6 +4507,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/playlistformats,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
 					"/Users/cagnulein/qdomyos-zwift/src/ios/adb",
+					/Users/cagnulein/Qt/5.15.2/ios/qml/Qt/labs/calendar,
 				);
 				MARKETING_VERSION = 2.20;
 				OTHER_CFLAGS = (
@@ -4700,6 +4705,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/playlistformats,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
 					"/Users/cagnulein/qdomyos-zwift/src/ios/adb",
+					/Users/cagnulein/Qt/5.15.2/ios/qml/Qt/labs/calendar,
 				);
 				MARKETING_VERSION = 2.20;
 				ONLY_ACTIVE_ARCH = YES;
