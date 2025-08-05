@@ -6,7 +6,7 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <jni.h>
-#include <QAndroidJniObject>
+#include <QJniObject>
 #endif
 #include "material.h"
 #include "qfit.h"
@@ -131,8 +131,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 
 #ifdef Q_OS_ANDROID
-    m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
-                                              "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
+    QJniObject context = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+    m_locationServices = QJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
+                                              "(Landroid/content/Context;)Z", context.object());
     if(m_locationServices) {
         QSettings settings;
         // so if someone pressed the skip message but now he forgot to enable GPS it will prompt out
@@ -552,6 +553,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     engine->rootContext()->setContextProperty(QStringLiteral("rootItem"), (QObject *)this);
     connect(this, &homeform::restoreDefaultWheelDiameter, this, &homeform::handleRestoreDefaultWheelDiameter);
 
+    const QUrl url(QStringLiteral("qrc:/main.qml"));
+    engine->load(url);
+
+
     this->trainProgram = new trainprogram(QList<trainrow>(), bl);
 
     timer = new QTimer(this);
@@ -566,44 +571,51 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(automaticShiftingTimer, &QTimer::timeout, this, &homeform::ten_hz);
     automaticShiftingTimer->start(100); // 100ms = 10Hz
 
-    QObject *rootObject = engine->rootObjects().constFirst();
-    QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
-    QObject *stack = rootObject;
-    engine->rootContext()->setContextProperty("pathController", &pathController);
-    QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
-    QObject::connect(home, SIGNAL(stop_clicked()), this, SLOT(Stop()));
-    QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)), this, SLOT(trainprogram_open_clicked(QUrl)));
-    QObject::connect(stack, SIGNAL(trainprogram_open_other_folder(QUrl)), this, SLOT(trainprogram_open_other_folder(QUrl)));
-    QObject::connect(stack, SIGNAL(gpx_open_other_folder(QUrl)), this, SLOT(gpx_open_other_folder(QUrl)));
-    QObject::connect(stack, SIGNAL(profile_open_clicked(QUrl)), this, SLOT(profile_open_clicked(QUrl)));
-    QObject::connect(stack, SIGNAL(trainprogram_preview(QUrl)), this, SLOT(trainprogram_preview(QUrl)));
-    QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
-    QObject::connect(stack, SIGNAL(trainprogram_zwo_loaded(QString)), this, SLOT(trainprogram_zwo_loaded(QString)));
-    QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)), this, SLOT(gpx_open_clicked(QUrl)));
-    QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
-    QObject::connect(stack, SIGNAL(fit_save_clicked()), this, SLOT(fit_save_clicked()));
-    QObject::connect(stack, SIGNAL(strava_connect_clicked()), this, SLOT(strava_connect_clicked()));
-    QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()), this,
-                     SLOT(refresh_bluetooth_devices_clicked()));
-    QObject::connect(home, SIGNAL(lap_clicked()), this, SLOT(Lap()));
-    QObject::connect(home, SIGNAL(peloton_start_workout()), this, SLOT(peloton_start_workout()));
-    QObject::connect(home, SIGNAL(peloton_abort_workout()), this, SLOT(peloton_abort_workout()));
-    QObject::connect(stack, SIGNAL(loadSettings(QUrl)), this, SLOT(loadSettings(QUrl)));
-    QObject::connect(stack, SIGNAL(saveSettings(QUrl)), this, SLOT(saveSettings(QUrl)));
-    QObject::connect(stack, SIGNAL(deleteSettings(QUrl)), this, SLOT(deleteSettings(QUrl)));
-    QObject::connect(stack, SIGNAL(restoreSettings()), this, SLOT(restoreSettings()));
-    QObject::connect(stack, SIGNAL(saveProfile(QString)), this, SLOT(saveProfile(QString)));
-    QObject::connect(stack, SIGNAL(restart()), this, SLOT(restart()));
+    QObject *stack = nullptr;
 
-    QObject::connect(stack, SIGNAL(volumeUp()), this, SLOT(volumeUp()));
-    QObject::connect(stack, SIGNAL(volumeDown()), this, SLOT(volumeDown()));
-    QObject::connect(stack, SIGNAL(keyMediaPrevious()), this, SLOT(keyMediaPrevious()));
-    QObject::connect(stack, SIGNAL(keyMediaNext()), this, SLOT(keyMediaNext()));
-    QObject::connect(stack, SIGNAL(floatingOpen()), this, SLOT(floatingOpen()));
-    QObject::connect(stack, SIGNAL(openFloatingWindowBrowser()), this, SLOT(openFloatingWindowBrowser()));
-    QObject::connect(stack, SIGNAL(strava_upload_file_prepare()), this, SLOT(strava_upload_file_prepare()));
+    if(engine->rootObjects().count() > 0) {
+        QObject *rootObject = engine->rootObjects().constFirst();
+        QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
+        stack = rootObject;
 
-    qDebug() << "homeform constructor events linked";
+        engine->rootContext()->setContextProperty("pathController", &pathController);
+        QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
+        QObject::connect(home, SIGNAL(stop_clicked()), this, SLOT(Stop()));
+        QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)), this, SLOT(trainprogram_open_clicked(QUrl)));
+        QObject::connect(stack, SIGNAL(trainprogram_open_other_folder(QUrl)), this, SLOT(trainprogram_open_other_folder(QUrl)));
+        QObject::connect(stack, SIGNAL(gpx_open_other_folder(QUrl)), this, SLOT(gpx_open_other_folder(QUrl)));
+        QObject::connect(stack, SIGNAL(profile_open_clicked(QUrl)), this, SLOT(profile_open_clicked(QUrl)));
+        QObject::connect(stack, SIGNAL(trainprogram_preview(QUrl)), this, SLOT(trainprogram_preview(QUrl)));
+        QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
+        QObject::connect(stack, SIGNAL(trainprogram_zwo_loaded(QString)), this, SLOT(trainprogram_zwo_loaded(QString)));
+        QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)), this, SLOT(gpx_open_clicked(QUrl)));
+        QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
+        QObject::connect(stack, SIGNAL(fit_save_clicked()), this, SLOT(fit_save_clicked()));
+        QObject::connect(stack, SIGNAL(strava_connect_clicked()), this, SLOT(strava_connect_clicked()));
+        QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()), this,
+                         SLOT(refresh_bluetooth_devices_clicked()));
+        QObject::connect(home, SIGNAL(lap_clicked()), this, SLOT(Lap()));
+        QObject::connect(home, SIGNAL(peloton_start_workout()), this, SLOT(peloton_start_workout()));
+        QObject::connect(home, SIGNAL(peloton_abort_workout()), this, SLOT(peloton_abort_workout()));
+        QObject::connect(stack, SIGNAL(loadSettings(QUrl)), this, SLOT(loadSettings(QUrl)));
+        QObject::connect(stack, SIGNAL(saveSettings(QUrl)), this, SLOT(saveSettings(QUrl)));
+        QObject::connect(stack, SIGNAL(deleteSettings(QUrl)), this, SLOT(deleteSettings(QUrl)));
+        QObject::connect(stack, SIGNAL(restoreSettings()), this, SLOT(restoreSettings()));
+        QObject::connect(stack, SIGNAL(saveProfile(QString)), this, SLOT(saveProfile(QString)));
+        QObject::connect(stack, SIGNAL(restart()), this, SLOT(restart()));
+
+        QObject::connect(stack, SIGNAL(volumeUp()), this, SLOT(volumeUp()));
+        QObject::connect(stack, SIGNAL(volumeDown()), this, SLOT(volumeDown()));
+        QObject::connect(stack, SIGNAL(keyMediaPrevious()), this, SLOT(keyMediaPrevious()));
+        QObject::connect(stack, SIGNAL(keyMediaNext()), this, SLOT(keyMediaNext()));
+        QObject::connect(stack, SIGNAL(floatingOpen()), this, SLOT(floatingOpen()));
+        QObject::connect(stack, SIGNAL(openFloatingWindowBrowser()), this, SLOT(openFloatingWindowBrowser()));
+        QObject::connect(stack, SIGNAL(strava_upload_file_prepare()), this, SLOT(strava_upload_file_prepare()));
+
+        qDebug() << "homeform constructor events linked";
+    } else {
+        qDebug() << "error on QML engine UI";
+    }
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QObject::connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
@@ -627,7 +639,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(pelotonHandler, &peloton::pzpLoginState, this, &homeform::pzpLoginState);
     connect(pelotonHandler, &peloton::pelotonAuthUrlChanged, this, &homeform::pelotonAuthUrlChanged);
     connect(pelotonHandler, &peloton::pelotonWebVisibleChanged, this, &homeform::pelotonWebVisibleChanged);
-    connect(stack, SIGNAL(peloton_connect_clicked()), pelotonHandler, SLOT(peloton_connect_clicked()));
+    if(stack)
+        connect(stack, SIGNAL(peloton_connect_clicked()), pelotonHandler, SLOT(peloton_connect_clicked()));
 
     // copying bundles zwo files in the right path if necessary
     QDirIterator itZwo(":/zwo/");
@@ -673,7 +686,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 #endif
 
+#ifdef HAVE_TEXTTOSPEECH
     m_speech.setLocale(QLocale::English);
+#endif
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QBluetoothDeviceInfo b;
@@ -775,14 +790,15 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
     
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject javaPath = QAndroidJniObject::fromString(getWritableAppDir());
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
-                                                "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
+    QJniObject javaPath = QJniObject::fromString(getWritableAppDir());
+    QJniObject context2 = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
+                                                "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), context2.object());
 
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
                                               "registerReceiver",
                                               "(Landroid/content/Context;)V",
-                                              QtAndroid::androidContext().object());
+                                              context2.object());
 #endif    
 
     bluetoothManager->homeformLoaded = true;
@@ -888,18 +904,19 @@ void homeform::floatingOpen() {
         // Determine which HTML file to use based on the setting
         QString htmlFile = (floatingWindowType == 0) ? "floating.htm" : "hfloating.htm";
         
-        QAndroidJniObject javaHtmlFile = QAndroidJniObject::fromString(htmlFile);
+        QJniObject javaHtmlFile = QJniObject::fromString(htmlFile);
         
-        QAndroidJniObject::callStaticMethod<void>(
+        QJniObject context3 = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+        QJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/FloatingHandler", "show", "(Landroid/content/Context;IIIILjava/lang/String;)V",
-            QtAndroid::androidContext().object(), 
+            context3.object(), 
             settings.value("template_inner_QZWS_port", 6666).toInt(),
             settings.value(QZSettings::floating_width, QZSettings::default_floating_width).toInt(),
             settings.value(QZSettings::floating_height, QZSettings::default_floating_height).toInt(),
             settings.value(QZSettings::floating_transparency, QZSettings::default_floating_transparency).toInt(),
             javaHtmlFile.object<jstring>());
     } else {
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "hide", "()V");
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "hide", "()V");
     }
     floating_open = !floating_open;
 #endif
@@ -1229,7 +1246,7 @@ void homeform::aboutToQuit() {
     // closing floating window
     if (floating_open)
         floatingOpen();
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
 #endif
 
     QSettings settings;
@@ -3815,8 +3832,9 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
              .toString()
              .compare(QZSettings::default_heart_rate_belt_name) &&
         !settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/WearableController", "start",
-                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        QJniObject context4 = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/WearableController", "start",
+                                                  "(Landroid/content/Context;)V", context4.object());
     }
 #endif
 
@@ -4650,8 +4668,11 @@ void homeform::Start_inner(bool send_event_to_device) {
 
     m_overridePower = false;
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+#ifdef HAVE_TEXTTOSPEECH
         m_speech.say("Start pressed");
+#endif
+    }
 
     if (!paused && !stopped) {
         paused = true;
@@ -4775,8 +4796,11 @@ void homeform::Stop() {
         this->innerTemplateManager->reinit();
 #endif
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+#ifdef HAVE_TEXTTOSPEECH
         m_speech.say("Stop pressed");
+#endif
+    }
 
     if (bluetoothManager->device()) {
 
@@ -6347,8 +6371,8 @@ void homeform::update() {
                                    (bluetoothManager->device()->elapsedTime().hour() * 3600);
                 if ((seconds / 60) <
                     settings.value(QZSettings::trainprogram_total, QZSettings::default_trainprogram_total).toUInt()) {
-                    qDebug() << QStringLiteral("trainprogram random seconds ") + QString::number(seconds) +
-                                    QStringLiteral(" last_change ") + last_seconds + QStringLiteral(" period ") +
+                    qDebug() << QStringLiteral("trainprogram random seconds ") << QString::number(seconds) <<
+                                    QStringLiteral(" last_change ") << last_seconds << QStringLiteral(" period ") <<
                                     settings
                                         .value(QZSettings::trainprogram_period_seconds,
                                                QZSettings::default_trainprogram_period_seconds)
@@ -6808,6 +6832,7 @@ void homeform::update() {
                 }
             }
 
+#ifdef HAVE_TEXTTOSPEECH
             if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
                 static double tts_speed_played = 0;
                 bool description =
@@ -7045,6 +7070,7 @@ void homeform::update() {
                     }
                 }
             }
+#endif
 
             if(bluetoothManager->device()->currentSpeed().value() > 0 && !isinf(bluetoothManager->device()->currentSpeed().value()))
                 bluetoothManager->device()->addCurrentDistance1s((bluetoothManager->device()->currentSpeed().value() / 3600.0));
@@ -7119,13 +7145,14 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
     }
 #ifdef Q_OS_ANDROID
 
-    QAndroidJniObject jUriString = QAndroidJniObject::fromString(uriString);
-    QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod("android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
-    QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+    QJniObject jUriString = QJniObject::fromString(uriString);
+    QJniObject jUri = QJniObject::callStaticObjectMethod("android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
+    QJniObject context5 = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+    QJniObject result = QJniObject::callStaticObjectMethod(
         "org/cagnulen/qdomyoszwift/ContentHelper",
         "getFileName",
         "(Landroid/content/Context;Landroid/net/Uri;)Ljava/lang/String;",
-        QtAndroid::androidContext().object(),
+        context5.object(),
         jUri.object());
     return result.toString();
 #else
@@ -7446,14 +7473,13 @@ QStringList homeform::metrics() { return bluetoothdevice::metrics(); }
 
 QAbstractOAuth::ModifyParametersFunction
 homeform::buildModifyParametersFunction(const QUrl &clientIdentifier, const QUrl &clientIdentifierSharedKey) {
-    return [clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
+    return [clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QMultiMap<QString, QVariant> *parameters) {
         if (stage == QAbstractOAuth::Stage::RequestingAuthorization) {
-            parameters->insert(QStringLiteral("responseType"), QStringLiteral("code")); /* Request refresh token*/
-            parameters->insert(QStringLiteral("approval_prompt"),
-                               QStringLiteral("force")); /* force user check scope again */
+            parameters->insert(QStringLiteral("responseType"), QStringLiteral("code"));
+            parameters->insert(QStringLiteral("approval_prompt"), QStringLiteral("force"));
             QByteArray code = parameters->value(QStringLiteral("code")).toByteArray();
-            // DON'T TOUCH THIS LINE, THANKS Roberto Viola
-            (*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code); // NOTE: Old code replaced by
+            parameters->remove(QStringLiteral("code"));
+            parameters->insert(QStringLiteral("code"), QUrl::fromPercentEncoding(code));
         }
         if (stage == QAbstractOAuth::Stage::RefreshingAccessToken) {
             parameters->insert(QStringLiteral("client_id"), clientIdentifier);
@@ -7980,32 +8006,16 @@ void homeform::sendMail() {
     return;
 #endif
 
-// We need to set the username (your email address) and the password
-// for smtp authentication.
-#ifdef SMTP_PASSWORD
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-    smtp.setUser(STRINGIFY(SMTP_USERNAME));
-#else
-#pragma message "smtp username is unset!"
-    return;
-#endif
-#ifdef SMTP_PASSWORD
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-    smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
-#else
-#pragma message "smtp password is unset!"
-    return;
-#endif
-
     // Now we create a MimeMessage object. This will be the email.
 
     MimeMessage message;
-
-    message.setSender(new EmailAddress(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ")));
-    message.addRecipient(new EmailAddress(settings.value(QZSettings::user_email, QLatin1String("")).toString(),
-                                          settings.value(QZSettings::user_email, QLatin1String("")).toString()));
+    EmailAddress sender(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ"));
+    message.setSender(sender);
+    
+    EmailAddress recipient(settings.value(QZSettings::user_email, QLatin1String("")).toString(),
+                           settings.value(QZSettings::user_email, QLatin1String("")).toString());
+    message.addRecipient(recipient);
+  
     if (!Session.isEmpty()) {
         QString title = Session.constFirst().time.toString();
         if (!stravaPelotonActivityName.isEmpty()) {
@@ -8285,14 +8295,19 @@ void homeform::sendMail() {
 
     bool r = false;
     uint8_t i = 0;
-    while (!r) {
-        qDebug() << "trying to send email #" << i;
-        r = smtp.connectToHost();
-        r = smtp.login();
-        r = smtp.sendMail(message);
-        if (i++ == 3)
-            break;
-    }
+    
+      qDebug() << "trying to send email #" << i;
+      smtp.connectToHost();
+      
+      // Use the public login method with parameters instead of the protected one
+      
+         smtp.login(STRINGIFY(SMTP_USERNAME), STRINGIFY(SMTP_PASSWORD)); // Replace with actual credentials
+      
+      
+     
+          smtp.sendMail(message);
+      
+        
     smtp.quit();
 
     // delete image variable
@@ -8304,13 +8319,13 @@ void homeform::sendMail() {
 
 QString homeform::getBluetoothName()
 {
-    QAndroidJniObject bluetoothAdapter = QAndroidJniObject::callStaticObjectMethod(
+    QJniObject bluetoothAdapter = QJniObject::callStaticObjectMethod(
         "android/bluetooth/BluetoothAdapter",
         "getDefaultAdapter",
         "()Landroid/bluetooth/BluetoothAdapter;");
     
     if (bluetoothAdapter.isValid()) {
-        QAndroidJniObject name = bluetoothAdapter.callObjectMethod(
+        QJniObject name = bluetoothAdapter.callObjectMethod(
             "getName",
             "()Ljava/lang/String;");
         
@@ -8329,19 +8344,20 @@ QString homeform::getAndroidDataAppDir() {
         return path;
     }
 
-    QAndroidJniObject filesArr = QtAndroid::androidActivity().callObjectMethod(
+    QJniObject activity = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity", "()Landroid/app/Activity;");
+    QJniObject filesArr = activity.callObjectMethod(
         "getExternalFilesDirs", "(Ljava/lang/String;)[Ljava/io/File;", nullptr);
     jobjectArray dataArray = filesArr.object<jobjectArray>();
     QString out;
     if (dataArray) {
-        QAndroidJniEnvironment env;
+        QJniEnvironment env;
         jsize dataSize = env->GetArrayLength(dataArray);
         if (dataSize) {
-            QAndroidJniObject mediaPath;
-            QAndroidJniObject file;
+            QJniObject mediaPath;
+            QJniObject file;
             for (int i = 0; i < dataSize; i++) {
                 file = env->GetObjectArrayElement(dataArray, i);
-                jboolean val = QAndroidJniObject::callStaticMethod<jboolean>(
+                jboolean val = QJniObject::callStaticMethod<jboolean>(
                     "android/os/Environment", "isExternalStorageRemovable", "(Ljava/io/File;)Z", file.object());
                 mediaPath = file.callObjectMethod("getAbsolutePath", "()Ljava/lang/String;");
                 out = mediaPath.toString();

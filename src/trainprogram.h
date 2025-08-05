@@ -12,11 +12,13 @@
 #include "ios/lockscreen.h"
 #endif
 
+#ifdef PROTOBUF
 #include "zwift-api/PlayerStateWrapper.h"
 #include "zwift-api/zwift_client_auth.h"
 
 #ifdef Q_CC_MSVC
 #include "zwift-api/zwift_messages.pb.h"
+#endif
 #endif
 
 class trainrow {
@@ -172,9 +174,11 @@ private slots:
     QUdpSocket* pelotonOCRsocket = nullptr;
     void pelotonOCRcomputeTime(QString t);
     
+#ifdef PROTOBUF
     AuthToken* zwift_auth_token = nullptr;
     World* zwift_world = nullptr;
     int zwift_player_id = -1;
+#endif
     
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
