@@ -11221,7 +11221,6 @@ import Qt.labs.platform 1.1
             AccordionElement {
                 id: mapsAccordion
                 title: qsTr("Maps 🗺️")
-                font.family: Qt.platform.os === "android" ? emojiFont.name : ""
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
