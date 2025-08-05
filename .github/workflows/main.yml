@@ -739,6 +739,10 @@ jobs:
             --gradle \
             --aab \
             --verbose
+          
+          # Remove deprecated enableUncompressedNativeLibs from generated files
+          find ${{ github.workspace }}/output/android/ -name "*.gradle" -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} \;
+          find ${{ github.workspace }}/output/android/ -name "gradle.properties" -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} \;
 
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
