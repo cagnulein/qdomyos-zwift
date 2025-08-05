@@ -840,12 +840,16 @@ Page {
             var currentDate = new Date(startDate)
             currentDate.setDate(startDate.getDate() + i)
             
-            // Simple comparison with ISO date format (YYYY-MM-DD)
-            var currentDateISOString = currentDate.toISOString().split('T')[0] // YYYY-MM-DD format
-            
-            var hasWorkout = workoutDateStrings.indexOf(currentDateISOString) !== -1
+            // Costruisci la stringa YYYY-MM-DD dai componenti della data locale per evitare problemi di fuso orario
+            var year = currentDate.getFullYear();
+            var month = currentDate.getMonth() + 1; // i mesi JS sono 0-indicizzati
+            var day = currentDate.getDate();
+            var localDateString = year + "-" + (month < 10 ? '0' + month : month) + "-" + (day < 10 ? '0' + day : day);
+
+            var hasWorkout = workoutDateStrings.indexOf(localDateString) !== -1;
             if (hasWorkout) {
-                console.log("Found workout match for:", currentDateISOString)
+                // Questo console.log ora utilizza la stringa della data locale corretta per la corrispondenza
+                console.log("Found workout match for:", localDateString);
             }
             
             var isCurrentMonth = currentDate.getMonth() === calendar.selectedDate.getMonth()
