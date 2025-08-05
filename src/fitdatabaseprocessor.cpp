@@ -98,7 +98,7 @@ void FitDatabaseProcessor::processDirectory(const QString& dirPath) {
 }
 
 void FitDatabaseProcessor::processFile(const QString& filePath) {
-    if (!initializeDatabase()) {
+    if (!db.isOpen()) {
         emit error("Failed to initialize database for single file processing");
         return;
     }
