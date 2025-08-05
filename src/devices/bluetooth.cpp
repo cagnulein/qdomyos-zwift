@@ -51,7 +51,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         }
         // this signal is not associated to anything in this moment, since the homeform is not loaded yet
         this->signalBluetoothDeviceConnected(pelotonBike);
-    } else if (fake_bike) {
+    }/* else if (fake_bike) {
         fakeBike = new fakebike(noWriteResistance, noHeartService, false);
         emit deviceConnected(QBluetoothDeviceInfo());
         connect(fakeBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
@@ -73,7 +73,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         // this signal is not associated to anything in this moment, since the homeform is not loaded yet
         this->signalBluetoothDeviceConnected(fakeBike);
         return;
-    }
+    }*/
 
 #ifdef TEST
     schwinnIC4Bike = (schwinnic4bike *)new bike();
