@@ -42,7 +42,7 @@ class WorkoutModel : public QAbstractListModel {
     Q_INVOKABLE bool deleteWorkout(int workoutId);
     Q_INVOKABLE void setDateFilter(const QDate& date);
     Q_INVOKABLE void clearDateFilter();
-    Q_INVOKABLE QList<QDate> getWorkoutDates();
+    Q_INVOKABLE QStringList getWorkoutDates();
 
     bool isLoading() const;
     bool isDatabaseProcessing() const;

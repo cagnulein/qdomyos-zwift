@@ -515,6 +515,14 @@ Page {
         modal: true
         focus: true
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        
+        onOpened: {
+            // Refresh workout dates when calendar opens
+            if (workoutModel) {
+                calendar.workoutDates = workoutModel.getWorkoutDates()
+                console.log("Calendar opened, refreshed workout dates:", JSON.stringify(calendar.workoutDates))
+            }
+        }
 
         background: Rectangle {
             color: "white"
@@ -571,6 +579,11 @@ Page {
                 property date selectedDate: new Date()
                 property var workoutDates: workoutModel ? workoutModel.getWorkoutDates() : []
                 
+                // Debug: print workout dates when they change
+                onWorkoutDatesChanged: {
+                    console.log("Calendar workout dates updated:", JSON.stringify(workoutDates))
+                }
+                
                 // Day headers
                 Repeater {
                     model: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -624,11 +637,20 @@ Page {
                             // Workout indicator dot
                             Rectangle {
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                width: 6
-                                height: 6
-                                radius: 3
+                                width: 8
+                                height: 8
+                                radius: 4
                                 color: "#ff6b35"
                                 visible: hasWorkout
+                                border.width: 1
+                                border.color: "#cc5529"
+                                
+                                // Debug: log when a dot should be visible
+                                Component.onCompleted: {
+                                    if (hasWorkout) {
+                                        console.log("Workout dot visible for date:", dayDate.toDateString())
+                                    }
+                                }
                             }
                         }
                         
@@ -665,15 +687,24 @@ Page {
         startDate.setDate(startDate.getDate() - firstDay.getDay()) // Go back to start of week
         
         var workoutDates = calendar.workoutDates || []
-        var workoutDateStrings = workoutDates.map(function(date) {
-            return date.toDateString()
-        })
+        console.log("getCalendarDays: workoutDates received:", JSON.stringify(workoutDates))
+        
+        // workoutDates is now a QStringList (array of strings in format "yyyy-MM-dd")
+        var workoutDateStrings = workoutDates || []
+        console.log("Final workout date strings:", JSON.stringify(workoutDateStrings))
         
         for (var i = 0; i < 42; i++) { // 6 rows x 7 days
             var currentDate = new Date(startDate)
             currentDate.setDate(startDate.getDate() + i)
             
-            var hasWorkout = workoutDateStrings.indexOf(currentDate.toDateString()) !== -1
+            // Simple comparison with ISO date format (YYYY-MM-DD)
+            var currentDateISOString = currentDate.toISOString().split('T')[0] // YYYY-MM-DD format
+            
+            var hasWorkout = workoutDateStrings.indexOf(currentDateISOString) !== -1
+            if (hasWorkout) {
+                console.log("Found workout match for:", currentDateISOString)
+            }
+            
             var isCurrentMonth = currentDate.getMonth() === calendar.selectedDate.getMonth()
             
             days.push({
@@ -683,6 +714,7 @@ Page {
             })
         }
         
+        console.log("getCalendarDays: returning", days.length, "days")
         return days
     }
 }

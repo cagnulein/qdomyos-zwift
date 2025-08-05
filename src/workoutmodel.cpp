@@ -318,9 +318,9 @@ void WorkoutModel::applyDateFilter() {
     }
 }
 
-QList<QDate> WorkoutModel::getWorkoutDates() {
-    QList<QDate> dates;
-    QSet<QDate> uniqueDates;
+QStringList WorkoutModel::getWorkoutDates() {
+    QStringList dates;
+    QSet<QString> uniqueDates;
     
     for (const QVariantMap& workout : m_allWorkouts) {
         QString dateStr = workout["date"].toString();
@@ -331,13 +331,17 @@ QList<QDate> WorkoutModel::getWorkoutDates() {
             workoutDate = QDate::fromString(dateStr, "yyyy-MM-dd");
         }
         
-        if (workoutDate.isValid() && !uniqueDates.contains(workoutDate)) {
-            uniqueDates.insert(workoutDate);
-            dates.append(workoutDate);
+        if (workoutDate.isValid()) {
+            QString dateString = workoutDate.toString("yyyy-MM-dd");
+            if (!uniqueDates.contains(dateString)) {
+                uniqueDates.insert(dateString);
+                dates.append(dateString);
+            }
         }
     }
     
     std::sort(dates.begin(), dates.end());
+    qDebug() << "getWorkoutDates returning:" << dates;
     return dates;
 }
 
