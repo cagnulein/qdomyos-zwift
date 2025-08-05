@@ -69,6 +69,7 @@ class peloton : public QObject {
     bool isWorkoutInProgress() {
         return current_workout_status.contains(QStringLiteral("IN_PROGRESS"), Qt::CaseInsensitive);
     }
+    QString getPelotonWorkoutUrl();
 
   private:
     _PELOTON_API current_api = peloton_api;

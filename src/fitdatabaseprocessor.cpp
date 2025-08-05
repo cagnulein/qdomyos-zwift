@@ -71,6 +71,10 @@ bool FitDatabaseProcessor::initializeDatabase() {
                     "total_descent REAL,"
                     "avg_stride_length REAL,"
                     "total_strides INTEGER,"
+                    "workout_source TEXT DEFAULT 'QZ',"
+                    "peloton_workout_id TEXT,"
+                    "peloton_url TEXT,"
+                    "training_program_file TEXT,"
                     "processed_at DATETIME DEFAULT CURRENT_TIMESTAMP"
                     ")")) {
         db.rollback();
@@ -83,6 +87,12 @@ bool FitDatabaseProcessor::initializeDatabase() {
 
     // Add workout_name column if it doesn't exist (for existing databases)
     query.exec("ALTER TABLE workouts ADD COLUMN workout_name TEXT");
+    
+    // Add new Peloton-related columns if they don't exist (for existing databases)
+    query.exec("ALTER TABLE workouts ADD COLUMN workout_source TEXT DEFAULT 'QZ'");
+    query.exec("ALTER TABLE workouts ADD COLUMN peloton_workout_id TEXT");
+    query.exec("ALTER TABLE workouts ADD COLUMN peloton_url TEXT");
+    query.exec("ALTER TABLE workouts ADD COLUMN training_program_file TEXT");
 
     return db.commit();
 }
@@ -152,7 +162,11 @@ bool FitDatabaseProcessor::saveWorkout(const QString& filePath,
                                        FIT_SPORT sport,
                                        const QString& workoutName,
                                        int elapsedSeconds,
-                                       qint64& workoutId) {
+                                       qint64& workoutId,
+                                       const QString& workoutSource,
+                                       const QString& pelotonWorkoutId,
+                                       const QString& pelotonUrl,
+                                       const QString& trainingProgramFile) {
     if (session.isEmpty()) {
         return false;
     }
@@ -218,9 +232,10 @@ bool FitDatabaseProcessor::saveWorkout(const QString& filePath,
                   "total_time, total_distance, total_calories, "
                   "avg_heart_rate, max_heart_rate, avg_cadence, max_cadence, "
                   "avg_speed, max_speed, avg_power, max_power, "
-                  "total_ascent, total_descent, avg_stride_length, total_strides"
+                  "total_ascent, total_descent, avg_stride_length, total_strides, "
+                  "workout_source, peloton_workout_id, peloton_url, training_program_file"
                   ") VALUES ("
-                  "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
+                  "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
                   ")");
 
     query.addBindValue(fileHash);
@@ -244,6 +259,10 @@ bool FitDatabaseProcessor::saveWorkout(const QString& filePath,
     query.addBindValue(totalDescent);
     query.addBindValue(session.last().instantaneousStrideLengthCM);
     query.addBindValue(session.last().stepCount);
+    query.addBindValue(workoutSource);
+    query.addBindValue(pelotonWorkoutId.isEmpty() ? QVariant() : pelotonWorkoutId);
+    query.addBindValue(pelotonUrl.isEmpty() ? QVariant() : pelotonUrl);
+    query.addBindValue(trainingProgramFile.isEmpty() ? QVariant() : trainingProgramFile);
 
     if (!query.exec()) {
         emit error("Failed to save workout: " + query.lastError().text());

@@ -27,7 +27,8 @@ using namespace std;
 qfit::qfit(QObject *parent) : QObject(parent) {}
 
 void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
-                uint32_t processFlag, FIT_SPORT overrideSport, QString workoutName, QString bluetooth_device_name) {
+                uint32_t processFlag, FIT_SPORT overrideSport, QString workoutName, QString bluetooth_device_name,
+                QString workoutSource, QString pelotonWorkoutId, QString pelotonUrl, QString trainingProgramFile) {
     QSettings settings;
     bool strava_virtual_activity =
         settings.value(QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity).toBool();
@@ -204,6 +205,39 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     ftpSessionMesg.SetUnits(0, L"FTP");
     ftpSessionMesg.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
 
+    // Peloton and workout source fields
+    fit::FieldDescriptionMesg workoutSourceMesg;
+    workoutSourceMesg.SetDeveloperDataIndex(0);
+    workoutSourceMesg.SetFieldDefinitionNumber(8);
+    workoutSourceMesg.SetFitBaseTypeId(FIT_BASE_TYPE_STRING);
+    workoutSourceMesg.SetFieldName(0, L"Workout Source");
+    workoutSourceMesg.SetUnits(0, L"source");
+    workoutSourceMesg.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+
+    fit::FieldDescriptionMesg pelotonWorkoutIdMesg;
+    pelotonWorkoutIdMesg.SetDeveloperDataIndex(0);
+    pelotonWorkoutIdMesg.SetFieldDefinitionNumber(9);
+    pelotonWorkoutIdMesg.SetFitBaseTypeId(FIT_BASE_TYPE_STRING);
+    pelotonWorkoutIdMesg.SetFieldName(0, L"Peloton Workout ID");
+    pelotonWorkoutIdMesg.SetUnits(0, L"id");
+    pelotonWorkoutIdMesg.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+
+    fit::FieldDescriptionMesg pelotonUrlMesg;
+    pelotonUrlMesg.SetDeveloperDataIndex(0);
+    pelotonUrlMesg.SetFieldDefinitionNumber(10);
+    pelotonUrlMesg.SetFitBaseTypeId(FIT_BASE_TYPE_STRING);
+    pelotonUrlMesg.SetFieldName(0, L"Peloton URL");
+    pelotonUrlMesg.SetUnits(0, L"url");
+    pelotonUrlMesg.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+
+    fit::FieldDescriptionMesg trainingProgramFileMesg;
+    trainingProgramFileMesg.SetDeveloperDataIndex(0);
+    trainingProgramFileMesg.SetFieldDefinitionNumber(11);
+    trainingProgramFileMesg.SetFitBaseTypeId(FIT_BASE_TYPE_STRING);
+    trainingProgramFileMesg.SetFieldName(0, L"Training Program File");
+    trainingProgramFileMesg.SetUnits(0, L"filename");
+    trainingProgramFileMesg.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+
     fit::SessionMesg sessionMesg;
     sessionMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetStartTime(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
@@ -339,8 +373,41 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     fit::DeveloperField activityTitleField(activityTitle, devIdMesg);
     activityTitleField.SetSTRINGValue(workoutName.toStdWString());
 
+    // Create our new developer fields
+    fit::DeveloperField workoutSourceField(workoutSourceMesg, devIdMesg);
+    if (!workoutSource.isEmpty()) {
+        workoutSourceField.SetSTRINGValue(workoutSource.toStdWString());
+    } else {
+        workoutSourceField.SetSTRINGValue(L"QZ"); // Default to QZ if not specified
+    }
+
+    fit::DeveloperField pelotonWorkoutIdField(pelotonWorkoutIdMesg, devIdMesg);
+    if (!pelotonWorkoutId.isEmpty()) {
+        pelotonWorkoutIdField.SetSTRINGValue(pelotonWorkoutId.toStdWString());
+    }
+
+    fit::DeveloperField pelotonUrlField(pelotonUrlMesg, devIdMesg);
+    if (!pelotonUrl.isEmpty()) {
+        pelotonUrlField.SetSTRINGValue(pelotonUrl.toStdWString());
+    }
+
+    fit::DeveloperField trainingProgramFileField(trainingProgramFileMesg, devIdMesg);
+    if (!trainingProgramFile.isEmpty()) {
+        trainingProgramFileField.SetSTRINGValue(trainingProgramFile.toStdWString());
+    }
+
     sessionMesg.AddDeveloperField(activityTitleField);
     sessionMesg.AddDeveloperField(ftpSessionField);
+    sessionMesg.AddDeveloperField(workoutSourceField);
+    if (!pelotonWorkoutId.isEmpty()) {
+        sessionMesg.AddDeveloperField(pelotonWorkoutIdField);
+    }
+    if (!pelotonUrl.isEmpty()) {
+        sessionMesg.AddDeveloperField(pelotonUrlField);
+    }
+    if (!trainingProgramFile.isEmpty()) {
+        sessionMesg.AddDeveloperField(trainingProgramFileField);
+    }
 
     fit::ActivityMesg activityMesg;
     activityMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
@@ -369,6 +436,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Write(targetWattMesg);
     encode.Write(targetResistanceMesg);
     encode.Write(ftpSessionMesg);
+    encode.Write(workoutSourceMesg);
+    encode.Write(pelotonWorkoutIdMesg);
+    encode.Write(pelotonUrlMesg);
+    encode.Write(trainingProgramFileMesg);
     
     encode.Write(coreTemperatureFieldDesc);
     encode.Write(skinTemperatureFieldDesc);

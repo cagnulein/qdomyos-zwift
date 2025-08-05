@@ -1,11 +1,15 @@
 #include "workoutmodel.h"
 #include "workoutloaderworker.h"
+#include "homeform.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
 #include <QDateTime>
 #include <QSet>
 #include <algorithm>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QFile>
 
 WorkoutModel::WorkoutModel(const QString& dbPath, QObject *parent)
     : QAbstractListModel(parent)
@@ -275,16 +279,17 @@ QDate WorkoutModel::filteredDate() const {
     return m_filteredDate;
 }
 
-void WorkoutModel::setDateFilter(const QDate& date) {
+void WorkoutModel::setDateFilter(const QString& dateString) {
+    QDate date = QDate::fromString(dateString, "yyyy-MM-dd");
     if (!date.isValid()) return;
-    
+
     m_isDateFiltered = true;
     m_filteredDate = date;
-    
+
     beginResetModel();
     applyDateFilter();
     endResetModel();
-    
+
     emit dateFilterChanged();
 }
 
@@ -343,6 +348,74 @@ QStringList WorkoutModel::getWorkoutDates() {
     std::sort(dates.begin(), dates.end());
     qDebug() << "getWorkoutDates returning:" << dates;
     return dates;
+}
+
+QString WorkoutModel::getWorkoutSource(int workoutId) {
+    QSqlQuery query(m_db);
+    query.prepare("SELECT workout_source FROM workouts WHERE id = ?");
+    query.addBindValue(workoutId);
+    
+    if (query.exec() && query.next()) {
+        return query.value("workout_source").toString();
+    }
+    return "QZ"; // Default fallback
+}
+
+QString WorkoutModel::getPelotonUrl(int workoutId) {
+    QSqlQuery query(m_db);
+    query.prepare("SELECT peloton_url FROM workouts WHERE id = ?");
+    query.addBindValue(workoutId);
+    
+    if (query.exec() && query.next()) {
+        return query.value("peloton_url").toString();
+    }
+    return "";
+}
+
+bool WorkoutModel::hasTrainingProgram(int workoutId) {
+    QSqlQuery query(m_db);
+    query.prepare("SELECT training_program_file FROM workouts WHERE id = ?");
+    query.addBindValue(workoutId);
+    
+    if (query.exec() && query.next()) {
+        QString filename = query.value("training_program_file").toString();
+        if (!filename.isEmpty()) {
+            // Check if file actually exists
+            return QFile::exists(filename);
+        }
+    }
+    return false;
+}
+
+bool WorkoutModel::openPelotonUrl(int workoutId) {
+    QString url = getPelotonUrl(workoutId);
+    if (!url.isEmpty()) {
+        return QDesktopServices::openUrl(QUrl(url));
+    }
+    return false;
+}
+
+bool WorkoutModel::loadTrainingProgram(int workoutId) {
+    QSqlQuery query(m_db);
+    query.prepare("SELECT training_program_file FROM workouts WHERE id = ?");
+    query.addBindValue(workoutId);
+    
+    if (query.exec() && query.next()) {
+        QString filename = query.value("training_program_file").toString();
+        if (!filename.isEmpty() && QFile::exists(filename)) {
+            // Use homeform singleton to load the training program
+            if (homeform::singleton()) {
+                QUrl fileUrl = QUrl::fromLocalFile(filename);
+                homeform::singleton()->trainprogram_open_clicked(fileUrl);
+                qDebug() << "Training program opened:" << filename;
+                return true;
+            } else {
+                qDebug() << "homeform singleton not available";
+                return false;
+            }
+        }
+    }
+    return false;
 }
 
 void WorkoutModel::calculateStreaks() {

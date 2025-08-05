@@ -1163,7 +1163,8 @@ void homeform::backup() {
         QFile::remove(filename);
         qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
-                   stravaPelotonWorkoutType, workoutName(), dev->bluetoothDevice.name());
+                   stravaPelotonWorkoutType, workoutName(), dev->bluetoothDevice.name(),
+                   "", "", "", "");
 
         index++;
         if (index > 1) {
@@ -7311,6 +7312,7 @@ void homeform::trainprogram_preview(const QUrl &fileName) {
     }
 }
 
+
 void homeform::trainprogram_zwo_loaded(const QString &s) {
     qDebug() << QStringLiteral("trainprogram_zwo_loaded") << s;
     trainProgram = new trainprogram(zwiftworkout::loadJSON(s), bluetoothManager);
@@ -7360,9 +7362,25 @@ void homeform::fit_save_clicked() {
         if (!stravaPelotonActivityName.isEmpty() && !stravaPelotonInstructorName.isEmpty())
             workoutName = stravaPelotonActivityName + " - " + stravaPelotonInstructorName;
 
+        // Determine workout source and metadata
+        QString workoutSource = "QZ";
+        QString pelotonWorkoutId = "";
+        QString pelotonUrl = "";
+        QString trainingProgramFile = "";
+        
+        if (pelotonHandler && !pelotonHandler->current_ride_id.isEmpty()) {
+            workoutSource = "PELOTON";
+            pelotonWorkoutId = pelotonHandler->current_ride_id;
+            pelotonUrl = pelotonHandler->getPelotonWorkoutUrl();
+            if (!lastTrainProgramFileSaved.isEmpty()) {
+                trainingProgramFile = lastTrainProgramFileSaved;
+            }
+        }
+        
         qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
-                   stravaPelotonWorkoutType, workoutName, dev->bluetoothDevice.name());
+                   stravaPelotonWorkoutType, workoutName, dev->bluetoothDevice.name(),
+                   workoutSource, pelotonWorkoutId, pelotonUrl, trainingProgramFile);
         lastFitFileSaved = filename;
 
         // Process the newly saved file immediately and refresh workout model

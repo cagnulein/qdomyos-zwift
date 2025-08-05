@@ -85,6 +85,7 @@
         <file>gpx/St Andrews to Pittenweem.gpx</file>
         <file>GPXList.qml</file>
         <file>WorkoutsHistory.qml</file>
+        <file>WorkoutTypeTag.qml</file>
         <file>inner_templates/previewchart/ajax-loader.gif</file>
         <file>inner_templates/previewchart/chart.htm</file>
         <file>inner_templates/previewchart/chartjs-adapter-moment.js</file>

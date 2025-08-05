@@ -40,9 +40,14 @@ class WorkoutModel : public QAbstractListModel {
     Q_INVOKABLE void refresh();
     Q_INVOKABLE QVariantMap getWorkoutDetails(int workoutId);
     Q_INVOKABLE bool deleteWorkout(int workoutId);
-    Q_INVOKABLE void setDateFilter(const QDate& date);
+    Q_INVOKABLE void setDateFilter(const QString& dateString);
     Q_INVOKABLE void clearDateFilter();
     Q_INVOKABLE QStringList getWorkoutDates();
+    Q_INVOKABLE QString getWorkoutSource(int workoutId);
+    Q_INVOKABLE QString getPelotonUrl(int workoutId);
+    Q_INVOKABLE bool hasTrainingProgram(int workoutId);
+    Q_INVOKABLE bool openPelotonUrl(int workoutId);
+    Q_INVOKABLE bool loadTrainingProgram(int workoutId);
 
     bool isLoading() const;
     bool isDatabaseProcessing() const;

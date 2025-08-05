@@ -235,10 +235,22 @@ Page {
                             Layout.fillWidth: true
                             spacing: 4
 
-                            Text {
-                                text: title
-                                font.bold: true
-                                font.pixelSize: 18
+                            // Title and Tag row
+                            RowLayout {
+                                Layout.fillWidth: true
+                                
+                                Text {
+                                    text: title
+                                    font.bold: true
+                                    font.pixelSize: 18
+                                    Layout.fillWidth: true
+                                }
+                                
+                                // Workout Type Tag
+                                WorkoutTypeTag {
+                                    workoutSource: workoutModel ? workoutModel.getWorkoutSource(model.id) : "QZ"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
+                                }
                             }
 
                             Text {
@@ -267,6 +279,79 @@ Page {
                                           '<font face="' + emojiFont.name + '">🔥</font> ' + Math.round(calories) + ' kcal' : 
                                           "🔥 " + Math.round(calories) + " kcal"
                                     textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                                }
+                            }
+                        }
+                        
+                        // Action buttons column
+                        Column {
+                            Layout.alignment: Qt.AlignVCenter
+                            spacing: 8
+                            
+                            // Peloton URL button
+                            Button {
+                                width: 40
+                                height: 32
+                                visible: workoutModel && workoutModel.getWorkoutSource(model.id) === "PELOTON" && 
+                                        workoutModel.getPelotonUrl(model.id) !== ""
+                                
+                                background: Rectangle {
+                                    color: parent.pressed ? "#ff8855" : "#ff6b35"
+                                    radius: 6
+                                    border.color: "#cc5529"
+                                    border.width: 1
+                                }
+                                
+                                contentItem: Text {
+                                    text: Qt.platform.os === "android" ? 
+                                          '<font face="' + emojiFont.name + '">🌐</font>' : 
+                                          "🌐"
+                                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                                    font.pixelSize: 16
+                                    color: "white"
+                                    anchors.centerIn: parent
+                                }
+                                
+                                onClicked: {
+                                    workoutModel.openPelotonUrl(model.id)
+                                }
+                            }
+                            
+                            // Training Program button
+                            Button {
+                                width: 40
+                                height: 32
+                                visible: workoutModel && workoutModel.hasTrainingProgram(model.id)
+                                
+                                background: Rectangle {
+                                    color: parent.pressed ? "#1976d2" : "#2196f3"
+                                    radius: 6
+                                    border.color: "#1565c0"
+                                    border.width: 1
+                                }
+                                
+                                contentItem: Text {
+                                    text: Qt.platform.os === "android" ? 
+                                          '<font face="' + emojiFont.name + '">📋</font>' : 
+                                          "📋"
+                                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                                    font.pixelSize: 16
+                                    color: "white"
+                                    anchors.centerIn: parent
+                                }
+                                
+                                onClicked: {
+                                    var success = workoutModel.loadTrainingProgram(model.id)
+                                    if (success) {
+                                        trainingProgramDialog.title = "Success"
+                                        trainingProgramDialog.message = "Training program loaded successfully!"
+                                        trainingProgramDialog.isSuccess = true
+                                    } else {
+                                        trainingProgramDialog.title = "Error"
+                                        trainingProgramDialog.message = "Failed to load training program. Please check if the file exists."
+                                        trainingProgramDialog.isSuccess = false
+                                    }
+                                    trainingProgramDialog.open()
                                 }
                             }
                         }
@@ -318,6 +403,59 @@ Page {
         }
         onRejected: {
             swipeDelegate.swipe.close()
+        }
+    }
+
+    // Training Program Loading Dialog
+    Dialog {
+        id: trainingProgramDialog
+
+        property string message: ""
+        property bool isSuccess: true
+
+        modal: true
+        standardButtons: Dialog.Ok
+
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+
+        background: Rectangle {
+            color: "white"
+            radius: 8
+            border.color: trainingProgramDialog.isSuccess ? "#4caf50" : "#f44336"
+            border.width: 2
+        }
+
+        header: Rectangle {
+            height: 50
+            color: trainingProgramDialog.isSuccess ? "#4caf50" : "#f44336"
+            radius: 8
+
+            Text {
+                anchors.centerIn: parent
+                text: trainingProgramDialog.title
+                color: "white"
+                font.pixelSize: 18
+                font.bold: true
+            }
+        }
+
+        contentItem: ColumnLayout {
+            spacing: 16
+
+            Text {
+                Layout.margins: 20
+                Layout.preferredWidth: 300
+                text: Qt.platform.os === "android" ? 
+                      '<font face="' + emojiFont.name + '">' + 
+                      (trainingProgramDialog.isSuccess ? '✅' : '❌') + 
+                      '</font> ' + trainingProgramDialog.message : 
+                      (trainingProgramDialog.isSuccess ? '✅ ' : '❌ ') + trainingProgramDialog.message
+                textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: 14
+            }
         }
     }
 
@@ -660,8 +798,13 @@ Page {
                             
                             onClicked: {
                                 if (isCurrentMonth) {
-                                    workoutModel.setDateFilter(dayDate)
-                                    calendarPopup.close()
+                                    var year = dayDate.getFullYear();
+                                    var month = dayDate.getMonth() + 1; // i mesi JS sono 0-indicizzati
+                                    var day = dayDate.getDate();
+                                    var dateString = year + "-" + (month < 10 ? '0' + month : month) + "-" + (day < 10 ? '0' + day : day);
+
+                                    workoutModel.setDateFilter(dateString);
+                                    calendarPopup.close();
                                 }
                             }
                         }

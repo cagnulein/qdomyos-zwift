@@ -44,7 +44,11 @@ class FitDatabaseProcessor : public QObject {
                      FIT_SPORT sport,
                      const QString& workoutName,
                      int elapsedSeconds,
-                     qint64& workoutId);
+                     qint64& workoutId,
+                     const QString& workoutSource = "QZ",
+                     const QString& pelotonWorkoutId = "",
+                     const QString& pelotonUrl = "",
+                     const QString& trainingProgramFile = "");
 
     QThread workerThread;
     QString dbPath;

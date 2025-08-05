@@ -853,6 +853,7 @@ class homeform : public QObject {
     bool pelotonAskStart() { return m_pelotonAskStart; }
     void Minus(const QString &);
     void Plus(const QString &);
+    void trainprogram_open_clicked(const QUrl &fileName);
 
   private slots:
     void Start();
@@ -870,8 +871,7 @@ class homeform : public QObject {
     void openFloatingWindowBrowser();
     void deviceFound(const QString &name);
     void deviceConnected(QBluetoothDeviceInfo b);
-    void ftmsAccessoryConnected(smartspin2k *d);
-    void trainprogram_open_clicked(const QUrl &fileName);
+    void ftmsAccessoryConnected(smartspin2k *d);    
     void trainprogram_open_other_folder(const QUrl &fileName);
     void gpx_open_other_folder(const QUrl &fileName);
     void profile_open_clicked(const QUrl &fileName);
