@@ -151,12 +151,18 @@ Page {
 
         // Workout List
         ListView {
+            id: workoutListView
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.bottomMargin: streakBanner.height + 10
+            Layout.bottomMargin: streakBanner.visible ? streakBanner.height + 10 : 10
             model: workoutModel
             spacing: 8
             clip: true
+            
+            onContentYChanged: {
+                // Hide banner when scrolling down, show when at top
+                streakBanner.visible = contentY <= 20
+            }
 
             delegate: SwipeDelegate {
                 id: swipeDelegate
@@ -221,6 +227,81 @@ Page {
                         workoutSource: workoutModel ? workoutModel.getWorkoutSource(model.id) : "QZ"
                     }
 
+                    // Action buttons - positioned absolutely in bottom-right
+                    Row {
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        anchors.margins: 12
+                        spacing: 8
+                        
+                        // Peloton URL button
+                        Button {
+                            width: 40
+                            height: 45
+                            visible: workoutModel && workoutModel.getWorkoutSource(model.id) === "PELOTON" && 
+                                    workoutModel.getPelotonUrl(model.id) !== ""
+                            
+                            background: Rectangle {
+                                color: parent.pressed ? "#ff8855" : "#ff6b35"
+                                radius: 6
+                                border.color: "#cc5529"
+                                border.width: 1
+                            }
+                            
+                            contentItem: Text {
+                                text: Qt.platform.os === "android" ? 
+                                      '<font face="' + emojiFont.name + '">🌐</font>' : 
+                                      "🌐"
+                                textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                                font.pixelSize: 16
+                                color: "white"
+                                anchors.centerIn: parent
+                            }
+                            
+                            onClicked: {
+                                workoutModel.openPelotonUrl(model.id)
+                            }
+                        }
+                        
+                        // Training Program button
+                        Button {
+                            width: 40
+                            height: 45
+                            visible: workoutModel && workoutModel.hasTrainingProgram(model.id)
+                            
+                            background: Rectangle {
+                                color: parent.pressed ? "#1976d2" : "#2196f3"
+                                radius: 6
+                                border.color: "#1565c0"
+                                border.width: 1
+                            }
+                            
+                            contentItem: Text {
+                                text: Qt.platform.os === "android" ? 
+                                      '<font face="' + emojiFont.name + '">📋</font>' : 
+                                      "📋"
+                                textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                                font.pixelSize: 16
+                                color: "white"
+                                anchors.centerIn: parent
+                            }
+                            
+                            onClicked: {
+                                var success = workoutModel.loadTrainingProgram(model.id)
+                                if (success) {
+                                    trainingProgramDialog.title = "Success"
+                                    trainingProgramDialog.message = "Training program loaded successfully!"
+                                    trainingProgramDialog.isSuccess = true
+                                } else {
+                                    trainingProgramDialog.title = "Error"
+                                    trainingProgramDialog.message = "Failed to load training program. Please check if the file exists."
+                                    trainingProgramDialog.isSuccess = false
+                                }
+                                trainingProgramDialog.open()
+                            }
+                        }
+                    }
+
                     RowLayout {
                         anchors.fill: parent
                         anchors.margins: 12
@@ -281,78 +362,6 @@ Page {
                             }
                         }
                         
-                        // Action buttons column
-                        Column {
-                            Layout.alignment: Qt.AlignVCenter
-                            spacing: 8
-                            
-                            // Peloton URL button
-                            Button {
-                                width: 40
-                                height: 45
-                                visible: workoutModel && workoutModel.getWorkoutSource(model.id) === "PELOTON" && 
-                                        workoutModel.getPelotonUrl(model.id) !== ""
-                                
-                                background: Rectangle {
-                                    color: parent.pressed ? "#ff8855" : "#ff6b35"
-                                    radius: 6
-                                    border.color: "#cc5529"
-                                    border.width: 1
-                                }
-                                
-                                contentItem: Text {
-                                    text: Qt.platform.os === "android" ? 
-                                          '<font face="' + emojiFont.name + '">🌐</font>' : 
-                                          "🌐"
-                                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
-                                    font.pixelSize: 16
-                                    color: "white"
-                                    anchors.centerIn: parent
-                                }
-                                
-                                onClicked: {
-                                    workoutModel.openPelotonUrl(model.id)
-                                }
-                            }
-                            
-                            // Training Program button
-                            Button {
-                                width: 40
-                                height: 45
-                                visible: workoutModel && workoutModel.hasTrainingProgram(model.id)
-                                
-                                background: Rectangle {
-                                    color: parent.pressed ? "#1976d2" : "#2196f3"
-                                    radius: 6
-                                    border.color: "#1565c0"
-                                    border.width: 1
-                                }
-                                
-                                contentItem: Text {
-                                    text: Qt.platform.os === "android" ? 
-                                          '<font face="' + emojiFont.name + '">📋</font>' : 
-                                          "📋"
-                                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
-                                    font.pixelSize: 16
-                                    color: "white"
-                                    anchors.centerIn: parent
-                                }
-                                
-                                onClicked: {
-                                    var success = workoutModel.loadTrainingProgram(model.id)
-                                    if (success) {
-                                        trainingProgramDialog.title = "Success"
-                                        trainingProgramDialog.message = "Training program loaded successfully!"
-                                        trainingProgramDialog.isSuccess = true
-                                    } else {
-                                        trainingProgramDialog.title = "Error"
-                                        trainingProgramDialog.message = "Failed to load training program. Please check if the file exists."
-                                        trainingProgramDialog.isSuccess = false
-                                    }
-                                    trainingProgramDialog.open()
-                                }
-                            }
-                        }
                     }
                 }
 
@@ -425,7 +434,7 @@ Page {
         }
 
         header: Rectangle {
-            height: 70
+            height: 50
             color: trainingProgramDialog.isSuccess ? "#4caf50" : "#f44336"
             radius: 8
 
@@ -439,11 +448,12 @@ Page {
         }
 
         contentItem: ColumnLayout {
-            spacing: 22
+            spacing: 16
 
             Text {
-                Layout.margins: 28
+                Layout.margins: 20
                 Layout.preferredWidth: 300
+                Layout.preferredHeight: 120
                 text: Qt.platform.os === "android" ? 
                       '<font face="' + emojiFont.name + '">' + 
                       (trainingProgramDialog.isSuccess ? '✅' : '❌') + 
@@ -465,6 +475,14 @@ Page {
         anchors.right: parent.right
         height: 80
         visible: workoutModel
+        
+        Behavior on visible {
+            NumberAnimation {
+                properties: "opacity"
+                duration: 300
+                easing.type: Easing.InOutQuad
+            }
+        }
         
         // Special pulsing effect for major milestones
         SequentialAnimation on opacity {
