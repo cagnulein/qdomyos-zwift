@@ -44,89 +44,86 @@ Page {
             height: 60
             color: "#f5f5f5"
 
-            RowLayout {
-                anchors.fill: parent
-                anchors.margins: 12
-                spacing: 16
-
-                // Calendar Icon Button
-                Button {
-                    id: calendarButton
-                    Layout.preferredWidth: 48
-                    Layout.preferredHeight: 48
-                    Layout.alignment: Qt.AlignVCenter
-                    
-                    background: Rectangle {
-                        radius: 8
-                        color: calendarButton.pressed ? "#e0e0e0" : "#f0f0f0"
-                        border.color: "#d0d0d0"
-                        border.width: 1
-                    }
-                    
-                    contentItem: Text {
-                        text: Qt.platform.os === "android" ? 
-                              '<font face="' + emojiFont.name + '">📅</font>' : 
-                              "📅"
-                        textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
-                        font.pixelSize: 20
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-                    
-                    onClicked: {
-                        calendarPopup.open()
-                    }
+            // Calendar Icon Button - positioned absolutely on the left
+            Button {
+                id: calendarButton
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.leftMargin: 12
+                width: 48
+                height: 48
+                
+                background: Rectangle {
+                    radius: 8
+                    color: calendarButton.pressed ? "#e0e0e0" : "#f0f0f0"
+                    border.color: "#d0d0d0"
+                    border.width: 1
                 }
-
-                // Title with filter status
-                Column {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignVCenter
-                    
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: "Workout History"
-                        font.pixelSize: 24
-                        font.bold: true
-                    }
-                    
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: workoutModel && workoutModel.isDateFiltered ? 
-                              "Filtered: " + workoutModel.filteredDate.toLocaleDateString() : ""
-                        font.pixelSize: 12
-                        color: "#666666"
-                        visible: workoutModel && workoutModel.isDateFiltered
-                    }
+                
+                contentItem: Text {
+                    text: Qt.platform.os === "android" ? 
+                          '<font face="' + emojiFont.name + '">📅</font>' : 
+                          "📅"
+                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                    font.pixelSize: 20
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
                 }
+                
+                onClicked: {
+                    calendarPopup.open()
+                }
+            }
 
-                // Clear Filter Button
-                Button {
-                    id: clearFilterButton
-                    Layout.preferredWidth: 100
-                    Layout.preferredHeight: 36
-                    Layout.alignment: Qt.AlignVCenter
+            // Title with filter status - centered
+            Column {
+                anchors.centerIn: parent
+                
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "Workout History"
+                    font.pixelSize: 24
+                    font.bold: true
+                }
+                
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: workoutModel && workoutModel.isDateFiltered ? 
+                          "Filtered: " + workoutModel.filteredDate.toLocaleDateString() : ""
+                    font.pixelSize: 12
+                    color: "#666666"
                     visible: workoutModel && workoutModel.isDateFiltered
-                    
-                    background: Rectangle {
-                        radius: 6
-                        color: clearFilterButton.pressed ? "#ff6666" : "#ff8888"
-                        border.color: "#ff4444"
-                        border.width: 1
-                    }
-                    
-                    contentItem: Text {
-                        text: "Clear Filter"
-                        color: "white"
-                        font.pixelSize: 12
-                        font.bold: true
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-                    
-                    onClicked: {
-                        workoutModel.clearDateFilter()
-                    }
+                }
+            }
+
+            // Clear Filter Button - positioned absolutely on the right
+            Button {
+                id: clearFilterButton
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.rightMargin: 12
+                width: 100
+                height: 36
+                visible: workoutModel && workoutModel.isDateFiltered
+                
+                background: Rectangle {
+                    radius: 6
+                    color: clearFilterButton.pressed ? "#ff6666" : "#ff8888"
+                    border.color: "#ff4444"
+                    border.width: 1
+                }
+                
+                contentItem: Text {
+                    text: "Clear Filter"
+                    color: "white"
+                    font.pixelSize: 12
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+                
+                onClicked: {
+                    workoutModel.clearDateFilter()
                 }
             }
         }
