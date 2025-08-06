@@ -664,6 +664,10 @@ class Listener : public fit::FileIdMesgListener,
     QList<SessionLine> *sessionOpening = nullptr;
     FIT_SPORT *sport = nullptr;
     QString *workoutName = nullptr;
+    QString *workoutSource = nullptr;
+    QString *pelotonWorkoutId = nullptr;
+    QString *pelotonUrl = nullptr;
+    QString *trainingProgramFile = nullptr;
 
     static void PrintValues(const fit::FieldBase &field) {
         for (FIT_UINT8 j = 0; j < (FIT_UINT8)field.GetNumValues(); j++) {
@@ -904,6 +908,22 @@ class Listener : public fit::FileIdMesgListener,
                     std::wstring wWorkoutName = devField.GetSTRINGValue(0);
                     *workoutName = QString::fromStdWString(wWorkoutName);
                     printf("   Found Activity Title: %s\n", workoutName->toStdString().c_str());
+                } else if (fieldName == "workout_source" && workoutSource != nullptr) {
+                    std::wstring wWorkoutSource = devField.GetSTRINGValue(0);
+                    *workoutSource = QString::fromStdWString(wWorkoutSource);
+                    printf("   Found Workout Source: %s\n", workoutSource->toStdString().c_str());
+                } else if (fieldName == "peloton_workout_id" && pelotonWorkoutId != nullptr) {
+                    std::wstring wPelotonWorkoutId = devField.GetSTRINGValue(0);
+                    *pelotonWorkoutId = QString::fromStdWString(wPelotonWorkoutId);
+                    printf("   Found Peloton Workout ID: %s\n", pelotonWorkoutId->toStdString().c_str());
+                } else if (fieldName == "peloton_url" && pelotonUrl != nullptr) {
+                    std::wstring wPelotonUrl = devField.GetSTRINGValue(0);
+                    *pelotonUrl = QString::fromStdWString(wPelotonUrl);
+                    printf("   Found Peloton URL: %s\n", pelotonUrl->toStdString().c_str());
+                } else if (fieldName == "training_program_file" && trainingProgramFile != nullptr) {
+                    std::wstring wTrainingProgramFile = devField.GetSTRINGValue(0);
+                    *trainingProgramFile = QString::fromStdWString(wTrainingProgramFile);
+                    printf("   Found Training Program File: %s\n", trainingProgramFile->toStdString().c_str());
                 } else if (fieldName == "Instructor Name" || fieldName == "Coach Name") {
                     // Future: handle instructor name if needed
                     printf("   Found Instructor/Coach field: %s\n", fieldName.c_str());
@@ -916,40 +936,13 @@ class Listener : public fit::FileIdMesgListener,
 };
 
 void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *sport) {
-    std::fstream file;
-#ifdef _WIN32
-    file.open(QString(filename).toLocal8Bit().constData(), std::ios::in | std::ios::binary);
-#else
-    file.open(filename.toStdString(), std::ios::in | std::ios::binary);
-#endif
-
-    if (!file.is_open()) {
-
-        std::system_error(errno, std::system_category(), "failed to open " + filename.toStdString());
-        qDebug() << "opened " << filename << errno;
-        printf("Error opening file ExampleActivity.fit\n");
-        return;
-    }
-
-    fit::Decode decode;
-    std::istream &s = file;
-    fit::MesgBroadcaster mesgBroadcaster;
-    Listener listener;
-    listener.sport = sport;
-    listener.sessionOpening = output;
-    mesgBroadcaster.AddListener((fit::FileIdMesgListener &)listener);
-    mesgBroadcaster.AddListener((fit::UserProfileMesgListener &)listener);
-    mesgBroadcaster.AddListener((fit::MonitoringMesgListener &)listener);
-    mesgBroadcaster.AddListener((fit::DeviceInfoMesgListener &)listener);
-    mesgBroadcaster.AddListener((fit::RecordMesgListener &)listener);
-    mesgBroadcaster.AddListener((fit::SessionMesgListener &)listener);
-    mesgBroadcaster.AddListener((fit::MesgListener &)listener);
-    decode.Read(&s, &mesgBroadcaster, &mesgBroadcaster, &listener);
-
-    file.close();
+    // Call the full version with nullptr for optional parameters
+    open(filename, output, sport, nullptr, nullptr, nullptr, nullptr, nullptr);
 }
 
-void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *sport, QString *workoutName) {
+
+void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *sport, QString *workoutName, 
+                QString *workoutSource, QString *pelotonWorkoutId, QString *pelotonUrl, QString *trainingProgramFile) {
     std::fstream file;
 #ifdef _WIN32
     file.open(QString(filename).toLocal8Bit().constData(), std::ios::in | std::ios::binary);
@@ -971,6 +964,10 @@ void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *
     listener.sport = sport;
     listener.sessionOpening = output;
     listener.workoutName = workoutName;
+    listener.workoutSource = workoutSource;
+    listener.pelotonWorkoutId = pelotonWorkoutId;
+    listener.pelotonUrl = pelotonUrl;
+    listener.trainingProgramFile = trainingProgramFile;
     mesgBroadcaster.AddListener((fit::FileIdMesgListener &)listener);
     mesgBroadcaster.AddListener((fit::UserProfileMesgListener &)listener);
     mesgBroadcaster.AddListener((fit::MonitoringMesgListener &)listener);
