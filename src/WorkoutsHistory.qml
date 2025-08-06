@@ -213,6 +213,14 @@ Page {
                     color: "white"
                     border.color: "#e0e0e0"
 
+                    // Workout Type Tag - positioned absolutely in top-right
+                    WorkoutTypeTag {
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.margins: 12
+                        workoutSource: workoutModel ? workoutModel.getWorkoutSource(model.id) : "QZ"
+                    }
+
                     RowLayout {
                         anchors.fill: parent
                         anchors.margins: 12
@@ -235,22 +243,12 @@ Page {
                             Layout.fillWidth: true
                             spacing: 4
 
-                            // Title and Tag row
-                            RowLayout {
+                            // Title row (without tag)
+                            Text {
+                                text: title
+                                font.bold: true
+                                font.pixelSize: 18
                                 Layout.fillWidth: true
-                                
-                                Text {
-                                    text: title
-                                    font.bold: true
-                                    font.pixelSize: 18
-                                    Layout.fillWidth: true
-                                }
-                                
-                                // Workout Type Tag
-                                WorkoutTypeTag {
-                                    workoutSource: workoutModel ? workoutModel.getWorkoutSource(model.id) : "QZ"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
-                                }
                             }
 
                             Text {
@@ -291,7 +289,7 @@ Page {
                             // Peloton URL button
                             Button {
                                 width: 40
-                                height: 32
+                                height: 45
                                 visible: workoutModel && workoutModel.getWorkoutSource(model.id) === "PELOTON" && 
                                         workoutModel.getPelotonUrl(model.id) !== ""
                                 
@@ -320,7 +318,7 @@ Page {
                             // Training Program button
                             Button {
                                 width: 40
-                                height: 32
+                                height: 45
                                 visible: workoutModel && workoutModel.hasTrainingProgram(model.id)
                                 
                                 background: Rectangle {
@@ -427,7 +425,7 @@ Page {
         }
 
         header: Rectangle {
-            height: 50
+            height: 70
             color: trainingProgramDialog.isSuccess ? "#4caf50" : "#f44336"
             radius: 8
 
@@ -441,10 +439,10 @@ Page {
         }
 
         contentItem: ColumnLayout {
-            spacing: 16
+            spacing: 22
 
             Text {
-                Layout.margins: 20
+                Layout.margins: 28
                 Layout.preferredWidth: 300
                 text: Qt.platform.os === "android" ? 
                       '<font face="' + emojiFont.name + '">' + 
