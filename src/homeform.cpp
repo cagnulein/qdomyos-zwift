@@ -286,6 +286,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                   QStringLiteral("0"), true, QStringLiteral("biggearsplus"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Gear +", QStringLiteral("red"));
     biggearsMinus = new DataObject(QStringLiteral("GearsMinus"), QStringLiteral("icons/icons/elevationgain.png"),
                                   QStringLiteral("0"), true, QStringLiteral("biggearsminus"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Gear -", QStringLiteral("green"));
+    autoVirtualShiftingCruise = new DataObject(QStringLiteral("Cruise"), QStringLiteral("icons/icons/speed.png"),
+                                              QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingCruise"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Cruise", QStringLiteral("red"));
+    autoVirtualShiftingClimb = new DataObject(QStringLiteral("Climb"), QStringLiteral("icons/icons/inclination.png"),
+                                             QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingClimb"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Climb", QStringLiteral("red"));
+    autoVirtualShiftingSprint = new DataObject(QStringLiteral("Sprint"), QStringLiteral("icons/icons/watt.png"),
+                                              QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingSprint"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Sprint", QStringLiteral("red"));
     pidHR = new DataObject(QStringLiteral("PID Heart"), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), true, QStringLiteral("pid_hr"), 48, labelFontSize);
     extIncline = new DataObject(QStringLiteral("Ext.Inclin.(%)"), QStringLiteral("icons/icons/inclination.png"),
@@ -1189,10 +1195,33 @@ void homeform::ten_hz() {
         return; // No cadence data available
     }
     
-    int gearUpCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_up_cadence, QZSettings::default_automatic_virtual_shifting_gear_up_cadence).toInt();
-    float gearUpTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_up_time, QZSettings::default_automatic_virtual_shifting_gear_up_time).toFloat();
-    int gearDownCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_down_cadence, QZSettings::default_automatic_virtual_shifting_gear_down_cadence).toInt();
-    float gearDownTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_down_time, QZSettings::default_automatic_virtual_shifting_gear_down_time).toFloat();
+    // Get selected profile (0=cruise, 1=climb, 2=sprint)
+    int profile = settings.value(QZSettings::automatic_virtual_shifting_profile, QZSettings::default_automatic_virtual_shifting_profile).toInt();
+    
+    int gearUpCadenceThreshold, gearDownCadenceThreshold;
+    float gearUpTimeThreshold, gearDownTimeThreshold;
+    
+    // Load settings based on selected profile
+    switch (profile) {
+        case 1: // Climb profile
+            gearUpCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_climb_gear_up_cadence, QZSettings::default_automatic_virtual_shifting_climb_gear_up_cadence).toInt();
+            gearUpTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_climb_gear_up_time, QZSettings::default_automatic_virtual_shifting_climb_gear_up_time).toFloat();
+            gearDownCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_climb_gear_down_cadence, QZSettings::default_automatic_virtual_shifting_climb_gear_down_cadence).toInt();
+            gearDownTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_climb_gear_down_time, QZSettings::default_automatic_virtual_shifting_climb_gear_down_time).toFloat();
+            break;
+        case 2: // Sprint profile
+            gearUpCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_sprint_gear_up_cadence, QZSettings::default_automatic_virtual_shifting_sprint_gear_up_cadence).toInt();
+            gearUpTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_sprint_gear_up_time, QZSettings::default_automatic_virtual_shifting_sprint_gear_up_time).toFloat();
+            gearDownCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_sprint_gear_down_cadence, QZSettings::default_automatic_virtual_shifting_sprint_gear_down_cadence).toInt();
+            gearDownTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_sprint_gear_down_time, QZSettings::default_automatic_virtual_shifting_sprint_gear_down_time).toFloat();
+            break;
+        default: // Cruise profile (0)
+            gearUpCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_up_cadence, QZSettings::default_automatic_virtual_shifting_gear_up_cadence).toInt();
+            gearUpTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_up_time, QZSettings::default_automatic_virtual_shifting_gear_up_time).toFloat();
+            gearDownCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_down_cadence, QZSettings::default_automatic_virtual_shifting_gear_down_cadence).toInt();
+            gearDownTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_down_time, QZSettings::default_automatic_virtual_shifting_gear_down_time).toFloat();
+            break;
+    }
     
     QDateTime now = QDateTime::currentDateTime();
     
@@ -2565,6 +2594,25 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_biggears_order, 54).toInt() == i + (settings.value(QZSettings::tile_biggears_swap, QZSettings::default_tile_biggears_swap).toBool() ? 0 : 1)) {
                 biggearsMinus->setGridId(i);
                 dataList.append(biggearsMinus);
+            }
+
+            // Automatic Virtual Shifting tiles
+            if (settings.value(QZSettings::tile_auto_virtual_shifting_cruise_enabled, QZSettings::default_tile_auto_virtual_shifting_cruise_enabled).toBool() &&
+                settings.value(QZSettings::tile_auto_virtual_shifting_cruise_order, QZSettings::default_tile_auto_virtual_shifting_cruise_order).toInt() == i) {
+                autoVirtualShiftingCruise->setGridId(i);
+                dataList.append(autoVirtualShiftingCruise);
+            }
+
+            if (settings.value(QZSettings::tile_auto_virtual_shifting_climb_enabled, QZSettings::default_tile_auto_virtual_shifting_climb_enabled).toBool() &&
+                settings.value(QZSettings::tile_auto_virtual_shifting_climb_order, QZSettings::default_tile_auto_virtual_shifting_climb_order).toInt() == i) {
+                autoVirtualShiftingClimb->setGridId(i);
+                dataList.append(autoVirtualShiftingClimb);
+            }
+
+            if (settings.value(QZSettings::tile_auto_virtual_shifting_sprint_enabled, QZSettings::default_tile_auto_virtual_shifting_sprint_enabled).toBool() &&
+                settings.value(QZSettings::tile_auto_virtual_shifting_sprint_order, QZSettings::default_tile_auto_virtual_shifting_sprint_order).toInt() == i) {
+                autoVirtualShiftingSprint->setGridId(i);
+                dataList.append(autoVirtualShiftingSprint);
             }
 
             if (settings.value(QZSettings::tile_preset_powerzone_1_enabled, QZSettings::default_tile_preset_powerzone_1_enabled).toBool() &&
@@ -4176,6 +4224,15 @@ void homeform::LargeButton(const QString &name) {
         gearUp();
     } else if(name.contains(QStringLiteral("biggearsminus"))) {
         gearDown();
+    } else if(name.contains(QStringLiteral("autoVirtualShiftingCruise"))) {
+        // Switch to Cruise profile (0)
+        settings.setValue(QZSettings::automatic_virtual_shifting_profile, 0);
+    } else if(name.contains(QStringLiteral("autoVirtualShiftingClimb"))) {
+        // Switch to Climb profile (1)
+        settings.setValue(QZSettings::automatic_virtual_shifting_profile, 1);
+    } else if(name.contains(QStringLiteral("autoVirtualShiftingSprint"))) {
+        // Switch to Sprint profile (2)
+        settings.setValue(QZSettings::automatic_virtual_shifting_profile, 2);
     }
 }
 
@@ -5673,6 +5730,12 @@ void homeform::update() {
             double elite_rizer_gain =
                 settings.value(QZSettings::elite_rizer_gain, QZSettings::default_elite_rizer_gain).toDouble();
             ergMode->setLargeButtonColor(settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool() ? "#008000" :"#8B0000");
+            
+            // Update automatic virtual shifting tile colors based on active profile
+            int currentProfile = settings.value(QZSettings::automatic_virtual_shifting_profile, QZSettings::default_automatic_virtual_shifting_profile).toInt();
+            autoVirtualShiftingCruise->setLargeButtonColor(currentProfile == 0 ? QStringLiteral("green") : QStringLiteral("red"));
+            autoVirtualShiftingClimb->setLargeButtonColor(currentProfile == 1 ? QStringLiteral("green") : QStringLiteral("red"));
+            autoVirtualShiftingSprint->setLargeButtonColor(currentProfile == 2 ? QStringLiteral("green") : QStringLiteral("red"));
             extIncline->setSecondLine(QStringLiteral("Gain: ") + QString::number(elite_rizer_gain, 'f', 1));
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             resistance = ((bike *)bluetoothManager->device())->currentResistance().value();

@@ -1181,6 +1181,21 @@ import Qt.labs.platform 1.1
             property real automatic_virtual_shifting_gear_up_time: 2.0
             property int automatic_virtual_shifting_gear_down_cadence: 65
             property real automatic_virtual_shifting_gear_down_time: 2.0
+            property int automatic_virtual_shifting_profile: 0
+            property int automatic_virtual_shifting_climb_gear_up_cadence: 95
+            property real automatic_virtual_shifting_climb_gear_up_time: 2.0
+            property int automatic_virtual_shifting_climb_gear_down_cadence: 65
+            property real automatic_virtual_shifting_climb_gear_down_time: 2.0
+            property int automatic_virtual_shifting_sprint_gear_up_cadence: 95
+            property real automatic_virtual_shifting_sprint_gear_up_time: 2.0
+            property int automatic_virtual_shifting_sprint_gear_down_cadence: 65
+            property real automatic_virtual_shifting_sprint_gear_down_time: 2.0
+            property bool tile_auto_virtual_shifting_cruise_enabled: false
+            property int tile_auto_virtual_shifting_cruise_order: 55
+            property bool tile_auto_virtual_shifting_climb_enabled: false
+            property int tile_auto_virtual_shifting_climb_order: 56
+            property bool tile_auto_virtual_shifting_sprint_enabled: false
+            property int tile_auto_virtual_shifting_sprint_order: 57
         }
 
         FontLoader {
@@ -2747,7 +2762,36 @@ import Qt.labs.platform 1.1
                                 spacing: 10
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
-                                    text: qsTr("Gear Up Cadence (RPM):")
+                                    text: qsTr("Profile:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    id: automaticVirtualShiftingProfileComboBox
+                                    model: ["Cruise", "Climb", "Sprint"]
+                                    currentIndex: settings.automatic_virtual_shifting_profile
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onActivated: {
+                                        settings.automatic_virtual_shifting_profile = currentIndex
+                                    }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Cruise Profile Settings")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 1
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Grey)
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Cruise - Gear Up Cadence (RPM):")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -2771,7 +2815,7 @@ import Qt.labs.platform 1.1
                                 spacing: 10
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
-                                    text: qsTr("Gear Up Time (seconds):")
+                                    text: qsTr("Cruise - Gear Up Time (seconds):")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -2795,7 +2839,7 @@ import Qt.labs.platform 1.1
                                 spacing: 10
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
-                                    text: qsTr("Gear Down Cadence (RPM):")
+                                    text: qsTr("Cruise - Gear Down Cadence (RPM):")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -2819,7 +2863,7 @@ import Qt.labs.platform 1.1
                                 spacing: 10
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
-                                    text: qsTr("Gear Down Time (seconds):")
+                                    text: qsTr("Cruise - Gear Down Time (seconds):")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -2836,6 +2880,218 @@ import Qt.labs.platform 1.1
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_gear_down_time = automaticVirtualShiftingGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Climb Profile Settings")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 1
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Grey)
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Climb - Gear Up Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingClimbGearUpCadenceTextField
+                                    text: settings.automatic_virtual_shifting_climb_gear_up_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_up_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_up_cadence = automaticVirtualShiftingClimbGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Climb - Gear Up Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingClimbGearUpTimeTextField
+                                    text: settings.automatic_virtual_shifting_climb_gear_up_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_up_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_up_time = automaticVirtualShiftingClimbGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Climb - Gear Down Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingClimbGearDownCadenceTextField
+                                    text: settings.automatic_virtual_shifting_climb_gear_down_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_down_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_down_cadence = automaticVirtualShiftingClimbGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Climb - Gear Down Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingClimbGearDownTimeTextField
+                                    text: settings.automatic_virtual_shifting_climb_gear_down_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_down_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_down_time = automaticVirtualShiftingClimbGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Sprint Profile Settings")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 1
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Grey)
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Sprint - Gear Up Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingSprintGearUpCadenceTextField
+                                    text: settings.automatic_virtual_shifting_sprint_gear_up_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_cadence = automaticVirtualShiftingSprintGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Sprint - Gear Up Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingSprintGearUpTimeTextField
+                                    text: settings.automatic_virtual_shifting_sprint_gear_up_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_time = automaticVirtualShiftingSprintGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Sprint - Gear Down Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingSprintGearDownCadenceTextField
+                                    text: settings.automatic_virtual_shifting_sprint_gear_down_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_cadence = automaticVirtualShiftingSprintGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Sprint - Gear Down Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingSprintGearDownTimeTextField
+                                    text: settings.automatic_virtual_shifting_sprint_gear_down_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_time = automaticVirtualShiftingSprintGearDownTimeTextField.text; toast.show("Setting saved!"); }
                                 }
                             }
                         }

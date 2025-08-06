@@ -710,6 +710,9 @@ class homeform : public QObject {
     DataObject *tile_heat_time_in_zone_3;
     DataObject *tile_heat_time_in_zone_4;
     DataObject *coreTemperature;
+    DataObject *autoVirtualShiftingCruise;
+    DataObject *autoVirtualShiftingClimb;
+    DataObject *autoVirtualShiftingSprint;
 
   private:
     static homeform *m_singleton;

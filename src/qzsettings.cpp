@@ -947,16 +947,32 @@ const QString QZSettings::inclinationResistancePoints = QStringLiteral("inclinat
 const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("");
 
 const QString QZSettings::automatic_virtual_shifting_enabled = QStringLiteral("automatic_virtual_shifting_enabled");
+const QString QZSettings::automatic_virtual_shifting_profile = QStringLiteral("automatic_virtual_shifting_profile");
 const QString QZSettings::automatic_virtual_shifting_gear_up_cadence = QStringLiteral("automatic_virtual_shifting_gear_up_cadence");
 const QString QZSettings::automatic_virtual_shifting_gear_up_time = QStringLiteral("automatic_virtual_shifting_gear_up_time");
 const QString QZSettings::automatic_virtual_shifting_gear_down_cadence = QStringLiteral("automatic_virtual_shifting_gear_down_cadence");
 const QString QZSettings::automatic_virtual_shifting_gear_down_time = QStringLiteral("automatic_virtual_shifting_gear_down_time");
+const QString QZSettings::automatic_virtual_shifting_climb_gear_up_cadence = QStringLiteral("automatic_virtual_shifting_climb_gear_up_cadence");
+const QString QZSettings::automatic_virtual_shifting_climb_gear_up_time = QStringLiteral("automatic_virtual_shifting_climb_gear_up_time");
+const QString QZSettings::automatic_virtual_shifting_climb_gear_down_cadence = QStringLiteral("automatic_virtual_shifting_climb_gear_down_cadence");
+const QString QZSettings::automatic_virtual_shifting_climb_gear_down_time = QStringLiteral("automatic_virtual_shifting_climb_gear_down_time");
+const QString QZSettings::automatic_virtual_shifting_sprint_gear_up_cadence = QStringLiteral("automatic_virtual_shifting_sprint_gear_up_cadence");
+const QString QZSettings::automatic_virtual_shifting_sprint_gear_up_time = QStringLiteral("automatic_virtual_shifting_sprint_gear_up_time");
+const QString QZSettings::automatic_virtual_shifting_sprint_gear_down_cadence = QStringLiteral("automatic_virtual_shifting_sprint_gear_down_cadence");
+const QString QZSettings::automatic_virtual_shifting_sprint_gear_down_time = QStringLiteral("automatic_virtual_shifting_sprint_gear_down_time");
 
 const QString QZSettings::floatingwindow_type = QStringLiteral("floatingwindow_type");
 const QString QZSettings::pid_heart_zone_erg_mode_watt_step = QStringLiteral("pid_heart_zone_erg_mode_watt_step");
 
+const QString QZSettings::tile_auto_virtual_shifting_cruise_enabled = QStringLiteral("tile_auto_virtual_shifting_cruise_enabled");
+const QString QZSettings::tile_auto_virtual_shifting_cruise_order = QStringLiteral("tile_auto_virtual_shifting_cruise_order");
+const QString QZSettings::tile_auto_virtual_shifting_climb_enabled = QStringLiteral("tile_auto_virtual_shifting_climb_enabled");
+const QString QZSettings::tile_auto_virtual_shifting_climb_order = QStringLiteral("tile_auto_virtual_shifting_climb_order");
+const QString QZSettings::tile_auto_virtual_shifting_sprint_enabled = QStringLiteral("tile_auto_virtual_shifting_sprint_enabled");
+const QString QZSettings::tile_auto_virtual_shifting_sprint_order = QStringLiteral("tile_auto_virtual_shifting_sprint_order");
 
-const uint32_t allSettingsCount = 782;
+
+const uint32_t allSettingsCount = 797;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1752,12 +1768,27 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_elite_800, QZSettings::default_nordictrack_elite_800},
     {QZSettings::inclinationResistancePoints, QZSettings::default_inclinationResistancePoints},
     {QZSettings::automatic_virtual_shifting_enabled, QZSettings::default_automatic_virtual_shifting_enabled},
+    {QZSettings::automatic_virtual_shifting_profile, QZSettings::default_automatic_virtual_shifting_profile},
     {QZSettings::automatic_virtual_shifting_gear_up_cadence, QZSettings::default_automatic_virtual_shifting_gear_up_cadence},
     {QZSettings::automatic_virtual_shifting_gear_up_time, QZSettings::default_automatic_virtual_shifting_gear_up_time},
     {QZSettings::automatic_virtual_shifting_gear_down_cadence, QZSettings::default_automatic_virtual_shifting_gear_down_cadence},
     {QZSettings::automatic_virtual_shifting_gear_down_time, QZSettings::default_automatic_virtual_shifting_gear_down_time},
+    {QZSettings::automatic_virtual_shifting_climb_gear_up_cadence, QZSettings::default_automatic_virtual_shifting_climb_gear_up_cadence},
+    {QZSettings::automatic_virtual_shifting_climb_gear_up_time, QZSettings::default_automatic_virtual_shifting_climb_gear_up_time},
+    {QZSettings::automatic_virtual_shifting_climb_gear_down_cadence, QZSettings::default_automatic_virtual_shifting_climb_gear_down_cadence},
+    {QZSettings::automatic_virtual_shifting_climb_gear_down_time, QZSettings::default_automatic_virtual_shifting_climb_gear_down_time},
+    {QZSettings::automatic_virtual_shifting_sprint_gear_up_cadence, QZSettings::default_automatic_virtual_shifting_sprint_gear_up_cadence},
+    {QZSettings::automatic_virtual_shifting_sprint_gear_up_time, QZSettings::default_automatic_virtual_shifting_sprint_gear_up_time},
+    {QZSettings::automatic_virtual_shifting_sprint_gear_down_cadence, QZSettings::default_automatic_virtual_shifting_sprint_gear_down_cadence},
+    {QZSettings::automatic_virtual_shifting_sprint_gear_down_time, QZSettings::default_automatic_virtual_shifting_sprint_gear_down_time},
     {QZSettings::floatingwindow_type, QZSettings::default_floatingwindow_type},
     {QZSettings::pid_heart_zone_erg_mode_watt_step, QZSettings::default_pid_heart_zone_erg_mode_watt_step},
+    {QZSettings::tile_auto_virtual_shifting_cruise_enabled, QZSettings::default_tile_auto_virtual_shifting_cruise_enabled},
+    {QZSettings::tile_auto_virtual_shifting_cruise_order, QZSettings::default_tile_auto_virtual_shifting_cruise_order},
+    {QZSettings::tile_auto_virtual_shifting_climb_enabled, QZSettings::default_tile_auto_virtual_shifting_climb_enabled},
+    {QZSettings::tile_auto_virtual_shifting_climb_order, QZSettings::default_tile_auto_virtual_shifting_climb_order},
+    {QZSettings::tile_auto_virtual_shifting_sprint_enabled, QZSettings::default_tile_auto_virtual_shifting_sprint_enabled},
+    {QZSettings::tile_auto_virtual_shifting_sprint_order, QZSettings::default_tile_auto_virtual_shifting_sprint_order},
     {QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike},
 };
 
