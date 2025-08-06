@@ -375,8 +375,15 @@ QString WorkoutModel::getWorkoutSource(int workoutId) {
     query.addBindValue(workoutId);
     
     if (query.exec() && query.next()) {
-        return query.value("workout_source").toString();
+        QString result = query.value("workout_source").toString();
+        qDebug() << "WorkoutModel::getWorkoutSource for ID" << workoutId << "returned:" << result;
+        if (result.isEmpty()) {
+            qDebug() << "Empty workout_source, using default QZ";
+            return "QZ";
+        }
+        return result;
     }
+    qDebug() << "WorkoutModel::getWorkoutSource query failed for ID" << workoutId << "- error:" << query.lastError().text();
     return "QZ"; // Default fallback
 }
 

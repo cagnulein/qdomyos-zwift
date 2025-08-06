@@ -7509,8 +7509,8 @@ void homeform::fitfile_preview_clicked(const QUrl &fileName) {
         qfit::open(filePath, &a, &sport, &workoutName);
         qDebug() << "FIT file read:" << a.size() << "records, sport:" << sport << "workoutName:" << workoutName;
         if (!a.isEmpty()) {
-            this->innerTemplateManager->previewSessionOnChart(&a, sport);
-            emit previewFitFile(filePath, QTime(0,0,0,0).addSecs(a.last().elapsedTime).toString());
+            this->innerTemplateManager->previewSessionOnChart(&a, sport, workoutName);
+            emit previewFitFile(filePath, QTime(0,0,0,0).addSecs(a.last().elapsedTime).toString(), workoutName);
         } else {
             qDebug() << "No data read from FIT file";
         }

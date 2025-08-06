@@ -970,7 +970,7 @@ class homeform : public QObject {
     void previewWorkoutDescriptionChanged(QString value);
     void previewWorkoutTagsChanged(QString value);
 
-    void previewFitFile(const QString &filename, const QString &result);
+    void previewFitFile(const QString &filename, const QString &result, const QString &workoutName);
 
     void stravaAuthUrlChanged(QString value);
     void stravaWebVisibleChanged(bool value);
