@@ -936,8 +936,13 @@ class Listener : public fit::FileIdMesgListener,
 };
 
 void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *sport) {
+    // Call the version with workoutName
+    open(filename, output, sport, nullptr);
+}
+
+void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *sport, QString *workoutName) {
     // Call the full version with nullptr for optional parameters
-    open(filename, output, sport, nullptr, nullptr, nullptr, nullptr, nullptr);
+    open(filename, output, sport, workoutName, nullptr, nullptr, nullptr, nullptr);
 }
 
 
