@@ -10,7 +10,7 @@ These instructions build the app itself, not the test project.
 
 ```buildoutcfg
 $ sudo apt update && sudo apt upgrade # this is very important on raspberry pi: you need the bluetooth firmware updated!
-$ sudo apt install git qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtbase5-private-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qml-module* libqt5texttospeech5-dev libqt5texttospeech5 libqt5location5-plugins qtlocation5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 g++ make
+$ sudo apt install git qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtbase5-private-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qml-module* libqt5texttospeech5-dev libqt5texttospeech5 libqt5location5-plugins qtlocation5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 g++ make libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
 $ git clone https://github.com/cagnulein/qdomyos-zwift.git
 $ cd qdomyos-zwift
 $ git submodule update --init src/smtpclient/
