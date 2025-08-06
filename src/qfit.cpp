@@ -908,19 +908,19 @@ class Listener : public fit::FileIdMesgListener,
                     std::wstring wWorkoutName = devField.GetSTRINGValue(0);
                     *workoutName = QString::fromStdWString(wWorkoutName);
                     printf("   Found Activity Title: %s\n", workoutName->toStdString().c_str());
-                } else if (fieldName == "workout_source" && workoutSource != nullptr) {
+                } else if (fieldName == "Workout Source" && workoutSource != nullptr) {
                     std::wstring wWorkoutSource = devField.GetSTRINGValue(0);
                     *workoutSource = QString::fromStdWString(wWorkoutSource);
                     printf("   Found Workout Source: %s\n", workoutSource->toStdString().c_str());
-                } else if (fieldName == "peloton_workout_id" && pelotonWorkoutId != nullptr) {
+                } else if (fieldName == "Peloton Workout ID" && pelotonWorkoutId != nullptr) {
                     std::wstring wPelotonWorkoutId = devField.GetSTRINGValue(0);
                     *pelotonWorkoutId = QString::fromStdWString(wPelotonWorkoutId);
                     printf("   Found Peloton Workout ID: %s\n", pelotonWorkoutId->toStdString().c_str());
-                } else if (fieldName == "peloton_url" && pelotonUrl != nullptr) {
+                } else if (fieldName == "Peloton URL" && pelotonUrl != nullptr) {
                     std::wstring wPelotonUrl = devField.GetSTRINGValue(0);
                     *pelotonUrl = QString::fromStdWString(wPelotonUrl);
                     printf("   Found Peloton URL: %s\n", pelotonUrl->toStdString().c_str());
-                } else if (fieldName == "training_program_file" && trainingProgramFile != nullptr) {
+                } else if (fieldName == "Training Program File" && trainingProgramFile != nullptr) {
                     std::wstring wTrainingProgramFile = devField.GetSTRINGValue(0);
                     *trainingProgramFile = QString::fromStdWString(wTrainingProgramFile);
                     printf("   Found Training Program File: %s\n", trainingProgramFile->toStdString().c_str());
