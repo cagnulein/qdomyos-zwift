@@ -281,9 +281,13 @@ bool FitDatabaseProcessor::processFitFile(const QString& filePath) {
     QList<SessionLine> session;
     FIT_SPORT sport = FIT_SPORT_INVALID;
     QString workoutName = "";  // Initialize to empty string
+    QString workoutSource = "";
+    QString pelotonWorkoutId = "";
+    QString pelotonUrl = "";
+    QString trainingProgramFile = "";
 
     try {
-        qfit::open(filePath, &session, &sport, &workoutName);
+        qfit::open(filePath, &session, &sport, &workoutName, &workoutSource, &pelotonWorkoutId, &pelotonUrl, &trainingProgramFile);
 
         if (session.isEmpty()) {
             emit error("No data found in file: " + filePath);
@@ -339,7 +343,7 @@ bool FitDatabaseProcessor::processFitFile(const QString& filePath) {
         db.transaction();
 
         qint64 workoutId;
-        if (!saveWorkout(filePath, session, sport, workoutName, elapsedSeconds, workoutId)) {
+        if (!saveWorkout(filePath, session, sport, workoutName, elapsedSeconds, workoutId, workoutSource, pelotonWorkoutId, pelotonUrl, trainingProgramFile)) {
             db.rollback();
             return false;
         }

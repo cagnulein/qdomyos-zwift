@@ -317,7 +317,20 @@ void WorkoutModel::applyDateFilter() {
     
     for (const QVariantMap& workout : m_allWorkouts) {
         QString workoutDateStr = workout["date"].toString();
-        if (workoutDateStr.startsWith(targetDateStr)) {
+        
+        // Use the same logic as getWorkoutDates to extract the date
+        QDateTime workoutDateTime = QDateTime::fromString(workoutDateStr, Qt::ISODate);
+        QDate workoutDate;
+        
+        if (workoutDateTime.isValid()) {
+            // Convert to local time to get the correct date
+            workoutDate = workoutDateTime.toLocalTime().date();
+        } else {
+            // Try parsing as date only if datetime parsing fails
+            workoutDate = QDate::fromString(workoutDateStr, "yyyy-MM-dd");
+        }
+        
+        if (workoutDate.isValid() && workoutDate.toString("yyyy-MM-dd") == targetDateStr) {
             m_workouts.append(workout);
         }
     }
@@ -329,10 +342,16 @@ QStringList WorkoutModel::getWorkoutDates() {
     
     for (const QVariantMap& workout : m_allWorkouts) {
         QString dateStr = workout["date"].toString();
-        // Extract just the date part if it includes time
-        QDate workoutDate = QDateTime::fromString(dateStr, Qt::ISODate).date();
-        if (!workoutDate.isValid()) {
-            // Try parsing as date only
+        
+        // Use QDateTime::toLocalTime() to avoid timezone issues
+        QDateTime workoutDateTime = QDateTime::fromString(dateStr, Qt::ISODate);
+        QDate workoutDate;
+        
+        if (workoutDateTime.isValid()) {
+            // Convert to local time to get the correct date
+            workoutDate = workoutDateTime.toLocalTime().date();
+        } else {
+            // Try parsing as date only if datetime parsing fails
             workoutDate = QDate::fromString(dateStr, "yyyy-MM-dd");
         }
         
