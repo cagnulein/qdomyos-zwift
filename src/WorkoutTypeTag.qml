@@ -17,6 +17,7 @@ Rectangle {
         switch(workoutSource.toUpperCase()) {
             case "PELOTON": return "#ff6b35"
             case "ZWIFT": return "#ff6900" 
+            case "ERG": return "#8bc34a"
             case "QZ": return "#2196f3"
             case "MANUAL": return "#757575"
             default: return "#9e9e9e"

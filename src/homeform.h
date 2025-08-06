@@ -885,6 +885,7 @@ class homeform : public QObject {
     void gpx_open_clicked(const QUrl &fileName);
     void gpx_save_clicked();
     void fit_save_clicked();
+    void saveSessionAsTrainingProgram();
     void strava_connect_clicked();
     void trainProgramSignals();
     void refresh_bluetooth_devices_clicked();

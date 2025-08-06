@@ -78,6 +78,7 @@ class trainprogram : public QObject {
     static trainprogram *load(const QString &filename, bluetooth *b, QString Extension);
     static QList<trainrow> loadXML(const QString &filename, bluetoothdevice::BLUETOOTH_TYPE device_type);
     static bool saveXML(const QString &filename, const QList<trainrow> &rows);
+    static bool hasTargetPower(const QString &filename);
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
     QTime currentRowRemainingTime();

@@ -1,6 +1,7 @@
 #include "workoutmodel.h"
 #include "workoutloaderworker.h"
 #include "homeform.h"
+#include "trainprogram.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
@@ -371,16 +372,27 @@ QStringList WorkoutModel::getWorkoutDates() {
 
 QString WorkoutModel::getWorkoutSource(int workoutId) {
     QSqlQuery query(m_db);
-    query.prepare("SELECT workout_source FROM workouts WHERE id = ?");
+    query.prepare("SELECT workout_source, training_program_file FROM workouts WHERE id = ?");
     query.addBindValue(workoutId);
     
     if (query.exec() && query.next()) {
         QString result = query.value("workout_source").toString();
+        QString trainingProgramFile = query.value("training_program_file").toString();
+        
         qDebug() << "WorkoutModel::getWorkoutSource for ID" << workoutId << "returned:" << result;
+        qDebug() << "Training program file:" << trainingProgramFile;
+        
         if (result.isEmpty()) {
             qDebug() << "Empty workout_source, using default QZ";
-            return "QZ";
+            result = "QZ";
         }
+        
+        // Check if this should be marked as ERG mode based on training program
+        if (result == "QZ" && !trainingProgramFile.isEmpty() && trainprogram::hasTargetPower(trainingProgramFile)) {
+            qDebug() << "Training program has target power > 0, returning ERG";
+            return "ERG";
+        }
+        
         return result;
     }
     qDebug() << "WorkoutModel::getWorkoutSource query failed for ID" << workoutId << "- error:" << query.lastError().text();

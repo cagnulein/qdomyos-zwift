@@ -4912,6 +4912,10 @@ void homeform::Stop() {
 
     emit workoutEventStateChanged(bluetoothdevice::STOPPED);
 
+    // Save session as training program only if it's not a Peloton workout
+    if (!(pelotonHandler && !pelotonHandler->current_ride_id.isEmpty())) {
+        saveSessionAsTrainingProgram();
+    }
     fit_save_clicked();
 
     if (bluetoothManager->device()) {
@@ -7184,6 +7188,7 @@ void homeform::update() {
                 lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
                 bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount, 
                 target_cadence->value().toDouble(), target_power->value().toDouble(), target_resistance->value().toDouble(),
+                target_incline->value().toDouble(), target_speed->value().toDouble(),
                 bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value());
 
             Session.append(s);
@@ -7412,6 +7417,78 @@ void homeform::gpx_save_clicked() {
     }
 }
 
+void homeform::saveSessionAsTrainingProgram() {
+    if (Session.isEmpty()) {
+        return;
+    }
+
+    QString path = getWritableAppDir();
+    bluetoothdevice *dev = bluetoothManager->device();
+    if (!dev) {
+        return;
+    }
+
+    // Determine subdirectory based on device type
+    QString subdir;
+    if (dev->deviceType() == bluetoothdevice::BIKE) {
+        subdir = "ride/";
+    } else if (dev->deviceType() == bluetoothdevice::TREADMILL) {
+        subdir = "run/";
+    } else if (dev->deviceType() == bluetoothdevice::ROWING) {
+        subdir = "row/";
+    } else {
+        subdir = "workout/";
+    }
+
+    // Create the subdirectory if it doesn't exist
+    QDir dir(path + subdir);
+    if (!dir.exists()) {
+        dir.mkpath(".");
+    }
+
+    QString filename = path + subdir + 
+                      QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
+                      QStringLiteral("_session.xml");
+
+    // Convert Session data to trainrow format
+    QList<trainrow> rows;
+    for (int i = 0; i < Session.size(); i++) {
+        const SessionLine &sessionLine = Session[i];
+        trainrow row;
+        
+        // Set duration to 1 second since we collect data every second
+        row.duration = QTime(0, 0, 1);
+        
+        // Set target values based on device type
+        if (dev->deviceType() == bluetoothdevice::BIKE) {
+            if (sessionLine.target_watt > 0) {
+                row.power = static_cast<int32_t>(sessionLine.target_watt);
+            }
+            if (sessionLine.target_cadence > 0) {
+                row.cadence = static_cast<int16_t>(sessionLine.target_cadence);
+            }
+            if (sessionLine.target_resistance >= 0) {
+                row.resistance = sessionLine.target_resistance;
+            }
+        } else if (dev->deviceType() == bluetoothdevice::TREADMILL) {
+            if (sessionLine.target_speed > 0) {
+                row.speed = sessionLine.target_speed;
+            }
+            if (sessionLine.target_inclination >= -50) {
+                row.inclination = sessionLine.target_inclination;
+            }
+        }
+        
+        rows.append(row);
+    }
+
+    // Save the XML file
+    if (trainprogram::saveXML(filename, rows)) {
+        lastTrainProgramFileSaved = filename;
+        qDebug() << "Session saved as training program:" << filename;
+    }
+}
+
 void homeform::fit_save_clicked() {
 
     QString path = getWritableAppDir();
@@ -7435,6 +7512,11 @@ void homeform::fit_save_clicked() {
             workoutSource = "PELOTON";
             pelotonWorkoutId = pelotonHandler->current_ride_id;
             pelotonUrl = pelotonHandler->getPelotonWorkoutUrl();
+            if (!lastTrainProgramFileSaved.isEmpty()) {
+                trainingProgramFile = lastTrainProgramFileSaved;
+            }
+        } else {
+            // For non-Peloton workouts, use the session XML file if available
             if (!lastTrainProgramFileSaved.isEmpty()) {
                 trainingProgramFile = lastTrainProgramFileSaved;
             }

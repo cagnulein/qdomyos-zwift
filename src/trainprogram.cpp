@@ -1379,6 +1379,40 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
         return false;
 }
 
+bool trainprogram::hasTargetPower(const QString &filename) {
+    QFile file(filename);
+    if (!file.exists() || !file.open(QIODevice::ReadOnly)) {
+        qDebug() << "Could not open training program file:" << filename;
+        return false;
+    }
+    
+    QXmlStreamReader reader(&file);
+    
+    while (!reader.atEnd()) {
+        reader.readNext();
+        if (reader.isStartElement() && reader.name() == "row") {
+            QXmlStreamAttributes attributes = reader.attributes();
+            if (attributes.hasAttribute("power")) {
+                QString powerStr = attributes.value("power").toString();
+                bool ok;
+                int power = powerStr.toInt(&ok);
+                if (ok && power > 0) {
+                    qDebug() << "Found target power > 0 in training program:" << power;
+                    file.close();
+                    return true;
+                }
+            }
+        }
+    }
+    
+    if (reader.hasError()) {
+        qDebug() << "Error reading training program XML:" << reader.errorString();
+    }
+    
+    file.close();
+    return false;
+}
+
 void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
 
 trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString Extension) {
