@@ -8,10 +8,12 @@
 #include <jni.h>
 #include <QAndroidJniObject>
 #endif
+#include "fitdatabaseprocessor.h"
 #include "material.h"
 #include "qfit.h"
 #include "simplecrypt.h"
 #include "templateinfosenderbuilder.h"
+#include "workoutmodel.h"
 #include "zwiftworkout.h"
 
 #include <QAbstractOAuth2>
@@ -578,6 +580,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(profile_open_clicked(QUrl)), this, SLOT(profile_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_preview(QUrl)), this, SLOT(trainprogram_preview(QUrl)));
     QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
+    QObject::connect(stack, SIGNAL(fitfile_preview_clicked(QUrl)), this, SLOT(fitfile_preview_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_zwo_loaded(QString)), this, SLOT(trainprogram_zwo_loaded(QString)));
     QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)), this, SLOT(gpx_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
@@ -646,7 +649,20 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         if (!QFile(getWritableAppDir() + "gpx/" + itGpx.fileName()).exists()) {
             QFile::copy(":/gpx/" + itGpx.fileName(), getWritableAppDir() + "gpx/" + itGpx.fileName());
         }
-    }    
+    }
+
+    QDirIterator itFit(getWritableAppDir(), QStringList() << "*.fit", QDir::Files);
+    qDebug() << itFit.path();
+    QDir().mkdir(getWritableAppDir() + "fit");
+    while (itFit.hasNext()) {
+        qDebug() << itFit.filePath() << itFit.fileName() << itFit.filePath().replace(itFit.path(), "");
+        if (!QFile(getWritableAppDir() + "fit/" + itFit.next().replace(itFit.path(), "")).exists() && !itFit.fileName().contains("backup")) {
+            if(QFile::copy(itFit.filePath(), getWritableAppDir() + "fit/" + itFit.filePath().replace(itFit.path(), "")))
+                QFile::remove(itFit.filePath());
+        }
+    }
+
+
 #ifdef Q_OS_ANDROID
 
     QString bluetoothName = getBluetoothName();
@@ -672,6 +688,30 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     }
 #endif
+
+    fitProcessor = new FitDatabaseProcessor(getWritableAppDir() + "ddb.sqlite");
+    connect(fitProcessor, &FitDatabaseProcessor::fileProcessed,
+            this, [](const QString& filename) {
+                qDebug() << "FitDatabaseProcessor Processing:" << filename;
+            });
+    connect(fitProcessor, &FitDatabaseProcessor::progress,
+            this, [](int processed, int total) {
+                qDebug() << "FitDatabaseProcessor Progress:" << processed << "/" << total;
+            });
+    connect(fitProcessor, &FitDatabaseProcessor::error,
+            this, [](const QString& error) {
+                qDebug() << "FitDatabaseProcessor Error:" << error;
+            });
+    workoutModel = new WorkoutModel(getWritableAppDir() + "ddb.sqlite");
+    engine->rootContext()->setContextProperty("workoutModel", workoutModel);
+    
+    connect(fitProcessor, &FitDatabaseProcessor::processingStopped,
+            this, [this]() {
+                qDebug() << "FitDatabaseProcessor Processing stopped - refreshing workout model";
+                workoutModel->setDatabaseProcessing(false);
+                workoutModel->refresh();
+            });
+    fitProcessor->processDirectory(getWritableAppDir() + "fit");
 
     m_speech.setLocale(QLocale::English);
 
@@ -766,6 +806,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                              }
                          });
     });
+#else
+#ifndef IO_UNDER_QT
+    h = new lockscreen();
+    h->appleWatchAppInstalled();
+#endif
 #endif
 
     if (QSslSocket::supportsSsl()) {
@@ -1118,7 +1163,8 @@ void homeform::backup() {
         QFile::remove(filename);
         qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
-                   stravaPelotonWorkoutType, dev->bluetoothDevice.name());
+                   stravaPelotonWorkoutType, workoutName(), dev->bluetoothDevice.name(),
+                   "", "", "", "");
 
         index++;
         if (index > 1) {
@@ -4667,7 +4713,12 @@ void homeform::Start_inner(bool send_event_to_device) {
             videoPlaybackHalfPlayer->pause();
         }
     } else {
-
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        if(h && !h->appleWatchAppInstalled())
+            h->startWorkout(bluetoothManager->device()->deviceType());
+#endif
+#endif
         if (bluetoothManager->device() && send_event_to_device) {
             bluetoothManager->device()->start();
         }
@@ -4760,6 +4811,13 @@ void homeform::Stop() {
     QSettings settings;
 
     m_startRequested = false;
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    if(h && !h->appleWatchAppInstalled())
+        h->stopWorkout();
+#endif
+#endif
 
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
@@ -7061,7 +7119,8 @@ void homeform::update() {
                     (bluetoothManager->device()->elapsedTime().hour() * 3600),
 
                 lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
-                bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount,
+                bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount, 
+                target_cadence->value().toDouble(), target_power->value().toDouble(), target_resistance->value().toDouble(),
                 bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value());
 
             Session.append(s);
@@ -7253,6 +7312,7 @@ void homeform::trainprogram_preview(const QUrl &fileName) {
     }
 }
 
+
 void homeform::trainprogram_zwo_loaded(const QString &s) {
     qDebug() << QStringLiteral("trainprogram_zwo_loaded") << s;
     trainProgram = new trainprogram(zwiftworkout::loadJSON(s), bluetoothManager);
@@ -7294,7 +7354,7 @@ void homeform::fit_save_clicked() {
     QString path = getWritableAppDir();
     bluetoothdevice *dev = bluetoothManager->device();
     if (dev) {
-        QString filename = path +
+        QString filename = path + "fit/" +
                            QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
                            QStringLiteral(".fit");
 
@@ -7302,10 +7362,32 @@ void homeform::fit_save_clicked() {
         if (!stravaPelotonActivityName.isEmpty() && !stravaPelotonInstructorName.isEmpty())
             workoutName = stravaPelotonActivityName + " - " + stravaPelotonInstructorName;
 
+        // Determine workout source and metadata
+        QString workoutSource = "QZ";
+        QString pelotonWorkoutId = "";
+        QString pelotonUrl = "";
+        QString trainingProgramFile = "";
+        
+        if (pelotonHandler && !pelotonHandler->current_ride_id.isEmpty()) {
+            workoutSource = "PELOTON";
+            pelotonWorkoutId = pelotonHandler->current_ride_id;
+            pelotonUrl = pelotonHandler->getPelotonWorkoutUrl();
+            if (!lastTrainProgramFileSaved.isEmpty()) {
+                trainingProgramFile = lastTrainProgramFileSaved;
+            }
+        }
+        
         qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
-                   stravaPelotonWorkoutType, workoutName, dev->bluetoothDevice.name());
+                   stravaPelotonWorkoutType, workoutName, dev->bluetoothDevice.name(),
+                   workoutSource, pelotonWorkoutId, pelotonUrl, trainingProgramFile);
         lastFitFileSaved = filename;
+
+        // Process the newly saved file immediately and refresh workout model
+        if (fitProcessor && workoutModel) {
+            fitProcessor->processFile(filename);
+            workoutModel->refresh();
+        }
 
         QSettings settings;
         if (!settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken)
@@ -7407,6 +7489,33 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
         }
 
         trainProgramSignals();
+    }
+}
+
+void homeform::fitfile_preview_clicked(const QUrl &fileName) {
+    qDebug() << QStringLiteral("fitfile_preview_clicked called with URL:") << fileName;
+    qDebug() << QStringLiteral("URL toString:") << fileName.toString();
+    qDebug() << QStringLiteral("URL toLocalFile:") << fileName.toLocalFile();
+
+    // Use the full file path directly instead of reconstructing it
+    QString filePath = fileName.toLocalFile();
+    QFile file(filePath);
+    qDebug() << "Opening FIT file:" << filePath;
+
+    if (file.exists()) {
+        QList<SessionLine> a;
+        FIT_SPORT sport;
+        QString workoutName;
+        qfit::open(filePath, &a, &sport, &workoutName);
+        qDebug() << "FIT file read:" << a.size() << "records, sport:" << sport << "workoutName:" << workoutName;
+        if (!a.isEmpty()) {
+            this->innerTemplateManager->previewSessionOnChart(&a, sport, workoutName);
+            emit previewFitFile(filePath, QTime(0,0,0,0).addSecs(a.last().elapsedTime).toString(), workoutName);
+        } else {
+            qDebug() << "No data read from FIT file";
+        }
+    } else {
+        qDebug() << "FIT file does not exist:" << filePath;
     }
 }
 
