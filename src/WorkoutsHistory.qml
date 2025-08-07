@@ -216,12 +216,11 @@ Page {
                     color: "white"
                     border.color: "#e0e0e0"
 
-                    // Workout Type Tag - aligned with bike emoji
+                    // Workout Type Tag - positioned absolutely in top-right
                     WorkoutTypeTag {
-                        anchors.left: parent.left
+                        anchors.right: parent.right
                         anchors.top: parent.top
-                        anchors.leftMargin: 12
-                        anchors.topMargin: 12
+                        anchors.margins: 12
                         workoutSource: workoutModel ? workoutModel.getWorkoutSource(model.id) : "QZ"
                     }
 
