@@ -321,12 +321,39 @@ Page {
                             Layout.fillWidth: true
                             spacing: 4
 
-                            // Title row (without tag)
-                            Text {
-                                text: title
-                                font.bold: true
-                                font.pixelSize: 18
+                            // Title row (without tag) with auto-scrolling
+                            Rectangle {
                                 Layout.fillWidth: true
+                                Layout.rightMargin: 80 // Reserve space for tag
+                                Layout.preferredHeight: 24
+                                clip: true
+                                color: "transparent"
+                                
+                                Text {
+                                    id: titleText
+                                    text: title
+                                    font.bold: true
+                                    font.pixelSize: 18
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    
+                                    // Auto-scroll animation for long titles
+                                    SequentialAnimation on x {
+                                        running: titleText.contentWidth > titleText.parent.width
+                                        loops: Animation.Infinite
+                                        NumberAnimation {
+                                            from: 0
+                                            to: -(titleText.contentWidth - titleText.parent.width + 20)
+                                            duration: Math.max(3000, titleText.contentWidth * 30)
+                                        }
+                                        PauseAnimation { duration: 1500 }
+                                        NumberAnimation {
+                                            from: -(titleText.contentWidth - titleText.parent.width + 20)
+                                            to: 0
+                                            duration: Math.max(3000, titleText.contentWidth * 30)
+                                        }
+                                        PauseAnimation { duration: 2000 }
+                                    }
+                                }
                             }
 
                             Text {
