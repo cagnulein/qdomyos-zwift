@@ -2136,6 +2136,10 @@ class QZSettings {
     static const QString proform_elliptical_ip;
     static const QString default_proform_elliptical_ip;
 
+    static const QString proform_rower_ip;
+    static const QString default_proform_rower_ip;
+
+
     static const QString antbike;
     static constexpr bool default_antbike = false;
 

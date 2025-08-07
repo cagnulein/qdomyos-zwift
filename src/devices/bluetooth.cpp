@@ -141,6 +141,7 @@ void bluetooth::finished() {
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     QString proform_elliptical_ip = settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
+    QString proform_rower_ip = settings.value(QZSettings::proform_rower_ip, QZSettings::default_proform_rower_ip).toString();
     bool fake_bike =
         settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
     bool fakedevice_elliptical =
@@ -149,7 +150,7 @@ void bluetooth::finished() {
     bool fakedevice_treadmill =
         settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     // wifi devices on windows
-    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || antbike || android_antbike) {
+    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || !proform_rower_ip.isEmpty() || antbike || android_antbike) {
         // faking a bluetooth device
         qDebug() << "faking a bluetooth device for nordictrack_2950_ip";
         deviceDiscovered(QBluetoothDeviceInfo());
@@ -496,6 +497,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     QString proform_elliptical_ip = settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
+    QString proform_rower_ip = settings.value(QZSettings::proform_rower_ip, QZSettings::default_proform_rower_ip).toString();
     QString computrainerSerialPort =
         settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
     QString csaferowerSerialPort = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
@@ -916,6 +918,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(nordictrackifitadbElliptical);
+            } else if (!proform_rower_ip.isEmpty() && !nordictrackifitadbRower) {
+                this->stopDiscovery();
+                nordictrackifitadbRower = new nordictrackifitadbrower(noWriteResistance, noHeartService,
+                                                                    bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(nordictrackifitadbRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(nordictrackifitadbRower, &nordictrackifitadbrower::debug, this, &bluetooth::debug);
+                // nordictrackifitadbRower->deviceDiscovered(b);
+                // connect(this, SIGNAL(searchingStop()), nordictrackifitadbRower, SLOT(searchingStop())); //NOTE: Commented due to #358
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(nordictrackifitadbRower);
             } else if (((csc_as_bike && b.name().startsWith(cscName)) ||
                         b.name().toUpper().startsWith(QStringLiteral("JOROTO-BK-"))) &&
                        !cscBike && filter) {
@@ -3364,6 +3380,11 @@ void bluetooth::restart() {
         delete nordictrackifitadbElliptical;
         nordictrackifitadbElliptical = nullptr;
     }
+    if (nordictrackifitadbRower) {
+
+        delete nordictrackifitadbRower;
+        nordictrackifitadbRower = nullptr;
+    }
     if (powerBike) {
 
         delete powerBike;
@@ -3838,6 +3859,8 @@ bluetoothdevice *bluetooth::device() {
         return android_antBike;        
     } else if (nordictrackifitadbTreadmill) {
         return nordictrackifitadbTreadmill;
+    } else if (nordictrackifitadbRower) {
+        return nordictrackifitadbRower;
     } else if (nordictrackifitadbBike) {
         return nordictrackifitadbBike;
     } else if (nordictrackifitadbElliptical) {

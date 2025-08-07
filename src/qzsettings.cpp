@@ -762,6 +762,8 @@ const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordict
 const QString QZSettings::dircon_id = QStringLiteral("dircon_id");
 const QString QZSettings::proform_elliptical_ip = QStringLiteral("proform_elliptical_ip");
 const QString QZSettings::default_proform_elliptical_ip = QStringLiteral("");
+const QString QZSettings::proform_rower_ip = QStringLiteral("proform_rower_ip");
+const QString QZSettings::default_proform_rower_ip = QStringLiteral("");
 const QString QZSettings::antbike = QStringLiteral("antbike");
 const QString QZSettings::domyosbike_notfmts = QStringLiteral("domyosbike_notfmts");
 const QString QZSettings::gears_volume_debouncing = QStringLiteral("gears_volume_debouncing");
@@ -1622,6 +1624,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i},
     {QZSettings::dircon_id, QZSettings::default_dircon_id},
     {QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip},
+    {QZSettings::proform_rower_ip, QZSettings::default_proform_rower_ip},
     {QZSettings::antbike, QZSettings::default_antbike},
     {QZSettings::domyosbike_notfmts, QZSettings::default_domyosbike_notfmts},
     {QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing},

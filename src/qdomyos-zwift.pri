@@ -97,6 +97,7 @@ SOURCES += \
     $$PWD/devices/lifespantreadmill/lifespantreadmill.cpp \
     $$PWD/devices/moxy5sensor/moxy5sensor.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
+    $$PWD/devices/nordictrackifitadbrower/nordictrackifitadbrower.cpp \
     $$PWD/devices/pitpatbike/pitpatbike.cpp \
     $$PWD/devices/speraxtreadmill/speraxtreadmill.cpp \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
@@ -369,6 +370,7 @@ HEADERS += \
     $$PWD/devices/lifespantreadmill/lifespantreadmill.h \
     $$PWD/devices/moxy5sensor/moxy5sensor.h \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
+    $$PWD/devices/nordictrackifitadbrower/nordictrackifitadbrower.h \
     $$PWD/devices/pitpatbike/pitpatbike.h \
     $$PWD/devices/speraxtreadmill/speraxtreadmill.h \
     $$PWD/devices/sportsplusrower/sportsplusrower.h \

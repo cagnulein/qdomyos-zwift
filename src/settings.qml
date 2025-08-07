@@ -1196,6 +1196,7 @@ import Qt.labs.platform 1.1
             property int tile_auto_virtual_shifting_climb_order: 56
             property bool tile_auto_virtual_shifting_sprint_enabled: false
             property int tile_auto_virtual_shifting_sprint_order: 57
+            property string proform_rower_ip: ""
         }
 
         FontLoader {
@@ -8766,6 +8767,27 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.proform_rower_sport_rl = checked; window.settings_restart_to_apply = true; }
+                            }
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("ProForm Rower IP:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: proformRowerIPTextField
+                                    text: settings.proform_rower_ip
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: settings.proform_rower_ip = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.proform_rower_ip = proformRowerIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                }
                             }
                         }
                     }
