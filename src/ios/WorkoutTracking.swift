@@ -159,6 +159,13 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     @objc func stopWorkOut() {
         SwiftDebug.qtDebug("WorkoutTracking: Stop workout")
         
+        guard let workoutBuilder = self.workoutBuilder,
+              let startDate = workoutBuilder.startDate else {
+            SwiftDebug.qtDebug("WorkoutTracking: Cannot stop workout - no workout builder or start date available")
+            workoutInProgress = false
+            return
+        }
+        
         guard let quantityType = HKQuantityType.quantityType(
           forIdentifier: .activeEnergyBurned) else {
           return
@@ -171,7 +178,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         
         let sample = HKCumulativeQuantitySeriesSample(type: quantityType,
                                                       quantity: quantity,
-                                                      start: workoutBuilder.startDate!,
+                                                      start: startDate,
                                                       end: Date())
         
         workoutBuilder.add([sample]) {(success, error) in}
@@ -191,7 +198,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             
             let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
                                                           quantity: quantityMiles,
-                                                          start: workoutBuilder.startDate!,
+                                                          start: startDate,
                                                           end: Date())
             
             workoutBuilder.add([sampleDistance]) {(success, error) in
@@ -224,7 +231,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             let sampleSteps = HKCumulativeQuantitySeriesSample(
                 type: quantityTypeSteps,
                 quantity: stepsQuantity,  // Use your steps quantity here
-                start: workoutBuilder.startDate!,
+                start: startDate,
                 end: Date())
 
             // Guard to check if distance quantity type is available
@@ -236,7 +243,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             let sampleDistance = HKCumulativeQuantitySeriesSample(
                 type: quantityTypeDistance,
                 quantity: quantityMiles,
-                start: workoutBuilder.startDate!,
+                start: startDate,
                 end: Date())
 
             // Add both samples to the workout builder
