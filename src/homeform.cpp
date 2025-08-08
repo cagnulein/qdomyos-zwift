@@ -4772,7 +4772,7 @@ void homeform::Start_inner(bool send_event_to_device) {
     } else {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        if(h && !h->appleWatchAppInstalled())
+        if(h && !h->appleWatchAppInstalled() && bluetoothManager->device())
             h->startWorkout(bluetoothManager->device()->deviceType());
 #endif
 #endif
