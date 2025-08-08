@@ -231,6 +231,10 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
         if(ergModeNotSupported) {
+            if(requestResistance < 0) {
+                qDebug() << "Negative resistance detected:" << requestResistance << "using fallback value 1";
+                requestResistance = 1;
+            }
             requestResistance = _inclinationResistanceTable.estimateInclination(requestResistance) * 10.0;
             qDebug() << "ergMode Not Supported so the resistance will be" << requestResistance;
         } else {
