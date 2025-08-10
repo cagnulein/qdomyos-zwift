@@ -274,7 +274,10 @@ void bluetoothdevice::update_hr_from_external() {
     #ifdef Q_OS_IOS
     #ifndef IO_UNDER_QT
     lockscreen h;
-    h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), calories().value(), StepCount.value(), deviceType(), odometer() * 1000.0);
+    double kcal = calories().value();
+    if(kcal < 0)
+        kcal = 0;
+    h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(), deviceType(), odometer() * 1000.0);
     #endif
     #endif    
 }
