@@ -1112,10 +1112,18 @@ void homeform::pelotonWorkoutStarted(const QString &name, const QString &instruc
             setToastRequested(QStringLiteral("Peloton workout auto started skipping the intro! ") + name + QStringLiteral(" - ") + instructor);
             timer = (pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + 6;  // 6 average time to push skip intro and wait the 3 seconds of the intro
         }
-        if(timer <= 0)
+        if(timer <= 0) {
+            if(paused) {
+                qDebug() << "starting due to peloton auto start";
+                Start_inner(true);
+            }
             peloton_start_workout();
-        else {
+        } else {
             QTimer::singleShot(timer * 1000, this, [this]() {
+                if(paused) {
+                    qDebug() << "starting due to peloton auto start";
+                    Start_inner(true);
+                }
                 peloton_start_workout();
             });
         }
