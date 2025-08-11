@@ -68,6 +68,7 @@ ApplicationWindow {
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
     signal strava_connect_clicked()
+    signal google_health_connect_clicked()
     signal peloton_connect_clicked()
     signal loadSettings(url name)
     signal saveSettings(url name)
@@ -921,6 +922,23 @@ ApplicationWindow {
                     onClicked: {
                         stackView.push("WebStravaAuth.qml")
                         strava_connect_clicked()
+                        drawer.close()
+                    }
+                }
+
+                ItemDelegate {
+                    id: google_health_connect
+                    visible: Qt.platform.os === "android"
+                    Text {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "Connect to Google Health"
+                        color: Material.color(Material.Orange)
+                        font.pixelSize: 16
+                    }
+                    width: parent.width
+                    onClicked: {
+                        google_health_connect_clicked()
                         drawer.close()
                     }
                 }

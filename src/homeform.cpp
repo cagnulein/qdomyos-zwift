@@ -7,6 +7,9 @@
 #include "keepawakehelper.h"
 #include <jni.h>
 #include <QAndroidJniObject>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QJniObject>
+#endif
 #endif
 #include "fitdatabaseprocessor.h"
 #include "material.h"
@@ -592,6 +595,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
     QObject::connect(stack, SIGNAL(fit_save_clicked()), this, SLOT(fit_save_clicked()));
     QObject::connect(stack, SIGNAL(strava_connect_clicked()), this, SLOT(strava_connect_clicked()));
+    QObject::connect(stack, SIGNAL(google_health_connect_clicked()), this, SLOT(google_health_connect_clicked()));
     QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()), this,
                      SLOT(refresh_bluetooth_devices_clicked()));
     QObject::connect(home, SIGNAL(lap_clicked()), this, SLOT(Lap()));
@@ -7555,6 +7559,13 @@ void homeform::fit_save_clicked() {
                 emit stravaUploadRequestedChanged(true);
             }
         }
+        
+        // Upload to Google Health Connect if enabled
+#ifdef Q_OS_ANDROID
+        if (settings.value(QZSettings::google_health_enabled, QZSettings::default_google_health_enabled).toBool()) {
+            google_health_upload_workout();
+        }
+#endif
     }
 }
 
@@ -7565,6 +7576,89 @@ void homeform::strava_upload_file_prepare() {
     QByteArray fitfile = f.readAll();
     strava_upload_file(fitfile, lastFitFileSaved);
     f.close();
+}
+
+void homeform::google_health_upload_workout() {
+#ifdef Q_OS_ANDROID
+    qDebug() << "Uploading workout to Google Health Connect...";
+    
+    if (!bluetoothManager || !bluetoothManager->device()) {
+        qDebug() << "No bluetooth device available for Health Connect upload";
+        return;
+    }
+    
+    bluetoothdevice* dev = bluetoothManager->device();
+    QDateTime startTime = dev->sessionStart();
+    QDateTime endTime = QDateTime::currentDateTime();
+    
+    // Convert duration to milliseconds
+    qint64 durationMs = startTime.msecsTo(endTime);
+    double distance = dev->odometer();
+    double calories = dev->calories();
+    double avgHeartRate = dev->currentHeart().average();
+    double maxHeartRate = dev->currentHeart().max();
+    
+    QString activityType = "cycling"; // Default to cycling
+    if (qobject_cast<treadmill*>(dev)) {
+        activityType = "running";
+    } else if (qobject_cast<elliptical*>(dev)) {
+        activityType = "elliptical";
+    } else if (qobject_cast<rower*>(dev)) {
+        activityType = "rowing";
+    }
+    
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QJniObject javaActivity = QJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", 
+                                                                "activity", 
+                                                                "()Landroid/app/Activity;");
+    if (!javaActivity.isValid()) {
+        qDebug() << "Failed to get Android activity";
+        setToastRequested("Failed to upload to Google Health");
+        return;
+    }
+
+    // Create QJniObject for workout data
+    QJniObject::callStaticMethod<void>("org/cagnulein/qdomyoszwift/HealthConnectHelper",
+                                       "uploadWorkout",
+                                       "(Landroid/app/Activity;Ljava/lang/String;JJDDDDD)V",
+                                       javaActivity.object<jobject>(),
+                                       QJniObject::fromString(activityType).object<jstring>(),
+                                       static_cast<jlong>(startTime.toMSecsSinceEpoch()),
+                                       static_cast<jlong>(endTime.toMSecsSinceEpoch()),
+                                       static_cast<jdouble>(distance),
+                                       static_cast<jdouble>(calories),
+                                       static_cast<jdouble>(durationMs),
+                                       static_cast<jdouble>(avgHeartRate),
+                                       static_cast<jdouble>(maxHeartRate));
+#else
+    QAndroidJniObject javaActivity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", 
+                                                                              "activity", 
+                                                                              "()Landroid/app/Activity;");
+    if (!javaActivity.isValid()) {
+        qDebug() << "Failed to get Android activity";
+        setToastRequested("Failed to upload to Google Health");
+        return;
+    }
+
+    // Create QAndroidJniObject for workout data
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulein/qdomyoszwift/HealthConnectHelper",
+                                              "uploadWorkout",
+                                              "(Landroid/app/Activity;Ljava/lang/String;JJDDDDD)V",
+                                              javaActivity.object<jobject>(),
+                                              QAndroidJniObject::fromString(activityType).object<jstring>(),
+                                              static_cast<jlong>(startTime.toMSecsSinceEpoch()),
+                                              static_cast<jlong>(endTime.toMSecsSinceEpoch()),
+                                              static_cast<jdouble>(distance),
+                                              static_cast<jdouble>(calories),
+                                              static_cast<jdouble>(durationMs),
+                                              static_cast<jdouble>(avgHeartRate),
+                                              static_cast<jdouble>(maxHeartRate));
+#endif
+    
+    setToastRequested("Workout uploaded to Google Health");
+#else
+    qDebug() << "Google Health Connect upload is only available on Android";
+#endif
 }
 
 void homeform::gpx_open_clicked(const QUrl &fileName) {
@@ -8131,6 +8225,49 @@ void homeform::strava_connect_clicked() {
     strava->grant();
     // qDebug() <<
     // QAbstractOAuth2::post("https://www.strava.com/oauth/authorize?client_id=7976&scope=activity:read_all,activity:write&redirect_uri=http://127.0.0.1&response_type=code&approval_prompt=force");
+}
+
+void homeform::google_health_connect_clicked() {
+#ifdef Q_OS_ANDROID
+    qDebug() << "Connecting to Google Health Connect...";
+    
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QJniObject javaActivity = QJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", 
+                                                                "activity", 
+                                                                "()Landroid/app/Activity;");
+    if (!javaActivity.isValid()) {
+        qDebug() << "Failed to get Android activity";
+        setToastRequested("Failed to connect to Google Health");
+        return;
+    }
+
+    // Call our custom Java method to handle Health Connect
+    QJniObject::callStaticMethod<void>("org/cagnulein/qdomyoszwift/HealthConnectHelper",
+                                       "connectToHealthConnect",
+                                       "(Landroid/app/Activity;)V",
+                                       javaActivity.object<jobject>());
+#else
+    QAndroidJniObject javaActivity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", 
+                                                                              "activity", 
+                                                                              "()Landroid/app/Activity;");
+    if (!javaActivity.isValid()) {
+        qDebug() << "Failed to get Android activity";
+        setToastRequested("Failed to connect to Google Health");
+        return;
+    }
+
+    // Call our custom Java method to handle Health Connect
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulein/qdomyoszwift/HealthConnectHelper",
+                                              "connectToHealthConnect",
+                                              "(Landroid/app/Activity;)V",
+                                              javaActivity.object<jobject>());
+#endif
+    
+    setToastRequested("Google Health Connect requested");
+#else
+    qDebug() << "Google Health Connect is only available on Android";
+    setToastRequested("Google Health Connect is only available on Android");
+#endif
 }
 
 bool homeform::generalPopupVisible() { return m_generalPopupVisible; }

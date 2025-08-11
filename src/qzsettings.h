@@ -2658,6 +2658,12 @@ class QZSettings {
     static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
 
     /**
+     * @brief Enable Google Health Connect integration for Android
+     */
+    static const QString google_health_enabled;
+    static constexpr bool default_google_health_enabled = false;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
