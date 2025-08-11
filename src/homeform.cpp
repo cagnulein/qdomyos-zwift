@@ -7588,15 +7588,25 @@ void homeform::google_health_upload_workout() {
     }
     
     bluetoothdevice* dev = bluetoothManager->device();
-    QDateTime startTime = dev->sessionStart();
     QDateTime endTime = QDateTime::currentDateTime();
+    
+    // Get session data from Session list
+    QDateTime startTime = endTime;
+    double totalCalories = 0;
+    double totalDistance = dev->odometer();
+    double avgHeartRate = dev->currentHeart().average();
+    double maxHeartRate = dev->currentHeart().max();
+    
+    if (!Session.isEmpty()) {
+        startTime = Session.first().time;
+        // Sum up calories from all session entries
+        for (const SessionLine &s : qAsConst(Session)) {
+            totalCalories += s.calories;
+        }
+    }
     
     // Convert duration to milliseconds
     qint64 durationMs = startTime.msecsTo(endTime);
-    double distance = dev->odometer();
-    double calories = dev->calories();
-    double avgHeartRate = dev->currentHeart().average();
-    double maxHeartRate = dev->currentHeart().max();
     
     QString activityType = "cycling"; // Default to cycling
     if (qobject_cast<treadmill*>(dev)) {
@@ -7618,15 +7628,15 @@ void homeform::google_health_upload_workout() {
     }
 
     // Create QJniObject for workout data
-    QJniObject::callStaticMethod<void>("org/cagnulein/qdomyoszwift/HealthConnectHelper",
+    QJniObject::callStaticMethod<void>("HealthConnectHelper",
                                        "uploadWorkout",
                                        "(Landroid/app/Activity;Ljava/lang/String;JJDDDDD)V",
                                        javaActivity.object<jobject>(),
                                        QJniObject::fromString(activityType).object<jstring>(),
                                        static_cast<jlong>(startTime.toMSecsSinceEpoch()),
                                        static_cast<jlong>(endTime.toMSecsSinceEpoch()),
-                                       static_cast<jdouble>(distance),
-                                       static_cast<jdouble>(calories),
+                                       static_cast<jdouble>(totalDistance),
+                                       static_cast<jdouble>(totalCalories),
                                        static_cast<jdouble>(durationMs),
                                        static_cast<jdouble>(avgHeartRate),
                                        static_cast<jdouble>(maxHeartRate));
@@ -7641,15 +7651,15 @@ void homeform::google_health_upload_workout() {
     }
 
     // Create QAndroidJniObject for workout data
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulein/qdomyoszwift/HealthConnectHelper",
+    QAndroidJniObject::callStaticMethod<void>("HealthConnectHelper",
                                               "uploadWorkout",
                                               "(Landroid/app/Activity;Ljava/lang/String;JJDDDDD)V",
                                               javaActivity.object<jobject>(),
                                               QAndroidJniObject::fromString(activityType).object<jstring>(),
                                               static_cast<jlong>(startTime.toMSecsSinceEpoch()),
                                               static_cast<jlong>(endTime.toMSecsSinceEpoch()),
-                                              static_cast<jdouble>(distance),
-                                              static_cast<jdouble>(calories),
+                                              static_cast<jdouble>(totalDistance),
+                                              static_cast<jdouble>(totalCalories),
                                               static_cast<jdouble>(durationMs),
                                               static_cast<jdouble>(avgHeartRate),
                                               static_cast<jdouble>(maxHeartRate));
@@ -8242,7 +8252,7 @@ void homeform::google_health_connect_clicked() {
     }
 
     // Call our custom Java method to handle Health Connect
-    QJniObject::callStaticMethod<void>("org/cagnulein/qdomyoszwift/HealthConnectHelper",
+    QJniObject::callStaticMethod<void>("HealthConnectHelper",
                                        "connectToHealthConnect",
                                        "(Landroid/app/Activity;)V",
                                        javaActivity.object<jobject>());
@@ -8257,7 +8267,7 @@ void homeform::google_health_connect_clicked() {
     }
 
     // Call our custom Java method to handle Health Connect
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulein/qdomyoszwift/HealthConnectHelper",
+    QAndroidJniObject::callStaticMethod<void>("HealthConnectHelper",
                                               "connectToHealthConnect",
                                               "(Landroid/app/Activity;)V",
                                               javaActivity.object<jobject>());
