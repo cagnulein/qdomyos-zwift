@@ -1197,6 +1197,7 @@ import Qt.labs.platform 1.1
             property bool tile_auto_virtual_shifting_sprint_enabled: false
             property int tile_auto_virtual_shifting_sprint_order: 57
             property string proform_rower_ip: ""
+            property bool google_health_enabled: false
         }
 
         FontLoader {
@@ -9644,6 +9645,42 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Append the Date to the Strava Activity as a prefix only for non-peloton workout")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    Label {
+                        id: googleHealthLabel
+                        text: qsTr("Google Health")
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: googleHealthEnabledDelegate
+                        text: qsTr("Enable Google Health Integration")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.google_health_enabled
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.google_health_enabled = checked
+                    }
+
+                    Label {
+                        text: qsTr("Enable automatic upload of workout data to Google Health when you finish a workout. Works on Android devices only.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

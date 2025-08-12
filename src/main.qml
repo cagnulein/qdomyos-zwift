@@ -932,7 +932,7 @@ ApplicationWindow {
                     Text {
                         anchors.left: parent.left;
                         anchors.verticalCenter: parent.verticalCenter
-                        text: "Connect to Google Health"
+                        text: "Open Google Health Connect"
                         color: Material.color(Material.Orange)
                         font.pixelSize: 16
                     }

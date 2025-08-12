@@ -975,7 +975,7 @@ const QString QZSettings::tile_auto_virtual_shifting_sprint_order = QStringLiter
 const QString QZSettings::google_health_enabled = QStringLiteral("google_health_enabled");
 
 
-const uint32_t allSettingsCount = 798;
+const uint32_t allSettingsCount = 799;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
