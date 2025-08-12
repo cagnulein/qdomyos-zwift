@@ -438,9 +438,13 @@ jobs:
           qmake -v
           echo "Qt installation path:"
           which qmake
-          echo "Checking Qt SQL support:"
-          find $Qt5_DIR -name "*sql*" || true
-          find /home/runner/work/qdomyos-zwift/Qt -name "*sql*" || true
+          echo "Checking Qt SQL libraries:"
+          find /home/runner/work/qdomyos-zwift/Qt -name "*libQt5Sql*" || true
+          ls -la /home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/lib/*sql* || true
+          echo "Qt library path:"
+          echo $LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=/home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/lib:$LD_LIBRARY_PATH
+          echo "Updated LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
           echo "Starting build..."
           qmake
           make -j8
