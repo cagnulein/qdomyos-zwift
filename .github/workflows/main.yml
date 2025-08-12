@@ -416,8 +416,7 @@ jobs:
         with:
           version: '5.15.2'
           host: 'linux'
-          modules: 'qtnetworkauth qtcharts'
-          archives: 'qtbase qtsql'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtquickcontrols2 qtmultimedia qtlocation qtspeech qtwebsockets qtdeclarative'
           cache: 'true'
           cache-key-prefix: 'install-qt-action-linux'                    
 
