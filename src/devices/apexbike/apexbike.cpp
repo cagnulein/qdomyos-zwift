@@ -432,7 +432,6 @@ bool apexbike::connected() {
 }
 
 uint16_t apexbike::watts() {
-    // Calculate watts based on resistance and cadence using lookup table
     double resistance = Resistance.value();
     double cadence = Cadence.value();
     
@@ -440,45 +439,129 @@ uint16_t apexbike::watts() {
         return 0;
     }
     
-    // Data points from your table:
-    // Resistance 6, Cadence 92  -> 167W
-    // Resistance 1, Cadence 107 -> 130W  
-    // Resistance 6, Cadence 120 -> 218W
-    // Resistance 10, Cadence 69 -> 160W
-    // Resistance 20, Cadence 69 -> 244W
+    // Resistance-RPM-Power lookup table based on actual data
+    struct PowerPoint {
+        int resistance;
+        int rpm;
+        int power;
+    };
     
-    // Calculate base watts per resistance level at 80 RPM baseline
-    double baseWatts = 0;
-    if (resistance <= 1) {
-        baseWatts = 97.0; // Interpolated for R1 at 80rpm
-    } else if (resistance <= 6) {
-        // Linear interpolation between R1 and R6
-        double ratio = (resistance - 1) / 5.0;
-        baseWatts = 97.0 + ratio * (145.0 - 97.0); // R6 at 80rpm ≈ 145W
-    } else if (resistance <= 10) {
-        // Linear interpolation between R6 and R10  
-        double ratio = (resistance - 6) / 4.0;
-        baseWatts = 145.0 + ratio * (186.0 - 145.0); // R10 at 80rpm ≈ 186W
-    } else if (resistance <= 20) {
-        // Linear interpolation between R10 and R20
-        double ratio = (resistance - 10) / 10.0;
-        baseWatts = 186.0 + ratio * (283.0 - 186.0); // R20 at 80rpm ≈ 283W
-    } else {
-        // Extrapolate beyond R20
-        baseWatts = 283.0 + (resistance - 20) * 9.7; // ~9.7W per resistance level
+    static const PowerPoint powerTable[] = {
+        {1, 43, 52}, {1, 59, 71}, {1, 67, 82}, {1, 90, 109},
+        {2, 80, 106}, {2, 153, 204},
+        {3, 74, 108}, {3, 116, 169},
+        {4, 76, 120}, {4, 100, 159},
+        {5, 78, 132}, {5, 57, 97},
+        {6, 74, 136},
+        {7, 107, 209}, {7, 71, 138}, {7, 113, 219}, {7, 127, 246},
+        {8, 74, 154}, {8, 67, 139},
+        {9, 74, 163},
+        {10, 80, 184}, {10, 104, 240}, {10, 95, 220}, {10, 135, 312}, {10, 36, 84},
+        {11, 114, 278},
+        {12, 66, 168}, {12, 83, 212}, {12, 121, 310},
+        {13, 128, 343}, {13, 60, 162},
+        {14, 73, 203},
+        {15, 118, 344}, {15, 69, 202},
+        {16, 66, 200},
+        {17, 64, 202},
+        {18, 50, 165},
+        {19, 90, 307}
+    };
+    
+    const int tableSize = sizeof(powerTable) / sizeof(PowerPoint);
+    
+    // Find closest resistance level
+    int targetResistance = qRound(resistance);
+    
+    // Collect data points for the target resistance
+    QList<QPair<int, int>> resistanceData; // rpm, power pairs
+    for (int i = 0; i < tableSize; i++) {
+        if (powerTable[i].resistance == targetResistance) {
+            resistanceData.append(qMakePair(powerTable[i].rpm, powerTable[i].power));
+        }
     }
     
-    // Apply cadence multiplier (relative to 80 RPM baseline)
-    double cadenceMultiplier = cadence / 80.0;
-    
-    // Slight power curve - higher cadence gives diminishing returns
-    if (cadenceMultiplier > 1.0) {
-        cadenceMultiplier = 1.0 + (cadenceMultiplier - 1.0) * 0.85;
+    // If no exact resistance match, interpolate between adjacent resistance levels
+    if (resistanceData.isEmpty()) {
+        // Find the two closest resistance levels
+        int lowerRes = 0, upperRes = 20;
+        for (int i = 0; i < tableSize; i++) {
+            if (powerTable[i].resistance <= targetResistance && powerTable[i].resistance > lowerRes) {
+                lowerRes = powerTable[i].resistance;
+            }
+            if (powerTable[i].resistance >= targetResistance && powerTable[i].resistance < upperRes) {
+                upperRes = powerTable[i].resistance;
+            }
+        }
+        
+        // Get average power for each resistance level at current cadence
+        double lowerPower = 0, upperPower = 0;
+        int lowerCount = 0, upperCount = 0;
+        
+        for (int i = 0; i < tableSize; i++) {
+            if (powerTable[i].resistance == lowerRes) {
+                // Simple linear interpolation based on RPM
+                double factor = (double)cadence / powerTable[i].rpm;
+                lowerPower += powerTable[i].power * factor;
+                lowerCount++;
+            }
+            if (powerTable[i].resistance == upperRes) {
+                double factor = (double)cadence / powerTable[i].rpm;
+                upperPower += powerTable[i].power * factor;
+                upperCount++;
+            }
+        }
+        
+        if (lowerCount > 0) lowerPower /= lowerCount;
+        if (upperCount > 0) upperPower /= upperCount;
+        
+        // Interpolate between resistance levels
+        if (lowerRes == upperRes) {
+            return (uint16_t)qMax(0.0, lowerPower);
+        } else {
+            double ratio = (double)(targetResistance - lowerRes) / (upperRes - lowerRes);
+            double interpolatedPower = lowerPower + ratio * (upperPower - lowerPower);
+            return (uint16_t)qMax(0.0, interpolatedPower);
+        }
     }
     
-    double watts = baseWatts * cadenceMultiplier;
+    // If we have data for this resistance level, interpolate based on cadence
+    if (resistanceData.size() == 1) {
+        // Only one data point, scale linearly with cadence
+        double factor = (double)cadence / resistanceData[0].first;
+        return (uint16_t)qMax(0.0, resistanceData[0].second * factor);
+    }
     
-    return (uint16_t)qMax(0.0, watts);
+    // Multiple data points for this resistance - find the best interpolation
+    // Sort by RPM
+    std::sort(resistanceData.begin(), resistanceData.end());
+    
+    // Find the two closest RPM values
+    if (cadence <= resistanceData.first().first) {
+        // Below lowest RPM - extrapolate
+        double factor = (double)cadence / resistanceData.first().first;
+        return (uint16_t)qMax(0.0, resistanceData.first().second * factor);
+    }
+    
+    if (cadence >= resistanceData.last().first) {
+        // Above highest RPM - extrapolate
+        double factor = (double)cadence / resistanceData.last().first;
+        return (uint16_t)qMax(0.0, resistanceData.last().second * factor);
+    }
+    
+    // Interpolate between two closest RPM values
+    for (int i = 0; i < resistanceData.size() - 1; i++) {
+        if (cadence >= resistanceData[i].first && cadence <= resistanceData[i + 1].first) {
+            double ratio = (double)(cadence - resistanceData[i].first) / 
+                          (resistanceData[i + 1].first - resistanceData[i].first);
+            double interpolatedPower = resistanceData[i].second + 
+                                     ratio * (resistanceData[i + 1].second - resistanceData[i].second);
+            return (uint16_t)qMax(0.0, interpolatedPower);
+        }
+    }
+    
+    // Fallback - should not reach here
+    return 0;
 }
 
 void apexbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
