@@ -124,7 +124,7 @@ apt install qml-module*
 
 Please note :
 - Don't build the application with `-j4` option (this will fail)
-- Build operation is circa 45 minutes (subsequent builds are faster)
+- Build operation is circa 45 minutes (subsequent builds are faster) - Might take multiple hours on original Raspberry Pi Zero W including all dependencies.
 
 #### Test your installation 
 It is now time to check everything's fine 
