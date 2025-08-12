@@ -416,7 +416,7 @@ jobs:
         with:
           version: '5.15.2'
           host: 'linux'
-          modules: 'qtnetworkauth qtcharts'
+          modules: 'qtnetworkauth qtcharts qtsql'
           cache: 'true'
           cache-key-prefix: 'install-qt-action-linux'                    
 
