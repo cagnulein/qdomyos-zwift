@@ -438,17 +438,28 @@ jobs:
 
       - name: Compile Linux Desktop
         run: |
+          echo "=== DEBUGGING SQL LINKING ISSUE ==="
           echo "Qt version info:"
           qmake -v
           echo "Qt installation path:"
           which qmake
-          echo "Checking Qt SQL libraries:"
-          find /home/runner/work/qdomyos-zwift/Qt -name "*libQt5Sql*" || true
-          ls -la /home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/lib/*sql* || true
-          echo "Qt library path:"
+          
+          echo "Checking ACTION Qt SQL libraries:"
+          find /home/runner/work/qdomyos-zwift/Qt -name "*libQt5Sql*" || echo "No Action Qt SQL found"
+          
+          echo "Checking SYSTEM Qt SQL libraries:" 
+          find /usr -name "*libQt5Sql*" 2>/dev/null || echo "No System Qt SQL found"
+          
+          echo "Current library path:"
           echo $LD_LIBRARY_PATH
-          export LD_LIBRARY_PATH=/home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/lib:$LD_LIBRARY_PATH
+          
+          echo "Library search priority test:"
+          ldconfig -p | grep Qt5Sql || echo "No Qt5Sql in ldconfig"
+          
+          echo "Force using system Qt for SQL:"
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
           echo "Updated LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+          
           echo "Starting build..."
           qmake
           make -j8
