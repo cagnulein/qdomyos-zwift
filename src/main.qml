@@ -97,7 +97,9 @@ ApplicationWindow {
 
     FontLoader {
         id: emojiFont
-        source: "qrc:/fonts/NotoColorEmoji_WindowsCompatible.ttf"
+        source: Qt.platform.os === "android" ? 
+            "https://fonts.gstatic.com/s/notocoloremoji/v15/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabsE4tq3luCC7p-aXxcn.woff2" :
+            "fonts/NotoColorEmoji_WindowsCompatible.ttf"
     }
 
     Store {
