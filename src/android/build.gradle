@@ -127,6 +127,14 @@ android {
     aaptOptions {
         noCompress 'rcc'
     }
+    
+    // Fix duplicate file conflicts from Health Connect dependencies
+    packagingOptions {
+        exclude 'META-INF/kotlin-stdlib-jdk7.kotlin_module'
+        exclude 'META-INF/kotlin-stdlib-jdk8.kotlin_module'
+        exclude 'META-INF/kotlin-stdlib-common.kotlin_module'
+        exclude 'META-INF/kotlin-stdlib.kotlin_module'
+    }
 
     defaultConfig {
         resConfig "en"
