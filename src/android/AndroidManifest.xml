@@ -7,6 +7,11 @@
     <!-- The following comment will be replaced upon deployment with default features based on the dependencies of the application.
 	      Remove the comment if you do not require these default features. -->
 			<!-- %%INSERT_FEATURES -->
+			
+    <!-- Health Connect visibility declaration -->
+    <queries>
+        <package android:name="com.google.android.apps.healthdata" />
+    </queries>
 
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
 	 <application android:hardwareAccelerated="true" android:debuggable="false" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="qdomyos-zwift" android:extractNativeLibs="true" android:icon="@drawable/icon" android:usesCleartextTraffic="true">
@@ -75,6 +80,17 @@
 					<meta-data android:name="android.app.extract_android_style" android:value="default"/>
                                 <!-- extract android style -->
 				</activity>
+				
+				<!-- Health Connect permission activity -->
+				<activity-alias
+				    android:name="ViewPermissionUsageActivity"
+				    android:exported="true"
+				    android:targetActivity=".CustomQtActivity"
+				    android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+				    <intent-filter>
+				        <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+				    </intent-filter>
+				</activity-alias>
 				<service
 				    android:name=".ForegroundService"
 					 android:enabled="true"
