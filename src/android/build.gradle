@@ -6,8 +6,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.22'
+        classpath 'com.android.tools.build:gradle:8.1.4'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.22'
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.4'
     }
 }
@@ -65,7 +65,7 @@ dependencies {
     implementation 'androidx.health.connect:connect-client:1.1.0-alpha11'
     
     // Kotlin standard library
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.7.22'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
 }
 
 import org.apache.tools.ant.taskdefs.condition.Os
@@ -102,9 +102,9 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
 
-    compileSdkVersion 33
+    compileSdkVersion 35
 
-    buildToolsVersion '33.0.2'
+    buildToolsVersion '35.0.0'
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
@@ -151,9 +151,8 @@ android {
 
     defaultConfig {
         resConfig "en"
-                  compileSdkVersion 33
-		  minSdkVersion = 28
-                  targetSdkVersion = 36
+        minSdkVersion 28
+        targetSdkVersion 35
     }
 
 tasks.all { task ->
