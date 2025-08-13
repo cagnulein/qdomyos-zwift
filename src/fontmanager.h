@@ -12,7 +12,7 @@
 class FontManager : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(bool emojiFont Ready READ isEmojiFontReady NOTIFY emojiFontReadyChanged)
+    Q_PROPERTY(bool emojiFontReady READ isEmojiFontReady NOTIFY emojiFontReadyChanged)
     Q_PROPERTY(QString emojiFontFamily READ emojiFontFamily NOTIFY emojiFontFamilyChanged)
 
 public:
