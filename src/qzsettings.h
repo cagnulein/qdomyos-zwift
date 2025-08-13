@@ -1873,6 +1873,9 @@ class QZSettings {
     static const QString ftms_rower;
     static const QString default_ftms_rower;
 
+    static const QString ftms_elliptical;
+    static const QString default_ftms_elliptical;
+
     static const QString zwift_workout_ocr;
     static constexpr bool default_zwift_workout_ocr = false;
 
