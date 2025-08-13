@@ -216,6 +216,7 @@ uint16_t ftmsbike::wattsFromResistance(double resistance) {
     return _ergTable.estimateWattage(Cadence.value(), resistance);
 }
 
+
 resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
     return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
@@ -1118,8 +1119,14 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         update_hr_from_external();
     }
 
-    if(resistance_received && requestPower == -1)
-        _inclinationResistanceTable.collectData(Inclination.value(), Resistance.value(), m_watt.value());
+    if(resistance_received && requestPower == -1) {
+        // Apply the same gears modification as in ftmsCharacteristicChanged
+        double gears_modified_inclination = Inclination.value();
+        if (gears() != 0) {
+            gears_modified_inclination += (gears() * GEARS_SLOPE_MULTIPLIER / 100.0);
+        }
+        _inclinationResistanceTable.collectData(gears_modified_inclination, Resistance.value(), m_watt.value());
+    }
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -1339,7 +1346,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
 
             if (gears() != 0) {
-                slope += (gears() * 50);
+                slope += (gears() * GEARS_SLOPE_MULTIPLIER);
             }
 
             if(min_inclination > (((double)slope) / 100.0)) {

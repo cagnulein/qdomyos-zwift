@@ -1196,8 +1196,9 @@ import Qt.labs.platform 1.1
             property int tile_auto_virtual_shifting_climb_order: 56
             property bool tile_auto_virtual_shifting_sprint_enabled: false
             property int tile_auto_virtual_shifting_sprint_order: 57
-            property string proform_rower_ip: ""
-            property bool google_health_enabled: false
+            property string proform_rower_ip: ""            
+            property string ftms_elliptical: "Disabled"
+            property bool google_health_enabled: false            
         }
 
         FontLoader {
@@ -8878,6 +8879,51 @@ import Qt.labs.platform 1.1
                                 }
                             }
                         }
+                    }
+
+                    Label {
+                        text: qsTr("FTMS Elliptical:")
+                        Layout.fillWidth: true
+                    }
+                    RowLayout {
+                        spacing: 10
+                        ComboBox {
+                            id: ftmsEllipticalTextField
+                            model: rootItem.bluetoothDevices
+                            displayText: settings.ftms_elliptical
+                            Layout.fillHeight: false
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + ftmsEllipticalTextField.currentIndex)
+                                displayText = ftmsEllipticalTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ftms_elliptical = ftmsEllipticalTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Button {
+                        text: "Refresh Devices List"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: refresh_bluetooth_devices_clicked();
+                    }
+
+                    Label {
+                        text: qsTr("Allows you to force QZ to connect to your FTMS Elliptical. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is Disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     AccordionElement {

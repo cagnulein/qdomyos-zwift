@@ -416,7 +416,7 @@ jobs:
         with:
           version: '5.15.2'
           host: 'linux'
-          modules: 'qtnetworkauth qtcharts'
+          modules: 'qtnetworkauth qtcharts qtsql'
           cache: 'true'
           cache-key-prefix: 'install-qt-action-linux'                    
 
@@ -1681,6 +1681,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-22.04 
     #if: github.event_name == 'schedule'
+    if: always()
     needs: [linux-x86-build, window-msvc2019-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]
     steps:
       - name: Checkout code
