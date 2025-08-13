@@ -1199,11 +1199,10 @@ import Qt.labs.platform 1.1
             property string proform_rower_ip: ""
         }
 
-        FontLoader {
-            id: emojiFont
-            source: Qt.platform.os === "android" ? 
-                "https://fonts.gstatic.com/s/notocoloremoji/v15/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabsE4tq3luCC7p-aXxcn.woff2" :
-                "fonts/NotoColorEmoji_WindowsCompatible.ttf"
+        Component.onCompleted: {
+            if (Qt.platform.os === "android") {
+                fontManager.initializeEmojiFont()
+            }
         }
 
         function paddingZeros(text, limit) {

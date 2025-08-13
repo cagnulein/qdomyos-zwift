@@ -28,6 +28,7 @@
 
 #include "mqttpublisher.h"
 #include "androidstatusbar.h"
+#include "fontmanager.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -798,6 +799,10 @@ int main(int argc, char *argv[]) {
 #endif
     {
         AndroidStatusBar::registerQmlType();
+        
+#ifdef Q_OS_ANDROID
+        FontManager fontManager;
+#endif
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(
@@ -819,6 +824,9 @@ int main(int argc, char *argv[]) {
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(true));
 #else
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(false));
+#endif
+#ifdef Q_OS_ANDROID
+        engine.rootContext()->setContextProperty("fontManager", &fontManager);
 #endif
         engine.load(url);
         homeform *h = new homeform(&engine, &bl);
