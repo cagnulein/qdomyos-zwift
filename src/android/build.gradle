@@ -1,11 +1,13 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        gradlePluginPortal()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.22'
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.4'
     }
 }
@@ -16,11 +18,12 @@ plugins {
 
 repositories {
     google()
-    jcenter()
+    mavenCentral()
     maven { url 'https://jitpack.io' }
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 apply plugin: 'com.google.protobuf'
 
 def amazon = System.getenv('AMAZON')
@@ -58,14 +61,11 @@ dependencies {
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.60'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
     
-    // Google Health Connect with proper conflict resolution
-    implementation('androidx.health.connect:connect-client:1.1.0-alpha11') {
-        // Force consistent Kotlin versions
-        exclude group: 'org.jetbrains.kotlin'
-    }
+    // Google Health Connect - stable version
+    implementation 'androidx.health.connect:connect-client:1.1.0-alpha11'
     
-    // Force consistent Kotlin stdlib version
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
+    // Kotlin standard library
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.7.22'
 }
 
 import org.apache.tools.ant.taskdefs.condition.Os
@@ -102,13 +102,17 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
 
-    compileSdkVersion androidCompileSdkVersion.toInteger()
+    compileSdkVersion 33
 
-    buildToolsVersion '29.0.2'
+    buildToolsVersion '33.0.2'
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    
+    kotlinOptions {
+        jvmTarget = '11'
     }
 
     sourceSets {
@@ -144,14 +148,6 @@ android {
         exclude 'META-INF/kotlinx-coroutines-core.kotlin_module'
     }
     
-    // Force resolution of Kotlin conflicts
-    configurations.all {
-        resolutionStrategy {
-            force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
-            force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22'  
-            force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
-        }
-    }
 
     defaultConfig {
         resConfig "en"
