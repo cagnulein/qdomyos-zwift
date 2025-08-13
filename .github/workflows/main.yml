@@ -433,6 +433,15 @@ jobs:
             export QT_SELECT=qt5
             qmake
             make -j8
+            echo "Merging ACTION Qt websockets-private into SYSTEM Qt:"
+            sudo cp -r /home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/mkspecs/modules/*websockets* /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/ || echo "websockets mkspecs copy failed"
+            sudo cp -r /home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/include/QtWebSockets/*/QtWebSockets/private/* /usr/include/x86_64-linux-gnu/qt5/QtWebSockets/private/ || echo "websockets private headers copy failed"
+            echo "Now building with SYSTEM Qt that has websockets-private:"
+            export PATH=/usr/bin:$PATH
+            export QT_SELECT=qt5
+            make clean
+            /usr/bin/qmake 
+            make -j8
             make install
             cd ../..
 
@@ -456,12 +465,19 @@ jobs:
           echo "Library search priority test:"
           ldconfig -p | grep Qt5Sql || echo "No Qt5Sql in ldconfig"
           
-          echo "Force using system Qt for SQL:"
-          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+          echo "Using SYSTEM Qt completely to fix SQL linking:"
+          export PATH=/usr/bin:$PATH
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+          export QT_SELECT=qt5
+          export QTDIR=/usr
+          echo "Updated PATH: $PATH"
           echo "Updated LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+          echo "Using system qmake:"
+          which qmake
+          /usr/bin/qmake -v
           
-          echo "Starting build..."
-          qmake
+          echo "Starting build with SYSTEM Qt:"
+          /usr/bin/qmake
           make -j8
 
       - name: Archive linux-desktop binary
