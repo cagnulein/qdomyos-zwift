@@ -286,6 +286,8 @@
 		8752C0E92B15D85600C3D1A5 /* ios_eliteariafan.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8752C0E62B15D85600C3D1A5 /* ios_eliteariafan.mm */; };
 		87540FAD2848FD70005E0D44 /* libqtexttospeech_speechios.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87540FAC2848FD70005E0D44 /* libqtexttospeech_speechios.a */; };
 		8754D24C27F786F0003D7054 /* virtualrower.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8754D24B27F786F0003D7054 /* virtualrower.swift */; };
+		8755E5D42E4E260B006A12E4 /* moc_fontmanager.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8755E5D32E4E260B006A12E4 /* moc_fontmanager.cpp */; };
+		8755E5D52E4E260B006A12E4 /* fontmanager.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8755E5D22E4E260B006A12E4 /* fontmanager.cpp */; };
 		87586A4125B8340E00A243C4 /* proformbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87586A4025B8340E00A243C4 /* proformbike.cpp */; };
 		87586A4325B8341B00A243C4 /* moc_proformbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87586A4225B8341B00A243C4 /* moc_proformbike.cpp */; };
 		875CA9462D0C740000667EE6 /* moc_kineticinroadbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 875CA9452D0C740000667EE6 /* moc_kineticinroadbike.cpp */; };
@@ -1207,6 +1209,9 @@
 		8752C0E72B15D85600C3D1A5 /* ios_eliteariafan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ios_eliteariafan.h; path = ../src/ios/ios_eliteariafan.h; sourceTree = "<group>"; };
 		87540FAC2848FD70005E0D44 /* libqtexttospeech_speechios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtexttospeech_speechios.a; path = ../../Qt/5.15.2/ios/plugins/texttospeech/libqtexttospeech_speechios.a; sourceTree = "<group>"; };
 		8754D24B27F786F0003D7054 /* virtualrower.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = virtualrower.swift; path = ../src/ios/virtualrower.swift; sourceTree = "<group>"; };
+		8755E5D12E4E260B006A12E4 /* fontmanager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fontmanager.h; path = ../src/fontmanager.h; sourceTree = SOURCE_ROOT; };
+		8755E5D22E4E260B006A12E4 /* fontmanager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fontmanager.cpp; path = ../src/fontmanager.cpp; sourceTree = SOURCE_ROOT; };
+		8755E5D32E4E260B006A12E4 /* moc_fontmanager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fontmanager.cpp; sourceTree = "<group>"; };
 		87586A3F25B8340D00A243C4 /* proformbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformbike.h; path = ../src/devices/proformbike/proformbike.h; sourceTree = "<group>"; };
 		87586A4025B8340E00A243C4 /* proformbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformbike.cpp; path = ../src/devices/proformbike/proformbike.cpp; sourceTree = "<group>"; };
 		87586A4225B8341B00A243C4 /* moc_proformbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformbike.cpp; sourceTree = "<group>"; };
@@ -2268,6 +2273,9 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				8755E5D12E4E260B006A12E4 /* fontmanager.h */,
+				8755E5D22E4E260B006A12E4 /* fontmanager.cpp */,
+				8755E5D32E4E260B006A12E4 /* moc_fontmanager.cpp */,
 				878521D12E44B26600922796 /* moc_nordictrackifitadbrower.cpp */,
 				878521D22E44B26600922796 /* nordictrackifitadbrower.h */,
 				878521D32E44B26600922796 /* nordictrackifitadbrower.cpp */,
@@ -3918,6 +3926,8 @@
 				87440FBF2640292900E4DC0B /* moc_fitplusbike.cpp in Compile Sources */,
 				8768C8CA2BBC11C80099DBE1 /* sockets.c in Compile Sources */,
 				87B617EC25F25FED0094A1CB /* screencapture.cpp in Compile Sources */,
+				8755E5D42E4E260B006A12E4 /* moc_fontmanager.cpp in Compile Sources */,
+				8755E5D52E4E260B006A12E4 /* fontmanager.cpp in Compile Sources */,
 				876F9B5F275385C9006AE6FA /* fitmetria_fanfit.cpp in Compile Sources */,
 				FB2566376FE0FB17ED3DE94D /* FitDeveloperField.mm in Compile Sources */,
 				43FA2D5EA73D9C89F1A333B6 /* FitEncode.mm in Compile Sources */,

@@ -1200,10 +1200,6 @@ import Qt.labs.platform 1.1
             property string ftms_elliptical: "Disabled"
         }
 
-        FontLoader {
-            id: emojiFont
-            source: "qrc:/fonts/NotoColorEmoji_WindowsCompatible.ttf"
-        }
 
         function paddingZeros(text, limit) {
           if (text.length < limit) {

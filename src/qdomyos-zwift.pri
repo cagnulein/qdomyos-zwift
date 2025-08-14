@@ -978,11 +978,13 @@ ios {
 
 HEADERS += \
     mqttpublisher.h \
-    androidstatusbar.h
+    androidstatusbar.h \
+    fontmanager.h
 
 SOURCES += \
     mqttpublisher.cpp \
-    androidstatusbar.cpp
+    androidstatusbar.cpp \
+    fontmanager.cpp
 
 include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes

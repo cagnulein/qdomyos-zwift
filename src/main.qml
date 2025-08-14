@@ -95,10 +95,6 @@ ApplicationWindow {
         property string peloton_password: "password"
     }
 
-    FontLoader {
-        id: emojiFont
-        source: "qrc:/fonts/NotoColorEmoji_WindowsCompatible.ttf"
-    }
 
     Store {
         id: iapStore

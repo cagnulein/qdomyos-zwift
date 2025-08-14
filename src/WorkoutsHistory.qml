@@ -7,13 +7,16 @@ import Qt.labs.calendar 1.0
 Page {
     id: workoutHistoryPage
 
-    FontLoader {
-        id: emojiFont
-        source: "qrc:/fonts/NotoColorEmoji_WindowsCompatible.ttf"
-    }
 
     // Signal for chart preview
     signal fitfile_preview_clicked(var url)
+
+    // Helper function to wrap text with emoji font only on Android
+    function wrapEmoji(emoji) {
+        return Qt.platform.os === "android" ? 
+            '<font face="' + fontManager.emojiFontFamily + '">' + emoji + '</font>' : 
+            emoji;
+    }
 
     // Sport type to icon mapping (using FIT_SPORT values)
     function getSportIcon(sport) {
@@ -62,7 +65,7 @@ Page {
                 
                 contentItem: Text {
                     text: Qt.platform.os === "android" ? 
-                          '<font face="' + emojiFont.name + '">📅</font>' : 
+                          wrapEmoji("📅") : 
                           "📅"
                     textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                     font.pixelSize: 20
@@ -191,7 +194,7 @@ Page {
 
                         Text {
                             text: Qt.platform.os === "android" ? 
-                                  '<font face="' + emojiFont.name + '">🗑️</font> Delete' : 
+                                  wrapEmoji("🗑️") + " Delete" : 
                                   "🗑️ Delete"
                             textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                             color: "white"
@@ -247,7 +250,7 @@ Page {
                             
                             contentItem: Text {
                                 text: Qt.platform.os === "android" ? 
-                                      '<font face="' + emojiFont.name + '">🌐</font>' : 
+                                      wrapEmoji("🌐") : 
                                       "🌐"
                                 textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                                 font.pixelSize: 16
@@ -275,7 +278,7 @@ Page {
                             
                             contentItem: Text {
                                 text: Qt.platform.os === "android" ? 
-                                      '<font face="' + emojiFont.name + '">📋</font>' : 
+                                      wrapEmoji("📋") : 
                                       "📋"
                                 textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                                 font.pixelSize: 16
@@ -309,7 +312,7 @@ Page {
                             Layout.alignment: Qt.AlignVCenter
                             Text {
                                 text: Qt.platform.os === "android" ? 
-                                      '<font face="' + emojiFont.name + '">' + getSportIcon(sport) + '</font>' : 
+                                      wrapEmoji(getSportIcon(sport)) : 
                                       getSportIcon(sport)
                                 textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                                 font.pixelSize: 32
@@ -379,7 +382,7 @@ Page {
 
                                 Text {
                                     text: Qt.platform.os === "android" ? 
-                                          '<font face="' + emojiFont.name + '">🔥</font> ' + Math.round(calories) + ' kcal' : 
+                                          wrapEmoji("🔥") + " " + Math.round(calories) + " kcal" : 
                                           "🔥 " + Math.round(calories) + " kcal"
                                     textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                                 }
@@ -479,10 +482,10 @@ Page {
                 Layout.preferredWidth: 300
                 Layout.preferredHeight: 120
                 text: Qt.platform.os === "android" ? 
-                      '<font face="' + emojiFont.name + '">' + 
-                      (trainingProgramDialog.isSuccess ? '✅' : '❌') + 
-                      '</font> ' + trainingProgramDialog.message : 
-                      (trainingProgramDialog.isSuccess ? '✅ ' : '❌ ') + trainingProgramDialog.message
+                      wrapEmoji("🔥") + " " + 
+                      wrapEmoji(trainingProgramDialog.isSuccess ? '✅' : '❌') + 
+                      " " + trainingProgramDialog.message : 
+                      "🔥 " + (trainingProgramDialog.isSuccess ? '✅ ' : '❌ ') + trainingProgramDialog.message
                 textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
@@ -555,11 +558,11 @@ Page {
                 // Fire emoji with animation
                 Text {
                     text: Qt.platform.os === "android" ? (
-                          workoutModel && workoutModel.currentStreak >= 365 ? '<font face="' + emojiFont.name + '">👑🔥</font>' :
-                          workoutModel && workoutModel.currentStreak >= 180 ? '<font face="' + emojiFont.name + '">🎖️🔥</font>' :
-                          workoutModel && workoutModel.currentStreak >= 90 ? '<font face="' + emojiFont.name + '">🦁🔥</font>' :
-                          workoutModel && workoutModel.currentStreak >= 30 ? '<font face="' + emojiFont.name + '">🎊🔥</font>' :
-                          workoutModel && workoutModel.currentStreak >= 7 ? '<font face="' + emojiFont.name + '">🏆🔥</font>' : '<font face="' + emojiFont.name + '">🔥</font>'
+                          workoutModel && workoutModel.currentStreak >= 365 ? wrapEmoji("👑🔥") :
+                          workoutModel && workoutModel.currentStreak >= 180 ? wrapEmoji("🎖️🔥") :
+                          workoutModel && workoutModel.currentStreak >= 90 ? wrapEmoji("🦁🔥") :
+                          workoutModel && workoutModel.currentStreak >= 30 ? wrapEmoji("🎊🔥") :
+                          workoutModel && workoutModel.currentStreak >= 7 ? wrapEmoji("🏆🔥") : wrapEmoji("🔥")
                           ) : (
                           workoutModel && workoutModel.currentStreak >= 365 ? "👑🔥" :
                           workoutModel && workoutModel.currentStreak >= 180 ? "🎖️🔥" :
@@ -607,11 +610,11 @@ Page {
                 // Another fire emoji
                 Text {
                     text: Qt.platform.os === "android" ? (
-                          workoutModel && workoutModel.currentStreak >= 365 ? '<font face="' + emojiFont.name + '">🔥👑</font>' :
-                          workoutModel && workoutModel.currentStreak >= 180 ? '<font face="' + emojiFont.name + '">🔥🎖️</font>' :
-                          workoutModel && workoutModel.currentStreak >= 90 ? '<font face="' + emojiFont.name + '">🔥🦁</font>' :
-                          workoutModel && workoutModel.currentStreak >= 30 ? '<font face="' + emojiFont.name + '">🔥🎊</font>' :
-                          workoutModel && workoutModel.currentStreak >= 7 ? '<font face="' + emojiFont.name + '">🔥🏆</font>' : '<font face="' + emojiFont.name + '">🔥</font>'
+                          workoutModel && workoutModel.currentStreak >= 365 ? wrapEmoji("🔥👑") :
+                          workoutModel && workoutModel.currentStreak >= 180 ? wrapEmoji("🔥🎖️") :
+                          workoutModel && workoutModel.currentStreak >= 90 ? wrapEmoji("🔥🦁") :
+                          workoutModel && workoutModel.currentStreak >= 30 ? wrapEmoji("🔥🎊") :
+                          workoutModel && workoutModel.currentStreak >= 7 ? wrapEmoji("🔥🏆") : wrapEmoji("🔥")
                           ) : (
                           workoutModel && workoutModel.currentStreak >= 365 ? "🔥👑" :
                           workoutModel && workoutModel.currentStreak >= 180 ? "🔥🎖️" :
