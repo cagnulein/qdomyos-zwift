@@ -476,8 +476,15 @@ jobs:
           which qmake
           /usr/bin/qmake -v
           
-          echo "Starting build with SYSTEM Qt:"
+          echo "CLEAN and regenerate Makefile with SYSTEM Qt:"
+          make clean || echo "No Makefile to clean"
+          rm -f Makefile qdomyos-zwift.pro.user .qmake.stash
+          find . -name "Makefile*" -delete
+          find . -name "*.o" -delete
+          echo "Regenerating with system Qt:"
+          /usr/bin/qmake -v
           /usr/bin/qmake
+          echo "Starting build with freshly generated Makefile:"
           make -j8
 
       - name: Archive linux-desktop binary
