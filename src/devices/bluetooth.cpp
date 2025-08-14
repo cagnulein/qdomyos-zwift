@@ -1034,7 +1034,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(trxappgateusbRower);
             } else if (((b.name().toUpper().startsWith(QStringLiteral("FAL-SPORTS")) && !toorx_bike) ||
                        (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) && iconsole_elliptical)) &&
-                       !trxappgateusbElliptical && ftms_bike.contains(QZSettings::default_ftms_bike) && filter) {
+                       !trxappgateusbElliptical && ftms_bike.contains(QZSettings::default_ftms_bike) && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 trxappgateusbElliptical = new trxappgateusbelliptical(noWriteResistance, noHeartService,
@@ -2444,7 +2444,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("DKN RUN"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ADIDAS "))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("REEBOK")))) &&
-                       !trxappgateusb && !trxappgateusbBike && !toorx_bike && !toorx_ftms && !toorx_ftms_treadmill && !iconsole_elliptical && !iconsole_rower &&
+                       !trxappgateusb && !trxappgateusbBike && !toorx_bike && !toorx_ftms && !toorx_ftms_treadmill && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) &&
                        filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2473,7 +2473,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                           (b.name().toUpper().startsWith(QStringLiteral("FAL-SPORTS")) && toorx_bike) ||
                           b.name().toUpper().startsWith(QStringLiteral("DKN MOTION"))) &&
                          (toorx_bike))) &&
-                       !trxappgateusb && !toorx_ftms && !toorx_ftms_treadmill && !trxappgateusbBike && filter && !iconsole_elliptical && !iconsole_rower) {
+                       !trxappgateusb && !toorx_ftms && !toorx_ftms_treadmill && !trxappgateusbBike && filter && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical)) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 trxappgateusbBike =
