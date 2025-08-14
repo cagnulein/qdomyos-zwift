@@ -95,11 +95,6 @@ ApplicationWindow {
         property string peloton_password: "password"
     }
 
-    Component.onCompleted: {
-        if (Qt.platform.os === "android") {
-            fontManager.initializeEmojiFont()
-        }
-    }
 
     Store {
         id: iapStore

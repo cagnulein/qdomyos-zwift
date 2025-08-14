@@ -1199,11 +1199,6 @@ import Qt.labs.platform 1.1
             property string proform_rower_ip: ""
         }
 
-        Component.onCompleted: {
-            if (Qt.platform.os === "android") {
-                fontManager.initializeEmojiFont()
-            }
-        }
 
         function paddingZeros(text, limit) {
           if (text.length < limit) {

@@ -7,11 +7,6 @@ import Qt.labs.calendar 1.0
 Page {
     id: workoutHistoryPage
 
-    Component.onCompleted: {
-        if (Qt.platform.os === "android") {
-            fontManager.initializeEmojiFont()
-        }
-    }
 
     // Signal for chart preview
     signal fitfile_preview_clicked(var url)
