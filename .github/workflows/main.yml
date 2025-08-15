@@ -411,7 +411,7 @@ jobs:
       - name: Install system Qt5 packages 
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5-dev libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev libqt5sql5 libqt5sql5-sqlite qtmultimedia5-dev qtdeclarative5-dev libqt5texttospeech5-dev qtlocation5-dev qtwebengine5-dev qml-module-qtquick-controls2 qml-module-qtlocation qml-module-qtpositioning libqt5quickcontrols2-5
 
-      - name: Install Qt via action for qthttpserver compatibility
+      - name: Install Qt via action for qthttpserver websockets-private
         uses: jurplel/install-qt-action@v3
         with:
           version: '5.15.2'
@@ -424,67 +424,32 @@ jobs:
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
-      - name: Build qthttpserver
+      - name: Build qthttpserver with hybrid approach
         run: |
             cd src/qthttpserver 
-            echo "Qt version info for qthttpserver build:"
-            qmake -v
+            echo "Building qthttpserver with jurplel Qt for websockets-private:"
+            export PATH=/home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/bin:$PATH
+            export LD_LIBRARY_PATH=/home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/lib:$LD_LIBRARY_PATH
             which qmake
-            export QT_SELECT=qt5
+            qmake -v
             qmake
-            make -j8
-            echo "Merging ACTION Qt websockets-private into SYSTEM Qt:"
-            sudo cp -r /home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/mkspecs/modules/*websockets* /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/ || echo "websockets mkspecs copy failed"
-            sudo cp -r /home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/include/QtWebSockets/*/QtWebSockets/private/* /usr/include/x86_64-linux-gnu/qt5/QtWebSockets/private/ || echo "websockets private headers copy failed"
-            echo "Now building with SYSTEM Qt that has websockets-private:"
-            export PATH=/usr/bin:$PATH
-            export QT_SELECT=qt5
-            make clean
-            /usr/bin/qmake 
             make -j8
             make install
             cd ../..
 
       - name: Compile Linux Desktop
         run: |
-          echo "=== DEBUGGING SQL LINKING ISSUE ==="
-          echo "Qt version info:"
-          qmake -v
-          echo "Qt installation path:"
-          which qmake
-          
-          echo "Checking ACTION Qt SQL libraries:"
-          find /home/runner/work/qdomyos-zwift/Qt -name "*libQt5Sql*" || echo "No Action Qt SQL found"
-          
-          echo "Checking SYSTEM Qt SQL libraries:" 
-          find /usr -name "*libQt5Sql*" 2>/dev/null || echo "No System Qt SQL found"
-          
-          echo "Current library path:"
-          echo $LD_LIBRARY_PATH
-          
-          echo "Library search priority test:"
-          ldconfig -p | grep Qt5Sql || echo "No Qt5Sql in ldconfig"
-          
-          echo "Using SYSTEM Qt completely to fix SQL linking:"
+          echo "Building main app with system Qt to fix SQL linking:"
+          export QT_SELECT=qt5
           export PATH=/usr/bin:$PATH
           export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
-          export QT_SELECT=qt5
-          export QTDIR=/usr
-          echo "Updated PATH: $PATH"
-          echo "Updated LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
-          echo "Using system qmake:"
           which qmake
-          /usr/bin/qmake -v
-          
-          echo "CLEAN and regenerate Makefile with SYSTEM Qt:"
-          make clean || echo "No Makefile to clean"
-          rm -f Makefile qdomyos-zwift.pro.user .qmake.stash
-          find . -name "Makefile*" -delete
-          find . -name "*.o" -delete
-          echo "Regenerating with system Qt:"
-          /usr/bin/qmake -v
-          /usr/bin/qmake
-          echo "Starting build with freshly generated Makefile:"
+          qmake -v
+          echo "Checking SQL libraries:"
+          ldconfig -p | grep Qt5Sql
+          echo "Clean build to avoid mixed Qt libraries:"
+          make clean || true
+          qmake
           make -j8
 
       - name: Archive linux-desktop binary
