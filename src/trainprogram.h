@@ -169,6 +169,9 @@ private slots:
     int lastStepTimestampChanged = 0;
     double lastCurrentStepDistance = 0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
+    
+    int64_t currentTimerJitter = 0;
+    QDateTime lastSchedulerCall = QDateTime::currentDateTime();
 
     QUdpSocket* pelotonOCRsocket = nullptr;
     void pelotonOCRcomputeTime(QString t);
