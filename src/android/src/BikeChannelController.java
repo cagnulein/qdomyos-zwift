@@ -15,6 +15,7 @@ import com.dsi.ant.plugins.antplus.pcc.AntPlusFitnessEquipmentPcc.HeartRateDataS
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikePowerPcc;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikePowerPcc.IRawPowerOnlyDataReceiver;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikePowerPcc.ICalculatedPowerReceiver;
+import com.dsi.ant.plugins.antplus.pcc.AntPlusBikePowerPcc.IRawCrankTorqueDataReceiver;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc.CalculatedSpeedReceiver;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc.CalculatedAccumulatedDistanceReceiver;
@@ -62,6 +63,7 @@ public class BikeChannelController {
     
     // Bike data fields - from dedicated sensors
     public int powerSensorPower = 0;     // Power from dedicated power sensor
+    public int powerSensorCadence = 0;   // Cadence from dedicated power sensor
     public int speedSensorCadence = 0;   // Cadence from speed/cadence sensor
     public BigDecimal speedSensorSpeed = new BigDecimal(0); // Speed from speed/cadence sensor
     public long speedSensorDistance = 0; // Distance from speed/cadence sensor
@@ -328,6 +330,19 @@ public class BikeChannelController {
                 }
             });
 
+            // Subscribe to raw crank torque data which includes cadence (Page 16)
+            powerPcc.subscribeRawCrankTorqueDataEvent(new IRawCrankTorqueDataReceiver() {
+                @Override
+                public void onNewRawCrankTorqueData(long estTimestamp, EnumSet<EventFlag> eventFlags,
+                                                  long crankTorqueUpdateEventCount, int instantaneousCadence,
+                                                  int instantaneousTorque, long accumulatedTorque) {
+                    if (instantaneousCadence != -1) {
+                        powerSensorCadence = instantaneousCadence;
+                        QLog.d(TAG, "Power Sensor Data - Cadence: " + powerSensorCadence + "rpm");
+                    }
+                }
+            });
+
             // Also subscribe to calculated power events
             powerPcc.subscribeCalculatedPowerEvent(new ICalculatedPowerReceiver() {
                 @Override
@@ -444,13 +459,13 @@ public class BikeChannelController {
 
     // Getter methods for bike data with sensor reconciliation
     public int getCadence() {
-        // Priority: 1) Fitness Equipment, 2) Speed/Cadence Sensor, 3) Power Sensor
+        // Priority: 1) Fitness Equipment, 2) Power Sensor, 3) Speed/Cadence Sensor
         if (isConnected && cadence > 0) {
             return cadence; // From fitness equipment
+        } else if (isPowerConnected && powerSensorCadence > 0) {
+            return powerSensorCadence; // From dedicated power sensor (ANT+ Page 16)
         } else if (isSpeedCadenceConnected && speedSensorCadence > 0) {
             return speedSensorCadence; // From dedicated speed/cadence sensor
-        } else if (isPowerConnected && speedSensorCadence > 0) {
-            return speedSensorCadence; // From power sensor (if it provides cadence)
         }
         return 0;
     }
@@ -542,6 +557,10 @@ public class BikeChannelController {
 
     public int getRawSpeedSensorCadence() {
         return speedSensorCadence;
+    }
+
+    public int getRawPowerSensorCadence() {
+        return powerSensorCadence;
     }
 
     public double getRawFitnessEquipmentSpeed() {
