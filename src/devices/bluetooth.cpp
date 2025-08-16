@@ -2445,6 +2445,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("ADIDAS "))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("REEBOK")))) &&
                        !trxappgateusb && !trxappgateusbBike && !toorx_bike && !toorx_ftms && !toorx_ftms_treadmill && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) &&
+                           ftms_bike.contains(QZSettings::default_ftms_bike) &&
                        filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
