@@ -99,6 +99,7 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
 
+    namespace 'org.cagnulen.qdomyoszwift'
     compileSdkVersion 35
 
     buildToolsVersion '35.0.0'
