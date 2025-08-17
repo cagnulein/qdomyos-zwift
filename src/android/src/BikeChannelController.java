@@ -334,12 +334,19 @@ public class BikeChannelController {
             powerPcc.subscribeRawCrankTorqueDataEvent(new IRawCrankTorqueDataReceiver() {
                 @Override
                 public void onNewRawCrankTorqueData(long estTimestamp, EnumSet<EventFlag> eventFlags,
-                                                  long crankTorqueUpdateEventCount, int instantaneousCadence,
-                                                  int instantaneousTorque, long accumulatedTorque) {
-                    if (instantaneousCadence != -1) {
-                        powerSensorCadence = instantaneousCadence;
-                        QLog.d(TAG, "Power Sensor Data - Cadence: " + powerSensorCadence + "rpm");
+                                                  long crankTorqueUpdateEventCount, long accumulatedCrankTicks,
+                                                  BigDecimal accumulatedCrankPeriod, BigDecimal accumulatedCrankTorque) {
+                    // Calculate instantaneous cadence from accumulated crank period
+                    // Cadence (RPM) = 60 / period_in_seconds
+                    if (accumulatedCrankPeriod != null && accumulatedCrankPeriod.doubleValue() > 0) {
+                        double periodSeconds = accumulatedCrankPeriod.doubleValue() / 1024.0; // Period is in 1/1024 seconds
+                        int calculatedCadence = (int) Math.round(60.0 / periodSeconds);
+                        if (calculatedCadence > 0 && calculatedCadence < 300) { // Reasonable cadence range
+                            powerSensorCadence = calculatedCadence;
+                            QLog.d(TAG, "Power Sensor Data - Cadence: " + powerSensorCadence + "rpm (from period: " + periodSeconds + "s)");
+                        }
                     }
+                    QLog.d(TAG, "Raw Crank Torque Data - Period: " + accumulatedCrankPeriod + ", Torque: " + accumulatedCrankTorque + ", Ticks: " + accumulatedCrankTicks);
                 }
             });
 
