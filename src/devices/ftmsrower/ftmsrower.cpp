@@ -150,62 +150,57 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
     QString charUuid = characteristic.uuid().toString();
     
     if (charUuid == QStringLiteral("{ce060031-43e5-11e4-916c-0800200c9a66}")) {
-        // Parse characteristic CE060031 - General Status Information
-        // Based on log: "b3 14 00 f2 05 00 01 01 01 00 01 00 00 00 00 00 00 80 46"
-        if (newValue.length() >= 19) {
-            // Extract stroke rate (cadence) from bytes 4-5 
-            uint16_t strokeRate = ((uint8_t)newValue.at(5) << 8) | (uint8_t)newValue.at(4);
-            if (strokeRate > 0) {
-                Cadence = strokeRate / 100.0; // Convert to strokes per minute
-                lastStroke = now;
-            }
-            
-            // Extract power from bytes 15-16
-            uint16_t power = ((uint8_t)newValue.at(16) << 8) | (uint8_t)newValue.at(15);
-            if (power > 0) {
-                m_watt = power;
-            }
-            
-            emit debug(QStringLiteral("PM5 CE060031 - Cadence: ") + QString::number(Cadence.value()) + 
-                      QStringLiteral(" Power: ") + QString::number(m_watt.value()));
-        }
-    }
-    else if (charUuid == QStringLiteral("{ce060032-43e5-11e4-916c-0800200c9a66}")) {
-        // Parse characteristic CE060032 - Additional Status Information  
-        // Based on log: "b3 14 00 e3 0b 1d ff 5f 40 02 44 00 00 00 00 00 00"
-        if (newValue.length() >= 17) {
-            // Extract pace from bytes 4-5 (500m split time)
-            uint16_t pace500m = ((uint8_t)newValue.at(5) << 8) | (uint8_t)newValue.at(4);
-            if (pace500m > 0) {
-                // Convert pace to speed: speed = (60 / pace) * 30 to match rower.cpp formula
-                Speed = (60.0 / (pace500m / 100.0)) * 30.0;
-            }
-            
-            // Extract distance from bytes 6-9
-            uint32_t distance = ((uint32_t)(uint8_t)newValue.at(9) << 24) |
-                               ((uint32_t)(uint8_t)newValue.at(8) << 16) |
-                               ((uint32_t)(uint8_t)newValue.at(7) << 8) |
-                               (uint32_t)(uint8_t)newValue.at(6);
-            if (distance > 0) {
-                Distance = distance / 1000.0; // Convert to km
-            }
-            
-            emit debug(QStringLiteral("PM5 CE060032 - Speed: ") + QString::number(Speed.value()) + 
-                      QStringLiteral(" Distance: ") + QString::number(Distance.value()));
-        }
-    }
-    else if (charUuid == QStringLiteral("{ce060033-43e5-11e4-916c-0800200c9a66}")) {
-        // Parse characteristic CE060033 - Force Curve and Additional Data
-        // Based on log: "b3 14 00 00 42 00 08 00 46 43 45 00 08 00 00 00 00 00 00 00"
-        if (newValue.length() >= 20) {
-            // Extract stroke count from bytes 4-5
-            uint16_t strokeCount = ((uint8_t)newValue.at(5) << 8) | (uint8_t)newValue.at(4);
+        // Parse characteristic CE060031 - Based on go-row implementation
+        if (newValue.length() >= 9) {
+            // Extract stroke count from bytes 7-8 (little endian)
+            uint16_t strokeCount = ((uint8_t)newValue.at(8) << 8) | (uint8_t)newValue.at(7);
             if (strokeCount != StrokesCount.value()) {
                 StrokesCount = strokeCount;
                 lastStroke = now;
             }
             
-            emit debug(QStringLiteral("PM5 CE060033 - Stroke Count: ") + QString::number(StrokesCount.value()));
+            emit debug(QStringLiteral("PM5 CE060031 RAW: ") + newValue.toHex(' ') + 
+                      QStringLiteral(" Stroke Count: ") + QString::number(StrokesCount.value()));
+        }
+    }
+    else if (charUuid == QStringLiteral("{ce060032-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060032 - Based on go-row implementation
+        if (newValue.length() >= 6) {
+            // Extract cadence (SPM) from byte 5
+            uint8_t spm = (uint8_t)newValue.at(5);
+            if (spm > 0) {
+                Cadence = spm;
+                lastStroke = now;
+            }
+            
+            // Extract speed from bytes 3-4 (little endian) in 0.001m/s
+            uint16_t speedRaw = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
+            if (speedRaw > 0) {
+                Speed = (speedRaw * 0.001) * 3.6; // Convert m/s to km/h
+            }
+            
+            emit debug(QStringLiteral("PM5 CE060032 RAW: ") + newValue.toHex(' ') + 
+                      QStringLiteral(" Cadence: ") + QString::number(Cadence.value()) + 
+                      QStringLiteral(" Speed: ") + QString::number(Speed.value()));
+        }
+    }
+    else if (charUuid == QStringLiteral("{ce060033-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060033 - Additional data
+        if (newValue.length() >= 20) {
+            emit debug(QStringLiteral("PM5 CE060033 RAW: ") + newValue.toHex(' '));
+        }
+    }
+    else if (charUuid == QStringLiteral("{ce060036-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060036 - Power data (based on go-row implementation)
+        if (newValue.length() >= 5) {
+            // Extract power from bytes 3-4 (little endian)
+            uint16_t power = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
+            if (power > 0) {
+                m_watt = power;
+            }
+            
+            emit debug(QStringLiteral("PM5 CE060036 RAW: ") + newValue.toHex(' ') + 
+                      QStringLiteral(" Power: ") + QString::number(m_watt.value()));
         }
     }
     
@@ -251,7 +246,8 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     // Handle Concept2 PM5 characteristics as fallback when FTMS is not available
     if (PM5 && (characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060031-43e5-11e4-916c-0800200c9a66")) ||
                 characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060032-43e5-11e4-916c-0800200c9a66")) ||
-                characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060033-43e5-11e4-916c-0800200c9a66")))) {
+                characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060033-43e5-11e4-916c-0800200c9a66")) ||
+                characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060036-43e5-11e4-916c-0800200c9a66")))) {
         
         parseConcept2Data(characteristic, newValue);
         return;
