@@ -143,6 +143,98 @@ void ftmsrower::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
+void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
+    QSettings settings;
+    
+    QString charUuid = characteristic.uuid().toString();
+    
+    if (charUuid == QStringLiteral("{ce060031-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060031 - General Status Information
+        // Based on log: "b3 14 00 f2 05 00 01 01 01 00 01 00 00 00 00 00 00 80 46"
+        if (newValue.length() >= 19) {
+            // Extract stroke rate (cadence) from bytes 4-5 
+            uint16_t strokeRate = ((uint8_t)newValue.at(5) << 8) | (uint8_t)newValue.at(4);
+            if (strokeRate > 0) {
+                Cadence = strokeRate / 100.0; // Convert to strokes per minute
+                lastStroke = now;
+            }
+            
+            // Extract power from bytes 15-16
+            uint16_t power = ((uint8_t)newValue.at(16) << 8) | (uint8_t)newValue.at(15);
+            if (power > 0) {
+                m_watt = power;
+            }
+            
+            emit debug(QStringLiteral("PM5 CE060031 - Cadence: ") + QString::number(Cadence.value()) + 
+                      QStringLiteral(" Power: ") + QString::number(m_watt.value()));
+        }
+    }
+    else if (charUuid == QStringLiteral("{ce060032-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060032 - Additional Status Information  
+        // Based on log: "b3 14 00 e3 0b 1d ff 5f 40 02 44 00 00 00 00 00 00"
+        if (newValue.length() >= 17) {
+            // Extract pace from bytes 4-5 (500m split time)
+            uint16_t pace500m = ((uint8_t)newValue.at(5) << 8) | (uint8_t)newValue.at(4);
+            if (pace500m > 0) {
+                // Convert pace to speed: speed = (60 / pace) * 30 to match rower.cpp formula
+                Speed = (60.0 / (pace500m / 100.0)) * 30.0;
+            }
+            
+            // Extract distance from bytes 6-9
+            uint32_t distance = ((uint32_t)(uint8_t)newValue.at(9) << 24) |
+                               ((uint32_t)(uint8_t)newValue.at(8) << 16) |
+                               ((uint32_t)(uint8_t)newValue.at(7) << 8) |
+                               (uint32_t)(uint8_t)newValue.at(6);
+            if (distance > 0) {
+                Distance = distance / 1000.0; // Convert to km
+            }
+            
+            emit debug(QStringLiteral("PM5 CE060032 - Speed: ") + QString::number(Speed.value()) + 
+                      QStringLiteral(" Distance: ") + QString::number(Distance.value()));
+        }
+    }
+    else if (charUuid == QStringLiteral("{ce060033-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060033 - Force Curve and Additional Data
+        // Based on log: "b3 14 00 00 42 00 08 00 46 43 45 00 08 00 00 00 00 00 00 00"
+        if (newValue.length() >= 20) {
+            // Extract stroke count from bytes 4-5
+            uint16_t strokeCount = ((uint8_t)newValue.at(5) << 8) | (uint8_t)newValue.at(4);
+            if (strokeCount != StrokesCount.value()) {
+                StrokesCount = strokeCount;
+                lastStroke = now;
+            }
+            
+            emit debug(QStringLiteral("PM5 CE060033 - Stroke Count: ") + QString::number(StrokesCount.value()));
+        }
+    }
+    
+    // Update calories based on power if available
+    if (m_watt.value() > 0) {
+        KCal += ((((0.048 * ((double)m_watt.value()) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(now))));
+    }
+    
+    // Update crank revolutions for virtual device compatibility
+    if (Cadence.value() > 0) {
+        CrankRevs++;
+        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+    }
+    
+    lastRefreshCharacteristicChanged = now;
+    
+    // Update metrics for virtual device
+    update_metrics(false, m_watt.value());
+    
+    emit debug(QStringLiteral("PM5 Metrics - Cadence: ") + QString::number(Cadence.value()) +
+              QStringLiteral(" Speed: ") + QString::number(Speed.value()) +
+              QStringLiteral(" Power: ") + QString::number(m_watt.value()) +
+              QStringLiteral(" Distance: ") + QString::number(Distance.value()) +
+              QStringLiteral(" Calories: ") + QString::number(KCal.value()));
+}
+
 void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
 
@@ -155,6 +247,15 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     qDebug() << QStringLiteral(" << ") << characteristic.uuid() << " " << newValue.toHex(' ');
+
+    // Handle Concept2 PM5 characteristics as fallback when FTMS is not available
+    if (PM5 && (characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060031-43e5-11e4-916c-0800200c9a66")) ||
+                characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060032-43e5-11e4-916c-0800200c9a66")) ||
+                characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060033-43e5-11e4-916c-0800200c9a66")))) {
+        
+        parseConcept2Data(characteristic, newValue);
+        return;
+    }
 
     if (characteristic.uuid() != QBluetoothUuid((quint16)0x2AD1)) {
         return;
@@ -569,6 +670,36 @@ void ftmsrower::serviceScanDone(void) {
 #endif
 
     auto services_list = m_control->services();
+    bool hasFTMSService = false;
+    bool hasConcept2Services = false;
+    
+    // Check if FTMS service (0x1826) is available
+    QBluetoothUuid ftmsService((quint16)0x1826);
+    for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        if (s == ftmsService) {
+            hasFTMSService = true;
+            break;
+        }
+    }
+    
+    // If no FTMS service, check for Concept2 PM5 services
+    if (!hasFTMSService && PM5) {
+        QBluetoothUuid concept2InfoService(QStringLiteral("ce060010-43e5-11e4-916c-0800200c9a66"));
+        QBluetoothUuid concept2ControlService(QStringLiteral("ce060020-43e5-11e4-916c-0800200c9a66"));
+        QBluetoothUuid concept2RowingService(QStringLiteral("ce060030-43e5-11e4-916c-0800200c9a66"));
+        
+        for (const QBluetoothUuid &s : qAsConst(services_list)) {
+            if (s == concept2InfoService || s == concept2ControlService || s == concept2RowingService) {
+                hasConcept2Services = true;
+                break;
+            }
+        }
+        
+        if (hasConcept2Services) {
+            emit debug(QStringLiteral("PM5 without FTMS service detected, using Concept2 protocol"));
+        }
+    }
+    
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
