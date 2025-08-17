@@ -642,9 +642,22 @@ jobs:
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
 
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aab
+      - name: Build APK (patched for AGP 8.1+)
+        run: |
+          cd src
+          androiddeployqt \
+            --input android-qdomyos-zwift-deployment-settings.json \
+            --output ${{ github.workspace }}/output/android/ \
+            --android-platform android-35 \
+            --gradle \
+            --aab \
+            --no-build
 
+          sed -i '/android.bundle.enableUncompressedNativeLibs/d' ${{ github.workspace }}/output/android/gradle.properties
+
+          cd ${{ github.workspace }}/output/android
+          ./gradlew bundleRelease
+          
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
         with:
