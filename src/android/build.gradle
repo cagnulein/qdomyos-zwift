@@ -100,9 +100,9 @@ android {
      *******************************************************/
 
     namespace 'org.cagnulen.qdomyoszwift'
-    compileSdkVersion 35
+    compileSdkVersion 34
 
-    buildToolsVersion '35.0.0'
+    buildToolsVersion '34.0.0'
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -150,7 +150,7 @@ android {
     defaultConfig {
         resConfig "en"
         minSdkVersion 28
-        targetSdkVersion 35
+        targetSdkVersion 36
     }
 
 tasks.all { task ->
