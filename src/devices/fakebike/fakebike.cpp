@@ -65,6 +65,14 @@ void fakebike::update() {
             speedLimit());
     }
     
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    if (watts())
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                              // kg * 3.5) / 200 ) / 60
+    
     if (Cadence.value() > 0) {
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));

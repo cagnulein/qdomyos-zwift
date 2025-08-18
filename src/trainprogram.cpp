@@ -586,6 +586,17 @@ void trainprogram::scheduler() {
 
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
+    QDateTime now = QDateTime::currentDateTime();
+    qint64 msecsElapsed = lastSchedulerCall.msecsTo(now);
+
+    // Reset jitter if it's getting too large
+    if (qAbs(currentTimerJitter) > 5000) {
+        currentTimerJitter = 0;
+    }
+
+    currentTimerJitter += msecsElapsed - 1000;
+    lastSchedulerCall = now;
+
     // outside the if case about a valid train program because the information for the floating window url should be
     // sent anyway
     if (settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr)
@@ -811,6 +822,7 @@ void trainprogram::scheduler() {
 #endif
         }
 
+        currentTimerJitter = 0;
         return;
     }
 
@@ -832,6 +844,20 @@ void trainprogram::scheduler() {
 #endif
 
     ticks++;
+    qDebug() << QStringLiteral("trainprogram ticks") << ticks << QStringLiteral("currentTimerJitter") << currentTimerJitter;
+
+    if(qAbs(currentTimerJitter) > 1000) {
+        // we are late...
+        if (currentTimerJitter > 1000) {
+            int seconds = currentTimerJitter / 1000;
+            ticks += seconds;
+            currentTimerJitter -= (seconds * 1000);
+            qDebug() << QStringLiteral("fixing jitter!") << seconds << ticks << currentTimerJitter;
+        } else {
+            // negative jitter, reset the counter without touching the ticks
+            currentTimerJitter = 0;
+        }
+    }
 
     double odometerFromTheDevice = bluetoothManager->device()->odometer();
 
@@ -1270,6 +1296,7 @@ void trainprogram::restart() {
     ticks = 0;
     offset = 0;
     currentStep = 0;
+    currentTimerJitter = 0;    
     started = true;
 }
 
@@ -1377,6 +1404,40 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
     } else
 
         return false;
+}
+
+bool trainprogram::hasTargetPower(const QString &filename) {
+    QFile file(filename);
+    if (!file.exists() || !file.open(QIODevice::ReadOnly)) {
+        qDebug() << "Could not open training program file:" << filename;
+        return false;
+    }
+    
+    QXmlStreamReader reader(&file);
+    
+    while (!reader.atEnd()) {
+        reader.readNext();
+        if (reader.isStartElement() && reader.name() == "row") {
+            QXmlStreamAttributes attributes = reader.attributes();
+            if (attributes.hasAttribute("power")) {
+                QString powerStr = attributes.value("power").toString();
+                bool ok;
+                int power = powerStr.toInt(&ok);
+                if (ok && power > 0) {
+                    qDebug() << "Found target power > 0 in training program:" << power;
+                    file.close();
+                    return true;
+                }
+            }
+        }
+    }
+    
+    if (reader.hasError()) {
+        qDebug() << "Error reading training program XML:" << reader.errorString();
+    }
+    
+    file.close();
+    return false;
 }
 
 void trainprogram::save(const QString &filename) { saveXML(filename, rows); }

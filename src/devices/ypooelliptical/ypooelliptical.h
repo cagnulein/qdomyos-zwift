@@ -84,6 +84,8 @@ class ypooelliptical : public elliptical {
     bool SKANDIKA = false;
     bool DOMYOS = false;
     bool FEIER = false;
+    bool MX_AS = false;
+    bool FTMS = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
