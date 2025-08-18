@@ -642,21 +642,26 @@ jobs:
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
 
-      - name: Build APK (patched for AGP 8.1+)
+      - name: Install Qt6 Android (solo per androiddeployqt)
+        uses: jdpurcell/install-qt-action@v5
+        with:
+          version: '6.6.2'
+          host: 'linux'
+          target: 'android'
+          arch: 'android'
+          dir: '${{ github.workspace }}/output/android-qt6/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android-qt6'
+
+      - name: Build APK/AAB con androiddeployqt di Qt6
         run: |
           cd src
-          androiddeployqt \
+          ${{ github.workspace }}/output/android-qt6/Qt/6.6.2/android/bin/androiddeployqt \
             --input android-qdomyos-zwift-deployment-settings.json \
             --output ${{ github.workspace }}/output/android/ \
             --android-platform android-35 \
             --gradle \
-            --aab \
-            --no-build
-
-          sed -i '/android.bundle.enableUncompressedNativeLibs/d' ${{ github.workspace }}/output/android/gradle.properties
-
-          cd ${{ github.workspace }}/output/android
-          ./gradlew bundleRelease
+            --aab
           
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
