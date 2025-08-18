@@ -642,8 +642,18 @@ jobs:
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
 
+      - name: Install Qt6 Desktop (prerequisite for Android)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.6.2'
+          host: 'linux'
+          target: 'desktop'
+          dir: '${{ github.workspace }}/output/android-qt6/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-desktop-qt6'
+
       - name: Install Qt6 Android (solo per androiddeployqt)
-        uses: jdpurcell/install-qt-action@v5
+        uses: jurplel/install-qt-action@v3
         with:
           version: '6.6.2'
           host: 'linux'
