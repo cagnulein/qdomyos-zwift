@@ -57,8 +57,19 @@ function process_trainprogram(arr) {
 }
 
 function process_arr(arr) {    
-    let ctx = document.getElementById('canvas').getContext('2d');
-    let div = document.getElementById('divcanvas');
+    // Try to get the active canvas - check all possible canvas IDs
+    let ctx, div;
+    if (document.getElementById('canvas') && document.getElementById('canvas').offsetParent !== null) {
+        ctx = document.getElementById('canvas').getContext('2d');
+        div = document.getElementById('divcanvas');
+    } else if (document.getElementById('canvasFull') && document.getElementById('canvasFull').offsetParent !== null) {
+        ctx = document.getElementById('canvasFull').getContext('2d');
+        div = document.getElementById('divcanvasFull');
+    } else {
+        // Fallback to the first available canvas
+        ctx = (document.getElementById('canvas') || document.getElementById('canvasFull')).getContext('2d');
+        div = document.getElementById('divcanvas') || document.getElementById('divcanvasFull');
+    }
 
     let reqpower = [];
     let reqcadence = [];
@@ -381,6 +392,122 @@ function process_arr(arr) {
     powerChart = new Chart(ctx, config);
 
     refresh();
+}
+
+// Global variables for zoom functionality
+var isZoomedPower = false;
+var isZoomedHeart = false;
+var currentTime = 0;
+var zoomUpdateIntervalPower = null;
+var zoomUpdateIntervalHeart = null;
+
+// Function to toggle zoom mode
+window.toggleChartZoom = function(chartType, enabled) {
+    if (chartType === 'power' && powerChart) {
+        isZoomedPower = enabled;
+        
+        if (enabled) {
+            startZoomMode('power');
+        } else {
+            stopZoomMode('power');
+        }
+    } else if (chartType === 'heart' && window.heartChart) {
+        isZoomedHeart = enabled;
+        
+        if (enabled) {
+            startZoomMode('heart');
+        } else {
+            stopZoomMode('heart');
+        }
+    }
+};
+
+function startZoomMode(chartType) {
+    if (chartType === 'power' && powerChart) {
+        // Update zoom range every 1 second to follow "now"
+        zoomUpdateIntervalPower = setInterval(function() {
+            updateZoomRange('power');
+        }, 1000);
+        
+        // Initial zoom setup
+        updateZoomRange('power');
+    } else if (chartType === 'heart' && window.heartChart) {
+        // Update zoom range every 1 second to follow "now"
+        zoomUpdateIntervalHeart = setInterval(function() {
+            updateZoomRange('heart');
+        }, 1000);
+        
+        // Initial zoom setup
+        updateZoomRange('heart');
+    }
+}
+
+function stopZoomMode(chartType) {
+    if (chartType === 'power' && powerChart) {
+        // Clear the interval
+        if (zoomUpdateIntervalPower) {
+            clearInterval(zoomUpdateIntervalPower);
+            zoomUpdateIntervalPower = null;
+        }
+        
+        // Reset to show all data and restore original tick settings
+        powerChart.options.scales.x.min = undefined;
+        powerChart.options.scales.x.max = undefined;
+        powerChart.options.scales.x.ticks.stepSize = undefined;
+        powerChart.options.scales.x.ticks.maxTicksLimit = undefined;
+        powerChart.update('none');
+    } else if (chartType === 'heart' && window.heartChart) {
+        // Clear the interval
+        if (zoomUpdateIntervalHeart) {
+            clearInterval(zoomUpdateIntervalHeart);
+            zoomUpdateIntervalHeart = null;
+        }
+        
+        // Reset to show all data and restore original tick settings
+        window.heartChart.options.scales.x.min = undefined;
+        window.heartChart.options.scales.x.max = undefined;
+        window.heartChart.options.scales.x.ticks.stepSize = undefined;
+        window.heartChart.options.scales.x.ticks.maxTicksLimit = undefined;
+        window.heartChart.update('none');
+    }
+}
+
+function updateZoomRange(chartType) {
+    if (chartType === 'power' && powerChart && powerChart.data.datasets[0] && powerChart.data.datasets[0].data) {
+        // Get the latest data point time (current time)
+        let latestDataPoint = powerChart.data.datasets[0].data[powerChart.data.datasets[0].data.length - 1];
+        if (!latestDataPoint) return;
+        
+        currentTime = latestDataPoint.x;
+        
+        // Set zoom range: -30s to +2min from current time
+        let zoomStart = Math.max(0, currentTime - 30);  // -30 seconds, but not below 0
+        let zoomEnd = currentTime + 120;  // +2 minutes
+        
+        // Update chart scale with proper tick configuration for zoom
+        powerChart.options.scales.x.min = zoomStart;
+        powerChart.options.scales.x.max = zoomEnd;
+        powerChart.options.scales.x.ticks.stepSize = 30; // 30 second intervals in zoom mode
+        powerChart.options.scales.x.ticks.maxTicksLimit = 6; // Limit number of ticks
+        powerChart.update('none');
+    } else if (chartType === 'heart' && window.heartChart && window.heartChart.data.datasets[0] && window.heartChart.data.datasets[0].data) {
+        // Get the latest data point time (current time)
+        let latestDataPoint = window.heartChart.data.datasets[0].data[window.heartChart.data.datasets[0].data.length - 1];
+        if (!latestDataPoint) return;
+        
+        currentTime = latestDataPoint.x;
+        
+        // Set zoom range: -30s to +2min from current time
+        let zoomStart = Math.max(0, currentTime - 30);  // -30 seconds, but not below 0
+        let zoomEnd = currentTime + 120;  // +2 minutes
+        
+        // Update chart scale with proper tick configuration for zoom
+        window.heartChart.options.scales.x.min = zoomStart;
+        window.heartChart.options.scales.x.max = zoomEnd;
+        window.heartChart.options.scales.x.ticks.stepSize = 30; // 30 second intervals in zoom mode
+        window.heartChart.options.scales.x.ticks.maxTicksLimit = 6; // Limit number of ticks
+        window.heartChart.update('none');
+    }
 }
 
 function refresh() {

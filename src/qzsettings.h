@@ -2661,6 +2661,12 @@ class QZSettings {
     static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
 
     /**
+     * @brief Chart display mode: 0 = both charts, 1 = heart rate only, 2 = power only
+     */
+    static const QString chart_display_mode;
+    static constexpr int default_chart_display_mode = 0;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
