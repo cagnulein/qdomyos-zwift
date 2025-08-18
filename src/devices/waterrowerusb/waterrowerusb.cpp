@@ -78,7 +78,8 @@ void waterrowerusbThread::initializeWaterRower() {
     emit onDebug(QStringLiteral("WaterRower initialization: ") + initResult);
     
     if (initResult == "SUCCESS") {
-        emit onConnected();
+        emit onDebug(QStringLiteral("WaterRower initialization successful - waiting for device connection..."));
+        // Don't emit onConnected() here - wait for actual device connection from processWaterRowerData()
     } else {
         emit onError(QStringLiteral("WaterRower initialization failed: ") + initResult);
     }
@@ -122,7 +123,11 @@ void waterrowerusbThread::processWaterRowerData() {
     static bool lastConnectedState = false;
     if (isConnected != lastConnectedState) {
         lastConnectedState = isConnected;
-        if (!isConnected) {
+        if (isConnected) {
+            emit onDebug(QStringLiteral("WaterRower device connected"));
+            emit onConnected();
+        } else {
+            emit onDebug(QStringLiteral("WaterRower device disconnected"));
             emit onDisconnected();
         }
     }

@@ -1,7 +1,6 @@
 package org.cagnulen.qdomyoszwift;
 
 import android.content.Context;
-import android.util.Log;
 
 import de.tbressler.waterrower.WaterRower;
 import de.tbressler.waterrower.IWaterRowerConnectionListener;
@@ -30,7 +29,7 @@ public class WaterRowerBridge {
     private static final IWaterRowerConnectionListener connectionListener = new IWaterRowerConnectionListener() {
         @Override
         public void onConnected(ModelInformation modelInformation) {
-            Log.d(TAG, "WaterRower connected: " + modelInformation.getMonitorType());
+            QLog.d(TAG, "WaterRower connected: " + modelInformation.getMonitorType());
             isConnected = true;
             
             // Subscribe to rowing metrics
@@ -40,7 +39,7 @@ public class WaterRowerBridge {
                 protected void onStroke(StrokeType strokeType) {
                     // Track stroke events - could calculate stroke rate here
                     lastDataUpdate = System.currentTimeMillis();
-                    Log.d(TAG, "Stroke: " + strokeType);
+                    QLog.d(TAG, "Stroke: " + strokeType);
                 }
             });
             
@@ -50,7 +49,7 @@ public class WaterRowerBridge {
                 protected void onDistanceUpdated(double distance) {
                     lastDistance = distance;
                     lastDataUpdate = System.currentTimeMillis();
-                    Log.d(TAG, "Distance: " + distance);
+                    QLog.d(TAG, "Distance: " + distance);
                 }
             });
             
@@ -62,7 +61,7 @@ public class WaterRowerBridge {
                         lastPace = 500.0 / velocity; // Convert to seconds per 500m
                     }
                     lastDataUpdate = System.currentTimeMillis();
-                    Log.d(TAG, "Velocity: " + velocity + ", Pace: " + lastPace);
+                    QLog.d(TAG, "Velocity: " + velocity + ", Pace: " + lastPace);
                 }
             });
             
@@ -72,7 +71,7 @@ public class WaterRowerBridge {
                 protected void onWattsUpdated(int watts) {
                     lastWatts = watts;
                     lastDataUpdate = System.currentTimeMillis();
-                    Log.d(TAG, "Watts: " + watts);
+                    QLog.d(TAG, "Watts: " + watts);
                 }
             });
             
@@ -82,26 +81,26 @@ public class WaterRowerBridge {
                 protected void onCaloriesUpdated(int calories) {
                     lastCalories = calories;
                     lastDataUpdate = System.currentTimeMillis();
-                    Log.d(TAG, "Calories: " + calories);
+                    QLog.d(TAG, "Calories: " + calories);
                 }
             });
         }
         
         @Override
         public void onDisconnected() {
-            Log.d(TAG, "WaterRower disconnected");
+            QLog.d(TAG, "WaterRower disconnected");
             isConnected = false;
         }
         
         @Override
         public void onError(ErrorCode errorCode) {
-            Log.e(TAG, "WaterRower error: " + errorCode);
+            QLog.e(TAG, "WaterRower error: " + errorCode);
             isConnected = false;
         }
     };
     
     public static String initialize(Context context) {
-        Log.d(TAG, "Initializing WaterRower USB connection");
+        QLog.d(TAG, "Initializing WaterRower USB connection");
         
         if (waterRower != null) {
             shutdown();
@@ -115,26 +114,40 @@ public class WaterRowerBridge {
             // Set up auto-discovery
             WaterRowerAutoDiscovery discovery = new WaterRowerAutoDiscovery(waterRower);
             
+            QLog.d(TAG, "Starting WaterRower auto-discovery...");
+            
             // Start auto-discovery (this will automatically connect when a device is found)
             discovery.start();
             
-            Log.d(TAG, "WaterRower auto-discovery started");
+            QLog.d(TAG, "WaterRower auto-discovery started");
+            
+            // Wait briefly to see if auto-discovery finds anything
+            try {
+                Thread.sleep(2000);
+                QLog.d(TAG, "Auto-discovery status after 2s - Connected: " + isConnected);
+                if (!isConnected) {
+                    QLog.w(TAG, "No WaterRower device found during initial auto-discovery");
+                }
+            } catch (InterruptedException e) {
+                QLog.w(TAG, "Auto-discovery wait interrupted: " + e.getMessage());
+            }
+            
             return "SUCCESS";
             
         } catch (Exception e) {
-            Log.e(TAG, "Failed to initialize WaterRower", e);
+            QLog.e(TAG, "Failed to initialize WaterRower", e);
             return "INITIALIZATION_FAILED: " + e.getMessage();
         }
     }
     
     public static void shutdown() {
-        Log.d(TAG, "Shutting down WaterRower connection");
+        QLog.d(TAG, "Shutting down WaterRower connection");
         
         if (waterRower != null) {
             try {
                 waterRower.disconnect();
             } catch (IOException e) {
-                Log.e(TAG, "Error disconnecting WaterRower", e);
+                QLog.e(TAG, "Error disconnecting WaterRower", e);
             }
             waterRower = null;
         }
