@@ -153,10 +153,10 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
         // Parse characteristic CE060031 - Based on go-row implementation
         if (newValue.length() >= 10) {
             // Extract RowState from byte 9 - this indicates if user is actively rowing
-            uint8_t rowState = (uint8_t)newValue.at(9);
+            pm5RowState = (uint8_t)newValue.at(9);
             
             emit debug(QStringLiteral("PM5 CE060031 RAW: ") + newValue.toHex(' ') + 
-                      QStringLiteral(" RowState: ") + QString::number(rowState));
+                      QStringLiteral(" RowState: ") + QString::number(pm5RowState));
         }
     }
     else if (charUuid == QStringLiteral("{ce060032-43e5-11e4-916c-0800200c9a66}")) {
@@ -164,17 +164,14 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
         if (newValue.length() >= 7) {
             // Extract cadence (SPM) from byte 5
             uint8_t spm = (uint8_t)newValue.at(5);
-            if (spm > 0) {
+            if (pm5RowState == 1 && spm > 0) {
                 Cadence = spm;
                 lastStroke = now;
-            } else {
-                // Cadence is 0, check if we should reset power
-                if (lastStroke.secsTo(now) > 3) {
-                    Cadence = 0;
-                }
+            } else if (pm5RowState == 0) {
+                Cadence = 0;
             }
             
-            // Extract speed from bytes 3-4 (little endian) in 0.001m/s
+            // Extract speed from bytes 3-4 (little endian) in 0.001m/s  
             uint16_t speedRaw = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
             if (speedRaw > 0) {
                 Speed = (speedRaw * 0.001) * 3.6; // Convert m/s to km/h
@@ -182,7 +179,8 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
             
             emit debug(QStringLiteral("PM5 CE060032 RAW: ") + newValue.toHex(' ') + 
                       QStringLiteral(" Cadence: ") + QString::number(Cadence.value()) + 
-                      QStringLiteral(" Speed: ") + QString::number(Speed.value()));
+                      QStringLiteral(" Speed: ") + QString::number(Speed.value()) + 
+                      QStringLiteral(" RowState: ") + QString::number(pm5RowState));
         }
     }
     else if (charUuid == QStringLiteral("{ce060033-43e5-11e4-916c-0800200c9a66}")) {
@@ -194,9 +192,6 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
     else if (charUuid == QStringLiteral("{ce060036-43e5-11e4-916c-0800200c9a66}")) {
         // Parse characteristic CE060036 - Power and stroke count (based on go-row implementation)
         if (newValue.length() >= 9) {
-            // Extract power from bytes 3-4 (little endian)
-            uint16_t power = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
-            
             // Extract stroke count from bytes 7-8 (little endian)
             uint16_t strokeCount = ((uint8_t)newValue.at(8) << 8) | (uint8_t)newValue.at(7);
             if (strokeCount != StrokesCount.value()) {
@@ -204,17 +199,18 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
                 lastStroke = now;
             }
             
-            // Reset power to 0 if cadence has been 0 for more than 3 seconds
-            if (Cadence.value() == 0 && lastStroke.secsTo(now) > 3) {
-                m_watt = 0;
-                emit debug(QStringLiteral("PM5 Power reset to 0 - no rowing activity"));
-            } else if (power > 0) {
+            // Extract power from bytes 3-4 (little endian)
+            uint16_t power = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
+            if (pm5RowState == 1 && power > 0) {
                 m_watt = power;
+            } else if (pm5RowState == 0) {
+                m_watt = 0;
             }
             
             emit debug(QStringLiteral("PM5 CE060036 RAW: ") + newValue.toHex(' ') + 
                       QStringLiteral(" Power: ") + QString::number(m_watt.value()) + 
-                      QStringLiteral(" Stroke Count: ") + QString::number(StrokesCount.value()));
+                      QStringLiteral(" Stroke Count: ") + QString::number(StrokesCount.value()) + 
+                      QStringLiteral(" RowState: ") + QString::number(pm5RowState));
         }
     }
     

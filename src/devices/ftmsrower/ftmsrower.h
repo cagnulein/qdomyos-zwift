@@ -77,6 +77,9 @@ class ftmsrower : public rower {
     bool ROWER = false;
     QDateTime lastStroke = QDateTime::currentDateTime();
     double lastStrokesCount = 0;
+    
+    // PM5 specific variables
+    uint8_t pm5RowState = 0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
