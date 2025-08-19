@@ -1792,7 +1792,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(wahooKickrSnapBike, &wahookickrsnapbike::debug, this, &bluetooth::debug);
                 wahooKickrSnapBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(wahooKickrSnapBike);
-            } else if (b.name().toUpper().startsWith("BIKE ") && b.name().midRef(5).toInt() > 0 &&
+            } else if (((b.name().toUpper().startsWith("BIKE ") && b.name().midRef(5).toInt() > 0) ||
+                        b.name().toUpper().startsWith("MYCYCLING")) &&
                        !technogymBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
