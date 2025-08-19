@@ -642,31 +642,34 @@ jobs:
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
 
-      - name: Install Qt6 Desktop (prerequisite for Android)
-        uses: jurplel/install-qt-action@v3
-        with:
-          version: '6.6.2'
-          host: 'linux'
-          target: 'desktop'
-          dir: '${{ github.workspace }}/output/android-qt6/'
-          cache: 'true'
-          cache-key-prefix: 'install-qt-action-desktop-qt6'
-
-      - name: Install Qt6 Android (solo per androiddeployqt)
-        uses: jurplel/install-qt-action@v3
-        with:
-          version: '6.6.2'
-          host: 'linux'
-          target: 'android'
-          arch: 'android'
-          dir: '${{ github.workspace }}/output/android-qt6/'
-          cache: 'true'
-          cache-key-prefix: 'install-qt-action-android-qt6'
+      - name: Download Qt6 androiddeployqt binary directly
+        run: |
+          echo "=== Downloading Qt6 androiddeployqt binary ==="
+          mkdir -p ${{ github.workspace }}/qt6-tools/bin
+          
+          # Download Qt6 androiddeployqt from official Qt releases
+          wget -q https://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_662/qt.qt6.662.gcc_64/6.6.2-0-202402121133qttools-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64.7z -O qt6-tools.7z
+          
+          # Extract using 7z
+          sudo apt-get install -y p7zip-full
+          7z x qt6-tools.7z -o${{ github.workspace }}/qt6-tools/
+          
+          # Make androiddeployqt executable
+          chmod +x ${{ github.workspace }}/qt6-tools/*/bin/androiddeployqt
+          
+          echo "=== Qt6 androiddeployqt downloaded ==="
+          ls -la ${{ github.workspace }}/qt6-tools/*/bin/androiddeployqt
 
       - name: Build APK/AAB con androiddeployqt di Qt6
         run: |
           cd src
-          ${{ github.workspace }}/output/android-qt6/Qt/6.6.2/android/bin/androiddeployqt \
+          
+          # Find the Qt6 androiddeployqt binary
+          QT6_ANDROIDDEPLOYQT=$(find ${{ github.workspace }}/qt6-tools -name androiddeployqt -type f | head -1)
+          echo "Using Qt6 androiddeployqt: $QT6_ANDROIDDEPLOYQT"
+          
+          # Use Qt6 androiddeployqt (which doesn't add the deprecated gradle option)
+          $QT6_ANDROIDDEPLOYQT \
             --input android-qdomyos-zwift-deployment-settings.json \
             --output ${{ github.workspace }}/output/android/ \
             --android-platform android-35 \
