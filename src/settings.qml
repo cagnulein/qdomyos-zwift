@@ -1198,6 +1198,7 @@ import Qt.labs.platform 1.1
             property int tile_auto_virtual_shifting_sprint_order: 57
             property string proform_rower_ip: ""
             property string ftms_elliptical: "Disabled"
+            property bool jrny_virtual_treadmill: false
         }
 
 
@@ -11839,6 +11840,34 @@ import Qt.labs.platform 1.1
                                     }
 
                                     IndicatorOnlySwitch {
+                                        id: jrnyVirtualTreadmillDelegate
+                                        text: qsTr("JRNY Virtual Treadmill")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.jrny_virtual_treadmill
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: { settings.jrny_virtual_treadmill = checked; window.settings_restart_to_apply = true; }
+                                    }
+
+                                    Label {
+                                        text: qsTr("Enable JRNY virtual treadmill for Android. Advertises as JOHNSON T202-5 device. Default is off.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }                                    
+
+                                    IndicatorOnlySwitch {
                                         id: virtualBikeForceResistanceDelegate
                                         text: qsTr("Zwift Force Resistance")
                                         spacing: 0
@@ -12018,7 +12047,7 @@ import Qt.labs.platform 1.1
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.dircon_server_base_port = dirconServerPortTextField.text; toast.show("Setting saved!"); }
                                         }
-                                    }
+                                    }                                    
                                 }
                             }
                         }

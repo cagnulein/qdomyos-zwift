@@ -1,4 +1,5 @@
 #include "virtualdevices/virtualtreadmill.h"
+#include "qzsettings.h"
 #include <QThread>
 #include <QSettings>
 #include <QtMath>
@@ -15,6 +16,16 @@ using namespace std::chrono_literals;
 virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     QSettings settings;
     treadMill = t;
+    
+    bool jrnyVirtualTreadmill = settings.value(QZSettings::jrny_virtual_treadmill, QZSettings::default_jrny_virtual_treadmill).toBool();
+    
+    // JRNY Virtual Treadmill is only supported on Android
+    if (jrnyVirtualTreadmill) {
+#ifndef Q_OS_ANDROID
+        qDebug() << "JRNY Virtual Treadmill is only supported on Android";
+        jrnyVirtualTreadmill = false; // Disable on non-Android platforms
+#endif
+    }
 
     int bikeResistanceOffset =
         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
@@ -57,11 +68,21 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
-        advertisingData.setLocalName(QStringLiteral("KICKR RUN"));
-#else            
-        advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
+        
+        if (jrnyVirtualTreadmill) {
+#ifdef Q_OS_ANDROID
+            advertisingData.setLocalName(QStringLiteral("T202-5"));
+#else
+            qDebug() << "JRNY Virtual Treadmill is only supported on Android";
+            return; // Exit early on non-Android platforms
 #endif
+        } else {
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+            advertisingData.setLocalName(QStringLiteral("KICKR RUN"));
+#else            
+            advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
+#endif
+        }
         QList<QBluetoothUuid> services;
 
         // Add Wahoo Run Service UUID
@@ -87,20 +108,68 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         //! [Advertising Data]
 
         // Add Device Information Service
+        
         QLowEnergyCharacteristicData manufacturerNameChar;
         manufacturerNameChar.setUuid(QBluetoothUuid::CharacteristicType::ManufacturerNameString);
         manufacturerNameChar.setProperties(QLowEnergyCharacteristic::Read);
-        manufacturerNameChar.setValue(QByteArray("Wahoo Fitness")); // Changed to Wahoo Fitness
+        if (jrnyVirtualTreadmill) {
+            manufacturerNameChar.setValue(QByteArray("JOHNSON"));
+        } else {
+            manufacturerNameChar.setValue(QByteArray("Wahoo Fitness")); // Changed to Wahoo Fitness
+        }
+
+        QLowEnergyCharacteristicData modelNumberChar;
+        modelNumberChar.setUuid(QBluetoothUuid::CharacteristicType::ModelNumberString);
+        modelNumberChar.setProperties(QLowEnergyCharacteristic::Read);
+        if (jrnyVirtualTreadmill) {
+            modelNumberChar.setValue(QByteArray("T202-5"));
+        }
 
         QLowEnergyCharacteristicData firmwareRevChar;
         firmwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::FirmwareRevisionString);
         firmwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
-        firmwareRevChar.setValue(QByteArray("1.0.11"));
+        if (jrnyVirtualTreadmill) {
+            firmwareRevChar.setValue(QByteArray("V100.0.0"));
+        } else {
+            firmwareRevChar.setValue(QByteArray("1.0.11"));
+        }
+
+        QLowEnergyCharacteristicData softwareRevChar;
+        softwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::SoftwareRevisionString);
+        softwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
+        if (jrnyVirtualTreadmill) {
+            softwareRevChar.setValue(QByteArray("V100.0.1"));
+        }
 
         QLowEnergyCharacteristicData hardwareRevChar;
         hardwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::HardwareRevisionString);
         hardwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
-        hardwareRevChar.setValue(QByteArray("1"));
+        if (jrnyVirtualTreadmill) {
+            hardwareRevChar.setValue(QByteArray("WLT8"));
+        } else {
+            hardwareRevChar.setValue(QByteArray("1"));
+        }
+
+        QLowEnergyCharacteristicData serialNumberChar;
+        serialNumberChar.setUuid(QBluetoothUuid::CharacteristicType::SerialNumberString);
+        serialNumberChar.setProperties(QLowEnergyCharacteristic::Read);
+        if (jrnyVirtualTreadmill) {
+            serialNumberChar.setValue(QByteArray("V100.0.2"));
+        }
+
+        QLowEnergyCharacteristicData systemIdChar;
+        systemIdChar.setUuid(QBluetoothUuid::CharacteristicType::SystemId);
+        systemIdChar.setProperties(QLowEnergyCharacteristic::Read);
+        if (jrnyVirtualTreadmill) {
+            QByteArray systemIdData;
+            systemIdData.append(char(0xFA));
+            systemIdData.append(char(0xE4));
+            systemIdData.append(char(0xE3));
+            systemIdData.append(char(0x4B));
+            systemIdData.append(char(0x3D));
+            systemIdData.append(char(0x09));
+            systemIdChar.setValue(systemIdData);
+        }
 
         // Create Device Information Service        
         serviceDataDIS.setType(QLowEnergyServiceData::ServiceTypePrimary);
@@ -108,32 +177,41 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         serviceDataDIS.addCharacteristic(manufacturerNameChar);
         serviceDataDIS.addCharacteristic(firmwareRevChar);
         serviceDataDIS.addCharacteristic(hardwareRevChar);
+        
+        if (jrnyVirtualTreadmill) {
+            serviceDataDIS.addCharacteristic(modelNumberChar);
+            serviceDataDIS.addCharacteristic(softwareRevChar);
+            serviceDataDIS.addCharacteristic(serialNumberChar);
+            serviceDataDIS.addCharacteristic(systemIdChar);
+        }
 
-        // Create Wahoo Run Service        
-        serviceDataWahoo.setType(QLowEnergyServiceData::ServiceTypePrimary);
-        serviceDataWahoo.setUuid(QBluetoothUuid(QString("A026EE0E-0A7D-4AB3-97FA-F1500F9FEB8B")));
+        // Create Wahoo Run Service (only when not in JRNY mode)
+        if (!jrnyVirtualTreadmill) {
+            serviceDataWahoo.setType(QLowEnergyServiceData::ServiceTypePrimary);
+            serviceDataWahoo.setUuid(QBluetoothUuid(QString("A026EE0E-0A7D-4AB3-97FA-F1500F9FEB8B")));
 
-        // Add Wahoo Run Notify Characteristic
-        QLowEnergyCharacteristicData wahooNotifyChar;
-        wahooNotifyChar.setUuid(QBluetoothUuid(QString("A026E03D-0A7D-4AB3-97FA-F1500F9FEB8B")));
-        wahooNotifyChar.setProperties(QLowEnergyCharacteristic::Read |
-                                    QLowEnergyCharacteristic::WriteNoResponse |
-                                    QLowEnergyCharacteristic::Notify);
-        const QLowEnergyDescriptorData wahooNotifyConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                                        QByteArray(2, 0));
-        wahooNotifyChar.addDescriptor(wahooNotifyConfig);
+            // Add Wahoo Run Notify Characteristic
+            QLowEnergyCharacteristicData wahooNotifyChar;
+            wahooNotifyChar.setUuid(QBluetoothUuid(QString("A026E03D-0A7D-4AB3-97FA-F1500F9FEB8B")));
+            wahooNotifyChar.setProperties(QLowEnergyCharacteristic::Read |
+                                        QLowEnergyCharacteristic::WriteNoResponse |
+                                        QLowEnergyCharacteristic::Notify);
+            const QLowEnergyDescriptorData wahooNotifyConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                            QByteArray(2, 0));
+            wahooNotifyChar.addDescriptor(wahooNotifyConfig);
 
-        // Add Wahoo Run Write Characteristic
-        QLowEnergyCharacteristicData wahooWriteChar;
-        wahooWriteChar.setUuid(QBluetoothUuid(QString("A026E03E-0A7D-4AB3-97FA-F1500F9FEB8B")));
-        wahooWriteChar.setProperties(QLowEnergyCharacteristic::WriteNoResponse |
-                                   QLowEnergyCharacteristic::Indicate);
-        const QLowEnergyDescriptorData wahooWriteConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                                       QByteArray(2, 0));
-        wahooWriteChar.addDescriptor(wahooWriteConfig);
+            // Add Wahoo Run Write Characteristic
+            QLowEnergyCharacteristicData wahooWriteChar;
+            wahooWriteChar.setUuid(QBluetoothUuid(QString("A026E03E-0A7D-4AB3-97FA-F1500F9FEB8B")));
+            wahooWriteChar.setProperties(QLowEnergyCharacteristic::WriteNoResponse |
+                                       QLowEnergyCharacteristic::Indicate);
+            const QLowEnergyDescriptorData wahooWriteConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                           QByteArray(2, 0));
+            wahooWriteChar.addDescriptor(wahooWriteConfig);
 
-        serviceDataWahoo.addCharacteristic(wahooNotifyChar);
-        serviceDataWahoo.addCharacteristic(wahooWriteChar);
+            serviceDataWahoo.addCharacteristic(wahooNotifyChar);
+            serviceDataWahoo.addCharacteristic(wahooWriteChar);
+        }
 
         //! [Service Data]
         if (ftmsServiceEnable()) {
@@ -352,8 +430,10 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         serviceDIS = leController->addService(serviceDataDIS);
         QThread::msleep(100);
         
-        serviceWahoo = leController->addService(serviceDataWahoo);
-        QThread::msleep(100);
+        if (!jrnyVirtualTreadmill) {
+            serviceWahoo = leController->addService(serviceDataWahoo);
+            QThread::msleep(100);
+        }
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)        
         genericAccessServer = leController->addService(genericAccessServerData);
@@ -368,7 +448,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             QObject::connect(serviceFTMS, &QLowEnergyService::characteristicChanged, this,
                              &virtualtreadmill::characteristicChanged);
 
-        if (serviceWahoo)
+        if (!jrnyVirtualTreadmill && serviceWahoo)
             QObject::connect(serviceWahoo, &QLowEnergyService::characteristicChanged, this,
                              &virtualtreadmill::wahooCharacteristicChanged);
 
@@ -467,6 +547,7 @@ void virtualtreadmill::reconnect() {
     QSettings settings;
     bool bluetooth_relaxed =
         settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
+    bool jrnyVirtualTreadmill = settings.value(QZSettings::jrny_virtual_treadmill, QZSettings::default_jrny_virtual_treadmill).toBool();
 
     if (bluetooth_relaxed) {
         return;
@@ -485,8 +566,10 @@ void virtualtreadmill::reconnect() {
     serviceDIS = leController->addService(serviceDataDIS);
     QThread::msleep(100);
     
-    serviceWahoo = leController->addService(serviceDataWahoo);
-    QThread::msleep(100);
+    if (!jrnyVirtualTreadmill) {
+        serviceWahoo = leController->addService(serviceDataWahoo);
+        QThread::msleep(100);
+    }
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     genericAccessServer = leController->addService(genericAccessServerData);
@@ -500,7 +583,7 @@ void virtualtreadmill::reconnect() {
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
 
-    if (serviceFTMS || serviceRSC || serviceWahoo) {
+    if (serviceFTMS || serviceRSC || (!jrnyVirtualTreadmill && serviceWahoo) || (jrnyVirtualTreadmill && serviceDIS)) {
 #ifdef Q_OS_ANDROID
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                  "startAdvertisingTreadmill",
