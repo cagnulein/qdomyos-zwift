@@ -1870,6 +1870,9 @@ class QZSettings {
     static const QString csafe_elliptical_port;
     static const QString default_csafe_elliptical_port;
 
+    static const QString waterrower_usb;
+    static constexpr bool default_waterrower_usb = false;
+
     static const QString ftms_rower;
     static const QString default_ftms_rower;
 
