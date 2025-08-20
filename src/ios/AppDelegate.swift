@@ -100,7 +100,6 @@ var pedometer = CMPedometer()
 		} else {
 			sender = "PHONE"
 		}
-        WorkoutTracking.totalKcal = totalKcal;
         WatchKitConnection.totalKcal = totalKcal;
         Server.server?.send(createString(sender: sender))
     }
