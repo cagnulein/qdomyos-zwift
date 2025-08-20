@@ -337,8 +337,84 @@ jobs:
 #          #depot2Path: StandaloneLinux64
 #          releaseBranch: prerelease
 
-  # This workflow contains a single job called "build"
+  # Build qthttpserver separately with action Qt (for websockets-private)
+  qthttpserver-build:
+    runs-on: ubuntu-24.04
+    
+    steps:
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: cagnulein/qmdnsengine
+          path: "src/qmdnsengine/"
+          ref: "zwift"
+
+      - uses: actions/checkout@v2
+      - name: Checkout qHttpServer
+        uses: actions/checkout@v2
+        with:
+          repository: qt-labs/qthttpserver
+          path: "src/qthttpserver"
+
+      - name: Install Qt via action for qthttpserver websockets-private
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '5.15.2'
+          host: 'linux'
+          modules: 'qtnetworkauth qtcharts'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-qthttpserver'
+
+      - name: download 3rd party files for qthttpserver
+        run: |
+            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+
+      - name: Build qthttpserver
+        run: |
+            cd src/qthttpserver 
+            echo "Building qthttpserver with action Qt (websockets-private available):"
+            which qmake
+            qmake -v
+            qmake
+            make -j8
+            # Install to local directory for packaging
+            make install INSTALL_ROOT=$PWD/install
+            cd ../..
+
+      - name: Package qthttpserver artifacts
+        run: |
+            mkdir qthttpserver-artifacts
+            if [ -d "src/qthttpserver/install" ]; then
+              cp -r src/qthttpserver/install/* qthttpserver-artifacts/
+            else
+              # Fallback: copy from system install location
+              mkdir -p qthttpserver-artifacts/usr/local/include
+              mkdir -p qthttpserver-artifacts/usr/local/lib
+              cp -r /home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/include/QtHttp* qthttpserver-artifacts/usr/local/include/ || echo "No QtHttp headers found"
+              cp /home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/lib/libQt*Http* qthttpserver-artifacts/usr/local/lib/ || echo "No QtHttp libs found"
+            fi
+            # List contents for debugging
+            echo "qthttpserver artifacts contents:"
+            find qthttpserver-artifacts -type f | head -20
+
+      - name: Upload qthttpserver artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: qthttpserver-prebuilt
+          path: qthttpserver-artifacts/
+
+  # Main Linux build using system Qt (with proper SQL support)
   linux-x86-build:
+    needs: qthttpserver-build
     # The type of runner that the job will run on
     runs-on: ubuntu-24.04
 
@@ -401,41 +477,27 @@ jobs:
           path: "tst/googletest/"
           ref: "release-1.12.1"
 
-      - uses: actions/checkout@v2
-      - name: Checkout qHttpServer
-        uses: actions/checkout@v2
-        with:
-          repository: qt-labs/qthttpserver
-          path: "src/qthttpserver"
-
       - name: Install system Qt5 packages 
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5-dev libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev libqt5sql5 libqt5sql5-sqlite qtmultimedia5-dev qtdeclarative5-dev libqt5texttospeech5-dev qtlocation5-dev qtwebengine5-dev qml-module-qtquick-controls2 qml-module-qtlocation qml-module-qtpositioning libqt5quickcontrols2-5
 
-      - name: Install Qt via action for qthttpserver websockets-private
-        uses: jurplel/install-qt-action@v3
+      - name: Download qthttpserver artifacts
+        uses: actions/download-artifact@v4
         with:
-          version: '5.15.2'
-          host: 'linux'
-          modules: 'qtnetworkauth qtcharts'
-          cache: 'true'
-          cache-key-prefix: 'install-qt-action-linux'                    
-
-      - name: download 3rd party files for qthttpserver
+          name: qthttpserver-prebuilt
+          path: qthttpserver-prebuilt/
+          
+      - name: Install qthttpserver for system Qt
         run: |
-            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
-
-      - name: Build qthttpserver with hybrid approach
-        run: |
-            cd src/qthttpserver 
-            echo "Building qthttpserver with jurplel Qt for websockets-private:"
-            export PATH=/home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/bin:$PATH
-            export LD_LIBRARY_PATH=/home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/lib:$LD_LIBRARY_PATH
-            which qmake
-            qmake -v
-            qmake
-            make -j8
-            make install
-            cd ../..
+            echo "Installing pre-built qthttpserver for system Qt:"
+            if [ -d "qthttpserver-prebuilt/usr/local/include" ]; then
+              sudo cp -r qthttpserver-prebuilt/usr/local/include/* /usr/include/
+            fi
+            if [ -d "qthttpserver-prebuilt/usr/local/lib" ]; then
+              sudo cp -r qthttpserver-prebuilt/usr/local/lib/* /usr/lib/x86_64-linux-gnu/
+            fi
+            echo "Installed qthttpserver files:"
+            find /usr/include -name "*Http*" | head -10 || echo "No Http headers found"
+            find /usr/lib/x86_64-linux-gnu -name "*Http*" | head -10 || echo "No Http libs found"
 
       - name: Compile Linux Desktop
         run: |
@@ -1698,7 +1760,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-22.04 
     #if: github.event_name == 'schedule'
-    needs: [linux-x86-build, window-msvc2019-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]
+    needs: [qthttpserver-build, linux-x86-build, window-msvc2019-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
