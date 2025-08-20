@@ -190,30 +190,6 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 SwiftDebug.qtDebug("WorkoutTracking active calories: " + error.localizedDescription)
             }
         }
-        
-        // Write total calories if available (when active calories setting is enabled)
-        if WorkoutTracking.totalKcal > 0 {
-            guard let basalQuantityType = HKQuantityType.quantityType(
-              forIdentifier: .basalEnergyBurned) else {
-              return
-            }
-            
-            // Calculate basal calories as difference between total and active
-            let basalEnergyBurned = WorkoutTracking.totalKcal - activeEnergyBurned
-            let basalQuantity = HKQuantity(unit: unit,
-                                          doubleValue: basalEnergyBurned)
-            
-            let basalSample = HKCumulativeQuantitySeriesSample(type: basalQuantityType,
-                                                              quantity: basalQuantity,
-                                                              start: startDate,
-                                                              end: Date())
-            
-            workoutBuilder.add([basalSample]) {(success, error) in
-                if let error = error {
-                    SwiftDebug.qtDebug("WorkoutTracking basal calories: " + error.localizedDescription)
-                }
-            }
-        }
             
         let unitDistance = HKUnit.mile()
         let miles = WorkoutTracking.distance * 0.000621371
