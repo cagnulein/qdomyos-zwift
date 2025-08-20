@@ -28,6 +28,7 @@ class WorkoutTracking: NSObject {
     static let shared = WorkoutTracking()
     public static var distance = Double()
     public static var kcal = Double()
+    public static var totalKcal = Double()
     public static var cadenceTimeStamp = NSDate().timeIntervalSince1970
     public static var cadenceLastSteps = Double()
     public static var cadenceSteps = 0
@@ -166,6 +167,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
                     HKSampleType.quantityType(forIdentifier: .distanceWalkingRunning)!,
                     HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,
+                    HKSampleType.quantityType(forIdentifier: .basalEnergyBurned)!,
                     HKSampleType.quantityType(forIdentifier: .cyclingPower)!,
                     HKSampleType.quantityType(forIdentifier: .cyclingSpeed)!,
                     HKSampleType.quantityType(forIdentifier: .cyclingCadence)!,
@@ -185,6 +187,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
                     HKSampleType.quantityType(forIdentifier: .distanceWalkingRunning)!,
                     HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,
+                    HKSampleType.quantityType(forIdentifier: .basalEnergyBurned)!,
                     HKSampleType.workoutType()
                     ])
             }
@@ -223,24 +226,53 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         workoutSession.stopActivity(with: Date())
         workoutSession.end()
         
-        guard let quantityType = HKQuantityType.quantityType(
+        // Write active calories
+        guard let activeQuantityType = HKQuantityType.quantityType(
           forIdentifier: .activeEnergyBurned) else {
           return
         }
             
         let unit = HKUnit.kilocalorie()
-        let totalEnergyBurned = WorkoutTracking.kcal
-        let quantity = HKQuantity(unit: unit,
-                                  doubleValue: totalEnergyBurned)
+        let activeEnergyBurned = WorkoutTracking.kcal
+        let activeQuantity = HKQuantity(unit: unit,
+                                       doubleValue: activeEnergyBurned)
         
         let startDate = workoutSession.startDate ?? WorkoutTracking.lastDateMetric
         
-        let sample = HKCumulativeQuantitySeriesSample(type: quantityType,
-                                                      quantity: quantity,
-                                                      start: startDate,
-                                                      end: Date())
+        let activeSample = HKCumulativeQuantitySeriesSample(type: activeQuantityType,
+                                                           quantity: activeQuantity,
+                                                           start: startDate,
+                                                           end: Date())
         
-        workoutBuilder.add([sample]) {(success, error) in}
+        workoutBuilder.add([activeSample]) {(success, error) in
+            if let error = error {
+                print("WatchWorkoutTracking active calories: \(error.localizedDescription)")
+            }
+        }
+        
+        // Write total calories if available (when active calories setting is enabled)
+        if WorkoutTracking.totalKcal > 0 {
+            guard let basalQuantityType = HKQuantityType.quantityType(
+              forIdentifier: .basalEnergyBurned) else {
+              return
+            }
+            
+            // Calculate basal calories as difference between total and active
+            let basalEnergyBurned = WorkoutTracking.totalKcal - activeEnergyBurned
+            let basalQuantity = HKQuantity(unit: unit,
+                                          doubleValue: basalEnergyBurned)
+            
+            let basalSample = HKCumulativeQuantitySeriesSample(type: basalQuantityType,
+                                                              quantity: basalQuantity,
+                                                              start: startDate,
+                                                              end: Date())
+            
+            workoutBuilder.add([basalSample]) {(success, error) in
+                if let error = error {
+                    print("WatchWorkoutTracking basal calories: \(error.localizedDescription)")
+                }
+            }
+        }
             
         let unitDistance = HKUnit.mile()
         let miles = WorkoutTracking.distance
@@ -273,6 +305,10 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                             print(error)
                         }
                         workout?.setValue(quantityMiles, forKey: "totalDistance")
+                        // Set total energy burned on the workout
+                        let totalEnergy = WorkoutTracking.totalKcal > 0 ? WorkoutTracking.totalKcal : activeEnergyBurned
+                        let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
+                        workout?.setValue(totalEnergyQuantity, forKey: "totalEnergyBurned")
                     }
                 }
             }
@@ -334,6 +370,10 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                              print(error)
                          }
                          workout?.setValue(quantityMiles, forKey: "totalDistance")
+                         // Set total energy burned on the workout
+                         let totalEnergy = WorkoutTracking.totalKcal > 0 ? WorkoutTracking.totalKcal : activeEnergyBurned
+                         let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
+                         workout?.setValue(totalEnergyQuantity, forKey: "totalEnergyBurned")
                      }
                  }
              }
@@ -399,6 +439,10 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                             print(error)
                         }
                         workout?.setValue(quantityMiles, forKey: "totalDistance")
+                        // Set total energy burned on the workout
+                        let totalEnergy = WorkoutTracking.totalKcal > 0 ? WorkoutTracking.totalKcal : activeEnergyBurned
+                        let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
+                        workout?.setValue(totalEnergyQuantity, forKey: "totalEnergyBurned")
                     }
                 }
             }
