@@ -667,6 +667,8 @@ const QString QZSettings::csafe_elliptical_port = QStringLiteral("csafe_elliptic
 const QString QZSettings::default_csafe_elliptical_port = QStringLiteral("");
 const QString QZSettings::ftms_rower = QStringLiteral("ftms_rower");
 const QString QZSettings::default_ftms_rower = QStringLiteral("Disabled");
+const QString QZSettings::ftms_elliptical = QStringLiteral("ftms_elliptical");
+const QString QZSettings::default_ftms_elliptical = QStringLiteral("Disabled");
 const QString QZSettings::zwift_workout_ocr = QStringLiteral("zwift_workout_ocr");
 const QString QZSettings::proform_bike_sb = QStringLiteral("proform_bike_sb");
 const QString QZSettings::fakedevice_rower = QStringLiteral("fakedevice_rower");
@@ -974,7 +976,7 @@ const QString QZSettings::tile_auto_virtual_shifting_sprint_enabled = QStringLit
 const QString QZSettings::tile_auto_virtual_shifting_sprint_order = QStringLiteral("tile_auto_virtual_shifting_sprint_order");
 
 
-const uint32_t allSettingsCount = 797;
+const uint32_t allSettingsCount = 798;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1538,6 +1540,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::csafe_rower, QZSettings::default_csafe_rower},
     {QZSettings::csafe_elliptical_port, QZSettings::default_csafe_elliptical_port},
     {QZSettings::ftms_rower, QZSettings::default_ftms_rower},
+    {QZSettings::ftms_elliptical, QZSettings::default_ftms_elliptical},
     {QZSettings::zwift_workout_ocr, QZSettings::default_zwift_workout_ocr},
     {QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb},
     {QZSettings::fakedevice_rower, QZSettings::default_fakedevice_rower},

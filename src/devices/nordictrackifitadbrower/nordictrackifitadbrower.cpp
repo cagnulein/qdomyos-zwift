@@ -1,5 +1,6 @@
 #include "nordictrackifitadbrower.h"
 #include "qzsettings.h"
+#include "virtualdevices/virtualrower.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -142,17 +143,21 @@ nordictrackifitadbrower::nordictrackifitadbrower(bool noWriteResistance, bool no
 
     initRequest = true;
 
-    // ******************************************* virtual bike init *************************************
+    // ******************************************* virtual device init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice()) {
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_rower =
+            settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
+        bool virtual_device_force_bike =
+            settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence =
             settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround =
             settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence) {
+        if (ios_peloton_workaround && cadence && !virtual_device_rower) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
             h->virtualbike_ios();
@@ -160,12 +165,23 @@ nordictrackifitadbrower::nordictrackifitadbrower(bool noWriteResistance, bool no
 #endif
 #endif
             if (virtual_device_enabled) {
-            qDebug() << QStringLiteral("creating virtual bike interface...");
-            auto virtualBike =
-                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-            // connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
-            //connect(virtualBike, &virtualbike::changeResistance, this, &nordictrackifitadbrower::changeResistanceRequested);
-            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+            if (virtual_device_rower) {
+                qDebug() << QStringLiteral("creating virtual rower interface...");
+                auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                // connect(virtualRower,&virtualrower::debug ,this,&nordictrackifitadbrower::debug);
+                this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
+            } else if (virtual_device_force_bike) {
+                qDebug() << QStringLiteral("creating virtual bike interface...");
+                auto virtualBike =
+                    new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                // connect(virtualBike,&virtualbike::debug ,this,&nordictrackifitadbrower::debug);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+            } else {
+                qDebug() << QStringLiteral("creating virtual rower interface...");
+                auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                // connect(virtualRower,&virtualrower::debug ,this,&nordictrackifitadbrower::debug);
+                this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
+            }
         }
     }
     firstStateChanged = 1;
