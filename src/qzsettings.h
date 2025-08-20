@@ -2661,6 +2661,12 @@ class QZSettings {
     static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
 
     /**
+     * @brief Enable JRNY virtual treadmill (Android only)
+     */
+    static const QString jrny_virtual_treadmill;
+    static constexpr bool default_jrny_virtual_treadmill = false;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
