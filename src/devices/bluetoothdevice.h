@@ -108,11 +108,17 @@ class bluetoothdevice : public QObject {
 
     /**
      * @brief calories Gets a metric object to get and set the amount of energy expended.
-     * Default implementation returns the protected KCal property. Units: kcal
+     * Default implementation returns the protected KCal property, potentially adjusted for active calories. Units: kcal
      * Other implementations could have different units.
      * @return
      */
     virtual metric calories();
+
+    /**
+     * @brief totalCalories Gets total calories (including BMR) regardless of active calories setting.
+     * @return Total calories metric
+     */
+    virtual metric totalCalories();
 
     /**
      * @brief jouls Gets a metric object to get and set the number of joules expended. Units: joules

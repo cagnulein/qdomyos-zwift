@@ -129,6 +129,11 @@ void lockscreen::setKcal(double kcal)
     [h setKcalWithKcal:kcal];
 }
 
+void lockscreen::setTotalKcal(double totalKcal)
+{
+    [h setTotalKcalWithTotalKcal:totalKcal];
+}
+
 void lockscreen::setDistance(double distance)
 {
     [h setDistanceWithDistance:distance * 0.621371];

@@ -109,7 +109,24 @@ QTime bluetoothdevice::maxPace() {
 double bluetoothdevice::odometerFromStartup() { return Distance.valueRaw(); }
 double bluetoothdevice::odometer() { return Distance.value(); }
 double bluetoothdevice::lapOdometer() { return Distance.lapValue(); }
-metric bluetoothdevice::calories() { return KCal; }
+metric bluetoothdevice::calories() { 
+    QSettings settings;
+    bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
+    
+    if (activeOnly) {
+        // Return active calories (total minus BMR)
+        metric activeKCal = KCal;
+        activeKCal.setValue(metric::calculateActiveKCal(KCal.value(), elapsed.value()));
+        return activeKCal;
+    } else {
+        // Return total calories
+        return KCal; 
+    }
+}
+
+metric bluetoothdevice::totalCalories() { 
+    return KCal; 
+}
 metric bluetoothdevice::jouls() { return m_jouls; }
 uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
 bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
@@ -254,7 +271,17 @@ void bluetoothdevice::update_hr_from_external() {
 #ifndef IO_UNDER_QT
             lockscreen h;
             long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
+            QSettings settings;
+            bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
+            
+            if (activeOnly) {
+                // When active calories setting is enabled, send both total and active calories
+                h.setKcal(calories().value()); // This will be active calories
+                h.setTotalKcal(totalCalories().value()); // This will be total calories
+            } else {
+                // When disabled, send total calories as before
+                h.setKcal(calories().value()); // This will be total calories
+            }
             h.setDistance(Distance.value());
             h.setSpeed(Speed.value());
             h.setPower(m_watt.value());

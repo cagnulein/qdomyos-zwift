@@ -10,6 +10,7 @@ class lockscreen {
     long heartRate();
     long stepCadence();
     void setKcal(double kcal);
+    void setTotalKcal(double totalKcal);
     void setDistance(double distance);
     void setSteps(double steps);
     void setSpeed(double speed);

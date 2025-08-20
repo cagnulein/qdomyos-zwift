@@ -2661,6 +2661,18 @@ class QZSettings {
     static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
 
     /**
+     * @brief Calculate only active calories (exclude basal metabolic rate)
+     */
+    static const QString calories_active_only;
+    static constexpr bool default_calories_active_only = false;
+
+    /**
+     * @brief User height in centimeters for BMR calculation
+     */
+    static const QString height;
+    static constexpr double default_height = 175.0;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
