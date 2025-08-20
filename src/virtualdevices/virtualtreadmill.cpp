@@ -24,6 +24,10 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 #ifndef Q_OS_ANDROID
         qDebug() << "JRNY Virtual Treadmill is only supported on Android";
         jrnyVirtualTreadmill = false; // Disable on non-Android platforms
+#else
+        // Force heart rate service outside FTMS for JRNY compatibility
+        noHeartService = true;
+        qDebug() << "JRNY Virtual Treadmill: forcing heart rate service outside FTMS";
 #endif
     }
 
