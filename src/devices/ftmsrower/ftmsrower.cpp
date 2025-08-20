@@ -164,11 +164,9 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
         if (newValue.length() >= 7) {
             // Extract cadence (SPM) from byte 5
             uint8_t spm = (uint8_t)newValue.at(5);
-            if (pm5RowState == 1 && spm > 0) {
+            if (spm > 0) {
                 Cadence = spm;
                 lastStroke = now;
-            } else if (pm5RowState == 0) {
-                Cadence = 0;
             }
             
             // Extract speed from bytes 3-4 (little endian) in 0.001m/s  
@@ -201,10 +199,8 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
             
             // Extract power from bytes 3-4 (little endian)
             uint16_t power = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
-            if (pm5RowState == 1 && power > 0) {
+            if (power > 0) {
                 m_watt = power;
-            } else if (pm5RowState == 0) {
-                m_watt = 0;
             }
             
             emit debug(QStringLiteral("PM5 CE060036 RAW: ") + newValue.toHex(' ') + 
@@ -230,6 +226,13 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
     
     lastRefreshCharacteristicChanged = now;
     
+    // Apply RowState logic after all characteristics processing
+    if (PM5 && pm5RowState == 0) {
+        m_watt = 0;
+        Cadence = 0;
+        Speed = 0;
+    }
+    
     // Update metrics for virtual device
     update_metrics(false, m_watt.value());
     
@@ -237,7 +240,8 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
               QStringLiteral(" Speed: ") + QString::number(Speed.value()) +
               QStringLiteral(" Power: ") + QString::number(m_watt.value()) +
               QStringLiteral(" Distance: ") + QString::number(Distance.value()) +
-              QStringLiteral(" Calories: ") + QString::number(KCal.value()));
+              QStringLiteral(" Calories: ") + QString::number(KCal.value()) +
+              QStringLiteral(" RowState: ") + QString::number(pm5RowState));
 }
 
 void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
