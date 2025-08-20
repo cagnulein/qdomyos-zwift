@@ -162,7 +162,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         }
 
         QLowEnergyCharacteristicData systemIdChar;
-        systemIdChar.setUuid(QBluetoothUuid::CharacteristicType::SystemId);
+        systemIdChar.setUuid(QBluetoothUuid::CharacteristicType::SystemID);
         systemIdChar.setProperties(QLowEnergyCharacteristic::Read);
         if (jrnyVirtualTreadmill) {
             QByteArray systemIdData;
