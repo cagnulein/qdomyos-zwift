@@ -84,6 +84,19 @@
         <file>gpx/Richmond Park.gpx</file>
         <file>gpx/St Andrews to Pittenweem.gpx</file>
         <file>GPXList.qml</file>
+        <file>WorkoutsHistory.qml</file>
+        <file>WorkoutTypeTag.qml</file>
+        <file>inner_templates/previewchart/ajax-loader.gif</file>
+        <file>inner_templates/previewchart/chart.htm</file>
+        <file>inner_templates/previewchart/chartjs-adapter-moment.js</file>
+        <file>inner_templates/previewchart/chartjs-plugin-annotation.min.js</file>
+        <file>inner_templates/previewchart/chartjs.3.4.1.min.js</file>
+        <file>inner_templates/previewchart/dochart.js</file>
+        <file>inner_templates/previewchart/globals.js</file>
+        <file>inner_templates/previewchart/jquery-3.6.0.min.js</file>
+        <file>inner_templates/previewchart/main_ws_manager.js</file>
+        <file>inner_templates/previewchart/moment.js</file>
+        <file>inner_templates/previewchart/resize-observer.min.js</file>
         <file>videoPlayback.qml</file>
         <file>settings-tiles.qml</file>
         <file>inner_templates/floating/floating.htm</file>
@@ -114,6 +127,7 @@
         <file>StaticAccordionElement.qml</file>
         <file>inner_templates/chartjs/dotreadmillchartlive.js</file>
         <file>inner_templates/chartjs/treadmillchartlive.htm</file>
+        <file>PreviewChart.qml</file>
         <file>WebPelotonAuth.qml</file>
         <file>inner_templates/floating/hfloating.htm</file>
     </qresource>

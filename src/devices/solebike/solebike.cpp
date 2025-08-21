@@ -249,6 +249,11 @@ void solebike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         return;
     }
 
+    if (((unsigned char)newValue.at(1)) != 0x13) {
+        qDebug() << QStringLiteral("not a valid packet");
+        return;
+    }
+
     double distance = GetDistanceFromPacket(newValue);
 
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
@@ -335,7 +340,14 @@ QTime solebike::GetElapsedFromPacket(const QByteArray &packet) {
 double solebike::GetDistanceFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
     double data = ((double)convertedData) / 100.0f;
-    return data;
+    
+    // the bike send the distance in miles always
+    QSettings settings;
+    double miles = 1;
+    if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
+        miles = 1.60934;
+    
+    return data * miles;
 }
 
 double solebike::GetWattFromPacket(const QByteArray &packet) {
@@ -347,7 +359,14 @@ double solebike::GetWattFromPacket(const QByteArray &packet) {
 double solebike::GetSpeedFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(11) << 8) | packet.at(12);
     double data = ((double)convertedData) / 100.0f;
-    return data;
+    
+    // the bike send the speed in miles always
+    QSettings settings;
+    double miles = 1;
+    if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
+        miles = 1.60934;
+    
+    return data * miles;
 }
 
 void solebike::btinit() {

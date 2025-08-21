@@ -775,6 +775,15 @@ class QZSettings {
     static const QString technogym_myrun_treadmill_experimental;
     static constexpr bool default_technogym_myrun_treadmill_experimental = false;
 
+    static const QString technogym_group_cycle;
+    static constexpr bool default_technogym_group_cycle = false;
+
+    static const QString ant_bike_device_number;
+    static constexpr int default_ant_bike_device_number = 0;
+
+    static const QString ant_heart_device_number;
+    static constexpr int default_ant_heart_device_number = 0;
+
     static const QString trainprogram_random;
     static constexpr bool default_trainprogram_random = false;
 
@@ -1864,6 +1873,9 @@ class QZSettings {
     static const QString ftms_rower;
     static const QString default_ftms_rower;
 
+    static const QString ftms_elliptical;
+    static const QString default_ftms_elliptical;
+
     static const QString zwift_workout_ocr;
     static constexpr bool default_zwift_workout_ocr = false;
 
@@ -2109,6 +2121,9 @@ class QZSettings {
     static const QString peloton_treadmill_level;
     static constexpr int default_peloton_treadmill_level = 1;
 
+    static const QString peloton_treadmill_walk_level;
+    static constexpr int default_peloton_treadmill_walk_level = 1;
+
     static const QString nordictrackadbbike_resistance;
     static constexpr bool default_nordictrackadbbike_resistance = false;
 
@@ -2129,6 +2144,10 @@ class QZSettings {
 
     static const QString proform_elliptical_ip;
     static const QString default_proform_elliptical_ip;
+
+    static const QString proform_rower_ip;
+    static const QString default_proform_rower_ip;
+
 
     static const QString antbike;
     static constexpr bool default_antbike = false;
@@ -2517,10 +2536,135 @@ class QZSettings {
     static const QString default_inclinationResistancePoints;
 
     /**
+     * @brief Enable automatic virtual shifting based on cadence thresholds
+     */
+    static const QString automatic_virtual_shifting_enabled;
+    static constexpr bool default_automatic_virtual_shifting_enabled = false;
+
+    /**
+     * @brief Selected profile for automatic virtual shifting (0=cruise, 1=climb, 2=sprint)
+     */
+    static const QString automatic_virtual_shifting_profile;
+    static constexpr int default_automatic_virtual_shifting_profile = 0;
+
+    /**
+     * @brief Cadence threshold for gear up - Cruise Profile (RPM)
+     */
+    static const QString automatic_virtual_shifting_gear_up_cadence;
+    static constexpr int default_automatic_virtual_shifting_gear_up_cadence = 95;
+
+    /**
+     * @brief Time above cadence threshold before gear up - Cruise Profile (seconds)
+     */
+    static const QString automatic_virtual_shifting_gear_up_time;
+    static constexpr float default_automatic_virtual_shifting_gear_up_time = 2.0;
+
+    /**
+     * @brief Cadence threshold for gear down - Cruise Profile (RPM)
+     */
+    static const QString automatic_virtual_shifting_gear_down_cadence;
+    static constexpr int default_automatic_virtual_shifting_gear_down_cadence = 65;
+
+    /**
+     * @brief Time below cadence threshold before gear down - Cruise Profile (seconds)
+     */
+    static const QString automatic_virtual_shifting_gear_down_time;
+    static constexpr float default_automatic_virtual_shifting_gear_down_time = 2.0;
+
+    // Climb Profile Settings
+    /**
+     * @brief Cadence threshold for gear up - Climb Profile (RPM)
+     */
+    static const QString automatic_virtual_shifting_climb_gear_up_cadence;
+    static constexpr int default_automatic_virtual_shifting_climb_gear_up_cadence = 95;
+
+    /**
+     * @brief Time above cadence threshold before gear up - Climb Profile (seconds)
+     */
+    static const QString automatic_virtual_shifting_climb_gear_up_time;
+    static constexpr float default_automatic_virtual_shifting_climb_gear_up_time = 2.0;
+
+    /**
+     * @brief Cadence threshold for gear down - Climb Profile (RPM)
+     */
+    static const QString automatic_virtual_shifting_climb_gear_down_cadence;
+    static constexpr int default_automatic_virtual_shifting_climb_gear_down_cadence = 65;
+
+    /**
+     * @brief Time below cadence threshold before gear down - Climb Profile (seconds)
+     */
+    static const QString automatic_virtual_shifting_climb_gear_down_time;
+    static constexpr float default_automatic_virtual_shifting_climb_gear_down_time = 2.0;
+
+    // Sprint Profile Settings
+    /**
+     * @brief Cadence threshold for gear up - Sprint Profile (RPM)
+     */
+    static const QString automatic_virtual_shifting_sprint_gear_up_cadence;
+    static constexpr int default_automatic_virtual_shifting_sprint_gear_up_cadence = 95;
+
+    /**
+     * @brief Time above cadence threshold before gear up - Sprint Profile (seconds)
+     */
+    static const QString automatic_virtual_shifting_sprint_gear_up_time;
+    static constexpr float default_automatic_virtual_shifting_sprint_gear_up_time = 2.0;
+
+    /**
+     * @brief Cadence threshold for gear down - Sprint Profile (RPM)
+     */
+    static const QString automatic_virtual_shifting_sprint_gear_down_cadence;
+    static constexpr int default_automatic_virtual_shifting_sprint_gear_down_cadence = 65;
+
+    /**
+     * @brief Time below cadence threshold before gear down - Sprint Profile (seconds)
+     */
+    static const QString automatic_virtual_shifting_sprint_gear_down_time;
+    static constexpr float default_automatic_virtual_shifting_sprint_gear_down_time = 2.0;
+
+    /**
      * @brief Type of floating window to use. 0 = classic, 1 = horizontal
      */
     static const QString floatingwindow_type;
     static constexpr int default_floatingwindow_type = 0;
+
+    static const QString pid_heart_zone_erg_mode_watt_step;
+    static constexpr int default_pid_heart_zone_erg_mode_watt_step = 5;
+
+    /**
+     * @brief Enable auto virtual shifting cruise tile
+     */
+    static const QString tile_auto_virtual_shifting_cruise_enabled;
+    static constexpr bool default_tile_auto_virtual_shifting_cruise_enabled = false;
+
+    /**
+     * @brief Order of auto virtual shifting cruise tile
+     */
+    static const QString tile_auto_virtual_shifting_cruise_order;
+    static constexpr int default_tile_auto_virtual_shifting_cruise_order = 55;
+
+    /**
+     * @brief Enable auto virtual shifting climb tile
+     */
+    static const QString tile_auto_virtual_shifting_climb_enabled;
+    static constexpr bool default_tile_auto_virtual_shifting_climb_enabled = false;
+
+    /**
+     * @brief Order of auto virtual shifting climb tile
+     */
+    static const QString tile_auto_virtual_shifting_climb_order;
+    static constexpr int default_tile_auto_virtual_shifting_climb_order = 56;
+
+    /**
+     * @brief Enable auto virtual shifting sprint tile
+     */
+    static const QString tile_auto_virtual_shifting_sprint_enabled;
+    static constexpr bool default_tile_auto_virtual_shifting_sprint_enabled = false;
+
+    /**
+     * @brief Order of auto virtual shifting sprint tile
+     */
+    static const QString tile_auto_virtual_shifting_sprint_order;
+    static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
