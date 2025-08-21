@@ -646,7 +646,7 @@ jobs:
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
         with:
-          name: fdroid-android-trial
+          name: fdroid-android-peloton-bike-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
 
   android-emulator-test:
@@ -712,7 +712,7 @@ jobs:
       - name: Download APK Artifact
         uses: actions/download-artifact@v4
         with:
-          name: fdroid-android-trial
+          name: fdroid-android-peloton-bike-trial
           path: apk-debug
           
       - name: Setup Java for Android Emulator
@@ -1568,7 +1568,7 @@ jobs:
             - **windows**: MinGW build (alternative version)
 
             ## Other Platforms:
-            - **fdroid-android-trial**: Android build
+            - **fdroid-android-peloton-bike-trial**: Android build with Peloton bike integration
             - **raspberry-pi-binary**: Raspberry Pi build
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
@@ -1580,6 +1580,6 @@ jobs:
             windows-msvc2019-ai-server-binary/*            
             windows-binary-no-python/*
             windows-binary/*
-            fdroid-android-trial/*
+            fdroid-android-peloton-bike-trial/*
             raspberry-pi-binary/qdomyos-zwift-32bit
             raspberry-pi-binary/qdomyos-zwift-64bit

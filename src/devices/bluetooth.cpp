@@ -36,8 +36,10 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     this->useDiscovery = startDiscovery;
 
     const bool nordictrack = true; // to replace
+    const bool pelotonSensorBranch = true; // Peloton sensor integration branch
 
-    if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() && !pelotonBike) {
+    // Always instantiate peloton bike in this branch for direct sensor access
+    if ((settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() || pelotonSensorBranch) && !pelotonBike) {
         pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
         emit deviceConnected(QBluetoothDeviceInfo());
         connect(pelotonBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
