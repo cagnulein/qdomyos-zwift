@@ -3094,7 +3094,7 @@ void bluetooth::connectedAndDiscovered() {
     }
 #ifdef Q_OS_ANDROID
     const bool nordictrack = true; // to replace
-    if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() 
+    if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() || 
         settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
                                                                                "activity", "()Landroid/app/Activity;");
