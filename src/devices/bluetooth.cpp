@@ -35,7 +35,6 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
     this->useDiscovery = startDiscovery;
 
-    const bool nordictrack = true; // to replace
     const bool pelotonSensorBranch = true; // Peloton sensor integration branch
 
     // Always instantiate peloton bike in this branch for direct sensor access
