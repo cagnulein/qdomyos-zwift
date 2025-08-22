@@ -261,8 +261,15 @@ ScrollView {
         property int  tile_heat_time_in_zone_3_order: 70
         property bool tile_heat_time_in_zone_4_enabled: false
         property int  tile_heat_time_in_zone_4_order: 71
-        
+
         property bool tile_hr_time_in_zone_individual_mode: false
+
+        property bool tile_auto_virtual_shifting_cruise_enabled: false
+        property int  tile_auto_virtual_shifting_cruise_order: 72
+        property bool tile_auto_virtual_shifting_climb_enabled: false
+        property int  tile_auto_virtual_shifting_climb_order: 73
+        property bool tile_auto_virtual_shifting_sprint_enabled: false
+        property int  tile_auto_virtual_shifting_sprint_order: 74               
     }
 
 
@@ -5265,6 +5272,135 @@ ScrollView {
 
         Label {
             text: qsTr("Displays total time spent in heat Zone 4 during the session.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: autoVirtualShiftingCruiseEnabledAccordion
+            title: qsTr("Auto Virtual Shifting Cruise")
+            linkedBoolSetting: "tile_auto_virtual_shifting_cruise_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: autoVirtualShiftingCruiseOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_auto_virtual_shifting_cruise_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = autoVirtualShiftingCruiseOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_auto_virtual_shifting_cruise_order = autoVirtualShiftingCruiseOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Button tile to switch automatic virtual shifting to Cruise profile.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: autoVirtualShiftingClimbEnabledAccordion
+            title: qsTr("Auto Virtual Shifting Climb")
+            linkedBoolSetting: "tile_auto_virtual_shifting_climb_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: autoVirtualShiftingClimbOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_auto_virtual_shifting_climb_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = autoVirtualShiftingClimbOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_auto_virtual_shifting_climb_order = autoVirtualShiftingClimbOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Button tile to switch automatic virtual shifting to Climb profile.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: autoVirtualShiftingSprintEnabledAccordion
+            title: qsTr("Auto Virtual Shifting Sprint")
+            linkedBoolSetting: "tile_auto_virtual_shifting_sprint_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: autoVirtualShiftingSprintOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_auto_virtual_shifting_sprint_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = autoVirtualShiftingSprintOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_auto_virtual_shifting_sprint_order = autoVirtualShiftingSprintOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Button tile to switch automatic virtual shifting to Sprint profile.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2

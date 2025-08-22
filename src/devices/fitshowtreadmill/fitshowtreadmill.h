@@ -153,6 +153,7 @@ class fitshowtreadmill : public treadmill {
     double minStepInclinationValue = 1.0;
     bool noblepro_connected = false;
     bool fs_connected = false;
+    bool tunturi_t80_connected = false;
 
     metric rawInclination;
 

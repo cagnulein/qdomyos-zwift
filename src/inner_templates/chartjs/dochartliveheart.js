@@ -218,24 +218,7 @@ function process_arr_heart(arr) {
         options: {
             animation: {
               onComplete: function() {
-                  if(saveScreenshot[1])
-                      return;
-                  saveScreenshot[1] = true;
-                  let el = new MainWSQueueElement({
-                      msg: 'savechart',
-                      content: {
-                          name: 'heart',
-                          image: heartChart.toBase64Image()
-                      }
-                  }, function(msg) {
-                      if (msg.msg === 'R_savechart') {
-                          return msg.content;
-                      }
-                      return null;
-                  }, 15000, 3);
-                  el.enqueue().catch(function(err) {
-                      console.error('Error is ' + err);
-                  });
+                  // Live charts should not auto-save during workout
               }
             },
             responsive: true,
