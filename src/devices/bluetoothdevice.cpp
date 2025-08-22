@@ -114,8 +114,6 @@ metric bluetoothdevice::calories() {
     bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
     
     if (activeOnly) {
-        // Return active calories (total minus BMR)
-        metric activeKCal = KCal;
         activeKCal.setValue(metric::calculateActiveKCal(KCal.value(), elapsed.value()));
         return activeKCal;
     } else {
@@ -127,6 +125,11 @@ metric bluetoothdevice::calories() {
 metric bluetoothdevice::totalCalories() { 
     return KCal; 
 }
+
+metric bluetoothdevice::activeCalories() {
+    return activeKCal;
+}
+
 metric bluetoothdevice::jouls() { return m_jouls; }
 uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
 bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
@@ -304,7 +307,7 @@ void bluetoothdevice::update_hr_from_external() {
     double kcal = calories().value();
     if(kcal < 0)
         kcal = 0;
-    h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(), deviceType(), odometer() * 1000.0);
+    h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(), deviceType(), odometer() * 1000.0, totalCalories().value());
     #endif
     #endif    
 }

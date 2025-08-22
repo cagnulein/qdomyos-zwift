@@ -294,7 +294,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         workoutInProgress = false;
     }
     
-    @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8, distance: Double) {
+    @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8, distance: Double, totalKcal: Double) {
         SwiftDebug.qtDebug("WorkoutTracking: GET DATA: \(Date())")
         
         if(workoutInProgress == false && power > 0) {
@@ -306,6 +306,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         let Speed = speed / 100;
         
         WorkoutTracking.kcal = kcal
+        WorkoutTracking.totalKcal = totalKcal
         WorkoutTracking.steps = steps
         WorkoutTracking.distance = distance
 
