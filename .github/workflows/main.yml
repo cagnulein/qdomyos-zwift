@@ -905,7 +905,7 @@ jobs:
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
-          qmake CONFIG+=debug && make -j4
+          qmake CONFIG+=debug CONFIG+=iphonesimulator && make -j4
 
       # causes iOS build on Mac to fail
       # - name: Commit moc files
