@@ -73,6 +73,8 @@ public class PelotonSensorBinder {
         
         Intent intent = new Intent();
         intent.setAction(PELOTON_SENSOR_ACTION);
+        // Make intent explicit to fix Android security requirements
+        intent.setPackage("com.onepeloton.callisto");
         
         boolean bound = context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
         
