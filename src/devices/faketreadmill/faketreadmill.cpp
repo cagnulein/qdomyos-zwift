@@ -61,17 +61,6 @@ void faketreadmill::update() {
 
     Distance += ((Speed.value() / (double)3600.0) /
                  ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(now))));
-    
-    
-    KCal +=
-        ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-            1.19) *
-           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-          200.0) /
-         (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                        QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                          // kg * 3.5) / 200 ) / 60
-    
     lastRefreshCharacteristicChanged = now;
 
     // ******************************************* virtual treadmill init *************************************
@@ -127,6 +116,12 @@ void faketreadmill::update() {
 #endif
     }
 
+    if (Heart.value()) {
+        static double lastKcal = 0;
+        if (KCal.value() < 0) // if the user pressed stop, the KCAL resets the accumulator
+            lastKcal = abs(KCal.value());
+        KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value()) + lastKcal;
+    }
 }
 
 void faketreadmill::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
