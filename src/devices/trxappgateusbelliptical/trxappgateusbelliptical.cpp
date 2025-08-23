@@ -56,7 +56,7 @@ void trxappgateusbelliptical::writeCharacteristic(uint8_t *data, uint8_t data_le
 }
 
 void trxappgateusbelliptical::forceResistance(resistance_t requestResistance) {
-    if (elliptical_type == TYPE::DCT2000I) {
+    if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS) {
         uint8_t noOpData1[] = {0xf0, 0xa6, 0x01, 0x01, 0x03, 0x9b};
         noOpData1[4] = requestResistance + 1;
         noOpData1[5] = noOpData1[4] + 0x98;
@@ -95,7 +95,7 @@ void trxappgateusbelliptical::update() {
                 }
                 requestResistance = -1;
             } else {
-                if (elliptical_type == TYPE::DCT2000I) {
+                if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS) {
                     uint8_t noOpData1[] = {0xf0, 0xa2, 0x01, 0x01, 0x94};
                     writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
                 } else {
@@ -216,7 +216,7 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
 
 void trxappgateusbelliptical::btinit() {
 
-    if (elliptical_type == TYPE::DCT2000I) {
+    if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS) {
         uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x00, 0x91};
         uint8_t initData2[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         uint8_t initData3[] = {0xf0, 0xa1, 0x01, 0x01, 0x93};
@@ -277,7 +277,7 @@ void trxappgateusbelliptical::stateChanged(QLowEnergyService::ServiceState state
         QString uuidNotify1 = QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb");
         QString uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
 
-        if (elliptical_type == TYPE::DCT2000I) {
+        if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS) {
             uuidWrite = QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3");
             uuidNotify1 = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
             uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
@@ -362,6 +362,28 @@ void trxappgateusbelliptical::serviceScanDone(void) {
 
     if (elliptical_type == TYPE::DCT2000I) {
         uuid = uuid2;
+    }
+
+    // Fallback logic: try to find the service in discovered services
+    bool found = false;
+    foreach (QBluetoothUuid s, m_control->services()) {
+        if (s == QBluetoothUuid::fromString(uuid)) {
+            found = true;
+            break;
+        }
+    }
+    
+    // If primary service not found, try fallback service
+    if (!found) {
+        if (elliptical_type == TYPE::DCT2000I) {
+            // Already using fallback service, no other option
+            qDebug() << QStringLiteral("DCT2000I service not found");
+        } else {
+            // Try DCT2000I/JTX Fitness service as fallback
+            uuid = uuid2;
+            elliptical_type = TYPE::JTX_FITNESS;
+            qDebug() << QStringLiteral("Standard service not found, trying JTX Fitness service as fallback");
+        }
     }
 
     QBluetoothUuid _gattCommunicationChannelServiceId(uuid);
