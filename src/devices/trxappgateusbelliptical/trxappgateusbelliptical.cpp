@@ -139,22 +139,41 @@ void trxappgateusbelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 double trxappgateusbelliptical::GetSpeedFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = (packet.at(7) - 1) + ((packet.at(6) - 1) * 100);
-    double data = (double)(convertedData) / 10.0f;
-    return data;
+    if (elliptical_type == TYPE::JTX_FITNESS) {
+        // JTX Fitness doesn't send speed via bluetooth, calculate from cadence using settings ratio
+        QSettings settings;
+        double cadence_speed_ratio = settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
+        double cadence = GetCadenceFromPacket(packet);
+        return cadence * cadence_speed_ratio;
+    } else {
+        uint16_t convertedData = (packet.at(7) - 1) + ((packet.at(6) - 1) * 100);
+        double data = (double)(convertedData) / 10.0f;
+        return data;
+    }
 }
 
 double trxappgateusbelliptical::GetCadenceFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = ((uint16_t)packet.at(9)) + ((uint16_t)packet.at(8) * 100);
+    uint16_t convertedData;
+    if (elliptical_type == TYPE::JTX_FITNESS) {
+        // JTX Fitness uses only byte 5 for cadence
+        convertedData = packet.at(5);
+    } else {
+        convertedData = ((uint16_t)packet.at(9)) + ((uint16_t)packet.at(8) * 100);
+    }
     return convertedData;
 }
 
 double trxappgateusbelliptical::GetWattFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = ((packet.at(16) - 1) * 100) + (packet.at(17) - 1);
-    double data = ((double)(convertedData)) / 10.0f;
-    return data;
+    if (elliptical_type == TYPE::JTX_FITNESS) {
+        // JTX Fitness doesn't send watts via bluetooth, use classic elliptical calculation
+        return 0; // Will be calculated in characteristicChanged using wattsFromResistance
+    } else {
+        uint16_t convertedData = ((packet.at(16) - 1) * 100) + (packet.at(17) - 1);
+        double data = ((double)(convertedData)) / 10.0f;
+        return data;
+    }
 }
 
 void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -470,7 +489,13 @@ void trxappgateusbelliptical::controllerStateChanged(QLowEnergyController::Contr
     }
 }
 
-uint16_t trxappgateusbelliptical::watts() { return m_watt.value(); }
+uint16_t trxappgateusbelliptical::watts() { 
+    if (elliptical_type == TYPE::JTX_FITNESS) {
+        // For JTX Fitness, always use the elliptical class generic calculation
+        return elliptical::watts();
+    }
+    return m_watt.value(); 
+}
 
 
 void trxappgateusbelliptical::searchingStop() { searchStopped = true; }
