@@ -655,7 +655,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api-level: [24, 26, 28, 29, 30, 31, 33, 34, 35, 36]
+        api-level: [24, 26, 28, 29, 30, 31, 33, 35, 36]
         include:
           - api-level: 24
             target: default
@@ -685,10 +685,6 @@ jobs:
             target: google_apis
             arch: x86_64
             android-version: "Android 13"
-          - api-level: 34
-            target: google_apis
-            arch: x86_64
-            android-version: "Android 14"
           - api-level: 35
             target: google_apis
             arch: x86_64
