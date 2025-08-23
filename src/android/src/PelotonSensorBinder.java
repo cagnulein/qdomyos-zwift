@@ -19,13 +19,13 @@ public class PelotonSensorBinder {
     
     private static final String TAG = "PelotonSensorBinder";
     
-    // Peloton service constants (based on Grupetto analysis)
-    private static final String PELOTON_SENSOR_ACTION = "android.intent.action.peloton.SensorData";
+    // Peloton service constants (from original Grupetto v0.2.1)
+    private static final String SERVICE_ACTION = "com.onepeloton.affernetservice.IBikeInterface";
+    private static final String SERVICE_PACKAGE = "com.onepeloton.affernetservice";
+    private static final String SERVICE_INTENT = "com.onepeloton.affernetservice.AffernetService";
     
-    // Binder transaction codes (these would need to be discovered from actual Peloton service)
-    private static final int TRANSACTION_GET_POWER_REPEATING = 1;
-    private static final int TRANSACTION_GET_RPM_REPEATING = 2;
-    private static final int TRANSACTION_GET_RESISTANCE_REPEATING = 3;
+    // Binder transaction code (from Grupetto BikePlusSensor.kt - line 74)
+    private static final int TRANSACTION_GET_BIKE_DATA = 14;
     
     private Context context;
     private IBinder serviceBinder = null;
@@ -71,10 +71,9 @@ public class PelotonSensorBinder {
             }
         };
         
-        Intent intent = new Intent();
-        intent.setAction(PELOTON_SENSOR_ACTION);
-        // Make intent explicit to fix Android security requirements
-        intent.setPackage("com.onepeloton.callisto");
+        Intent intent = new Intent(SERVICE_INTENT);
+        intent.setAction(SERVICE_ACTION);
+        intent.setPackage(SERVICE_PACKAGE);
         
         boolean bound = context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
         
@@ -101,7 +100,7 @@ public class PelotonSensorBinder {
         }
         
         /**
-         * Reads sensor value from the Peloton service
+         * Reads sensor value from the Peloton service using Grupetto protocol
          */
         public float readValue() throws RemoteException {
             if (binder == null) {
@@ -112,11 +111,11 @@ public class PelotonSensorBinder {
             Parcel reply = Parcel.obtain();
             
             try {
-                // Prepare the transaction
-                data.writeInterfaceToken("com.onepeloton.callisto.sensors.ISensorService");
+                // Prepare the transaction (from BikePlusSensor.kt line 73-74)
+                data.writeInterfaceToken(SERVICE_ACTION);
                 
-                // Execute the binder transaction
-                boolean result = binder.transact(transactionCode, data, reply, 0);
+                // Execute the binder transaction (transaction code 14)
+                boolean result = binder.transact(TRANSACTION_GET_BIKE_DATA, data, reply, 0);
                 
                 if (!result) {
                     throw new RemoteException("Binder transaction failed");
@@ -125,10 +124,14 @@ public class PelotonSensorBinder {
                 // Check for exceptions
                 reply.readException();
                 
-                // Read the sensor value
-                float rawValue = reply.readFloat();
+                // Skip the first integer (from BikePlusSensor.kt line 77)
+                reply.readInt();
                 
-                // Apply sensor-specific value mapping
+                // Read BikeData from parcel (line 78)
+                BikeData bikeData = BikeData.CREATOR.createFromParcel(reply);
+                
+                // Extract sensor-specific value and apply mapping
+                float rawValue = extractSensorValue(bikeData);
                 return mapValue(rawValue);
                 
             } finally {
@@ -136,6 +139,11 @@ public class PelotonSensorBinder {
                 reply.recycle();
             }
         }
+        
+        /**
+         * Extract the appropriate sensor value from BikeData
+         */
+        protected abstract float extractSensorValue(BikeData bikeData);
         
         /**
          * Maps raw sensor value to application-specific value
@@ -150,22 +158,24 @@ public class PelotonSensorBinder {
     public static class PowerSensor extends PelotonSensor {
         
         public PowerSensor(IBinder binder) {
-            super(binder, TRANSACTION_GET_POWER_REPEATING);
+            super(binder, 0); // Not used in new protocol
+        }
+        
+        @Override
+        protected float extractSensorValue(BikeData bikeData) {
+            return (float) bikeData.getPower();
         }
         
         @Override
         protected float mapValue(float rawValue) {
-            // Based on Grupetto: divide by 100 to normalize power values
-            // Also handle spurious readings at low power
-            float normalizedValue = rawValue / 100.0f;
-            
-            // Filter out spurious low readings (Grupetto comment about low power spikes)
-            if (normalizedValue < 0 || normalizedValue > 1000) {
-                QLog.w(TAG, "Filtering spurious power reading: " + normalizedValue);
+            // Power values are already in correct units from BikeData
+            // Filter out spurious readings
+            if (rawValue < 0 || rawValue > 1000) {
+                QLog.w(TAG, "Filtering spurious power reading: " + rawValue);
                 return 0.0f;
             }
             
-            return normalizedValue;
+            return rawValue;
         }
     }
     
@@ -175,12 +185,17 @@ public class PelotonSensorBinder {
     public static class RpmSensor extends PelotonSensor {
         
         public RpmSensor(IBinder binder) {
-            super(binder, TRANSACTION_GET_RPM_REPEATING);
+            super(binder, 0); // Not used in new protocol
+        }
+        
+        @Override
+        protected float extractSensorValue(BikeData bikeData) {
+            return (float) bikeData.getRPM();
         }
         
         @Override
         protected float mapValue(float rawValue) {
-            // Based on Grupetto: return value directly without transformation
+            // RPM values are already in correct units from BikeData
             return rawValue;
         }
     }
@@ -198,7 +213,12 @@ public class PelotonSensorBinder {
         private boolean windowFilled = false;
         
         public ResistanceSensor(IBinder binder) {
-            super(binder, TRANSACTION_GET_RESISTANCE_REPEATING);
+            super(binder, 0); // Not used in new protocol
+        }
+        
+        @Override
+        protected float extractSensorValue(BikeData bikeData) {
+            return (float) bikeData.getTargetResistance();
         }
         
         @Override
