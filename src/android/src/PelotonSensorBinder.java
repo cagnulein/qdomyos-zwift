@@ -19,13 +19,13 @@ public class PelotonSensorBinder {
     
     private static final String TAG = "PelotonSensorBinder";
     
-    // Peloton service constants (from original Grupetto v0.2.1)
-    private static final String SERVICE_ACTION = "com.onepeloton.affernetservice.IBikeInterface";
+    // Peloton service constants (from Grupetto v1 develop - callback-based)
+    private static final String SERVICE_ACTION = "com.onepeloton.affernetservice.IV1Interface";
     private static final String SERVICE_PACKAGE = "com.onepeloton.affernetservice";
     private static final String SERVICE_INTENT = "com.onepeloton.affernetservice.AffernetService";
     
-    // Binder transaction code (from Grupetto BikePlusSensor.kt - line 74)
-    private static final int TRANSACTION_GET_BIKE_DATA = 14;
+    // Using callback-based sensors from Grupetto v1 develop
+    // No transaction codes needed here - handled by PelotonCallbackSensor
     
     private Context context;
     private IBinder serviceBinder = null;
