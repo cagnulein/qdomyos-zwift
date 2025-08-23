@@ -895,6 +895,9 @@ jobs:
       - name: patching qt for bluetooth
         run: cp qt-patches/ios/5.15.2/binary/*.* ${{ github.workspace }}/output/ios/Qt/5.15.2/ios/lib/
 
+      - name: Download iOS 18.0 Platform
+        run: sudo xcodebuild -downloadPlatform iOS
+
       - name: Build
         run: |
           cd src
