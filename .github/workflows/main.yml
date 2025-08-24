@@ -416,7 +416,7 @@ jobs:
         with:
           version: '5.15.2'
           host: 'linux'
-          modules: 'qtnetworkauth qtcharts qtsql'
+          modules: 'qtnetworkauth qtcharts'
           cache: 'true'
           cache-key-prefix: 'install-qt-action-linux'                    
 
@@ -655,7 +655,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api-level: [24, 26, 28, 29, 30, 31, 33, 34, 35, 36]
+        api-level: [24, 26, 28, 29, 30, 31, 33, 35, 36]
         include:
           - api-level: 24
             target: default
@@ -685,10 +685,6 @@ jobs:
             target: google_apis
             arch: x86_64
             android-version: "Android 13"
-          - api-level: 34
-            target: google_apis
-            arch: x86_64
-            android-version: "Android 14"
           - api-level: 35
             target: google_apis
             arch: x86_64
@@ -781,7 +777,7 @@ jobs:
             adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
             
             # Wait for app to start
-            sleep 60
+            sleep 90
             
             # Verify the app is running
             echo "Checking if app is running..."
@@ -842,7 +838,7 @@ jobs:
 
   ios-build:
     # The type of runner that the job will run on
-    runs-on: macos-latest
+    runs-on: macos-14
     permissions:
       contents: write
 
@@ -905,7 +901,7 @@ jobs:
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
-          qmake CONFIG+=debug && make -j4
+          qmake CONFIG+=debug CONFIG+=iphonesimulator && make -j4
 
       # causes iOS build on Mac to fail
       # - name: Commit moc files
