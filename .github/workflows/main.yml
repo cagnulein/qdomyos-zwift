@@ -648,27 +648,26 @@ jobs:
           mkdir -p ${{ github.workspace }}/qt6-tools/bin
           
           # Download Qt6 androiddeployqt from official Qt releases
-          wget -q https://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_662/qt.qt6.662.gcc_64/6.6.2-0-202402121133qttools-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64.7z -O qt6-tools.7z
+          wget -q https://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_662/qt.qt6.662.gcc_64/6.6.2-0-202402121133qtbase-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64.7z -O qt6-tools.7z
           
           # Extract using 7z
           sudo apt-get install -y p7zip-full
           7z x qt6-tools.7z -o${{ github.workspace }}/qt6-tools/
           
-          # Make androiddeployqt executable
-          chmod +x ${{ github.workspace }}/qt6-tools/*/bin/androiddeployqt
+          # Make androiddeployqt executable (correct path)
+          chmod +x ${{ github.workspace }}/qt6-tools/6.6.2/gcc_64/bin/androiddeployqt
           
           echo "=== Qt6 androiddeployqt downloaded ==="
-          ls -la ${{ github.workspace }}/qt6-tools/*/bin/androiddeployqt
+          ls -la ${{ github.workspace }}/qt6-tools/6.6.2/gcc_64/bin/androiddeployqt
 
       - name: Build APK/AAB con androiddeployqt di Qt6
         run: |
           cd src
           
-          # Find the Qt6 androiddeployqt binary
-          QT6_ANDROIDDEPLOYQT=$(find ${{ github.workspace }}/qt6-tools -name androiddeployqt -type f | head -1)
+          # Use Qt6 androiddeployqt (which doesn't add the deprecated gradle option)
+          QT6_ANDROIDDEPLOYQT="${{ github.workspace }}/qt6-tools/6.6.2/gcc_64/bin/androiddeployqt"
           echo "Using Qt6 androiddeployqt: $QT6_ANDROIDDEPLOYQT"
           
-          # Use Qt6 androiddeployqt (which doesn't add the deprecated gradle option)
           $QT6_ANDROIDDEPLOYQT \
             --input android-qdomyos-zwift-deployment-settings.json \
             --output ${{ github.workspace }}/output/android/ \
