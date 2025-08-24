@@ -651,15 +651,20 @@ jobs:
           echo "=== Downloading Qt6 androiddeployqt binary ==="
           mkdir -p ${{ github.workspace }}/qt6-tools/bin
           
-          # Download Qt6 androiddeployqt from official Qt releases
-          wget -q https://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_662/qt.qt6.662.gcc_64/6.6.2-0-202402121133qtbase-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64.7z -O qt6-tools.7z
+          # Download Qt6 qtbase and qttools from official Qt releases
+          wget -q https://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_662/qt.qt6.662.gcc_64/6.6.2-0-202402121133qtbase-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64.7z -O qt6-base.7z
+          wget -q https://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_662/qt.qt6.662.gcc_64/6.6.2-0-202402121133qttools-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64.7z -O qt6-tools.7z
           
           # Extract using 7z
           sudo apt-get install -y p7zip-full
+          7z x qt6-base.7z -o${{ github.workspace }}/qt6-tools/
           7z x qt6-tools.7z -o${{ github.workspace }}/qt6-tools/
           
-          # Make androiddeployqt executable (correct path)
+          # Make Qt6 tools executable (correct path)
           chmod +x ${{ github.workspace }}/qt6-tools/6.6.2/gcc_64/bin/androiddeployqt
+          chmod +x ${{ github.workspace }}/qt6-tools/6.6.2/gcc_64/bin/rcc || true
+          chmod +x ${{ github.workspace }}/qt6-tools/6.6.2/gcc_64/libexec/qmlimportscanner || true
+          chmod +x ${{ github.workspace }}/qt6-tools/6.6.2/gcc_64/bin/qmlimportscanner || true
           
           # Fix ICU library compatibility issues (Qt6 RHEL vs Ubuntu)
           echo "=== Checking ICU libraries ==="
