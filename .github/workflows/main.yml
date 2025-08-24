@@ -644,6 +644,10 @@ jobs:
 
       - name: Download Qt6 androiddeployqt binary directly
         run: |
+          echo "=== Installing Qt6 dependencies ==="
+          sudo apt-get update
+          sudo apt-get install -y libicu-dev libicu66
+          
           echo "=== Downloading Qt6 androiddeployqt binary ==="
           mkdir -p ${{ github.workspace }}/qt6-tools/bin
           
@@ -656,6 +660,20 @@ jobs:
           
           # Make androiddeployqt executable (correct path)
           chmod +x ${{ github.workspace }}/qt6-tools/6.6.2/gcc_64/bin/androiddeployqt
+          
+          # Fix ICU library compatibility issues (Qt6 RHEL vs Ubuntu)
+          echo "=== Checking ICU libraries ==="
+          sudo find /usr/lib -name "*libicu*" | head -10
+          
+          # Create symlinks for older ICU versions if needed
+          if [ ! -f /usr/lib/x86_64-linux-gnu/libicui18n.so.56 ]; then
+            sudo ln -sf /usr/lib/x86_64-linux-gnu/libicui18n.so.70 /usr/lib/x86_64-linux-gnu/libicui18n.so.56 || true
+            sudo ln -sf /usr/lib/x86_64-linux-gnu/libicuuc.so.70 /usr/lib/x86_64-linux-gnu/libicuuc.so.56 || true  
+            sudo ln -sf /usr/lib/x86_64-linux-gnu/libicudata.so.70 /usr/lib/x86_64-linux-gnu/libicudata.so.56 || true
+          fi
+          
+          echo "=== Testing Qt6 androiddeployqt ==="
+          ${{ github.workspace }}/qt6-tools/6.6.2/gcc_64/bin/androiddeployqt --help || echo "androiddeployqt test failed"
           
           echo "=== Qt6 androiddeployqt downloaded ==="
           ls -la ${{ github.workspace }}/qt6-tools/6.6.2/gcc_64/bin/androiddeployqt
