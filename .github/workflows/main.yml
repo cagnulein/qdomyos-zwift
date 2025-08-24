@@ -646,7 +646,7 @@ jobs:
         run: |
           echo "=== Installing Qt6 dependencies ==="
           sudo apt-get update
-          sudo apt-get install -y libicu-dev libicu66
+          sudo apt-get install -y libicu-dev libicu70
           
           echo "=== Downloading Qt6 androiddeployqt binary ==="
           mkdir -p ${{ github.workspace }}/qt6-tools/bin
