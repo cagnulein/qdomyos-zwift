@@ -12,10 +12,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.cagnulen.qdomyoszwift.QLog;
 import org.cagnulen.qdomyoszwift.PelotonSensorBinder;
+import org.cagnulen.qdomyoszwift.PelotonCallbackSensor;
 
 /**
- * Simplified Peloton sensor helper class combining the approaches from 
- * Grupetto's sensor interfaces with our existing architecture
+ * Peloton sensor helper class using callback-based approach from Grupetto v1 develop
+ * Based on: https://github.com/selalipop/grupetto/pull/10
+ * More efficient than polling - receives data only when it changes
  */
 public class PelotonSensorHelper {
     
@@ -25,19 +27,15 @@ public class PelotonSensorHelper {
     private static PelotonSensorHelper instance = null;
     private static Context staticContext = null;
     
-    // Update intervals
-    private static final int SENSOR_UPDATE_INTERVAL_MS = 200;
-    
-    // Threading components
+    // Threading components (reduced need with callback approach)
     private Handler mainHandler;
     private ExecutorService executorService;
-    private Runnable sensorUpdateRunnable;
     
-    // Sensor components
+    // Sensor components (callback-based from Grupetto v1)
     private PelotonSensorBinder sensorBinder;
-    private PelotonSensorBinder.PowerSensor powerSensor;
-    private PelotonSensorBinder.RpmSensor rpmSensor;
-    private PelotonSensorBinder.ResistanceSensor resistanceSensor;
+    private PelotonCallbackSensor.PowerSensor powerSensor;
+    private PelotonCallbackSensor.RpmSensor rpmSensor;
+    private PelotonCallbackSensor.ResistanceSensor resistanceSensor;
     
     // Control flags and current values
     private volatile boolean isInitialized = false;
@@ -67,10 +65,48 @@ public class PelotonSensorHelper {
             throw new Exception("Failed to get service binder");
         }
         
-        // Initialize individual sensors
-        powerSensor = new PelotonSensorBinder.PowerSensor(serviceBinder);
-        rpmSensor = new PelotonSensorBinder.RpmSensor(serviceBinder);
-        resistanceSensor = new PelotonSensorBinder.ResistanceSensor(serviceBinder);
+        // Initialize individual callback-based sensors
+        powerSensor = new PelotonCallbackSensor.PowerSensor(serviceBinder);
+        rpmSensor = new PelotonCallbackSensor.RpmSensor(serviceBinder);
+        resistanceSensor = new PelotonCallbackSensor.ResistanceSensor(serviceBinder);
+        
+        // Set up callbacks to receive sensor data
+        powerSensor.setCallback(new PelotonCallbackSensor.SensorDataCallback() {
+            @Override
+            public void onSensorDataReceived(float value) {
+                currentPower = value;
+                currentSpeed = calculateSpeedFromPelotonV1Power(value);
+            }
+            
+            @Override
+            public void onSensorError(long errorCode) {
+                QLog.w(TAG, "Power sensor error: " + errorCode);
+            }
+        });
+        
+        rpmSensor.setCallback(new PelotonCallbackSensor.SensorDataCallback() {
+            @Override
+            public void onSensorDataReceived(float value) {
+                currentCadence = value;
+            }
+            
+            @Override
+            public void onSensorError(long errorCode) {
+                QLog.w(TAG, "RPM sensor error: " + errorCode);
+            }
+        });
+        
+        resistanceSensor.setCallback(new PelotonCallbackSensor.SensorDataCallback() {
+            @Override
+            public void onSensorDataReceived(float value) {
+                currentResistance = value;
+            }
+            
+            @Override
+            public void onSensorError(long errorCode) {
+                QLog.w(TAG, "Resistance sensor error: " + errorCode);
+            }
+        });
         
         isInitialized = true;
         QLog.i(TAG, "Peloton sensor initialization completed");
@@ -84,61 +120,31 @@ public class PelotonSensorHelper {
         
         isUpdating = true;
         
-        sensorUpdateRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (!isUpdating || !isInitialized) return;
-                
-                executorService.execute(() -> {
-                    readAllSensorValues();
-                    
-                    if (isUpdating && isInitialized) {
-                        mainHandler.postDelayed(sensorUpdateRunnable, SENSOR_UPDATE_INTERVAL_MS);
-                    }
-                });
-            }
-        };
-        
-        mainHandler.post(sensorUpdateRunnable);
-        QLog.i(TAG, "Started periodic sensor updates");
+        try {
+            // Start callback-based sensors (no polling needed)
+            if (powerSensor != null) powerSensor.start();
+            if (rpmSensor != null) rpmSensor.start();
+            if (resistanceSensor != null) resistanceSensor.start();
+            
+            QLog.i(TAG, "Started callback-based sensor updates");
+        } catch (Exception e) {
+            QLog.e(TAG, "Failed to start sensor updates", e);
+            isUpdating = false;
+        }
     }
     
     private void stopSensorUpdatesInstance() {
         isUpdating = false;
         
-        if (sensorUpdateRunnable != null) {
-            mainHandler.removeCallbacks(sensorUpdateRunnable);
-        }
+        // Stop callback-based sensors
+        if (powerSensor != null) powerSensor.stop();
+        if (rpmSensor != null) rpmSensor.stop();
+        if (resistanceSensor != null) resistanceSensor.stop();
         
-        QLog.i(TAG, "Stopped periodic sensor updates");
+        QLog.i(TAG, "Stopped callback-based sensor updates");
     }
     
-    private void readAllSensorValues() {
-        try {
-            // Read power
-            if (powerSensor != null) {
-                float newPower = powerSensor.readValue();
-                currentPower = newPower;
-                
-                // Calculate speed from power using Peloton V1 formula (from Grupetto)
-                currentSpeed = calculateSpeedFromPelotonV1Power(newPower);
-            }
-            
-            // Read cadence (RPM)
-            if (rpmSensor != null) {
-                currentCadence = rpmSensor.readValue();
-            }
-            
-            // Read resistance (with built-in filtering)
-            if (resistanceSensor != null) {
-                currentResistance = resistanceSensor.readValue();
-            }
-            
-        } catch (Exception e) {
-            QLog.w(TAG, "Error reading sensor values", e);
-            // Don't throw exception, just log and continue
-        }
-    }
+    // Sensor values are now updated via callbacks - no polling needed
     
     /**
      * Calculate speed from power using Peloton V1 bike formula
