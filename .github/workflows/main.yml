@@ -687,9 +687,20 @@ jobs:
         run: |
           cd src
           
-          # Use Qt6 androiddeployqt (which doesn't add the deprecated gradle option)
+          # Set Qt6 environment variables for tool discovery
+          export QT_HOST_PATH="${{ github.workspace }}/qt6-tools/6.6.2/gcc_64"
+          export QTDIR="${{ github.workspace }}/qt6-tools/6.6.2/gcc_64"
+          export PATH="${{ github.workspace }}/qt6-tools/6.6.2/gcc_64/bin:${PATH}"
+          
+          # Debug: verify Qt6 tools are available
+          echo "=== Checking for Qt6 tools ==="
+          find ${{ github.workspace }}/qt6-tools -name "rcc" -type f || echo "rcc not found"
+          find ${{ github.workspace }}/qt6-tools -name "*qmlimportscanner*" -type f || echo "qmlimportscanner not found"
+          
+          # Use Qt6 androiddeployqt with explicit tool paths if needed
           QT6_ANDROIDDEPLOYQT="${{ github.workspace }}/qt6-tools/6.6.2/gcc_64/bin/androiddeployqt"
           echo "Using Qt6 androiddeployqt: $QT6_ANDROIDDEPLOYQT"
+          echo "Qt environment: QTDIR=$QTDIR"
           
           $QT6_ANDROIDDEPLOYQT \
             --input android-qdomyos-zwift-deployment-settings.json \
