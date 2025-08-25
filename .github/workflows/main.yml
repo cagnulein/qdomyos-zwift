@@ -722,8 +722,15 @@ jobs:
           # Build arguments with explicit tool paths and QML paths
           BUILD_ARGS="--input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aab"
           
-          # Add QML import paths for Qt5 modules that the app uses
-          BUILD_ARGS="$BUILD_ARGS --qml-import-paths ${{ github.workspace }}/output/android/Qt/5.15.0/android/qml"
+          # Add comprehensive QML import paths and verbose output for debugging
+          QML_BASE_PATH="${{ github.workspace }}/output/android/Qt/5.15.0/android/qml"
+          BUILD_ARGS="$BUILD_ARGS --qml-import-path $QML_BASE_PATH"
+          BUILD_ARGS="$BUILD_ARGS --qml-import-path $QML_BASE_PATH/QtQuick"
+          BUILD_ARGS="$BUILD_ARGS --qml-import-path $QML_BASE_PATH/QtQuick/Controls.2"  
+          BUILD_ARGS="$BUILD_ARGS --qml-import-path $QML_BASE_PATH/QtQuick/Templates.2"
+          BUILD_ARGS="$BUILD_ARGS --qml-import-path $QML_BASE_PATH/Qt/labs"
+          BUILD_ARGS="$BUILD_ARGS --qml-import-path $QML_BASE_PATH/QtQml"
+          BUILD_ARGS="$BUILD_ARGS --verbose"
           
           if [ -n "$QMLIMPORT_PATH" ]; then
             BUILD_ARGS="$BUILD_ARGS --qml-importscanner-binary $QMLIMPORT_PATH"
