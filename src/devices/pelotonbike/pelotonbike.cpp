@@ -109,18 +109,10 @@ void pelotonbike::update() {
         float speed = getPelotonSpeed();
         
         // Update metrics with sensor data
-        if (power > 0) {
-            m_watt = power;
-        }
-        if (cadence > 0) {
-            Cadence = cadence;
-        }
-        if (resistance >= 0) {
-            Resistance = resistance;
-        }
-        if (speed > 0) {
-            Speed = speed;
-        }
+        m_watt = power;
+        Cadence = cadence;
+        Resistance = resistance;
+        Speed = speed;
     }
 #endif
     
