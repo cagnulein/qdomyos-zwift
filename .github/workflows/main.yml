@@ -1677,7 +1677,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build]
+    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, raspberry-pi-build-and-image-64bit]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
