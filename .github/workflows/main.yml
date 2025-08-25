@@ -1676,9 +1676,8 @@ jobs:
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-22.04 
-    #if: github.event_name == 'schedule'
-    if: always()
-    needs: [linux-x86-build, window-msvc2019-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]
+    if: github.event_name == 'schedule'
+    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
