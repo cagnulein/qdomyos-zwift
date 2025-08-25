@@ -23,6 +23,7 @@ class WatchKitConnection: NSObject {
     static let shared = WatchKitConnection()
     public static var distance = 0.0
     public static var kcal = 0.0
+    public static var totalKcal = 0.0
     public static var stepCadence = 0
     public static var speed = 0.0
     public static var cadence = 0.0
@@ -70,6 +71,9 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
             WatchKitConnection.distance = dDistance
             let dKcal = Double(result["kcal"] as! Double)
             WatchKitConnection.kcal = dKcal
+            if let totalKcalDouble = result["totalKcal"] as? Double {
+                WatchKitConnection.totalKcal = totalKcalDouble
+            }
             
             let dSpeed = Double(result["speed"] as! Double)
             WatchKitConnection.speed = dSpeed

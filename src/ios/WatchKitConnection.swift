@@ -26,6 +26,7 @@ class WatchKitConnection: NSObject {
     static var distance = 0.0
     static var stepCadence = 0
     static var kcal = 0.0
+    static var totalKcal = 0.0
     static var speed = 0.0
     static var power = 0.0
     static var cadence = 0.0
@@ -53,6 +54,11 @@ class WatchKitConnection: NSObject {
     public func setKCal(Kcal: Double) -> Void
     {
         WatchKitConnection.kcal = Kcal;
+    }
+    
+    public func setTotalKCal(TotalKcal: Double) -> Void
+    {
+        WatchKitConnection.totalKcal = TotalKcal;
     }
     
     public func setDistance(Distance: Double) -> Void
