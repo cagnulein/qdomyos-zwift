@@ -26,11 +26,35 @@ apply plugin: 'com.google.protobuf'
 def amazon = System.getenv('AMAZON')
 println(amazon)
 
+// FIXED: Force resolution con versioni consistenti
+configurations.all {
+    resolutionStrategy {
+        // TUTTE le versioni devono essere consistenti
+        force 'com.google.protobuf:protobuf-javalite:3.25.3'
+        force 'io.grpc:grpc-okhttp:1.63.0'
+        force 'io.grpc:grpc-protobuf-lite:1.63.0' 
+        force 'io.grpc:grpc-stub:1.63.0'
+        force 'io.grpc:grpc-core:1.63.0'
+    }
+    // Exclude full protobuf from ALL dependencies
+    exclude group: 'com.google.protobuf', module: 'protobuf-java'
+}
+
 dependencies {
     implementation "androidx.core:core:1.12.0"
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
-    implementation 'com.google.protobuf:protobuf-javalite:3.25.1'
+    
+    // Peloton sensor integration uses Android system service binding
+    // No additional external dependencies required beyond standard Android APIs
+    
+    // FIXED: Una sola versione di protobuf-javalite
+    implementation 'com.google.protobuf:protobuf-javalite:3.25.3'
+        
+    implementation 'io.grpc:grpc-okhttp:1.63.0'        
+    implementation 'io.grpc:grpc-protobuf-lite:1.63.0'
+    implementation 'io.grpc:grpc-stub:1.63.0'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
 		
     if(amazon == "1") {
         // amazon app store
@@ -47,12 +71,12 @@ dependencies {
          implementation "com.android.billingclient:billing:8.0.0"
          implementation 'com.android.support:appcompat-v7:28.0.0'
 
-         implementation "androidx.appcompat:appcompat:$appcompat_version"
-         implementation "androidx.appcompat:appcompat-resources:$appcompat_version"
-         implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-         implementation files('libs/usb-serial-for-android-3.8.1.aar')
-	 androidTestImplementation "com.android.support:support-annotations:28.0.0"
-	      implementation 'com.google.android.gms:play-services-wearable:+'
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
+    implementation "androidx.appcompat:appcompat-resources:$appcompat_version"
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation files('libs/usb-serial-for-android-3.8.1.aar')
+    androidTestImplementation "com.android.support:support-annotations:28.0.0"
+    implementation 'com.google.android.gms:play-services-wearable:+'
 
     implementation 'com.jakewharton.timber:timber:5.0.1'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.60'
@@ -66,7 +90,12 @@ def archSuffix = Os.isFamily(Os.FAMILY_MAC) ? ':osx-x86_64' : ''
 
 protobuf {
     protoc {
-      artifact = "com.google.protobuf:protoc:3.25.1$archSuffix"
+      artifact = "com.google.protobuf:protoc:3.25.3$archSuffix"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.63.0"
+        }
     }
     generateProtoTasks {
       all().configureEach { task ->
@@ -74,6 +103,11 @@ protobuf {
           java {
             option "lite"
           }
+        }
+        task.plugins {
+            grpc {
+                option "lite"
+            }
         }
       }
     }
@@ -117,7 +151,7 @@ android {
 
     lintOptions {
         abortOnError false
-		  checkReleaseBuilds false
+        checkReleaseBuilds false
     }
 
     // Do not compress Qt binary resources file
@@ -132,14 +166,43 @@ android {
                   targetSdkVersion = 36
     }
 
-tasks.all { task ->
-     if (task.name == 'compileDebugJavaWithJavac' && amazon == "1") {
-        task.dependsOn copyArm64Directory
-        task.dependsOn copyArm32Directory
-        }
-}
-}
+    // FIXED: Packaging options ottimizzato per gestire i conflitti protobuf
+    packagingOptions {
+        // EXCLUDE problematic META-INF files instead of pickFirst to avoid collisions
+        exclude 'META-INF/MANIFEST.MF'
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/io.netty.versions.properties'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/AL2.0'
+        exclude 'META-INF/LGPL2.1'
+        
+        // Keep pickFirst only for files that are actually needed
+        pickFirst '**/META-INF/okio.kotlin_module'
+        pickFirst '**/META-INF/*.kotlin_module'
+        
+        // CRITICAL: Handle duplicate protobuf classes - this is crucial for your error
+        pickFirst '**/com/google/protobuf/**'
+        
+        // Handle native libraries
+        pickFirst '**/libprotobuf-lite.so'
+        pickFirst '**/libprotoc.so'
+        
+        // Additional common conflicts
+        pickFirst '**/META-INF/services/**'
+        pickFirst '**/kotlin/**'
+    }
 
+    tasks.all { task ->
+         if (task.name == 'compileDebugJavaWithJavac' && amazon == "1") {
+            task.dependsOn copyArm64Directory
+            task.dependsOn copyArm32Directory
+            }
+    }
+}
 
 task copyArm64Directory(type: Copy) {
     from "libs/arm64-v8a/"

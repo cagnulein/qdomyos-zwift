@@ -1,0 +1,31 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "CadenceServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message CadenceMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  double lastStepsPerMinute = 3;
+}
+
+message CadenceMetricList {
+  repeated CadenceMetric metrics = 1;
+}
+
+service CadenceService {
+  // check whether Cadence is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+
+  // get the current Cadence relative to the current workout
+  rpc GetCadence(Empty) returns (CadenceMetric) {}
+
+  // subscribe to Cadence updates relative to the current workout
+  rpc CadenceSubscription(Empty) returns (stream CadenceMetric) {}
+
+  // gets a list of all of the Cadence changes for the given workout ID
+  rpc GetCadenceHistory(WorkoutID) returns (CadenceMetricList) {}
+}
