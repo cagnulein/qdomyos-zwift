@@ -2667,6 +2667,12 @@ class QZSettings {
     static constexpr bool default_calories_active_only = false;
 
     /**
+     * @brief Calculate calories from heart rate instead of power
+     */
+    static const QString calories_from_hr;
+    static constexpr bool default_calories_from_hr = false;
+
+    /**
      * @brief User height in centimeters for BMR calculation
      */
     static const QString height;

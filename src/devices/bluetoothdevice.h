@@ -114,6 +114,7 @@ class bluetoothdevice : public QObject {
      */
     virtual metric calories();
     virtual metric activeCalories();
+    virtual metric hrCalories();
 
     /**
      * @brief totalCalories Gets total calories (including BMR) regardless of active calories setting.
@@ -556,6 +557,7 @@ class bluetoothdevice : public QObject {
      */
     metric KCal;
     metric activeKCal;
+    metric hrKCal;
 
     /**
      * @brief Speed The simulated speed of the device. Units: km/h
