@@ -1672,12 +1672,218 @@ jobs:
         with:
           name: nordictrack-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack.apk
+
+  peloton-bike-plus-build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'schedule'
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Xvfb install and run
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
+
+      - name: Checkout PR code
+        uses: actions/checkout@v3
+        with:
+          ref: refs/pull/3632/head
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
+        
+      - name: Checkout submodules with specific branches
+        run: |
+          git submodule init
+          git submodule update --init --recursive 
+
+      - name: Fix qmdnsengine submodule
+        run: |
+          cd src/qmdnsengine
+          git fetch
+          git checkout 602da51dc43c55bd9aa8a83c47ea3594a9b01b98
+
+      - name: Install packages required to run QZ inside workflow
+        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+
+      - name: Install Qt Android
+        uses: jdpurcell/install-qt-action@v5
+        with:
+          version: '5.15.0'
+          host: 'linux'
+          target: 'android'
+          arch: 'android'
+          modules: 'qtcharts  qtnetworkauth'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android'                    
+
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '11.0.23+9'
+          
+      - name: patching qt for bluetooth
+        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+
+      - name: download 3rd party files for qthttpserver
+        run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+
+      - name: Set Android NDK 21 && build
+        run: |
+          # Install NDK 21 after GitHub update
+          # https://github.com/actions/virtual-environments/issues/5595
+          ANDROID_ROOT="/usr/local/lib/android"
+          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
+          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
+          export ANDROID_NDK_ROOT="${ANDROID_NDK}"
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          echo "#define LICENSE" >> secret.h
+          cd ..          
+
+          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
+          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+
+          # QTHTTPSERVER must use the same NDK
+          cd src/qthttpserver 
+          qmake
+          make -j8
+          make install
+          cd ../..          
+          
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          cp src/android-qdomyos-zwift-deployment-settings.json src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
+          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
+          sed -i 's/"android-debug"/"android-peloton-bike-plus"/g' src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
+          sed -i 's/android-debug\.apk/android-debug-peloton-bike-plus.apk/g' src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
+          cat src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
+
+      - name: Build APK (not usable for production due to unpatched QT library)
+        run: cd src; androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab; mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk
+
+      - name: Archive peloton-bike-plus binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: peloton-bike-plus-android-trial
+          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk
+
+  peloton-bike-build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'schedule'
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Xvfb install and run
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
+
+      - name: Checkout PR code
+        uses: actions/checkout@v3
+        with:
+          ref: refs/pull/3639/head
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
+        
+      - name: Checkout submodules with specific branches
+        run: |
+          git submodule init
+          git submodule update --init --recursive 
+
+      - name: Fix qmdnsengine submodule
+        run: |
+          cd src/qmdnsengine
+          git fetch
+          git checkout 602da51dc43c55bd9aa8a83c47ea3594a9b01b98
+
+      - name: Install packages required to run QZ inside workflow
+        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+
+      - name: Install Qt Android
+        uses: jdpurcell/install-qt-action@v5
+        with:
+          version: '5.15.0'
+          host: 'linux'
+          target: 'android'
+          arch: 'android'
+          modules: 'qtcharts  qtnetworkauth'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android'                    
+
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '11.0.23+9'
+          
+      - name: patching qt for bluetooth
+        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+
+      - name: download 3rd party files for qthttpserver
+        run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+
+      - name: Set Android NDK 21 && build
+        run: |
+          # Install NDK 21 after GitHub update
+          # https://github.com/actions/virtual-environments/issues/5595
+          ANDROID_ROOT="/usr/local/lib/android"
+          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
+          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
+          export ANDROID_NDK_ROOT="${ANDROID_NDK}"
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          echo "#define LICENSE" >> secret.h
+          cd ..          
+
+          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
+          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+
+          # QTHTTPSERVER must use the same NDK
+          cd src/qthttpserver 
+          qmake
+          make -j8
+          make install
+          cd ../..          
+          
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          cp src/android-qdomyos-zwift-deployment-settings.json src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
+          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
+          sed -i 's/"android-debug"/"android-peloton-bike"/g' src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
+          sed -i 's/android-debug\.apk/android-debug-peloton-bike.apk/g' src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
+          cat src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
+
+      - name: Build APK (not usable for production due to unpatched QT library)
+        run: cd src; androiddeployqt --input android-qdomyos-zwift-peloton-bike-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab; mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
+
+      - name: Archive peloton-bike binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: peloton-bike-android-trial
+          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
           
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, raspberry-pi-build-and-image-64bit]
+    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -1710,6 +1916,8 @@ jobs:
             ## Other Platforms:
             - **fdroid-android-trial**: Android build
             - **nordictrack-android-trial**: Nordictrack build for iFIT2 Tablets
+            - **peloton-bike-plus-android-trial**: Peloton Bike Plus build with Grupetto backend
+            - **peloton-bike-android-trial**: Peloton Bike build with Grupetto backend
             - **raspberry-pi-binary**: Raspberry Pi build
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
@@ -1723,5 +1931,7 @@ jobs:
             windows-binary/*
             fdroid-android-trial/android-debug.apk
             nordictrack-android-trial/android-debug-nordictrack.apk
+            peloton-bike-plus-android-trial/android-debug-peloton-bike-plus.apk
+            peloton-bike-android-trial/android-debug-peloton-bike.apk
             raspberry-pi-binary/qdomyos-zwift-32bit
             raspberry-pi-binary/qdomyos-zwift-64bit
