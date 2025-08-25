@@ -114,9 +114,9 @@ metric bluetoothdevice::calories() {
     bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
     bool fromHR = settings.value(QZSettings::calories_from_hr, QZSettings::default_calories_from_hr).toBool();
     
-    if (fromHR && HeartRate.value() > 0) {
+    if (fromHR && Heart.value() > 0) {
         // Calculate calories based on heart rate
-        double totalHRKCal = metric::calculateKCalfromHR(HeartRate.average(), elapsed.value());
+        double totalHRKCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value());
         hrKCal.setValue(totalHRKCal);
         
         if (activeOnly) {
@@ -140,7 +140,7 @@ metric bluetoothdevice::totalCalories() {
     QSettings settings;
     bool fromHR = settings.value(QZSettings::calories_from_hr, QZSettings::default_calories_from_hr).toBool();
     
-    if (fromHR && HeartRate.value() > 0) {
+    if (fromHR && Heart.value() > 0) {
         return hrKCal; // Return HR-based total calories
     } else {
         return KCal;   // Return power-based total calories
