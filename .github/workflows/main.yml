@@ -702,12 +702,23 @@ jobs:
           echo "Using Qt6 androiddeployqt: $QT6_ANDROIDDEPLOYQT"
           echo "Qt environment: QTDIR=$QTDIR"
           
-          $QT6_ANDROIDDEPLOYQT \
-            --input android-qdomyos-zwift-deployment-settings.json \
-            --output ${{ github.workspace }}/output/android/ \
-            --android-platform android-35 \
-            --gradle \
-            --aab
+          # Find the actual tool locations
+          RCC_PATH=$(find ${{ github.workspace }}/qt6-tools -name "rcc" -type f | head -1)
+          QMLIMPORT_PATH=$(find ${{ github.workspace }}/qt6-tools -name "*qmlimportscanner*" -type f | head -1)
+          
+          echo "Found rcc at: $RCC_PATH"
+          echo "Found qmlimportscanner at: $QMLIMPORT_PATH"
+          
+          # Build arguments with explicit tool paths
+          BUILD_ARGS="--input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aab"
+          
+          if [ -n "$QMLIMPORT_PATH" ]; then
+            BUILD_ARGS="$BUILD_ARGS --qml-importscanner-binary $QMLIMPORT_PATH"
+          fi
+          
+          echo "Build arguments: $BUILD_ARGS"
+          
+          $QT6_ANDROIDDEPLOYQT $BUILD_ARGS
           
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
