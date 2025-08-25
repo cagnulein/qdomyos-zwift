@@ -30,6 +30,8 @@ solebike::solebike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
+    lastMetricUpdate = QDateTime::currentDateTime();
+    communicationTimeout = false;
     connect(refresh, &QTimer::timeout, this, &solebike::update);
     refresh->start(300ms);
 }
@@ -119,6 +121,15 @@ void solebike::update() {
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotifyCharacteristic.isValid() && initDone) {
+
+        // Check for communication timeout (3 seconds since last metric update)
+        QDateTime now = QDateTime::currentDateTime();
+        if (lastMetricUpdate.msecsTo(now) > 3000 && !communicationTimeout) {
+            qDebug() << "Communication timeout detected - no metrics received for 3 seconds, requesting reinit";
+            communicationTimeout = true;
+            initRequest = true;
+            return;
+        }
 
         update_metrics(false, watts());
 
@@ -253,6 +264,10 @@ void solebike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         qDebug() << QStringLiteral("not a valid packet");
         return;
     }
+
+    // Update last metric timestamp when we receive valid metric data
+    lastMetricUpdate = now;
+    communicationTimeout = false;
 
     double distance = GetDistanceFromPacket(newValue);
 
@@ -418,6 +433,8 @@ void solebike::btinit() {
     }
 
     initDone = true;
+    lastMetricUpdate = QDateTime::currentDateTime();
+    communicationTimeout = false;
 
     if (lastResistanceBeforeDisconnection != -1) {
         qDebug() << QStringLiteral("forcing resistance to ") + QString::number(lastResistanceBeforeDisconnection) +
