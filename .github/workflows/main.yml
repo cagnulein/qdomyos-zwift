@@ -719,8 +719,11 @@ jobs:
           echo "Found rcc at: $RCC_PATH"
           echo "Found qmlimportscanner at: $QMLIMPORT_PATH"
           
-          # Build arguments with explicit tool paths
+          # Build arguments with explicit tool paths and QML paths
           BUILD_ARGS="--input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aab"
+          
+          # Add QML import paths for Qt5 modules that the app uses
+          BUILD_ARGS="$BUILD_ARGS --qml-import-paths ${{ github.workspace }}/output/android/Qt/5.15.0/android/qml"
           
           if [ -n "$QMLIMPORT_PATH" ]; then
             BUILD_ARGS="$BUILD_ARGS --qml-importscanner-binary $QMLIMPORT_PATH"
