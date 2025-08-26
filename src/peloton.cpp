@@ -2672,3 +2672,34 @@ void peloton::peloton_refreshtoken() {
     homeform::singleton()->setToastRequested("Peloton Login OK!");
     
 }
+
+QString peloton::getPelotonWorkoutUrl() {
+    if (current_ride_id.isEmpty()) {
+        return "";
+    }
+    
+    // Build Peloton workout URL
+    QString workoutType = current_workout_type.toLower();
+    if (workoutType.contains("cycling") || workoutType.contains("bike")) {
+        return QString("https://members.onepeloton.com/classes/cycling?modal=classDetailsModal&classId=%1").arg(current_ride_id);
+    } else if (workoutType.contains("running") || workoutType.contains("treadmill")) {
+        return QString("https://members.onepeloton.com/classes/running?modal=classDetailsModal&classId=%1").arg(current_ride_id);
+    } else if (workoutType.contains("rowing") || workoutType.contains("row")) {
+        return QString("https://members.onepeloton.com/classes/rowing?modal=classDetailsModal&classId=%1").arg(current_ride_id);
+    } else if (workoutType.contains("strength")) {
+        return QString("https://members.onepeloton.com/classes/strength?modal=classDetailsModal&classId=%1").arg(current_ride_id);
+    } else if (workoutType.contains("yoga")) {
+        return QString("https://members.onepeloton.com/classes/yoga?modal=classDetailsModal&classId=%1").arg(current_ride_id);
+    } else if (workoutType.contains("meditation")) {
+        return QString("https://members.onepeloton.com/classes/meditation?modal=classDetailsModal&classId=%1").arg(current_ride_id);
+    } else if (workoutType.contains("stretching")) {
+        return QString("https://members.onepeloton.com/classes/stretching?modal=classDetailsModal&classId=%1").arg(current_ride_id);
+    } else if (workoutType.contains("cardio")) {
+        return QString("https://members.onepeloton.com/classes/cardio?modal=classDetailsModal&classId=%1").arg(current_ride_id);
+    } else if (workoutType.contains("circuit")) {
+        return QString("https://members.onepeloton.com/classes/circuit?modal=classDetailsModal&classId=%1").arg(current_ride_id);
+    } else {
+        // Default to cycling if type is not recognized
+        return QString("https://members.onepeloton.com/classes/cycling?modal=classDetailsModal&classId=%1").arg(current_ride_id);
+    }
+}

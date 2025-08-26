@@ -97,6 +97,9 @@ class ftmsbike : public bike {
     uint16_t wattsFromResistance(double resistance);
 
     QTimer *refresh;
+    
+    // Gear modification constants
+    static constexpr int GEARS_SLOPE_MULTIPLIER = 50;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
@@ -155,6 +158,8 @@ class ftmsbike : public bike {
     bool THINK_X = false;
     bool WLT8828 = false;
     bool VANRYSEL_HT = false;
+    bool MAGNUS = false;
+    bool MRK_S26C = false;
 
     int16_t T2_lastGear = 0;
 

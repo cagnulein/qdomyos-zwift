@@ -57,10 +57,12 @@ ApplicationWindow {
     signal gpxpreview_open_clicked(url name)
     signal profile_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
+    signal fitfile_preview_clicked(url name)
     signal trainprogram_open_other_folder(url name)
     signal gpx_open_other_folder(url name)
     signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
+    signal fitfile_preview(string s)
     signal gpx_save_clicked()
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
@@ -91,6 +93,7 @@ ApplicationWindow {
         property string peloton_username: "username"
         property string peloton_password: "password"
     }
+
 
     Store {
         id: iapStore
@@ -758,8 +761,17 @@ ApplicationWindow {
                     }
                 }
 
+            ItemDelegate {
+                text: qsTr("Workouts History")
+                width: parent.width
+                onClicked: {
+                    stackView.push("WorkoutsHistory.qml")
+                    stackView.currentItem.fitfile_preview_clicked.connect(fitfile_preview_clicked)
+                    drawer.close()
+                }
+            }
                 ItemDelegate {
-                    text: qsTr("👜Swag Bag")
+                    text: qsTr("Swag Bag")
                     width: parent.width
                     onClicked: {
                         stackView.push("SwagBagView.qml")
@@ -781,7 +793,7 @@ ApplicationWindow {
                 }
                 ItemDelegate {
                     id: gpx_open
-                    text: qsTr("🗺️ Open GPX")
+                    text: qsTr("Open GPX")
                     width: parent.width
                     onClicked: {
                         stackView.push("GPXList.qml")
@@ -797,7 +809,7 @@ ApplicationWindow {
                 }
                 ItemDelegate {
                     id: trainprogram_open
-                    text: qsTr("📈 Open Train Program")
+                    text: qsTr("Open Train Program")
                     width: parent.width
                     onClicked: {
                         stackView.push("TrainingProgramsList.qml")
@@ -886,7 +898,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.20.5"
+                    text: "version 2.20.8"
                     width: parent.width
                 }
 

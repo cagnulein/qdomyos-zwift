@@ -56,7 +56,7 @@ void trxappgateusbelliptical::writeCharacteristic(uint8_t *data, uint8_t data_le
 }
 
 void trxappgateusbelliptical::forceResistance(resistance_t requestResistance) {
-    if (elliptical_type == TYPE::DCT2000I) {
+    if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS) {
         uint8_t noOpData1[] = {0xf0, 0xa6, 0x01, 0x01, 0x03, 0x9b};
         noOpData1[4] = requestResistance + 1;
         noOpData1[5] = noOpData1[4] + 0x98;
@@ -95,7 +95,7 @@ void trxappgateusbelliptical::update() {
                 }
                 requestResistance = -1;
             } else {
-                if (elliptical_type == TYPE::DCT2000I) {
+                if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS) {
                     uint8_t noOpData1[] = {0xf0, 0xa2, 0x01, 0x01, 0x94};
                     writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
                 } else {
@@ -139,22 +139,41 @@ void trxappgateusbelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 double trxappgateusbelliptical::GetSpeedFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = (packet.at(7) - 1) + ((packet.at(6) - 1) * 100);
-    double data = (double)(convertedData) / 10.0f;
-    return data;
+    if (elliptical_type == TYPE::JTX_FITNESS) {
+        // JTX Fitness doesn't send speed via bluetooth, calculate from cadence using settings ratio
+        QSettings settings;
+        double cadence_speed_ratio = settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
+        double cadence = GetCadenceFromPacket(packet);
+        return cadence * cadence_speed_ratio;
+    } else {
+        uint16_t convertedData = (packet.at(7) - 1) + ((packet.at(6) - 1) * 100);
+        double data = (double)(convertedData) / 10.0f;
+        return data;
+    }
 }
 
 double trxappgateusbelliptical::GetCadenceFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = ((uint16_t)packet.at(9)) + ((uint16_t)packet.at(8) * 100);
+    uint16_t convertedData;
+    if (elliptical_type == TYPE::JTX_FITNESS) {
+        // JTX Fitness uses only byte 5 for cadence
+        convertedData = packet.at(5);
+    } else {
+        convertedData = ((uint16_t)packet.at(9)) + ((uint16_t)packet.at(8) * 100);
+    }
     return convertedData;
 }
 
 double trxappgateusbelliptical::GetWattFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = ((packet.at(16) - 1) * 100) + (packet.at(17) - 1);
-    double data = ((double)(convertedData)) / 10.0f;
-    return data;
+    if (elliptical_type == TYPE::JTX_FITNESS) {
+        // JTX Fitness doesn't send watts via bluetooth, use classic elliptical calculation
+        return 0; // Will be calculated in characteristicChanged using wattsFromResistance
+    } else {
+        uint16_t convertedData = ((packet.at(16) - 1) * 100) + (packet.at(17) - 1);
+        double data = ((double)(convertedData)) / 10.0f;
+        return data;
+    }
 }
 
 void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -216,7 +235,7 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
 
 void trxappgateusbelliptical::btinit() {
 
-    if (elliptical_type == TYPE::DCT2000I) {
+    if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS) {
         uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x00, 0x91};
         uint8_t initData2[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         uint8_t initData3[] = {0xf0, 0xa1, 0x01, 0x01, 0x93};
@@ -277,7 +296,7 @@ void trxappgateusbelliptical::stateChanged(QLowEnergyService::ServiceState state
         QString uuidNotify1 = QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb");
         QString uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
 
-        if (elliptical_type == TYPE::DCT2000I) {
+        if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS) {
             uuidWrite = QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3");
             uuidNotify1 = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
             uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
@@ -364,6 +383,28 @@ void trxappgateusbelliptical::serviceScanDone(void) {
         uuid = uuid2;
     }
 
+    // Fallback logic: try to find the service in discovered services
+    bool found = false;
+    foreach (QBluetoothUuid s, m_control->services()) {
+        if (s == QBluetoothUuid::fromString(uuid)) {
+            found = true;
+            break;
+        }
+    }
+    
+    // If primary service not found, try fallback service
+    if (!found) {
+        if (elliptical_type == TYPE::DCT2000I) {
+            // Already using fallback service, no other option
+            qDebug() << QStringLiteral("DCT2000I service not found");
+        } else {
+            // Try DCT2000I/JTX Fitness service as fallback
+            uuid = uuid2;
+            elliptical_type = TYPE::JTX_FITNESS;
+            qDebug() << QStringLiteral("Standard service not found, trying JTX Fitness service as fallback");
+        }
+    }
+
     QBluetoothUuid _gattCommunicationChannelServiceId(uuid);
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
 
@@ -448,7 +489,13 @@ void trxappgateusbelliptical::controllerStateChanged(QLowEnergyController::Contr
     }
 }
 
-uint16_t trxappgateusbelliptical::watts() { return m_watt.value(); }
+uint16_t trxappgateusbelliptical::watts() { 
+    if (elliptical_type == TYPE::JTX_FITNESS) {
+        // For JTX Fitness, always use the elliptical class generic calculation
+        return elliptical::watts();
+    }
+    return m_watt.value(); 
+}
 
 
 void trxappgateusbelliptical::searchingStop() { searchStopped = true; }

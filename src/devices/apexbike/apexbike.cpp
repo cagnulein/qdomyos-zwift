@@ -152,7 +152,15 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = Resistance.value();
 
-        qDebug() << QStringLiteral("Raw resistance: ") + QString::number(rawResistance) + QStringLiteral(", Inverted resistance: ") + QString::number(Resistance.value());
+        // Parse cadence from 5th byte (index 4) and multiply by 2
+        uint8_t rawCadence = newValue.at(4);
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            Cadence = rawCadence * 2;
+        }
+
+        qDebug() << QStringLiteral("Raw resistance: ") + QString::number(rawResistance) + QStringLiteral(", Inverted resistance: ") + QString::number(Resistance.value()) + QStringLiteral(", Raw cadence: ") + QString::number(rawCadence) + QStringLiteral(", Final cadence: ") + QString::number(Cadence.value());
     }
 
     if (newValue.length() != 10 || newValue.at(2) != 0x31) {
@@ -162,41 +170,13 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     uint16_t distanceData = (newValue.at(7) << 8) | ((uint8_t)newValue.at(8));
     double distance = ((double)distanceData);
 
-    if(distance != lastDistance) {
-        if(lastDistance != 0) {
-            double deltaDistance = distance - lastDistance;
-            double deltaTime = fabs(now.msecsTo(lastTS));
-            double timeHours = deltaTime / (1000.0 * 60.0 * 60.0);
-            double k = 0.005333;
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                Speed = (deltaDistance *k) / timeHours; // Speed in distance units per hour
-            } else {
-                Speed = metric::calculateSpeedFromPower(
-                    watts(), Inclination.value(), Speed.value(),
-                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
-            }
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = Speed.value() / 0.37497622;
-            }
-        }
-        lastDistance = distance;
-        lastTS = now;
-        qDebug() << "lastDistance" << lastDistance << "lastTS" << lastTS;
+    // Calculate speed using the same method as echelon bike
+    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+        Speed = 0.37497622 * ((double)Cadence.value());
     } else {
-        // Check if speed and cadence should be reset due to timeout (2 seconds)
-        if (lastTS.msecsTo(now) > 2000) {
-            if (Speed.value() > 0) {
-                Speed = 0;
-                qDebug() << "Speed reset to 0 due to timeout";
-            }
-            if (Cadence.value() > 0) {
-                Cadence = 0;
-                qDebug() << "Cadence reset to 0 due to timeout";
-            }
-            lastTS = now;
-        }
+        Speed = metric::calculateSpeedFromPower(
+            watts(), Inclination.value(), Speed.value(),
+            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
 
     if (watts())
@@ -234,7 +214,7 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     bool ios_peloton_workaround =
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
     }
 #endif
@@ -432,7 +412,6 @@ bool apexbike::connected() {
 }
 
 uint16_t apexbike::watts() {
-    // Calculate watts based on resistance and cadence using lookup table
     double resistance = Resistance.value();
     double cadence = Cadence.value();
     
@@ -440,45 +419,89 @@ uint16_t apexbike::watts() {
         return 0;
     }
     
-    // Data points from your table:
-    // Resistance 6, Cadence 92  -> 167W
-    // Resistance 1, Cadence 107 -> 130W  
-    // Resistance 6, Cadence 120 -> 218W
-    // Resistance 10, Cadence 69 -> 160W
-    // Resistance 20, Cadence 69 -> 244W
+    // Power table based on user-provided data
+    // Format: resistance level (1-19), RPM (10-150 in steps of 10), power (watts)
+    static const int powerTable[19][15] = {
+        // Resistance 1: RPM 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150
+        {12, 24, 36, 48, 61, 73, 85, 97, 109, 121, 133, 145, 157, 170, 182},
+        // Resistance 2
+        {13, 27, 40, 53, 67, 80, 93, 107, 120, 133, 147, 160, 173, 187, 200},
+        // Resistance 3
+        {15, 29, 44, 58, 73, 87, 102, 117, 131, 146, 160, 175, 189, 204, 219},
+        // Resistance 4
+        {16, 32, 48, 64, 80, 95, 111, 127, 143, 159, 175, 191, 207, 223, 239},
+        // Resistance 5
+        {17, 34, 51, 68, 85, 102, 118, 135, 152, 169, 186, 203, 220, 237, 254},
+        // Resistance 6
+        {18, 37, 55, 74, 92, 110, 129, 147, 165, 184, 202, 221, 239, 257, 276},
+        // Resistance 7
+        {19, 39, 58, 77, 97, 116, 136, 155, 174, 194, 213, 232, 252, 271, 291},
+        // Resistance 8
+        {21, 42, 62, 83, 104, 125, 146, 166, 187, 208, 229, 250, 271, 291, 312},
+        // Resistance 9
+        {22, 44, 66, 88, 110, 132, 154, 176, 198, 220, 242, 264, 286, 308, 330},
+        // Resistance 10
+        {23, 46, 69, 92, 116, 139, 162, 185, 208, 231, 254, 277, 300, 324, 347},
+        // Resistance 11
+        {24, 49, 73, 98, 122, 146, 171, 195, 219, 244, 268, 293, 317, 341, 366},
+        // Resistance 12
+        {26, 51, 77, 102, 128, 153, 179, 204, 230, 255, 281, 307, 332, 358, 383},
+        // Resistance 13
+        {27, 54, 80, 107, 134, 161, 188, 214, 241, 268, 295, 322, 348, 375, 402},
+        // Resistance 14
+        {28, 56, 83, 111, 139, 167, 195, 222, 250, 278, 306, 334, 362, 389, 417},
+        // Resistance 15
+        {29, 58, 87, 117, 146, 175, 204, 233, 262, 292, 321, 350, 379, 408, 437},
+        // Resistance 16
+        {30, 61, 91, 121, 152, 182, 212, 242, 273, 303, 333, 364, 394, 424, 455},
+        // Resistance 17
+        {32, 63, 95, 126, 158, 189, 221, 253, 284, 316, 347, 379, 410, 442, 473},
+        // Resistance 18
+        {33, 66, 99, 132, 165, 198, 231, 264, 297, 330, 363, 396, 429, 462, 495},
+        // Resistance 19
+        {34, 68, 102, 136, 171, 205, 239, 273, 307, 341, 375, 409, 443, 478, 512}
+    };
     
-    // Calculate base watts per resistance level at 80 RPM baseline
-    double baseWatts = 0;
-    if (resistance <= 1) {
-        baseWatts = 97.0; // Interpolated for R1 at 80rpm
-    } else if (resistance <= 6) {
-        // Linear interpolation between R1 and R6
-        double ratio = (resistance - 1) / 5.0;
-        baseWatts = 97.0 + ratio * (145.0 - 97.0); // R6 at 80rpm ≈ 145W
-    } else if (resistance <= 10) {
-        // Linear interpolation between R6 and R10  
-        double ratio = (resistance - 6) / 4.0;
-        baseWatts = 145.0 + ratio * (186.0 - 145.0); // R10 at 80rpm ≈ 186W
-    } else if (resistance <= 20) {
-        // Linear interpolation between R10 and R20
-        double ratio = (resistance - 10) / 10.0;
-        baseWatts = 186.0 + ratio * (283.0 - 186.0); // R20 at 80rpm ≈ 283W
-    } else {
-        // Extrapolate beyond R20
-        baseWatts = 283.0 + (resistance - 20) * 9.7; // ~9.7W per resistance level
+    // Clamp resistance to valid range (1-19)
+    int res = qMax(1, qMin(19, (int)qRound(resistance)));
+    
+    // Convert to array index (0-18)
+    int resIndex = res - 1;
+    
+    // RPM ranges from 10 to 150 in steps of 10
+    // Find the two closest RPM values for interpolation
+    double rpm = qMax(1.0, cadence); // Ensure RPM is at least 1
+    
+    if (rpm <= 10.0) {
+        // Below minimum RPM, extrapolate from first data point
+        double factor = rpm / 10.0;
+        return (uint16_t)qMax(0.0, powerTable[resIndex][0] * factor);
     }
     
-    // Apply cadence multiplier (relative to 80 RPM baseline)
-    double cadenceMultiplier = cadence / 80.0;
-    
-    // Slight power curve - higher cadence gives diminishing returns
-    if (cadenceMultiplier > 1.0) {
-        cadenceMultiplier = 1.0 + (cadenceMultiplier - 1.0) * 0.85;
+    if (rpm >= 150.0) {
+        // Above maximum RPM, extrapolate from last data point
+        double factor = rpm / 150.0;
+        return (uint16_t)qMax(0.0, powerTable[resIndex][14] * factor);
     }
     
-    double watts = baseWatts * cadenceMultiplier;
+    // Find the two RPM values to interpolate between
+    // RPM values are: 10, 20, 30, ..., 150 (indices 0-14)
+    int lowerRpmIndex = ((int)rpm - 1) / 10;  // Convert RPM to array index
+    if (lowerRpmIndex > 13) lowerRpmIndex = 13; // Ensure we don't go out of bounds
     
-    return (uint16_t)qMax(0.0, watts);
+    int upperRpmIndex = lowerRpmIndex + 1;
+    
+    double lowerRpm = (lowerRpmIndex + 1) * 10.0;  // Convert index back to RPM
+    double upperRpm = (upperRpmIndex + 1) * 10.0;
+    
+    int lowerPower = powerTable[resIndex][lowerRpmIndex];
+    int upperPower = powerTable[resIndex][upperRpmIndex];
+    
+    // Linear interpolation between the two power values
+    double ratio = (rpm - lowerRpm) / (upperRpm - lowerRpm);
+    double interpolatedPower = lowerPower + ratio * (upperPower - lowerPower);
+    
+    return (uint16_t)qMax(0.0, interpolatedPower);
 }
 
 void apexbike::controllerStateChanged(QLowEnergyController::ControllerState state) {

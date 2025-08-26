@@ -237,6 +237,13 @@ void TemplateInfoSenderBuilder::clearSessionArray() {
     }
 }
 
+void TemplateInfoSenderBuilder::clearPreviewSessionArray() {
+    int len = previewSessionArray.count();
+    for (int i = 0; i < len; i++) {
+        previewSessionArray.removeAt(0);
+    }
+}
+
 void TemplateInfoSenderBuilder::start(bluetoothdevice *dev) {
     device = nullptr;
     clearSessionArray();
@@ -514,6 +521,14 @@ void TemplateInfoSenderBuilder::onAppendActivityDescription(const QJsonValue &ms
     QJsonObject main;
     main[QStringLiteral("content")] = activityDescription;
     main[QStringLiteral("msg")] = QStringLiteral("R_appendactivitydescription");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onGetPreviewSessionArray(TemplateInfoSender *tempSender) {
+    QJsonObject main;
+    main[QStringLiteral("content")] = previewSessionArray;
+    main[QStringLiteral("msg")] = QStringLiteral("R_getpreviewsessionarray");
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -881,6 +896,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("getsessionarray")) {
                     onGetSessionArray(sender);
                     return;
+                } else if (msg == QStringLiteral("getpreviewsessionarray")) {
+                    onGetPreviewSessionArray(sender);
+                    return;
                 }
                 if (msg == QStringLiteral("start")) {
                     onStart(sender);
@@ -1168,4 +1186,135 @@ void TemplateInfoSenderBuilder::workoutEventStateChanged(bluetoothdevice::WORKOU
     if (state == bluetoothdevice::STARTED) {
         clearSessionArray();
     }
+}
+
+void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport) {
+    previewSessionOnChart(session, sport, "");
+}
+
+void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport, const QString &workoutName) {
+    auto startTime = std::chrono::high_resolution_clock::now();
+    qDebug() << "previewSessionOnChart: Starting with" << session->size() << "elements";
+    
+    clearPreviewSessionArray();
+    auto afterClear = std::chrono::high_resolution_clock::now();
+    qDebug() << "Clear took:" << std::chrono::duration_cast<std::chrono::milliseconds>(afterClear - startTime).count() << "ms";
+    
+    buildContext(true);
+    auto afterContext = std::chrono::high_resolution_clock::now();
+    qDebug() << "buildContext took:" << std::chrono::duration_cast<std::chrono::milliseconds>(afterContext - afterClear).count() << "ms";
+    
+    if (session->isEmpty()) {
+        return;
+    }
+    
+    // Pre-calculate stats for performance
+    double avgWatts = 0, maxWatts = 0, avgHeart = 0, maxHeart = 0, avgSpeed = 0, maxSpeed = 0, avgCadence = 0, maxCadence = 0;
+    double totalWatts = 0, totalHeart = 0, totalSpeed = 0, totalCadence = 0;
+    int validWatts = 0, validHeart = 0, validSpeed = 0, validCadence = 0;
+    
+    // Single optimized pass
+    for (const SessionLine &s : *session) {
+        if (s.watt > 0) { totalWatts += s.watt; validWatts++; maxWatts = qMax((double)s.watt, maxWatts); }
+        if (s.heart > 0) { totalHeart += s.heart; validHeart++; maxHeart = qMax((double)s.heart, maxHeart); }
+        if (s.speed > 0) { totalSpeed += s.speed; validSpeed++; maxSpeed = qMax(s.speed, maxSpeed); }
+        if (s.cadence > 0) { totalCadence += s.cadence; validCadence++; maxCadence = qMax((double)s.cadence, maxCadence); }
+    }
+    
+    avgWatts = validWatts > 0 ? totalWatts / validWatts : 0;
+    avgHeart = validHeart > 0 ? totalHeart / validHeart : 0;
+    avgSpeed = validSpeed > 0 ? totalSpeed / validSpeed : 0;
+    avgCadence = validCadence > 0 ? totalCadence / validCadence : 0;
+    
+    auto afterStats = std::chrono::high_resolution_clock::now();
+    qDebug() << "Stats calculation took:" << std::chrono::duration_cast<std::chrono::milliseconds>(afterStats - afterContext).count() << "ms";
+    
+    // Pre-calculate common values outside the loop
+    QSettings settings;
+    const QString nickName = settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString();
+    const QString displayNickName = nickName.isEmpty() ? QStringLiteral("N/A") : nickName;
+    const QString displayWorkoutName = workoutName.isEmpty() ? QStringLiteral("FIT Workout") : workoutName;
+    const QString instructorName = QStringLiteral("");
+    
+    // Get properly formatted date from first session element for summary display
+    const QString workoutStartDateFormatted = !session->isEmpty() ? session->first().time.toString() : QStringLiteral("");
+    
+    auto afterPreCalc = std::chrono::high_resolution_clock::now();
+    qDebug() << "Pre-calculation took:" << std::chrono::duration_cast<std::chrono::milliseconds>(afterPreCalc - afterStats).count() << "ms";
+    
+    // Reserve space for better performance
+    previewSessionArray = QJsonArray();
+    
+    qDebug() << "Starting main loop with" << session->size() << "elements";
+    int processedItems = 0;
+    
+    // Pre-create template QJsonObject for reuse
+    QJsonObject itemTemplate;
+    itemTemplate[QStringLiteral("speed_avg")] = avgSpeed;
+    itemTemplate[QStringLiteral("speed_max")] = maxSpeed;
+    itemTemplate[QStringLiteral("heart_avg")] = avgHeart;
+    itemTemplate[QStringLiteral("heart_max")] = maxHeart;
+    itemTemplate[QStringLiteral("watts_avg")] = avgWatts;
+    itemTemplate[QStringLiteral("watts_max")] = maxWatts;
+    itemTemplate[QStringLiteral("workoutName")] = displayWorkoutName;
+    itemTemplate[QStringLiteral("instructorName")] = instructorName;
+    itemTemplate[QStringLiteral("nickName")] = displayNickName;
+    itemTemplate[QStringLiteral("cadence_avg")] = avgCadence;
+    itemTemplate[QStringLiteral("cadence_max")] = maxCadence;
+    itemTemplate[QStringLiteral("workoutStartDate")] = workoutStartDateFormatted;
+    
+    // Simple optimized loop - no coordinates
+    for (const SessionLine &s : *session) {
+        QJsonObject item = itemTemplate; // Copy template (includes workoutStartDate)
+        
+        // Time calculation (optimized)
+        const int totalSeconds = s.elapsedTime;
+        item[QStringLiteral("elapsed_s")] = totalSeconds % 60;
+        item[QStringLiteral("elapsed_m")] = (totalSeconds % 3600) / 60;
+        item[QStringLiteral("elapsed_h")] = totalSeconds / 3600;
+        
+        // Variable properties only
+        item[QStringLiteral("speed")] = s.speed;
+        item[QStringLiteral("calories")] = s.calories;
+        item[QStringLiteral("distance")] = s.distance;
+        item[QStringLiteral("heart")] = s.heart;
+        item[QStringLiteral("elevation")] = s.elevationGain;
+        item[QStringLiteral("watts")] = s.watt;
+        
+        // Sport-specific properties
+        if (sport == FIT_SPORT_CYCLING) {
+            item[QStringLiteral("cadence")] = s.cadence;
+            item[QStringLiteral("resistance")] = s.resistance;
+        } else if (sport == FIT_SPORT_ROWING) {
+            item[QStringLiteral("cadence")] = s.cadence;
+            item[QStringLiteral("resistance")] = s.resistance;
+            item[QStringLiteral("strokescount")] = static_cast<int>(s.totalStrokes);
+            item[QStringLiteral("strokeslength")] = static_cast<double>(s.avgStrokesLength);
+        } else if (sport == FIT_SPORT_RUNNING || sport == FIT_SPORT_WALKING) {
+            item[QStringLiteral("inclination")] = s.inclination;
+            item[QStringLiteral("stridelength")] = s.instantaneousStrideLengthCM;
+            item[QStringLiteral("groundcontact")] = s.groundContactMS;
+            item[QStringLiteral("verticaloscillation")] = s.verticalOscillationMM;
+        } else if (sport == FIT_SUB_SPORT_ELLIPTICAL) {
+            item[QStringLiteral("inclination")] = s.inclination;
+        }
+        
+        previewSessionArray.append(item);
+        processedItems++;
+        
+        // Log progress every 1000 items
+        if (processedItems % 1000 == 0) {
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            qDebug() << "Processed" << processedItems << "items, elapsed:" 
+                     << std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - afterPreCalc).count() << "ms";
+        }
+    }
+    
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+    auto loopTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - afterPreCalc).count();
+    
+    qDebug() << "previewSessionOnChart: Added" << previewSessionArray.size() << "elements to preview array";
+    qDebug() << "Total time:" << totalTime << "ms, Main loop time:" << loopTime << "ms";
+    qDebug() << "Average per item:" << (session->size() > 0 ? (double)loopTime / session->size() : 0) << "ms";
 }
