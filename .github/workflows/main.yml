@@ -651,14 +651,18 @@ jobs:
           echo "=== Downloading Qt6 androiddeployqt binary ==="
           mkdir -p ${{ github.workspace }}/qt6-tools/bin
           
-          # Download Qt6 qtbase and qttools from official Qt releases
+          # Download Qt6 components from official Qt releases
           wget -q https://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_662/qt.qt6.662.gcc_64/6.6.2-0-202402121133qtbase-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64.7z -O qt6-base.7z
           wget -q https://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_662/qt.qt6.662.gcc_64/6.6.2-0-202402121133qttools-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64.7z -O qt6-tools.7z
+          wget -q https://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_662/qt.qt6.662.gcc_64/6.6.2-0-202402121133qtdeclarative-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64.7z -O qt6-declarative.7z
+          wget -q https://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_662/qt.qt6.662.gcc_64/6.6.2-0-202402121133icu-linux-Rhel7.2-x64.7z -O qt6-icu.7z
           
           # Extract using 7z
           sudo apt-get install -y p7zip-full
           7z x qt6-base.7z -o${{ github.workspace }}/qt6-tools/
           7z x qt6-tools.7z -o${{ github.workspace }}/qt6-tools/
+          7z x qt6-declarative.7z -o${{ github.workspace }}/qt6-tools/
+          7z x qt6-icu.7z -o${{ github.workspace }}/qt6-tools/
           
           # Make Qt6 tools executable (correct path)
           chmod +x ${{ github.workspace }}/qt6-tools/6.6.2/gcc_64/bin/androiddeployqt
@@ -706,11 +710,27 @@ jobs:
           RCC_PATH=$(find ${{ github.workspace }}/qt6-tools -name "rcc" -type f | head -1)
           QMLIMPORT_PATH=$(find ${{ github.workspace }}/qt6-tools -name "*qmlimportscanner*" -type f | head -1)
           
+          # Fallback to system Qt5 qmlimportscanner if Qt6 version not found
+          if [ -z "$QMLIMPORT_PATH" ] && [ -f "/usr/lib/qt5/bin/qmlimportscanner" ]; then
+            QMLIMPORT_PATH="/usr/lib/qt5/bin/qmlimportscanner"
+            echo "Using Qt5 system qmlimportscanner as fallback"
+          fi
+          
           echo "Found rcc at: $RCC_PATH"
           echo "Found qmlimportscanner at: $QMLIMPORT_PATH"
           
-          # Build arguments with explicit tool paths
+          # Build arguments with explicit tool paths and QML paths
           BUILD_ARGS="--input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aab"
+          
+          # Add comprehensive QML import paths and verbose output for debugging
+          QML_BASE_PATH="${{ github.workspace }}/output/android/Qt/5.15.0/android/qml"
+          BUILD_ARGS="$BUILD_ARGS --qml-import-path $QML_BASE_PATH"
+          BUILD_ARGS="$BUILD_ARGS --qml-import-path $QML_BASE_PATH/QtQuick"
+          BUILD_ARGS="$BUILD_ARGS --qml-import-path $QML_BASE_PATH/QtQuick/Controls.2"  
+          BUILD_ARGS="$BUILD_ARGS --qml-import-path $QML_BASE_PATH/QtQuick/Templates.2"
+          BUILD_ARGS="$BUILD_ARGS --qml-import-path $QML_BASE_PATH/Qt/labs"
+          BUILD_ARGS="$BUILD_ARGS --qml-import-path $QML_BASE_PATH/QtQml"
+          BUILD_ARGS="$BUILD_ARGS --verbose"
           
           if [ -n "$QMLIMPORT_PATH" ]; then
             BUILD_ARGS="$BUILD_ARGS --qml-importscanner-binary $QMLIMPORT_PATH"
