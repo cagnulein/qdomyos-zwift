@@ -887,6 +887,8 @@ class homeform : public QObject {
     void fit_save_clicked();
     void saveSessionAsTrainingProgram();
     void strava_connect_clicked();
+    void google_health_connect_clicked();
+    void google_health_upload_workout();
     void trainProgramSignals();
     void refresh_bluetooth_devices_clicked();
     void onStravaGranted();
