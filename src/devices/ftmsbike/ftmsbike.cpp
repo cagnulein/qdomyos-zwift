@@ -656,6 +656,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if(DU30_bike) {
                 m_watt = wattsFromResistance(Resistance.value());
                 emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+            } else if (MRK_S26C) {
+                m_watt = Cadence.value() * (Resistance.value() * 1.16);
+                emit debug(QStringLiteral("Current Watt (MRK-S26C formula): ") + QString::number(m_watt.value()));
             } else if (LYDSTO && watt_ignore_builtin) {
                 m_watt = wattFromHR(true);
                 emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
@@ -1590,6 +1593,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("VANRYSEL-HT")) {
             qDebug() << QStringLiteral("VANRYSEL-HT found");
             VANRYSEL_HT = true;
+        } else if(device.name().toUpper().startsWith("MRK-S26C-")) {
+            qDebug() << QStringLiteral("MRK-S26C found");
+            MRK_S26C = true;
         }
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
