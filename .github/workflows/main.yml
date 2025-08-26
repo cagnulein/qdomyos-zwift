@@ -1901,7 +1901,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: nightly-${{ steps.date.outputs.date }}
-          prerelease: true
+          prerelease: false
           name: 'QZ nightly build - ${{ steps.date.outputs.date }}'
           body: |
             This is a nightly build of QZ.

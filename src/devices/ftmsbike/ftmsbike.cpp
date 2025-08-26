@@ -194,7 +194,7 @@ void ftmsbike::zwiftPlayInit() {
 }
 
 void ftmsbike::forcePower(int16_t requestPower) {
-    if(resistance_lvl_mode || TITAN_7000) {
+    if((resistance_lvl_mode || TITAN_7000) && !MAGNUS) {
         forceResistance(resistanceFromPowerRequest(requestPower));
     } else {
         uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
@@ -1503,7 +1503,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             max_resistance = 16;
         } else if ((bluetoothDevice.name().toUpper().startsWith("MAGNUS "))) {
             qDebug() << QStringLiteral("MAGNUS found");
-            resistance_lvl_mode = true;
+            MAGNUS = true;
+            resistance_lvl_mode = true;            
+            ergModeSupported = true;
         } else if ((bluetoothDevice.name().toUpper().startsWith("DU30-"))) {
             qDebug() << QStringLiteral("DU30 found");
             max_resistance = 32;
