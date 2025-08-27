@@ -1423,7 +1423,7 @@ bool trainprogram::hasTargetPower(const QString &filename) {
     
     while (!reader.atEnd()) {
         reader.readNext();
-        if (reader.isStartElement() && reader.name() == "row") {
+        if (reader.isStartElement() && reader.name() == QStringLiteral("row")) {
             QXmlStreamAttributes attributes = reader.attributes();
             if (attributes.hasAttribute("power")) {
                 QString powerStr = attributes.value("power").toString();
