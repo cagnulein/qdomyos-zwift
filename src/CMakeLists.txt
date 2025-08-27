@@ -61,6 +61,10 @@ set(CORE_SOURCES
     inclinationresistancetable.cpp
     treadmillErgTable.cpp
     ergtable.cpp
+    fitdatabaseprocessor.cpp
+    workoutmodel.cpp
+    fontmanager.cpp
+    workoutloaderworker.cpp
 )
 
 # Device sources
@@ -79,6 +83,7 @@ set(DEVICE_SOURCES
     devices/lifespantreadmill/lifespantreadmill.cpp
     devices/moxy5sensor/moxy5sensor.cpp
     devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp
+    devices/nordictrackifitadbrower/nordictrackifitadbrower.cpp
     devices/pitpatbike/pitpatbike.cpp
     devices/speraxtreadmill/speraxtreadmill.cpp
     devices/sportsplusrower/sportsplusrower.cpp
