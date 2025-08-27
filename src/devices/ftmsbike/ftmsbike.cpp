@@ -401,8 +401,15 @@ void ftmsbike::update() {
 
         lastGearValue = gears();
 
-        // if a classic request of power from zwift or any other platform is coming, will be transfereed on the ftmsCharacteristicChanged applying the gear mod too
-        if (requestPower != -1 && (!virtualBike || !virtualBike->ftmsDeviceConnected() || (zwiftPlayService != nullptr && gears_zwift_ratio))) {
+        // Power request routing logic:
+        // 1. No virtualBike: route directly to bike
+        // 2. VirtualBike not connected to FTMS: route directly to bike  
+        // 3. ZwiftPlay with gear ratio: route directly to bike
+        // 4. ErgMode supported + power sensor: use delta power system (bypass FTMS routing)
+        bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                                .toString()
+                                .startsWith(QStringLiteral("Disabled"));
+        if (requestPower != -1 && (!virtualBike || !virtualBike->ftmsDeviceConnected() || (zwiftPlayService != nullptr && gears_zwift_ratio) || (ergModeSupported && power_sensor))) {
             qDebug() << QStringLiteral("writing power") << requestPower;
             init();
             forcePower(requestPower);
@@ -662,11 +669,16 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             } else if (LYDSTO && watt_ignore_builtin) {
                 m_watt = wattFromHR(true);
                 emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
-            } else if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled")))
-                m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+            } else {
+                double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)newValue.at(index))));
+                m_rawWatt = ftms_watt;  // Always update rawWatt from FTMS bike data
+                if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                        .toString()
+                        .startsWith(QStringLiteral("Disabled"))) {
+                    m_watt = ftms_watt;  // Only update watt if no external power sensor
+                }
+            }
             index += 2;
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
         } else if(DOMYOS) {
@@ -744,14 +756,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         uint16_t time_division = 1024;
         uint8_t index = 4;
 
-        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                .toString()
-                .startsWith(QStringLiteral("Disabled"))) {
-            if (newValue.length() > 3) {
-                m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+        if (newValue.length() > 3) {
+            double ftms_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+            m_rawWatt = ftms_watt;  // Always update rawWatt from FTMS bike data
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                m_watt = ftms_watt;  // Only update watt if no external power sensor
+                emit powerChanged(m_watt.value());
             }
-
-            emit powerChanged(m_watt.value());
             emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
         }
 
@@ -1039,11 +1052,14 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         if (Flags.instantPower) {
+            double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
+            m_rawWatt = ftms_watt;  // Always update rawWatt from FTMS bike data
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
-                    .startsWith(QStringLiteral("Disabled")))
-                m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)newValue.at(index))));
+                    .startsWith(QStringLiteral("Disabled"))) {
+                m_watt = ftms_watt;  // Only update watt if no external power sensor
+            }
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             index += 2;
         }
@@ -1320,15 +1336,27 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
 void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
 
+    QSettings settings;
+    bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                            .toString()
+                            .startsWith(QStringLiteral("Disabled"));
+    
     bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
-    if (!autoResistance() || resistance_lvl_mode || ergModeNotSupported) {
+    bool isPowerCommand = (newValue.length() > 0 && (uint8_t)newValue.at(0) == FTMS_SET_TARGET_POWER);
+    
+    // FTMS routing filter logic:
+    // - Block simulation commands (0x11) when resistance_lvl_mode=true
+    // - Allow power commands (0x05) only when no external power sensor (delta power system handles external sensors)
+    bool allowPowerRouting = (!power_sensor && ergModeSupported && isPowerCommand);
+    
+    if (!autoResistance() || (resistance_lvl_mode && !allowPowerRouting) || ergModeNotSupported) {
         qDebug() << "ignoring routing FTMS packet to the bike from virtualbike because of auto resistance OFF or resistance lvl mode is on or ergModeNotSupported"
-                 << characteristic.uuid() << newValue.toHex(' ') << ergModeNotSupported << resistance_lvl_mode;
+                 << characteristic.uuid() << newValue.toHex(' ') << "ergModeNotSupported:" << ergModeNotSupported 
+                 << "resistance_lvl_mode:" << resistance_lvl_mode << "power_sensor:" << power_sensor << "isPowerCommand:" << isPowerCommand;
         return;
     }
 
     QByteArray b = newValue;
-    QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
     if (gattWriteCharControlPointId.isValid()) {
@@ -1516,6 +1544,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("DOMYOS"))) {
             qDebug() << QStringLiteral("DOMYOS found");
             resistance_lvl_mode = true;
+            ergModeSupported = false;
             DOMYOS = true;
         } else if ((bluetoothDevice.name().toUpper().startsWith("3G Cardio RB"))) {
             qDebug() << QStringLiteral("_3G_Cardio_RB found");
@@ -1549,6 +1578,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("SPAX-BK-"))) {
             qDebug() << QStringLiteral("SPAX-BK found");
             resistance_lvl_mode = true;
+            ergModeSupported = false;
         } else if ((bluetoothDevice.name().toUpper().startsWith("LYDSTO"))) {
             qDebug() << QStringLiteral("LYDSTO found");
             LYDSTO = true;
@@ -1557,11 +1587,13 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             SL010 = true;
             max_resistance = 25;
             resistance_lvl_mode = true;
+            ergModeSupported = false;
         } else if ((bluetoothDevice.name().toUpper().startsWith("REEBOK"))) {
             qDebug() << QStringLiteral("REEBOK found");
             REEBOK = true;
             max_resistance = 32;
             resistance_lvl_mode = true;
+            ergModeSupported = false;
         } else if ((bluetoothDevice.name().toUpper().startsWith("TITAN 7000"))) {
             qDebug() << QStringLiteral("Titan 7000 found");
             TITAN_7000 = true;

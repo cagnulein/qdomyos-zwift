@@ -345,14 +345,15 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         uint16_t time_division = 1024;
         uint8_t index = 4;
 
-        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                .toString()
-                .startsWith(QStringLiteral("Disabled"))) {
-            if (newValue.length() > 3) {
-                m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+        if (newValue.length() > 3) {
+            double tacx_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+            m_rawWatt = tacx_watt;  // Always update rawWatt from TACX bike data
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                m_watt = tacx_watt;  // Only update watt if no external power sensor
+                emit powerChanged(m_watt.value());
             }
-
-            emit powerChanged(m_watt.value());
             emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
         }
 
@@ -635,11 +636,14 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         if (Flags.instantPower) {
             // power table from an user
+            double tacx_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
+            m_rawWatt = tacx_watt;  // Always update rawWatt from TACX bike data
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                            .toString()
-                           .startsWith(QStringLiteral("Disabled")))
-                m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)newValue.at(index))));
+                           .startsWith(QStringLiteral("Disabled"))) {
+                m_watt = tacx_watt;  // Only update watt if no external power sensor
+            }
             index += 2;
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
         }
