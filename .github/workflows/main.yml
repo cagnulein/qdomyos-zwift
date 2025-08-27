@@ -526,6 +526,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
+          ref: qt6-android
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
         
