@@ -38,6 +38,7 @@ if(ANDROID)
         Location 
         Multimedia 
         Charts
+        Sql
     )
     # Try to find optional Android modules
     find_package(Qt6Bluetooth QUIET)
