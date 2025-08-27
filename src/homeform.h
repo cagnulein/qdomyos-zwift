@@ -753,6 +753,10 @@ class homeform : public QObject {
     QDateTime automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
     QDateTime automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
 
+    // Timer jitter detection variables (same logic as trainprogram::scheduler)
+    QDateTime lastUpdateCall = QDateTime::currentDateTime();
+    qint64 currentUpdateJitter = 0;
+
     peloton *pelotonHandler = nullptr;
     bool m_pelotonAskStart = false;
     QString m_pelotonProvider = "";
