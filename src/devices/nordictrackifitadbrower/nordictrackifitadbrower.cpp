@@ -193,7 +193,7 @@ nordictrackifitadbrower::nordictrackifitadbrower(bool noWriteResistance, bool no
         QJniObject IP = QJniObject::fromString(ip).object<jstring>();
         QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "createConnection",
                                                   "(Ljava/lang/String;Landroid/content/Context;)V",
-                                                  IP.object<jstring>(), QtAndroid::androidContext().object());
+                                                  IP.object<jstring>(), QJniObject(QCoreApplication::instance()).object());
 #elif defined Q_OS_WIN
         logcatAdbThread = new nordictrackifitadbrowerLogcatAdbThread("logcatAdbThread");
         connect(logcatAdbThread, &nordictrackifitadbrowerLogcatAdbThread::onCadence, this,
@@ -232,7 +232,7 @@ void nordictrackifitadbrower::onCadence(double cadence) {
 }
 
 double nordictrackifitadbrower::getDouble(QString v) {
-    QChar d = QLocale().decimalPoint();
+    QString d = QLocale().decimalPoint();
     if (d == ',') {
         v = v.replace('.', ',');
     }

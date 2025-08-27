@@ -7,6 +7,8 @@
 #include <QtCore/qcoreapplication.h>
 #else
 #include <QtGui/qguiapplication.h>
+#include <QJniObject>
+#include <QCoreApplication>
 #endif
 #include <QtCore/qlist.h>
 #include <QtCore/qmutex.h>
