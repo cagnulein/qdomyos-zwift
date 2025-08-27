@@ -401,8 +401,15 @@ void ftmsbike::update() {
 
         lastGearValue = gears();
 
-        // if a classic request of power from zwift or any other platform is coming, will be transfereed on the ftmsCharacteristicChanged applying the gear mod too
-        if (requestPower != -1 && (!virtualBike || !virtualBike->ftmsDeviceConnected() || (zwiftPlayService != nullptr && gears_zwift_ratio))) {
+        // Power request routing logic:
+        // 1. No virtualBike: route directly to bike
+        // 2. VirtualBike not connected to FTMS: route directly to bike  
+        // 3. ZwiftPlay with gear ratio: route directly to bike
+        // 4. ErgMode supported + power sensor: use delta power system (bypass FTMS routing)
+        bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                                .toString()
+                                .startsWith(QStringLiteral("Disabled"));
+        if (requestPower != -1 && (!virtualBike || !virtualBike->ftmsDeviceConnected() || (zwiftPlayService != nullptr && gears_zwift_ratio) || (ergModeSupported && power_sensor))) {
             qDebug() << QStringLiteral("writing power") << requestPower;
             init();
             forcePower(requestPower);
@@ -1337,7 +1344,9 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
     bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
     bool isPowerCommand = (newValue.length() > 0 && (uint8_t)newValue.at(0) == FTMS_SET_TARGET_POWER);
     
-    // Allow power commands through if no external power sensor and erg mode supported
+    // FTMS routing filter logic:
+    // - Block simulation commands (0x11) when resistance_lvl_mode=true
+    // - Allow power commands (0x05) only when no external power sensor (delta power system handles external sensors)
     bool allowPowerRouting = (!power_sensor && ergModeSupported && isPowerCommand);
     
     if (!autoResistance() || (resistance_lvl_mode && !allowPowerRouting) || ergModeNotSupported) {
