@@ -386,7 +386,7 @@ void trxappgateusbelliptical::serviceScanDone(void) {
     // Fallback logic: try to find the service in discovered services
     bool found = false;
     foreach (QBluetoothUuid s, m_control->services()) {
-        if (s == QBluetoothUuid::fromString(uuid)) {
+        if (s == (QBluetoothUuid)QBluetoothUuid::fromString(uuid)) {
             found = true;
             break;
         }
