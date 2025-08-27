@@ -56,7 +56,7 @@ void trxappgateusbelliptical::writeCharacteristic(uint8_t *data, uint8_t data_le
 }
 
 void trxappgateusbelliptical::forceResistance(resistance_t requestResistance) {
-    if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS) {
+    if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS || elliptical_type == TYPE::TAURUS_FX99) {
         uint8_t noOpData1[] = {0xf0, 0xa6, 0x01, 0x01, 0x03, 0x9b};
         noOpData1[4] = requestResistance + 1;
         noOpData1[5] = noOpData1[4] + 0x98;
@@ -95,7 +95,7 @@ void trxappgateusbelliptical::update() {
                 }
                 requestResistance = -1;
             } else {
-                if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS) {
+                if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS || elliptical_type == TYPE::TAURUS_FX99) {
                     uint8_t noOpData1[] = {0xf0, 0xa2, 0x01, 0x01, 0x94};
                     writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
                 } else {
@@ -235,7 +235,7 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
 
 void trxappgateusbelliptical::btinit() {
 
-    if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS) {
+    if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS || elliptical_type == TYPE::TAURUS_FX99) {
         uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x00, 0x91};
         uint8_t initData2[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         uint8_t initData3[] = {0xf0, 0xa1, 0x01, 0x01, 0x93};
@@ -301,6 +301,7 @@ void trxappgateusbelliptical::stateChanged(QLowEnergyService::ServiceState state
             uuidNotify1 = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
             uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
         }
+        // TAURUS_FX99 uses standard 0000fff0 characteristics
 
         QBluetoothUuid _gattWriteCharacteristicId(uuidWrite);
         QBluetoothUuid _gattNotify1CharacteristicId(uuidNotify1);
@@ -395,8 +396,21 @@ void trxappgateusbelliptical::serviceScanDone(void) {
     // If primary service not found, try fallback service
     if (!found) {
         if (elliptical_type == TYPE::DCT2000I) {
-            // Already using fallback service, no other option
-            qDebug() << QStringLiteral("DCT2000I service not found");
+            // I-CONSOLE+ device but DCT2000I service not found, try 0000fff0 service (Taurus FX9.9)
+            bool found_fff0 = false;
+            foreach (QBluetoothUuid s, m_control->services()) {
+                if (s == QBluetoothUuid::fromString(uuid3)) {
+                    found_fff0 = true;
+                    break;
+                }
+            }
+            if (found_fff0) {
+                uuid = uuid3;
+                elliptical_type = TYPE::TAURUS_FX99;
+                qDebug() << QStringLiteral("I-CONSOLE+ device detected as Taurus FX9.9 with 0000fff0 service");
+            } else {
+                qDebug() << QStringLiteral("DCT2000I service not found");
+            }
         } else {
             // Try DCT2000I/JTX Fitness service as fallback
             uuid = uuid2;
