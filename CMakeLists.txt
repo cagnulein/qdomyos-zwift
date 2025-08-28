@@ -8,16 +8,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(WIN32 AND NOT DEFINED CMAKE_PREFIX_PATH)
     if(ANDROID)
         # Android builds - use all Android ABIs
-        set(CMAKE_PREFIX_PATH "C:/Qt/6.8.2/android_armv7;C:/Qt/6.8.2/android_arm64_v8a;C:/Qt/6.8.2/android_x86;C:/Qt/6.8.2/android_x86_64")
+        set(CMAKE_PREFIX_PATH "C:/Qt/6.9.1/android_armv7;C:/Qt/6.9.1/android_arm64_v8a;C:/Qt/6.9.1/android_x86;C:/Qt/6.9.1/android_x86_64")
     elseif(MSVC)
         # Windows MSVC builds
-        set(CMAKE_PREFIX_PATH "C:/Qt/6.8.2/msvc2022_64")
+        set(CMAKE_PREFIX_PATH "C:/Qt/6.9.1/msvc2022_64")
     elseif(MINGW)
         # Windows MinGW builds
-        set(CMAKE_PREFIX_PATH "C:/Qt/6.8.2/mingw_64")
+        set(CMAKE_PREFIX_PATH "C:/Qt/6.9.1/mingw_64")
     else()
         # Default Windows path
-        set(CMAKE_PREFIX_PATH "C:/Qt/6.8.2/msvc2022_64")
+        set(CMAKE_PREFIX_PATH "C:/Qt/6.9.1/msvc2022_64")
     endif()
 endif()
 
