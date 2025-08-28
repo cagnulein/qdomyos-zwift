@@ -168,14 +168,16 @@ public class PelotonSensorBinder {
         
         @Override
         protected float mapValue(float rawValue) {
-            // Power values are already in correct units from BikeData
+            // Power values need to be divided by 100 (same as Grupetto implementation)
+            float correctedValue = rawValue / 100.0f;
+            
             // Filter out spurious readings
-            if (rawValue < 0 || rawValue > 1000) {
-                QLog.w(TAG, "Filtering spurious power reading: " + rawValue);
+            if (correctedValue < 0 || correctedValue > 1000) {
+                QLog.w(TAG, "Filtering spurious power reading: " + rawValue + " (corrected: " + correctedValue + ")");
                 return 0.0f;
             }
             
-            return rawValue;
+            return correctedValue;
         }
     }
     
