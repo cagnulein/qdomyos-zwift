@@ -23,10 +23,14 @@ ColumnLayout {
                 trainprogram_open_clicked(fileDialogTrainProgram.fileUrl)
             }
             fileDialogTrainProgram.close()
+            // Reset the FileDialog to clear any cached state
+            fileDialogTrainProgram.fileUrl = ""
         }
         onRejected: {
             console.log("Canceled")
             fileDialogTrainProgram.close()
+            // Reset the FileDialog on cancel too
+            fileDialogTrainProgram.fileUrl = ""
         }
     }
 
