@@ -158,6 +158,8 @@ class ftmsbike : public bike {
     bool THINK_X = false;
     bool WLT8828 = false;
     bool VANRYSEL_HT = false;
+    bool MAGNUS = false;
+    bool MRK_S26C = false;
 
     int16_t T2_lastGear = 0;
 

@@ -1758,6 +1758,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("SL010-")) ||
                         (b.name().toUpper().startsWith("EXPERT-SX9")) ||                                                 
                         (b.name().toUpper().startsWith("MRK-S26S-")) ||
+                        (b.name().toUpper().startsWith("MRK-S26C-")) ||
                         (b.name().toUpper().startsWith("ROBX")) ||
                         (b.name().toUpper().startsWith("SPEEDMAGPRO")) ||                        
                         (b.name().toUpper().startsWith("XCX-")) ||
@@ -1789,6 +1790,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith("KICKR ROLLR") ||
                         b.name().toUpper().startsWith("KICKR CORE") ||
                         (b.name().toUpper().startsWith("KICKR MOVE ")) ||
+                        (b.name().toUpper().startsWith("HOI FRAME ")) ||
                         (b.name().toUpper().startsWith("HAMMER ") && saris_trainer) ||
                         (b.name().toUpper().startsWith("WAHOO KICKR"))) &&
                        !wahooKickrSnapBike && !ftmsBike && filter) {
