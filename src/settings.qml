@@ -1201,6 +1201,7 @@ import Qt.labs.platform 1.1
             property bool calories_active_only: false
             property real height: 175.0
             property bool calories_from_hr: false
+            property int bike_power_offset: 0
         }
 
 
@@ -2522,6 +2523,44 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelBikePowerOffset
+                            text: qsTr("Zwift Power Offset (W):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: bikePowerOffsetTextField
+                            text: settings.bike_power_offset
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.bike_power_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okBikePowerOffsetButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.bike_power_offset = bikePowerOffsetTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

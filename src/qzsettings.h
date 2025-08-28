@@ -257,6 +257,9 @@ class QZSettings {
     static const QString bike_power_sensor;
     static constexpr bool default_bike_power_sensor = false;
 
+    static const QString bike_power_offset;
+    static constexpr int default_bike_power_offset = 0;
+
     static const QString heart_rate_belt_name;
     static const QString default_heart_rate_belt_name;
 
