@@ -16,16 +16,20 @@ public class BikeData implements Parcelable {
             return new BikeData[i];
         }
     };
+    
+    // Order must match Grupetto readFromParcel order exactly
     private long mRPM;
     private long mPower;
+    private long mStepperMotorPosition;
+    private long mLoadCellReading;
+    private int mCurrentResistance;
     private int mTargetResistance;
     
-    // For full compatibility, include all fields from original
+    // All other fields  
     private int mADValue;
     private int mAppliedPositionOffset;
     private String mBikeFrameSerial;
     private int mCalibrationState;
-    private int mCurrentResistance;
     private int mDataWriteCycle;
     private String mDataWriteDate;
     private String mDataWriteTime;
@@ -110,6 +114,14 @@ public class BikeData implements Parcelable {
 
     public void setCurrentResistance(int resistance) {
         this.mCurrentResistance = resistance;
+    }
+
+    public long getStepperMotorPosition() {
+        return this.mStepperMotorPosition;
+    }
+
+    public long getLoadCellReading() {
+        return this.mLoadCellReading;
     }
 
     private BikeData(Parcel parcel) {
