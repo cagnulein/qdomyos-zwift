@@ -5077,7 +5077,19 @@ void homeform::update() {
     double currentHRZone = 1;
     double ftpZone = 1;
 
-    qDebug() << "homeform::update fired!";
+    // Timer jitter detection (same logic as trainprogram::scheduler)
+    QDateTime now = QDateTime::currentDateTime();
+    qint64 msecsElapsed = lastUpdateCall.msecsTo(now);
+    
+    // Reset jitter if it's getting too large
+    if (qAbs(currentUpdateJitter) > 5000) {
+        currentUpdateJitter = 0;
+    }
+    
+    currentUpdateJitter += msecsElapsed - 1000;
+    lastUpdateCall = now;
+
+    qDebug() << "homeform::update fired!" << "elapsed:" << msecsElapsed << "jitter:" << currentUpdateJitter;
 
     if (settings.status() != QSettings::NoError) {
         qDebug() << "!!!!QSETTINGS ERROR!" << settings.status();
@@ -5227,8 +5239,9 @@ void homeform::update() {
             QString::number((bluetoothManager->device())->currentSpeed().max() * unit_conversion, 'f', 1));
         heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value(), 'f', 0));
 
+        bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
         calories->setValue(QString::number(bluetoothManager->device()->calories().value(), 'f', 0));
-        calories->setSecondLine(QString::number(bluetoothManager->device()->calories().rate1s() * 60.0, 'f', 1) +
+        calories->setSecondLine(QString::number((activeOnly ? bluetoothManager->device()->activeCalories().rate1s() : bluetoothManager->device()->calories().rate1s()) * 60.0, 'f', 1) +
                                 " /min");
         if (!settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool())
             fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
@@ -7209,14 +7222,55 @@ void homeform::update() {
             
             qDebug() << "Current Distance 1s:" << bluetoothManager->device()->currentDistance1s().value() << bluetoothManager->device()->currentSpeed().value() << watts;
 
+            // Calculate current elapsed time in seconds
+            uint32_t currentElapsedSeconds = bluetoothManager->device()->elapsedTime().second() +
+                (bluetoothManager->device()->elapsedTime().minute() * 60) +
+                (bluetoothManager->device()->elapsedTime().hour() * 3600);
+
+            if (Session.empty()) {
+                currentUpdateJitter = 0;
+            }
+
+            // Check for timer jitter gaps and fill missing SessionLine records (same logic as trainprogram)
+            if (!Session.empty() && qAbs(currentUpdateJitter) > 1000) {
+                if (currentUpdateJitter > 1000) {
+                    // We are late... fill the missing seconds with SessionLine records
+                    int missedSeconds = currentUpdateJitter / 1000;
+                    qDebug() << "Timer jitter detected: filling" << missedSeconds << "missing SessionLine records";
+                    
+                    // Create SessionLine records for each missed second using current device values
+                    uint32_t lastRecordedTime = Session.last().elapsedTime;
+                    for (int i = 1; i <= missedSeconds; i++) {
+                        SessionLine gapFill(
+                            bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->currentDistance1s().value(),
+                            watts, resistance, peloton_resistance, (uint8_t)bluetoothManager->device()->currentHeart().value(),
+                            pace, cadence, bluetoothManager->device()->calories().value(),
+                            bluetoothManager->device()->elevationGain().value(),
+                            lastRecordedTime + i,  // Fill each missing second
+                            lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
+                            bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount, 
+                            target_cadence->value().toDouble(), target_power->value().toDouble(), target_resistance->value().toDouble(),
+                            target_incline->value().toDouble(), target_speed->value().toDouble(),
+                            bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value());
+                        
+                        Session.append(gapFill);
+                        qDebug() << "Added gap-filling SessionLine for elapsed time:" << (lastRecordedTime + i);
+                    }
+                    
+                    // Adjust jitter counter (same as trainprogram)
+                    currentUpdateJitter -= (missedSeconds * 1000);
+                } else {
+                    // Negative jitter, reset the counter without adding records
+                    currentUpdateJitter = 0;
+                }
+            }
+
             SessionLine s(
                 bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->currentDistance1s().value(),
                 watts, resistance, peloton_resistance, (uint8_t)bluetoothManager->device()->currentHeart().value(),
                 pace, cadence, bluetoothManager->device()->calories().value(),
                 bluetoothManager->device()->elevationGain().value(),
-                bluetoothManager->device()->elapsedTime().second() +
-                    (bluetoothManager->device()->elapsedTime().minute() * 60) +
-                    (bluetoothManager->device()->elapsedTime().hour() * 3600),
+                currentElapsedSeconds,
 
                 lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
                 bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount, 
@@ -7232,9 +7286,13 @@ void homeform::update() {
 
 #ifndef Q_OS_IOS
             if (iphone_socket && iphone_socket->state() == QAbstractSocket::ConnectedState) {
+                QSettings mdns_settings;
+                bool activeOnly = mdns_settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
+                
                 QString toSend =
                     "SENDER=PAD#HR=" + QString::number(bluetoothManager->device()->currentHeart().value()) +
                     "#KCAL=" + QString::number(bluetoothManager->device()->calories().value()) +
+                    (activeOnly ? "#TOTALKCAL=" + QString::number(bluetoothManager->device()->totalCalories().value()) : "") +
                     "#BCAD=" + QString::number(bluetoothManager->device()->currentCadence().value()) +
                     "#SPD=" + QString::number(bluetoothManager->device()->currentSpeed().value()) +
                     "#PWR=" + QString::number(bluetoothManager->device()->wattsMetric().value()) +

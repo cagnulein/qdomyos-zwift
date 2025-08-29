@@ -13,7 +13,6 @@ ColumnLayout {
     signal trainprogram_open_clicked(url name)
     signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
-
     FileDialog {
         id: fileDialogTrainProgram
         // In Qt6, StandardPaths è stato spostato in un modulo separato
@@ -27,11 +26,6 @@ ColumnLayout {
             } else {
                 trainprogram_open_clicked(fileDialogTrainProgram.selectedFile)
             }
-            fileDialogTrainProgram.close()
-        }
-        onRejected: {
-            console.log("Canceled")
-            fileDialogTrainProgram.close()
         }
     }
 
@@ -280,7 +274,8 @@ ColumnLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'gpx')
-            fileDialogTrainProgram.visible = true
+            // Create a fresh FileDialog instance
+            fileDialogLoader.active = true
         }
         anchors {
             bottom: parent.bottom
