@@ -982,7 +982,7 @@ const QString QZSettings::calories_from_hr = QStringLiteral("calories_from_hr");
 const QString QZSettings::height = QStringLiteral("height");
 
 
-const uint32_t allSettingsCount = 803;
+const uint32_t allSettingsCount = 814;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
