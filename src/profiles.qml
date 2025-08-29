@@ -19,18 +19,28 @@ ColumnLayout {
         property string profile_name: "default"
     }
 
-    FileDialogClass.FileDialog {
-        id: fileDialogTrainProgram
-        title: "Please choose a file"
-        folder: shortcuts.home
-        onAccepted: {
-            console.log("You chose: " + fileDialogTrainProgram.fileUrl)
-            profile_open_clicked(fileDialogTrainProgram.fileUrl)
-            fileDialogTrainProgram.close()
-        }
-        onRejected: {
-            console.log("Canceled")
-            fileDialogTrainProgram.close()
+    Loader {
+        id: fileDialogLoader
+        active: false
+        sourceComponent: Component {
+            FileDialogClass.FileDialog {
+                title: "Please choose a file"
+                folder: shortcuts.home
+                visible: true
+                onAccepted: {
+                    console.log("You chose: " + fileUrl)
+                    profile_open_clicked(fileUrl)
+                    close()
+                    // Destroy and recreate the dialog for next use
+                    fileDialogLoader.active = false
+                }
+                onRejected: {
+                    console.log("Canceled")
+                    close()
+                    // Destroy the dialog
+                    fileDialogLoader.active = false
+                }
+            }
         }
     }
 
@@ -257,7 +267,8 @@ ColumnLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-            fileDialogTrainProgram.visible = true
+            // Create a fresh FileDialog instance
+            fileDialogLoader.active = true
         }
         anchors {
             bottom: parent.bottom

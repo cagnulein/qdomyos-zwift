@@ -73,6 +73,7 @@ const QString QZSettings::bike_cadence_sensor = QStringLiteral("bike_cadence_sen
 const QString QZSettings::run_cadence_sensor = QStringLiteral("run_cadence_sensor");
 const QString QZSettings::rogue_echo_bike = QStringLiteral("rogue_echo_bike");
 const QString QZSettings::bike_power_sensor = QStringLiteral("bike_power_sensor");
+const QString QZSettings::bike_power_offset = QStringLiteral("bike_power_offset");
 const QString QZSettings::heart_rate_belt_name = QStringLiteral("heart_rate_belt_name");
 const QString QZSettings::default_heart_rate_belt_name = QStringLiteral("Disabled");
 const QString QZSettings::heart_ignore_builtin = QStringLiteral("heart_ignore_builtin");
@@ -976,9 +977,12 @@ const QString QZSettings::tile_auto_virtual_shifting_climb_enabled = QStringLite
 const QString QZSettings::tile_auto_virtual_shifting_climb_order = QStringLiteral("tile_auto_virtual_shifting_climb_order");
 const QString QZSettings::tile_auto_virtual_shifting_sprint_enabled = QStringLiteral("tile_auto_virtual_shifting_sprint_enabled");
 const QString QZSettings::tile_auto_virtual_shifting_sprint_order = QStringLiteral("tile_auto_virtual_shifting_sprint_order");
+const QString QZSettings::calories_active_only = QStringLiteral("calories_active_only");
+const QString QZSettings::calories_from_hr = QStringLiteral("calories_from_hr");
+const QString QZSettings::height = QStringLiteral("height");
 
 
-const uint32_t allSettingsCount = 800;
+const uint32_t allSettingsCount = 803;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1029,6 +1033,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor},
     {QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor},
     {QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor},
+    {QZSettings::bike_power_offset, QZSettings::default_bike_power_offset},
     {QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name},
     {QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin},
     {QZSettings::kcal_ignore_builtin, QZSettings::default_kcal_ignore_builtin},
@@ -1800,6 +1805,9 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_auto_virtual_shifting_sprint_enabled, QZSettings::default_tile_auto_virtual_shifting_sprint_enabled},
     {QZSettings::tile_auto_virtual_shifting_sprint_order, QZSettings::default_tile_auto_virtual_shifting_sprint_order},
     {QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike},
+    {QZSettings::calories_active_only, QZSettings::default_calories_active_only},
+    {QZSettings::calories_from_hr, QZSettings::default_calories_from_hr},
+    {QZSettings::height, QZSettings::default_height},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
