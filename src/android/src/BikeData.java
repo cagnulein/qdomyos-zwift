@@ -50,7 +50,6 @@ public class BikeData implements Parcelable {
     private String mHardwareVersion;
     private int mLoadCellCalSpan;
     private float mLoadCellOffset;
-    private long mLoadCellReading;
     private String mLoadCellSerial;
     private String mLoadCellTable;
     private int mLoadCellTableCrc;
@@ -74,7 +73,6 @@ public class BikeData implements Parcelable {
     private float mResistanceOffset;
     private int mStallThreshold;
     private int mStepperMotorEndPosition;
-    private long mStepperMotorPosition;
     private int mStepperMotorStartPosition;
     private int mSystemState;
     private float mV1Resistance;
