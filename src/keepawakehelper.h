@@ -7,21 +7,23 @@
 
 #include <QApplication>
 #include <QSettings>
-#include <QtAndroidExtras>
+#include <QCoreApplication>
+#include <QJniObject>
+#include <QJniEnvironment>
 
-static QAndroidJniObject activity;
-static QAndroidJniObject *ant;
+static QJniObject activity;
+static QJniObject *ant;
 
 class KeepAwakeHelper {
   public:
     KeepAwakeHelper();
     virtual ~KeepAwakeHelper();
-    static QAndroidJniObject *antObject(bool forceCreate);
+    static QJniObject *antObject(bool forceCreate);
     static int heart();
     void keepScreenOn(bool on);
 
   private:
-    QAndroidJniObject m_wakeLock;
+    QJniObject m_wakeLock;
 };
 
 #endif

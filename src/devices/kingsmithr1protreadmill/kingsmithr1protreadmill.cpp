@@ -67,8 +67,8 @@ void kingsmithr1protreadmill::writeCharacteristic(uint8_t *data, uint8_t data_le
                                                              QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
-                   QStringLiteral(" // ") + info + " " + gattWriteCharacteristic.properties());
+        qDebug() << QStringLiteral(" >> ") << writeBuffer->toHex(' ') <<
+                   QStringLiteral(" // ") << info << " " << gattWriteCharacteristic.properties();
     }
 
     loop.exec();
@@ -435,7 +435,7 @@ void kingsmithr1protreadmill::stateChanged(QLowEnergyService::ServiceState state
     QBluetoothUuid _gattNotifyCharacteristicId((quint16)0xFE01);
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
 
         // qDebug() << gattCommunicationChannelService->characteristics();
 
@@ -450,7 +450,7 @@ void kingsmithr1protreadmill::stateChanged(QLowEnergyService::ServiceState state
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &kingsmithr1protreadmill::characteristicWritten);
         connect(gattCommunicationChannelService,
-                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                &QLowEnergyService::errorOccurred,
                 this, &kingsmithr1protreadmill::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &kingsmithr1protreadmill::descriptorWritten);
@@ -459,7 +459,7 @@ void kingsmithr1protreadmill::stateChanged(QLowEnergyService::ServiceState state
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
-            gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattNotifyCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
@@ -518,12 +518,12 @@ void kingsmithr1protreadmill::deviceDiscovered(const QBluetoothDeviceInfo &devic
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &kingsmithr1protreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &kingsmithr1protreadmill::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, &kingsmithr1protreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &kingsmithr1protreadmill::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
