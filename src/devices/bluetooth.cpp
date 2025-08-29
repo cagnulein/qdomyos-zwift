@@ -1495,6 +1495,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("LJJ-")) ||                            // LJJ-02351A
                         b.name().toUpper().startsWith(QStringLiteral("WLT-EP-")) ||                             // Flow elliptical
                         (b.name().toUpper().startsWith("SCHWINN 810")) ||
+                        (b.name().toUpper().startsWith("MRK-T")) || // MERACH W50 TREADMILL 
                         b.name().toUpper().startsWith(QStringLiteral("KS-MC")) ||
                          b.name().toUpper().startsWith(QStringLiteral("ANPIUS-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM-01")) ||
