@@ -1611,7 +1611,7 @@ class QZSettings {
     static constexpr bool default_gpx_loop = false;
 
     static const QString android_notification;
-    static constexpr bool default_android_notification = false;
+    static constexpr bool default_android_notification = true;
 
     static const QString kingsmith_encrypt_v4;
     static constexpr bool default_kingsmith_encrypt_v4 = false;

@@ -150,13 +150,17 @@ public class PelotonSensorHelper {
             return 0.0f;
         }
         
-        // Use exact formula from Grupetto Peloton.kt
+        // Use exact formula from Grupetto Peloton.kt (returns mph)
         double pwrSqrt = Math.sqrt(power);
+        float speedMph;
         if (power < 26f) {
-            return (float)(0.057f - (0.172f * pwrSqrt) + (0.759f * Math.pow(pwrSqrt, 2)) - (0.079f * Math.pow(pwrSqrt, 3)));
+            speedMph = (float)(0.057f - (0.172f * pwrSqrt) + (0.759f * Math.pow(pwrSqrt, 2)) - (0.079f * Math.pow(pwrSqrt, 3)));
         } else {
-            return (float)(-1.635f + (2.325f * pwrSqrt) - (0.064f * Math.pow(pwrSqrt, 2)) + (0.001f * Math.pow(pwrSqrt, 3)));
+            speedMph = (float)(-1.635f + (2.325f * pwrSqrt) - (0.064f * Math.pow(pwrSqrt, 2)) + (0.001f * Math.pow(pwrSqrt, 3)));
         }
+        
+        // Convert from mph to km/h
+        return speedMph * 1.60934f;
     }
     
     private void shutdownInstance() {
