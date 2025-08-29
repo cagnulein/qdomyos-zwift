@@ -1,0 +1,64 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "workout/data/Control.proto";
+import "workout/data/ScaledControls.proto";
+import "workout/data/WorkoutCategory.proto";
+import "workout/data/WorkoutFilter.proto";
+import "workout/data/WorkoutTargetType.proto";
+import "workout/data/WorkoutType.proto";
+import "workout/data/video/MusicRegion.proto";
+import "workout/data/video/Sources.proto";
+import "workout/data/map/MapCoordinate.proto";
+option java_package = "com.ifit.glassos.workout.data";
+option java_outer_classname = "WorkoutProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message StringList {
+  repeated string items = 1;
+}
+
+message WorkoutFilterList {
+  repeated WorkoutFilter items = 1;
+}
+
+message MusicRegionList {
+  repeated MusicRegion items = 1;
+}
+
+message LibraryCategory {
+  string name = 1;
+  repeated string subcategories = 2;
+}
+
+message LibraryCategoryList {
+  repeated LibraryCategory items = 1;
+}
+
+message LibraryCategoryMap {
+  map<string, LibraryCategoryList> items = 1;
+}
+
+message Workout {
+  optional string title = 1;
+  optional string id = 2;
+  optional string heroImageUrl = 3;
+  optional StringList categories = 4;
+  WorkoutFilterList workoutFilters = 5;
+  ControlList controls = 6;
+  WorkoutTargetType targetType = 7;
+  optional double targetValue = 8;
+  WorkoutType workoutType = 9;
+  optional MusicRegionList videoMusicRegions = 10;
+  optional Sources sources = 11;
+  optional LibraryCategoryMap libraryFilters = 12;
+  optional ScaledControls scaledControls = 13;
+  optional int32 startingLevel = 14;
+  optional bool skipWarmup = 15;
+  optional MapCoordinateList mapCoordinates = 16;
+  optional string workoutDriverFQN = 17;
+}
+
+message WorkoutList {
+  repeated Workout items = 1;
+}

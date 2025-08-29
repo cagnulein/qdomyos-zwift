@@ -646,8 +646,8 @@ jobs:
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
         with:
-          name: fdroid-android-trial
-          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
+          name: fdroid-android-peloton-bike-trial
+          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
 
   android-emulator-test:
     runs-on: ubuntu-latest
@@ -708,7 +708,7 @@ jobs:
       - name: Download APK Artifact
         uses: actions/download-artifact@v4
         with:
-          name: fdroid-android-trial
+          name: fdroid-android-peloton-bike-trial
           path: apk-debug
           
       - name: Setup Java for Android Emulator
@@ -1918,10 +1918,7 @@ jobs:
             - **windows**: MinGW build (alternative version)
 
             ## Other Platforms:
-            - **fdroid-android-trial**: Android build
-            - **nordictrack-android-trial**: Nordictrack build for iFIT2 Tablets
-            - **peloton-bike-plus-android-trial**: Peloton Bike Plus build with Grupetto backend
-            - **peloton-bike-android-trial**: Peloton Bike build with Grupetto backend
+            - **fdroid-android-peloton-bike-trial**: Android build with Peloton bike integration
             - **raspberry-pi-binary**: Raspberry Pi build
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
@@ -1933,9 +1930,6 @@ jobs:
             windows-msvc2019-ai-server-binary/*            
             windows-binary-no-python/*
             windows-binary/*
-            fdroid-android-trial/android-debug.apk
-            nordictrack-android-trial/android-debug-nordictrack.apk
-            peloton-bike-plus-android-trial/android-debug-peloton-bike-plus.apk
-            peloton-bike-android-trial/android-debug-peloton-bike.apk
+            fdroid-android-peloton-bike-trial/*
             raspberry-pi-binary/qdomyos-zwift-32bit
             raspberry-pi-binary/qdomyos-zwift-64bit
