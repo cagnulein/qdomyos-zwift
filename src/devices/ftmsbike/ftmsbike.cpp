@@ -221,6 +221,251 @@ resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
     return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
 
+// LEB128 decoding (Little Endian Base 128)
+size_t ftmsbike::decodeLEB128(const uint8_t *data, size_t dataSize, uint64_t *value) {
+    *value = 0;
+    size_t bytesRead = 0;
+    int shift = 0;
+    
+    while (bytesRead < dataSize && bytesRead < 10) { // Max 10 bytes for uint64
+        uint8_t byte = data[bytesRead];
+        *value |= (uint64_t)(byte & 0x7F) << shift;
+        bytesRead++;
+        
+        if ((byte & 0x80) == 0) {
+            return bytesRead; // Done reading
+        }
+        
+        shift += 7;
+    }
+    
+    return 0; // Error - malformed data
+}
+
+// ZigZag decoding for signed values
+int64_t ftmsbike::zigzagDecode(uint64_t encoded) {
+    return (encoded >> 1) ^ (-(encoded & 1));
+}
+
+// Parse Zwift data values from LEB128-encoded command
+std::map<uint8_t, uint64_t> ftmsbike::parseZwiftDataValues(const QByteArray &data) {
+    std::map<uint8_t, uint64_t> returnMap;
+    
+    if (data.size() < 3) {
+        return returnMap;
+    }
+    
+    uint8_t command = static_cast<uint8_t>(data.at(0));
+    if (command != ZWIFT_CHANGE_REQUEST) {
+        return returnMap;
+    }
+    
+    uint8_t subCommand = static_cast<uint8_t>(data.at(1));
+    uint8_t length = static_cast<uint8_t>(data.at(2));
+    
+    if ((subCommand == ZWIFT_INCLINATION || subCommand == ZWIFT_SIM_MODE) && data.size() > 4) {
+        int dataIndex = 3;
+        
+        if (data.size() == (length + dataIndex)) {
+            while (dataIndex < data.size()) {
+                uint8_t currentKey = static_cast<uint8_t>(data.at(dataIndex));
+                dataIndex++;
+                
+                uint64_t currentValue = 0;
+                size_t processedBytes = decodeLEB128(reinterpret_cast<const uint8_t*>(data.data() + dataIndex), 
+                                                   data.size() - dataIndex, &currentValue);
+                
+                if (processedBytes == 0) {
+                    qDebug() << "Error parsing LEB128 Zwift data values, hex:" << data.toHex(' ');
+                    dataIndex++;
+                } else {
+                    dataIndex += processedBytes;
+                    returnMap.emplace(currentKey, currentValue);
+                }
+            }
+        } else {
+            qDebug() << "Error parsing Zwift data values, length mismatch";
+        }
+    } else if (subCommand == ZWIFT_ERG_MODE && data.size() > 2) {
+        int dataIndex = 2;
+        uint64_t currentValue = 0;
+        size_t processedBytes = decodeLEB128(reinterpret_cast<const uint8_t*>(data.data() + dataIndex), 
+                                           data.size() - dataIndex, &currentValue);
+        
+        if (processedBytes == 0) {
+            qDebug() << "Error parsing LEB128 Zwift ERG data value, hex:" << data.toHex(' ');
+        } else {
+            returnMap.emplace(ZWIFT_KEY_POWER, currentValue);
+        }
+    }
+    
+    return returnMap;
+}
+
+// Process Zwift sync request from characteristic 00000003-19ca-4651-86e5-fa29dcdd09d1
+bool ftmsbike::processZwiftSyncRequest(const QByteArray &data) {
+    if (data.size() < 3) {
+        return false;
+    }
+    
+    uint8_t command = static_cast<uint8_t>(data.at(0));
+    uint8_t subCommand = static_cast<uint8_t>(data.at(1));
+    
+    qDebug() << "Zwift sync request command:" << QString::number(command, 16) 
+             << "subcommand:" << QString::number(subCommand, 16)
+             << "hex:" << data.toHex(' ');
+    
+    switch (command) {
+        case ZWIFT_STATUS_REQUEST:
+            qDebug() << "Zwift status request";
+            return true;
+            
+        case ZWIFT_CHANGE_REQUEST: {
+            std::map<uint8_t, uint64_t> requestValues = parseZwiftDataValues(data);
+            
+            switch (subCommand) {
+                case ZWIFT_ERG_MODE:
+                    if (requestValues.find(ZWIFT_KEY_POWER) != requestValues.end()) {
+                        uint16_t power = static_cast<uint16_t>(requestValues.at(ZWIFT_KEY_POWER));
+                        qDebug() << "Zwift ERG mode, target power:" << power;
+                        
+                        // Send power command to actual trainer
+                        uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
+                        write[1] = power & 0xFF;
+                        write[2] = power >> 8;
+                        writeCharacteristic(write, sizeof(write), "Zwift ERG power");
+                    }
+                    break;
+                    
+                case ZWIFT_INCLINATION:
+                    if (requestValues.find(ZWIFT_KEY_GRADE_GEAR) != requestValues.end()) {
+                        int64_t grade = static_cast<int64_t>(requestValues.at(ZWIFT_KEY_GRADE_GEAR));
+                        
+                        // Handle sign bit as per SHIFTR implementation
+                        if (grade & 0x01) {
+                            grade ^= 0x01;
+                            grade *= -1;
+                        }
+                        
+                        qDebug() << "Zwift inclination, grade:" << (grade / 100.0) << "%";
+                        
+                        // Apply gear modification if active
+                        if (gears() != 0) {
+                            grade += (gears() * GEARS_SLOPE_MULTIPLIER);
+                        }
+                        
+                        // Send simulation parameters to trainer
+                        uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
+                        write[3] = grade & 0xFF;
+                        write[4] = (grade >> 8) & 0xFF;
+                        writeCharacteristic(write, sizeof(write), "Zwift inclination");
+                    }
+                    break;
+                    
+                case ZWIFT_SIM_MODE:
+                    if (requestValues.find(ZWIFT_KEY_GRADE_GEAR) != requestValues.end()) {
+                        uint64_t gearRatio = requestValues.at(ZWIFT_KEY_GRADE_GEAR);
+                        qDebug() << "Zwift SIM mode, gear ratio raw:" << gearRatio << "ratio:" << (gearRatio / 10000.0);
+                        
+                        // Update gear based on ratio (convert from Zwift's 0.75-5.49 range)
+                        double ratio = gearRatio / 10000.0;
+                        
+                        // Convert ratio to gear number (approximate mapping)
+                        wheelCircumference::GearTable table;
+                        for (int i = 1; i <= table.maxGears; i++) {
+                            wheelCircumference::GearTable::GearInfo g = table.getGear(i);
+                            double gearRatio = static_cast<double>(g.crankset) / static_cast<double>(g.rearCog);
+                            if (abs(gearRatio - ratio) < 0.1) {
+                                setGears(i);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (requestValues.find(ZWIFT_KEY_BIKE_WEIGHT) != requestValues.end()) {
+                        uint64_t bikeWeight = requestValues.at(ZWIFT_KEY_BIKE_WEIGHT);
+                        qDebug() << "Zwift bike weight:" << (bikeWeight / 100.0) << "kg";
+                    }
+                    
+                    if (requestValues.find(ZWIFT_KEY_USER_WEIGHT) != requestValues.end()) {
+                        uint64_t userWeight = requestValues.at(ZWIFT_KEY_USER_WEIGHT);
+                        qDebug() << "Zwift user weight:" << (userWeight / 100.0) << "kg";
+                    }
+                    break;
+                    
+                default:
+                    qDebug() << "Unknown Zwift change request subcommand:" << QString::number(subCommand, 16);
+                    break;
+            }
+            break;
+        }
+        
+        case ZWIFT_RIDEON_REQUEST:
+            if (data.size() == 8) {
+                qDebug() << "Zwift RideOn request";
+                // Could implement RideOn response here if needed
+            }
+            return true;
+            
+        case ZWIFT_UNKNOWN_41:
+            qDebug() << "Zwift 0x41 request";
+            return true;
+            
+        default:
+            qDebug() << "Unknown Zwift sync request command:" << QString::number(command, 16);
+            break;
+    }
+    
+    return true;
+}
+
+// Encode a value as LEB128
+QByteArray ftmsbike::encodeLEB128(uint64_t value) {
+    QByteArray result;
+    
+    do {
+        uint8_t byte = value & 0x7F;
+        value >>= 7;
+        
+        if (value != 0) {
+            byte |= 0x80; // Set continuation bit
+        }
+        
+        result.append(static_cast<char>(byte));
+    } while (value != 0);
+    
+    return result;
+}
+
+// Create Zwift gear command based on SHIFTR implementation
+QByteArray ftmsbike::createZwiftGearCommand(double gearRatio) {
+    QByteArray command;
+    
+    // Command structure: [04 2A length 10 ratio_leb128]
+    command.append(static_cast<char>(ZWIFT_CHANGE_REQUEST)); // 0x04
+    command.append(static_cast<char>(ZWIFT_SIM_MODE));       // 0x2A
+    
+    // Prepare the data payload (key + LEB128 encoded ratio)
+    QByteArray payload;
+    payload.append(static_cast<char>(ZWIFT_KEY_GRADE_GEAR)); // 0x10
+    
+    // Convert ratio to Zwift's format (multiply by 10000)
+    uint64_t zwiftRatio = static_cast<uint64_t>(gearRatio * 10000.0);
+    payload.append(encodeLEB128(zwiftRatio));
+    
+    // Add length byte
+    command.append(static_cast<char>(payload.size()));
+    
+    // Add payload
+    command.append(payload);
+    
+    qDebug() << "Created Zwift gear command for ratio" << gearRatio 
+             << "zwift_value" << zwiftRatio 
+             << "hex:" << command.toHex(' ');
+    
+    return command;
+}
+
 void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
@@ -357,44 +602,18 @@ void ftmsbike::update() {
             ((double)settings.value(QZSettings::gear_cog_size, QZSettings::default_gear_cog_size).toDouble());
             
             double current_ratio = ((double)g.crankset / (double)g.rearCog);
+            double normalized_ratio = (current_ratio / original_ratio) * (42.0 / 14.0);
             
-            uint32_t gear_value = static_cast<uint32_t>(10000.0 * (current_ratio/original_ratio) * (42.0/14.0));
+            qDebug() << "Zwift gear change: gear" << gears() 
+                     << "current_ratio" << current_ratio 
+                     << "original_ratio" << original_ratio
+                     << "normalized_ratio" << normalized_ratio;
             
-            qDebug() << "zwift hub gear current ratio" << current_ratio << g.crankset << g.rearCog << "gear_value" << gear_value << "original_ratio" << original_ratio;
- 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            QByteArray proto = lockscreen::zwift_hub_setGearsCommand(gear_value);
-#else
-            QByteArray proto;
-#endif
-#elif defined Q_OS_ANDROID
-            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
-                "org/cagnulen/qdomyoszwift/ZwiftHubBike",
-                "setGearCommand",
-                "(I)[B",
-                gear_value);
+            // Create proper LEB128-encoded Zwift gear command
+            QByteArray gearCommand = createZwiftGearCommand(normalized_ratio);
+            writeCharacteristicZwiftPlay((uint8_t*)gearCommand.data(), gearCommand.length(), "zwift_gear_leb128", false, true);
 
-            if (!result.isValid()) {
-                qDebug() << "setGearCommand returned invalid value";
-                return;
-            }
-
-            jbyteArray array = result.object<jbyteArray>();
-            QAndroidJniEnvironment env;
-            jbyte* bytes = env->GetByteArrayElements(array, nullptr);
-            jsize length = env->GetArrayLength(array);
-
-            QByteArray proto((char*)bytes, length);
-
-            env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
-#else
-            QByteArray proto;
-            qDebug() << "ERROR: gear message not handled!";
-            return;
-#endif
-            writeCharacteristicZwiftPlay((uint8_t*)proto.data(), proto.length(), "gear", false, true);
-
+            // Apply command (this may still be needed for some trainers)
             uint8_t gearApply[] = {0x00, 0x08, 0x88, 0x04};
             writeCharacteristicZwiftPlay(gearApply, sizeof(gearApply), "gearApply", false, true);
         }
@@ -1395,39 +1614,33 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
         } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
+            double inclination = ((double)slope) / 100.0;
             
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            QByteArray message = lockscreen::zwift_hub_inclinationCommand(((double)slope) / 100.0);
-#else
-            QByteArray message;
-#endif
-#elif defined(Q_OS_ANDROID)
-            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
-                "org/cagnulen/qdomyoszwift/ZwiftHubBike",
-                "inclinationCommand",
-                "(D)[B",
-                ((double)slope) / 100.0);
-
-            if(!result.isValid()) {
-                qDebug() << "inclinationCommand returned invalid value";
-                return;
+            qDebug() << "Zwift inclination command: slope =" << slope << "inclination =" << inclination << "%";
+            
+            // Create proper LEB128-encoded Zwift inclination command
+            QByteArray command;
+            command.append(static_cast<char>(ZWIFT_CHANGE_REQUEST)); // 0x04
+            command.append(static_cast<char>(ZWIFT_INCLINATION));    // 0x22
+            
+            // Prepare payload: key + LEB128 encoded grade (with sign handling)
+            QByteArray payload;
+            payload.append(static_cast<char>(ZWIFT_KEY_GRADE_GEAR)); // 0x10
+            
+            // Handle signing as per SHIFTR implementation
+            uint64_t gradeValue = static_cast<uint64_t>(abs(slope));
+            if (slope < 0) {
+                gradeValue |= 0x01; // Set sign bit
             }
-
-            jbyteArray array = result.object<jbyteArray>();
-            QAndroidJniEnvironment env;
-            jbyte* bytes = env->GetByteArrayElements(array, nullptr);
-            jsize length = env->GetArrayLength(array);
-
-            QByteArray message((char*)bytes, length);
-
-            env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
-#else
-            QByteArray message;
-            qDebug() << "implement zwift hub protobuf!";
-            return;
-#endif
-            writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
+            
+            payload.append(encodeLEB128(gradeValue));
+            
+            // Add length and payload
+            command.append(static_cast<char>(payload.size()));
+            command.append(payload);
+            
+            qDebug() << "Zwift inclination LEB128 command:" << command.toHex(' ');
+            writeCharacteristicZwiftPlay((uint8_t*)command.data(), command.length(), "zwift_inclination_leb128", false, false);
             return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && ((zwiftPlayService != nullptr && gears_zwift_ratio) || !ergModeSupported)) {
             qDebug() << "discarding";

@@ -34,6 +34,9 @@
 #include "ios/lockscreen.h"
 #endif
 
+#include <map>
+#include <cstdint>
+
 enum FtmsControlPointCommand {
     FTMS_REQUEST_CONTROL = 0x00,
     FTMS_RESET,
@@ -67,6 +70,28 @@ enum FtmsResultCode {
     FTMS_CONTROL_NOT_PERMITTED
 };
 
+// Zwift virtual gearing protocol constants
+enum ZwiftCommand {
+    ZWIFT_STATUS_REQUEST = 0x00,
+    ZWIFT_CHANGE_REQUEST = 0x04,
+    ZWIFT_UNKNOWN_41 = 0x41,
+    ZWIFT_RIDEON_REQUEST = 0x52
+};
+
+enum ZwiftSubCommand {
+    ZWIFT_ERG_MODE = 0x18,
+    ZWIFT_INCLINATION = 0x22,
+    ZWIFT_SIM_MODE = 0x2A
+};
+
+// Zwift data keys for LEB128-encoded values
+enum ZwiftDataKey {
+    ZWIFT_KEY_POWER = 0x00,
+    ZWIFT_KEY_GRADE_GEAR = 0x10,
+    ZWIFT_KEY_BIKE_WEIGHT = 0x20,
+    ZWIFT_KEY_USER_WEIGHT = 0x28
+};
+
 class ftmsbike : public bike {
     Q_OBJECT
   public:
@@ -95,6 +120,14 @@ class ftmsbike : public bike {
     void forceResistance(resistance_t requestResistance);
     void forcePower(int16_t requestPower);
     uint16_t wattsFromResistance(double resistance);
+    
+    // Zwift protocol handling
+    std::map<uint8_t, uint64_t> parseZwiftDataValues(const QByteArray &data);
+    bool processZwiftSyncRequest(const QByteArray &data);
+    size_t decodeLEB128(const uint8_t *data, size_t dataSize, uint64_t *value);
+    int64_t zigzagDecode(uint64_t encoded);
+    QByteArray encodeLEB128(uint64_t value);
+    QByteArray createZwiftGearCommand(double gearRatio);
 
     QTimer *refresh;
     
