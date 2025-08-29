@@ -108,7 +108,8 @@ ColumnLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'settings')
-            fileDialogSettings.visible = true
+            // Create a fresh FileDialog instance
+            fileDialogLoader.active = true
         }
         anchors {
             bottom: parent.bottom

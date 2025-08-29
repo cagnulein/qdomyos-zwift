@@ -324,7 +324,8 @@ ColumnLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-            fileDialogTrainProgram.visible = true
+            // Create a fresh FileDialog instance
+            fileDialogLoader.active = true
         }
         anchors {
             bottom: parent.bottom
