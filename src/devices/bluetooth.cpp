@@ -1489,6 +1489,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("LJJ-")) ||                            // LJJ-02351A
                         b.name().toUpper().startsWith(QStringLiteral("WLT-EP-")) ||                             // Flow elliptical
                         (b.name().toUpper().startsWith("SCHWINN 810")) ||
+                        (b.name().toUpper().startsWith("MRK-T")) || // MERACH W50 TREADMILL 
                         b.name().toUpper().startsWith(QStringLiteral("KS-MC")) ||
                          b.name().toUpper().startsWith(QStringLiteral("ANPIUS-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM-01")) ||
@@ -1747,6 +1748,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("SL010-")) ||
                         (b.name().toUpper().startsWith("EXPERT-SX9")) ||                                                 
                         (b.name().toUpper().startsWith("MRK-S26S-")) ||
+                        (b.name().toUpper().startsWith("MRK-S26C-")) ||
                         (b.name().toUpper().startsWith("ROBX")) ||
                         (b.name().toUpper().startsWith("SPEEDMAGPRO")) ||                        
                         (b.name().toUpper().startsWith("XCX-")) ||
@@ -1778,6 +1780,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith("KICKR ROLLR") ||
                         b.name().toUpper().startsWith("KICKR CORE") ||
                         (b.name().toUpper().startsWith("KICKR MOVE ")) ||
+                        (b.name().toUpper().startsWith("HOI FRAME ")) ||
                         (b.name().toUpper().startsWith("HAMMER ") && saris_trainer) ||
                         (b.name().toUpper().startsWith("WAHOO KICKR"))) &&
                        !wahooKickrSnapBike && !ftmsBike && filter) {
@@ -1792,7 +1795,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(wahooKickrSnapBike, &wahookickrsnapbike::debug, this, &bluetooth::debug);
                 wahooKickrSnapBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(wahooKickrSnapBike);
-            } else if (b.name().toUpper().startsWith("BIKE ") && b.name().midRef(5).toInt() > 0 &&
+            } else if (((b.name().toUpper().startsWith("BIKE ") && b.name().midRef(5).toInt() > 0) ||
+                        b.name().toUpper().startsWith("MYCYCLING")) &&
                        !technogymBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();

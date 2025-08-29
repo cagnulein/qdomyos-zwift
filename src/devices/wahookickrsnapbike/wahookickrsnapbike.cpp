@@ -323,7 +323,7 @@ void wahookickrsnapbike::update() {
                 } else if (lastGearValue != gears()) {
                     inclinationChanged(lastGrade, lastGrade);
                 }
-            } else if (requestResistance != -1 && KICKR_BIKE == false) {
+            } else if ((requestResistance != -1 || lastGearValue != gears()) && KICKR_BIKE == false) {
                 if (requestResistance > 100) {
                     requestResistance = 100;
                 } else if (requestResistance == 0) {

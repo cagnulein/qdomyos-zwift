@@ -70,6 +70,11 @@ void bike::changePower(int32_t power) {
         settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
     double erg_filter_lower =
         settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+    
+    // Apply bike power offset
+    int bike_power_offset = settings.value(QZSettings::bike_power_offset, QZSettings::default_bike_power_offset).toInt();
+    power += bike_power_offset;
+    qDebug() << QStringLiteral("changePower: original power with offset applied: ") + QString::number(power) + QStringLiteral(" (offset: ") + QString::number(bike_power_offset) + QStringLiteral(")");
 
     requestPower = power; // used by some bikes that have ERG mode builtin
     

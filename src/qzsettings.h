@@ -257,6 +257,9 @@ class QZSettings {
     static const QString bike_power_sensor;
     static constexpr bool default_bike_power_sensor = false;
 
+    static const QString bike_power_offset;
+    static constexpr int default_bike_power_offset = 0;
+
     static const QString heart_rate_belt_name;
     static const QString default_heart_rate_belt_name;
 
@@ -2665,6 +2668,24 @@ class QZSettings {
      */
     static const QString chart_display_mode;
     static constexpr int default_chart_display_mode = 0;
+
+   /**
+     * @brief Calculate only active calories (exclude basal metabolic rate)
+     */
+    static const QString calories_active_only;
+    static constexpr bool default_calories_active_only = false;
+
+    /**
+     * @brief Calculate calories from heart rate instead of power
+     */
+    static const QString calories_from_hr;
+    static constexpr bool default_calories_from_hr = false;
+
+    /**
+     * @brief User height in centimeters for BMR calculation
+     */
+    static const QString height;
+    static constexpr double default_height = 175.0;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
