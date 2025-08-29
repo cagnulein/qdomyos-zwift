@@ -120,7 +120,7 @@ ScrollView {
             var temp = gearRows
             gearRows = []
             gearRows = temp
-            gearConfigurationChanged()
+            gearConfigurationChanged(gearRows)
         }
     }
 
@@ -279,7 +279,7 @@ ScrollView {
         var temp = gearRows;
         gearRows = [];
         gearRows = temp;
-        gearConfigurationChanged();
+        gearConfigurationChanged(gearRows);
     }
 
     function clearGearsFromIndex(startIndex) {
@@ -290,7 +290,7 @@ ScrollView {
             var temp = gearRows
             gearRows = []
             gearRows = temp
-            gearConfigurationChanged()
+            gearConfigurationChanged(gearRows)
     }
 
     function initializeGearRows() {
@@ -322,7 +322,7 @@ ScrollView {
         }
 
         // Also emit the change signal
-        gearConfigurationChanged();
+        gearConfigurationChanged(gearRows);
     }
 
     // Signals to notify when values change
@@ -806,7 +806,7 @@ ScrollView {
                                         // Use Qt.callLater to avoid immediate layout updates
                                         Qt.callLater(function() {
                                             gearRows[index].crankset = value
-                                            gearConfigurationChanged()
+                                            gearConfigurationChanged(gearRows)
                                         })
                                     }
 
@@ -879,7 +879,7 @@ ScrollView {
                                     onValueModified: {
                                         Qt.callLater(function() {
                                             gearRows[index].cog = value
-                                            gearConfigurationChanged()
+                                            gearConfigurationChanged(gearRows)
                                         })
                                     }
 

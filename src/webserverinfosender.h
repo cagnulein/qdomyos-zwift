@@ -7,6 +7,8 @@
 #include <QNetworkCookieJar>
 #include <QtWebSockets/QWebSocketServer>
 #include <QTcpServer>
+#include <QMutex>
+#include <QPointer>
 
 class QNoCookieJar : public QNetworkCookieJar {
     Q_OBJECT
@@ -38,11 +40,12 @@ class WebServerInfoSender : public TemplateInfoSender {
     int port = 0;
     int wsPort = 0;
     virtual bool init();
-    QList<QSharedPointer<QWebSocket>> clients;
+    QList<QPointer<QWebSocket>> clients;
     QNetworkAccessManager *fetcher = nullptr;
-    QList<QWebSocket *> sendToClients;
+    QList<QPointer<QWebSocket>> sendToClients;
     QHash<QString, QString> relative2Absolute;
     QHash<QNetworkReply *, QPair<QJsonObject, QWebSocket *>> reply2Req;
+    mutable QMutex clientsMutex;
   private slots:
     void watchdogEvent();
     void onNewWebSocketConnection();
