@@ -2667,6 +2667,12 @@ class QZSettings {
     static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
 
     /**
+     * @brief Track if Grupetto legal disclaimer has been shown to user
+     */
+    static const QString grupetto_disclaimer_shown;
+    static constexpr bool default_grupetto_disclaimer_shown = false;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */

@@ -971,6 +971,11 @@ ApplicationWindow {
             event.accepted = settings.volume_change_gears;
         }
     }
+    
+    // Grupetto Legal Disclaimer
+    GrupettoDisclaimer {
+        id: grupettoDisclaimer
+    }
 }
 
 /*##^##
