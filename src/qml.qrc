@@ -7,6 +7,7 @@
         <file>qtquickcontrols2.conf</file>
         <file>Home.qml</file>
         <file>settings.qml</file>
+        <file>GrupettoDisclaimer.qml</file>
         <file>AccordionElement.qml</file>
         <file>AccordionCheckElement.qml</file>
         <file>icons/arrow-collapse-vertical.png</file>
