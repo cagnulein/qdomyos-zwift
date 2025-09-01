@@ -538,7 +538,7 @@ jobs:
         run: |
           cd src/qmdnsengine
           git fetch
-          git checkout 602da51dc43c55bd9aa8a83c47ea3594a9b01b98
+          git checkout 8a973df29234d8bcc7e9a5b9c64efa7e6f44d1ad
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qt6-base-dev qtchooser qmake6 qt6-base-dev-tools qml6-module-qtquick-controls libqt6bluetooth6 libqt6widgets6 libqt6positioning6 libqt6xml6 qt6-connectivity-dev qt6-positioning-dev libqt6charts6-dev libqt6charts6 libqt6networkauth6-dev libqt6websockets6-dev libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
           
