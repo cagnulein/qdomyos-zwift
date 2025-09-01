@@ -7237,7 +7237,7 @@ void homeform::update() {
                     
                     // Adjust jitter counter (same as trainprogram)
                     currentUpdateJitter -= (missedSeconds * 1000);
-                } else if (currentUpdateJitter < -1000) { {
+                } else if (currentUpdateJitter < -1000) {
                     // We are early (negative jitter)... remove excess SessionLine records
                     int excessSeconds = (-currentUpdateJitter) / 1000;
                     qDebug() << "Negative timer jitter detected: removing" << excessSeconds << "excess SessionLine records";
