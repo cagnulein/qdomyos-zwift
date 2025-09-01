@@ -399,7 +399,7 @@ void trxappgateusbelliptical::serviceScanDone(void) {
             // I-CONSOLE+ device but DCT2000I service not found, try 0000fff0 service (Taurus FX9.9)
             bool found_fff0 = false;
             foreach (QBluetoothUuid s, m_control->services()) {
-                if (s == QBluetoothUuid::fromString(uuid3)) {
+                if (s == (QBluetoothUuid)QBluetoothUuid::fromString(uuid3)) {
                     found_fff0 = true;
                     break;
                 }
