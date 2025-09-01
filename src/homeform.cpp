@@ -572,7 +572,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     automaticShiftingTimer = new QTimer(this);
     connect(automaticShiftingTimer, &QTimer::timeout, this, &homeform::ten_hz);
-    automaticShiftingTimer->start(100); // 100ms = 10Hz
+    
+    QSettings settings;
+    if (settings.value(QZSettings::automatic_virtual_shifting_enabled, QZSettings::default_automatic_virtual_shifting_enabled).toBool()) {
+        automaticShiftingTimer->start(100); // 100ms = 10Hz
+    }
 
     QObject *rootObject = engine->rootObjects().constFirst();
     QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
