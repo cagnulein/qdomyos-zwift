@@ -1202,6 +1202,7 @@ import Qt.labs.platform 1.1
             property real height: 175.0
             property bool calories_from_hr: false
             property int bike_power_offset: 0
+            property int chart_display_mode: 0
         }
 
 
@@ -4876,6 +4877,44 @@ import Qt.labs.platform 1.1
                         text: "Open Floating on a Browser"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: openFloatingWindowBrowser();
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelChartDisplayMode
+                            text: qsTr("Chart Display Mode:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: chartDisplayModeComboBox
+                            model: ["Both Charts", "Heart Rate Only", "Power Only"]
+                            currentIndex: settings.chart_display_mode
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("chart_display_mode activated" + chartDisplayModeComboBox.currentIndex)
+                            }
+                        }
+                        Button {
+                            id: okChartDisplayModeButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.chart_display_mode = chartDisplayModeComboBox.currentIndex; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     AccordionElement {
