@@ -15,8 +15,8 @@
 #include "sessionline.h"
 #include "smtpclient/src/SmtpMime"
 #include "trainprogram.h"
+#include <QtCharts/QChart>
 #include "workoutmodel.h"
-#include <QChart>
 #include <QColor>
 #include <QGraphicsScene>
 #include <QMediaPlayer>
@@ -25,14 +25,18 @@
 #include <QQmlApplicationEngine>
 #include <QQuickItem>
 #include <QQuickItemGrabResult>
+#ifdef HAVE_TEXTTOSPEECH
 #include <QTextToSpeech>
+#endif
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 #ifdef Q_OS_ANDROID
-#include <QAndroidJniEnvironment>
-#include <QtAndroid>
+
+#include <QJniEnvironment>
+#include <QJniObject>
+#include <QCoreApplication>
 #endif
 
 #if __has_include("secret.h")
@@ -247,7 +251,7 @@ class homeform : public QObject {
         if (QGraphicsScene *scene = item->findChild<QGraphicsScene *>()) {
             auto items_list = scene->items();
             for (QGraphicsItem *it : qAsConst(items_list)) {
-                if (QtCharts::QChart *chart = dynamic_cast<QtCharts::QChart *>(it)) {
+                if (QChart *chart = dynamic_cast<QChart *>(it)) {
                     // Customize chart background
                     QLinearGradient backgroundGradient;
                     double maxWatt = wattMaxChart();
@@ -287,7 +291,7 @@ class homeform : public QObject {
         if (QGraphicsScene *scene = item->findChild<QGraphicsScene *>()) {
             auto items_list = scene->items();
             for (QGraphicsItem *it : qAsConst(items_list)) {
-                if (QtCharts::QChart *chart = dynamic_cast<QtCharts::QChart *>(it)) {
+                if (QChart *chart = dynamic_cast<QChart *>(it)) {
                     // Customize chart background
                     QLinearGradient backgroundGradient;
                     QSettings settings;
@@ -347,7 +351,7 @@ class homeform : public QObject {
         }
     }
 
-    Q_INVOKABLE void update_axes(QtCharts::QAbstractAxis *axisX, QtCharts::QAbstractAxis *axisY) {
+    Q_INVOKABLE void update_axes(QAbstractAxis *axisX, QAbstractAxis *axisY) {
         if (axisX && axisY) {
             // Customize axis colors
             QPen axisPen(QRgb(0xd18952));
@@ -406,8 +410,9 @@ class homeform : public QObject {
 
     Q_INVOKABLE void enableLocationServices() {
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/LocationHelper", "requestPermissions",
-                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        QJniObject context = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/LocationHelper", "requestPermissions",
+                                                  "(Landroid/content/Context;)V", context.object());
 #endif
     }
 
@@ -817,8 +822,10 @@ class homeform : public QObject {
     bool getLap();
     void Start_inner(bool send_event_to_device);
 
+#ifdef HAVE_TEXTTOSPEECH
     QTextToSpeech m_speech;
     int tts_summary_count = 0;
+#endif
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
     QTimer tLicense;
