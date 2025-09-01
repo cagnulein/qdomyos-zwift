@@ -853,16 +853,10 @@ void trainprogram::scheduler() {
     qDebug() << QStringLiteral("trainprogram ticks") << ticks << QStringLiteral("currentTimerJitter") << currentTimerJitter;
 
     if(qAbs(currentTimerJitter) > 1000) {
-        // we are late...
-        if (currentTimerJitter > 1000) {
-            int seconds = currentTimerJitter / 1000;
-            ticks += seconds;
-            currentTimerJitter -= (seconds * 1000);
-            qDebug() << QStringLiteral("fixing jitter!") << seconds << ticks << currentTimerJitter;
-        } else {
-            // negative jitter, reset the counter without touching the ticks
-            currentTimerJitter = 0;
-        }
+        int seconds = currentTimerJitter / 1000;
+        ticks += seconds;
+        currentTimerJitter -= (seconds * 1000);
+        qDebug() << QStringLiteral("fixing jitter!") << seconds << ticks << currentTimerJitter;
     }
 
     double odometerFromTheDevice = bluetoothManager->device()->odometer();
