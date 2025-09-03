@@ -215,7 +215,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     target_power = new DataObject(QStringLiteral("T.Power(W)"), QStringLiteral("icons/icons/watt.png"),
                                   QStringLiteral("0"), true, QStringLiteral("target_power"), 48, labelFontSize);
     target_zone = new DataObject(QStringLiteral("T.Zone"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("1"),
-                                 false, QStringLiteral("target_zone"), 48, labelFontSize);
+                                 true, QStringLiteral("target_zone"), 48, labelFontSize);
     target_speed = new DataObject(QStringLiteral("T.Speed (") + unit + QStringLiteral("/h)"),
                                   QStringLiteral("icons/icons/speed.png"), QStringLiteral("0.0"), true,
                                   QStringLiteral("target_speed"), 48, labelFontSize);
@@ -4486,6 +4486,17 @@ void homeform::Plus(const QString &name) {
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->increaseElapsedTime(1);
         }
+    } else if (name.contains(QStringLiteral("target_zone"))) {
+        QSettings settings;
+        double currentFtp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+        if (currentFtp > 0 && bluetoothManager->device() && 
+            bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            double currentTargetPower = ((bike *)bluetoothManager->device())->lastRequestedPower().value();
+            double powerIncrement = currentFtp * 0.01; // 1% of FTP
+            double newTargetPower = currentTargetPower + powerIncrement;
+            ((bike *)bluetoothManager->device())->changePower(newTargetPower);
+            qDebug() << "Target power increased by" << powerIncrement << "W (1% of FTP) from" << currentTargetPower << "to" << newTargetPower;
+        }
     } else {
         qDebug() << name << QStringLiteral("not handled");
 
@@ -4749,6 +4760,18 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("peloton_offset")) || name.contains(QStringLiteral("peloton_remaining"))) {
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->decreaseElapsedTime(1);
+        }
+    } else if (name.contains(QStringLiteral("target_zone"))) {
+        QSettings settings;
+        double currentFtp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+        if (currentFtp > 0 && bluetoothManager->device() && 
+            bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            double currentTargetPower = ((bike *)bluetoothManager->device())->lastRequestedPower().value();
+            double powerDecrement = currentFtp * 0.01; // 1% of FTP
+            double newTargetPower = currentTargetPower - powerDecrement;
+            if (newTargetPower < 0) newTargetPower = 0; // Prevent negative power
+            ((bike *)bluetoothManager->device())->changePower(newTargetPower);
+            qDebug() << "Target power decreased by" << powerDecrement << "W (1% of FTP) from" << currentTargetPower << "to" << newTargetPower;
         }
     } else {
         qDebug() << name << QStringLiteral("not handled");
