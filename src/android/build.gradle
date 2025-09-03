@@ -118,6 +118,23 @@ android {
        }
     }
 
+    // Exclude duplicate string resources from Qt to avoid conflicts
+    android.applicationVariants.all { variant ->
+        variant.mergeResourcesProvider.configure { task ->
+            task.doFirst {
+                // Remove duplicate strings.xml from Qt resources to prioritize local ones
+                def qtResDir = new File(qt5AndroidDir, 'res/values')
+                if (qtResDir.exists()) {
+                    def qtStringsFile = new File(qtResDir, 'strings.xml')
+                    if (qtStringsFile.exists()) {
+                        println "Excluding Qt strings.xml to prevent duplicates: ${qtStringsFile.path}"
+                        qtStringsFile.delete()
+                    }
+                }
+            }
+        }
+    }
+
     lint {
         abortOnError false
         checkReleaseBuilds false
