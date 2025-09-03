@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.DisplayCutout;
-import org.qtproject.qt5.android.bindings.QtActivity;
+import org.qtproject.qt6.android.bindings.QtActivity;
 
 public class CustomQtActivity extends QtActivity {
     private static final String TAG = "CustomQtActivity";
