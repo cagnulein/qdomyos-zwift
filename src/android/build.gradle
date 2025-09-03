@@ -110,8 +110,8 @@ android {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
             aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
-            // Prioritize local res over Qt res to avoid duplicates - local comes first
-            res.srcDirs = ['res', qt5AndroidDir + '/res']
+            // Use only local res to avoid Qt duplicate strings conflict
+            res.srcDirs = ['res']
             resources.srcDirs = ['resources']
             renderscript.srcDirs = ['src']
             assets.srcDirs = ['assets']
@@ -119,11 +119,6 @@ android {
        }
     }
 
-    // Configure resource merging to handle duplicates properly
-    android.aaptOptions {
-        // Allow overlays - local resources override Qt resources
-        namespaced false
-    }
 
     lint {
         abortOnError false
