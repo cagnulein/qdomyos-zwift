@@ -110,7 +110,8 @@ android {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
             aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
-            res.srcDirs = [qt5AndroidDir + '/res', 'res']
+            // Prioritize local res over Qt res to avoid duplicates - local comes first
+            res.srcDirs = ['res', qt5AndroidDir + '/res']
             resources.srcDirs = ['resources']
             renderscript.srcDirs = ['src']
             assets.srcDirs = ['assets']
@@ -118,21 +119,10 @@ android {
        }
     }
 
-    // Exclude duplicate string resources from Qt to avoid conflicts
-    android.applicationVariants.all { variant ->
-        variant.mergeResourcesProvider.configure { task ->
-            task.doFirst {
-                // Remove duplicate strings.xml from Qt resources to prioritize local ones
-                def qtResDir = new File(qt5AndroidDir, 'res/values')
-                if (qtResDir.exists()) {
-                    def qtStringsFile = new File(qtResDir, 'strings.xml')
-                    if (qtStringsFile.exists()) {
-                        println "Excluding Qt strings.xml to prevent duplicates: ${qtStringsFile.path}"
-                        qtStringsFile.delete()
-                    }
-                }
-            }
-        }
+    // Configure resource merging to handle duplicates properly
+    android.aaptOptions {
+        // Allow overlays - local resources override Qt resources
+        namespaced false
     }
 
     lint {
