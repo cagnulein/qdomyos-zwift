@@ -28,7 +28,6 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import org.cagnulen.qdomyoszwift.BuildConfig;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -495,7 +494,7 @@ public class ChannelService extends Service {
     };
 
     private void doBindAntRadioService() {
-        if (BuildConfig.DEBUG) QLog.v(TAG, "doBindAntRadioService");
+        QLog.v(TAG, "doBindAntRadioService");
 
         ContextCompat.registerReceiver(
             this,
@@ -510,13 +509,13 @@ public class ChannelService extends Service {
     }
 
     private void doUnbindAntRadioService() {
-        if (BuildConfig.DEBUG) QLog.v(TAG, "doUnbindAntRadioService");
+        QLog.v(TAG, "doUnbindAntRadioService");
 
         // Stop listing for channel available intents
         try {
             unregisterReceiver(mChannelProviderStateChangedReceiver);
         } catch (IllegalArgumentException exception) {
-            if (BuildConfig.DEBUG)
+            // Debug log removed
                 QLog.d(TAG, "Attempting to unregister a never registered Channel Provider State Changed receiver.");
         }
 

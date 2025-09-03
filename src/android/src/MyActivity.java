@@ -1,7 +1,8 @@
 package org.cagnulen.qdomyoszwift;
+import android.app.Activity;
 import org.cagnulen.qdomyoszwift.QLog;
 
-public class MyActivity extends org.qtproject.qt6.android.bindings.QtActivity {
+public class MyActivity extends Activity {
 
  private final String TAG = "MyActivity";
 
