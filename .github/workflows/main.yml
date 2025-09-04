@@ -734,6 +734,9 @@ jobs:
           cat android-qdomyos-zwift-deployment-settings.json
       - name: Build APK with Multi-ABI support
         run: |
+          # Set Gradle arguments for detailed error reporting
+          export GRADLE_OPTS="--stacktrace --info"
+          
           # Use androiddeployqt to build APK with all ABIs
           androiddeployqt --input android-qdomyos-zwift-deployment-settings.json \
             --output ${{ github.workspace }}/output/android/ \
@@ -741,13 +744,6 @@ jobs:
             --gradle \
             --aab \
             --verbose
-          
-          # If the build fails, run Gradle manually with debug flags
-          if [ $? -ne 0 ]; then
-            echo "androiddeployqt failed, running Gradle manually with debug flags..."
-            cd ${{ github.workspace }}/output/android/
-            ./gradlew assembleRelease --stacktrace --info
-          fi
           
           # Remove deprecated enableUncompressedNativeLibs from generated files
           find ${{ github.workspace }}/output/android/ -name "*.gradle" -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} \;
