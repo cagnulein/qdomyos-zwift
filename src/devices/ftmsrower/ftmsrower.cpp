@@ -65,6 +65,8 @@ void ftmsrower::forceResistance(resistance_t requestResistance) {
     uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
     write[1] = ((uint8_t)(requestResistance * 10));
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+    if(NORDLYS)
+        Resistance = requestResistance; // Nordlys does not report back the resistance so we set it here
 }
 
 void ftmsrower::update() {
@@ -757,6 +759,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("NORDLYS"))) {
+            NORDLYS = true;
+            qDebug() << "NORDLYS found!";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
