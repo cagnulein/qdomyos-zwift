@@ -13,7 +13,7 @@ buildscript {
 repositories {
     google()
     mavenCentral()
-    maven { url 'https://jitpack.io' }
+    maven { url = 'https://jitpack.io' }
 }
 
 apply plugin: 'com.android.application'
@@ -89,7 +89,7 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
 
-    namespace 'org.cagnulen.qdomyoszwift'
+    namespace = 'org.cagnulen.qdomyoszwift'
 
     // Handle SDK extension parsing issue (android-36-ext18)
     def compileSdk = androidCompileSdkVersion
@@ -119,8 +119,8 @@ android {
 
 
     lint {
-        abortOnError false
-        checkReleaseBuilds false
+        abortOnError = false
+        checkReleaseBuilds = false
     }
 
     // Do not compress Qt binary resources file
