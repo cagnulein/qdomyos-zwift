@@ -742,6 +742,13 @@ jobs:
             --aab \
             --verbose
           
+          # If the build fails, run Gradle manually with debug flags
+          if [ $? -ne 0 ]; then
+            echo "androiddeployqt failed, running Gradle manually with debug flags..."
+            cd ${{ github.workspace }}/output/android/
+            ./gradlew assembleRelease --stacktrace --info
+          fi
+          
           # Remove deprecated enableUncompressedNativeLibs from generated files
           find ${{ github.workspace }}/output/android/ -name "*.gradle" -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} \;
           find ${{ github.workspace }}/output/android/ -name "gradle.properties" -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} \;
