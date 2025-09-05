@@ -692,7 +692,6 @@ jobs:
             -DANDROID_PLATFORM=android-24 \
             -DANDROID_STL=c++_shared \
             -DCMAKE_BUILD_TYPE=Release \
-            -DQT_ANDROID_BUILD_ALL_ABIS=ON \
             -DQT_ANDROID_ABIS="armeabi-v7a;arm64-v8a" \
             -DQT_ANDROID_ABIS_PATH="${{ github.workspace }}/output/android/Qt/6.9.1/android_armv7;${{ github.workspace }}/output/android/Qt/6.9.1/android_arm64_v8a" \
             -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH \
