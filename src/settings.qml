@@ -1203,6 +1203,7 @@ import Qt.labs.platform 1.1
             property bool calories_from_hr: false
             property int bike_power_offset: 0
             property int chart_display_mode: 0
+            property bool zwift_play_vibration: true
         }
 
 
@@ -11601,6 +11602,33 @@ import Qt.labs.platform 1.1
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
                             }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Zwift Play Vibration")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.zwift_play_vibration
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.zwift_play_vibration = checked; }
+                            }
+
+                            Label {
+                                text: qsTr("Enable vibration feedback on Zwift Play controllers when changing gears. Default: enabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }                            
 
                             IndicatorOnlySwitch {
                                 text: qsTr("Buttons debouncing")
