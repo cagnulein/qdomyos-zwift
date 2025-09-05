@@ -441,8 +441,8 @@ uint16_t toorxtreadmill::GetCaloriesFromPacket(const QByteArray &packet) {
     return convertedData;
 }
 
-uint16_t toorxtreadmill::GetDistanceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(9) << 8) | packet.at(10);
+double toorxtreadmill::GetDistanceFromPacket(const QByteArray &packet) {
+    double convertedData = (double)((packet.at(9) << 8) | packet.at(10)) / 100.0;
     return convertedData;
 }
 
