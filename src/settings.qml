@@ -1204,6 +1204,7 @@ import Qt.labs.platform 1.1
             property int bike_power_offset: 0
             property int chart_display_mode: 0
             property bool zwift_play_vibration: true
+            property bool toorxtreadmill_discovery_completed: false
         }
 
 
@@ -8853,6 +8854,19 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.iconsole_rower = checked; window.settings_restart_to_apply = true; }
+                    }
+                    IndicatorOnlySwitch {
+                        text: qsTr("Toorx Treadmill Discovery Completed")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.toorxtreadmill_discovery_completed
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.toorxtreadmill_discovery_completed = checked; }
                     }
                 }
             }

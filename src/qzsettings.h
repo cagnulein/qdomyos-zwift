@@ -2121,6 +2121,9 @@ class QZSettings {
     static const QString toorx_bike_srx_500;
     static constexpr bool default_toorx_bike_srx_500 = false;
 
+    static const QString toorxtreadmill_discovery_completed;
+    static constexpr bool default_toorxtreadmill_discovery_completed = false;
+
     static const QString atletica_lightspeed_treadmill;
     static constexpr bool default_atletica_lightspeed_treadmill = false;
 
