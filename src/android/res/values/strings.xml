@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Ministro messages for Qt deployment -->
+    <string name="ministro_not_found_msg">Ministro service is required to run this application, but it was not found on your device. Please install Ministro from Google Play.</string>
+    <string name="ministro_needed_msg">This application requires Qt libraries. Please install the Ministro service.</string>
+    <string name="fatal_error_msg">A fatal error occurred and the application cannot continue.</string>
+    <string name="unsupported_android_version">Your Android version is not supported by this application.</string>
+</resources>
