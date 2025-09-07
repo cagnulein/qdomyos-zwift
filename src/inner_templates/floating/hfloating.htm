@@ -36,6 +36,38 @@
       scrollbar-color: #444 #222;
     }
 
+    /* Quick action buttons that appear on the horizontal bar */
+    .quick-actions {
+      display: none;
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      z-index: 10;
+    }
+
+    .quick-action-btn {
+      background-color: #4C70BF;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      margin: 0 2px;
+      cursor: pointer;
+      font-size: 12px;
+      border-radius: 3px;
+      opacity: 0.9;
+    }
+
+    .quick-action-btn:hover {
+      opacity: 1;
+      background-color: #5A7FDF;
+    }
+
+    /* Show quick actions when bar is hovered or focused */
+    .horizontal-bar:hover .quick-actions,
+    .horizontal-bar:focus-within .quick-actions {
+      display: flex;
+    }
+
     /* Style scrollbar for webkit browsers */
     .horizontal-bar::-webkit-scrollbar {
       height: 6px;
@@ -395,6 +427,15 @@
 
           <!-- Main horizontal metrics bar -->
           <div id="metrics-bar" class="horizontal-bar">
+            <!-- Quick action buttons that appear on hover -->
+            <div class="quick-actions">
+              <button class="quick-action-btn" onclick="Start()" title="Start/Pause">▶/⏸</button>
+              <button class="quick-action-btn" onclick="Stop()" title="Stop">⏹</button>
+              <button class="quick-action-btn autoresistance" onclick="AutoResistance()" title="Auto Resistance">🧲</button>
+              <button class="quick-action-btn" onclick="toggleMetricSelector()" title="Select Metrics">⚙</button>
+              <button class="quick-action-btn" onclick="toggleCompletePanel()" title="Full Controls">⋯</button>
+              <button class="quick-action-btn" onclick="Close()" title="Close" style="color: red;">🗙</button>
+            </div>
             <!-- The metrics will be populated dynamically by JavaScript -->
           </div>
 
@@ -449,11 +490,38 @@
 
                 // Toggle the controls panel when clicking on the metrics bar
                 document.getElementById("metrics-bar").addEventListener("click", function(event) {
+                  // Enable dragging margins on any click
+                  if (typeof Android !== 'undefined' && Android.enableDraggingMargins) {
+                    Android.enableDraggingMargins();
+                  }
+                  
                   // Only toggle if the click was directly on the metrics bar, not on a button or another panel
                   if (event.target.closest("#controls-panel") === null &&
                       event.target.closest("#metric-selector") === null &&
-                      event.target.closest("#complete-panel") === null) {
+                      event.target.closest("#complete-panel") === null &&
+                      event.target.closest(".quick-actions") === null &&
+                      !event.target.classList.contains("quick-action-btn")) {
                     toggleControlsPanel();
+                  }
+                });
+
+                // Add touch events for better mobile experience with quick actions
+                document.getElementById("metrics-bar").addEventListener("touchstart", function(event) {
+                  // Enable dragging margins on any touch
+                  if (typeof Android !== 'undefined' && Android.enableDraggingMargins) {
+                    Android.enableDraggingMargins();
+                  }
+                  
+                  // Show quick actions on touch start for mobile devices
+                  var quickActions = document.querySelector(".quick-actions");
+                  if (quickActions) {
+                    quickActions.style.display = "flex";
+                    // Hide after 3 seconds if not interacted with
+                    setTimeout(function() {
+                      if (quickActions.style.display === "flex") {
+                        quickActions.style.display = "none";
+                      }
+                    }, 3000);
                   }
                 });
 
@@ -464,8 +532,16 @@
 
                   if (controlsPanel.style.display === "block") {
                     controlsPanel.style.display = "none";
+                    // Restore window height when panel is hidden
+                    if (typeof Android !== 'undefined' && Android.restoreFloatingWindow) {
+                      Android.restoreFloatingWindow();
+                    }
                   } else {
                     controlsPanel.style.display = "block";
+                    // Expand window height when panel is shown (controls-panel height is approximately 150px)
+                    if (typeof Android !== 'undefined' && Android.expandFloatingWindow) {
+                      Android.expandFloatingWindow(150);
+                    }
                     // Hide other panels
                     metricSelector.style.display = "none";
                     document.getElementById("complete-panel").style.display = "none";
@@ -479,8 +555,16 @@
 
                   if (completePanel.style.display === "block") {
                     completePanel.style.display = "none";
+                    // Restore window height when panel is hidden
+                    if (typeof Android !== 'undefined' && Android.restoreFloatingWindow) {
+                      Android.restoreFloatingWindow();
+                    }
                   } else {
                     completePanel.style.display = "block";
+                    // Expand window height when panel is shown (complete-panel needs more space, approximately 300px)
+                    if (typeof Android !== 'undefined' && Android.expandFloatingWindow) {
+                      Android.expandFloatingWindow(300);
+                    }
                     // Hide regular controls panel
                     controlsPanel.style.display = "none";
                   }
@@ -493,10 +577,18 @@
 
                   if (metricSelector.style.display === "block") {
                     metricSelector.style.display = "none";
+                    // Restore window height when panel is hidden
+                    if (typeof Android !== 'undefined' && Android.restoreFloatingWindow) {
+                      Android.restoreFloatingWindow();
+                    }
                   } else {
                     // Populate the metric selector grid
                     populateMetricSelector();
                     metricSelector.style.display = "block";
+                    // Expand window height when panel is shown (metric-selector-panel height is approximately 200px)
+                    if (typeof Android !== 'undefined' && Android.expandFloatingWindow) {
+                      Android.expandFloatingWindow(200);
+                    }
                     // Hide controls panel
                     controlsPanel.style.display = "none";
                   }
@@ -546,11 +638,53 @@
                     metricsPreference[item.dataset.metric] = true;
                   });
 
+                  // Save preferences to backend by updating tile settings
+                  var settingsToUpdate = {};
+                  
+                  // Map horizontal bar preferences to tile settings
+                  settingsToUpdate['tile_speed_enabled'] = metricsPreference["speed"];
+                  settingsToUpdate['tile_pace_enabled'] = metricsPreference["pace"];
+                  settingsToUpdate['tile_inclination_enabled'] = metricsPreference["inclination"];
+                  settingsToUpdate['tile_elevation_enabled'] = metricsPreference["elevation"];
+                  settingsToUpdate['tile_cadence_enabled'] = metricsPreference["cadence"];
+                  settingsToUpdate['tile_calories_enabled'] = metricsPreference["calories"];
+                  settingsToUpdate['tile_jouls_enabled'] = metricsPreference["jouls"];
+                  settingsToUpdate['tile_odometer_enabled'] = metricsPreference["distance"];
+                  settingsToUpdate['tile_resistance_enabled'] = metricsPreference["resistance"];
+                  settingsToUpdate['tile_watt_enabled'] = metricsPreference["watt"];
+                  settingsToUpdate['tile_heart_enabled'] = metricsPreference["heart"];
+                  settingsToUpdate['tile_elapsed_enabled'] = metricsPreference["elapsed"];
+                  settingsToUpdate['tile_remainingtimetrainprogramrow_enabled'] = metricsPreference["rowremainingtime"];
+                  settingsToUpdate['tile_nextrowstrainprogram_enabled'] = metricsPreference["nextrow"];
+                  settingsToUpdate['tile_peloton_resistance_enabled'] = metricsPreference["pelotonresistance"];
+                  settingsToUpdate['tile_peloton_offset_enabled'] = metricsPreference["pelotonoffset"];
+                  settingsToUpdate['tile_gears_enabled'] = metricsPreference["gears"];
+                  settingsToUpdate['tile_ftp_enabled'] = metricsPreference["powerzone"];
+
+                  // Send settings update to backend
+                  let el = new MainWSQueueElement({
+                    msg: 'setsettings',
+                    content: settingsToUpdate
+                  }, function (msg) {
+                    if (msg.msg === 'R_setsettings') {
+                      console.log('Horizontal bar preferences saved successfully');
+                      return msg.content;
+                    }
+                    return null;
+                  }, 15000, 1);
+                  
+                  el.enqueue().catch(function (err) {
+                    console.error('Error saving horizontal bar preferences: ' + err);
+                  });
+
                   // Update the display
                   updateHorizontalMetrics();
 
-                  // Hide selector
+                  // Hide selector and restore window height
                   document.getElementById("metric-selector").style.display = "none";
+                  if (typeof Android !== 'undefined' && Android.restoreFloatingWindow) {
+                    Android.restoreFloatingWindow();
+                  }
                 }
 
                 // Create HTML for a horizontal metric
@@ -1500,6 +1634,19 @@
 
                                                                                                   // Initialize the template when the page loads
                                                                                                   setTimeout(initializeTemplate, 0);
+                                                                                                  
+                                                                                                  // Add global event listeners for any touch/click to enable dragging margins
+                                                                                                  document.addEventListener('click', function(event) {
+                                                                                                    if (typeof Android !== 'undefined' && Android.enableDraggingMargins) {
+                                                                                                      Android.enableDraggingMargins();
+                                                                                                    }
+                                                                                                  });
+                                                                                                  
+                                                                                                  document.addEventListener('touchstart', function(event) {
+                                                                                                    if (typeof Android !== 'undefined' && Android.enableDraggingMargins) {
+                                                                                                      Android.enableDraggingMargins();
+                                                                                                    }
+                                                                                                  });
                                                                                                 </script>
                                                                                               </body>
 

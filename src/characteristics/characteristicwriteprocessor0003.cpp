@@ -31,7 +31,7 @@ CharacteristicWriteProcessor0003::VarintResult CharacteristicWriteProcessor0003:
 }
 
 double CharacteristicWriteProcessor0003::currentGear() {
-    if(zwiftGearReceived)
+    if(zwiftGearReceived || !((bike*)Bike))
         return currentZwiftGear;
     else
         return ((bike*)Bike)->gears();

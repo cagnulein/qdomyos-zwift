@@ -27,6 +27,8 @@
 #endif
 
 #include "mqttpublisher.h"
+#include "androidstatusbar.h"
+#include "fontmanager.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -428,7 +430,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     QSettings settings;
     static bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
-    if ((logs == false && !forceQml) || (logdebug == false && forceQml))
+    if ( (logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
     if (logdebug == false)
 #endif
@@ -796,6 +798,12 @@ int main(int argc, char *argv[]) {
     if (forceQml)
 #endif
     {
+        AndroidStatusBar::registerQmlType();
+        
+#ifdef Q_OS_ANDROID
+        FontManager fontManager;
+        fontManager.initializeEmojiFont();
+#endif
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(
@@ -817,6 +825,9 @@ int main(int argc, char *argv[]) {
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(true));
 #else
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(false));
+#endif
+#ifdef Q_OS_ANDROID
+        engine.rootContext()->setContextProperty("fontManager", &fontManager);
 #endif
         engine.load(url);
         homeform *h = new homeform(&engine, &bl);

@@ -36,7 +36,7 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../src/release/ -lqdom
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../src/debug/ -lqdomyos-zwift
 else:unix: LIBS += -L$$OUT_PWD/../src/ -lqdomyos-zwift
 
-INCLUDEPATH += $$PWD/../src $$PWD/../src/devices
+INCLUDEPATH += $$PWD/../src $$PWD/../src/devices $$PWD/../src/fit-sdk
 DEPENDPATH += $$PWD/../src $$PWD/../src/devices
 
 win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../src/release/libqdomyos-zwift.a

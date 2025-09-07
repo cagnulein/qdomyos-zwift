@@ -132,7 +132,7 @@ void antbike::update() {
         bool ios_peloton_workaround =
             settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-            h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+    h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
         }
 #endif
@@ -168,28 +168,7 @@ uint16_t antbike::wattsFromResistance(double resistance) {
 }
 
 resistance_t antbike::resistanceFromPowerRequest(uint16_t power) {
-    //QSettings settings;
-    //bool toorx_srx_3500 = settings.value(QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500).toBool();
-    /*if(toorx_srx_3500)*/ {
-        qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-        if (Cadence.value() == 0)
-            return 1;
-
-        for (resistance_t i = 1; i < maxResistance(); i++) {
-            if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-                qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                        << wattsFromResistance(i + 1) << power;
-                return i;
-            }
-        }
-        if (power < wattsFromResistance(1))
-            return 1;
-        else
-            return maxResistance();
-    } /*else {
-        return power / 10;
-    }*/
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), maxResistance());
 }
 
 

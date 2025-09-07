@@ -72,6 +72,11 @@ void bike::changePower(int32_t power) {
         settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
     double erg_filter_lower =
         settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+    
+    // Apply bike power offset
+    int bike_power_offset = settings.value(QZSettings::bike_power_offset, QZSettings::default_bike_power_offset).toInt();
+    power += bike_power_offset;
+    qDebug() << QStringLiteral("changePower: original power with offset applied: ") + QString::number(power) + QStringLiteral(" (offset: ") + QString::number(bike_power_offset) + QStringLiteral(")");
 
     requestPower = power; // used by some bikes that have ERG mode builtin
     
@@ -130,27 +135,60 @@ void bike::setGears(double gears) {
     gears -= gears_offset;
     qDebug() << "setGears" << gears;
 
-    // Check for boundaries and emit failure signals
+    // Gear boundary handling with smart clamping logic:
+    // - If we're trying to set a gear outside valid range AND we're already at a valid gear,
+    //   reject the change (normal case: user at gear 1 tries to go to 0.5, should fail)
+    // - If we're trying to set a gear outside valid range BUT we're currently below minimum,
+    //   clamp to valid range (startup case: system starts at 0, first gearUp with 0.5 gain 
+    //   goes to 0.5, should be clamped to 1 to allow the system to reach valid state)
+    // This prevents the system from getting stuck below minGears due to fractional gains
+    // while preserving normal boundary rejection behavior for users at valid gear positions
     if(gears_zwift_ratio && (gears > 24 || gears < 1)) {
-        qDebug() << "new gear value ignored because of gears_zwift_ratio setting!";
         if(gears > 24) {
-            emit gearFailedUp();
+            if(m_gears >= 24) {
+                qDebug() << "new gear value ignored - already at zwift ratio maximum: 24";
+                emit gearFailedUp();
+                return;
+            } else {
+                qDebug() << "gear value clamped to zwift ratio maximum: 24";
+                gears = 24;
+                emit gearFailedUp();
+            }
         } else {
-            emit gearFailedDown();
+            if(m_gears >= 1) {
+                qDebug() << "new gear value ignored - already at zwift ratio minimum: 1";
+                emit gearFailedDown();
+                return;
+            } else {
+                qDebug() << "gear value clamped to zwift ratio minimum: 1"; 
+                gears = 1;
+                emit gearFailedDown();
+            }
         }
-        return;
     }
 
     if(gears > maxGears()) {
-        qDebug() << "new gear value ignored because of maxGears" << maxGears();
-        emit gearFailedUp();
-        return;
+        if(m_gears >= maxGears()) {
+            qDebug() << "new gear value ignored - already at maxGears" << maxGears();
+            emit gearFailedUp();
+            return;
+        } else {
+            qDebug() << "gear value clamped to maxGears" << maxGears();
+            gears = maxGears();
+            emit gearFailedUp();
+        }
     }
 
     if(gears < minGears()) {
-        qDebug() << "new gear value ignored because of minGears" << minGears();
-        emit gearFailedDown();
-        return;
+        if(m_gears >= minGears()) {
+            qDebug() << "new gear value ignored - already at or above minGears" << minGears();
+            emit gearFailedDown();
+            return;
+        } else {
+            qDebug() << "gear value clamped to minGears" << minGears();
+            gears = minGears();
+            emit gearFailedDown();
+        }
     }
 
     if(m_gears > gears) {

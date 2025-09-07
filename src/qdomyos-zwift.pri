@@ -1,7 +1,7 @@
 include(../defaults.pri)
 QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia
 QTPLUGIN += qavfmediaplayer
-QT+= charts core-private
+QT+= charts core-private sql concurrent
 
 qtHaveModule(httpserver) {
     QT += httpserver
@@ -46,6 +46,7 @@ win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc -llibcrypto-1_1-x
 
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
+mingw: QMAKE_CXXFLAGS += -Wa,-mbig-obj
 msvc {
    win32:QMAKE_CXXFLAGS_DEBUG += /RTC1
 }
@@ -96,6 +97,7 @@ SOURCES += \
     $$PWD/devices/lifespantreadmill/lifespantreadmill.cpp \
     $$PWD/devices/moxy5sensor/moxy5sensor.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
+    $$PWD/devices/nordictrackifitadbrower/nordictrackifitadbrower.cpp \
     $$PWD/devices/pitpatbike/pitpatbike.cpp \
     $$PWD/devices/speraxtreadmill/speraxtreadmill.cpp \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
@@ -106,6 +108,7 @@ SOURCES += \
     $$PWD/devices/technogymbike/technogymbike.cpp \
     $$PWD/devices/trixterxdreamv1bike/activationmonitor.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
+    $$PWD/fitdatabaseprocessor.cpp \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
     $$PWD/logwriter.cpp \
     $$PWD/mqtt/qmqttauthenticationproperties.cpp \
@@ -121,6 +124,8 @@ SOURCES += \
     $$PWD/mqtt/qmqtttopicname.cpp \
     $$PWD/mqtt/qmqtttype.cpp \
     $$PWD/osc.cpp \
+    $$PWD/workoutloaderworker.cpp \
+    $$PWD/workoutmodel.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
 devices/csafe/csafe.cpp \
@@ -372,6 +377,7 @@ HEADERS += \
     $$PWD/devices/lifespantreadmill/lifespantreadmill.h \
     $$PWD/devices/moxy5sensor/moxy5sensor.h \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
+    $$PWD/devices/nordictrackifitadbrower/nordictrackifitadbrower.h \
     $$PWD/devices/pitpatbike/pitpatbike.h \
     $$PWD/devices/speraxtreadmill/speraxtreadmill.h \
     $$PWD/devices/sportsplusrower/sportsplusrower.h \
@@ -383,6 +389,7 @@ HEADERS += \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.h \
     $$PWD/ergtable.h \
+    $$PWD/fitdatabaseprocessor.h \
     $$PWD/inclinationresistancetable.h \
     $$PWD/logwriter.h \
     $$PWD/osc.h \
@@ -415,6 +422,8 @@ HEADERS += \
     $$PWD/mqtt/qmqtttype.h \
     $$PWD/treadmillErgTable.h \
     $$PWD/wheelcircumference.h \
+    $$PWD/workoutloaderworker.h \
+    $$PWD/workoutmodel.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
 devices/csafe/csafe.h \
@@ -982,10 +991,14 @@ ios {
 }
 
 HEADERS += \
-    mqttpublisher.h
+    mqttpublisher.h \
+    androidstatusbar.h \
+    fontmanager.h
 
 SOURCES += \
-    mqttpublisher.cpp
+    mqttpublisher.cpp \
+    androidstatusbar.cpp \
+    fontmanager.cpp
 
 include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
@@ -993,4 +1006,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.18.25
+VERSION = 2.20.10
