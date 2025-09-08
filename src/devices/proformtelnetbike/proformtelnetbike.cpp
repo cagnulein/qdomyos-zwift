@@ -397,20 +397,5 @@ uint16_t proformtelnetbike::wattsFromResistance(resistance_t resistance) {
 }
 
 resistance_t proformtelnetbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-    if (Cadence.value() == 0)
-        return 1;
-
-    for (resistance_t i = 1; i < maxResistance(); i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                    << wattsFromResistance(i + 1) << power;
-            return i;
-        }
-    }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        return maxResistance();
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), maxResistance());
 }

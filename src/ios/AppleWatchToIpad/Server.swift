@@ -14,6 +14,9 @@ class Server {
     static let server = try? Server()
     let listener: NWListener
     let SwiftDebug = swiftDebug()
+    
+    // Static property for throttled logging
+    private static var lastLogTime: Date = Date.distantPast
 
     var connections: [Connection] = []
 
@@ -47,7 +50,14 @@ class Server {
     }
 
     func send(_ message: String) {
-        SwiftDebug.qtDebug("Server.send \(message) \(connections)")
+        // Throttle logging to max 1 per second
+        let now = Date()
+        
+        if now.timeIntervalSince(Server.lastLogTime) >= 1.0 {
+            SwiftDebug.qtDebug("Server.send \(message) \(connections)")
+            Server.lastLogTime = now
+        }
+        
         connections.forEach {
             if($0.connection.state == .ready) {
                 $0.send(message)

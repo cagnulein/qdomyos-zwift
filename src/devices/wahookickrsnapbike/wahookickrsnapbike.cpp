@@ -223,7 +223,6 @@ void wahookickrsnapbike::update() {
         if (!wahooWithoutWheelDiameter) {
             QByteArray d = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
             uint8_t e[20];
-            setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value).toDouble());
             memcpy(e, d.constData(), d.length());
             writeCharacteristic(e, d.length(), "setWheelCircumference", false, true);
         }
@@ -324,7 +323,7 @@ void wahookickrsnapbike::update() {
                 } else if (lastGearValue != gears()) {
                     inclinationChanged(lastGrade, lastGrade);
                 }
-            } else if (requestResistance != -1 && KICKR_BIKE == false) {
+            } else if ((requestResistance != -1 || lastGearValue != gears()) && KICKR_BIKE == false) {
                 if (requestResistance > 100) {
                     requestResistance = 100;
                 } else if (requestResistance == 0) {

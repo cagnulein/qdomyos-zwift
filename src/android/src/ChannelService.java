@@ -317,7 +317,7 @@ public class ChannelService extends Service {
 
     public void openAllChannels() throws ChannelNotAvailableException {
         if (Ant.heartRequest && heartChannelController == null)
-            heartChannelController = new HeartChannelController();
+            heartChannelController = new HeartChannelController(Ant.antHeartDeviceNumber);
 
         if (Ant.speedRequest) {
             if(Ant.treadmill && sdmChannelController == null) {
@@ -330,7 +330,7 @@ public class ChannelService extends Service {
 
         // Add initialization for BikeChannelController (receiver)
         if (Ant.bikeRequest && bikeChannelController == null) {
-            bikeChannelController = new BikeChannelController();
+            bikeChannelController = new BikeChannelController(Ant.technoGymGroupCycle, Ant.antBikeDeviceNumber);
         }
 
         // Add initialization for BikeTransmitterController (transmitter) - only when NOT treadmill

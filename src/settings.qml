@@ -1167,9 +1167,50 @@ import Qt.labs.platform 1.1
             // 2.19.2
             property bool tile_hr_time_in_zone_individual_mode: false
             property bool wahoo_without_wheel_diameter: false
+
             property bool nordictrackadbbike_gear_resistance_mode: false
             property int nordictrackadbbike_gear_debounce_ms: 100
+
+            // 2.20.3
+            property bool technogym_group_cycle: false
+            property int ant_bike_device_number: 0
+            property int ant_heart_device_number: 0
+            property int peloton_treadmill_walk_level: 1
+            property int pid_heart_zone_erg_mode_watt_step: 5
+            
+            // Automatic Virtual Shifting settings
+            property bool automatic_virtual_shifting_enabled: false
+            property int automatic_virtual_shifting_gear_up_cadence: 95
+            property real automatic_virtual_shifting_gear_up_time: 2.0
+            property int automatic_virtual_shifting_gear_down_cadence: 65
+            property real automatic_virtual_shifting_gear_down_time: 2.0
+            property int automatic_virtual_shifting_profile: 0
+            property int automatic_virtual_shifting_climb_gear_up_cadence: 95
+            property real automatic_virtual_shifting_climb_gear_up_time: 2.0
+            property int automatic_virtual_shifting_climb_gear_down_cadence: 65
+            property real automatic_virtual_shifting_climb_gear_down_time: 2.0
+            property int automatic_virtual_shifting_sprint_gear_up_cadence: 95
+            property real automatic_virtual_shifting_sprint_gear_up_time: 2.0
+            property int automatic_virtual_shifting_sprint_gear_down_cadence: 65
+            property real automatic_virtual_shifting_sprint_gear_down_time: 2.0
+            property bool tile_auto_virtual_shifting_cruise_enabled: false
+            property int tile_auto_virtual_shifting_cruise_order: 55
+            property bool tile_auto_virtual_shifting_climb_enabled: false
+            property int tile_auto_virtual_shifting_climb_order: 56
+            property bool tile_auto_virtual_shifting_sprint_enabled: false
+            property int tile_auto_virtual_shifting_sprint_order: 57
+            property string proform_rower_ip: ""
+            property string ftms_elliptical: "Disabled"
+            property bool calories_active_only: false
+            property real height: 175.0
+            property bool calories_from_hr: false
+            property int bike_power_offset: 0
+            property int chart_display_mode: 0
+            property bool zwift_play_vibration: true
+            property bool toorxtreadmill_discovery_completed: false
+
         }
+
 
         function paddingZeros(text, limit) {
           if (text.length < limit) {
@@ -1276,6 +1317,62 @@ import Qt.labs.platform 1.1
                     }
                     Label {
                         text: qsTr("Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs).")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelHeight
+                            text: qsTr("Player Height") + "(" + (settings.miles_unit?"ft/in":"cm") + ")"
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: heightTextField
+                            text: settings.miles_unit ? Math.floor(settings.height / 30.48) + "'" + Math.round((settings.height % 30.48) / 2.54) + '"' : settings.height
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: {
+                                if (settings.miles_unit) {
+                                    var parts = text.match(/(\d+)'(\d+)"/);
+                                    if (parts) {
+                                        settings.height = parseInt(parts[1]) * 30.48 + parseInt(parts[2]) * 2.54;
+                                    }
+                                } else {
+                                    settings.height = text;
+                                }
+                            }
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okHeightButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                if (settings.miles_unit) {
+                                    var parts = heightTextField.text.match(/(\d+)'(\d+)"/);
+                                    if (parts) {
+                                        settings.height = parseInt(parts[1]) * 30.48 + parseInt(parts[2]) * 2.54;
+                                    }
+                                } else {
+                                    settings.height = heightTextField.text;
+                                }
+                                toast.show("Setting saved!");
+                            }
+                        }
+                    }
+                    Label {
+                        text: qsTr("Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet'inches\" format (e.g., 5'10\") for imperial units.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -1691,7 +1788,63 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ’s more accurate calculation.")
+                        text: qsTr("This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ's more accurate calculation.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: switchActiveCaloriesOnlyDelegate
+                        text: qsTr("Calculate Active Calories Only")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.calories_active_only
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.calories_active_only = checked
+                    }
+
+                    Label {
+                        text: qsTr("Enable to calculate only active calories (excluding basal metabolic rate) similar to Apple Watch. When disabled, total calories including BMR are calculated. This affects both display and Apple Health integration.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: switchCaloriesFromHRDelegate
+                        text: qsTr("Calculate Calories from Heart Rate")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.calories_from_hr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.calories_from_hr = checked
+                    }
+
+                    Label {
+                        text: qsTr("Enable to calculate calories based on heart rate data instead of power. Requires heart rate sensor connection for accurate calorie estimation.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -2391,6 +2544,44 @@ import Qt.labs.platform 1.1
                     RowLayout {
                         spacing: 10
                         Label {
+                            id: labelBikePowerOffset
+                            text: qsTr("Zwift Power Offset (W):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: bikePowerOffsetTextField
+                            text: settings.bike_power_offset
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.bike_power_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okBikePowerOffsetButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.bike_power_offset = bikePowerOffsetTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
                             id: labelBikeResistanceGain
                             text: qsTr("Zwift Resistance Gain:")
                             Layout.fillWidth: true
@@ -2688,6 +2879,383 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
+                    AccordionElement {
+                        id: automaticVirtualShiftingAccordion
+                        title: qsTr("Automatic Virtual Shifting")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Red)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+
+                            IndicatorOnlySwitch {
+                                id: automaticVirtualShiftingEnabledDelegate
+                                text: qsTr("Enable Automatic Virtual Shifting")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.automatic_virtual_shifting_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.automatic_virtual_shifting_enabled = checked
+                            }
+
+                            Label {
+                                text: qsTr("Enable automatic gear shifting based on cadence thresholds. When enabled, QZ will automatically shift gears up or down based on your pedaling cadence.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Profile:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    id: automaticVirtualShiftingProfileComboBox
+                                    model: ["Cruise", "Climb", "Sprint"]
+                                    currentIndex: settings.automatic_virtual_shifting_profile
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onActivated: {
+                                        settings.automatic_virtual_shifting_profile = currentIndex
+                                    }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Cruise Profile Settings")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 1
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Grey)
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Cruise - Gear Up Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingGearUpCadenceTextField
+                                    text: settings.automatic_virtual_shifting_gear_up_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_gear_up_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_gear_up_cadence = automaticVirtualShiftingGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Cruise - Gear Up Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingGearUpTimeTextField
+                                    text: settings.automatic_virtual_shifting_gear_up_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_gear_up_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_gear_up_time = automaticVirtualShiftingGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Cruise - Gear Down Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingGearDownCadenceTextField
+                                    text: settings.automatic_virtual_shifting_gear_down_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_gear_down_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_gear_down_cadence = automaticVirtualShiftingGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Cruise - Gear Down Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingGearDownTimeTextField
+                                    text: settings.automatic_virtual_shifting_gear_down_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_gear_down_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_gear_down_time = automaticVirtualShiftingGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Climb Profile Settings")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 1
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Grey)
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Climb - Gear Up Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingClimbGearUpCadenceTextField
+                                    text: settings.automatic_virtual_shifting_climb_gear_up_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_up_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_up_cadence = automaticVirtualShiftingClimbGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Climb - Gear Up Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingClimbGearUpTimeTextField
+                                    text: settings.automatic_virtual_shifting_climb_gear_up_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_up_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_up_time = automaticVirtualShiftingClimbGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Climb - Gear Down Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingClimbGearDownCadenceTextField
+                                    text: settings.automatic_virtual_shifting_climb_gear_down_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_down_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_down_cadence = automaticVirtualShiftingClimbGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Climb - Gear Down Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingClimbGearDownTimeTextField
+                                    text: settings.automatic_virtual_shifting_climb_gear_down_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_down_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_down_time = automaticVirtualShiftingClimbGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Sprint Profile Settings")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 1
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Grey)
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Sprint - Gear Up Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingSprintGearUpCadenceTextField
+                                    text: settings.automatic_virtual_shifting_sprint_gear_up_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_cadence = automaticVirtualShiftingSprintGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Sprint - Gear Up Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingSprintGearUpTimeTextField
+                                    text: settings.automatic_virtual_shifting_sprint_gear_up_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_time = automaticVirtualShiftingSprintGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Sprint - Gear Down Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingSprintGearDownCadenceTextField
+                                    text: settings.automatic_virtual_shifting_sprint_gear_down_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_cadence = automaticVirtualShiftingSprintGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Sprint - Gear Down Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingSprintGearDownTimeTextField
+                                    text: settings.automatic_virtual_shifting_sprint_gear_down_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_time = automaticVirtualShiftingSprintGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+                        }
+                    }
+
                     Label {
                         text: qsTr("FTMS Bike:")
                         Layout.fillWidth: true
@@ -2738,7 +3306,7 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
+                    }                    
 
                     NewPageElement {
                         title: qsTr("Wahoo Options")
@@ -3811,6 +4379,85 @@ import Qt.labs.platform 1.1
                             }
                         }
                     }
+
+                    AccordionElement {
+                        id: soleBikeAccordion
+                        title: qsTr("Sole Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                text: qsTr("Miles unit from the device")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.sole_treadmill_miles
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.sole_treadmill_miles = checked
+                            }
+                        }
+                    }
+
+                    AccordionElement {
+                        id: technogymBikeAccordion
+                        title: qsTr("Technogym Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: technogymGroupCycleDelegate
+                                text: qsTr("Group Cycle")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.technogym_group_cycle
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { 
+                                    settings.technogym_group_cycle = checked; 
+                                    if (checked) {
+                                        settings.android_antbike = true;
+                                    }
+                                    window.settings_restart_to_apply = true; 
+                                }
+                            }
+                            
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("ANT+ Bike Device Number (0=Auto):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: antBikeDeviceNumberTextField
+                                    text: settings.ant_bike_device_number
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.ant_bike_device_number = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okAntBikeDeviceNumberButton
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.ant_bike_device_number = antBikeDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                }
+                            }
+                        }
+                    }
                 }                
             }
 
@@ -3953,6 +4600,30 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.ant_heart = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("ANT+ Heart Device Number (0=Auto):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: antHeartDeviceNumberTextField
+                            text: settings.ant_heart_device_number
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.ant_heart_device_number = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okAntHeartDeviceNumberButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ant_heart_device_number = antHeartDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                        }
                     }
 
                     Label {
@@ -4241,6 +4912,44 @@ import Qt.labs.platform 1.1
                         text: "Open Floating on a Browser"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: openFloatingWindowBrowser();
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelChartDisplayMode
+                            text: qsTr("Chart Display Mode:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: chartDisplayModeComboBox
+                            model: ["Both Charts", "Heart Rate Only", "Power Only"]
+                            currentIndex: settings.chart_display_mode
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("chart_display_mode activated" + chartDisplayModeComboBox.currentIndex)
+                            }
+                        }
+                        Button {
+                            id: okChartDisplayModeButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.chart_display_mode = chartDisplayModeComboBox.currentIndex; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     AccordionElement {
@@ -4609,6 +5318,44 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Difficulty level for peloton treadmill classes. 1 is easy 10 is hard.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Treadmill Walk Level:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonTreadmillWalkLevelTextField
+                            model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
+                            displayText: settings.peloton_treadmill_walk_level
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonTreadmillWalkLevelTextField.currentIndex)
+                                displayText = pelotonTreadmillWalkLevelTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_treadmill_walk_level = parseInt(pelotonTreadmillWalkLevelTextField.displayText); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Difficulty level for peloton treadmill walking classes. 1 is easy 10 is hard.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5134,7 +5881,7 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-
+                    /*
                     IndicatorOnlySwitch {
                         id: pelotonBikeOCRDelegate
                         text: qsTr("Peloton Bike/Bike+ (Experimental)")
@@ -5161,7 +5908,7 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
+                    }*/
                 }
             }
 
@@ -6012,6 +6759,43 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Select the default Pace to be used when the ZWO file does not indicate a precise pace.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPidHeartZoneErgModeWattStep
+                            text: qsTr("ERG Mode Watt Step:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pidHeartZoneErgModeWattStepTextField
+                            text: settings.pid_heart_zone_erg_mode_watt_step.toString()
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okPidHeartZoneErgModeWattStep
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.pid_heart_zone_erg_mode_watt_step = parseInt(pidHeartZoneErgModeWattStepTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Set the wattage step increment for ERG mode heart rate zone training. Default: 5 watts.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -8104,6 +8888,19 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         onClicked: { settings.iconsole_rower = checked; window.settings_restart_to_apply = true; }
                     }
+                    IndicatorOnlySwitch {
+                        text: qsTr("Toorx Treadmill Discovery Completed")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.toorxtreadmill_discovery_completed
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.toorxtreadmill_discovery_completed = checked; }
+                    }
                 }
             }
 
@@ -8209,6 +9006,27 @@ import Qt.labs.platform 1.1
                                 Layout.fillWidth: true
                                 onClicked: { settings.proform_rower_sport_rl = checked; window.settings_restart_to_apply = true; }
                             }
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("ProForm Rower IP:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: proformRowerIPTextField
+                                    text: settings.proform_rower_ip
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: settings.proform_rower_ip = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.proform_rower_ip = proformRowerIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                }
+                            }
                         }
                     }
                 }
@@ -8297,6 +9115,51 @@ import Qt.labs.platform 1.1
                                 }
                             }
                         }
+                    }
+
+                    Label {
+                        text: qsTr("FTMS Elliptical:")
+                        Layout.fillWidth: true
+                    }
+                    RowLayout {
+                        spacing: 10
+                        ComboBox {
+                            id: ftmsEllipticalTextField
+                            model: rootItem.bluetoothDevices
+                            displayText: settings.ftms_elliptical
+                            Layout.fillHeight: false
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + ftmsEllipticalTextField.currentIndex)
+                                displayText = ftmsEllipticalTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ftms_elliptical = ftmsEllipticalTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Button {
+                        text: "Refresh Devices List"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: refresh_bluetooth_devices_clicked();
+                    }
+
+                    Label {
+                        text: qsTr("Allows you to force QZ to connect to your FTMS Elliptical. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is Disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     AccordionElement {
@@ -10786,6 +11649,33 @@ import Qt.labs.platform 1.1
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
                             }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Zwift Play Vibration")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.zwift_play_vibration
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.zwift_play_vibration = checked; }
+                            }
+
+                            Label {
+                                text: qsTr("Enable vibration feedback on Zwift Play controllers when changing gears. Default: enabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }                            
 
                             IndicatorOnlySwitch {
                                 text: qsTr("Buttons debouncing")

@@ -56,26 +56,41 @@ void proformbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
 }
 
 resistance_t proformbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
     QSettings settings;
-
     double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
     double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
 
+    if (proform_225_csx_PFEX32925_INT_0) {
+        return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
+    }
+
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+    if (Cadence.value() == 0)
+        return 1;
+
+    resistance_t best_resistance_match = 1;
+    int min_watt_difference = 1000; 
+
     for (resistance_t i = 1; i < max_resistance; i++) {
-        if (((wattsFromResistance(i) * watt_gain) + watt_offset) <= power &&
-            ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest")
-                     << ((wattsFromResistance(i) * watt_gain) + watt_offset)
-                     << ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) << power;
+        uint16_t current_watts = (wattsFromResistance(i) * watt_gain) + watt_offset;
+        uint16_t next_watts = (wattsFromResistance(i + 1) * watt_gain) + watt_offset;
+
+        if (current_watts <= power && next_watts >= power) {
+            qDebug() << current_watts << next_watts << power;
             return i;
         }
+
+        int diff = abs(current_watts - power);
+        if (diff < min_watt_difference) {
+            min_watt_difference = diff;
+            best_resistance_match = i;
+            qDebug() << QStringLiteral("best match") << best_resistance_match << "with watts" << current_watts << "diff" << diff;
+        }
     }
-    if (power < ((wattsFromResistance(1) * watt_gain) + watt_offset))
-        return 1;
-    else
-        return max_resistance;
+
+    qDebug() << "Bracketing not found, best match:" << best_resistance_match;
+    return best_resistance_match;
 }
 
 uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
@@ -865,7 +880,7 @@ void proformbike::update() {
         uint8_t noOpData5_proform_bike_PFEVEX71316_0[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x08, 0x13, 0x02, 0x00,
                                                         0x0d, 0x81, 0x0e, 0x41, 0x00, 0x00, 0x40, 0x00, 0x00, 0x80};
 
-        uint8_t noOpData6_proform_bike_PFEVEX71316_0[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x80, 0x3a, 0x00, 0x00, 0x00,
+        uint8_t noOpData6_proform_bike_PFEVEX71316_0[] = {0xff, 0x05, 0x00, 0x80, 0x01, 0x00, 0xaa, 0x00, 0x00, 0x00,
                                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         uint8_t noOpData2_proform_bike_325_csx[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x07, 0x13, 0x02, 0x00, 0x0d, 0x3c, 0x9e, 0x31, 0x00, 0x00, 0x40, 0x40, 0x00, 0x80};
@@ -1185,7 +1200,9 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             (newValue.at(0) != 0x00 && newValue.at(0) != 0x01) || newValue.at(1) != 0x12 ||
             (newValue.at(0) == 0x00 &&
              (newValue.at(2) != 0x01 || newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || (proform_bike_PFEVEX71316_0 ? newValue.at(5) != 0x30 : newValue.at(5) != 0x2c))) ||
-            (proform_bike_PFEVEX71316_0 && (uint8_t)newValue.at(2) == 0xFF && (uint8_t)newValue.at(3) == 0xFF)) {
+            (proform_bike_PFEVEX71316_0 && (uint8_t)newValue.at(2) == 0xFF && (uint8_t)newValue.at(3) == 0xFF) ||
+            (proform_bike_PFEVEX71316_0 && (uint8_t)newValue.at(14) == 0xFF && (uint8_t)newValue.at(15) == 0xFF && 
+             (uint8_t)newValue.at(16) == 0xFF && (uint8_t)newValue.at(17) == 0xFF)) {
             return;
         }
 

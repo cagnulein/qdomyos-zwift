@@ -10,11 +10,16 @@ class lockscreen {
     long heartRate();
     long stepCadence();
     void setKcal(double kcal);
+    void setTotalKcal(double totalKcal);
     void setDistance(double distance);
     void setSteps(double steps);
     void setSpeed(double speed);
     void setPower(double power);
     void setCadence(double cadence);
+    void startWorkout(unsigned short deviceType);
+    void stopWorkout();
+    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance, double totalKcal);
+    bool appleWatchAppInstalled();
 
     // virtualbike
     void virtualbike_ios();
@@ -26,9 +31,7 @@ class lockscreen {
     double virtualbike_getCurrentCRR();
     double virtualbike_getCurrentCW();
     double virtualbike_getPowerRequested();
-    bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
-                                unsigned short currentCadence, unsigned short currentWatt,
-                                unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears);
+    bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears, unsigned short currentCalories, unsigned int Distance);
     int virtualbike_getLastFTMSMessage(unsigned char *message);
 
     // virtualrower
@@ -50,8 +53,8 @@ class lockscreen {
     double virtualtreadmill_getRequestedSpeed();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
-                                     unsigned short currentInclination, unsigned long long currentDistance,
-                                     unsigned short elapsedSeconds);
+                                     unsigned short currentInclination, unsigned long long currentDistance, unsigned short currentCalories, 
+                                     qint32 currentSteps, unsigned short elapsedSeconds);
 
     // volume
     double getVolume();

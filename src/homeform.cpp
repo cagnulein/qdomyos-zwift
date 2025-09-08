@@ -8,10 +8,12 @@
 #include <jni.h>
 #include <QAndroidJniObject>
 #endif
+#include "fitdatabaseprocessor.h"
 #include "material.h"
 #include "qfit.h"
 #include "simplecrypt.h"
 #include "templateinfosenderbuilder.h"
+#include "workoutmodel.h"
 #include "zwiftworkout.h"
 
 #include <QAbstractOAuth2>
@@ -216,7 +218,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     target_power = new DataObject(QStringLiteral("T.Power(W)"), QStringLiteral("icons/icons/watt.png"),
                                   QStringLiteral("0"), true, QStringLiteral("target_power"), 48, labelFontSize);
     target_zone = new DataObject(QStringLiteral("T.Zone"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("1"),
-                                 false, QStringLiteral("target_zone"), 48, labelFontSize);
+                                 true, QStringLiteral("target_zone"), 48, labelFontSize);
     target_speed = new DataObject(QStringLiteral("T.Speed (") + unit + QStringLiteral("/h)"),
                                   QStringLiteral("icons/icons/speed.png"), QStringLiteral("0.0"), true,
                                   QStringLiteral("target_speed"), 48, labelFontSize);
@@ -287,6 +289,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                   QStringLiteral("0"), true, QStringLiteral("biggearsplus"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Gear +", QStringLiteral("red"));
     biggearsMinus = new DataObject(QStringLiteral("GearsMinus"), QStringLiteral("icons/icons/elevationgain.png"),
                                   QStringLiteral("0"), true, QStringLiteral("biggearsminus"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Gear -", QStringLiteral("green"));
+    autoVirtualShiftingCruise = new DataObject(QStringLiteral("Cruise"), QStringLiteral("icons/icons/speed.png"),
+                                              QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingCruise"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Cruise", QStringLiteral("red"));
+    autoVirtualShiftingClimb = new DataObject(QStringLiteral("Climb"), QStringLiteral("icons/icons/inclination.png"),
+                                             QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingClimb"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Climb", QStringLiteral("red"));
+    autoVirtualShiftingSprint = new DataObject(QStringLiteral("Sprint"), QStringLiteral("icons/icons/watt.png"),
+                                              QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingSprint"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Sprint", QStringLiteral("red"));
     pidHR = new DataObject(QStringLiteral("PID Heart"), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), true, QStringLiteral("pid_hr"), 48, labelFontSize);
     extIncline = new DataObject(QStringLiteral("Ext.Inclin.(%)"), QStringLiteral("icons/icons/inclination.png"),
@@ -565,6 +573,13 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(backupTimer, &QTimer::timeout, this, &homeform::backup);
     backupTimer->start(1min);
 
+    automaticShiftingTimer = new QTimer(this);
+    connect(automaticShiftingTimer, &QTimer::timeout, this, &homeform::ten_hz);
+    
+    if (settings.value(QZSettings::automatic_virtual_shifting_enabled, QZSettings::default_automatic_virtual_shifting_enabled).toBool()) {
+        automaticShiftingTimer->start(100); // 100ms = 10Hz
+    }
+
     QObject *rootObject = engine->rootObjects().constFirst();
     QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
     QObject *stack = rootObject;
@@ -577,6 +592,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(profile_open_clicked(QUrl)), this, SLOT(profile_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_preview(QUrl)), this, SLOT(trainprogram_preview(QUrl)));
     QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
+    QObject::connect(stack, SIGNAL(fitfile_preview_clicked(QUrl)), this, SLOT(fitfile_preview_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_zwo_loaded(QString)), this, SLOT(trainprogram_zwo_loaded(QString)));
     QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)), this, SLOT(gpx_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
@@ -645,7 +661,20 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         if (!QFile(getWritableAppDir() + "gpx/" + itGpx.fileName()).exists()) {
             QFile::copy(":/gpx/" + itGpx.fileName(), getWritableAppDir() + "gpx/" + itGpx.fileName());
         }
-    }    
+    }
+
+    QDirIterator itFit(getWritableAppDir(), QStringList() << "*.fit", QDir::Files);
+    qDebug() << itFit.path();
+    QDir().mkdir(getWritableAppDir() + "fit");
+    while (itFit.hasNext()) {
+        qDebug() << itFit.filePath() << itFit.fileName() << itFit.filePath().replace(itFit.path(), "");
+        if (!QFile(getWritableAppDir() + "fit/" + itFit.next().replace(itFit.path(), "")).exists() && !itFit.fileName().contains("backup")) {
+            if(QFile::copy(itFit.filePath(), getWritableAppDir() + "fit/" + itFit.filePath().replace(itFit.path(), "")))
+                QFile::remove(itFit.filePath());
+        }
+    }
+
+
 #ifdef Q_OS_ANDROID
 
     QString bluetoothName = getBluetoothName();
@@ -671,6 +700,30 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     }
 #endif
+
+    fitProcessor = new FitDatabaseProcessor(getWritableAppDir() + "ddb.sqlite");
+    connect(fitProcessor, &FitDatabaseProcessor::fileProcessed,
+            this, [](const QString& filename) {
+                qDebug() << "FitDatabaseProcessor Processing:" << filename;
+            });
+    connect(fitProcessor, &FitDatabaseProcessor::progress,
+            this, [](int processed, int total) {
+                qDebug() << "FitDatabaseProcessor Progress:" << processed << "/" << total;
+            });
+    connect(fitProcessor, &FitDatabaseProcessor::error,
+            this, [](const QString& error) {
+                qDebug() << "FitDatabaseProcessor Error:" << error;
+            });
+    workoutModel = new WorkoutModel(getWritableAppDir() + "ddb.sqlite");
+    engine->rootContext()->setContextProperty("workoutModel", workoutModel);
+    
+    connect(fitProcessor, &FitDatabaseProcessor::processingStopped,
+            this, [this]() {
+                qDebug() << "FitDatabaseProcessor Processing stopped - refreshing workout model";
+                workoutModel->setDatabaseProcessing(false);
+                workoutModel->refresh();
+            });
+    fitProcessor->processDirectory(getWritableAppDir() + "fit");
 
     m_speech.setLocale(QLocale::English);
 
@@ -765,6 +818,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                              }
                          });
     });
+#else
+#ifndef IO_UNDER_QT
+    h = new lockscreen();
+    h->appleWatchAppInstalled();
+#endif
 #endif
 
     if (QSslSocket::supportsSsl()) {
@@ -1060,10 +1118,18 @@ void homeform::pelotonWorkoutStarted(const QString &name, const QString &instruc
             setToastRequested(QStringLiteral("Peloton workout auto started skipping the intro! ") + name + QStringLiteral(" - ") + instructor);
             timer = (pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + 6;  // 6 average time to push skip intro and wait the 3 seconds of the intro
         }
-        if(timer <= 0)
+        if(timer <= 0) {
+            if(paused) {
+                qDebug() << "starting due to peloton auto start";
+                Start_inner(true);
+            }
             peloton_start_workout();
-        else {
+        } else {
             QTimer::singleShot(timer * 1000, this, [this]() {
+                if(paused) {
+                    qDebug() << "starting due to peloton auto start";
+                    Start_inner(true);
+                }
                 peloton_start_workout();
             });
         }
@@ -1085,6 +1151,12 @@ QString homeform::getWritableAppDir() {
     if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
         QDir().mkdir(path);
+        // Create .nomedia file to prevent gallery indexing
+        QFile nomediaFile(path + ".nomedia");
+        if (!nomediaFile.exists()) {
+            nomediaFile.open(QIODevice::WriteOnly);
+            nomediaFile.close();
+        }
     } else {
         path = getAndroidDataAppDir() + "/";
     }
@@ -1111,12 +1183,102 @@ void homeform::backup() {
         QFile::remove(filename);
         qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
-                   stravaPelotonWorkoutType, dev->bluetoothDevice.name());
+                   stravaPelotonWorkoutType, workoutName(), dev->bluetoothDevice.name(),
+                   "", "", "", "");
 
         index++;
         if (index > 1) {
             index = 0;
         }
+    }
+}
+
+void homeform::ten_hz() {
+    // Automatic Virtual Shifting logic - only for bikes and when device is connected
+    if (!bluetoothManager->device() || bluetoothManager->device()->deviceType() != bluetoothdevice::BIKE) {
+        return;
+    }
+    
+    QSettings settings;
+    if (!settings.value(QZSettings::automatic_virtual_shifting_enabled, QZSettings::default_automatic_virtual_shifting_enabled).toBool()) {
+        return;
+    }
+    
+    uint8_t cadence = bluetoothManager->device()->currentCadence().value();
+    if (cadence == 0) {
+        return; // No cadence data available
+    }
+    
+    // Get selected profile (0=cruise, 1=climb, 2=sprint)
+    int profile = settings.value(QZSettings::automatic_virtual_shifting_profile, QZSettings::default_automatic_virtual_shifting_profile).toInt();
+    
+    int gearUpCadenceThreshold, gearDownCadenceThreshold;
+    float gearUpTimeThreshold, gearDownTimeThreshold;
+    
+    // Load settings based on selected profile
+    switch (profile) {
+        case 1: // Climb profile
+            gearUpCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_climb_gear_up_cadence, QZSettings::default_automatic_virtual_shifting_climb_gear_up_cadence).toInt();
+            gearUpTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_climb_gear_up_time, QZSettings::default_automatic_virtual_shifting_climb_gear_up_time).toFloat();
+            gearDownCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_climb_gear_down_cadence, QZSettings::default_automatic_virtual_shifting_climb_gear_down_cadence).toInt();
+            gearDownTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_climb_gear_down_time, QZSettings::default_automatic_virtual_shifting_climb_gear_down_time).toFloat();
+            break;
+        case 2: // Sprint profile
+            gearUpCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_sprint_gear_up_cadence, QZSettings::default_automatic_virtual_shifting_sprint_gear_up_cadence).toInt();
+            gearUpTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_sprint_gear_up_time, QZSettings::default_automatic_virtual_shifting_sprint_gear_up_time).toFloat();
+            gearDownCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_sprint_gear_down_cadence, QZSettings::default_automatic_virtual_shifting_sprint_gear_down_cadence).toInt();
+            gearDownTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_sprint_gear_down_time, QZSettings::default_automatic_virtual_shifting_sprint_gear_down_time).toFloat();
+            break;
+        default: // Cruise profile (0)
+            gearUpCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_up_cadence, QZSettings::default_automatic_virtual_shifting_gear_up_cadence).toInt();
+            gearUpTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_up_time, QZSettings::default_automatic_virtual_shifting_gear_up_time).toFloat();
+            gearDownCadenceThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_down_cadence, QZSettings::default_automatic_virtual_shifting_gear_down_cadence).toInt();
+            gearDownTimeThreshold = settings.value(QZSettings::automatic_virtual_shifting_gear_down_time, QZSettings::default_automatic_virtual_shifting_gear_down_time).toFloat();
+            break;
+    }
+    
+    QDateTime now = QDateTime::currentDateTime();
+    
+    // Check for gear up condition
+    if (cadence >= gearUpCadenceThreshold) {
+        // Start or continue timing for gear up
+        if (automaticShiftingGearUpStartTime.isNull() || automaticShiftingGearUpStartTime.msecsTo(now) < 0) {
+            automaticShiftingGearUpStartTime = now;
+        }
+        // Reset gear down timer since we're above gear up threshold
+        automaticShiftingGearDownStartTime = now;
+        
+        // Check if enough time has passed for gear up
+        if (automaticShiftingGearUpStartTime.msecsTo(now) >= (gearUpTimeThreshold * 1000)) {
+            qDebug() << "Automatic gear up triggered: cadence" << cadence << "threshold" << gearUpCadenceThreshold << "time" << automaticShiftingGearUpStartTime.msecsTo(now) / 1000.0;
+            ((bike *)bluetoothManager->device())->gearUp();
+            // Reset both timers after shifting
+            automaticShiftingGearUpStartTime = now;
+            automaticShiftingGearDownStartTime = now;
+        }
+    }
+    // Check for gear down condition
+    else if (cadence <= gearDownCadenceThreshold) {
+        // Start or continue timing for gear down
+        if (automaticShiftingGearDownStartTime.isNull() || automaticShiftingGearDownStartTime.msecsTo(now) < 0) {
+            automaticShiftingGearDownStartTime = now;
+        }
+        // Reset gear up timer since we're below gear down threshold
+        automaticShiftingGearUpStartTime = now;
+        
+        // Check if enough time has passed for gear down
+        if (automaticShiftingGearDownStartTime.msecsTo(now) >= (gearDownTimeThreshold * 1000)) {
+            qDebug() << "Automatic gear down triggered: cadence" << cadence << "threshold" << gearDownCadenceThreshold << "time" << automaticShiftingGearDownStartTime.msecsTo(now) / 1000.0;
+            ((bike *)bluetoothManager->device())->gearDown();
+            // Reset both timers after shifting
+            automaticShiftingGearUpStartTime = now;
+            automaticShiftingGearDownStartTime = now;
+        }
+    }
+    // Cadence is between thresholds - reset both timers
+    else {
+        automaticShiftingGearUpStartTime = now;
+        automaticShiftingGearDownStartTime = now;
     }
 }
 
@@ -1315,13 +1477,21 @@ QStringList homeform::tile_order() {
 
 // these events are coming from the SS2K, so when the auto resistance is off, this event shouldn't be processed
 void homeform::gearUp() {
-    if (autoResistance())
+    if (autoResistance()) {
         Plus(QStringLiteral("gears"));
+        // Reset automatic shifting timers when user manually changes gears
+        automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
+        automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
+    }
 }
 
 void homeform::gearDown() {
-    if (autoResistance())
+    if (autoResistance()) {
         Minus(QStringLiteral("gears"));
+        // Reset automatic shifting timers when user manually changes gears
+        automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
+        automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
+    }
 }
 
 void homeform::ftmsAccessoryConnected(smartspin2k *d) {
@@ -2438,6 +2608,25 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_biggears_order, 54).toInt() == i + (settings.value(QZSettings::tile_biggears_swap, QZSettings::default_tile_biggears_swap).toBool() ? 0 : 1)) {
                 biggearsMinus->setGridId(i);
                 dataList.append(biggearsMinus);
+            }
+
+            // Automatic Virtual Shifting tiles
+            if (settings.value(QZSettings::tile_auto_virtual_shifting_cruise_enabled, QZSettings::default_tile_auto_virtual_shifting_cruise_enabled).toBool() &&
+                settings.value(QZSettings::tile_auto_virtual_shifting_cruise_order, QZSettings::default_tile_auto_virtual_shifting_cruise_order).toInt() == i) {
+                autoVirtualShiftingCruise->setGridId(i);
+                dataList.append(autoVirtualShiftingCruise);
+            }
+
+            if (settings.value(QZSettings::tile_auto_virtual_shifting_climb_enabled, QZSettings::default_tile_auto_virtual_shifting_climb_enabled).toBool() &&
+                settings.value(QZSettings::tile_auto_virtual_shifting_climb_order, QZSettings::default_tile_auto_virtual_shifting_climb_order).toInt() == i) {
+                autoVirtualShiftingClimb->setGridId(i);
+                dataList.append(autoVirtualShiftingClimb);
+            }
+
+            if (settings.value(QZSettings::tile_auto_virtual_shifting_sprint_enabled, QZSettings::default_tile_auto_virtual_shifting_sprint_enabled).toBool() &&
+                settings.value(QZSettings::tile_auto_virtual_shifting_sprint_order, QZSettings::default_tile_auto_virtual_shifting_sprint_order).toInt() == i) {
+                autoVirtualShiftingSprint->setGridId(i);
+                dataList.append(autoVirtualShiftingSprint);
             }
 
             if (settings.value(QZSettings::tile_preset_powerzone_1_enabled, QZSettings::default_tile_preset_powerzone_1_enabled).toBool() &&
@@ -4049,6 +4238,15 @@ void homeform::LargeButton(const QString &name) {
         gearUp();
     } else if(name.contains(QStringLiteral("biggearsminus"))) {
         gearDown();
+    } else if(name.contains(QStringLiteral("autoVirtualShiftingCruise"))) {
+        // Switch to Cruise profile (0)
+        settings.setValue(QZSettings::automatic_virtual_shifting_profile, 0);
+    } else if(name.contains(QStringLiteral("autoVirtualShiftingClimb"))) {
+        // Switch to Climb profile (1)
+        settings.setValue(QZSettings::automatic_virtual_shifting_profile, 1);
+    } else if(name.contains(QStringLiteral("autoVirtualShiftingSprint"))) {
+        // Switch to Sprint profile (2)
+        settings.setValue(QZSettings::automatic_virtual_shifting_profile, 2);
     }
 }
 
@@ -4290,6 +4488,17 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains(QStringLiteral("peloton_offset")) || name.contains(QStringLiteral("peloton_remaining"))) {
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->increaseElapsedTime(1);
+        }
+    } else if (name.contains(QStringLiteral("target_zone"))) {
+        QSettings settings;
+        double currentFtp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+        if (currentFtp > 0 && bluetoothManager->device() && 
+            bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            double currentTargetPower = ((bike *)bluetoothManager->device())->lastRequestedPower().value();
+            double powerIncrement = currentFtp * 0.01; // 1% of FTP
+            double newTargetPower = currentTargetPower + powerIncrement;
+            ((bike *)bluetoothManager->device())->changePower(newTargetPower);
+            qDebug() << "Target power increased by" << powerIncrement << "W (1% of FTP) from" << currentTargetPower << "to" << newTargetPower;
         }
     } else {
         qDebug() << name << QStringLiteral("not handled");
@@ -4555,6 +4764,18 @@ void homeform::Minus(const QString &name) {
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->decreaseElapsedTime(1);
         }
+    } else if (name.contains(QStringLiteral("target_zone"))) {
+        QSettings settings;
+        double currentFtp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+        if (currentFtp > 0 && bluetoothManager->device() && 
+            bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            double currentTargetPower = ((bike *)bluetoothManager->device())->lastRequestedPower().value();
+            double powerDecrement = currentFtp * 0.01; // 1% of FTP
+            double newTargetPower = currentTargetPower - powerDecrement;
+            if (newTargetPower < 0) newTargetPower = 0; // Prevent negative power
+            ((bike *)bluetoothManager->device())->changePower(newTargetPower);
+            qDebug() << "Target power decreased by" << powerDecrement << "W (1% of FTP) from" << currentTargetPower << "to" << newTargetPower;
+        }
     } else {
         qDebug() << name << QStringLiteral("not handled");
         qDebug() << "Minus" << name;
@@ -4586,7 +4807,12 @@ void homeform::Start_inner(bool send_event_to_device) {
             videoPlaybackHalfPlayer->pause();
         }
     } else {
-
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        if(h && !h->appleWatchAppInstalled() && bluetoothManager->device())
+            h->startWorkout(bluetoothManager->device()->deviceType());
+#endif
+#endif
         if (bluetoothManager->device() && send_event_to_device) {
             bluetoothManager->device()->start();
         }
@@ -4680,6 +4906,13 @@ void homeform::Stop() {
 
     m_startRequested = false;
 
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    if(h && !h->appleWatchAppInstalled())
+        h->stopWorkout();
+#endif
+#endif
+
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
     if (stopped) {
@@ -4716,6 +4949,10 @@ void homeform::Stop() {
 
     emit workoutEventStateChanged(bluetoothdevice::STOPPED);
 
+    // Save session as training program only if it's not a Peloton workout
+    if (!(pelotonHandler && !pelotonHandler->current_ride_id.isEmpty())) {
+        saveSessionAsTrainingProgram();
+    }
     fit_save_clicked();
 
     if (bluetoothManager->device()) {
@@ -4846,7 +5083,19 @@ void homeform::update() {
     double currentHRZone = 1;
     double ftpZone = 1;
 
-    qDebug() << "homeform::update fired!";
+    // Timer jitter detection (same logic as trainprogram::scheduler)
+    QDateTime now = QDateTime::currentDateTime();
+    qint64 msecsElapsed = lastUpdateCall.msecsTo(now);
+    
+    // Reset jitter if it's getting too large
+    if (qAbs(currentUpdateJitter) > 5000) {
+        currentUpdateJitter = 0;
+    }
+    
+    currentUpdateJitter += msecsElapsed - 1000;
+    lastUpdateCall = now;
+
+    qDebug() << "homeform::update fired!" << "elapsed:" << msecsElapsed << "jitter:" << currentUpdateJitter;
 
     if (settings.status() != QSettings::NoError) {
         qDebug() << "!!!!QSETTINGS ERROR!" << settings.status();
@@ -4996,8 +5245,9 @@ void homeform::update() {
             QString::number((bluetoothManager->device())->currentSpeed().max() * unit_conversion, 'f', 1));
         heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value(), 'f', 0));
 
+        bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
         calories->setValue(QString::number(bluetoothManager->device()->calories().value(), 'f', 0));
-        calories->setSecondLine(QString::number(bluetoothManager->device()->calories().rate1s() * 60.0, 'f', 1) +
+        calories->setSecondLine(QString::number((activeOnly ? bluetoothManager->device()->activeCalories().rate1s() : bluetoothManager->device()->calories().rate1s()) * 60.0, 'f', 1) +
                                 " /min");
         if (!settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool())
             fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
@@ -5175,6 +5425,7 @@ void homeform::update() {
             QStringLiteral(" MAX: ") +
             QString::number(((bike *)bluetoothManager->device())->currentCadence().max(), 'f', 0));
 
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
@@ -5329,6 +5580,9 @@ void homeform::update() {
                 }
             }
 
+            // Use different zone names for walking vs running workouts
+            bool isWalkingWorkout = pelotonHandler && pelotonHandler->current_workout_type.toLower().startsWith("walking");
+            
             switch (trainProgram->currentRow().pace_intensity) {
             case 0:
                 this->target_zone->setValue(tr("Rec."));
@@ -5337,13 +5591,25 @@ void homeform::update() {
                 this->target_zone->setValue(tr("Easy"));
                 break;
             case 2:
-                this->target_zone->setValue(tr("Moder."));
+                if (isWalkingWorkout) {
+                    this->target_zone->setValue(tr("Brisk"));
+                } else {
+                    this->target_zone->setValue(tr("Moder."));
+                }
                 break;
             case 3:
-                this->target_zone->setValue(tr("Chall."));
+                if (isWalkingWorkout) {
+                    this->target_zone->setValue(tr("Power"));
+                } else {
+                    this->target_zone->setValue(tr("Chall."));
+                }
                 break;
             case 4:
-                this->target_zone->setValue(tr("Hard"));
+                if (isWalkingWorkout) {
+                    this->target_zone->setValue(tr("Max"));
+                } else {
+                    this->target_zone->setValue(tr("Hard"));
+                }
                 break;
             case 5:
                 this->target_zone->setValue(tr("V.Hard"));
@@ -5518,6 +5784,12 @@ void homeform::update() {
             double elite_rizer_gain =
                 settings.value(QZSettings::elite_rizer_gain, QZSettings::default_elite_rizer_gain).toDouble();
             ergMode->setLargeButtonColor(settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool() ? "#008000" :"#8B0000");
+            
+            // Update automatic virtual shifting tile colors based on active profile
+            int currentProfile = settings.value(QZSettings::automatic_virtual_shifting_profile, QZSettings::default_automatic_virtual_shifting_profile).toInt();
+            autoVirtualShiftingCruise->setLargeButtonColor(currentProfile == 0 ? QStringLiteral("green") : QStringLiteral("red"));
+            autoVirtualShiftingClimb->setLargeButtonColor(currentProfile == 1 ? QStringLiteral("green") : QStringLiteral("red"));
+            autoVirtualShiftingSprint->setLargeButtonColor(currentProfile == 2 ? QStringLiteral("green") : QStringLiteral("red"));
             extIncline->setSecondLine(QStringLiteral("Gain: ") + QString::number(elite_rizer_gain, 'f', 1));
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             resistance = ((bike *)bluetoothManager->device())->currentResistance().value();
@@ -5566,7 +5838,7 @@ void homeform::update() {
                 QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
 
             if ((!trainProgram || (trainProgram && !trainProgram->isStarted())) &&
-                !((bike *)bluetoothManager->device())->ergModeSupportedAvailableByHardware() &&
+                !((bike *)bluetoothManager->device())->ergModeSupportedAvailableBySoftware() &&
                 ((bike *)bluetoothManager->device())->lastRequestedPower().value() > 0 && m_overridePower) {
                 qDebug() << QStringLiteral("using target power tile for ERG workout manually");
                 ((bike *)bluetoothManager->device())
@@ -6501,9 +6773,9 @@ void homeform::update() {
                         }
                     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                         double step = 1;
-                        bool ergMode = ((bike*)bluetoothManager->device())->ergModeSupportedAvailableByHardware();
+                        bool ergMode = ((bike*)bluetoothManager->device())->ergModeSupportedAvailableBySoftware();
                         if(ergMode) {
-                            step = 5;
+                            step = settings.value(QZSettings::pid_heart_zone_erg_mode_watt_step, QZSettings::default_pid_heart_zone_erg_mode_watt_step).toInt();
                         }
                         resistance_t currentResistance =
                             ((bike *)bluetoothManager->device())->currentResistance().value();
@@ -6954,17 +7226,70 @@ void homeform::update() {
             
             qDebug() << "Current Distance 1s:" << bluetoothManager->device()->currentDistance1s().value() << bluetoothManager->device()->currentSpeed().value() << watts;
 
+            // Calculate current elapsed time in seconds
+            uint32_t currentElapsedSeconds = bluetoothManager->device()->elapsedTime().second() +
+                (bluetoothManager->device()->elapsedTime().minute() * 60) +
+                (bluetoothManager->device()->elapsedTime().hour() * 3600);
+
+            if (Session.empty()) {
+                currentUpdateJitter = 0;
+            }
+
+            // Check for timer jitter gaps and fill missing SessionLine records (same logic as trainprogram)
+            if (!Session.empty() && qAbs(currentUpdateJitter) > 1000) {
+                if (currentUpdateJitter > 1000) {
+                    // We are late... fill the missing seconds with SessionLine records
+                    int missedSeconds = currentUpdateJitter / 1000;
+                    qDebug() << "Timer jitter detected: filling" << missedSeconds << "missing SessionLine records";
+                    
+                    // Create SessionLine records for each missed second using current device values
+                    uint32_t lastRecordedTime = Session.last().elapsedTime;
+                    for (int i = 1; i <= missedSeconds; i++) {
+                        SessionLine gapFill(
+                            bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->currentDistance1s().value(),
+                            watts, resistance, peloton_resistance, (uint8_t)bluetoothManager->device()->currentHeart().value(),
+                            pace, cadence, bluetoothManager->device()->calories().value(),
+                            bluetoothManager->device()->elevationGain().value(),
+                            lastRecordedTime + i,  // Fill each missing second
+                            lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
+                            bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount, 
+                            target_cadence->value().toDouble(), target_power->value().toDouble(), target_resistance->value().toDouble(),
+                            target_incline->value().toDouble(), target_speed->value().toDouble(),
+                            bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value());
+                        
+                        Session.append(gapFill);
+                        qDebug() << "Added gap-filling SessionLine for elapsed time:" << (lastRecordedTime + i);
+                    }
+                    
+                    // Adjust jitter counter (same as trainprogram)
+                    currentUpdateJitter -= (missedSeconds * 1000);
+                } else if (currentUpdateJitter < -1000) {
+                    // We are early (negative jitter)... remove excess SessionLine records
+                    int excessSeconds = (-currentUpdateJitter) / 1000;
+                    qDebug() << "Negative timer jitter detected: removing" << excessSeconds << "excess SessionLine records";
+                    
+                    // Remove excess SessionLine records from the end
+                    for (int i = 0; i < excessSeconds && !Session.empty(); i++) {
+                        Session.removeLast();
+                        qDebug() << "Removed excess SessionLine record";
+                    }
+                    
+                    // Adjust jitter counter (same as trainprogram)
+                    currentUpdateJitter += (excessSeconds * 1000);
+                }
+            }
+
             SessionLine s(
                 bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->currentDistance1s().value(),
                 watts, resistance, peloton_resistance, (uint8_t)bluetoothManager->device()->currentHeart().value(),
                 pace, cadence, bluetoothManager->device()->calories().value(),
                 bluetoothManager->device()->elevationGain().value(),
-                bluetoothManager->device()->elapsedTime().second() +
-                    (bluetoothManager->device()->elapsedTime().minute() * 60) +
-                    (bluetoothManager->device()->elapsedTime().hour() * 3600),
+                currentElapsedSeconds,
 
                 lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
-                bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount,
+                bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount, 
+                target_cadence->value().toDouble(), target_power->value().toDouble(), target_resistance->value().toDouble(),
+                target_incline->value().toDouble(), target_speed->value().toDouble(),
                 bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value());
 
             Session.append(s);
@@ -6975,9 +7300,13 @@ void homeform::update() {
 
 #ifndef Q_OS_IOS
             if (iphone_socket && iphone_socket->state() == QAbstractSocket::ConnectedState) {
+                QSettings mdns_settings;
+                bool activeOnly = mdns_settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
+                
                 QString toSend =
                     "SENDER=PAD#HR=" + QString::number(bluetoothManager->device()->currentHeart().value()) +
                     "#KCAL=" + QString::number(bluetoothManager->device()->calories().value()) +
+                    (activeOnly ? "#TOTALKCAL=" + QString::number(bluetoothManager->device()->totalCalories().value()) : "") +
                     "#BCAD=" + QString::number(bluetoothManager->device()->currentCadence().value()) +
                     "#SPD=" + QString::number(bluetoothManager->device()->currentSpeed().value()) +
                     "#PWR=" + QString::number(bluetoothManager->device()->wattsMetric().value()) +
@@ -7156,6 +7485,7 @@ void homeform::trainprogram_preview(const QUrl &fileName) {
     }
 }
 
+
 void homeform::trainprogram_zwo_loaded(const QString &s) {
     qDebug() << QStringLiteral("trainprogram_zwo_loaded") << s;
     trainProgram = new trainprogram(zwiftworkout::loadJSON(s), bluetoothManager);
@@ -7192,12 +7522,84 @@ void homeform::gpx_save_clicked() {
     }
 }
 
+void homeform::saveSessionAsTrainingProgram() {
+    if (Session.isEmpty()) {
+        return;
+    }
+
+    QString path = getWritableAppDir();
+    bluetoothdevice *dev = bluetoothManager->device();
+    if (!dev) {
+        return;
+    }
+
+    // Determine subdirectory based on device type
+    QString subdir;
+    if (dev->deviceType() == bluetoothdevice::BIKE) {
+        subdir = "ride/";
+    } else if (dev->deviceType() == bluetoothdevice::TREADMILL) {
+        subdir = "run/";
+    } else if (dev->deviceType() == bluetoothdevice::ROWING) {
+        subdir = "row/";
+    } else {
+        subdir = "workout/";
+    }
+
+    // Create the subdirectory if it doesn't exist
+    QDir dir(path + subdir);
+    if (!dir.exists()) {
+        dir.mkpath(".");
+    }
+
+    QString filename = path + subdir + 
+                      QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
+                      QStringLiteral("_session.xml");
+
+    // Convert Session data to trainrow format
+    QList<trainrow> rows;
+    for (int i = 0; i < Session.size(); i++) {
+        const SessionLine &sessionLine = Session[i];
+        trainrow row;
+        
+        // Set duration to 1 second since we collect data every second
+        row.duration = QTime(0, 0, 1);
+        
+        // Set target values based on device type
+        if (dev->deviceType() == bluetoothdevice::BIKE) {
+            if (sessionLine.target_watt > 0) {
+                row.power = static_cast<int32_t>(sessionLine.target_watt);
+            }
+            if (sessionLine.target_cadence > 0) {
+                row.cadence = static_cast<int16_t>(sessionLine.target_cadence);
+            }
+            if (sessionLine.target_resistance >= 0) {
+                row.resistance = sessionLine.target_resistance;
+            }
+        } else if (dev->deviceType() == bluetoothdevice::TREADMILL) {
+            if (sessionLine.target_speed > 0) {
+                row.speed = sessionLine.target_speed;
+            }
+            if (sessionLine.target_inclination >= -50) {
+                row.inclination = sessionLine.target_inclination;
+            }
+        }
+        
+        rows.append(row);
+    }
+
+    // Save the XML file
+    if (trainprogram::saveXML(filename, rows)) {
+        lastTrainProgramFileSaved = filename;
+        qDebug() << "Session saved as training program:" << filename;
+    }
+}
+
 void homeform::fit_save_clicked() {
 
     QString path = getWritableAppDir();
     bluetoothdevice *dev = bluetoothManager->device();
     if (dev) {
-        QString filename = path +
+        QString filename = path + "fit/" +
                            QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
                            QStringLiteral(".fit");
 
@@ -7205,10 +7607,37 @@ void homeform::fit_save_clicked() {
         if (!stravaPelotonActivityName.isEmpty() && !stravaPelotonInstructorName.isEmpty())
             workoutName = stravaPelotonActivityName + " - " + stravaPelotonInstructorName;
 
+        // Determine workout source and metadata
+        QString workoutSource = "QZ";
+        QString pelotonWorkoutId = "";
+        QString pelotonUrl = "";
+        QString trainingProgramFile = "";
+        
+        if (pelotonHandler && !pelotonHandler->current_ride_id.isEmpty()) {
+            workoutSource = "PELOTON";
+            pelotonWorkoutId = pelotonHandler->current_ride_id;
+            pelotonUrl = pelotonHandler->getPelotonWorkoutUrl();
+            if (!lastTrainProgramFileSaved.isEmpty()) {
+                trainingProgramFile = lastTrainProgramFileSaved;
+            }
+        } else {
+            // For non-Peloton workouts, use the session XML file if available
+            if (!lastTrainProgramFileSaved.isEmpty()) {
+                trainingProgramFile = lastTrainProgramFileSaved;
+            }
+        }
+        
         qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
-                   stravaPelotonWorkoutType, workoutName, dev->bluetoothDevice.name());
+                   stravaPelotonWorkoutType, workoutName, dev->bluetoothDevice.name(),
+                   workoutSource, pelotonWorkoutId, pelotonUrl, trainingProgramFile);
         lastFitFileSaved = filename;
+
+        // Process the newly saved file immediately and refresh workout model
+        if (fitProcessor && workoutModel) {
+            fitProcessor->processFile(filename);
+            workoutModel->refresh();
+        }
 
         QSettings settings;
         if (!settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken)
@@ -7310,6 +7739,33 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
         }
 
         trainProgramSignals();
+    }
+}
+
+void homeform::fitfile_preview_clicked(const QUrl &fileName) {
+    qDebug() << QStringLiteral("fitfile_preview_clicked called with URL:") << fileName;
+    qDebug() << QStringLiteral("URL toString:") << fileName.toString();
+    qDebug() << QStringLiteral("URL toLocalFile:") << fileName.toLocalFile();
+
+    // Use the full file path directly instead of reconstructing it
+    QString filePath = fileName.toLocalFile();
+    QFile file(filePath);
+    qDebug() << "Opening FIT file:" << filePath;
+
+    if (file.exists()) {
+        QList<SessionLine> a;
+        FIT_SPORT sport;
+        QString workoutName;
+        qfit::open(filePath, &a, &sport, &workoutName);
+        qDebug() << "FIT file read:" << a.size() << "records, sport:" << sport << "workoutName:" << workoutName;
+        if (!a.isEmpty()) {
+            this->innerTemplateManager->previewSessionOnChart(&a, sport, workoutName);
+            emit previewFitFile(filePath, QTime(0,0,0,0).addSecs(a.last().elapsedTime).toString(), workoutName);
+        } else {
+            qDebug() << "No data read from FIT file";
+        }
+    } else {
+        qDebug() << "FIT file does not exist:" << filePath;
     }
 }
 
@@ -8319,10 +8775,19 @@ void homeform::loadSettings(const QUrl &filename) {
             }
         }
     }
+    
+    // Emit signal when settings are loaded as they might contain user profile changes
+    if (homeform::singleton()) {
+        emit homeform::singleton()->userProfileChanged();
+    }
 }
 
 void homeform::deleteSettings(const QUrl &filename) { QFile(filename.toLocalFile()).remove(); }
-void homeform::restoreSettings() { QZSettings::restoreAll(); }
+void homeform::restoreSettings() { 
+    QZSettings::restoreAll(); 
+    // Emit signal when settings are restored as this might affect user profiles
+    emit userProfileChanged();
+}
 
 QString homeform::getProfileDir() {
     QString path = getWritableAppDir() + "profiles";
