@@ -487,7 +487,7 @@ if(ANDROID)
     # Enable multi-ABI
     set_target_properties(${TARGET_NAME} PROPERTIES
         QT_ANDROID_BUILD_ALL_ABIS TRUE
-        QT_ANDROID_ABIS "armeabi-v7a;arm64-v8a;x86;x86_64"
+        QT_ANDROID_ABIS "arm64-v8a"
     )
 endif()
 
