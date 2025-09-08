@@ -606,29 +606,29 @@ jobs:
           cache: 'true'
           cache-key-prefix: 'install-qt-action-android-armv7'
 
-#      - name: Install Qt Android (x86)
-#        uses: jurplel/install-qt-action@v3
-#        with:
-#          version: '6.9.1'
-#          host: 'linux'
-#          target: 'android'
-#          arch: 'android_x86'
-#          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qt5compat qtspeech'
-#          dir: '${{ github.workspace }}/output/android/'
-#          cache: 'true'
-#          cache-key-prefix: 'install-qt-action-android-x86'
+      - name: Install Qt Android (x86)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.9.1'
+          host: 'linux'
+          target: 'android'
+          arch: 'android_x86'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qt5compat qtspeech'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android-x86'
 
-#      - name: Install Qt Android (x86_64)
-#        uses: jurplel/install-qt-action@v3
-#        with:
-#          version: '6.9.1'
-#          host: 'linux'
-#          target: 'android'
-#          arch: 'android_x86_64'
-#          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qt5compat qtspeech'
-#          dir: '${{ github.workspace }}/output/android/'
-#          cache: 'true'
-#          cache-key-prefix: 'install-qt-action-android-x86_64'                    
+      - name: Install Qt Android (x86_64)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.9.1'
+          host: 'linux'
+          target: 'android'
+          arch: 'android_x86_64'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qt5compat qtspeech'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android-x86_64'                    
 
       - name: Install Java
         uses: actions/setup-java@v3
