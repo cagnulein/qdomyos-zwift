@@ -700,9 +700,13 @@ void nordictrackifitadbbike::update() {
         double currentResistance = getGrpcResistance();
         
         // Update the metrics if they've changed
-        if (currentSpeed != Speed.value()) {
+        // Only update speed from gRPC if speed_power_based is disabled
+        bool speed_power_based = settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool();
+        if (!speed_power_based && currentSpeed != Speed.value()) {
             Speed = currentSpeed;
             emit debug(QString("gRPC Speed: %1").arg(currentSpeed));
+        } else if (speed_power_based) {
+            qDebug() << "speed_power_based enabled - ignoring gRPC speed, will calculate from power";
         }
         
         if (currentIncline != Inclination.value()) {
@@ -782,6 +786,15 @@ void nordictrackifitadbbike::update() {
         // Update lastGearValue for gear change detection (only if not using debounced mode)
         if (!nordictrackadbbike_gear_resistance_mode || !gearChangesPending) {
             lastGearValue = gears();
+        }
+        
+        // Handle speed calculation from power when speed_power_based is enabled
+        if (speed_power_based) {
+            QDateTime now = QDateTime::currentDateTime();
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            qDebug() << "speed_power_based with gRPC: calculated speed from power:" << Speed.value() << "km/h (watts:" << watts() << ")";
         }
     }
 #endif
@@ -1026,11 +1039,13 @@ void nordictrackifitadbbike::stopGrpcMetricsUpdates() {
 double nordictrackifitadbbike::getGrpcSpeed() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
-        return QAndroidJniObject::callStaticMethod<jdouble>(
+        double speed = QAndroidJniObject::callStaticMethod<jdouble>(
             "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
             "getCurrentSpeed",
             "()D"
         );
+        qDebug() << "getGrpcSpeed() returned:" << speed << "km/h";
+        return speed;
     }
 #endif
     return 0.0;
@@ -1039,11 +1054,13 @@ double nordictrackifitadbbike::getGrpcSpeed() {
 double nordictrackifitadbbike::getGrpcIncline() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
-        return QAndroidJniObject::callStaticMethod<jdouble>(
+        double incline = QAndroidJniObject::callStaticMethod<jdouble>(
             "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
             "getCurrentIncline",
             "()D"
         );
+        qDebug() << "getGrpcIncline() returned:" << incline << "%";
+        return incline;
     }
 #endif
     return 0.0;
@@ -1052,11 +1069,13 @@ double nordictrackifitadbbike::getGrpcIncline() {
 double nordictrackifitadbbike::getGrpcWatts() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
-        return QAndroidJniObject::callStaticMethod<jdouble>(
+        double watts = QAndroidJniObject::callStaticMethod<jdouble>(
             "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
             "getCurrentWatts",
             "()D"
         );
+        qDebug() << "getGrpcWatts() returned:" << watts << "W";
+        return watts;
     }
 #endif
     return 0.0;
@@ -1065,11 +1084,13 @@ double nordictrackifitadbbike::getGrpcWatts() {
 double nordictrackifitadbbike::getGrpcCadence() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
-        return QAndroidJniObject::callStaticMethod<jdouble>(
+        double cadence = QAndroidJniObject::callStaticMethod<jdouble>(
             "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
             "getCurrentRpm",
             "()D"
         );
+        qDebug() << "getGrpcCadence() returned:" << cadence << "rpm";
+        return cadence;
     }
 #endif
     return 0.0;
@@ -1078,11 +1099,13 @@ double nordictrackifitadbbike::getGrpcCadence() {
 double nordictrackifitadbbike::getGrpcResistance() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
-        return QAndroidJniObject::callStaticMethod<jdouble>(
+        double resistance = QAndroidJniObject::callStaticMethod<jdouble>(
             "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
             "getCurrentResistance",
             "()D"
         );
+        qDebug() << "getGrpcResistance() returned:" << resistance;
+        return resistance;
     }
 #endif
     return 0.0;
@@ -1196,11 +1219,13 @@ void nordictrackifitadbbike::setGrpcFanSpeed(int fanSpeed) {
 int nordictrackifitadbbike::getGrpcFanSpeed() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
-        return QAndroidJniObject::callStaticMethod<jint>(
+        int fanSpeed = QAndroidJniObject::callStaticMethod<jint>(
             "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
             "getCurrentFanSpeed",
             "()I"
         );
+        qDebug() << "getGrpcFanSpeed() returned:" << fanSpeed;
+        return fanSpeed;
     }
 #endif
     return 0;
