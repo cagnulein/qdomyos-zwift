@@ -208,6 +208,22 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
                       QStringLiteral(" RowState: ") + QString::number(pm5RowState));
         }
     }
+    else if (charUuid == QStringLiteral("{ce060035-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060035 - Stroke data including drive length (stroke length)
+        if (newValue.length() >= 7) {
+            // Extract drive length (stroke length) from byte 6 - 0.01 meters LSB, max 2.55m
+            uint8_t driveLengthRaw = (uint8_t)newValue.at(6);
+            if (driveLengthRaw > 0) {
+                // Convert from 0.01m units to meters
+                double strokeLengthMeters = driveLengthRaw * 0.01;
+                StrokesLength = strokeLengthMeters;
+            }
+            
+            emit debug(QStringLiteral("PM5 CE060035 RAW: ") + newValue.toHex(' ') +
+                      QStringLiteral(" Stroke Length: ") + QString::number(StrokesLength.value()) +
+                      QStringLiteral("m RowState: ") + QString::number(pm5RowState));
+        }
+    }
     
     // Update calories based on power if available
     if (m_watt.value() > 0) {
