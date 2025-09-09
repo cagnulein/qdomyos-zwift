@@ -1190,7 +1190,7 @@ void homeform::backup() {
                                  Q_ARG(QString, filename),
                                  Q_ARG(QList<SessionLine>, Session),
                                  Q_ARG(bluetoothdevice::BLUETOOTH_TYPE, dev->deviceType()),
-                                 Q_ARG(QFIT_PROCESS_TYPE, qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE),
+                                 Q_ARG(uint32_t, qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE),
                                  Q_ARG(FIT_SPORT, stravaPelotonWorkoutType),
                                  Q_ARG(QString, workoutName()),
                                  Q_ARG(QString, dev->bluetoothDevice.name()));
