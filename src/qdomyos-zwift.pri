@@ -110,6 +110,7 @@ SOURCES += \
     $$PWD/fitdatabaseprocessor.cpp \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
     $$PWD/logwriter.cpp \
+    $$PWD/fitbackupwriter.cpp \
     $$PWD/mqtt/qmqttauthenticationproperties.cpp \
     $$PWD/mqtt/qmqttclient.cpp \
     $$PWD/mqtt/qmqttconnection.cpp \
@@ -384,6 +385,7 @@ HEADERS += \
     $$PWD/fitdatabaseprocessor.h \
     $$PWD/inclinationresistancetable.h \
     $$PWD/logwriter.h \
+    $$PWD/fitbackupwriter.h \
     $$PWD/osc.h \
     $$PWD/oscpp/client.hpp \
     $$PWD/oscpp/detail/endian.hpp \
