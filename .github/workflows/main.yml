@@ -730,18 +730,30 @@ jobs:
           EOF
           cat android-qdomyos-zwift-deployment-settings.json
           
-      - name: Sign APK with debug key
+      - name: Align and sign APK (debug)
         run: |
           # Generate debug keystore if it doesn't exist
           if [ ! -f debug.keystore ]; then
             keytool -genkeypair -alias androiddebugkey -keypass android -keystore debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 365 -keyalg RSA
           fi
-          
-          # Sign the APK
-          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore debug.keystore -storepass android -keypass android build-android-multiabi/src/android-build/build/outputs/apk/release/android-build-release-unsigned.apk androiddebugkey
-          
-          # Align the APK
-          zipalign -v 4 build-android-multiabi/src/android-build/build/outputs/apk/release/android-build-release-unsigned.apk build-android-multiabi/src/android-build/build/outputs/apk/release/android-build-release-signed.apk
+
+          # Variables
+          UNSIGNED_APK="build-android-multiabi/src/android-build/build/outputs/apk/release/android-build-release-unsigned.apk"
+          ALIGNED_APK="build-android-multiabi/src/android-build/build/outputs/apk/release/android-build-release-aligned.apk"
+          SIGNED_APK="build-android-multiabi/src/android-build/build/outputs/apk/release/android-build-release-signed.apk"
+          APKSIGNER="${ANDROID_SDK_ROOT}/build-tools/34.0.0/apksigner"
+
+          # Align first, then sign (correct order). Aligning after signing breaks the signature.
+          zipalign -p -f 4 "$UNSIGNED_APK" "$ALIGNED_APK"
+
+          # Sign with apksigner to produce both v1 and v2 signatures
+          "$APKSIGNER" sign \
+            --ks debug.keystore \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            --ks-key-alias androiddebugkey \
+            --out "$SIGNED_APK" \
+            "$ALIGNED_APK"
           
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
