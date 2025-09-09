@@ -521,7 +521,7 @@ jobs:
 
       - name: Xvfb install and run
         run: |
-          sudo apt-get install -y xvfb
+          sudo apt-get install -y xvfb zipalign
           Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
       - name: Checkout repository
         uses: actions/checkout@v3
