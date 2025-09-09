@@ -28,6 +28,7 @@ class WorkoutTracking: NSObject {
     static let shared = WorkoutTracking()
     public static var distance = Double()
     public static var kcal = Double()
+    public static var totalKcal = Double()
     public static var cadenceTimeStamp = NSDate().timeIntervalSince1970
     public static var cadenceLastSteps = Double()
     public static var cadenceSteps = 0
@@ -54,20 +55,26 @@ extension WorkoutTracking {
         switch statistics.quantityType {
         case HKQuantityType.quantityType(forIdentifier: .distanceCycling):
             let distanceUnit = HKUnit.mile()
-            let value = statistics.mostRecentQuantity()?.doubleValue(for: distanceUnit)
-            let roundedValue = Double( round( 1 * value! ) / 1 )
+            guard let value = statistics.mostRecentQuantity()?.doubleValue(for: distanceUnit) else {
+                return
+            }
+            let roundedValue = Double( round( 1 * value ) / 1 )
             delegate?.didReceiveHealthKitDistanceCycling(roundedValue)
             
         case HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned):
             let energyUnit = HKUnit.kilocalorie()
-            let value = statistics.mostRecentQuantity()?.doubleValue(for: energyUnit)
-            let roundedValue = Double( round( 1 * value! ) / 1 )
+            guard let value = statistics.mostRecentQuantity()?.doubleValue(for: energyUnit) else {
+                return
+            }
+            let roundedValue = Double( round( 1 * value ) / 1 )
             delegate?.didReceiveHealthKitActiveEnergyBurned(roundedValue)
         
         case HKQuantityType.quantityType(forIdentifier: .heartRate):
             let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
-            let value = statistics.mostRecentQuantity()?.doubleValue(for: heartRateUnit)
-            let roundedValue = Double( round( 1 * value! ) / 1 )
+            guard let value = statistics.mostRecentQuantity()?.doubleValue(for: heartRateUnit) else {
+                return
+            }
+            let roundedValue = Double( round( 1 * value ) / 1 )
             delegate?.didReceiveHealthKitHeartRate(roundedValue)
             
         case HKQuantityType.quantityType(forIdentifier: .stepCount):
@@ -160,6 +167,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
                     HKSampleType.quantityType(forIdentifier: .distanceWalkingRunning)!,
                     HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,
+                    HKSampleType.quantityType(forIdentifier: .basalEnergyBurned)!,
                     HKSampleType.quantityType(forIdentifier: .cyclingPower)!,
                     HKSampleType.quantityType(forIdentifier: .cyclingSpeed)!,
                     HKSampleType.quantityType(forIdentifier: .cyclingCadence)!,
@@ -179,6 +187,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
                     HKSampleType.quantityType(forIdentifier: .distanceWalkingRunning)!,
                     HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,
+                    HKSampleType.quantityType(forIdentifier: .basalEnergyBurned)!,
                     HKSampleType.workoutType()
                     ])
             }
@@ -217,23 +226,30 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         workoutSession.stopActivity(with: Date())
         workoutSession.end()
         
-        guard let quantityType = HKQuantityType.quantityType(
+        // Write active calories
+        guard let activeQuantityType = HKQuantityType.quantityType(
           forIdentifier: .activeEnergyBurned) else {
           return
         }
             
         let unit = HKUnit.kilocalorie()
-        let totalEnergyBurned = WorkoutTracking.kcal
-        let quantity = HKQuantity(unit: unit,
-                                  doubleValue: totalEnergyBurned)
+        let activeEnergyBurned = WorkoutTracking.kcal
+        let activeQuantity = HKQuantity(unit: unit,
+                                       doubleValue: activeEnergyBurned)
         
-        let sample = HKCumulativeQuantitySeriesSample(type: quantityType,
-                                                      quantity: quantity,
-                                                      start: workoutSession.startDate!,
-                                                      end: Date())
+        let startDate = workoutSession.startDate ?? WorkoutTracking.lastDateMetric
         
-        workoutBuilder.add([sample]) {(success, error) in}
-            
+        let activeSample = HKCumulativeQuantitySeriesSample(type: activeQuantityType,
+                                                           quantity: activeQuantity,
+                                                           start: startDate,
+                                                           end: Date())
+        
+        workoutBuilder.add([activeSample]) {(success, error) in
+            if let error = error {
+                print("WatchWorkoutTracking active calories: \(error.localizedDescription)")
+            }
+        }
+                    
         let unitDistance = HKUnit.mile()
         let miles = WorkoutTracking.distance
         let quantityMiles = HKQuantity(unit: unitDistance,
@@ -249,7 +265,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             
             let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
                                                           quantity: quantityMiles,
-                                                          start: workoutSession.startDate!,
+                                                          start: startDate,
                                                           end: Date())
             
             workoutBuilder.add([sampleDistance]) {(success, error) in
@@ -265,9 +281,78 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                             print(error)
                         }
                         workout?.setValue(quantityMiles, forKey: "totalDistance")
+                        // Set total energy burned on the workout
+                        let totalEnergy = WorkoutTracking.totalKcal > 0 ? WorkoutTracking.totalKcal : activeEnergyBurned
+                        let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
+                        workout?.setValue(totalEnergyQuantity, forKey: "totalEnergyBurned")
                     }
                 }
             }
+        } else if(sport == 4) { // Rowing
+             // Guard to check if steps quantity type is available
+             guard let quantityTypeSteps = HKQuantityType.quantityType(
+                 forIdentifier: .stepCount) else {
+                 return
+             }
+
+             let stepsQuantity = HKQuantity(unit: HKUnit.count(), doubleValue: Double(WorkoutTracking.steps))
+             
+             // Create a sample for total steps
+             let sampleSteps = HKCumulativeQuantitySeriesSample(
+                 type: quantityTypeSteps,
+                 quantity: stepsQuantity,
+                 start: startDate,
+                 end: Date())
+
+             // Add the steps sample to workout builder
+             workoutBuilder.add([sampleSteps]) { (success, error) in
+                 if let error = error {
+                     print(error)
+                 }
+             }
+             
+             // Per il rowing, HealthKit utilizza un tipo specifico di distanza
+             // Se non esiste un tipo specifico per il rowing, possiamo usare un tipo generico di distanza
+             var quantityTypeDistance: HKQuantityType?
+             
+             // In watchOS 10 e versioni successive, possiamo usare un tipo specifico se disponibile
+             if #available(watchOSApplicationExtension 10.0, *) {
+                 // Verifica se esiste un tipo specifico per il rowing, altrimenti utilizza un tipo generico
+                 quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceSwimming)
+             } else {
+                 // Nelle versioni precedenti, usa il tipo generico
+                 quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)
+             }
+             
+             guard let typeDistance = quantityTypeDistance else {
+                 return
+             }
+       
+             let sampleDistance = HKCumulativeQuantitySeriesSample(type: typeDistance,
+                                                           quantity: quantityMiles,
+                                                           start: startDate,
+                                                           end: Date())
+             
+             workoutBuilder.add([sampleDistance]) {(success, error) in
+                 if let error = error {
+                     print(error)
+                 }
+                 self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
+                     if let error = error {
+                         print(error)
+                     }
+                     self.workoutBuilder.finishWorkout{ (workout, error) in
+                         if let error = error {
+                             print(error)
+                         }
+                         workout?.setValue(quantityMiles, forKey: "totalDistance")
+                         // Set total energy burned on the workout
+                         let totalEnergy = WorkoutTracking.totalKcal > 0 ? WorkoutTracking.totalKcal : activeEnergyBurned
+                         let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
+                         workout?.setValue(totalEnergyQuantity, forKey: "totalEnergyBurned")
+                     }
+                 }
+             }
         } else {
             
             // Guard to check if steps quantity type is available
@@ -282,7 +367,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             let sampleSteps = HKCumulativeQuantitySeriesSample(
                 type: quantityTypeSteps,
                 quantity: stepsQuantity,  // Use your steps quantity here
-                start: workoutSession.startDate!,
+                start: startDate,
                 end: Date())
 
             // Add the steps sample to workout builder
@@ -314,7 +399,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
       
             let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
                                                           quantity: quantityMiles,
-                                                          start: workoutSession.startDate!,
+                                                          start: startDate,
                                                           end: Date())
             
             workoutBuilder.add([sampleDistance]) {(success, error) in
@@ -330,6 +415,10 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                             print(error)
                         }
                         workout?.setValue(quantityMiles, forKey: "totalDistance")
+                        // Set total energy burned on the workout
+                        let totalEnergy = WorkoutTracking.totalKcal > 0 ? WorkoutTracking.totalKcal : activeEnergyBurned
+                        let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
+                        workout?.setValue(totalEnergyQuantity, forKey: "totalEnergyBurned")
                     }
                 }
             }

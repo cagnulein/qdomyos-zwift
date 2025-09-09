@@ -65,14 +65,18 @@ class peloton : public QObject {
 
     void setTestMode(bool test);
 
+    int getIntroOffset();
     bool isWorkoutInProgress() {
         return current_workout_status.contains(QStringLiteral("IN_PROGRESS"), Qt::CaseInsensitive);
     }
+    QString getPelotonWorkoutUrl();
 
   private:
     _PELOTON_API current_api = peloton_api;
     const int peloton_workout_second_resolution = 1;
+    int workout_retry_count = 0;
     bool peloton_credentials_wrong = false;
+    bool needsReauth = false;
     QNetworkAccessManager *mgr = nullptr;
 
     QJsonDocument current_workout;
@@ -107,6 +111,25 @@ class peloton : public QObject {
     QNetworkReply *replyPeloton;
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
+    // Save token with user-specific suffix
+    QString getPelotonSettingKey(const QString& baseKey, const QString& userId) {
+        if (userId.isEmpty()) {
+            qDebug() << "ERROR: userid is empty!";
+            return baseKey; // If no user ID, use the default key
+        }
+        return baseKey + "_" + userId;
+    }
+    void savePelotonTokenForUser(const QString& baseKey, const QVariant& value, const QString& userId) {
+        QSettings settings;
+        settings.setValue(getPelotonSettingKey(baseKey, userId), value);
+    }
+    QVariant getPelotonTokenForUser(const QString& baseKey, const QString& userId, const QVariant& defaultValue = "") {
+        QSettings settings;
+        return settings.value(getPelotonSettingKey(baseKey, userId), defaultValue).toString();
+    }
+    QString tempAccessToken = QStringLiteral("");
+    QString tempRefreshToken = QStringLiteral("");
+    QDateTime tempExpiresAt;
 
     // rowers
     double rowerpaceToSpeed(double pace);
@@ -141,9 +164,13 @@ class peloton : public QObject {
     } _peloton_treadmill_pace_intensities;
 
     _peloton_treadmill_pace_intensities treadmill_pace[7];
+    _peloton_treadmill_pace_intensities walking_pace[5];
+
+    int first_target_metrics_start_offset = 60;
 
   public slots:
     void peloton_connect_clicked();
+    void onUserProfileChanged();
 
   private slots:
     void login_onfinish(QNetworkReply *reply);
@@ -166,6 +193,7 @@ class peloton : public QObject {
     void callbackReceived(const QVariantMap &values);
 
     void startEngine();
+    void checkWorkoutStatus();
 
   signals:
     void loginState(bool ok);

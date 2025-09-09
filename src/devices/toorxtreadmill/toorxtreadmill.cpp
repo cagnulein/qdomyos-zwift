@@ -38,9 +38,16 @@ void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(discoveryAgent, &QBluetoothServiceDiscoveryAgent::finished, this,
                 &toorxtreadmill::serviceFinished);
 
-        // Start a discovery
-        qDebug() << QStringLiteral("toorxtreadmill::deviceDiscovered");
-        discoveryAgent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
+        // Start a discovery - use FullDiscovery only if not done before
+        QSettings settings;
+        bool discoveryCompleted = settings.value(QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed).toBool();
+        qDebug() << QStringLiteral("toorxtreadmill::deviceDiscovered - discoveryCompleted:") << discoveryCompleted;
+        
+        if (discoveryCompleted) {
+            discoveryAgent->start(QBluetoothServiceDiscoveryAgent::MinimalDiscovery);
+        } else {
+            discoveryAgent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
+        }
         return;
     }
 }
@@ -461,8 +468,8 @@ uint16_t toorxtreadmill::GetCaloriesFromPacket(const QByteArray &packet) {
     return convertedData;
 }
 
-uint16_t toorxtreadmill::GetDistanceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(9) << 8) | packet.at(10);
+double toorxtreadmill::GetDistanceFromPacket(const QByteArray &packet) {
+    double convertedData = (double)((packet.at(9) << 8) | packet.at(10)) / 100.0;
     return convertedData;
 }
 

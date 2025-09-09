@@ -9,10 +9,14 @@ import QtQuick.Layouts 1.3
 import QtWebView 1.1
 
 Item {
+    id: pelotonAuthPage
     anchors.fill: parent
     height: parent.height
     width: parent.width
     visible: true
+
+    // Signal to notify the parent stack when we want to go back
+    signal goBack()
 
     WebView {
         anchors.fill: parent
@@ -27,7 +31,11 @@ Item {
         parent: Overlay.overlay
         enabled: rootItem.pelotonPopupVisible
         onEnabledChanged: { if(rootItem.pelotonPopupVisible) popupPelotonConnectedWeb.open() }
-        onClosed: { rootItem.pelotonPopupVisible = false; }
+        onClosed: {
+            rootItem.pelotonPopupVisible = false;
+            // Attempt to go back to the previous view after the popup is closed
+            goBack();
+        }
 
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
@@ -45,14 +53,28 @@ Item {
         {
             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
         }
+
         Column {
             anchors.horizontalCenter: parent.horizontalCenter
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: 370
                 height: 120
-                text: qsTr("Your Peloton account is now connected!<br><br>Restart the app to apply this!")
+                text: qsTr("Your Peloton account is now connected!")
             }
         }
+
+        // Add a MouseArea to capture clicks anywhere on the popup
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                popupPelotonConnectedWeb.close();
+            }
+        }
+    }
+
+    // Component is being completed
+    Component.onCompleted: {
+        console.log("WebPelotonAuth loaded")
     }
 }

@@ -210,7 +210,7 @@ void fitshowtreadmill::update() {
             if (requestInclination != inc) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 inc = requestInclination;
-                double speed = currentSpeed().value();
+                double speed = currentSpeed().valueRaw();
                 if (requestSpeed != -1) {
                     speed = requestSpeed;
                     requestSpeed = -1;
@@ -299,7 +299,7 @@ void fitshowtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
         qDebug() << "adding" << gatt.toString() << "as the default service";
         serviceId = gatt; // NOTE: clazy-rule-of-tow
     }
-    if(gatt == QBluetoothUuid((quint16)0x1826) && !fs_connected) {
+    if(gatt == QBluetoothUuid((quint16)0x1826) && !fs_connected && !tunturi_t80_connected) {
         QSettings settings;
         settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
         qDebug() << "forcing FTMS treadmill since it has FTMS";
@@ -845,6 +845,9 @@ void fitshowtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         qDebug() << "NOBLEPRO FIX!";
         minStepInclinationValue = 0.5;
         noblepro_connected = true;
+    } else if (device.name().toUpper().startsWith(QStringLiteral("TUNTURI T80-"))) {
+        qDebug() << "TUNTURI T80 detected - ignoring FTMS forcing";
+        tunturi_t80_connected = true;
     }
 
     {

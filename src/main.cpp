@@ -27,6 +27,8 @@
 #endif
 
 #include "mqttpublisher.h"
+#include "androidstatusbar.h"
+#include "fontmanager.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -73,6 +75,7 @@ bool run_cadence_sensor = false;
 bool horizon_treadmill_7_8 = false;
 bool horizon_treadmill_force_ftms = false;
 bool nordictrack_10_treadmill = false;
+bool proform_performance_300i_treadmill = false;
 bool reebok_fr30_treadmill = false;
 bool zwift_play = false;
 bool zwift_click = false;
@@ -133,6 +136,7 @@ void displayHelp() {
     printf("  -horizon-treadmill-7-8        Enable Horizon 7.8 treadmill support\n");
     printf("  -horizon-treadmill-force-ftms Force FTMS for Horizon treadmill\n");
     printf("  -nordictrack-10-treadmill     Enable NordicTrack 10 treadmill support\n");
+    printf("  -proform-perf-300i-treadmill  Enable Proform Performance 300i support\n");
     printf("  -reebok_fr30_treadmill        Enable Reebok FR30 treadmill support\n");
 
     printf("\nBluetooth options:\n");
@@ -290,6 +294,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             horizon_treadmill_force_ftms = true; 
         if (!qstrcmp(argv[i], "-nordictrack-10-treadmill"))
             nordictrack_10_treadmill = true;
+        if (!qstrcmp(argv[i], "-proform-perf-300i-treadmill"))
+            proform_performance_300i_treadmill = true;
         if (!qstrcmp(argv[i], "-reebok_fr30_treadmill"))
             reebok_fr30_treadmill = true;
         if (!qstrcmp(argv[i], "-zwift_play"))
@@ -424,7 +430,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     QSettings settings;
     static bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
-    if ((logs == false && !forceQml) || (logdebug == false && forceQml))
+    if ( (logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
     if (logdebug == false)
 #endif
@@ -580,6 +586,7 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::horizon_treadmill_7_8, horizon_treadmill_7_8);
         settings.setValue(QZSettings::horizon_treadmill_force_ftms, horizon_treadmill_force_ftms);
         settings.setValue(QZSettings::nordictrack_10_treadmill, nordictrack_10_treadmill);
+        settings.setValue(QZSettings::proform_performance_300i, proform_performance_300i_treadmill);
         settings.setValue(QZSettings::reebok_fr30_treadmill, reebok_fr30_treadmill);
         settings.setValue(QZSettings::zwift_click, zwift_click);
         settings.setValue(QZSettings::zwift_play, zwift_play);
@@ -600,7 +607,7 @@ int main(int argc, char *argv[]) {
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username")) {
+        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token")) {
 
             qDebug() << s << settings.value(s);
         }
@@ -791,6 +798,12 @@ int main(int argc, char *argv[]) {
     if (forceQml)
 #endif
     {
+        AndroidStatusBar::registerQmlType();
+        
+#ifdef Q_OS_ANDROID
+        FontManager fontManager;
+        fontManager.initializeEmojiFont();
+#endif
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(
@@ -812,6 +825,9 @@ int main(int argc, char *argv[]) {
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(true));
 #else
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(false));
+#endif
+#ifdef Q_OS_ANDROID
+        engine.rootContext()->setContextProperty("fontManager", &fontManager);
 #endif
         engine.load(url);
         homeform *h = new homeform(&engine, &bl);

@@ -10,11 +10,16 @@ class lockscreen {
     long heartRate();
     long stepCadence();
     void setKcal(double kcal);
+    void setTotalKcal(double totalKcal);
     void setDistance(double distance);
     void setSteps(double steps);
     void setSpeed(double speed);
     void setPower(double power);
     void setCadence(double cadence);
+    void startWorkout(unsigned short deviceType);
+    void stopWorkout();
+    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance, double totalKcal);
+    bool appleWatchAppInstalled();
 
     // virtualbike
     void virtualbike_ios();
@@ -26,9 +31,7 @@ class lockscreen {
     double virtualbike_getCurrentCRR();
     double virtualbike_getCurrentCW();
     double virtualbike_getPowerRequested();
-    bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
-                                unsigned short currentCadence, unsigned short currentWatt,
-                                unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears);
+    bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears, unsigned short currentCalories, unsigned int Distance);
     int virtualbike_getLastFTMSMessage(unsigned char *message);
 
     // virtualrower
@@ -47,9 +50,11 @@ class lockscreen {
     double virtualtreadmill_getCurrentSlope();
     uint64_t virtualtreadmill_lastChangeCurrentSlope();
     double virtualtreadmill_getPowerRequested();
+    double virtualtreadmill_getRequestedSpeed();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
-                                     unsigned short currentInclination, unsigned long long currentDistance);
+                                     unsigned short currentInclination, unsigned long long currentDistance, unsigned short currentCalories, 
+                                     qint32 currentSteps, unsigned short elapsedSeconds);
 
     // volume
     double getVolume();
@@ -73,6 +78,18 @@ class lockscreen {
     // Elite Aria Fan
     void eliteAriaFan();
     void eliteAriaFan_fanSpeedRequest(unsigned char speed);
+
+    // Echelon Connect Sport
+    void echelonConnectSport(const char*  Name, void* deviceClass);
+    void echelonConnectSport_WriteCharacteristic(unsigned char* qdata, unsigned char length);
+
+    // Wahoo KICKR/SNAP Bike
+    void wahooKickrSnapBike(const char* Name, void* deviceClass);
+    void writeCharacteristic(unsigned char* qdata, unsigned char length);
+
+    // Zwift Click Remote
+    void zwiftClickRemote(const char* Name, const char* UUID, void* deviceClass);
+    void zwiftClickRemote_WriteCharacteristic(unsigned char* qdata, unsigned char length, void* deviceClass);
     
     // Zwift API
     void zwift_api_decodemessage_player(const char* data, int len);
@@ -87,7 +104,7 @@ class lockscreen {
     static uint32_t zwift_hub_getPowerFromBuffer(const QByteArray& buffer);
     static uint32_t zwift_hub_getCadenceFromBuffer(const QByteArray& buffer);
     
-    // quick actions    
+    // quick actions
     static void set_action_profile(const char* profile);
     static const char* get_action_profile();
 

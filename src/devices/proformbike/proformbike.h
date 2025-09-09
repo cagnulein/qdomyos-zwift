@@ -55,7 +55,7 @@ class proformbike : public bike {
     uint16_t watts() override;
     void forceResistance(resistance_t requestResistance);
     void forceIncline(double incline);
-    void innerWriteResistance();
+    bool innerWriteResistance();
 
     QTimer *refresh;
     uint8_t counterPoll = 0;
@@ -95,6 +95,7 @@ class proformbike : public bike {
     bool nordictrack_gx_44_pro = false;
     bool proform_bike_PFEVEX71316_0 = false;
     bool proform_xbike = false;
+    bool proform_225_csx_PFEX32925_INT_0 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

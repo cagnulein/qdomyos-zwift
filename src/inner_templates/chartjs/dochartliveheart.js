@@ -55,8 +55,19 @@ function process_trainprogram_heart(arr) {
 }
 
 function process_arr_heart(arr) {    
-    let ctx = document.getElementById('canvasheart').getContext('2d');
-    let div = document.getElementById('divcanvasheart');
+    // Try to get the active canvas - check all possible canvas IDs
+    let ctx, div;
+    if (document.getElementById('canvasheart') && document.getElementById('canvasheart').offsetParent !== null) {
+        ctx = document.getElementById('canvasheart').getContext('2d');
+        div = document.getElementById('divcanvasheart');
+    } else if (document.getElementById('canvasheartFull') && document.getElementById('canvasheartFull').offsetParent !== null) {
+        ctx = document.getElementById('canvasheartFull').getContext('2d');
+        div = document.getElementById('divcanvasheartFull');
+    } else {
+        // Fallback to the first available canvas
+        ctx = (document.getElementById('canvasheart') || document.getElementById('canvasheartFull')).getContext('2d');
+        div = document.getElementById('divcanvasheart') || document.getElementById('divcanvasheartFull');
+    }
 
     let reqpower = [];
     let reqcadence = [];
@@ -218,24 +229,7 @@ function process_arr_heart(arr) {
         options: {
             animation: {
               onComplete: function() {
-                  if(saveScreenshot[1])
-                      return;
-                  saveScreenshot[1] = true;
-                  let el = new MainWSQueueElement({
-                      msg: 'savechart',
-                      content: {
-                          name: 'heart',
-                          image: heartChart.toBase64Image()
-                      }
-                  }, function(msg) {
-                      if (msg.msg === 'R_savechart') {
-                          return msg.content;
-                      }
-                      return null;
-                  }, 15000, 3);
-                  el.enqueue().catch(function(err) {
-                      console.error('Error is ' + err);
-                  });
+                  // Live charts should not auto-save during workout
               }
             },
             responsive: true,

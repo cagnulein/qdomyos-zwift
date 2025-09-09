@@ -48,10 +48,13 @@ void fakebike::update() {
 
     if (requestPower != -1) {
         // bepo70: don't know if this conversion is really needed, i would do it anyway.
-        m_watt = (double)requestPower;
-        Cadence = requestPower;
+        m_watt = (double)requestPower * (1.0 + (((double)rand() / RAND_MAX) * 0.4 - 0.2));
+        if(requestPower)
+            Cadence = 50 + (static_cast<double>(rand()) / RAND_MAX) * 50;
+        else
+            Cadence = 0;
         emit debug(QStringLiteral("writing power ") + QString::number(requestPower));
-        requestPower = -1;
+        //requestPower = -1;
         // bepo70: Disregard the current inclination for calculating speed. When the video
         //         has a high inclination you have to give many power to get the desired playback speed,
         //         if inclination is very low little more power gives a quite high speed jump.
@@ -61,6 +64,14 @@ void fakebike::update() {
             m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
             speedLimit());
     }
+    
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    if (watts())
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                              // kg * 3.5) / 200 ) / 60
     
     if (Cadence.value() > 0) {
         CrankRevs++;
@@ -168,28 +179,7 @@ uint16_t fakebike::wattsFromResistance(double resistance) {
 }
 
 resistance_t fakebike::resistanceFromPowerRequest(uint16_t power) {
-    //QSettings settings;
-    //bool toorx_srx_3500 = settings.value(QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500).toBool();
-    /*if(toorx_srx_3500)*/ {
-        qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-        if (Cadence.value() == 0)
-            return 1;
-
-        for (resistance_t i = 1; i < maxResistance(); i++) {
-            if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-                qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                        << wattsFromResistance(i + 1) << power;
-                return i;
-            }
-        }
-        if (power < wattsFromResistance(1))
-            return 1;
-        else
-            return maxResistance();
-    } /*else {
-        return power / 10;
-    }*/
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), maxResistance());
 }
 
 

@@ -1,7 +1,7 @@
 include(../defaults.pri)
 QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia
 QTPLUGIN += qavfmediaplayer
-QT+= charts core-private
+QT+= charts core-private sql concurrent
 
 qtHaveModule(httpserver) {
     QT += httpserver
@@ -46,6 +46,7 @@ win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc -llibcrypto-1_1-x
 
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
+mingw: QMAKE_CXXFLAGS += -Wa,-mbig-obj
 msvc {
    win32:QMAKE_CXXFLAGS_DEBUG += /RTC1
 }
@@ -78,22 +79,35 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    $$PWD/characteristics/characteristicnotifier0002.cpp \
+    $$PWD/characteristics/characteristicnotifier0004.cpp \
+    $$PWD/characteristics/characteristicwriteprocessor0003.cpp \
+    $$PWD/devices/android_antbike/android_antbike.cpp \
+    $$PWD/androidqlog.cpp \
     $$PWD/devices/antbike/antbike.cpp \
+    $$PWD/devices/coresensor/coresensor.cpp \
     $$PWD/devices/crossrope/crossrope.cpp \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.cpp \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.cpp \
+    $$PWD/devices/elitesquarecontroller/elitesquarecontroller.cpp \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
     $$PWD/devices/jumprope.cpp \
     $$PWD/devices/kineticinroadbike/SmartControl.cpp \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.cpp \
     $$PWD/devices/lifespantreadmill/lifespantreadmill.cpp \
+    $$PWD/devices/moxy5sensor/moxy5sensor.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
+    $$PWD/devices/nordictrackifitadbrower/nordictrackifitadbrower.cpp \
     $$PWD/devices/pitpatbike/pitpatbike.cpp \
+    $$PWD/devices/speraxtreadmill/speraxtreadmill.cpp \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
+    $$PWD/devices/stairclimber.cpp \
+    $$PWD/devices/echelonstairclimber/echelonstairclimber.cpp \
     $$PWD/devices/technogymbike/technogymbike.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
+    $$PWD/fitdatabaseprocessor.cpp \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
     $$PWD/logwriter.cpp \
     $$PWD/mqtt/qmqttauthenticationproperties.cpp \
@@ -109,6 +123,8 @@ SOURCES += \
     $$PWD/mqtt/qmqtttopicname.cpp \
     $$PWD/mqtt/qmqtttype.cpp \
     $$PWD/osc.cpp \
+    $$PWD/workoutloaderworker.cpp \
+    $$PWD/workoutmodel.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
 devices/csafe/csafe.cpp \
@@ -335,25 +351,38 @@ INCLUDEPATH += fit-sdk/ devices/
 
 HEADERS += \
     $$PWD/EventHandler.h \
+    $$PWD/characteristics/characteristicnotifier0002.h \
+    $$PWD/characteristics/characteristicnotifier0004.h \
+    $$PWD/characteristics/characteristicwriteprocessor0003.h \
     $$PWD/OAuth2.h \
+    $$PWD/devices/android_antbike/android_antbike.h \
     $$PWD/devices/antbike/antbike.h \
+    $$PWD/devices/coresensor/coresensor.h \
     $$PWD/devices/crossrope/crossrope.h \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.h \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.h \
+    $$PWD/devices/echelonstairclimber/echelonstairclimber.h \
+    $$PWD/devices/elitesquarecontroller/elitesquarecontroller.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/jumprope.h \
     $$PWD/devices/kineticinroadbike/SmartControl.h \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.h \
     $$PWD/devices/lifespantreadmill/lifespantreadmill.h \
+    $$PWD/devices/moxy5sensor/moxy5sensor.h \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
+    $$PWD/devices/nordictrackifitadbrower/nordictrackifitadbrower.h \
     $$PWD/devices/pitpatbike/pitpatbike.h \
+    $$PWD/devices/speraxtreadmill/speraxtreadmill.h \
     $$PWD/devices/sportsplusrower/sportsplusrower.h \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
     $$PWD/devices/sramAXSController/sramAXSController.h \
+    $$PWD/devices/stairclimber.h \
     $$PWD/devices/technogymbike/technogymbike.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.h \
     $$PWD/ergtable.h \
+    $$PWD/fitdatabaseprocessor.h \
+    $$PWD/inclinationresistancetable.h \
     $$PWD/logwriter.h \
     $$PWD/osc.h \
     $$PWD/oscpp/client.hpp \
@@ -385,6 +414,8 @@ HEADERS += \
     $$PWD/mqtt/qmqtttype.h \
     $$PWD/treadmillErgTable.h \
     $$PWD/wheelcircumference.h \
+    $$PWD/workoutloaderworker.h \
+    $$PWD/workoutmodel.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
 devices/csafe/csafe.h \
@@ -836,6 +867,7 @@ DISTFILES += \
     $$PWD/android/libs/ciq-companion-app-sdk-2.0.3.aar \
     $$PWD/android/libs/zaplibrary-debug.aar \
     $$PWD/android/res/xml/device_filter.xml \
+    $$PWD/android/src/BikeChannelController.java \
     $$PWD/android/src/BleAdvertiser.java \
    $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/ContentHelper.java \
@@ -846,6 +878,7 @@ DISTFILES += \
     $$PWD/android/src/MediaButtonReceiver.java \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
+    $$PWD/android/src/QLog.java \
     $$PWD/android/src/ScreenCaptureService.java \
     $$PWD/android/src/Shortcuts.java \
     $$PWD/android/src/WearableController.java \
@@ -944,10 +977,14 @@ ios {
 }
 
 HEADERS += \
-    mqttpublisher.h
+    mqttpublisher.h \
+    androidstatusbar.h \
+    fontmanager.h
 
 SOURCES += \
-    mqttpublisher.cpp
+    mqttpublisher.cpp \
+    androidstatusbar.cpp \
+    fontmanager.cpp
 
 include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
@@ -955,4 +992,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.18.19
+VERSION = 2.20.10

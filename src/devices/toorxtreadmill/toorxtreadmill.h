@@ -60,7 +60,7 @@ class toorxtreadmill : public treadmill {
     bool MASTERT409 = false;
 
     uint16_t GetElapsedTimeFromPacket(const QByteArray &packet);
-    uint16_t GetDistanceFromPacket(const QByteArray &packet);
+    double GetDistanceFromPacket(const QByteArray &packet);
     uint16_t GetCaloriesFromPacket(const QByteArray &packet);
     double GetSpeedFromPacket(const QByteArray &packet);
     uint8_t GetInclinationFromPacket(const QByteArray &packet);
