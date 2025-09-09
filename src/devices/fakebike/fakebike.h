@@ -26,6 +26,12 @@
 #include <QDateTime>
 #include <QObject>
 #include <QString>
+#include <QTcpSocket>
+#include "qmdnsengine/browser.h"
+#include "qmdnsengine/cache.h"
+#include "qmdnsengine/resolver.h"
+#include "qmdnsengine/server.h"
+#include "qmdnsengine/service.h"
 
 #include "devices/bike.h"
 #include "ergtable.h"
@@ -64,11 +70,29 @@ class fakebike : public bike {
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;    
 
+    // Socket client for receiving metrics from another QZ instance via mDNS discovery
+    QTcpSocket *socketClient = nullptr;
+    QDateTime lastSocketData = QDateTime::currentDateTime();
+    bool usingSocketData = false;
+    QString socketBuffer;
+    
+    // mDNS components for service discovery
+#ifndef Q_OS_IOS
+    QMdnsEngine::Browser *mdnsBrowser = nullptr;
+    QMdnsEngine::Resolver *mdnsResolver = nullptr;  
+    QMdnsEngine::Server mdnsServer;
+    QMdnsEngine::Cache mdnsCache;
+    QMdnsEngine::Service mdnsService;
+    QHostAddress remoteAddress;
+#endif
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
 
     uint16_t wattsFromResistance(double resistance);
+    void parseSocketData(const QString &data);
+    void initMdnsDiscovery();
 
   signals:
     void disconnected();
@@ -77,6 +101,9 @@ class fakebike : public bike {
   private slots:
     void changeInclinationRequested(double grade, double percentage);
     void update();
+    void socketReadyRead();
+    void socketConnected();
+    void socketDisconnected();
     
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };

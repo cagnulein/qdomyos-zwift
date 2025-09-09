@@ -815,6 +815,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                              }
                          });
     });
+    
+    // Initialize metrics server for sharing metrics with other QZ instances (fakebike clients)
+    initMetricsServer();
 #else
 #ifndef IO_UNDER_QT
     h = new lockscreen();
@@ -7312,6 +7315,9 @@ void homeform::update() {
                 int write = iphone_socket->write(toSend.toLocal8Bit(), toSend.length());
                 qDebug() << "iphone_socket send " << write << toSend;
             }
+            
+            // Send metrics to connected clients (fakebike instances)
+            sendMetricsToClients();
 #endif
         }
         emit workoutStartDateChanged(workoutStartDate());
@@ -9029,6 +9035,88 @@ extern "C" {
             }
         } else {
             qDebug() << "No bluetooth device connected";
+        }
+    }
+}
+#endif
+
+#ifndef Q_OS_IOS
+void homeform::initMetricsServer() {
+    qDebug() << "Initializing metrics server for fakebike clients";
+    
+    // Create TCP server for sharing metrics with fakebike clients
+    metrics_server = new QTcpServer(this);
+    connect(metrics_server, &QTcpServer::newConnection, this, &homeform::metricsClientConnected);
+    
+    // Listen on any available port
+    if (metrics_server->listen(QHostAddress::Any, 0)) {
+        quint16 serverPort = metrics_server->serverPort();
+        qDebug() << "Metrics server listening on port" << serverPort;
+        
+        // Setup mDNS publishing using existing iPhone service infrastructure
+        iphone_mdns_hostname = new QMdnsEngine::Hostname(&iphone_server, QByteArrayLiteral("qz-pad"), this);
+        iphone_mdns_provider = new QMdnsEngine::Provider(&iphone_server, iphone_mdns_hostname, this);
+        
+        // Create and publish the service using existing _qz_iphone._tcp.local.
+        QMdnsEngine::Service service;
+        service.setType("_qz_iphone._tcp.local.");
+        service.setName("QZ-PAD-" + QSysInfo::machineHostName());
+        service.setPort(serverPort);
+        
+        iphone_mdns_provider->update(service);
+        qDebug() << "Published mDNS service _qz_iphone._tcp.local. on port" << serverPort;
+    } else {
+        qDebug() << "Failed to start metrics server:" << metrics_server->errorString();
+    }
+}
+
+void homeform::metricsClientConnected() {
+    QTcpSocket *clientSocket = metrics_server->nextPendingConnection();
+    if (clientSocket) {
+        qDebug() << "Fakebike client connected from" << clientSocket->peerAddress().toString();
+        metrics_clients.append(clientSocket);
+        
+        connect(clientSocket, &QTcpSocket::disconnected, this, &homeform::metricsClientDisconnected);
+        connect(clientSocket, &QTcpSocket::disconnected, clientSocket, &QTcpSocket::deleteLater);
+    }
+}
+
+void homeform::metricsClientDisconnected() {
+    QTcpSocket *clientSocket = qobject_cast<QTcpSocket *>(sender());
+    if (clientSocket) {
+        qDebug() << "Fakebike client disconnected from" << clientSocket->peerAddress().toString();
+        metrics_clients.removeAll(clientSocket);
+    }
+}
+
+void homeform::sendMetricsToClients() {
+    if (metrics_clients.isEmpty() || !bluetoothManager || !bluetoothManager->device()) {
+        return;
+    }
+    
+    // Don't send metrics if fake bike is enabled (no real device data to share)
+    QSettings settings;
+    bool fake_bike = settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
+    if (fake_bike) {
+        return;
+    }
+    
+    // Prepare metrics message using SENDER=PAD as originally intended
+    QString toSend = "SENDER=PAD#HR=" + QString::number(bluetoothManager->device()->currentHeart().value()) +
+                     "#KCAL=" + QString::number(bluetoothManager->device()->calories().value()) +
+                     "#BCAD=" + QString::number(bluetoothManager->device()->currentCadence().value()) +
+                     "#SPD=" + QString::number(bluetoothManager->device()->currentSpeed().value()) +
+                     "#PWR=" + QString::number(bluetoothManager->device()->wattsMetric().value()) +
+                     "#CAD=" + QString::number(bluetoothManager->device()->currentCadence().value()) +
+                     "#ODO=" + QString::number(bluetoothManager->device()->odometer()) + "#";
+    
+    // Send to all connected fakebike clients
+    for (QTcpSocket *client : metrics_clients) {
+        if (client->state() == QAbstractSocket::ConnectedState) {
+            int written = client->write(toSend.toUtf8());
+            if (written > 0) {
+                client->flush();
+            }
         }
     }
 }
