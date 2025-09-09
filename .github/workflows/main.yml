@@ -729,11 +729,25 @@ jobs:
           }
           EOF
           cat android-qdomyos-zwift-deployment-settings.json
+          
+      - name: Sign APK with debug key
+        run: |
+          # Generate debug keystore if it doesn't exist
+          if [ ! -f debug.keystore ]; then
+            keytool -genkeypair -alias androiddebugkey -keypass android -keystore debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 365 -keyalg RSA
+          fi
+          
+          # Sign the APK
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore debug.keystore -storepass android -keypass android build-android-multiabi/src/android-build/build/outputs/apk/release/android-build-release-unsigned.apk androiddebugkey
+          
+          # Align the APK
+          zipalign -v 4 build-android-multiabi/src/android-build/build/outputs/apk/release/android-build-release-unsigned.apk build-android-multiabi/src/android-build/build/outputs/apk/release/android-build-release-signed.apk
+          
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
         with:
           name: fdroid-android-trial
-          path: build-android-multiabi/src/android-build/build/outputs/apk/release/android-build-release-unsigned.apk
+          path: build-android-multiabi/src/android-build/build/outputs/apk/release/android-build-release-signed.apk
           
       - name: Archive build problems report
         if: failure()
@@ -789,7 +803,7 @@ jobs:
             ls -la apk-debug/
             
             # Install the APK
-            adb install apk-debug/android-debug.apk
+            adb install apk-debug/android-build-release-signed.apk
             
             # Grant necessary permissions for API 25
             echo "Granting permissions..."
