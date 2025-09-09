@@ -9060,7 +9060,7 @@ void homeform::initMetricsServer() {
         // Create and publish the service using existing _qz_iphone._tcp.local.
         QMdnsEngine::Service service;
         service.setType("_qz_iphone._tcp.local.");
-        service.setName("QZ-PAD-" + QSysInfo::machineHostName());
+        service.setName(("QZ-PAD-" + QSysInfo::machineHostName()).toUtf8());
         service.setPort(serverPort);
         
         iphone_mdns_provider->update(service);
