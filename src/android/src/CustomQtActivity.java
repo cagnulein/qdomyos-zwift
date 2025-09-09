@@ -7,9 +7,9 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.DisplayCutout;
-import android.app.Activity;
+import org.qtproject.qt.android.bindings.QtActivity;
 
-public class CustomQtActivity extends Activity {
+public class CustomQtActivity extends QtActivity {
     private static final String TAG = "CustomQtActivity";
 
     // Declare the native method that will be implemented in C++

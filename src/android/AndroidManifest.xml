@@ -9,7 +9,7 @@
 			<!-- %%INSERT_FEATURES -->
 
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
-	 <application android:hardwareAccelerated="true" android:debuggable="false" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="qdomyos-zwift" android:icon="@drawable/icon" android:usesCleartextTraffic="true">
+     <application android:hardwareAccelerated="true" android:debuggable="false" android:name="org.qtproject.qt.android.bindings.QtApplication" android:label="qdomyos-zwift" android:icon="@drawable/icon" android:usesCleartextTraffic="true">
              <activity android:theme="@style/Theme.AppCompat" android:exported="true" android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.cagnulen.qdomyoszwift.CustomQtActivity" android:label="QZ" android:launchMode="singleTop">
 		      <intent-filter>
 				    <action android:name="android.intent.action.MAIN"/>
