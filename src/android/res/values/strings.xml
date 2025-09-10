@@ -5,4 +5,10 @@
     <string name="ministro_needed_msg">This application requires Qt libraries. Please install the Ministro service.</string>
     <string name="fatal_error_msg">A fatal error occurred and the application cannot continue.</string>
     <string name="unsupported_android_version">Your Android version is not supported by this application.</string>
+    <!-- Qt loader configuration strings -->
+    <string name="qt_repository">default</string>
+    <string name="qt_lib_name">qdomyos-zwift</string>
+    <string name="qt_libs_prefix">/data/local/tmp/qt/</string>
+    <string name="qt_load_local_jars">-- %%INSERT_LOCAL_JARS%% --</string>
+    <string name="qt_static_init_classes">-- %%INSERT_INIT_CLASSES%% --</string>
 </resources>
