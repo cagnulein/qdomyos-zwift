@@ -749,7 +749,17 @@ jobs:
           ulimit -n 8192 || true
           # Extra Gradle opts (in addition to ~/.gradle/gradle.properties)
           export GRADLE_OPTS="-Xmx4g -Dfile.encoding=UTF-8 -Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
-          ANDROIDDEPLOYQT='${{ github.workspace }}/output/android/Qt/6.9.1/android/bin/androiddeployqt'
+          # Locate androiddeployqt (host tool). Prefer android/bin, fallback to gcc_64/bin
+          WS='${{ github.workspace }}'
+          if [ -x "$WS/output/android/Qt/6.9.1/android/bin/androiddeployqt" ]; then
+            ANDROIDDEPLOYQT="$WS/output/android/Qt/6.9.1/android/bin/androiddeployqt"
+          elif [ -x "$WS/output/android/Qt/6.9.1/gcc_64/bin/androiddeployqt" ]; then
+            ANDROIDDEPLOYQT="$WS/output/android/Qt/6.9.1/gcc_64/bin/androiddeployqt"
+          else
+            echo "androiddeployqt non trovato nelle posizioni attese" >&2
+            find "$WS/output/android" -maxdepth 4 -type f -name androiddeployqt || true
+            exit 1
+          fi
           
           # Retry androiddeployqt/Gradle to absorb transient failures
           for i in 1 2 3; do
