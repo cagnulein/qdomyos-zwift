@@ -760,6 +760,18 @@ jobs:
             find "$WS/output/android" -maxdepth 4 -type f -name androiddeployqt || true
             exit 1
           fi
+
+          # Define output dir for androiddeployqt (matches expected artifact path)
+          OUTPUT_DIR="build-android-multiabi/src/android-build"
+          mkdir -p "$OUTPUT_DIR"
+          # Also harden Gradle settings inside the generated project
+          cat > "$OUTPUT_DIR/gradle.properties" << 'EOF'
+          org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8
+          org.gradle.daemon=false
+          org.gradle.parallel=false
+          org.gradle.workers.max=2
+          org.gradle.caching=false
+          EOF
           
           # Retry androiddeployqt/Gradle to absorb transient failures
           for i in 1 2 3; do
@@ -767,6 +779,7 @@ jobs:
               --input android-qdomyos-zwift-deployment-settings.json \
               --gradle \
               --release \
+              --output "$OUTPUT_DIR" \
               --verbose && break || {
               echo "androiddeployqt/Gradle packaging fallito (tentativo $i). Retry tra 10s..."
               sleep 10
