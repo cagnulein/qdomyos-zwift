@@ -5925,7 +5925,7 @@ void homeform::update() {
             this->strokesCount->setValue(
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesCount().value(), 'f', 0));
             this->strokesLength->setValue(
-                QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().value(), 'f', 1));
+                QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().value(), 'f', 2));
 
             this->target_speed->setValue(QString::number(
                 ((rower *)bluetoothManager->device())->lastRequestedSpeed().value() * unit_conversion, 'f', 1));
