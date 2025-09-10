@@ -663,6 +663,17 @@ jobs:
           echo "y" | $SDKMANAGER "build-tools;34.0.0"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
+          
+          # Prepare global Gradle settings to avoid flaky packaging
+          mkdir -p "$HOME/.gradle"
+          cat > "$HOME/.gradle/gradle.properties" << 'EOF'
+          org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8
+          org.gradle.daemon=false
+          org.gradle.parallel=false
+          org.gradle.workers.max=2
+          org.gradle.caching=false
+          EOF
+          
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
           echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
@@ -697,7 +708,8 @@ jobs:
             -DANDROID_NDK_ROOT="$ANDROID_NDK_ROOT"
           
           # Build the project for all ABIs with verbose output
-          cmake --build . --parallel 4 --verbose
+          # Build only the app binary; package in a dedicated step
+          cmake --build . --parallel 4 --verbose --target qdomyos-zwift
           
           cd ..
           
@@ -729,6 +741,27 @@ jobs:
           }
           EOF
           cat android-qdomyos-zwift-deployment-settings.json
+          
+      - name: Package APK (androiddeployqt + Gradle retry)
+        run: |
+          set -euxo pipefail
+          # Increase file descriptors to avoid flaky packaging failures
+          ulimit -n 8192 || true
+          # Extra Gradle opts (in addition to ~/.gradle/gradle.properties)
+          export GRADLE_OPTS="-Xmx4g -Dfile.encoding=UTF-8 -Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
+          ANDROIDDEPLOYQT='${{ github.workspace }}/output/android/Qt/6.9.1/android/bin/androiddeployqt'
+          
+          # Retry androiddeployqt/Gradle to absorb transient failures
+          for i in 1 2 3; do
+            "$ANDROIDDEPLOYQT" \
+              --input android-qdomyos-zwift-deployment-settings.json \
+              --gradle \
+              --release \
+              --verbose && break || {
+              echo "androiddeployqt/Gradle packaging fallito (tentativo $i). Retry tra 10s..."
+              sleep 10
+            }
+          done
           
       - name: Align and sign APK (debug)
         run: |
