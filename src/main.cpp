@@ -22,6 +22,7 @@
 #include <QQmlApplicationEngine>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QList>
 #ifdef CHARTJS
 #include <QtWebView/QtWebView>
 #endif
@@ -604,6 +605,10 @@ int main(int argc, char *argv[]) {
     }
 #endif
     
+    // Register custom meta types used in queued invocations
+    qRegisterMetaType<SessionLine>("SessionLine");
+    qRegisterMetaType<QList<SessionLine>>("QList<SessionLine>");
+
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
