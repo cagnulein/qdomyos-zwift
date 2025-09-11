@@ -4247,6 +4247,8 @@ void homeform::LargeButton(const QString &name) {
     }
 }
 
+ 
+
 void homeform::Plus(const QString &name) {
     QSettings settings;
 
@@ -4432,15 +4434,34 @@ void homeform::Plus(const QString &name) {
         }
     } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("peloton_resistance"))) {
         if (bluetoothManager->device()) {
-            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-                ((bike *)bluetoothManager->device())
-                    ->changeResistance(((bike *)bluetoothManager->device())->currentResistance().value() + 1);
-            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
-                ((rower *)bluetoothManager->device())
-                    ->changeResistance(((rower *)bluetoothManager->device())->currentResistance().value() + 1);
-            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
-                ((elliptical *)bluetoothManager->device())
-                    ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance().value() + 1);
+            auto dev = bluetoothManager->device();
+            double current = dev->currentResistance().value();
+            double diff = dev->difficult();
+            if (diff == 0) diff = 1.0; // safety
+            resistance_t maxRes = dev->maxResistance();
+
+            if (dev->deviceType() == bluetoothdevice::BIKE) {
+                double g = ((bike *)dev)->gears();
+                double target = current + 1; // device-space target
+                int raw = qRound((target - g) / diff);
+                if (raw < 1) raw = 1;
+                if (raw > maxRes) raw = maxRes;
+                ((bike *)dev)->changeResistance(raw);
+            } else if (dev->deviceType() == bluetoothdevice::ROWING) {
+                double g = ((rower *)dev)->gears();
+                double target = current + 1; // device-space target
+                int raw = qRound((target - g) / diff);
+                if (raw < 1) raw = 1;
+                if (raw > maxRes) raw = maxRes;
+                ((rower *)dev)->changeResistance(raw);
+            } else if (dev->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                double g = ((elliptical *)dev)->gears();
+                double target = current + 1; // device-space target
+                // elliptical::changeResistance does not use difficult(), but keep formula consistent
+                int raw = qRound((target - g) / diff);
+                if (raw < 1) raw = 1;
+                if (raw > maxRes) raw = maxRes;
+                ((elliptical *)dev)->changeResistance(raw);
             }
         }
     } else if (name.contains(QStringLiteral("target_power"))) {
@@ -4703,15 +4724,34 @@ void homeform::Minus(const QString &name) {
         }
     } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("peloton_resistance"))) {
         if (bluetoothManager->device()) {
-            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-                ((bike *)bluetoothManager->device())
-                    ->changeResistance(((bike *)bluetoothManager->device())->currentResistance().value() - 1);
-            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
-                ((rower *)bluetoothManager->device())
-                    ->changeResistance(((rower *)bluetoothManager->device())->currentResistance().value() - 1);
-            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
-                ((elliptical *)bluetoothManager->device())
-                    ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance().value() - 1);
+            auto dev = bluetoothManager->device();
+            double current = dev->currentResistance().value();
+            double diff = dev->difficult();
+            if (diff == 0) diff = 1.0; // safety
+            resistance_t maxRes = dev->maxResistance();
+
+            if (dev->deviceType() == bluetoothdevice::BIKE) {
+                double g = ((bike *)dev)->gears();
+                double target = current - 1; // device-space target
+                int raw = qRound((target - g) / diff);
+                if (raw < 1) raw = 1;
+                if (raw > maxRes) raw = maxRes;
+                ((bike *)dev)->changeResistance(raw);
+            } else if (dev->deviceType() == bluetoothdevice::ROWING) {
+                double g = ((rower *)dev)->gears();
+                double target = current - 1; // device-space target
+                int raw = qRound((target - g) / diff);
+                if (raw < 1) raw = 1;
+                if (raw > maxRes) raw = maxRes;
+                ((rower *)dev)->changeResistance(raw);
+            } else if (dev->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                double g = ((elliptical *)dev)->gears();
+                double target = current - 1; // device-space target
+                // elliptical::changeResistance does not use difficult(), but keep formula consistent
+                int raw = qRound((target - g) / diff);
+                if (raw < 1) raw = 1;
+                if (raw > maxRes) raw = maxRes;
+                ((elliptical *)dev)->changeResistance(raw);
             }
         }
     } else if (name.contains(QStringLiteral("target_power"))) {
