@@ -577,6 +577,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         automaticShiftingTimer->start(100); // 100ms = 10Hz
     }
 
+    // Initialize FIT backup thread
+    fitBackupThread = new QThread(this);
+    fitBackupWriter = new FitBackupWriter();
+    fitBackupWriter->moveToThread(fitBackupThread);
+    fitBackupThread->start();
+
     QObject *rootObject = engine->rootObjects().constFirst();
     QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
     QObject *stack = rootObject;
@@ -1170,18 +1176,24 @@ QString homeform::getWritableAppDir() {
 void homeform::backup() {
 
     static uint8_t index = 0;
-    qDebug() << QStringLiteral("saving fit file backup...");
+    qDebug() << QStringLiteral("scheduling fit file backup...");
 
     QString path = getWritableAppDir();
     bluetoothdevice *dev = bluetoothManager->device();
     if (dev) {
 
         QString filename = path + QString::number(index) + backupFitFileName;
-        QFile::remove(filename);
-        qfit::save(filename, Session, dev->deviceType(),
-                   qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
-                   stravaPelotonWorkoutType, workoutName(), dev->bluetoothDevice.name(),
-                   "", "", "", "");
+        
+        // Use thread to write FIT backup file
+        QMetaObject::invokeMethod(fitBackupWriter, "writeFitBackup",
+                                 Qt::QueuedConnection,
+                                 Q_ARG(QString, filename),
+                                 Q_ARG(QList<SessionLine>, Session),
+                                 Q_ARG(bluetoothdevice::BLUETOOTH_TYPE, dev->deviceType()),
+                                 Q_ARG(uint32_t, qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE),
+                                 Q_ARG(FIT_SPORT, stravaPelotonWorkoutType),
+                                 Q_ARG(QString, workoutName()),
+                                 Q_ARG(QString, dev->bluetoothDevice.name()));
 
         index++;
         if (index > 1) {
@@ -1304,6 +1316,15 @@ void homeform::refresh_bluetooth_devices_clicked() {
 }
 
 homeform::~homeform() {
+    // Cleanup FIT backup thread
+    if (fitBackupThread && fitBackupThread->isRunning()) {
+        fitBackupThread->quit();
+        fitBackupThread->wait();
+    }
+    if (fitBackupWriter) {
+        delete fitBackupWriter;
+    }
+    
     gpx_save_clicked();
     fit_save_clicked();
 }
