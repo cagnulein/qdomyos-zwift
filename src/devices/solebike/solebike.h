@@ -68,8 +68,10 @@ class solebike : public bike {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastMetricUpdate = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     resistance_t lastResistanceBeforeDisconnection = -1;
+    bool communicationTimeout = false;
 
     bool initDone = false;
     bool initRequest = false;
