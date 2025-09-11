@@ -608,6 +608,9 @@ int main(int argc, char *argv[]) {
     // Register custom meta types used in queued invocations
     qRegisterMetaType<SessionLine>("SessionLine");
     qRegisterMetaType<QList<SessionLine>>("QList<SessionLine>");
+    qRegisterMetaType<bluetoothdevice::BLUETOOTH_TYPE>("bluetoothdevice::BLUETOOTH_TYPE");
+    qRegisterMetaType<uint32_t>("uint32_t");
+    qRegisterMetaType<FIT_SPORT>("FIT_SPORT");
 
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
