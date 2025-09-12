@@ -21,18 +21,19 @@
         <meta-data android:name="android.app.load_local_libs_resource_id" android:resource="@array/load_local_libs"/>
         <meta-data android:name="android.app.load_local_jars" android:resource="@string/qt_load_local_jars"/>
         <meta-data android:name="android.app.static_init_classes" android:resource="@string/qt_static_init_classes"/>
+        <!-- Application arguments duplicate at app level -->
+        <meta-data android:name="android.app.arguments" android:resource="@string/qt_empty_args"/>
         <meta-data android:name="android.app.ministro_not_found_msg" android:resource="@string/ministro_not_found_msg"/>
         <meta-data android:name="android.app.ministro_needed_msg" android:resource="@string/ministro_needed_msg"/>
         <meta-data android:name="android.app.fatal_error_msg" android:resource="@string/fatal_error_msg"/>
         <meta-data android:name="android.app.unsupported_android_version" android:resource="@string/unsupported_android_version"/>
-         <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.qtproject.qt.android.bindings.QtActivity" android:label="qdomyos-zwift" android:launchMode="singleTop">
+        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.qtproject.qt.android.bindings.QtActivity" android:label="qdomyos-zwift" android:launchMode="singleTop">
 		      <intent-filter>
 				    <action android:name="android.intent.action.MAIN"/>
 					 <category android:name="android.intent.category.LAUNCHER"/>
 					</intent-filter>
-					<!-- Application arguments -->
-				<!-- meta-data android:name="android.app.arguments" android:value="arg1 arg2 arg3"/ -->
-				<!-- Application arguments -->
+                <!-- Application arguments (empty to avoid getString(0) when missing) -->
+                <meta-data android:name="android.app.arguments" android:resource="@string/qt_empty_args"/>
 				<meta-data android:name="android.app.lib_name" android:resource="@string/qt_lib_name"/>
 				<meta-data android:name="android.app.qt_sources_resource_id" android:resource="@array/qt_sources"/>
 				<meta-data android:name="android.app.repository" android:resource="@string/qt_repository"/>
