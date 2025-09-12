@@ -16,6 +16,7 @@
 #include "smtpclient/src/SmtpMime"
 #include "trainprogram.h"
 #include "workoutmodel.h"
+#include "fitbackupwriter.h"
 #include <QChart>
 #include <QColor>
 #include <QGraphicsScene>
@@ -26,6 +27,7 @@
 #include <QQuickItem>
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
+#include <QThread>
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -791,6 +793,10 @@ class homeform : public QObject {
     QTimer *timer;
     QTimer *backupTimer;
     QTimer *automaticShiftingTimer;
+
+    // FIT backup threading
+    QThread *fitBackupThread;
+    FitBackupWriter *fitBackupWriter;
 
     QString strava_code;
     QOAuth2AuthorizationCodeFlow *strava_connect();
