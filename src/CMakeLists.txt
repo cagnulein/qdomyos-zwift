@@ -65,6 +65,7 @@ set(CORE_SOURCES
     workoutmodel.cpp
     fontmanager.cpp
     workoutloaderworker.cpp
+    fitbackupwriter.cpp
 )
 
 # Device sources
