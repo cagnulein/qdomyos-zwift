@@ -10,6 +10,22 @@
 
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
      <application android:hardwareAccelerated="true" android:debuggable="false" android:name="org.qtproject.qt.android.bindings.QtApplication" android:label="qdomyos-zwift" android:icon="@drawable/icon" android:usesCleartextTraffic="true">
+            <!-- Duplicate Qt meta-data at application level for loaders that consult ApplicationInfo -->
+            <meta-data android:name="android.app.lib_name" android:resource="@string/qt_lib_name"/>
+            <meta-data android:name="android.app.qt_sources_resource_id" android:resource="@array/qt_sources"/>
+            <meta-data android:name="android.app.repository" android:resource="@string/qt_repository"/>
+            <meta-data android:name="android.app.qt_libs_resource_id" android:resource="@array/qt_libs"/>
+            <meta-data android:name="android.app.bundled_libs_resource_id" android:resource="@array/bundled_libs"/>
+            <meta-data android:name="android.app.bundle_local_qt_libs" android:value="-- %%BUNDLE_LOCAL_QT_LIBS%% --"/>
+            <meta-data android:name="android.app.use_local_qt_libs" android:value="false"/>
+            <meta-data android:name="android.app.libs_prefix" android:resource="@string/qt_libs_prefix"/>
+            <meta-data android:name="android.app.load_local_libs_resource_id" android:resource="@array/load_local_libs"/>
+            <meta-data android:name="android.app.load_local_jars" android:resource="@string/qt_load_local_jars"/>
+            <meta-data android:name="android.app.static_init_classes" android:resource="@string/qt_static_init_classes"/>
+            <meta-data android:name="android.app.ministro_not_found_msg" android:resource="@string/ministro_not_found_msg"/>
+            <meta-data android:name="android.app.ministro_needed_msg" android:resource="@string/ministro_needed_msg"/>
+            <meta-data android:name="android.app.fatal_error_msg" android:resource="@string/fatal_error_msg"/>
+            <meta-data android:name="android.app.unsupported_android_version" android:resource="@string/unsupported_android_version"/>
              <activity android:theme="@style/Theme.AppCompat" android:exported="true" android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.cagnulen.qdomyoszwift.CustomQtActivity" android:label="QZ" android:launchMode="singleTop">
 		      <intent-filter>
 				    <action android:name="android.intent.action.MAIN"/>
