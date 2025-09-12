@@ -342,6 +342,8 @@
 		876BFC9D27BE35C5001D7645 /* bowflext216treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876BFC9927BE35C4001D7645 /* bowflext216treadmill.cpp */; };
 		876BFCA027BE35D8001D7645 /* moc_proformelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876BFC9E27BE35D8001D7645 /* moc_proformelliptical.cpp */; };
 		876BFCA127BE35D8001D7645 /* moc_bowflext216treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876BFC9F27BE35D8001D7645 /* moc_bowflext216treadmill.cpp */; };
+		876C64712E74139F00F1BEC0 /* moc_fitbackupwriter.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876C64702E74139F00F1BEC0 /* moc_fitbackupwriter.cpp */; };
+		876C64722E74139F00F1BEC0 /* fitbackupwriter.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876C646F2E74139F00F1BEC0 /* fitbackupwriter.cpp */; };
 		876E4E142594748000BD5714 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 876E4E132594748000BD5714 /* Assets.xcassets */; };
 		876E4E1B2594748000BD5714 /* watchkit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 876E4E1A2594748000BD5714 /* watchkit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		876E4E202594748000BD5714 /* qdomyoszwiftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E1F2594748000BD5714 /* qdomyoszwiftApp.swift */; };
@@ -1298,6 +1300,9 @@
 		876BFC9B27BE35C5001D7645 /* proformelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformelliptical.h; path = ../src/devices/proformelliptical/proformelliptical.h; sourceTree = "<group>"; };
 		876BFC9E27BE35D8001D7645 /* moc_proformelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformelliptical.cpp; sourceTree = "<group>"; };
 		876BFC9F27BE35D8001D7645 /* moc_bowflext216treadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_bowflext216treadmill.cpp; sourceTree = "<group>"; };
+		876C646E2E74139F00F1BEC0 /* fitbackupwriter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fitbackupwriter.h; path = ../src/fitbackupwriter.h; sourceTree = SOURCE_ROOT; };
+		876C646F2E74139F00F1BEC0 /* fitbackupwriter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fitbackupwriter.cpp; path = ../src/fitbackupwriter.cpp; sourceTree = SOURCE_ROOT; };
+		876C64702E74139F00F1BEC0 /* moc_fitbackupwriter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitbackupwriter.cpp; sourceTree = "<group>"; };
 		876E4E112594747F00BD5714 /* watchkit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = watchkit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		876E4E132594748000BD5714 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		876E4E152594748000BD5714 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -2273,6 +2278,9 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				876C646E2E74139F00F1BEC0 /* fitbackupwriter.h */,
+				876C646F2E74139F00F1BEC0 /* fitbackupwriter.cpp */,
+				876C64702E74139F00F1BEC0 /* moc_fitbackupwriter.cpp */,
 				8755E5D12E4E260B006A12E4 /* fontmanager.h */,
 				8755E5D22E4E260B006A12E4 /* fontmanager.cpp */,
 				8755E5D32E4E260B006A12E4 /* moc_fontmanager.cpp */,
@@ -3944,6 +3952,8 @@
 				2B42755BF45173E11E2110CB /* FitFieldDefinition.mm in Compile Sources */,
 				873824AE27E64706004F1B46 /* moc_browser.cpp in Compile Sources */,
 				8738249727E646E3004F1B46 /* characteristicnotifier2a53.cpp in Compile Sources */,
+				876C64712E74139F00F1BEC0 /* moc_fitbackupwriter.cpp in Compile Sources */,
+				876C64722E74139F00F1BEC0 /* fitbackupwriter.cpp in Compile Sources */,
 				DF373364C5474D877506CB26 /* FitMesg.mm in Compile Sources */,
 				87FE06812D170D3C00CDAAF6 /* moc_trxappgateusbrower.cpp in Compile Sources */,
 				872261F0289EA887006A6F75 /* moc_nordictrackelliptical.cpp in Compile Sources */,
