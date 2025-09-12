@@ -150,6 +150,11 @@ void echelonconnectsport::update() {
                initDone) {
         update_metrics(true, watts());
 
+        // Continuous ERG mode support - recalculate resistance as cadence changes when using power zone tiles
+        if (RequestedPower.value() > 0) {
+            changePower(RequestedPower.value());
+        }
+
                // sending poll every 2 seconds
         if (sec1Update++ >= (2000 / refresh->interval())) {
             sec1Update = 0;

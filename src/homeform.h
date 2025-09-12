@@ -17,6 +17,7 @@
 #include "trainprogram.h"
 #include <QtCharts/QChart>
 #include "workoutmodel.h"
+#include "fitbackupwriter.h"
 #include <QColor>
 #include <QGraphicsScene>
 #include <QMediaPlayer>
@@ -28,6 +29,7 @@
 #ifdef HAVE_TEXTTOSPEECH
 #include <QTextToSpeech>
 #endif
+#include <QThread>
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -796,6 +798,10 @@ class homeform : public QObject {
     QTimer *timer;
     QTimer *backupTimer;
     QTimer *automaticShiftingTimer;
+
+    // FIT backup threading
+    QThread *fitBackupThread;
+    FitBackupWriter *fitBackupWriter;
 
     QString strava_code;
     QOAuth2AuthorizationCodeFlow *strava_connect();

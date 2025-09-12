@@ -1497,6 +1497,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("SCHWINN 810")) ||
                         (b.name().toUpper().startsWith("MRK-T")) || // MERACH W50 TREADMILL 
                         b.name().toUpper().startsWith(QStringLiteral("KS-MC")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("FOCUS M3")) ||
                          b.name().toUpper().startsWith(QStringLiteral("ANPIUS-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM-01")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D"))) ||                     // Kingsmith WalkingPad Z1
@@ -1909,6 +1910,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YOROTO-RW-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SF-RW")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("NORDLYS")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROWER ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROGUE CONSOLE ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("DFIT-L-R")) ||

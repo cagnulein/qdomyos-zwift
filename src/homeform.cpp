@@ -216,7 +216,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     target_power = new DataObject(QStringLiteral("T.Power(W)"), QStringLiteral("icons/icons/watt.png"),
                                   QStringLiteral("0"), true, QStringLiteral("target_power"), 48, labelFontSize);
     target_zone = new DataObject(QStringLiteral("T.Zone"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("1"),
-                                 false, QStringLiteral("target_zone"), 48, labelFontSize);
+                                 true, QStringLiteral("target_zone"), 48, labelFontSize);
     target_speed = new DataObject(QStringLiteral("T.Speed (") + unit + QStringLiteral("/h)"),
                                   QStringLiteral("icons/icons/speed.png"), QStringLiteral("0.0"), true,
                                   QStringLiteral("target_speed"), 48, labelFontSize);
@@ -627,6 +627,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     } else {
         qDebug() << "error on QML engine UI";
     }
+  
+    // Initialize FIT backup thread
+    fitBackupThread = new QThread(this);
+    fitBackupWriter = new FitBackupWriter();
+    fitBackupWriter->moveToThread(fitBackupThread);
+    fitBackupThread->start();
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QObject::connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
@@ -1186,18 +1192,24 @@ QString homeform::getWritableAppDir() {
 void homeform::backup() {
 
     static uint8_t index = 0;
-    qDebug() << QStringLiteral("saving fit file backup...");
+    qDebug() << QStringLiteral("scheduling fit file backup...");
 
     QString path = getWritableAppDir();
     bluetoothdevice *dev = bluetoothManager->device();
     if (dev) {
 
         QString filename = path + QString::number(index) + backupFitFileName;
-        QFile::remove(filename);
-        qfit::save(filename, Session, dev->deviceType(),
-                   qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
-                   stravaPelotonWorkoutType, workoutName(), dev->bluetoothDevice.name(),
-                   "", "", "", "");
+        
+        // Use thread to write FIT backup file
+        QMetaObject::invokeMethod(fitBackupWriter, "writeFitBackup",
+                                 Qt::QueuedConnection,
+                                 Q_ARG(QString, filename),
+                                 Q_ARG(QList<SessionLine>, Session),
+                                 Q_ARG(bluetoothdevice::BLUETOOTH_TYPE, dev->deviceType()),
+                                 Q_ARG(uint32_t, qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE),
+                                 Q_ARG(FIT_SPORT, stravaPelotonWorkoutType),
+                                 Q_ARG(QString, workoutName()),
+                                 Q_ARG(QString, dev->bluetoothDevice.name()));
 
         index++;
         if (index > 1) {
@@ -1320,6 +1332,15 @@ void homeform::refresh_bluetooth_devices_clicked() {
 }
 
 homeform::~homeform() {
+    // Cleanup FIT backup thread
+    if (fitBackupThread && fitBackupThread->isRunning()) {
+        fitBackupThread->quit();
+        fitBackupThread->wait();
+    }
+    if (fitBackupWriter) {
+        delete fitBackupWriter;
+    }
+    
     gpx_save_clicked();
     fit_save_clicked();
 }
@@ -4264,6 +4285,8 @@ void homeform::LargeButton(const QString &name) {
     }
 }
 
+ 
+
 void homeform::Plus(const QString &name) {
     QSettings settings;
 
@@ -4449,15 +4472,34 @@ void homeform::Plus(const QString &name) {
         }
     } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("peloton_resistance"))) {
         if (bluetoothManager->device()) {
-            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-                ((bike *)bluetoothManager->device())
-                    ->changeResistance(((bike *)bluetoothManager->device())->currentResistance().value() + 1);
-            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
-                ((rower *)bluetoothManager->device())
-                    ->changeResistance(((rower *)bluetoothManager->device())->currentResistance().value() + 1);
-            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
-                ((elliptical *)bluetoothManager->device())
-                    ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance().value() + 1);
+            auto dev = bluetoothManager->device();
+            double current = dev->currentResistance().value();
+            double diff = dev->difficult();
+            if (diff == 0) diff = 1.0; // safety
+            resistance_t maxRes = dev->maxResistance();
+
+            if (dev->deviceType() == bluetoothdevice::BIKE) {
+                double g = ((bike *)dev)->gears();
+                double target = current + 1; // device-space target
+                int raw = qRound((target - g) / diff);
+                if (raw < 1) raw = 1;
+                if (raw > maxRes) raw = maxRes;
+                ((bike *)dev)->changeResistance(raw);
+            } else if (dev->deviceType() == bluetoothdevice::ROWING) {
+                double g = ((rower *)dev)->gears();
+                double target = current + 1; // device-space target
+                int raw = qRound((target - g) / diff);
+                if (raw < 1) raw = 1;
+                if (raw > maxRes) raw = maxRes;
+                ((rower *)dev)->changeResistance(raw);
+            } else if (dev->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                double g = ((elliptical *)dev)->gears();
+                double target = current + 1; // device-space target
+                // elliptical::changeResistance does not use difficult(), but keep formula consistent
+                int raw = qRound((target - g) / diff);
+                if (raw < 1) raw = 1;
+                if (raw > maxRes) raw = maxRes;
+                ((elliptical *)dev)->changeResistance(raw);
             }
         }
     } else if (name.contains(QStringLiteral("target_power"))) {
@@ -4502,6 +4544,17 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains(QStringLiteral("peloton_offset")) || name.contains(QStringLiteral("peloton_remaining"))) {
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->increaseElapsedTime(1);
+        }
+    } else if (name.contains(QStringLiteral("target_zone"))) {
+        QSettings settings;
+        double currentFtp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+        if (currentFtp > 0 && bluetoothManager->device() && 
+            bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            double currentTargetPower = ((bike *)bluetoothManager->device())->lastRequestedPower().value();
+            double powerIncrement = currentFtp * 0.01; // 1% of FTP
+            double newTargetPower = currentTargetPower + powerIncrement;
+            ((bike *)bluetoothManager->device())->changePower(newTargetPower);
+            qDebug() << "Target power increased by" << powerIncrement << "W (1% of FTP) from" << currentTargetPower << "to" << newTargetPower;
         }
     } else {
         qDebug() << name << QStringLiteral("not handled");
@@ -4709,15 +4762,34 @@ void homeform::Minus(const QString &name) {
         }
     } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("peloton_resistance"))) {
         if (bluetoothManager->device()) {
-            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-                ((bike *)bluetoothManager->device())
-                    ->changeResistance(((bike *)bluetoothManager->device())->currentResistance().value() - 1);
-            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
-                ((rower *)bluetoothManager->device())
-                    ->changeResistance(((rower *)bluetoothManager->device())->currentResistance().value() - 1);
-            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
-                ((elliptical *)bluetoothManager->device())
-                    ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance().value() - 1);
+            auto dev = bluetoothManager->device();
+            double current = dev->currentResistance().value();
+            double diff = dev->difficult();
+            if (diff == 0) diff = 1.0; // safety
+            resistance_t maxRes = dev->maxResistance();
+
+            if (dev->deviceType() == bluetoothdevice::BIKE) {
+                double g = ((bike *)dev)->gears();
+                double target = current - 1; // device-space target
+                int raw = qRound((target - g) / diff);
+                if (raw < 1) raw = 1;
+                if (raw > maxRes) raw = maxRes;
+                ((bike *)dev)->changeResistance(raw);
+            } else if (dev->deviceType() == bluetoothdevice::ROWING) {
+                double g = ((rower *)dev)->gears();
+                double target = current - 1; // device-space target
+                int raw = qRound((target - g) / diff);
+                if (raw < 1) raw = 1;
+                if (raw > maxRes) raw = maxRes;
+                ((rower *)dev)->changeResistance(raw);
+            } else if (dev->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                double g = ((elliptical *)dev)->gears();
+                double target = current - 1; // device-space target
+                // elliptical::changeResistance does not use difficult(), but keep formula consistent
+                int raw = qRound((target - g) / diff);
+                if (raw < 1) raw = 1;
+                if (raw > maxRes) raw = maxRes;
+                ((elliptical *)dev)->changeResistance(raw);
             }
         }
     } else if (name.contains(QStringLiteral("target_power"))) {
@@ -4766,6 +4838,18 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("peloton_offset")) || name.contains(QStringLiteral("peloton_remaining"))) {
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->decreaseElapsedTime(1);
+        }
+    } else if (name.contains(QStringLiteral("target_zone"))) {
+        QSettings settings;
+        double currentFtp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+        if (currentFtp > 0 && bluetoothManager->device() && 
+            bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            double currentTargetPower = ((bike *)bluetoothManager->device())->lastRequestedPower().value();
+            double powerDecrement = currentFtp * 0.01; // 1% of FTP
+            double newTargetPower = currentTargetPower - powerDecrement;
+            if (newTargetPower < 0) newTargetPower = 0; // Prevent negative power
+            ((bike *)bluetoothManager->device())->changePower(newTargetPower);
+            qDebug() << "Target power decreased by" << powerDecrement << "W (1% of FTP) from" << currentTargetPower << "to" << newTargetPower;
         }
     } else {
         qDebug() << name << QStringLiteral("not handled");
@@ -5925,7 +6009,7 @@ void homeform::update() {
             this->strokesCount->setValue(
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesCount().value(), 'f', 0));
             this->strokesLength->setValue(
-                QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().value(), 'f', 1));
+                QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().value(), 'f', 2));
 
             this->target_speed->setValue(QString::number(
                 ((rower *)bluetoothManager->device())->lastRequestedSpeed().value() * unit_conversion, 'f', 1));

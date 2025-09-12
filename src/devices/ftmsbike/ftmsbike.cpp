@@ -131,7 +131,7 @@ void ftmsbike::init() {
     if (initDone)
         return;
 
-    if(ICSE) {
+    if(ICSE || HAMMER) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
         write[0] = {FTMS_RESET};
@@ -1633,7 +1633,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("MRK-S26C-")) {
             qDebug() << QStringLiteral("MRK-S26C found");
             MRK_S26C = true;
+        } else if(device.name().toUpper().startsWith("HAMMER")) {
+            qDebug() << QStringLiteral("HAMMER found");
+            HAMMER = true;
         }
+
         
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
             resistance_lvl_mode = true;

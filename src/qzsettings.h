@@ -2041,6 +2041,9 @@ class QZSettings {
     static const QString zwift_play;
     static constexpr bool default_zwift_play = false;
 
+    static const QString zwift_play_vibration;
+    static constexpr bool default_zwift_play_vibration = true;
+
     static const QString nordictrack_treadmill_x14i;
     static constexpr bool default_nordictrack_treadmill_x14i = false;
 
@@ -2117,6 +2120,9 @@ class QZSettings {
 
     static const QString toorx_bike_srx_500;
     static constexpr bool default_toorx_bike_srx_500 = false;
+
+    static const QString toorxtreadmill_discovery_completed;
+    static constexpr bool default_toorxtreadmill_discovery_completed = false;
 
     static const QString atletica_lightspeed_treadmill;
     static constexpr bool default_atletica_lightspeed_treadmill = false;
