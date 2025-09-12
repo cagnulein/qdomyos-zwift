@@ -17,32 +17,8 @@ public class CustomQtActivity extends QtActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        // Ensure QtLoader has the extras it expects even if Intent/meta-data are empty
-        try {
-            android.content.Intent intent = getIntent();
-            android.os.Bundle extras = intent.getExtras();
-            if (extras == null) extras = new android.os.Bundle();
-            // Message strings as resource IDs
-            extras.putInt("android.app.ministro_not_found_msg", org.cagnulen.qdomyoszwift.R.string.ministro_not_found_msg);
-            extras.putInt("android.app.ministro_needed_msg", org.cagnulen.qdomyoszwift.R.string.ministro_needed_msg);
-            extras.putInt("android.app.fatal_error_msg", org.cagnulen.qdomyoszwift.R.string.fatal_error_msg);
-            extras.putInt("android.app.unsupported_android_version", org.cagnulen.qdomyoszwift.R.string.unsupported_android_version);
-            // Arrays as resource IDs
-            extras.putInt("android.app.qt_sources_resource_id", org.cagnulen.qdomyoszwift.R.array.qt_sources);
-            extras.putInt("android.app.qt_libs_resource_id", org.cagnulen.qdomyoszwift.R.array.qt_libs);
-            extras.putInt("android.app.bundled_libs_resource_id", org.cagnulen.qdomyoszwift.R.array.bundled_libs);
-            extras.putInt("android.app.load_local_libs_resource_id", org.cagnulen.qdomyoszwift.R.array.load_local_libs);
-            // Configuration values
-            extras.putBoolean("android.app.use_local_qt_libs", false);
-            extras.putString("android.app.lib_name", getString(org.cagnulen.qdomyoszwift.R.string.qt_lib_name));
-            extras.putString("android.app.repository", getString(org.cagnulen.qdomyoszwift.R.string.qt_repository));
-            extras.putString("android.app.libs_prefix", getString(org.cagnulen.qdomyoszwift.R.string.qt_libs_prefix));
-            extras.putString("android.app.load_local_jars", getString(org.cagnulen.qdomyoszwift.R.string.qt_load_local_jars));
-            extras.putString("android.app.static_init_classes", getString(org.cagnulen.qdomyoszwift.R.string.qt_static_init_classes));
-            intent.replaceExtras(extras);
-        } catch (Throwable t) {
-            Log.e(TAG, "Failed to seed Qt extras", t);
-        }
+        // Note: Do not seed Intent extras here. Some Qt loaders read values as
+        // resource IDs from extras; populating strings/booleans can cause 0 lookups.
 
         // Log meta-data resource IDs before Qt loads to diagnose 0x0 IDs
         try {
