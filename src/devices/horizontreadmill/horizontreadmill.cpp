@@ -972,7 +972,7 @@ void horizontreadmill::update() {
                 forceIncline(requestInclination);
 
                 // this treadmill doesn't send the incline, so i'm forcing it manually
-                if(SW_TREADMILL) {
+                if(SW_TREADMILL || mobvoi_treadmill) {
                     Inclination = requestInclination;
                 }
             }
