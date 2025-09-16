@@ -98,9 +98,9 @@ public class AntRemoteControl {
                     QLog.d(TAG, "onReceiveMessage: CHANNEL_EVENT - eventCode=" + code);
 
                     switch(code) {
-                        case CHANNEL_IN_WRONG_STATE:
+/*                        case CHANNEL_IN_WRONG_STATE:
                             QLog.w(TAG, "onReceiveMessage: CHANNEL_IN_WRONG_STATE error");
-                            break;
+                            break;*/
                         case CHANNEL_COLLISION:
                             QLog.w(TAG, "onReceiveMessage: CHANNEL_COLLISION error");
                             break;
