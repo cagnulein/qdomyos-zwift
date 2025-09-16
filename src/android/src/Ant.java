@@ -33,23 +33,27 @@ public class Ant {
  static boolean speedRequest = false;
  static boolean heartRequest = false;
  static boolean bikeRequest = false; // Added bike request flag
+ static boolean remoteControlRequest = false; // Added remote control request flag
  static boolean garminKey = false;
  static boolean treadmill = false;
  static boolean technoGymGroupCycle = false;
  static int antBikeDeviceNumber = 0;
  static int antHeartDeviceNumber = 0;
+ static int antRemoteControlDeviceNumber = 0; // Added remote control device number
 
- // Updated antStart method with BikeRequest parameter at the end
- public void antStart(Activity a, boolean SpeedRequest, boolean HeartRequest, boolean GarminKey, boolean Treadmill, boolean BikeRequest, boolean TechnoGymGroupCycle, int AntBikeDeviceNumber, int AntHeartDeviceNumber) {
+ // Updated antStart method with RemoteControlRequest parameter at the end
+ public void antStart(Activity a, boolean SpeedRequest, boolean HeartRequest, boolean GarminKey, boolean Treadmill, boolean BikeRequest, boolean TechnoGymGroupCycle, int AntBikeDeviceNumber, int AntHeartDeviceNumber, boolean RemoteControlRequest, int AntRemoteControlDeviceNumber) {
      QLog.v(TAG, "antStart");
      speedRequest = SpeedRequest;
      heartRequest = HeartRequest;
      treadmill = Treadmill;
      garminKey = GarminKey;
      bikeRequest = BikeRequest; // Set bike request flag
+     remoteControlRequest = RemoteControlRequest; // Set remote control request flag
      technoGymGroupCycle = TechnoGymGroupCycle;
      antBikeDeviceNumber = AntBikeDeviceNumber;
      antHeartDeviceNumber = AntHeartDeviceNumber;
+     antRemoteControlDeviceNumber = AntRemoteControlDeviceNumber;
      activity = a;
      if(a != null)
         QLog.v(TAG, "antStart activity is valid");
@@ -159,14 +163,29 @@ public class Ant {
     return mChannelService.isBikeConnected();
  }
 
- public void updateBikeTransmitterExtendedMetrics(long distanceMeters, int heartRate, 
-                                               double elapsedTimeSeconds, int resistance, 
+ public void updateBikeTransmitterExtendedMetrics(long distanceMeters, int heartRate,
+                                               double elapsedTimeSeconds, int resistance,
                                                double inclination) {
     if(mChannelService == null)
        return;
     QLog.v(TAG, "updateBikeTransmitterExtendedMetrics");
-    mChannelService.updateBikeTransmitterExtendedMetrics(distanceMeters, heartRate, 
-                                                        elapsedTimeSeconds, resistance, 
+    mChannelService.updateBikeTransmitterExtendedMetrics(distanceMeters, heartRate,
+                                                        elapsedTimeSeconds, resistance,
                                                         inclination);
+ }
+
+ // Remote Control methods
+ public boolean isRemoteControlConnected() {
+    if(mChannelService == null)
+       return false;
+    QLog.v(TAG, "isRemoteControlConnected");
+    return mChannelService.isRemoteControlConnected();
+ }
+
+ public void setRemoteControlDeviceNumber(int deviceNumber) {
+    if(mChannelService == null)
+       return;
+    QLog.v(TAG, "setRemoteControlDeviceNumber: " + deviceNumber);
+    mChannelService.setRemoteControlDeviceNumber(deviceNumber);
  }
 }

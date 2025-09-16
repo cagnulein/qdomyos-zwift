@@ -1205,6 +1205,8 @@ import Qt.labs.platform 1.1
             property int chart_display_mode: 0
             property bool zwift_play_vibration: true
             property bool toorxtreadmill_discovery_completed: false
+            property bool ant_remote_control: false
+            property int ant_remote_control_device_number: 0
         }
 
 
@@ -4622,6 +4624,69 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Use this to connect to your bike using ANT+ instead bluetooth. Default: Disabled")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("ANT+ Remote Control")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ant_remote_control
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.ant_remote_control = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Enable ANT+ Remote Control support (like Zwift Click). Menu Up/Down buttons control gear shifting. Works with standard ANT+ Control Device remotes. Default: Disabled")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("ANT+ Remote Control Device Number (0 = any):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: antRemoteControlDeviceNumberTextField
+                            text: settings.ant_remote_control_device_number
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.ant_remote_control_device_number = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ant_remote_control_device_number = antRemoteControlDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Set device number to 0 to accept any ANT+ remote control, or specify a specific device number to pair with only that remote.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
