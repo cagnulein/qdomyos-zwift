@@ -6,10 +6,11 @@
 package org.cagnulen.qdomyoszwift;
 
 import com.dsi.ant.channel.AntChannel;
-import com.dsi.ant.channel.AntChannelEventHandler;
+import com.dsi.ant.channel.AntCommandFailedException;
 import com.dsi.ant.channel.IAntChannelEventHandler;
 import com.dsi.ant.message.ChannelId;
 import com.dsi.ant.message.ChannelType;
+import com.dsi.ant.message.EventCode;
 import com.dsi.ant.message.fromant.AcknowledgedDataMessage;
 import com.dsi.ant.message.fromant.BroadcastDataMessage;
 import com.dsi.ant.message.fromant.ChannelEventMessage;
@@ -64,7 +65,7 @@ public class AntRemoteControl {
     /**
      * Channel Controller for handling ANT+ events
      */
-    private class ChannelController extends AntChannelEventHandler implements IAntChannelEventHandler {
+    private class ChannelController implements IAntChannelEventHandler {
 
         @Override
         public void onChannelDeath() {
@@ -79,34 +80,36 @@ public class AntRemoteControl {
             switch(messageType) {
                 case ACKNOWLEDGED_DATA:
                     QLog.d(TAG, "onReceiveMessage: Received ACKNOWLEDGED_DATA");
-                    byte[] ackPayload = antParcel.getAcknowledgedDataMessage().getPayload();
+                    AcknowledgedDataMessage ackMsg = new AcknowledgedDataMessage(antParcel);
+                    byte[] ackPayload = ackMsg.getPayload();
                     QLog.v(TAG, "onReceiveMessage: ACKNOWLEDGED_DATA payload length=" + (ackPayload != null ? ackPayload.length : 0));
                     handleDataMessage(ackPayload);
                     break;
                 case BROADCAST_DATA:
                     QLog.d(TAG, "onReceiveMessage: Received BROADCAST_DATA");
-                    byte[] broadcastPayload = antParcel.getBroadcastDataMessage().getPayload();
+                    BroadcastDataMessage broadcastMsg = new BroadcastDataMessage(antParcel);
+                    byte[] broadcastPayload = broadcastMsg.getPayload();
                     QLog.v(TAG, "onReceiveMessage: BROADCAST_DATA payload length=" + (broadcastPayload != null ? broadcastPayload.length : 0));
                     handleDataMessage(broadcastPayload);
                     break;
-                case CHANNEL_EVENT: {
-                    ChannelEventMessage eventMessage = antParcel.getChannelEventMessage();
+                case CHANNEL_EVENT:
+                    ChannelEventMessage eventMessage = new ChannelEventMessage(antParcel);
                     QLog.d(TAG, "onReceiveMessage: CHANNEL_EVENT - eventCode=" + eventMessage.getEventCode());
 
                     switch(eventMessage.getEventCode()) {
-                        case CHANNEL_IN_WRONG_STATE:
+                        case EventCode.CHANNEL_IN_WRONG_STATE:
                             QLog.w(TAG, "onReceiveMessage: CHANNEL_IN_WRONG_STATE error");
                             break;
-                        case CHANNEL_COLLISION:
+                        case EventCode.CHANNEL_COLLISION:
                             QLog.w(TAG, "onReceiveMessage: CHANNEL_COLLISION error");
                             break;
-                        case TRANSFER_TX_FAILED:
+                        case EventCode.TRANSFER_TX_FAILED:
                             QLog.w(TAG, "onReceiveMessage: TRANSFER_TX_FAILED error");
                             break;
-                        case RX_SEARCH_TIMEOUT:
+                        case EventCode.RX_SEARCH_TIMEOUT:
                             QLog.i(TAG, "onReceiveMessage: RX_SEARCH_TIMEOUT - no remote control found");
                             break;
-                        case CHANNEL_CLOSED:
+                        case EventCode.CHANNEL_CLOSED:
                             QLog.i(TAG, "onReceiveMessage: CHANNEL_CLOSED");
                             isChannelOpen = false;
                             break;
@@ -115,7 +118,6 @@ public class AntRemoteControl {
                             break;
                     }
                     break;
-                }
                 default:
                     QLog.d(TAG, "onReceiveMessage: Unhandled messageType=" + messageType + ", parcel=" + antParcel);
                     break;
@@ -330,8 +332,8 @@ public class AntRemoteControl {
                    "MHz, period=" + CONTROL_PERIOD + ")");
 
             // Assign the channel with slave configuration
-            QLog.d(TAG, "openChannel: assigning channel as SLAVE_RECEIVE_ONLY, frequency=" + CONTROL_FREQUENCY);
-            mAntChannel.assign(ChannelType.SLAVE_RECEIVE_ONLY, CONTROL_FREQUENCY);
+            QLog.d(TAG, "openChannel: assigning channel as SLAVE_RECEIVE_ONLY");
+            mAntChannel.assign(ChannelType.SLAVE_RECEIVE_ONLY);
 
             // Set the channel ID
             QLog.d(TAG, "openChannel: setting channel ID");
@@ -340,6 +342,10 @@ public class AntRemoteControl {
             // Set the period
             QLog.d(TAG, "openChannel: setting period=" + CONTROL_PERIOD);
             mAntChannel.setPeriod(CONTROL_PERIOD);
+
+            // Set the RF frequency
+            QLog.d(TAG, "openChannel: setting RF frequency=" + CONTROL_FREQUENCY);
+            mAntChannel.setRfFrequency(CONTROL_FREQUENCY);
 
             // Register event handler
             QLog.d(TAG, "openChannel: registering channel event handler");
@@ -358,8 +364,8 @@ public class AntRemoteControl {
             QLog.e(TAG, "openChannel: RemoteException while opening ANT+ Remote Control channel", e);
             isChannelOpen = false;
             return false;
-        } catch (Exception e) {
-            QLog.e(TAG, "openChannel: Unexpected exception while opening ANT+ Remote Control channel", e);
+        } catch (AntCommandFailedException e) {
+            QLog.e(TAG, "openChannel: AntCommandFailedException while opening ANT+ Remote Control channel", e);
             isChannelOpen = false;
             return false;
         }
@@ -390,8 +396,8 @@ public class AntRemoteControl {
             QLog.i(TAG, "closeChannel: ANT+ Remote Control channel closed and released successfully");
         } catch (RemoteException e) {
             QLog.e(TAG, "closeChannel: RemoteException while closing ANT+ Remote Control channel", e);
-        } catch (Exception e) {
-            QLog.e(TAG, "closeChannel: Unexpected exception while closing ANT+ Remote Control channel", e);
+        } catch (AntCommandFailedException e) {
+            QLog.e(TAG, "closeChannel: AntCommandFailedException while closing ANT+ Remote Control channel", e);
         }
 
         isChannelOpen = false;
