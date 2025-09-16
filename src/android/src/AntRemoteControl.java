@@ -94,27 +94,28 @@ public class AntRemoteControl {
                     break;
                 case CHANNEL_EVENT:
                     ChannelEventMessage eventMessage = new ChannelEventMessage(antParcel);
-                    QLog.d(TAG, "onReceiveMessage: CHANNEL_EVENT - eventCode=" + eventMessage.getEventCode());
+                    EventCode code = eventMessage.getEventCode();
+                    QLog.d(TAG, "onReceiveMessage: CHANNEL_EVENT - eventCode=" + code);
 
-                    switch(eventMessage.getEventCode()) {
-                        case EventCode.CHANNEL_IN_WRONG_STATE:
+                    switch(code) {
+                        case CHANNEL_IN_WRONG_STATE:
                             QLog.w(TAG, "onReceiveMessage: CHANNEL_IN_WRONG_STATE error");
                             break;
-                        case EventCode.CHANNEL_COLLISION:
+                        case CHANNEL_COLLISION:
                             QLog.w(TAG, "onReceiveMessage: CHANNEL_COLLISION error");
                             break;
-                        case EventCode.TRANSFER_TX_FAILED:
+                        case TRANSFER_TX_FAILED:
                             QLog.w(TAG, "onReceiveMessage: TRANSFER_TX_FAILED error");
                             break;
-                        case EventCode.RX_SEARCH_TIMEOUT:
+                        case RX_SEARCH_TIMEOUT:
                             QLog.i(TAG, "onReceiveMessage: RX_SEARCH_TIMEOUT - no remote control found");
                             break;
-                        case EventCode.CHANNEL_CLOSED:
+                        case CHANNEL_CLOSED:
                             QLog.i(TAG, "onReceiveMessage: CHANNEL_CLOSED");
                             isChannelOpen = false;
                             break;
                         default:
-                            QLog.v(TAG, "onReceiveMessage: Other channel event=" + eventMessage.getEventCode());
+                            QLog.v(TAG, "onReceiveMessage: Other channel event=" + code);
                             break;
                     }
                     break;
