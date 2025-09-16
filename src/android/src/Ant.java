@@ -25,6 +25,7 @@ import android.widget.Toast;
 import org.cagnulen.qdomyoszwift.QLog;
 import android.content.Intent;
 
+
 public class Ant {
  private ChannelService.ChannelServiceComm mChannelService = null;
  private boolean mChannelServiceBound = false;
