@@ -81,6 +81,18 @@ class wahookickrsnapbike : public bike {
 
     bool writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
+    
+    // Serialized command handling for setSimGrade and setWheelCircumference
+    enum class WahooOp { None, SimGrade, WheelCircumference };
+    WahooOp _currentOp = WahooOp::None;
+    bool _pendingSimGrade = false;
+    double _pendingSimGradeValue = 0.0;
+    bool _pendingWheelCirc = false;
+    double _pendingWheelCircValue = 0.0;
+    QTimer _opTimeout;
+    void processNextPending();
+    void sendSimGradeNow(double grade);
+    void sendWheelCircumferenceNow(double mm);
     uint16_t wattsFromResistance(double resistance);
     metric ResistanceFromFTMSAccessory;
     void startDiscover();

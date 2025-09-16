@@ -34,6 +34,17 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
     wheelCircumference::GearTable g;
     g.printTable();
+
+    // Setup op timeout handler for serialized commands
+    _opTimeout.setSingleShot(true);
+    connect(&_opTimeout, &QTimer::timeout, this, [this]() {
+        // Timeout waiting for ack; clear and try next pending to avoid stall
+        if (_currentOp != WahooOp::None) {
+            emit debug(QStringLiteral("Ack timeout; releasing op and continuing queue"));
+        }
+        _currentOp = WahooOp::None;
+        processNextPending();
+    });
 }
 
 void wahookickrsnapbike::restoreDefaultWheelDiameter() {
@@ -305,10 +316,8 @@ void wahookickrsnapbike::update() {
                 if(KICKR_SNAP) {
                    inclinationChanged(lastGrade, lastGrade);
                 } else {
-                    QByteArray a = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
-                    uint8_t b[20];
-                    memcpy(b, a.constData(), a.length());
-                    writeCharacteristic(b, a.length(), "setWheelCircumference", false, false);
+                    // Queue wheel circumference change (higher priority)
+                    sendWheelCircumferenceNow(wheelCircumference::gearsToWheelDiameter(gears()));
                     lastGrade = 999; // to force a change
                 }
             }
@@ -441,6 +450,21 @@ void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << uuid;
+
+    // Detect acks for serialized commands (format: 0x01 <cmdId> 0x01 0x00 ...)
+    if (newValue.size() >= 3 && (uint8_t)newValue.at(0) == 0x01) {
+        uint8_t cmd = (uint8_t)newValue.at(1);
+        uint8_t status = (uint8_t)newValue.at(2);
+        if ((cmd == _setSimGrade || cmd == _setWheelCircumference) && status == 0x01) {
+            // Ack received for our tracked op; release and continue
+            if ((_currentOp == WahooOp::SimGrade && cmd == _setSimGrade) ||
+                (_currentOp == WahooOp::WheelCircumference && cmd == _setWheelCircumference)) {
+                _opTimeout.stop();
+                _currentOp = WahooOp::None;
+                processNextPending();
+            }
+        }
+    }
 
     if (uuid == QBluetoothUuid::CyclingPowerMeasurement) {
         lastPacket = newValue;
@@ -964,10 +988,7 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
         emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
         double g = grade;
         g += gears();
-        QByteArray a = setSimGrade(g);
-        uint8_t b[20];
-        memcpy(b, a.constData(), a.length());
-        writeCharacteristic(b, a.length(), "setSimGrade", false, false);
+        sendSimGradeNow(g);
     } else {
         if(lastCommandErgMode) {
             lastGrade = grade + 1; // to force a refresh
@@ -987,11 +1008,56 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
             g += gears() * 0.5;
             qDebug() << "adding gear offset so " << g;
         }
-        QByteArray a = setSimGrade(g);
-        uint8_t b[20];
-        memcpy(b, a.constData(), a.length());
-        writeCharacteristic(b, a.length(), "setSimGrade", false, false);
+        sendSimGradeNow(g);
         lastCommandErgMode = false;
+    }
+}
+
+// Send or enqueue: SimGrade
+void wahookickrsnapbike::sendSimGradeNow(double grade) {
+    // If an operation is in flight, store latest grade and return
+    if (_currentOp != WahooOp::None) {
+        _pendingSimGrade = true;
+        _pendingSimGradeValue = grade;
+        return;
+    }
+    QByteArray a = setSimGrade(grade);
+    uint8_t b[20];
+    memcpy(b, a.constData(), a.length());
+    _currentOp = WahooOp::SimGrade;
+    // Send without blocking; wait for explicit ack in handleCharacteristicValueChanged
+    writeCharacteristic(b, a.length(), "setSimGrade", false, false);
+    _opTimeout.start(1000);
+}
+
+// Send or enqueue: Wheel Circumference
+void wahookickrsnapbike::sendWheelCircumferenceNow(double mm) {
+    // If an operation is in flight, prefer to hold latest wheel circ (priority for next send)
+    if (_currentOp != WahooOp::None) {
+        _pendingWheelCirc = true;
+        _pendingWheelCircValue = mm;
+        return;
+    }
+    QByteArray a = setWheelCircumference(mm);
+    uint8_t b[20];
+    memcpy(b, a.constData(), a.length());
+    _currentOp = WahooOp::WheelCircumference;
+    writeCharacteristic(b, a.length(), "setWheelCircumference", false, false);
+    _opTimeout.start(1000);
+}
+
+// Process next pending item, wheel circumference has priority
+void wahookickrsnapbike::processNextPending() {
+    if (_currentOp != WahooOp::None) return;
+    if (_pendingWheelCirc) {
+        _pendingWheelCirc = false;
+        sendWheelCircumferenceNow(_pendingWheelCircValue);
+        return;
+    }
+    if (_pendingSimGrade) {
+        _pendingSimGrade = false;
+        sendSimGradeNow(_pendingSimGradeValue);
+        return;
     }
 }
 
