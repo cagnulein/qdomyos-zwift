@@ -59,6 +59,7 @@ public class ChannelService extends Service {
     SDMChannelController sdmChannelController = null;
     BikeChannelController bikeChannelController = null; // Added BikeChannelController reference
     BikeTransmitterController bikeTransmitterController = null; // Added BikeTransmitterController reference
+    AntRemoteControl antRemoteControl = null; // Added AntRemoteControl reference
 
     private ServiceConnection mAntRadioServiceConnection = new ServiceConnection() {
         @Override
@@ -307,6 +308,41 @@ public class ChannelService extends Service {
             return "Bike transmitter not initialized";
         }
 
+        // ========== REMOTE CONTROL METHODS ==========
+
+        /**
+         * Check if remote control is connected
+         */
+        boolean isRemoteControlConnected() {
+            QLog.v(TAG, "ChannelServiceComm.isRemoteControlConnected");
+            return (antRemoteControl != null && antRemoteControl.isChannelOpen());
+        }
+
+        /**
+         * Set the remote control device number (0 = wildcard)
+         */
+        void setRemoteControlDeviceNumber(int deviceNumber) {
+            QLog.v(TAG, "ChannelServiceComm.setRemoteControlDeviceNumber: " + deviceNumber);
+
+            if (antRemoteControl != null) {
+                antRemoteControl.setDeviceNumber(deviceNumber);
+                QLog.d(TAG, "Remote control device number updated to: " + deviceNumber);
+            } else {
+                QLog.w(TAG, "Remote control not initialized, cannot set device number");
+            }
+        }
+
+        /**
+         * Get remote control status info for debugging
+         */
+        String getRemoteControlInfo() {
+            if (antRemoteControl != null) {
+                return "Remote control initialized, channel open: " + antRemoteControl.isChannelOpen() +
+                       ", device number: " + antRemoteControl.getDeviceNumber();
+            }
+            return "Remote control not initialized";
+        }
+
         /**
          * Closes all channels currently added.
          */
@@ -393,6 +429,37 @@ public class ChannelService extends Service {
                 bikeTransmitterController = null;
             }
         }
+
+        // Add initialization for AntRemoteControl
+        if (Ant.remoteControlRequest && antRemoteControl == null) {
+            QLog.i(TAG, "Initializing AntRemoteControl");
+            try {
+                // Create remote control instance
+                antRemoteControl = new AntRemoteControl();
+
+                // Set device number (0 = wildcard for any remote)
+                antRemoteControl.setDeviceNumber(Ant.antRemoteControlDeviceNumber);
+
+                // Acquire channel like other controllers
+                AntChannel remoteChannel = acquireChannel();
+                if (remoteChannel != null) {
+                    boolean channelOpened = antRemoteControl.openChannel(remoteChannel);
+                    if (channelOpened) {
+                        QLog.i(TAG, "AntRemoteControl initialized and channel opened successfully");
+                    } else {
+                        QLog.e(TAG, "Failed to open AntRemoteControl channel");
+                        antRemoteControl = null;
+                    }
+                } else {
+                    QLog.e(TAG, "Failed to acquire channel for AntRemoteControl");
+                    antRemoteControl = null;
+                }
+
+            } catch (Exception e) {
+                QLog.e(TAG, "Failed to initialize AntRemoteControl: " + e.getMessage(), e);
+                antRemoteControl = null;
+            }
+        }
     }
 
     private void closeAllChannels() {
@@ -409,6 +476,9 @@ public class ChannelService extends Service {
         if (bikeTransmitterController != null) {  // Added closing bikeTransmitterController
             bikeTransmitterController.close();  // Use close() method like other controllers
         }
+        if (antRemoteControl != null) {  // Added closing antRemoteControl
+            antRemoteControl.closeChannel();
+        }
 
         heartChannelController = null;
         powerChannelController = null;
@@ -416,6 +486,7 @@ public class ChannelService extends Service {
         sdmChannelController = null;
         bikeChannelController = null;  // Added nullifying bikeChannelController
         bikeTransmitterController = null;  // Added nullifying bikeTransmitterController
+        antRemoteControl = null;  // Added nullifying antRemoteControl
     }
 
     AntChannel acquireChannel() throws ChannelNotAvailableException {

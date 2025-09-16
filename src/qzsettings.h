@@ -1930,6 +1930,12 @@ class QZSettings {
     static const QString ant_speed_gain;
     static constexpr float default_ant_speed_gain = 1;
 
+    static const QString ant_remote_control;
+    static constexpr bool default_ant_remote_control = false;
+
+    static const QString ant_remote_control_device_number;
+    static constexpr int default_ant_remote_control_device_number = 0;
+
     static const QString race_mode;
     static constexpr bool default_race_mode = false;
 

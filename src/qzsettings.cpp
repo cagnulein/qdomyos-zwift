@@ -685,6 +685,8 @@ const QString QZSettings::ftms_treadmill = QStringLiteral("ftms_treadmill");
 const QString QZSettings::default_ftms_treadmill = QStringLiteral("Disabled");
 const QString QZSettings::ant_speed_offset = QStringLiteral("ant_speed_offset");
 const QString QZSettings::ant_speed_gain = QStringLiteral("ant_speed_gain");
+const QString QZSettings::ant_remote_control = QStringLiteral("ant_remote_control");
+const QString QZSettings::ant_remote_control_device_number = QStringLiteral("ant_remote_control_device_number");
 const QString QZSettings::proform_rower_sport_rl = QStringLiteral("proform_rower_sport_rl");
 const QString QZSettings::strava_date_prefix = QStringLiteral("strava_date_prefix");
 const QString QZSettings::race_mode = QStringLiteral("race_mode");
@@ -983,7 +985,7 @@ const QString QZSettings::calories_from_hr = QStringLiteral("calories_from_hr");
 const QString QZSettings::height = QStringLiteral("height");
 
 
-const uint32_t allSettingsCount = 805;
+const uint32_t allSettingsCount = 807;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1562,6 +1564,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill},
     {QZSettings::ant_speed_offset, QZSettings::default_ant_speed_offset},
     {QZSettings::ant_speed_gain, QZSettings::default_ant_speed_gain},
+    {QZSettings::ant_remote_control, QZSettings::default_ant_remote_control},
+    {QZSettings::ant_remote_control_device_number, QZSettings::default_ant_remote_control_device_number},
     {QZSettings::proform_rower_sport_rl, QZSettings::default_proform_rower_sport_rl},
     {QZSettings::strava_date_prefix, QZSettings::default_strava_date_prefix},
     {QZSettings::race_mode, QZSettings::default_race_mode},
