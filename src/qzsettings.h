@@ -2693,6 +2693,9 @@ class QZSettings {
     static const QString height;
     static constexpr double default_height = 175.0;
 
+    static const QString taurua_ic90;
+    static constexpr bool default_taurua_ic90 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
