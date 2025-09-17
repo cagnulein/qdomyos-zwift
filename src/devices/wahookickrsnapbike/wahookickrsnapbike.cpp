@@ -342,7 +342,10 @@ void wahookickrsnapbike::update() {
                 } else if (requestResistance != currentResistance().value() &&
                 ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) && lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance due to gears changed ") + QString::number(lastForcedResistance));
-                QByteArray a = setResistanceMode(((double)lastForcedResistance + (gears() - lastGearValue)) / 100.0);
+                if(lastForcedResistance == -1)
+                    lastForcedResistance = 1;
+                lastForcedResistance = ((double)lastForcedResistance + (gears() - lastGearValue));
+                QByteArray a = setResistanceMode(lastForcedResistance / 100.0);
                 uint8_t b[20];
                 memcpy(b, a.constData(), a.length());
                 writeCharacteristic(b, a.length(), "setResistance", false, false);
