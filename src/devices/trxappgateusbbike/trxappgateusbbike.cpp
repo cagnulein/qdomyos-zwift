@@ -186,6 +186,10 @@ void trxappgateusbbike::update() {
             noOpData[4] = crc;
             pollCounter += 0x0c;
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+        } else if (bike_type == TYPE::TAURUA_IC90) {
+
+            const uint8_t noOpData[] = {0xf0, 0xa2, 0x01, 0x31, 0xc4};
+            writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x23, 0xd3, 0x88};
@@ -817,6 +821,24 @@ void trxappgateusbbike::btinit(bool startTape) {
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData8, sizeof(initData8), QStringLiteral("init"), false, true);
         QThread::msleep(400);
+    } else if (bike_type == TYPE::TAURUA_IC90) {
+        const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x00, 0x91};
+        const uint8_t initData2[] = {0xf0, 0xa0, 0x01, 0x31, 0xc2};
+        const uint8_t initData3[] = {0xf0, 0xa1, 0x01, 0x31, 0xc3};
+        const uint8_t initData4[] = {0xf0, 0xa0, 0x01, 0x31, 0xc2};
+        const uint8_t initData5[] = {0xf0, 0xa1, 0x01, 0x31, 0xc3};
+        const uint8_t initData6[] = {0xf0, 0xa3, 0x01, 0x31, 0x01, 0xc6};
+        const uint8_t initData7[] = {0xf0, 0xa4, 0x01, 0x31, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xd0};
+        const uint8_t initData8[] = {0xf0, 0xa5, 0x01, 0x31, 0x02, 0xc9};
+
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData8, sizeof(initData8), QStringLiteral("init"), false, true);
     } else {
 
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
@@ -1104,6 +1126,7 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool enerfit_SPX_9500 = settings.value(QZSettings::enerfit_SPX_9500, QZSettings::default_enerfit_SPX_9500).toBool();
     bool hop_sport_hs_090h_bike = settings.value(QZSettings::hop_sport_hs_090h_bike, QZSettings::default_hop_sport_hs_090h_bike).toBool();
     bool toorx_bike_srx_500 = settings.value(QZSettings::toorx_bike_srx_500, QZSettings::default_toorx_bike_srx_500).toBool();
+    bool taurua_ic90 = settings.value(QZSettings::taurua_ic90, QZSettings::default_taurua_ic90).toBool();
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     // if(device.name().startsWith("TOORX") || device.name().startsWith("V-RUN") || device.name().startsWith("FS-")
@@ -1153,6 +1176,11 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
             bike_type = TYPE::TOORX_SRX_500;
             qDebug() << QStringLiteral("TOORX_SRX_500 bike found");
+        } else if(taurua_ic90) {
+            refresh->start(500ms);
+
+            bike_type = TYPE::TAURUA_IC90;
+            qDebug() << QStringLiteral("TAURUA_IC90 bike found");
         } else if (device.name().toUpper().startsWith(QStringLiteral("REEBOK"))) {
             bike_type = TYPE::REEBOK;
             qDebug() << QStringLiteral("REEBOK bike found");

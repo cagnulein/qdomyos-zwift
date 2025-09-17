@@ -1205,6 +1205,7 @@ import Qt.labs.platform 1.1
             property int chart_display_mode: 0
             property bool zwift_play_vibration: true
             property bool toorxtreadmill_discovery_completed: false
+            property bool taurua_ic90: false
         }
 
 
@@ -8666,7 +8667,21 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.hop_sport_hs_090h_bike = checked; window.settings_restart_to_apply = true; }
-                    }                    
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Taurua IC90 Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.taurua_ic90
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.taurua_ic90 = checked; window.settings_restart_to_apply = true; }
+                    }
 
                     IndicatorOnlySwitch {
                         id: jtxFitnessSprintTreadmillDelegate

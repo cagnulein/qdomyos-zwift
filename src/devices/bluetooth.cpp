@@ -450,7 +450,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                        settings.value(QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500).toBool() ||
                        settings.value(QZSettings::hop_sport_hs_090h_bike, QZSettings::default_hop_sport_hs_090h_bike).toBool() ||
                        settings.value(QZSettings::toorx_bike_srx_500, QZSettings::default_toorx_bike_srx_500).toBool() ||
-                       settings.value(QZSettings::hertz_xr_770, QZSettings::default_hertz_xr_770).toBool()) &&
+                       settings.value(QZSettings::hertz_xr_770, QZSettings::default_hertz_xr_770).toBool() ||
+                       settings.value(QZSettings::taurua_ic90, QZSettings::default_taurua_ic90).toBool()) &&
                       !toorx_ftms;
     bool snode_bike = settings.value(QZSettings::snode_bike, QZSettings::default_snode_bike).toBool();
     bool fitplus_bike = settings.value(QZSettings::fitplus_bike, QZSettings::default_fitplus_bike).toBool() ||
