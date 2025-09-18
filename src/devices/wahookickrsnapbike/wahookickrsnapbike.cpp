@@ -456,6 +456,11 @@ void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &
         uint8_t cmd = (uint8_t)newValue.at(1);
         uint8_t status = (uint8_t)newValue.at(2);
         if ((cmd == _setSimGrade || cmd == _setWheelCircumference) && status == 0x01) {
+
+            if(cmd == _setWheelCircumference) {
+                homeform::singleton()->setToastRequested(Gear accepted from the trainer");
+            }
+
             // Ack received for our tracked op; release and continue
             if ((_currentOp == WahooOp::SimGrade && cmd == _setSimGrade) ||
                 (_currentOp == WahooOp::WheelCircumference && cmd == _setWheelCircumference)) {
