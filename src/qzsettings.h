@@ -2700,6 +2700,24 @@ class QZSettings {
     static constexpr bool default_proform_csx210 = false;
 
     /**
+     * @brief Zwift Click device MAC address selection
+     */
+    static const QString zwift_click_name;
+    static const QString default_zwift_click_name;
+
+    /**
+     * @brief Zwift Play left device MAC address selection
+     */
+    static const QString zwift_play_left_name;
+    static const QString default_zwift_play_left_name;
+
+    /**
+     * @brief Zwift Play right device MAC address selection
+     */
+    static const QString zwift_play_right_name;
+    static const QString default_zwift_play_right_name;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */

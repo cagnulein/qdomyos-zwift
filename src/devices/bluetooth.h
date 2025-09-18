@@ -161,6 +161,8 @@
 class bluetooth : public QObject, public SignalHandler {
 
     Q_OBJECT
+    Q_PROPERTY(QStringList zwiftClickDevices READ getZwiftClickDevices NOTIFY zwiftClickDevicesChanged)
+    Q_PROPERTY(QStringList zwiftPlayDevices READ getZwiftPlayDevices NOTIFY zwiftPlayDevicesChanged)
   public:
     bluetooth(const discoveryoptions &options);
     explicit bluetooth(bool logs, const QString &deviceName = QLatin1String(""), bool noWriteResistance = false,
@@ -174,6 +176,9 @@ class bluetooth : public QObject, public SignalHandler {
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;
     volatile bool homeformLoaded = false;
+
+    QStringList getZwiftClickDevices() const;
+    QStringList getZwiftPlayDevices() const;
 
   private:
     bool useDiscovery = false;
@@ -308,6 +313,10 @@ class bluetooth : public QObject, public SignalHandler {
     elitesquarecontroller* eliteSquareController = nullptr;
     QString filterDevice = QLatin1String("");
 
+    // Device discovery lists for Zwift devices
+    QStringList zwiftClickDevicesList;
+    QStringList zwiftPlayDevicesList;
+
     bool testResistance = false;
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -365,6 +374,8 @@ class bluetooth : public QObject, public SignalHandler {
 
     void bluetoothDeviceConnected(bluetoothdevice *b);
     void bluetoothDeviceDisconnected();
+    void zwiftClickDevicesChanged();
+    void zwiftPlayDevicesChanged();
   public slots:
     void restart();
     void debug(const QString &string);

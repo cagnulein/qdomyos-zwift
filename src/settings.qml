@@ -1207,6 +1207,9 @@ import Qt.labs.platform 1.1
             property bool toorxtreadmill_discovery_completed: false
             property bool taurua_ic90: false
             property bool proform_csx210: false
+            property string zwift_click_name: "Auto"
+            property string zwift_play_left_name: "Auto"
+            property string zwift_play_right_name: "Auto"
         }
 
 
@@ -11662,7 +11665,85 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
-                            }                            
+                            }
+
+                            Label {
+                                text: qsTr("Zwift Click Device")
+                                visible: settings.zwift_click
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                            }
+
+                            ComboBox {
+                                id: zwiftClickDeviceCombo
+                                visible: settings.zwift_click
+                                Layout.fillWidth: true
+                                model: rootItem.bluetooth ? rootItem.bluetooth.zwiftClickDevices : ["Auto"]
+                                currentIndex: {
+                                    if (rootItem.bluetooth && rootItem.bluetooth.zwiftClickDevices) {
+                                        return Math.max(0, rootItem.bluetooth.zwiftClickDevices.indexOf(settings.zwift_click_name))
+                                    }
+                                    return 0
+                                }
+                                onCurrentTextChanged: {
+                                    if (currentText && currentText !== settings.zwift_click_name) {
+                                        settings.zwift_click_name = currentText
+                                        window.settings_restart_to_apply = true
+                                    }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Zwift Play Left Device")
+                                visible: settings.zwift_play
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                            }
+
+                            ComboBox {
+                                id: zwiftPlayLeftDeviceCombo
+                                visible: settings.zwift_play
+                                Layout.fillWidth: true
+                                model: rootItem.bluetooth ? rootItem.bluetooth.zwiftPlayDevices : ["Auto"]
+                                currentIndex: {
+                                    if (rootItem.bluetooth && rootItem.bluetooth.zwiftPlayDevices) {
+                                        return Math.max(0, rootItem.bluetooth.zwiftPlayDevices.indexOf(settings.zwift_play_left_name))
+                                    }
+                                    return 0
+                                }
+                                onCurrentTextChanged: {
+                                    if (currentText && currentText !== settings.zwift_play_left_name) {
+                                        settings.zwift_play_left_name = currentText
+                                        window.settings_restart_to_apply = true
+                                    }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Zwift Play Right Device")
+                                visible: settings.zwift_play
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                            }
+
+                            ComboBox {
+                                id: zwiftPlayRightDeviceCombo
+                                visible: settings.zwift_play
+                                Layout.fillWidth: true
+                                model: rootItem.bluetooth ? rootItem.bluetooth.zwiftPlayDevices : ["Auto"]
+                                currentIndex: {
+                                    if (rootItem.bluetooth && rootItem.bluetooth.zwiftPlayDevices) {
+                                        return Math.max(0, rootItem.bluetooth.zwiftPlayDevices.indexOf(settings.zwift_play_right_name))
+                                    }
+                                    return 0
+                                }
+                                onCurrentTextChanged: {
+                                    if (currentText && currentText !== settings.zwift_play_right_name) {
+                                        settings.zwift_play_right_name = currentText
+                                        window.settings_restart_to_apply = true
+                                    }
+                                }
+                            }
 
                             IndicatorOnlySwitch {
                                 text: qsTr("Buttons debouncing")

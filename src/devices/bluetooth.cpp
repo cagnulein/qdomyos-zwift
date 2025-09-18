@@ -99,6 +99,10 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &bluetooth::deviceDiscovered);
 
+        // Initialize Zwift device lists with "Auto" option
+        zwiftClickDevicesList.append("Auto");
+        zwiftPlayDevicesList.append("Auto");
+
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceUpdated, this, &bluetooth::deviceUpdated);
 
@@ -644,6 +648,27 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         }
         if (!found) {
             devices.append(device);
+
+            // Cache Zwift devices for ComboBox selection
+            QString deviceName = device.name().toUpper();
+#if defined(Q_OS_DARWIN) || defined(Q_OS_IOS)
+            QString deviceAddress = device.deviceUuid().toString();
+#else
+            QString deviceAddress = device.address().toString();
+#endif
+            QString deviceDisplay = device.name() + " (" + deviceAddress + ")";
+
+            if (deviceName.startsWith("ZWIFT CLICK")) {
+                if (!zwiftClickDevicesList.contains(deviceDisplay)) {
+                    zwiftClickDevicesList.append(deviceDisplay);
+                    emit zwiftClickDevicesChanged();
+                }
+            } else if (deviceName.startsWith("ZWIFT PLAY") || deviceName.startsWith("ZWIFT RIDE") || deviceName.startsWith("ZWIFT SF2")) {
+                if (!zwiftPlayDevicesList.contains(deviceDisplay)) {
+                    zwiftPlayDevicesList.append(deviceDisplay);
+                    emit zwiftPlayDevicesChanged();
+                }
+            }
         }
     }
 
@@ -3011,9 +3036,23 @@ void bluetooth::connectedAndDiscovered() {
     }
 
     if(settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool()) {
+        QString zwiftClickName = settings.value(QZSettings::zwift_click_name, QZSettings::default_zwift_click_name).toString();
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (((b.name().toUpper().startsWith("ZWIFT CLICK"))) && !zwiftClickRemote && this->device() &&
                     this->device()->deviceType() == bluetoothdevice::BIKE) {
+
+                // Check MAC address filter if not "Auto"
+                if (zwiftClickName != "Auto") {
+#if defined(Q_OS_DARWIN) || defined(Q_OS_IOS)
+                    QString deviceAddress = b.deviceUuid().toString();
+#else
+                    QString deviceAddress = b.address().toString();
+#endif
+                    QString deviceDisplay = b.name() + " (" + deviceAddress + ")";
+                    if (deviceDisplay != zwiftClickName) {
+                        continue; // Skip this device if it doesn't match the selected one
+                    }
+                }
 
                 if(b.manufacturerData(2378).size() > 0) {
                     qDebug() << "this should be 9. is it? " << int(b.manufacturerData(2378).at(0));
@@ -3056,20 +3095,49 @@ void bluetooth::connectedAndDiscovered() {
 
     if(settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool()) {
         bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
+        QString zwiftPlayLeftName = settings.value(QZSettings::zwift_play_left_name, QZSettings::default_zwift_play_left_name).toString();
+        QString zwiftPlayRightName = settings.value(QZSettings::zwift_play_right_name, QZSettings::default_zwift_play_right_name).toString();
+
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if ((((b.name().toUpper().startsWith("ZWIFT PLAY"))) || b.name().toUpper().startsWith("ZWIFT RIDE") || b.name().toUpper().startsWith("ZWIFT SF2")) && zwiftPlayDevice.size() < 2 && this->device() &&
                     this->device()->deviceType() == bluetoothdevice::BIKE) {
 
+                // Determine if this is LEFT or RIGHT device
+                AbstractZapDevice::ZWIFT_PLAY_TYPE deviceType = AbstractZapDevice::ZWIFT_PLAY_TYPE::NONE;
+                if(b.manufacturerData(2378).size() > 0) {
+                    deviceType = (int(b.manufacturerData(2378).at(0)) == 3 || int(b.manufacturerData(2378).at(0)) == 7) ?
+                                AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT : AbstractZapDevice::ZWIFT_PLAY_TYPE::RIGHT;
+                } else {
+                    deviceType = (zwiftPlayDevice.length() == 0) ? AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT : AbstractZapDevice::ZWIFT_PLAY_TYPE::RIGHT;
+                }
+
+                // Check MAC address filter based on device type
+                bool shouldConnect = true;
+                QString selectedDevice = (deviceType == AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT) ? zwiftPlayLeftName : zwiftPlayRightName;
+
+                if (selectedDevice != "Auto") {
+#if defined(Q_OS_DARWIN) || defined(Q_OS_IOS)
+                    QString deviceAddress = b.deviceUuid().toString();
+#else
+                    QString deviceAddress = b.address().toString();
+#endif
+                    QString deviceDisplay = b.name() + " (" + deviceAddress + ")";
+                    if (deviceDisplay != selectedDevice) {
+                        shouldConnect = false; // Skip this device if it doesn't match the selected one
+                    }
+                }
+
+                if (!shouldConnect) {
+                    continue;
+                }
+
                 if(b.manufacturerData(2378).size() > 0) {
                     qDebug() << "this should be 3 or 2. is it? " << int(b.manufacturerData(2378).at(0));
-                    zwiftPlayDevice.append(new zwiftclickremote(this->device(),
-                                     int(b.manufacturerData(2378).at(0)) == 3 || int(b.manufacturerData(2378).at(0)) == 7 ? AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT : AbstractZapDevice::ZWIFT_PLAY_TYPE::RIGHT));
                 } else {
                     qDebug() << "manufacturer not found for ZWIFT CLICK";
-                    zwiftPlayDevice.append(new zwiftclickremote(this->device(),
-                                     zwiftPlayDevice.length() == 0 ? AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT : AbstractZapDevice::ZWIFT_PLAY_TYPE::RIGHT));
-
                 }
+
+                zwiftPlayDevice.append(new zwiftclickremote(this->device(), deviceType));
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(zwiftPlayDevice.last(), &zwiftclickremote::debug, this, &bluetooth::debug);
@@ -4183,3 +4251,11 @@ void bluetooth::deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDevi
     debug("deviceUpdated " + device.name() + " " + updateFields);
 }
 #endif
+
+QStringList bluetooth::getZwiftClickDevices() const {
+    return zwiftClickDevicesList;
+}
+
+QStringList bluetooth::getZwiftPlayDevices() const {
+    return zwiftPlayDevicesList;
+}
