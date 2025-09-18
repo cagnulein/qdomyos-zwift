@@ -1206,6 +1206,7 @@ import Qt.labs.platform 1.1
             property bool zwift_play_vibration: true
             property bool toorxtreadmill_discovery_completed: false
             property bool taurua_ic90: false
+            property bool proform_csx210: false
         }
 
 
@@ -4011,7 +4012,8 @@ import Qt.labs.platform 1.1
                                     "Nordictrack GX 4.4 Pro",
                                     "TDF 1.0 PFEVEX71316.0",
                                     "Proform XBike",
-                                    "Proform 225 CSX PFEX32925 INT.0"
+                                    "Proform 225 CSX PFEX32925 INT.0",
+                                    "Proform CSX210"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -4046,7 +4048,8 @@ import Qt.labs.platform 1.1
                                                     settings.nordictrack_gx_44_pro ? 15 :
                                                     settings.proform_bike_PFEVEX71316_0 ? 16 :
                                                     settings.proform_xbike ? 17 :
-                                                    settings.proform_225_csx_PFEX32925_INT_0 ? 18 : 0;
+                                                    settings.proform_225_csx_PFEX32925_INT_0 ? 18 :
+                                                    settings.proform_csx210 ? 19 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -4079,6 +4082,7 @@ import Qt.labs.platform 1.1
                                     settings.proform_bike_PFEVEX71316_0 = false;
                                     settings.proform_xbike = false;
                                     settings.proform_225_csx_PFEX32925_INT_0 = false;
+                                    settings.proform_csx210 = false;
 
                                     // Set corresponding setting for selected model
                                     switch (currentIndex) {
@@ -4100,6 +4104,7 @@ import Qt.labs.platform 1.1
                                         case 16: settings.proform_bike_PFEVEX71316_0 = true; break;
                                         case 17: settings.proform_xbike = true; break;
                                         case 18: settings.proform_225_csx_PFEX32925_INT_0 = true; break;
+                                        case 19: settings.proform_csx210 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
