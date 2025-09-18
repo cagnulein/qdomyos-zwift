@@ -426,6 +426,14 @@ void toorxtreadmill::rfCommConnected() {
 
     this->initDone = true;
     this->requestStart = 1;
+    
+    // Mark discovery as completed for future connections
+    QSettings settings;
+    if (!settings.value(QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed).toBool()) {
+        settings.setValue(QZSettings::toorxtreadmill_discovery_completed, true);
+        qDebug() << QStringLiteral("toorxtreadmill discovery marked as completed");
+    }
+    
     emit this->connectedAndDiscovered();
 }
 
