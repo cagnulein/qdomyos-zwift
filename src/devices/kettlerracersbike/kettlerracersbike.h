@@ -55,6 +55,8 @@ class kettlerracersbike : public bike {
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyCharacteristic gattWriteCharKettlerId;
+    QLowEnergyCharacteristic gattKeyReadCharKettlerId;   // 638a1104
+    QLowEnergyCharacteristic gattKeyWriteCharKettlerId;  // 638a1105
     QLowEnergyService *gattPowerService = nullptr;
     QLowEnergyService *gattKettlerService = nullptr;
     QLowEnergyService *gattCSCService = nullptr;
@@ -79,6 +81,7 @@ class kettlerracersbike : public bike {
 
     double lastGearValue = -1;
     bool resistance_received = false;
+    bool primedNotifyStart = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

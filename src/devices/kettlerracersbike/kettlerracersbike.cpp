@@ -201,6 +201,19 @@ void kettlerracersbike::errorService(QLowEnergyService::ServiceError err) {
 
 void kettlerracersbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
+
+    // align behavior with other devices (e.g., Tacx): once CCCD is written
+    // we are effectively ready, notify the stack/UI
+    initRequest = true;
+    emit connectedAndDiscovered();
+
+    // Some Kettler firmware appears to start streaming only after
+    // a first benign write on the power control char (see Test logs)
+    if (!primedNotifyStart && gattWriteCharKettlerId.isValid()) {
+        uint8_t zero[2] = {0x00, 0x00};
+        writeCharacteristic(zero, sizeof(zero), QStringLiteral("prime notifications"), false, false);
+        primedNotifyStart = true;
+    }
 }
 
 void kettlerracersbike::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -215,6 +228,19 @@ void kettlerracersbike::characteristicWritten(const QLowEnergyCharacteristic &ch
 
 void kettlerracersbike::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid().toString() << newValue.toHex(' ');
+
+    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1104-7bde-3e25-ffc5-9de9b2a0197a"))) {
+        emit debug(QStringLiteral("Kettler :: handshake data raw: ") + newValue.toHex(' '));
+        QSettings settings;
+        auto payloadHex = settings.value(QStringLiteral("kettler_handshake_payload"), QStringLiteral("")).toString();
+        QByteArray payload = QByteArray::fromHex(payloadHex.replace(" ", "").toLatin1());
+        if (payload.size() == 16 && gattKettlerService && gattKeyWriteCharKettlerId.isValid()) {
+            emit debug(QStringLiteral("Kettler :: handshake data encrypted (from settings): ") + payload.toHex(' '));
+            gattKettlerService->writeCharacteristic(gattKeyWriteCharKettlerId, payload);
+        } else {
+            emit debug(QStringLiteral("Kettler :: handshake payload not configured or invalid length (need 16 bytes)."));
+        }
+    }
 }
 
 void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
@@ -222,6 +248,8 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattNotifyCharacteristicKettlerRPMId(QStringLiteral("638a1002-7bde-3e25-ffc5-9de9b2a0197a")); // RPM
     QBluetoothUuid _gattNotifyCharacteristicKettler1Id(QStringLiteral("638a100c-7bde-3e25-ffc5-9de9b2a0197a"));
     QBluetoothUuid _gattNotifyCharacteristicKettler2Id(QStringLiteral("638a1010-7bde-3e25-ffc5-9de9b2a0197a"));
+    QBluetoothUuid _gattKeyReadCharacteristicId(QStringLiteral("638a1104-7bde-3e25-ffc5-9de9b2a0197a"));  // Handshake seed
+    QBluetoothUuid _gattKeyWriteCharacteristicId(QStringLiteral("638a1105-7bde-3e25-ffc5-9de9b2a0197a")); // Handshake key
     QBluetoothUuid _gattWriteCharacteristicCSCId(QStringLiteral("00002a55-0000-1000-8000-00805f9b34fb"));
     QBluetoothUuid _gattNotifyCharacteristicCSCId(QStringLiteral("00002a5b-0000-1000-8000-00805f9b34fb"));
 
@@ -232,6 +260,16 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
         // Kettler service characteristics
         if (gattKettlerService && gattKettlerService->serviceUuid().toString() == QStringLiteral("{638af000-7bde-3e25-ffc5-9de9b2a0197a}")) {
             emit debug(QStringLiteral("Kettler service connected"));
+
+            // Hook service-level signals for logs and readiness
+            connect(gattKettlerService, &QLowEnergyService::characteristicWritten, this,
+                    &kettlerracersbike::characteristicWritten);
+            connect(gattKettlerService, &QLowEnergyService::characteristicRead, this,
+                    &kettlerracersbike::characteristicRead);
+            connect(gattKettlerService, &QLowEnergyService::descriptorWritten, this,
+                    &kettlerracersbike::descriptorWritten);
+            connect(gattKettlerService, &QLowEnergyService::descriptorRead, this,
+                    &kettlerracersbike::descriptorRead);
 
             // Power control characteristic
             gattWriteCharKettlerId = gattKettlerService->characteristic(_gattWriteCharacteristicId);
@@ -268,11 +306,28 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
                     emit debug(QStringLiteral("Kettler char2 notification subscribed"));
                 }
             }
+
+            // Handshake chars
+            gattKeyReadCharKettlerId = gattKettlerService->characteristic(_gattKeyReadCharacteristicId);
+            gattKeyWriteCharKettlerId = gattKettlerService->characteristic(_gattKeyWriteCharacteristicId);
+            if (gattKeyReadCharKettlerId.isValid()) {
+                emit debug(QStringLiteral("reading Kettler handshake seed"));
+                gattKettlerService->readCharacteristic(gattKeyReadCharKettlerId);
+            }
         }
 
         // CSC service characteristics
         if (gattCSCService && gattCSCService->serviceUuid().toString() == QStringLiteral("{00001816-0000-1000-8000-00805f9b34fb}")) {
             emit debug(QStringLiteral("CSC service connected"));
+
+            connect(gattCSCService, &QLowEnergyService::characteristicWritten, this,
+                    &kettlerracersbike::characteristicWritten);
+            connect(gattCSCService, &QLowEnergyService::characteristicRead, this,
+                    &kettlerracersbike::characteristicRead);
+            connect(gattCSCService, &QLowEnergyService::descriptorWritten, this,
+                    &kettlerracersbike::descriptorWritten);
+            connect(gattCSCService, &QLowEnergyService::descriptorRead, this,
+                    &kettlerracersbike::descriptorRead);
 
             auto cscChar = gattCSCService->characteristic(_gattNotifyCharacteristicCSCId);
             if (cscChar.isValid()) {
@@ -284,6 +339,39 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
             }
         }
+
+        // ******************************************* virtual bike init *************************************
+        if (!firstStateChanged && !this->hasVirtualDevice()
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            && !h
+#endif
+#endif
+        ) {
+            QSettings settings;
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+            if (ios_peloton_workaround && cadence) {
+                qDebug() << "ios_peloton_workaround activated!";
+                h = new lockscreen();
+                h->virtualbike_ios();
+            } else
+#endif
+#endif
+            if (virtual_device_enabled) {
+                emit debug(QStringLiteral("creating virtual bike interface..."));
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, 4, 1);
+                connect(virtualBike, &virtualbike::changeInclination, this, &kettlerracersbike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+            }
+        }
+        firstStateChanged = 1;
+        // ***************************************************************************************************
 
         initDone = true;
     }

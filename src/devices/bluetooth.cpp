@@ -4045,6 +4045,8 @@ bluetoothdevice *bluetooth::device() {
         return horizonGr7Bike;
     } else if (kineticInroadBike) {
         return kineticInroadBike;
+    } else if (kettlerRacerSBike) {
+        return kettlerRacerSBike;
     } else if (renphoBike) {
         return renphoBike;
     } else if (pafersBike) {
