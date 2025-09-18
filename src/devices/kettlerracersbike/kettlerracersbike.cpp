@@ -1,4 +1,5 @@
 #include "kettlerracersbike.h"
+#include "kettlerhandshake.h"
 #include "virtualdevices/virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -231,14 +232,13 @@ void kettlerracersbike::characteristicRead(const QLowEnergyCharacteristic &chara
 
     if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1104-7bde-3e25-ffc5-9de9b2a0197a"))) {
         emit debug(QStringLiteral("Kettler :: handshake data raw: ") + newValue.toHex(' '));
-        QSettings settings;
-        auto payloadHex = settings.value(QStringLiteral("kettler_handshake_payload"), QStringLiteral("")).toString();
-        QByteArray payload = QByteArray::fromHex(payloadHex.replace(" ", "").toLatin1());
+        const QByteArray payload = kettler::computeHandshake(newValue);
+
         if (payload.size() == 16 && gattKettlerService && gattKeyWriteCharKettlerId.isValid()) {
-            emit debug(QStringLiteral("Kettler :: handshake data encrypted (from settings): ") + payload.toHex(' '));
+            emit debug(QStringLiteral("Kettler :: handshake data encrypted: ") + payload.toHex(' '));
             gattKettlerService->writeCharacteristic(gattKeyWriteCharKettlerId, payload);
         } else {
-            emit debug(QStringLiteral("Kettler :: handshake payload not configured or invalid length (need 16 bytes)."));
+            emit debug(QStringLiteral("Kettler :: handshake payload not available (need 6 bytes seed)."));
         }
     }
 }
