@@ -27,6 +27,7 @@ kettlerracersbike::kettlerracersbike(bool noWriteResistance, bool noHeartService
     handshakeRequested = false;
     handshakeDone = false;
     notificationsSubscribed = false;
+    kettlerServiceReady = false;
     connect(refresh, &QTimer::timeout, this, &kettlerracersbike::update);
     refresh->start(200ms);
 }
@@ -123,9 +124,11 @@ void kettlerracersbike::controllerStateChanged(QLowEnergyController::ControllerS
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        handshakeRequested = false;
+            handshakeRequested = false;
         handshakeDone = false;
         notificationsSubscribed = false;
+        kettlerServiceReady = false;
+                kettlerServiceReady = true;
         m_control->connectToDevice();
     }
 }
@@ -544,8 +547,26 @@ void kettlerracersbike::update() {
         return;
     }
 
-        if (!handshakeDone && gattKettlerService && gattKettlerService->state() == QLowEnergyService::ServiceDiscovered) {
-        requestHandshakeSeed();
+        static QElapsedTimer handshakeTimer;
+    if (!handshakeDone && kettlerServiceReady && gattKettlerService && gattKettlerService->state() == QLowEnergyService::ServiceDiscovered) {
+        const qint64 intervalMs = 1000;
+
+        if (!handshakeRequested) {
+            handshakeTimer.restart();
+            requestHandshakeSeed();
+        } else if (!handshakeTimer.isValid() || handshakeTimer.hasExpired(intervalMs)) {
+            emit debug(QStringLiteral("retrying Kettler handshake seed read"));
+            handshakeTimer.restart();
+            requestHandshakeSeed();
+        }
+    }
+
+    if (!handshakeDone) {
+        return;
+    }
+
+    if (!handshakeDone) {
+        return;
     }
 
     if (initRequest) {
