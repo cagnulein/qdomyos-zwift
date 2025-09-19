@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
+#include <QElapsedTimer>
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
@@ -547,7 +548,7 @@ void kettlerracersbike::update() {
         return;
     }
 
-        static QElapsedTimer handshakeTimer;
+    static QElapsedTimer handshakeTimer;
     if (!handshakeDone && kettlerServiceReady && gattKettlerService && gattKettlerService->state() == QLowEnergyService::ServiceDiscovered) {
         const qint64 intervalMs = 1000;
 
@@ -557,12 +558,9 @@ void kettlerracersbike::update() {
         } else if (!handshakeTimer.isValid() || handshakeTimer.hasExpired(intervalMs)) {
             emit debug(QStringLiteral("retrying Kettler handshake seed read"));
             handshakeTimer.restart();
+            handshakeRequested = false;
             requestHandshakeSeed();
         }
-    }
-
-    if (!handshakeDone) {
-        return;
     }
 
     if (!handshakeDone) {
