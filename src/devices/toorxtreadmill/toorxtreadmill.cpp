@@ -445,7 +445,7 @@ void toorxtreadmill::readSocket() {
         QByteArray line = socket->readAll();
         qDebug() << QStringLiteral(" << ") + line.toHex(' ');
 
-        if (line.length() == 17) {
+        if (line.length() == 17 && line.at(1) != 0x27) {
             elapsed = GetElapsedTimeFromPacket(line);
             Distance = GetDistanceFromPacket(line);
             KCal = GetCaloriesFromPacket(line);
