@@ -44,6 +44,9 @@ class kettlerracersbike : public bike {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
+    void sendHandshake(const QByteArray &seed);
+    void requestHandshakeSeed();
+    void subscribeKettlerNotifications();
     void forceInclination(double inclination);
     uint16_t watts() override;
     double bikeResistanceToPeloton(double resistance);
@@ -82,6 +85,9 @@ class kettlerracersbike : public bike {
     double lastGearValue = -1;
     bool resistance_received = false;
     bool primedNotifyStart = false;
+    bool handshakeRequested = false;
+    bool handshakeDone = false;
+    bool notificationsSubscribed = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

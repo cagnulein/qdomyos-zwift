@@ -24,6 +24,9 @@ kettlerracersbike::kettlerracersbike(bool noWriteResistance, bool noHeartService
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;
+    handshakeRequested = false;
+    handshakeDone = false;
+    notificationsSubscribed = false;
     connect(refresh, &QTimer::timeout, this, &kettlerracersbike::update);
     refresh->start(200ms);
 }
@@ -120,6 +123,9 @@ void kettlerracersbike::controllerStateChanged(QLowEnergyController::ControllerS
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        handshakeRequested = false;
+        handshakeDone = false;
+        notificationsSubscribed = false;
         m_control->connectToDevice();
     }
 }
@@ -231,115 +237,152 @@ void kettlerracersbike::characteristicRead(const QLowEnergyCharacteristic &chara
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid().toString() << newValue.toHex(' ');
 
     if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1104-7bde-3e25-ffc5-9de9b2a0197a"))) {
-        emit debug(QStringLiteral("Kettler :: handshake data raw: ") + newValue.toHex(' '));
-        const QByteArray payload = kettler::computeHandshake(newValue);
-
-        if (payload.size() == 16 && gattKettlerService && gattKeyWriteCharKettlerId.isValid()) {
-            emit debug(QStringLiteral("Kettler :: handshake data encrypted: ") + payload.toHex(' '));
-            gattKettlerService->writeCharacteristic(gattKeyWriteCharKettlerId, payload);
-        } else {
-            emit debug(QStringLiteral("Kettler :: handshake payload not available (need 6 bytes seed)."));
-        }
+        sendHandshake(newValue);
     }
+}
+
+void kettlerracersbike::sendHandshake(const QByteArray &seed) {
+    if (handshakeDone) {
+        emit debug(QStringLiteral("Kettler :: handshake already completed, ignoring additional seed."));
+        return;
+    }
+
+    emit debug(QStringLiteral("Kettler :: handshake data raw: ") + seed.toHex(' '));
+
+    if (seed.size() != 6) {
+        emit debug(QStringLiteral("Kettler :: handshake seed has unexpected length (requires 6 bytes)."));
+        return;
+    }
+
+    const QByteArray payload = kettler::computeHandshake(seed);
+    if (payload.size() != 16) {
+        emit debug(QStringLiteral("Kettler :: handshake computation failed."));
+        handshakeRequested = false;
+        return;
+    }
+
+    if (!gattKettlerService || !gattKeyWriteCharKettlerId.isValid()) {
+        emit debug(QStringLiteral("Kettler :: handshake write characteristic invalid."));
+        handshakeRequested = false;
+        return;
+    }
+
+    emit debug(QStringLiteral("Kettler :: handshake data encrypted: ") + payload.toHex(' '));
+    gattKettlerService->writeCharacteristic(gattKeyWriteCharKettlerId, payload);
+
+    handshakeDone = true;
+    handshakeRequested = false;
+    subscribeKettlerNotifications();
+}
+
+void kettlerracersbike::requestHandshakeSeed()
+{
+    if (handshakeRequested || handshakeDone || !gattKettlerService) {
+        return;
+    }
+
+    if (!gattKeyReadCharKettlerId.isValid()) {
+        emit debug(QStringLiteral("Kettler :: handshake read characteristic invalid."));
+        return;
+    }
+
+    handshakeRequested = true;
+    notificationsSubscribed = false;
+
+    emit debug(QStringLiteral("reading Kettler handshake seed"));
+
+    gattKettlerService->readCharacteristic(gattKeyReadCharKettlerId);
+}
+
+void kettlerracersbike::subscribeKettlerNotifications()
+{
+    if (notificationsSubscribed || !gattKettlerService) {
+        return;
+    }
+
+    QBluetoothUuid rpmUuid(QStringLiteral("638a1002-7bde-3e25-ffc5-9de9b2a0197a"));
+    QBluetoothUuid char1Uuid(QStringLiteral("638a100c-7bde-3e25-ffc5-9de9b2a0197a"));
+    QBluetoothUuid char2Uuid(QStringLiteral("638a1010-7bde-3e25-ffc5-9de9b2a0197a"));
+
+    auto subscribeDescriptor = [this](const QLowEnergyCharacteristic &characteristic, const QString &label) {
+        if (!characteristic.isValid()) {
+            return;
+        }
+        auto descriptor = characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+        if (descriptor.isValid()) {
+            gattKettlerService->writeDescriptor(descriptor, QByteArray::fromHex("0100"));
+            emit debug(label + QStringLiteral(" notification subscribed"));
+        }
+    };
+
+    subscribeDescriptor(gattKettlerService->characteristic(rpmUuid), QStringLiteral("Kettler RPM"));
+    subscribeDescriptor(gattKettlerService->characteristic(char1Uuid), QStringLiteral("Kettler char1"));
+    subscribeDescriptor(gattKettlerService->characteristic(char2Uuid), QStringLiteral("Kettler char2"));
+
+    notificationsSubscribed = true;
 }
 
 void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("638a100e-7bde-3e25-ffc5-9de9b2a0197a")); // Power control
-    QBluetoothUuid _gattNotifyCharacteristicKettlerRPMId(QStringLiteral("638a1002-7bde-3e25-ffc5-9de9b2a0197a")); // RPM
-    QBluetoothUuid _gattNotifyCharacteristicKettler1Id(QStringLiteral("638a100c-7bde-3e25-ffc5-9de9b2a0197a"));
-    QBluetoothUuid _gattNotifyCharacteristicKettler2Id(QStringLiteral("638a1010-7bde-3e25-ffc5-9de9b2a0197a"));
     QBluetoothUuid _gattKeyReadCharacteristicId(QStringLiteral("638a1104-7bde-3e25-ffc5-9de9b2a0197a"));  // Handshake seed
     QBluetoothUuid _gattKeyWriteCharacteristicId(QStringLiteral("638a1105-7bde-3e25-ffc5-9de9b2a0197a")); // Handshake key
-    QBluetoothUuid _gattWriteCharacteristicCSCId(QStringLiteral("00002a55-0000-1000-8000-00805f9b34fb"));
     QBluetoothUuid _gattNotifyCharacteristicCSCId(QStringLiteral("00002a5b-0000-1000-8000-00805f9b34fb"));
 
     qDebug() << QStringLiteral("BTLE stateChanged ") << state;
 
+    QLowEnergyService *service = qobject_cast<QLowEnergyService *>(sender());
+
+    if (service == gattKettlerService && state == QLowEnergyService::ServiceDiscovered) {
+        handshakeRequested = false;
+        handshakeDone = false;
+        notificationsSubscribed = false;
+
+        emit debug(QStringLiteral("Kettler service connected"));
+
+        connect(gattKettlerService, &QLowEnergyService::characteristicWritten, this,
+                &kettlerracersbike::characteristicWritten);
+        connect(gattKettlerService, &QLowEnergyService::characteristicRead, this,
+                &kettlerracersbike::characteristicRead);
+        connect(gattKettlerService, &QLowEnergyService::descriptorWritten, this,
+                &kettlerracersbike::descriptorWritten);
+        connect(gattKettlerService, &QLowEnergyService::descriptorRead, this,
+                &kettlerracersbike::descriptorRead);
+        connect(gattKettlerService, &QLowEnergyService::characteristicChanged, this,
+                &kettlerracersbike::characteristicChanged);
+
+        gattWriteCharKettlerId = gattKettlerService->characteristic(_gattWriteCharacteristicId);
+        if (!gattWriteCharKettlerId.isValid()) {
+            emit debug(QStringLiteral("gattWriteCharKettlerId invalid"));
+        }
+
+        gattKeyReadCharKettlerId = gattKettlerService->characteristic(_gattKeyReadCharacteristicId);
+        gattKeyWriteCharKettlerId = gattKettlerService->characteristic(_gattKeyWriteCharacteristicId);
+    }
+
+    if (service == gattCSCService && state == QLowEnergyService::ServiceDiscovered) {
+        emit debug(QStringLiteral("CSC service connected"));
+
+        connect(gattCSCService, &QLowEnergyService::characteristicWritten, this,
+                &kettlerracersbike::characteristicWritten);
+        connect(gattCSCService, &QLowEnergyService::characteristicRead, this,
+                &kettlerracersbike::characteristicRead);
+        connect(gattCSCService, &QLowEnergyService::descriptorWritten, this,
+                &kettlerracersbike::descriptorWritten);
+        connect(gattCSCService, &QLowEnergyService::descriptorRead, this,
+                &kettlerracersbike::descriptorRead);
+        connect(gattCSCService, &QLowEnergyService::characteristicChanged, this,
+                &kettlerracersbike::characteristicChanged);
+
+        auto cscChar = gattCSCService->characteristic(_gattNotifyCharacteristicCSCId);
+        if (cscChar.isValid()) {
+            auto descriptor = cscChar.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+            if (descriptor.isValid()) {
+                gattCSCService->writeDescriptor(descriptor, QByteArray::fromHex("0100"));
+                emit debug(QStringLiteral("CSC notification subscribed"));
+            }
+        }
+    }
     if (state == QLowEnergyService::ServiceDiscovered) {
-
-        // Kettler service characteristics
-        if (gattKettlerService && gattKettlerService->serviceUuid().toString() == QStringLiteral("{638af000-7bde-3e25-ffc5-9de9b2a0197a}")) {
-            emit debug(QStringLiteral("Kettler service connected"));
-
-            // Hook service-level signals for logs and readiness
-            connect(gattKettlerService, &QLowEnergyService::characteristicWritten, this,
-                    &kettlerracersbike::characteristicWritten);
-            connect(gattKettlerService, &QLowEnergyService::characteristicRead, this,
-                    &kettlerracersbike::characteristicRead);
-            connect(gattKettlerService, &QLowEnergyService::descriptorWritten, this,
-                    &kettlerracersbike::descriptorWritten);
-            connect(gattKettlerService, &QLowEnergyService::descriptorRead, this,
-                    &kettlerracersbike::descriptorRead);
-
-            // Power control characteristic
-            gattWriteCharKettlerId = gattKettlerService->characteristic(_gattWriteCharacteristicId);
-            if (!gattWriteCharKettlerId.isValid()) {
-                emit debug(QStringLiteral("gattWriteCharKettlerId invalid"));
-            }
-
-            // Subscribe to RPM notifications
-            auto rpmChar = gattKettlerService->characteristic(_gattNotifyCharacteristicKettlerRPMId);
-            if (rpmChar.isValid()) {
-                connect(gattKettlerService, &QLowEnergyService::characteristicChanged, this, &kettlerracersbike::characteristicChanged);
-                auto descriptor = rpmChar.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
-                if (descriptor.isValid()) {
-                    gattKettlerService->writeDescriptor(descriptor, QByteArray::fromHex("0100"));
-                    emit debug(QStringLiteral("RPM notification subscribed"));
-                }
-            }
-
-            // Subscribe to other Kettler characteristics
-            auto char1 = gattKettlerService->characteristic(_gattNotifyCharacteristicKettler1Id);
-            if (char1.isValid()) {
-                auto descriptor = char1.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
-                if (descriptor.isValid()) {
-                    gattKettlerService->writeDescriptor(descriptor, QByteArray::fromHex("0100"));
-                    emit debug(QStringLiteral("Kettler char1 notification subscribed"));
-                }
-            }
-
-            auto char2 = gattKettlerService->characteristic(_gattNotifyCharacteristicKettler2Id);
-            if (char2.isValid()) {
-                auto descriptor = char2.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
-                if (descriptor.isValid()) {
-                    gattKettlerService->writeDescriptor(descriptor, QByteArray::fromHex("0100"));
-                    emit debug(QStringLiteral("Kettler char2 notification subscribed"));
-                }
-            }
-
-            // Handshake chars
-            gattKeyReadCharKettlerId = gattKettlerService->characteristic(_gattKeyReadCharacteristicId);
-            gattKeyWriteCharKettlerId = gattKettlerService->characteristic(_gattKeyWriteCharacteristicId);
-            if (gattKeyReadCharKettlerId.isValid()) {
-                emit debug(QStringLiteral("reading Kettler handshake seed"));
-                gattKettlerService->readCharacteristic(gattKeyReadCharKettlerId);
-            }
-        }
-
-        // CSC service characteristics
-        if (gattCSCService && gattCSCService->serviceUuid().toString() == QStringLiteral("{00001816-0000-1000-8000-00805f9b34fb}")) {
-            emit debug(QStringLiteral("CSC service connected"));
-
-            connect(gattCSCService, &QLowEnergyService::characteristicWritten, this,
-                    &kettlerracersbike::characteristicWritten);
-            connect(gattCSCService, &QLowEnergyService::characteristicRead, this,
-                    &kettlerracersbike::characteristicRead);
-            connect(gattCSCService, &QLowEnergyService::descriptorWritten, this,
-                    &kettlerracersbike::descriptorWritten);
-            connect(gattCSCService, &QLowEnergyService::descriptorRead, this,
-                    &kettlerracersbike::descriptorRead);
-
-            auto cscChar = gattCSCService->characteristic(_gattNotifyCharacteristicCSCId);
-            if (cscChar.isValid()) {
-                connect(gattCSCService, &QLowEnergyService::characteristicChanged, this, &kettlerracersbike::characteristicChanged);
-                auto descriptor = cscChar.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
-                if (descriptor.isValid()) {
-                    gattCSCService->writeDescriptor(descriptor, QByteArray::fromHex("0100"));
-                    emit debug(QStringLiteral("CSC notification subscribed"));
-                }
-            }
-        }
-
         // ******************************************* virtual bike init *************************************
         if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
@@ -381,6 +424,11 @@ void kettlerracersbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     QDateTime now = QDateTime::currentDateTime();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' ') + QStringLiteral(" // ") + characteristic.uuid().toString());
+
+    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1104-7bde-3e25-ffc5-9de9b2a0197a"))) {
+        sendHandshake(newValue);
+        return;
+    }
 
     if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("00002a5b-0000-1000-8000-00805f9b34fb"))) {
         // CSC measurement characteristic
@@ -480,14 +528,9 @@ void kettlerracersbike::cscPacketReceived(const QByteArray &packet) {
     }
 }
 
-void kettlerracersbike::kettlerPacketReceived(const QByteArray &packet) {
-    // Parse Kettler RPM data
-    if (packet.length() >= 2) {
-        uint16_t rpm = packet.at(0) | (packet.at(1) << 8);
-        // RPM value is already in the correct format based on test logs
-        Cadence = rpm;
-        emit debug(QStringLiteral("Kettler RPM: ") + QString::number(rpm));
-    }
+void kettlerracersbike::kettlerPacketReceived(const QByteArray &packet)
+{
+    Q_UNUSED(packet);
 }
 
 void kettlerracersbike::powerPacketReceived(const QByteArray &b) {
@@ -499,6 +542,10 @@ void kettlerracersbike::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
+    }
+
+        if (!handshakeDone && gattKettlerService && gattKettlerService->state() == QLowEnergyService::ServiceDiscovered) {
+        requestHandshakeSeed();
     }
 
     if (initRequest) {
