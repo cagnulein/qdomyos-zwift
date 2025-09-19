@@ -1,23 +1,19 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath 'com.android.tools.build:gradle:8.12.1'
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.4'
     }
 }
 
-plugins {
-  id "com.google.protobuf" version "0.9.4"
-}
-
 repositories {
     google()
-    jcenter()
-    maven { url 'https://jitpack.io' }
+    mavenCentral()
+    maven { url = 'https://jitpack.io' }
 }
 
 apply plugin: 'com.android.application'
@@ -93,9 +89,14 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
 
-    compileSdkVersion androidCompileSdkVersion.toInteger()
+    namespace = 'org.cagnulen.qdomyoszwift'
 
-    buildToolsVersion '29.0.2'
+    // Handle SDK extension parsing issue (android-36-ext18)
+    def compileSdk = androidCompileSdkVersion
+    if (compileSdk.contains('-ext')) {
+        compileSdk = compileSdk.split('-')[1] // Extract just the number (36)
+    }
+    compileSdkVersion compileSdk.toInteger()
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -107,7 +108,8 @@ android {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
             aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
-            res.srcDirs = [qt5AndroidDir + '/res', 'res']
+            // Use only local res to avoid Qt duplicate strings conflict
+            res.srcDirs = ['res']
             resources.srcDirs = ['resources']
             renderscript.srcDirs = ['src']
             assets.srcDirs = ['assets']
@@ -115,21 +117,30 @@ android {
        }
     }
 
-    lintOptions {
-        abortOnError false
-		  checkReleaseBuilds false
+
+    lint {
+        abortOnError = false
+        checkReleaseBuilds = false
     }
 
     // Do not compress Qt binary resources file
-    aaptOptions {
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+    
+    androidResources {
         noCompress 'rcc'
     }
 
     defaultConfig {
         resConfig "en"
-                  compileSdkVersion 33
-		  minSdkVersion = 21
-                  targetSdkVersion = 36
+        minSdkVersion 28
+        targetSdkVersion 36
     }
 
 tasks.all { task ->

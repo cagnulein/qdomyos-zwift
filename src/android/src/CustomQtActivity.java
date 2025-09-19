@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.DisplayCutout;
-import org.qtproject.qt5.android.bindings.QtActivity;
+import org.qtproject.qt.android.bindings.QtActivity;
 
 public class CustomQtActivity extends QtActivity {
     private static final String TAG = "CustomQtActivity";
@@ -17,6 +17,41 @@ public class CustomQtActivity extends QtActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // Note: Do not seed Intent extras here. Some Qt loaders read values as
+        // resource IDs from extras; populating strings/booleans can cause 0 lookups.
+
+        // Log meta-data resource IDs before Qt loads to diagnose 0x0 IDs
+        try {
+            android.content.pm.ActivityInfo ai = getPackageManager().getActivityInfo(getComponentName(), android.content.pm.PackageManager.GET_META_DATA);
+            android.os.Bundle md = ai.metaData;
+            if (md == null) {
+                Log.e(TAG, "Activity meta-data bundle is null");
+            } else {
+                String[] keys = new String[] {
+                        "android.app.lib_name",
+                        "android.app.repository",
+                        "android.app.libs_prefix",
+                        "android.app.load_local_jars",
+                        "android.app.static_init_classes",
+                        "android.app.qt_sources_resource_id",
+                        "android.app.qt_libs_resource_id",
+                        "android.app.bundled_libs_resource_id",
+                        "android.app.load_local_libs_resource_id",
+                        "android.app.ministro_not_found_msg",
+                        "android.app.ministro_needed_msg",
+                        "android.app.fatal_error_msg",
+                        "android.app.unsupported_android_version"
+                };
+                for (String k : keys) {
+                    int id = md.getInt(k);
+                    Object val = md.get(k);
+                    Log.i(TAG, "meta-data key=" + k + " getInt=" + id + " raw=" + val);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error inspecting meta-data", e);
+        }
+
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: CustomQtActivity initialized");
 
