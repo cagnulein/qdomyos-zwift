@@ -125,11 +125,10 @@ void kettlerracersbike::controllerStateChanged(QLowEnergyController::ControllerS
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-            handshakeRequested = false;
+        handshakeRequested = false;
         handshakeDone = false;
         notificationsSubscribed = false;
         kettlerServiceReady = false;
-                kettlerServiceReady = true;
         m_control->connectToDevice();
     }
 }
@@ -340,6 +339,7 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
         handshakeRequested = false;
         handshakeDone = false;
         notificationsSubscribed = false;
+        kettlerServiceReady = true;
 
         emit debug(QStringLiteral("Kettler service connected"));
 
