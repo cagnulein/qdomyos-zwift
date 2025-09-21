@@ -2,6 +2,7 @@
 #include "devices/bike.h"
 #include "qdebugfixup.h"
 #include "homeform.h"
+#include "virtualgearingdevice.h"
 #include <QSettings>
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
@@ -466,7 +467,75 @@ double bike::gearsZwiftRatio() {
         case 23:
             return 5.14;
         case 24:
-            return 5.49;                        
+            return 5.49;
     }
     return 1;
+}
+
+void bike::gearUp() {
+    QSettings settings;
+
+    // Check if virtual gearing device is enabled
+    if (settings.value(QZSettings::virtual_gearing_device, QZSettings::default_virtual_gearing_device).toBool()) {
+#ifdef Q_OS_ANDROID
+        VirtualGearingDevice* vgd = VirtualGearingDevice::instance();
+        if (vgd && vgd->isServiceRunning()) {
+            qDebug() << "bike::gearUp() - Using virtual gearing device";
+            vgd->simulateShiftUp();
+
+            // Also enable android notification and fake bike when virtual gearing is active
+            if (!settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
+                settings.setValue(QZSettings::android_notification, true);
+                qDebug() << "Enabled Android notification for virtual gearing";
+            }
+
+            if (!settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool()) {
+                settings.setValue(QZSettings::virtual_device_enabled, true);
+                qDebug() << "Enabled fake bike for virtual gearing";
+            }
+            return;
+        } else {
+            qDebug() << "bike::gearUp() - Virtual gearing service not running, falling back to normal gearing";
+        }
+#endif
+    }
+
+    // Normal gearing logic
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    setGears(gears() + (gears_zwift_ratio ? 1 :
+                        settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble()));
+}
+
+void bike::gearDown() {
+    QSettings settings;
+
+    // Check if virtual gearing device is enabled
+    if (settings.value(QZSettings::virtual_gearing_device, QZSettings::default_virtual_gearing_device).toBool()) {
+#ifdef Q_OS_ANDROID
+        VirtualGearingDevice* vgd = VirtualGearingDevice::instance();
+        if (vgd && vgd->isServiceRunning()) {
+            qDebug() << "bike::gearDown() - Using virtual gearing device";
+            vgd->simulateShiftDown();
+
+            // Also enable android notification and fake bike when virtual gearing is active
+            if (!settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
+                settings.setValue(QZSettings::android_notification, true);
+                qDebug() << "Enabled Android notification for virtual gearing";
+            }
+
+            if (!settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool()) {
+                settings.setValue(QZSettings::virtual_device_enabled, true);
+                qDebug() << "Enabled fake bike for virtual gearing";
+            }
+            return;
+        } else {
+            qDebug() << "bike::gearDown() - Virtual gearing service not running, falling back to normal gearing";
+        }
+#endif
+    }
+
+    // Normal gearing logic
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    setGears(gears() - (gears_zwift_ratio ? 1 :
+                        settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble()));
 }
