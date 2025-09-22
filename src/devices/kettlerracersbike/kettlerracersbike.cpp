@@ -207,6 +207,7 @@ void kettlerracersbike::error(QLowEnergyController::Error err) {
 
 void kettlerracersbike::errorService(QLowEnergyService::ServiceError err) {
     qDebug() << QStringLiteral("service ERROR ") << err;
+    qDebug() << QStringLiteral("Kettler service error: ") << err;
 }
 
 void kettlerracersbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -281,20 +282,31 @@ void kettlerracersbike::sendHandshake(const QByteArray &seed) {
 void kettlerracersbike::requestHandshakeSeed()
 {
     if (handshakeRequested || handshakeDone || !gattKettlerService) {
+        qDebug() << QStringLiteral("Kettler :: requestHandshakeSeed early return - handshakeRequested:") << handshakeRequested <<
+                   QStringLiteral(" handshakeDone:") << handshakeDone <<
+                   QStringLiteral(" gattKettlerService:") << (gattKettlerService != nullptr);
         return;
     }
 
     if (!gattKeyReadCharKettlerId.isValid()) {
-        emit debug(QStringLiteral("Kettler :: handshake read characteristic invalid."));
+        qDebug() << QStringLiteral("Kettler :: handshake read characteristic invalid.");
+        return;
+    }
+
+    if (!(gattKeyReadCharKettlerId.properties() & QLowEnergyCharacteristic::Read)) {
+        qDebug() << QStringLiteral("Kettler :: handshake read characteristic does not support Read property");
         return;
     }
 
     handshakeRequested = true;
     notificationsSubscribed = false;
 
-    emit debug(QStringLiteral("reading Kettler handshake seed"));
+    qDebug() << QStringLiteral("reading Kettler handshake seed - characteristic properties:") << gattKeyReadCharKettlerId.properties();
 
+    // Check if read operation returns false (immediate failure)
     gattKettlerService->readCharacteristic(gattKeyReadCharKettlerId);
+
+    qDebug() << QStringLiteral("Kettler :: readCharacteristic call successful, waiting for response...");
 }
 
 void kettlerracersbike::subscribeKettlerNotifications()
@@ -353,6 +365,8 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &kettlerracersbike::descriptorRead);
         connect(gattKettlerService, &QLowEnergyService::characteristicChanged, this,
                 &kettlerracersbike::characteristicChanged);
+        connect(gattKettlerService, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                this, &kettlerracersbike::errorService);
 
         gattWriteCharKettlerId = gattKettlerService->characteristic(_gattWriteCharacteristicId);
         if (!gattWriteCharKettlerId.isValid()) {
@@ -360,7 +374,18 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
         }
 
         gattKeyReadCharKettlerId = gattKettlerService->characteristic(_gattKeyReadCharacteristicId);
+        if (!gattKeyReadCharKettlerId.isValid()) {
+            qDebug() << QStringLiteral("gattKeyReadCharKettlerId invalid");
+        } else {
+            qDebug() << QStringLiteral("gattKeyReadCharKettlerId valid, properties:") << gattKeyReadCharKettlerId.properties();
+        }
+
         gattKeyWriteCharKettlerId = gattKettlerService->characteristic(_gattKeyWriteCharacteristicId);
+        if (!gattKeyWriteCharKettlerId.isValid()) {
+            qDebug() << QStringLiteral("gattKeyWriteCharKettlerId invalid");
+        } else {
+            qDebug() << QStringLiteral("gattKeyWriteCharKettlerId valid, properties:") << gattKeyWriteCharKettlerId.properties();
+        }
     }
 
     if (service == gattCSCService && state == QLowEnergyService::ServiceDiscovered) {
