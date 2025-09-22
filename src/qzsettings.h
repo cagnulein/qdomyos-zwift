@@ -2696,6 +2696,13 @@ class QZSettings {
     static const QString virtual_gearing_device;
     static constexpr bool default_virtual_gearing_device = false;
 
+    static const QString taurua_ic90;
+    static constexpr bool default_taurua_ic90 = false;
+
+    static const QString proform_csx210;
+    static constexpr bool default_proform_csx210 = false;
+
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
