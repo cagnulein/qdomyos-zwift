@@ -5,7 +5,7 @@ import android.accessibilityservice.GestureDescription;
 import android.graphics.Path;
 import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 
 public class VirtualGearingService extends AccessibilityService {
     private static final String TAG = "VirtualGearingService";
@@ -15,14 +15,14 @@ public class VirtualGearingService extends AccessibilityService {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        Log.d(TAG, "VirtualGearingService created");
+        QLog.d(TAG, "VirtualGearingService created");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         instance = null;
-        Log.d(TAG, "VirtualGearingService destroyed");
+        QLog.d(TAG, "VirtualGearingService destroyed");
     }
 
     @Override
@@ -32,7 +32,7 @@ public class VirtualGearingService extends AccessibilityService {
 
     @Override
     public void onInterrupt() {
-        Log.d(TAG, "VirtualGearingService interrupted");
+        QLog.d(TAG, "VirtualGearingService interrupted");
     }
 
     public static boolean isServiceEnabled() {
@@ -41,7 +41,7 @@ public class VirtualGearingService extends AccessibilityService {
 
     public static void simulateKeypress(int x, int y) {
         if (instance == null) {
-            Log.w(TAG, "Service not enabled, cannot simulate keypress");
+            QLog.w(TAG, "Service not enabled, cannot simulate keypress");
             return;
         }
 
@@ -56,9 +56,9 @@ public class VirtualGearingService extends AccessibilityService {
             gestureBuilder.addStroke(stroke);
 
             instance.dispatchGesture(gestureBuilder.build(), null, null);
-            Log.d(TAG, "Simulated keypress at (" + x + ", " + y + ")");
+            QLog.d(TAG, "Simulated keypress at (" + x + ", " + y + ")");
         } catch (Exception e) {
-            Log.e(TAG, "Error simulating keypress", e);
+            QLog.e(TAG, "Error simulating keypress", e);
         }
     }
 

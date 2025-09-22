@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 
 public class VirtualGearingBridge {
     private static final String TAG = "VirtualGearingBridge";
@@ -20,12 +20,12 @@ public class VirtualGearingBridge {
             while (splitter.hasNext()) {
                 String service = splitter.next();
                 if (service.contains("VirtualGearingService")) {
-                    Log.d(TAG, "VirtualGearingService is enabled");
+                    QLog.d(TAG, "VirtualGearingService is enabled");
                     return true;
                 }
             }
         }
-        Log.d(TAG, "VirtualGearingService is not enabled");
+        QLog.d(TAG, "VirtualGearingService is not enabled");
         return false;
     }
 
@@ -34,30 +34,30 @@ public class VirtualGearingBridge {
             Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
-            Log.d(TAG, "Opened accessibility settings");
+            QLog.d(TAG, "Opened accessibility settings");
         } catch (Exception e) {
-            Log.e(TAG, "Failed to open accessibility settings", e);
+            QLog.e(TAG, "Failed to open accessibility settings", e);
         }
     }
 
     public static void simulateShiftUp() {
-        Log.d(TAG, "Simulating shift up");
+        QLog.d(TAG, "Simulating shift up");
         VirtualGearingService.shiftUp();
     }
 
     public static void simulateShiftDown() {
-        Log.d(TAG, "Simulating shift down");
+        QLog.d(TAG, "Simulating shift down");
         VirtualGearingService.shiftDown();
     }
 
     public static void simulateTouch(int x, int y) {
-        Log.d(TAG, "Simulating touch at (" + x + ", " + y + ")");
+        QLog.d(TAG, "Simulating touch at (" + x + ", " + y + ")");
         VirtualGearingService.simulateKeypress(x, y);
     }
 
     public static boolean isServiceRunning() {
         boolean running = VirtualGearingService.isServiceEnabled();
-        Log.d(TAG, "Service running: " + running);
+        QLog.d(TAG, "Service running: " + running);
         return running;
     }
 }
