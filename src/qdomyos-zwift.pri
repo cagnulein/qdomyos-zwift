@@ -319,6 +319,7 @@ templateinfosenderbuilder.cpp \
 devices/stagesbike/stagesbike.cpp \
 devices/kettlerracersbike/kettlerracersbike.cpp \
 devices/kettlerracersbike/kettlerhandshake.cpp \
+kettlerhandshakereader.cpp \
 devices/toorxtreadmill/toorxtreadmill.cpp \
 devices/treadmill.cpp \
 devices/truetreadmill/truetreadmill.cpp \
@@ -834,6 +835,7 @@ templateinfosenderbuilder.h \
 devices/stagesbike/stagesbike.h \
 devices/kettlerracersbike/kettlerracersbike.h \
 devices/kettlerracersbike/kettlerhandshake.h \
+kettlerhandshakereader.h \
 devices/toorxtreadmill/toorxtreadmill.h \
 gpx.h \
 devices/treadmill.h \
@@ -875,6 +877,7 @@ DISTFILES += \
     $$PWD/android/res/xml/device_filter.xml \
     $$PWD/android/src/BikeChannelController.java \
     $$PWD/android/src/BleAdvertiser.java \
+    $$PWD/android/src/KettlerHandshakeReader.java \
    $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/ContentHelper.java \
     $$PWD/android/src/Garmin.java \

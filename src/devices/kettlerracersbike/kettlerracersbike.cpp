@@ -31,6 +31,31 @@ kettlerracersbike::kettlerracersbike(bool noWriteResistance, bool noHeartService
     kettlerServiceReady = false;
     connect(refresh, &QTimer::timeout, this, &kettlerracersbike::update);
     refresh->start(200ms);
+
+#ifdef Q_OS_ANDROID
+    androidHandshakeReader = new KettlerHandshakeReader(this);
+    connect(androidHandshakeReader, &KettlerHandshakeReader::deviceConnected,
+            this, &kettlerracersbike::onAndroidDeviceConnected);
+    connect(androidHandshakeReader, &KettlerHandshakeReader::deviceDisconnected,
+            this, &kettlerracersbike::onAndroidDeviceDisconnected);
+    connect(androidHandshakeReader, &KettlerHandshakeReader::handshakeSeedReceived,
+            this, &kettlerracersbike::onAndroidHandshakeSeedReceived);
+    connect(androidHandshakeReader, &KettlerHandshakeReader::handshakeReadError,
+            this, &kettlerracersbike::onAndroidHandshakeReadError);
+    connect(androidHandshakeReader, &KettlerHandshakeReader::dataReceived,
+            this, &kettlerracersbike::onAndroidDataReceived);
+    qDebug() << QStringLiteral("Android KettlerHandshakeReader initialized");
+#endif
+}
+
+kettlerracersbike::~kettlerracersbike() {
+#ifdef Q_OS_ANDROID
+    // Clean up Android connection
+    if (androidHandshakeReader) {
+        androidHandshakeReader->disconnectDevice();
+    }
+#endif
+    qDebug() << QStringLiteral("Kettler bike destructor called");
 }
 
 void kettlerracersbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -71,12 +96,20 @@ void kettlerracersbike::changePower(int32_t power) {
     if (power < 0)
         power = 0;
 
-    // Write power as 2-byte little-endian to 638a100e characteristic
+#ifdef Q_OS_ANDROID
+    // Use Android native BLE for power control
+    if (androidHandshakeReader) {
+        androidHandshakeReader->setPower(power);
+    } else {
+        qDebug() << QStringLiteral("Kettler :: Android handshake reader not available for power control");
+    }
+#else
+    // Use Qt Bluetooth for other platforms
     uint8_t powerData[2];
     powerData[0] = (uint8_t)(power & 0xFF);
     powerData[1] = (uint8_t)((power >> 8) & 0xFF);
-
     writeCharacteristic(powerData, sizeof(powerData), QStringLiteral("changePower ") + QString::number(power) + "W", false, false);
+#endif
 }
 
 void kettlerracersbike::forceInclination(double inclination) {
@@ -114,10 +147,16 @@ resistance_t kettlerracersbike::pelotonToBikeResistance(int pelotonResistance) {
 }
 
 bool kettlerracersbike::connected() {
+#ifdef Q_OS_ANDROID
+    // For Android, check if the Kettler service is ready (Android connection established)
+    return kettlerServiceReady;
+#else
+    // For other platforms, use Qt Bluetooth state
     if (!m_control) {
         return false;
     }
     return m_control->state() == QLowEnergyController::ConnectedState;
+#endif
 }
 
 void kettlerracersbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
@@ -136,40 +175,51 @@ void kettlerracersbike::controllerStateChanged(QLowEnergyController::ControllerS
 void kettlerracersbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    {
-        bluetoothDevice = device;
 
-        m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &kettlerracersbike::serviceDiscovered);
-        connect(m_control, &QLowEnergyController::discoveryFinished, this, &kettlerracersbike::serviceScanDone);
-        connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, &kettlerracersbike::error);
-        connect(m_control, &QLowEnergyController::stateChanged, this, &kettlerracersbike::controllerStateChanged);
+    bluetoothDevice = device;
 
-        connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, [this](QLowEnergyController::Error error) {
-                    Q_UNUSED(error);
-                    Q_UNUSED(this);
-                    emit debug(QStringLiteral("Cannot connect to remote device."));
-                    emit disconnected();
-                });
-        connect(m_control, &QLowEnergyController::connected, this, [this]() {
-            Q_UNUSED(this);
-            emit debug(QStringLiteral("Controller connected. Search services..."));
-            m_control->discoverServices();
-        });
-        connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
-            Q_UNUSED(this);
-            emit debug(QStringLiteral("LowEnergy controller disconnected"));
-            emit disconnected();
-        });
-
-        // Connect
-        m_control->connectToDevice();
-        return;
+#ifdef Q_OS_ANDROID
+    // Use Android native BLE for complete device lifecycle
+    if (androidHandshakeReader) {
+        QString deviceAddress = bluetoothDevice.address().toString();
+        qDebug() << QStringLiteral("Using Android native BLE for Kettler device connection");
+        androidHandshakeReader->connectToDevice(deviceAddress);
+    } else {
+        qDebug() << QStringLiteral("Kettler :: Android handshake reader not available");
+        emit disconnected();
     }
+#else
+    // Use Qt Bluetooth for other platforms
+    m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
+    connect(m_control, &QLowEnergyController::serviceDiscovered, this, &kettlerracersbike::serviceDiscovered);
+    connect(m_control, &QLowEnergyController::discoveryFinished, this, &kettlerracersbike::serviceScanDone);
+    connect(m_control,
+            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+            this, &kettlerracersbike::error);
+    connect(m_control, &QLowEnergyController::stateChanged, this, &kettlerracersbike::controllerStateChanged);
+
+    connect(m_control,
+            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+            this, [this](QLowEnergyController::Error error) {
+                Q_UNUSED(error);
+                Q_UNUSED(this);
+                emit debug(QStringLiteral("Cannot connect to remote device."));
+                emit disconnected();
+            });
+    connect(m_control, &QLowEnergyController::connected, this, [this]() {
+        Q_UNUSED(this);
+        emit debug(QStringLiteral("Controller connected. Search services..."));
+        m_control->discoverServices();
+    });
+    connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
+        Q_UNUSED(this);
+        emit debug(QStringLiteral("LowEnergy controller disconnected"));
+        emit disconnected();
+    });
+
+    // Connect
+    m_control->connectToDevice();
+#endif
 }
 
 void kettlerracersbike::serviceDiscovered(const QBluetoothUuid &gatt) {
@@ -208,6 +258,13 @@ void kettlerracersbike::error(QLowEnergyController::Error err) {
 void kettlerracersbike::errorService(QLowEnergyService::ServiceError err) {
     qDebug() << QStringLiteral("service ERROR ") << err;
     qDebug() << QStringLiteral("Kettler service error: ") << err;
+
+#ifndef Q_OS_ANDROID
+    if (err == QLowEnergyService::CharacteristicReadError) {
+        qDebug() << QStringLiteral("Kettler :: CharacteristicReadError - resetting handshakeRequested");
+        handshakeRequested = false;
+    }
+#endif
 }
 
 void kettlerracersbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -272,41 +329,73 @@ void kettlerracersbike::sendHandshake(const QByteArray &seed) {
     }
 
     emit debug(QStringLiteral("Kettler :: handshake data encrypted: ") + payload.toHex(' '));
-    gattKettlerService->writeCharacteristic(gattKeyWriteCharKettlerId, payload);
 
+#ifdef Q_OS_ANDROID
+    // Use Android native BLE for handshake response
+    if (androidHandshakeReader) {
+        androidHandshakeReader->sendHandshakeResponse(payload);
+        handshakeDone = true;
+        handshakeRequested = false;
+        // Notifications are already subscribed in the Android implementation
+    } else {
+        qDebug() << QStringLiteral("Kettler :: Android handshake reader not available");
+        handshakeRequested = false;
+    }
+#else
+    // Use Qt Bluetooth for other platforms
+    gattKettlerService->writeCharacteristic(gattKeyWriteCharKettlerId, payload);
     handshakeDone = true;
     handshakeRequested = false;
     subscribeKettlerNotifications();
+#endif
 }
 
 void kettlerracersbike::requestHandshakeSeed()
 {
-    if (handshakeRequested || handshakeDone || !gattKettlerService) {
+    if (handshakeRequested || handshakeDone) {
         qDebug() << QStringLiteral("Kettler :: requestHandshakeSeed early return - handshakeRequested:") << handshakeRequested <<
-                   QStringLiteral(" handshakeDone:") << handshakeDone <<
-                   QStringLiteral(" gattKettlerService:") << (gattKettlerService != nullptr);
-        return;
-    }
-
-    if (!gattKeyReadCharKettlerId.isValid()) {
-        qDebug() << QStringLiteral("Kettler :: handshake read characteristic invalid.");
-        return;
-    }
-
-    if (!(gattKeyReadCharKettlerId.properties() & QLowEnergyCharacteristic::Read)) {
-        qDebug() << QStringLiteral("Kettler :: handshake read characteristic does not support Read property");
+                   QStringLiteral(" handshakeDone:") << handshakeDone;
         return;
     }
 
     handshakeRequested = true;
     notificationsSubscribed = false;
 
+#ifdef Q_OS_ANDROID
+    // Use native Android BLE instead of Qt
+    if (!androidHandshakeReader) {
+        qDebug() << QStringLiteral("Kettler :: Android handshake reader not initialized");
+        handshakeRequested = false;
+        return;
+    }
+
+    QString deviceAddress = bluetoothDevice.address().toString();
+    qDebug() << QStringLiteral("Using native Android BLE to connect to device:") << deviceAddress;
+    androidHandshakeReader->connectToDevice(deviceAddress);
+#else
+    // Fallback to Qt Bluetooth for other platforms
+    if (!gattKettlerService) {
+        qDebug() << QStringLiteral("Kettler :: gattKettlerService is null");
+        handshakeRequested = false;
+        return;
+    }
+
+    if (!gattKeyReadCharKettlerId.isValid()) {
+        qDebug() << QStringLiteral("Kettler :: handshake read characteristic invalid.");
+        handshakeRequested = false;
+        return;
+    }
+
+    if (!(gattKeyReadCharKettlerId.properties() & QLowEnergyCharacteristic::Read)) {
+        qDebug() << QStringLiteral("Kettler :: handshake read characteristic does not support Read property");
+        handshakeRequested = false;
+        return;
+    }
+
     qDebug() << QStringLiteral("reading Kettler handshake seed - characteristic properties:") << gattKeyReadCharKettlerId.properties();
-
-    // Check if read operation returns false (immediate failure)
     gattKettlerService->readCharacteristic(gattKeyReadCharKettlerId);
-
     qDebug() << QStringLiteral("Kettler :: readCharacteristic call successful, waiting for response...");
+#endif
 }
 
 void kettlerracersbike::subscribeKettlerNotifications()
@@ -568,6 +657,30 @@ void kettlerracersbike::powerPacketReceived(const QByteArray &b) {
 }
 
 void kettlerracersbike::update() {
+#ifdef Q_OS_ANDROID
+    // For Android, the connection state is handled by the Android callbacks
+    // Check if we're disconnected
+    if (!kettlerServiceReady) {
+        return;
+    }
+
+    // Android handshake timing is handled automatically by the Android implementation
+    static QElapsedTimer handshakeTimer;
+    if (!handshakeDone && kettlerServiceReady) {
+        const qint64 intervalMs = 1000;
+
+        if (!handshakeRequested) {
+            handshakeTimer.restart();
+            requestHandshakeSeed();
+        } else if (!handshakeTimer.isValid() || handshakeTimer.hasExpired(intervalMs)) {
+            emit debug(QStringLiteral("retrying Kettler handshake seed read"));
+            handshakeTimer.restart();
+            handshakeRequested = false;
+            requestHandshakeSeed();
+        }
+    }
+#else
+    // For other platforms, use Qt Bluetooth state checking
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -587,6 +700,7 @@ void kettlerracersbike::update() {
             requestHandshakeSeed();
         }
     }
+#endif
 
     if (!handshakeDone) {
         return;
@@ -615,3 +729,71 @@ void kettlerracersbike::startDiscover() {
     // Called by bluetooth class
     qDebug() << QStringLiteral("kettlerracersbike::startDiscover");
 }
+
+#ifdef Q_OS_ANDROID
+void kettlerracersbike::onAndroidDeviceConnected()
+{
+    qDebug() << QStringLiteral("Android device connected");
+
+    // Set the connection state flags
+    kettlerServiceReady = true;
+    handshakeRequested = false;
+    handshakeDone = false;
+    notificationsSubscribed = false;
+}
+
+void kettlerracersbike::onAndroidDeviceDisconnected()
+{
+    qDebug() << QStringLiteral("Android device disconnected");
+
+    // Reset all connection state flags
+    kettlerServiceReady = false;
+    handshakeRequested = false;
+    handshakeDone = false;
+    notificationsSubscribed = false;
+    initDone = false;
+
+    // Emit disconnected signal for UI updates
+    emit disconnected();
+}
+
+void kettlerracersbike::onAndroidHandshakeSeedReceived(const QByteArray& seedData)
+{
+    qDebug() << QStringLiteral("Android handshake seed received:") << seedData.toHex(' ');
+
+    // Reset the request flag
+    handshakeRequested = false;
+
+    // Process the handshake using existing logic
+    sendHandshake(seedData);
+}
+
+void kettlerracersbike::onAndroidHandshakeReadError(const QString& error)
+{
+    qDebug() << QStringLiteral("Android handshake read error:") << error;
+
+    // Reset the request flag and allow retry
+    handshakeRequested = false;
+}
+
+void kettlerracersbike::onAndroidDataReceived(const QString& characteristicUuid, const QByteArray& data)
+{
+    qDebug() << QStringLiteral("Android data received from characteristic") << characteristicUuid << ":" << data.toHex(' ');
+
+    // Convert UUID string to compare with known UUIDs
+    QString uuid = characteristicUuid.toLower();
+
+    // CSC Service - Cadence and Speed data
+    if (uuid == "00002a5b-0000-1000-8000-00805f9b34fb") {
+        cscPacketReceived(data);
+    }
+    // Kettler RPM characteristic
+    else if (uuid == "638a1002-7bde-3e25-ffc5-9de9b2a0197a") {
+        kettlerPacketReceived(data);
+    }
+    // Other characteristics can be handled here as needed
+    else {
+        qDebug() << QStringLiteral("Unhandled characteristic data:") << uuid;
+    }
+}
+#endif

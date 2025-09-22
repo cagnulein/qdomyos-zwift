@@ -32,10 +32,15 @@
 #include "ios/lockscreen.h"
 #endif
 
+#ifdef Q_OS_ANDROID
+#include "kettlerhandshakereader.h"
+#endif
+
 class kettlerracersbike : public bike {
     Q_OBJECT
   public:
     kettlerracersbike(bool noWriteResistance, bool noHeartService);
+    ~kettlerracersbike();
     void changePower(int32_t power) override;
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
@@ -94,6 +99,10 @@ class kettlerracersbike : public bike {
     lockscreen *h = 0;
 #endif
 
+#ifdef Q_OS_ANDROID
+    KettlerHandshakeReader* androidHandshakeReader = nullptr;
+#endif
+
   signals:
     void disconnected();
     void debug(QString string);
@@ -120,6 +129,14 @@ class kettlerracersbike : public bike {
     void powerPacketReceived(const QByteArray &b);
     void cscPacketReceived(const QByteArray &b);
     void kettlerPacketReceived(const QByteArray &b);
+
+#ifdef Q_OS_ANDROID
+    void onAndroidDeviceConnected();
+    void onAndroidDeviceDisconnected();
+    void onAndroidHandshakeSeedReceived(const QByteArray& seedData);
+    void onAndroidHandshakeReadError(const QString& error);
+    void onAndroidDataReceived(const QString& characteristicUuid, const QByteArray& data);
+#endif
 };
 
 #endif // KETTLERRACERSBIKE_H
