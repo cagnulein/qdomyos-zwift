@@ -14,12 +14,16 @@ public class VirtualGearingBridge {
             context.getContentResolver(),
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
 
+        QLog.d(TAG, "Enabled accessibility services: " + settingValue);
+
         if (settingValue != null) {
             TextUtils.SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(':');
             splitter.setString(settingValue);
             while (splitter.hasNext()) {
                 String service = splitter.next();
-                if (service.contains("VirtualGearingService")) {
+                QLog.d(TAG, "Checking service: " + service);
+                if (service.contains("org.cagnulen.qdomyoszwift/.VirtualGearingService") ||
+                    service.contains("VirtualGearingService")) {
                     QLog.d(TAG, "VirtualGearingService is enabled");
                     return true;
                 }

@@ -1,5 +1,6 @@
 #include "virtualgearingdevice.h"
 #include <QDebug>
+#include <QQmlEngine>
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
@@ -17,6 +18,16 @@ VirtualGearingDevice::VirtualGearingDevice(QObject *parent) : QObject(parent)
 VirtualGearingDevice* VirtualGearingDevice::instance()
 {
     return m_instance;
+}
+
+void VirtualGearingDevice::registerQmlType()
+{
+    qmlRegisterSingletonType<VirtualGearingDevice>("VirtualGearingDevice", 1, 0, "VirtualGearingDevice",
+        [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject* {
+            Q_UNUSED(engine)
+            Q_UNUSED(scriptEngine)
+            return instance();
+        });
 }
 
 bool VirtualGearingDevice::isAccessibilityServiceEnabled()

@@ -12891,7 +12891,15 @@ import Qt.labs.platform 1.1
                         checked: settings.virtual_gearing_device
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.virtual_gearing_device = checked; window.settings_restart_to_apply = true; }
+                        onClicked: {
+                            settings.virtual_gearing_device = checked;
+                            if (checked) {
+                                // Auto-enable Android notification and fake bike when virtual gearing is enabled
+                                settings.android_notification = true;
+                                settings.virtual_device_enabled = true;
+                            }
+                            window.settings_restart_to_apply = true;
+                        }
                     }
 
                     Label {
@@ -12905,6 +12913,15 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    Button {
+                        text: qsTr("Open Accessibility Settings")
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                        visible: settings.virtual_gearing_device && Qt.platform.os === "android"
+                        onClicked: {
+                            VirtualGearingDevice.openAccessibilitySettings()
+                        }
                     }
 
                     IndicatorOnlySwitch {

@@ -2,6 +2,7 @@
 #define VIRTUALGEARINGDEVICE_H
 
 #include <QObject>
+#include <QQmlEngine>
 
 class VirtualGearingDevice : public QObject
 {
@@ -10,6 +11,7 @@ class VirtualGearingDevice : public QObject
 public:
     explicit VirtualGearingDevice(QObject *parent = nullptr);
     static VirtualGearingDevice* instance();
+    static void registerQmlType();
 
 public slots:
     bool isAccessibilityServiceEnabled();

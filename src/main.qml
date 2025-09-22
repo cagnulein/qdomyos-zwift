@@ -9,6 +9,7 @@ import org.cagnulein.qdomyoszwift 1.0
 import QtQuick.Window 2.12
 import Qt.labs.platform 1.1
 import AndroidStatusBar 1.0
+import VirtualGearingDevice 1.0
 
 ApplicationWindow {
     id: window

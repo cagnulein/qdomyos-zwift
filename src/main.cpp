@@ -814,6 +814,7 @@ int main(int argc, char *argv[]) {
 #endif
     {
         AndroidStatusBar::registerQmlType();
+        VirtualGearingDevice::registerQmlType();
         
 #ifdef Q_OS_ANDROID
         FontManager fontManager;

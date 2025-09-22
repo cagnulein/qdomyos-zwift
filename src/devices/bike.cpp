@@ -479,23 +479,22 @@ void bike::gearUp() {
     if (settings.value(QZSettings::virtual_gearing_device, QZSettings::default_virtual_gearing_device).toBool()) {
 #ifdef Q_OS_ANDROID
         VirtualGearingDevice* vgd = VirtualGearingDevice::instance();
-        if (vgd && vgd->isServiceRunning()) {
-            qDebug() << "bike::gearUp() - Using virtual gearing device";
-            vgd->simulateShiftUp();
-
-            // Also enable android notification and fake bike when virtual gearing is active
-            if (!settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
-                settings.setValue(QZSettings::android_notification, true);
-                qDebug() << "Enabled Android notification for virtual gearing";
+        if (vgd) {
+            // Check if accessibility service is enabled
+            if (!vgd->isAccessibilityServiceEnabled()) {
+                static bool warned = false;
+                if (!warned) {
+                    qDebug() << "bike::gearUp() - VirtualGearingService not enabled in accessibility settings";
+                    qDebug() << "Please enable the Virtual Gearing Service in Android Accessibility Settings";
+                    warned = true;
+                }
+            } else if (vgd->isServiceRunning()) {
+                qDebug() << "bike::gearUp() - Using virtual gearing device";
+                vgd->simulateShiftUp();
+                return;
+            } else {
+                qDebug() << "bike::gearUp() - Virtual gearing service not running, falling back to normal gearing";
             }
-
-            if (!settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool()) {
-                settings.setValue(QZSettings::virtual_device_enabled, true);
-                qDebug() << "Enabled fake bike for virtual gearing";
-            }
-            return;
-        } else {
-            qDebug() << "bike::gearUp() - Virtual gearing service not running, falling back to normal gearing";
         }
 #endif
     }
@@ -513,23 +512,22 @@ void bike::gearDown() {
     if (settings.value(QZSettings::virtual_gearing_device, QZSettings::default_virtual_gearing_device).toBool()) {
 #ifdef Q_OS_ANDROID
         VirtualGearingDevice* vgd = VirtualGearingDevice::instance();
-        if (vgd && vgd->isServiceRunning()) {
-            qDebug() << "bike::gearDown() - Using virtual gearing device";
-            vgd->simulateShiftDown();
-
-            // Also enable android notification and fake bike when virtual gearing is active
-            if (!settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
-                settings.setValue(QZSettings::android_notification, true);
-                qDebug() << "Enabled Android notification for virtual gearing";
+        if (vgd) {
+            // Check if accessibility service is enabled
+            if (!vgd->isAccessibilityServiceEnabled()) {
+                static bool warned = false;
+                if (!warned) {
+                    qDebug() << "bike::gearDown() - VirtualGearingService not enabled in accessibility settings";
+                    qDebug() << "Please enable the Virtual Gearing Service in Android Accessibility Settings";
+                    warned = true;
+                }
+            } else if (vgd->isServiceRunning()) {
+                qDebug() << "bike::gearDown() - Using virtual gearing device";
+                vgd->simulateShiftDown();
+                return;
+            } else {
+                qDebug() << "bike::gearDown() - Virtual gearing service not running, falling back to normal gearing";
             }
-
-            if (!settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool()) {
-                settings.setValue(QZSettings::virtual_device_enabled, true);
-                qDebug() << "Enabled fake bike for virtual gearing";
-            }
-            return;
-        } else {
-            qDebug() << "bike::gearDown() - Virtual gearing service not running, falling back to normal gearing";
         }
 #endif
     }
