@@ -1,11 +1,9 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Controls.Material 2.12
-import QtGraphicalEffects 1.12
-import Qt.labs.settings 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Material
+import Qt.labs.settings 1.1
 
 Page {
-
     title: qsTr("QZ Fitness")
     id: page
 
@@ -15,11 +13,11 @@ Page {
     property alias row: row
 
     Settings {
-	     id: settings
-		  property real ui_zoom: 100.0
-		  property bool theme_tile_icon_enabled: true
-		  property string theme_background_color: "#303030"
-		}
+        id: settings
+        property real ui_zoom: 100.0
+        property bool theme_tile_icon_enabled: true
+        property string theme_background_color: "#303030"
+    }
 
     Item {
         width: parent.width
@@ -38,7 +36,7 @@ Page {
             Rectangle {
                 width: 50
                 height: row.height
-					 color: settings.theme_background_color
+                color: settings.theme_background_color
                 Column {
                     id: column
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -60,11 +58,7 @@ Page {
                             source: "icons/icons/bluetooth-icon.png"
                             enabled: rootItem.device
                             smooth: true
-                        }
-                        ColorOverlay {
-                            anchors.fill: treadmill_connection
-                            source: treadmill_connection
-                            color: treadmill_connection.enabled ? "#00000000" : "#B0D3d3d3"
+                            opacity: rootItem.device ? 1.0 : 0.3 // Riduce l'opacità quando disabilitato
                         }
                     }
                     Image {
@@ -81,7 +75,7 @@ Page {
             Rectangle {
                 width: 120
                 height: row.height
-					 color: settings.theme_background_color
+                color: settings.theme_background_color
                 RoundButton {
                     icon.source: rootItem.startIcon
                     icon.height: row.height - 54
@@ -91,19 +85,14 @@ Page {
                     id: start
                     width: 120
                     height: row.height - 4
-                }
-                ColorOverlay {
-                    anchors.fill: start
-                    source: start
-                    color: rootItem.startColor
-                    enabled: rootItem.startColor === "red" ? true : false
+                    Material.foreground: rootItem.startColor === "red" ? "red" : Material.foreground
                 }
             }
 
             Rectangle {
                 width: 120
                 height: row.height
-					 color: settings.theme_background_color
+                color: settings.theme_background_color
 
                 RoundButton {
                     icon.source: rootItem.stopIcon
@@ -114,12 +103,7 @@ Page {
                     id: stop
                     width: 120
                     height: row.height - 4
-                }
-                ColorOverlay {
-                    anchors.fill: stop
-                    source: stop
-                    color: rootItem.stopColor
-                    enabled: rootItem.stopColor === "red" ? true : false
+                    Material.foreground: rootItem.stopColor === "red" ? "red" : Material.foreground
                 }
             }
 
@@ -127,7 +111,7 @@ Page {
                 id: item2
                 width: 50
                 height: row.height
-					 color: settings.theme_background_color
+                color: settings.theme_background_color
                 RoundButton {
                     anchors.verticalCenter: parent.verticalCenter
                     id: lap
@@ -138,11 +122,7 @@ Page {
                     icon.height: 48
                     enabled: rootItem.lap
                     smooth: true
-                }
-                ColorOverlay {
-                    anchors.fill: lap
-                    source: lap
-                    color: lap.enabled ? "#00000000" : "#B0D3d3d3"
+                    opacity: rootItem.lap ? 1.0 : 0.3 // Riduce l'opacità quando disabilitato
                 }
             }
         }
@@ -177,4 +157,3 @@ Designer {
     D{i:0;autoSize:true;formeditorZoom:0.6600000262260437;height:480;width:640}
 }
 ##^##*/
-

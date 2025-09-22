@@ -289,7 +289,7 @@ void trxappgateusbelliptical::stateChanged(QLowEnergyService::ServiceState state
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
 
         QString uuidWrite = QStringLiteral("0000fff2-0000-1000-8000-00805f9b34fb");
@@ -319,7 +319,7 @@ void trxappgateusbelliptical::stateChanged(QLowEnergyService::ServiceState state
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &trxappgateusbelliptical::characteristicWritten);
         connect(gattCommunicationChannelService,
-                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                &QLowEnergyService::errorOccurred,
                 this, &trxappgateusbelliptical::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &trxappgateusbelliptical::descriptorWritten);
@@ -356,7 +356,7 @@ void trxappgateusbelliptical::stateChanged(QLowEnergyService::ServiceState state
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
-            gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattNotify1Characteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
@@ -387,7 +387,7 @@ void trxappgateusbelliptical::serviceScanDone(void) {
     // Fallback logic: try to find the service in discovered services
     bool found = false;
     foreach (QBluetoothUuid s, m_control->services()) {
-        if (s == QBluetoothUuid::fromString(uuid)) {
+        if (s == (QBluetoothUuid)QBluetoothUuid::fromString(uuid)) {
             found = true;
             break;
         }
@@ -399,7 +399,7 @@ void trxappgateusbelliptical::serviceScanDone(void) {
             // I-CONSOLE+ device but DCT2000I service not found, try 0000fff0 service (Taurus FX9.9)
             bool found_fff0 = false;
             foreach (QBluetoothUuid s, m_control->services()) {
-                if (s == QBluetoothUuid::fromString(uuid3)) {
+                if (s == (QBluetoothUuid)QBluetoothUuid::fromString(uuid3)) {
                     found_fff0 = true;
                     break;
                 }
@@ -458,12 +458,12 @@ void trxappgateusbelliptical::deviceDiscovered(const QBluetoothDeviceInfo &devic
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &trxappgateusbelliptical::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &trxappgateusbelliptical::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, &trxappgateusbelliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &trxappgateusbelliptical::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
