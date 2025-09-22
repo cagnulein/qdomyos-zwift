@@ -5,6 +5,7 @@ import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.0
 import Qt.labs.platform 1.1
+import VirtualGearingDevice 1.0
 
 //Page {
     ScrollView {
