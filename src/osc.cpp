@@ -237,7 +237,7 @@ void OSC::OSC_handlePacket(const OSCPP::Server::Packet& packet)
         if (msg == "/QZ/Resistance") {
             const float value = args.int32();
             qDebug() << "OSC" << value;
-            if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+            if(bluetoothManager->device()->deviceType() == BIKE)
                 ((bike*)bluetoothManager->device())->changeResistance(value);
         } else {
             // Simply print unknown messages

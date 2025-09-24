@@ -1179,14 +1179,14 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         r.average_cadence = (r.lower_cadence + r.upper_cadence) / 2;
 
         if (bluetoothManager && bluetoothManager->device()) {
-            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            if (bluetoothManager->device()->deviceType() == BIKE) {
                 r.lower_resistance = ((bike *)bluetoothManager->device())
                                          ->pelotonToBikeResistance(resistance_range[QStringLiteral("lower")].toInt());
                 r.upper_resistance = ((bike *)bluetoothManager->device())
                                          ->pelotonToBikeResistance(resistance_range[QStringLiteral("upper")].toInt());
                 r.average_resistance = ((bike *)bluetoothManager->device())
                                            ->pelotonToBikeResistance(r.average_requested_peloton_resistance);
-            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+            } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
                 r.lower_resistance =
                     ((elliptical *)bluetoothManager->device())
                         ->pelotonToEllipticalResistance(resistance_range[QStringLiteral("lower")].toInt());
@@ -1227,8 +1227,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
 
     bool atLeastOnePower = false;
     if (trainrows.empty() && !segments_segment_list.isEmpty() &&
-        bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
-        bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
+        bluetoothManager->device()->deviceType() != ROWING &&
+        bluetoothManager->device()->deviceType() != TREADMILL) {
         foreach (QJsonValue o, segments_segment_list) {
             QJsonArray subsegments_v2 = o["subsegments_v2"].toArray();
             if (!subsegments_v2.isEmpty()) {
@@ -1379,7 +1379,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         if (!atLeastOnePower) {
             trainrows.clear();
         }
-    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+    } else if (bluetoothManager->device()->deviceType() == ROWING) {
         QJsonObject target_metrics_data_list = ride[QStringLiteral("target_metrics_data")].toObject();
         QJsonArray pace_intensities_list = target_metrics_data_list[QStringLiteral("pace_intensities")].toArray();
 
@@ -1447,8 +1447,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         }
     }
     if (trainrows.empty() && !target_metrics_data_list.isEmpty() &&
-        bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
-        bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
+        bluetoothManager->device()->deviceType() != ROWING &&
+        bluetoothManager->device()->deviceType() != TREADMILL) {
         QJsonArray target_metrics = target_metrics_data_list["target_metrics"].toArray();
 
         bool atLeastOnePower = false;
@@ -1573,14 +1573,14 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                 r.average_cadence = (lowerCadence + upperCadence) / 2;
 
                 if (bluetoothManager && bluetoothManager->device()) {
-                    if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                    if (bluetoothManager->device()->deviceType() == BIKE) {
                         r.lower_resistance = ((bike *)bluetoothManager->device())
                                                  ->pelotonToBikeResistance(lowerResistance);
                         r.upper_resistance = ((bike *)bluetoothManager->device())
                                                  ->pelotonToBikeResistance(upperResistance);
                         r.average_resistance = ((bike *)bluetoothManager->device())
                                                    ->pelotonToBikeResistance(r.average_requested_peloton_resistance);
-                    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                    } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
                         r.lower_resistance = ((elliptical *)bluetoothManager->device())
                                                  ->pelotonToEllipticalResistance(lowerResistance);
                         r.upper_resistance = ((elliptical *)bluetoothManager->device())
@@ -1639,7 +1639,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         }
     }
     
-    if (trainrows.empty() && !target_metrics_data_list.isEmpty() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+    if (trainrows.empty() && !target_metrics_data_list.isEmpty() && bluetoothManager->device()->deviceType() == TREADMILL) {
         QJsonObject target_metrics_data = ride["target_metrics_data"].toObject();
         QJsonArray target_metrics = target_metrics_data["target_metrics"].toArray();
         
@@ -1826,7 +1826,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     trainrows.clear();
 
     if(!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
-        bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+        bluetoothManager->device()->deviceType() == BIKE) {
         QJsonArray targetMetrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
 
         if (targetMetrics.count() > 0)
@@ -1880,14 +1880,14 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             r.average_cadence = (r.lower_cadence + r.upper_cadence) / 2;
 
             if (bluetoothManager && bluetoothManager->device()) {
-                if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                if (bluetoothManager->device()->deviceType() == BIKE) {
                         r.lower_resistance = ((bike *)bluetoothManager->device())
                                                  ->pelotonToBikeResistance(lowerResistance);
                         r.upper_resistance = ((bike *)bluetoothManager->device())
                                                  ->pelotonToBikeResistance(upperResistance);
                         r.average_resistance = ((bike *)bluetoothManager->device())
                                                    ->pelotonToBikeResistance(r.average_requested_peloton_resistance);
-                } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
                         r.lower_resistance =
                             ((elliptical *)bluetoothManager->device())
                                 ->pelotonToEllipticalResistance(lowerResistance);
@@ -1935,8 +1935,8 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         
         bool atLeastOnePower = false;
         if (trainrows.empty() && !targetMetricsList.isEmpty() &&
-            bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
-            bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
+            bluetoothManager->device()->deviceType() != ROWING &&
+            bluetoothManager->device()->deviceType() != TREADMILL) {
 
             int lastEnd = 60;
             
@@ -2024,7 +2024,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             }
         }
     } else if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
-        bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        bluetoothManager->device()->deviceType() == TREADMILL) {
         double miles = 1;
         bool treadmill_force_speed =
             settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
@@ -2169,7 +2169,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             }
         }
     } else if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
-               bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+               bluetoothManager->device()->deviceType() == ROWING) {
         QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
         trainrows.reserve(target_metrics.count() + 2);
         for (int i = 0; i < target_metrics.count(); i++) {
@@ -2242,7 +2242,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         }
     }
     // Target METS it's quite useless so I removed, no one use this
-    /* else if (!segment_list.isEmpty() && bluetoothManager->device()->deviceType() != bluetoothdevice::BIKE) {
+    /* else if (!segment_list.isEmpty() && bluetoothManager->device()->deviceType() != BIKE) {
         trainrows.reserve(segment_list.count() + 1);
         foreach (QJsonValue o, segment_list) {
             int len = o["length"].toInt();
