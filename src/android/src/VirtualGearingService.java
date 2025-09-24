@@ -27,7 +27,14 @@ public class VirtualGearingService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        // We don't need to respond to accessibility events for keypress simulation
+        // Capture foreground app package name for smart coordinates
+        if (event != null && event.getPackageName() != null) {
+            String packageName = event.getPackageName().toString();
+            if (!packageName.equals(currentPackageName)) {
+                currentPackageName = packageName;
+                QLog.d(TAG, "App changed to: " + packageName);
+            }
+        }
     }
 
     @Override
@@ -62,14 +69,80 @@ public class VirtualGearingService extends AccessibilityService {
         }
     }
 
-    // Predefined touch coordinates for popular cycling apps
+    // Legacy methods for backward compatibility
     public static void shiftUp() {
-        // Default coordinates for shift up - apps can customize these
+        QLog.d(TAG, "Using legacy shiftUp - consider using shiftUpSmart()");
         simulateKeypress(100, 200);
     }
 
     public static void shiftDown() {
-        // Default coordinates for shift down - apps can customize these
+        QLog.d(TAG, "Using legacy shiftDown - consider using shiftDownSmart()");
         simulateKeypress(100, 300);
+    }
+
+    // New smart methods with app-specific coordinates
+    public static void shiftUpSmart() {
+        if (instance == null) {
+            QLog.w(TAG, "Service not enabled, cannot simulate smart shift up");
+            return;
+        }
+
+        try {
+            // Try to detect app from package name of last AccessibilityEvent
+            String currentPackage = getCurrentPackageName();
+            AppConfiguration.AppConfig config = AppConfiguration.getConfigForPackage(currentPackage);
+
+            // Calculate coordinates based on screen dimensions
+            int[] screenSize = getScreenSize();
+            int x = config.shiftUp.getX(screenSize[0]);
+            int y = config.shiftUp.getY(screenSize[1]);
+
+            QLog.d(TAG, "Smart shift up for " + config.appName + " at (" + x + ", " + y + ")");
+            simulateKeypress(x, y);
+        } catch (Exception e) {
+            QLog.e(TAG, "Error in shiftUpSmart, falling back to legacy", e);
+            shiftUp();
+        }
+    }
+
+    public static void shiftDownSmart() {
+        if (instance == null) {
+            QLog.w(TAG, "Service not enabled, cannot simulate smart shift down");
+            return;
+        }
+
+        try {
+            String currentPackage = getCurrentPackageName();
+            AppConfiguration.AppConfig config = AppConfiguration.getConfigForPackage(currentPackage);
+
+            int[] screenSize = getScreenSize();
+            int x = config.shiftDown.getX(screenSize[0]);
+            int y = config.shiftDown.getY(screenSize[1]);
+
+            QLog.d(TAG, "Smart shift down for " + config.appName + " at (" + x + ", " + y + ")");
+            simulateKeypress(x, y);
+        } catch (Exception e) {
+            QLog.e(TAG, "Error in shiftDownSmart, falling back to legacy", e);
+            shiftDown();
+        }
+    }
+
+    private static String currentPackageName = null;
+
+    private static String getCurrentPackageName() {
+        return currentPackageName != null ? currentPackageName : "unknown";
+    }
+
+    private static int[] getScreenSize() {
+        if (instance != null) {
+            try {
+                android.content.res.Resources resources = instance.getResources();
+                android.util.DisplayMetrics displayMetrics = resources.getDisplayMetrics();
+                return new int[]{displayMetrics.widthPixels, displayMetrics.heightPixels};
+            } catch (Exception e) {
+                QLog.e(TAG, "Error getting screen size from service", e);
+            }
+        }
+        return new int[]{1080, 1920}; // Default fallback
     }
 }

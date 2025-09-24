@@ -1,9 +1,13 @@
 package org.cagnulen.qdomyoszwift;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
+import android.view.WindowManager;
 import org.cagnulen.qdomyoszwift.QLog;
 
 public class VirtualGearingBridge {
@@ -45,13 +49,45 @@ public class VirtualGearingBridge {
     }
 
     public static void simulateShiftUp() {
-        QLog.d(TAG, "Simulating shift up");
-        VirtualGearingService.shiftUp();
+        QLog.d(TAG, "Simulating shift up with app-specific coordinates");
+        VirtualGearingService.shiftUpSmart();
     }
 
     public static void simulateShiftDown() {
-        QLog.d(TAG, "Simulating shift down");
-        VirtualGearingService.shiftDown();
+        QLog.d(TAG, "Simulating shift down with app-specific coordinates");
+        VirtualGearingService.shiftDownSmart();
+    }
+
+    public static String getCurrentAppPackageName(Context context) {
+        try {
+            ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+            if (activityManager != null) {
+                ActivityManager.RunningAppProcessInfo myProcess = new ActivityManager.RunningAppProcessInfo();
+                ActivityManager.getMyMemoryState(myProcess);
+
+                // For Android 5.0+ we should use UsageStatsManager, but for simplicity
+                // we use a more direct approach via current foreground process
+                // In a complete implementation we should use UsageStatsManager
+
+                // For now return null and let the service detect the app
+                return null;
+            }
+        } catch (Exception e) {
+            QLog.e(TAG, "Error getting current app package name", e);
+        }
+        return null;
+    }
+
+    public static int[] getScreenSize(Context context) {
+        try {
+            WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+            return new int[]{displayMetrics.widthPixels, displayMetrics.heightPixels};
+        } catch (Exception e) {
+            QLog.e(TAG, "Error getting screen size", e);
+            return new int[]{1080, 1920}; // Default fallback
+        }
     }
 
     public static void simulateTouch(int x, int y) {
