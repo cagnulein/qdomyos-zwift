@@ -109,8 +109,8 @@ android {
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src', 'java']
-            aidl.srcDirs = ['src', 'aidl']
+            java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
+            aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
             // Use only local res to avoid Qt duplicate strings conflict
             res.srcDirs = ['res']
             resources.srcDirs = ['resources']
@@ -141,6 +141,7 @@ android {
     }
 
     defaultConfig {
+        applicationId "org.cagnulen.qdomyoszwift"
         resConfig "en"
         minSdkVersion 28
         targetSdkVersion 36

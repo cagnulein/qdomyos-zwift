@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" android:versionName="2.20.10" android:versionCode="1152" android:installLocation="auto">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" package="org.cagnulen.qdomyoszwift" android:versionName="2.20.10" android:versionCode="1152" android:installLocation="auto">
 <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
           Remove the comment if you do not require these default permissions. -->
 			<!-- %%INSERT_PERMISSIONS -->
@@ -11,24 +11,23 @@
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
      <application android:hardwareAccelerated="true" android:debuggable="false" android:name="org.qtproject.qt.android.bindings.QtApplication" android:label="qdomyos-zwift" android:icon="@drawable/icon" android:usesCleartextTraffic="true">
             <!-- Duplicate Qt meta-data at application level for loaders that consult ApplicationInfo -->
-            <meta-data android:name="android.app.lib_name" android:resource="@string/qt_lib_name"/>
+            <meta-data android:name="android.app.lib_name" android:value="qdomyos-zwift"/>
             <meta-data android:name="android.app.qt_sources_resource_id" android:resource="@array/qt_sources"/>
             <meta-data android:name="android.app.repository" android:resource="@string/qt_repository"/>
             <meta-data android:name="android.app.qt_libs_resource_id" android:resource="@array/qt_libs"/>
             <meta-data android:name="android.app.bundled_libs_resource_id" android:resource="@array/bundled_libs"/>
-            <meta-data android:name="android.app.bundle_local_qt_libs" android:resource="@string/qt_bundle_local_qt_libs"/>
+            <meta-data android:name="android.app.bundle_local_qt_libs" android:resource="@string/bundle_local_qt_libs"/>
             <meta-data android:name="android.app.use_local_qt_libs" android:value="false"/>
             <meta-data android:name="android.app.libs_prefix" android:resource="@string/qt_libs_prefix"/>
             <meta-data android:name="android.app.load_local_libs_resource_id" android:resource="@array/load_local_libs"/>
             <meta-data android:name="android.app.load_local_jars" android:resource="@string/qt_load_local_jars"/>
-            <meta-data android:name="android.app.static_init_classes" android:resource="@string/qt_static_init_classes"/>
             <!-- Application arguments duplicate at app level -->
             <meta-data android:name="android.app.arguments" android:resource="@string/qt_empty_args"/>
             <meta-data android:name="android.app.ministro_not_found_msg" android:resource="@string/ministro_not_found_msg"/>
             <meta-data android:name="android.app.ministro_needed_msg" android:resource="@string/ministro_needed_msg"/>
             <meta-data android:name="android.app.fatal_error_msg" android:resource="@string/fatal_error_msg"/>
             <meta-data android:name="android.app.unsupported_android_version" android:resource="@string/unsupported_android_version"/>
-             <activity android:theme="@style/Theme.AppCompat" android:exported="true" android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.cagnulen.qdomyoszwift.CustomQtActivity" android:label="QZ" android:launchMode="singleTop">
+             <activity android:theme="@style/Theme.AppCompat" android:exported="true" android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.qtproject.qt.android.bindings.QtActivity" android:label="QZ" android:launchMode="singleTop">
 		      <intent-filter>
 				    <action android:name="android.intent.action.MAIN"/>
 					 <category android:name="android.intent.category.LAUNCHER"/>
@@ -41,19 +40,18 @@
                                             android:resource="@xml/device_filter" />
                     <!-- Application arguments (empty to avoid getString(0) when missing) -->
                     <meta-data android:name="android.app.arguments" android:resource="@string/qt_empty_args"/>
-				<meta-data android:name="android.app.lib_name" android:resource="@string/qt_lib_name"/>
+				<meta-data android:name="android.app.lib_name" android:value="qdomyos-zwift"/>
 				<meta-data android:name="android.app.qt_sources_resource_id" android:resource="@array/qt_sources"/>
 				<meta-data android:name="android.app.repository" android:resource="@string/qt_repository"/>
 				<meta-data android:name="android.app.qt_libs_resource_id" android:resource="@array/qt_libs"/>
 				<meta-data android:name="android.app.bundled_libs_resource_id" android:resource="@array/bundled_libs"/>
 				<!-- Deploy Qt libs as part of package -->
-                    <meta-data android:name="android.app.bundle_local_qt_libs" android:resource="@string/qt_bundle_local_qt_libs"/>
+                    <meta-data android:name="android.app.bundle_local_qt_libs" android:resource="@string/bundle_local_qt_libs"/>
 				<!-- Run with local libs -->
 				<meta-data android:name="android.app.use_local_qt_libs" android:value="false"/>
 				<meta-data android:name="android.app.libs_prefix" android:resource="@string/qt_libs_prefix"/>
 				<meta-data android:name="android.app.load_local_libs_resource_id" android:resource="@array/load_local_libs"/>
 				<meta-data android:name="android.app.load_local_jars" android:resource="@string/qt_load_local_jars"/>
-				<meta-data android:name="android.app.static_init_classes" android:resource="@string/qt_static_init_classes"/>
 				<!-- Used to specify custom system library path to run with local system libs -->
 				<!-- <meta-data android:name="android.app.system_libs_prefix" android:value="/system/lib/"/> -->
 				<!--  Messages maps -->

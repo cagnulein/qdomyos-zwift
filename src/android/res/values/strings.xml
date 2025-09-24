@@ -10,8 +10,6 @@
     <string name="qt_lib_name">qdomyos-zwift</string>
     <string name="qt_libs_prefix">/data/local/tmp/qt/</string>
     <string name="qt_load_local_jars">-- %%INSERT_LOCAL_JARS%% --</string>
-    <string name="qt_static_init_classes">-- %%INSERT_INIT_CLASSES%% --</string>
-    <string name="qt_bundle_local_qt_libs">-- %%BUNDLE_LOCAL_QT_LIBS%% --</string>
     <!-- Empty arguments to satisfy QtLoader when it tries to read android.app.arguments -->
     <string name="qt_empty_args"></string>
 </resources>
