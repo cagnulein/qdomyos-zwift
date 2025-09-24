@@ -725,10 +725,10 @@ int main(int argc, char *argv[]) {
     
     for (const QString &permission : permissions) {
         // Check if permission is already granted
-        auto result = QJniObject::callStaticMethod<jboolean>(
-            "androidx/core/content/ContextCompat", 
-            "checkSelfPermission", 
-            "(Landroid/content/Context;Ljava/lang/String;)I", 
+        auto result = QJniObject::callStaticMethod<jint>(
+            "androidx/core/content/ContextCompat",
+            "checkSelfPermission",
+            "(Landroid/content/Context;Ljava/lang/String;)I",
             QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object(),
             QJniObject::fromString(permission).object<jstring>()
         );
