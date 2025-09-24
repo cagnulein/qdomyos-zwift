@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QCoreApplication>
+#include <QMetaObject>
 
 MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QString username, QString password, bluetooth* manager, QObject *parent)
     : QObject(parent)
@@ -232,10 +233,29 @@ void MQTTPublisher::onMessageReceived(const QByteArray &message, const QMqttTopi
 }
 
 void MQTTPublisher::handleControlCommand(const QString& command, const QVariant& value) {
-    if(!m_device) return;
-    
     QStringList parts = command.split('/');
     if(parts.isEmpty()) return;
+    
+    // Handle general commands
+    QString mainCommand = parts[0];
+    
+    if(mainCommand == "start") {
+        if (auto *home = homeform::singleton()) {
+            QMetaObject::invokeMethod(home, "Start", Qt::QueuedConnection);
+        } else if (m_device) {
+            m_device->start();
+        }
+        return;
+    } else if(mainCommand == "stop") {
+        if (auto *home = homeform::singleton()) {
+            QMetaObject::invokeMethod(home, "Stop", Qt::QueuedConnection);
+        } else if (m_device) {
+            m_device->stop(false);
+        }
+        return;
+    }
+    
+    if(!m_device) return;
     
     // Handle device-specific commands (e.g., "bike/resistance", "treadmill/speed")
     if(parts.size() == 2) {
@@ -243,14 +263,7 @@ void MQTTPublisher::handleControlCommand(const QString& command, const QVariant&
         return;
     }
     
-    // Handle general commands
-    QString mainCommand = parts[0];
-    
-    if(mainCommand == "start") {
-        m_device->start();
-    } else if(mainCommand == "stop") {
-        m_device->stop(false);
-    } else if(mainCommand == "pause") {
+    if(mainCommand == "pause") {
         m_device->setPaused(value.toBool());
     } else if(mainCommand == "resistance") {
         m_device->changeResistance(value.toInt());
