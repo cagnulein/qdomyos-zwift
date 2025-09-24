@@ -35,6 +35,9 @@
 #include "keepawakehelper.h"
 #include <QCoreApplication>
 #include <QJniObject>
+#include <QBluetoothPermission>
+#include <QCoreApplication>
+#include <QPermissions>
 #endif
 
 #ifdef Q_OS_MACOS
@@ -710,21 +713,39 @@ int main(int argc, char *argv[]) {
                       settings.value(QZSettings::app_opening, QZSettings::default_app_opening).toInt() + 1);
 
 #if defined(Q_OS_ANDROID)
-    // Qt6 permission handling
-    // In Qt6, we use QJniObject for Android permission handling
-    QStringList permissions = {
+    // Qt6 Bluetooth permission handling
+    QBluetoothPermission bluetoothPermission;
+    bluetoothPermission.setCommunicationModes(QBluetoothPermission::Access);
+
+    switch (qApp->checkPermission(bluetoothPermission)) {
+    case Qt::PermissionStatus::Undetermined:
+        qDebug() << "Bluetooth permission undetermined, requesting...";
+        qApp->requestPermission(bluetoothPermission, [](const QPermission &permission) {
+            if (permission.status() == Qt::PermissionStatus::Granted) {
+                qDebug() << "Bluetooth permission granted";
+            } else {
+                qDebug() << "Bluetooth permission denied";
+            }
+        });
+        break;
+    case Qt::PermissionStatus::Denied:
+        qDebug() << "Bluetooth permission denied";
+        break;
+    case Qt::PermissionStatus::Granted:
+        qDebug() << "Bluetooth permission already granted";
+        break;
+    }
+
+    // Request other Android permissions
+    QStringList otherPermissions = {
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.ACCESS_FINE_LOCATION", 
-        "android.permission.BLUETOOTH",
-        "android.permission.BLUETOOTH_ADMIN",
-        "android.permission.BLUETOOTH_SCAN",
-        "android.permission.BLUETOOTH_ADVERTISE", 
-        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.POST_NOTIFICATIONS"
     };
-    
-    for (const QString &permission : permissions) {
-        // Check if permission is already granted
+
+    QStringList permissionsToRequest;
+
+    for (const QString &permission : otherPermissions) {
         auto result = QJniObject::callStaticMethod<jint>(
             "androidx/core/content/ContextCompat",
             "checkSelfPermission",
@@ -732,26 +753,29 @@ int main(int argc, char *argv[]) {
             QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object(),
             QJniObject::fromString(permission).object<jstring>()
         );
-        
-        if (result != 0) { // PERMISSION_GRANTED = 0
-            qDebug() << "Requesting permission:" << permission;
-            // Request permission - Qt6 approach using JNI
-            // Create Java string array manually
-            QJniEnvironment env;
-            jobjectArray jPermissionArray = env.jniEnv()->NewObjectArray(1, env.jniEnv()->FindClass("java/lang/String"), nullptr);
-            env.jniEnv()->SetObjectArrayElement(jPermissionArray, 0, QJniObject::fromString(permission).object<jstring>());
-            
-            QJniObject::callStaticMethod<void>(
-                "androidx/core/app/ActivityCompat",
-                "requestPermissions",
-                "(Landroid/app/Activity;[Ljava/lang/String;I)V",
-                QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity", "()Landroid/app/Activity;").object(),
-                jPermissionArray,
-                1000 // request code
-            );
-        } else {
-            qDebug() << "Permission already granted:" << permission;
+
+        if (result != 0) {
+            permissionsToRequest.append(permission);
+            qDebug() << "Permission needed:" << permission;
         }
+    }
+
+    if (!permissionsToRequest.isEmpty()) {
+        qDebug() << "Requesting" << permissionsToRequest.size() << "other permissions";
+        QJniEnvironment env;
+        jobjectArray jPermissionArray = env.jniEnv()->NewObjectArray(permissionsToRequest.size(), env.jniEnv()->FindClass("java/lang/String"), nullptr);
+        for (int i = 0; i < permissionsToRequest.size(); ++i) {
+            env.jniEnv()->SetObjectArrayElement(jPermissionArray, i, QJniObject::fromString(permissionsToRequest[i]).object<jstring>());
+        }
+
+        QJniObject::callStaticMethod<void>(
+            "androidx/core/app/ActivityCompat",
+            "requestPermissions",
+            "(Landroid/app/Activity;[Ljava/lang/String;I)V",
+            QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity", "()Landroid/app/Activity;").object(),
+            jPermissionArray,
+            1000
+        );
     }
 #endif
 

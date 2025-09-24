@@ -27,7 +27,7 @@
             <meta-data android:name="android.app.ministro_needed_msg" android:resource="@string/ministro_needed_msg"/>
             <meta-data android:name="android.app.fatal_error_msg" android:resource="@string/fatal_error_msg"/>
             <meta-data android:name="android.app.unsupported_android_version" android:resource="@string/unsupported_android_version"/>
-             <activity android:theme="@style/Theme.AppCompat" android:exported="true" android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.qtproject.qt.android.bindings.QtActivity" android:label="QZ" android:launchMode="singleTop">
+             <activity android:theme="@style/Theme.AppCompat" android:exported="true" android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.cagnulen.qdomyoszwift.CustomQtActivity" android:label="QZ" android:launchMode="singleTop">
 		      <intent-filter>
 				    <action android:name="android.intent.action.MAIN"/>
 					 <category android:name="android.intent.category.LAUNCHER"/>
