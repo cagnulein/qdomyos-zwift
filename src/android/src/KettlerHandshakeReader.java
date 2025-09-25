@@ -25,6 +25,7 @@ public class KettlerHandshakeReader {
     private static final UUID HANDSHAKE_WRITE_CHAR_UUID = UUID.fromString("638a1105-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID POWER_CONTROL_CHAR_UUID = UUID.fromString("638a100e-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID RPM_CHAR_UUID = UUID.fromString("638a1002-7bde-3e25-ffc5-9de9b2a0197a");
+    private static final UUID CLIENT_CHARACTERISTIC_CONFIG_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     // CSC Service UUID
     private static final UUID CSC_SERVICE_UUID = UUID.fromString("00001816-0000-1000-8000-00805f9b34fb");
@@ -37,6 +38,12 @@ public class KettlerHandshakeReader {
 
     private static boolean isConnected = false;
     private static boolean handshakeCompleted = false;
+    private static int pendingDescriptorWrites = 0;
+    private static BluetoothGattCharacteristic pendingHandshakeCharacteristic = null;
+    private static boolean handshakeReadInProgress = false;
+    private static int handshakeReadAttempts = 0;
+    private static final int MAX_HANDSHAKE_READ_ATTEMPTS = 3;
+    private static final long HANDSHAKE_READ_RETRY_DELAY_MS = 200;
 
     // Native callback methods - will be implemented in C++
     public static native void onHandshakeSeedReceived(byte[] seedData);
@@ -52,6 +59,7 @@ public class KettlerHandshakeReader {
         deviceAddress = address;
         isConnected = false;
         handshakeCompleted = false;
+        resetHandshakeState();
 
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager == null) {
@@ -219,31 +227,6 @@ public class KettlerHandshakeReader {
                     return;
                 }
 
-                // Setup CSC service
-                BluetoothGattService cscService = gatt.getService(CSC_SERVICE_UUID);
-                if (cscService != null) {
-                    BluetoothGattCharacteristic cscChar = cscService.getCharacteristic(CSC_MEASUREMENT_CHAR_UUID);
-                    if (cscChar != null) {
-                        gatt.setCharacteristicNotification(cscChar, true);
-                        BluetoothGattDescriptor descriptor = cscChar.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
-                        if (descriptor != null) {
-                            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                            gatt.writeDescriptor(descriptor);
-                        }
-                    }
-                }
-
-                // Setup Kettler RPM notifications
-                BluetoothGattCharacteristic rpmChar = kettlerService.getCharacteristic(RPM_CHAR_UUID);
-                if (rpmChar != null) {
-                    gatt.setCharacteristicNotification(rpmChar, true);
-                    BluetoothGattDescriptor descriptor = rpmChar.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
-                    if (descriptor != null) {
-                        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                        gatt.writeDescriptor(descriptor);
-                    }
-                }
-
                 // Start handshake process
                 BluetoothGattCharacteristic handshakeChar = kettlerService.getCharacteristic(HANDSHAKE_READ_CHAR_UUID);
                 if (handshakeChar == null) {
@@ -263,14 +246,24 @@ public class KettlerHandshakeReader {
                     return;
                 }
 
-                // Attempt to read the characteristic
-                QLog.d(TAG, "Reading handshake characteristic...");
-                boolean readSuccess = gatt.readCharacteristic(handshakeChar);
-                if (!readSuccess) {
-                    QLog.e(TAG, "Failed to initiate characteristic read");
-                    onHandshakeReadError("Failed to initiate characteristic read");
-                    cleanup();
+                pendingHandshakeCharacteristic = handshakeChar;
+                handshakeReadInProgress = false;
+                handshakeReadAttempts = 0;
+
+                pendingDescriptorWrites = 0;
+
+                // Setup CSC notifications
+                BluetoothGattService cscService = gatt.getService(CSC_SERVICE_UUID);
+                if (cscService != null) {
+                    BluetoothGattCharacteristic cscChar = cscService.getCharacteristic(CSC_MEASUREMENT_CHAR_UUID);
+                    pendingDescriptorWrites += enableNotification(gatt, cscChar);
                 }
+
+                // Setup Kettler RPM notifications
+                BluetoothGattCharacteristic rpmChar = kettlerService.getCharacteristic(RPM_CHAR_UUID);
+                pendingDescriptorWrites += enableNotification(gatt, rpmChar);
+
+                attemptHandshakeRead(gatt);
 
             } else {
                 QLog.e(TAG, "Service discovery failed with status: " + status);
@@ -283,8 +276,12 @@ public class KettlerHandshakeReader {
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             QLog.d(TAG, "onCharacteristicRead: status=" + status);
 
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                if (HANDSHAKE_READ_CHAR_UUID.equals(characteristic.getUuid())) {
+            if (HANDSHAKE_READ_CHAR_UUID.equals(characteristic.getUuid())) {
+                handshakeReadInProgress = false;
+                pendingHandshakeCharacteristic = null;
+
+                if (status == BluetoothGatt.GATT_SUCCESS) {
+                    handshakeReadAttempts = 0;
                     byte[] data = characteristic.getValue();
                     if (data != null) {
                         QLog.d(TAG, "Handshake seed received, length: " + data.length);
@@ -301,12 +298,33 @@ public class KettlerHandshakeReader {
                         onHandshakeReadError("Characteristic read returned null data");
                     }
                 } else {
-                    QLog.w(TAG, "Read callback for unexpected characteristic: " + characteristic.getUuid());
+                    QLog.e(TAG, "Characteristic read failed with status: " + status);
+                    onHandshakeReadError("Characteristic read failed with status: " + status);
+                    cleanup();
                 }
             } else {
-                QLog.e(TAG, "Characteristic read failed with status: " + status);
-                onHandshakeReadError("Characteristic read failed with status: " + status);
+                if (status == BluetoothGatt.GATT_SUCCESS) {
+                    QLog.w(TAG, "Read callback for unexpected characteristic: " + characteristic.getUuid());
+                } else {
+                    QLog.e(TAG, "Characteristic read failed with status: " + status + " for " + characteristic.getUuid());
+                }
             }
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            if (pendingDescriptorWrites > 0) {
+                pendingDescriptorWrites--;
+            }
+
+            UUID descriptorUuid = descriptor != null ? descriptor.getUuid() : null;
+            QLog.d(TAG, "onDescriptorWrite: " + descriptorUuid + ", status: " + status + ", remaining: " + pendingDescriptorWrites);
+
+            if (status != BluetoothGatt.GATT_SUCCESS) {
+                QLog.e(TAG, "Descriptor write failed with status: " + status);
+            }
+
+            attemptHandshakeRead(gatt);
         }
 
         @Override
@@ -342,10 +360,82 @@ public class KettlerHandshakeReader {
             bluetoothGatt.close();
             bluetoothGatt = null;
         }
+        resetHandshakeState();
     }
 
     public static void forceCleanup() {
         QLog.d(TAG, "Force cleanup called");
         cleanup();
+    }
+
+    private static void resetHandshakeState() {
+        pendingDescriptorWrites = 0;
+        pendingHandshakeCharacteristic = null;
+        handshakeReadInProgress = false;
+        handshakeReadAttempts = 0;
+    }
+
+    private static void attemptHandshakeRead(BluetoothGatt gatt) {
+        if (pendingHandshakeCharacteristic == null) {
+            return;
+        }
+
+        if (pendingDescriptorWrites > 0) {
+            QLog.d(TAG, "Handshake read waiting for pending descriptor writes: " + pendingDescriptorWrites);
+            return;
+        }
+
+        if (handshakeReadInProgress) {
+            QLog.d(TAG, "Handshake read already in progress");
+            return;
+        }
+
+        if (handshakeReadAttempts >= MAX_HANDSHAKE_READ_ATTEMPTS) {
+            QLog.e(TAG, "Exceeded maximum handshake read attempts");
+            onHandshakeReadError("Failed to initiate characteristic read");
+            cleanup();
+            return;
+        }
+
+        handshakeReadAttempts++;
+        QLog.d(TAG, "Reading handshake characteristic (attempt " + handshakeReadAttempts + ")...");
+        boolean readSuccess = gatt.readCharacteristic(pendingHandshakeCharacteristic);
+        if (readSuccess) {
+            handshakeReadInProgress = true;
+        } else {
+            QLog.e(TAG, "Failed to initiate characteristic read");
+            mainHandler.postDelayed(() -> {
+                if (bluetoothGatt == gatt && pendingHandshakeCharacteristic != null) {
+                    handshakeReadInProgress = false;
+                    attemptHandshakeRead(gatt);
+                }
+            }, HANDSHAKE_READ_RETRY_DELAY_MS);
+        }
+    }
+
+    private static int enableNotification(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+        if (characteristic == null) {
+            return 0;
+        }
+
+        boolean notificationSet = gatt.setCharacteristicNotification(characteristic, true);
+        if (!notificationSet) {
+            QLog.e(TAG, "Failed to enable notifications for characteristic: " + characteristic.getUuid());
+        }
+
+        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG_UUID);
+        if (descriptor == null) {
+            QLog.e(TAG, "Client configuration descriptor not found for characteristic: " + characteristic.getUuid());
+            return 0;
+        }
+
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        boolean writeInitiated = gatt.writeDescriptor(descriptor);
+        if (writeInitiated) {
+            return 1;
+        }
+
+        QLog.e(TAG, "Failed to initiate descriptor write for characteristic: " + characteristic.getUuid());
+        return 0;
     }
 }
