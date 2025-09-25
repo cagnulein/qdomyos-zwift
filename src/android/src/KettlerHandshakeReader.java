@@ -50,6 +50,7 @@ public class KettlerHandshakeReader {
     private static final int HANDSHAKE_SEED_EXPECTED_LENGTH = 6;
     private static byte[] handshakeSeedBuffer = new byte[HANDSHAKE_SEED_EXPECTED_LENGTH];
     private static int handshakeSeedBytesRead = 0;
+
     // Native callback methods - will be implemented in C++
     public static native void onHandshakeSeedReceived(byte[] seedData);
     public static native void onHandshakeReadError(String error);
@@ -256,6 +257,7 @@ public class KettlerHandshakeReader {
                 handshakeReadAttempts = 0;
                 handshakeSeedBuffer = new byte[HANDSHAKE_SEED_EXPECTED_LENGTH];
                 handshakeSeedBytesRead = 0;
+
                 pendingDescriptorWrites = 0;
 
                 // Setup CSC notifications
@@ -526,5 +528,4 @@ public class KettlerHandshakeReader {
 
         return false;
     }
-
 }
