@@ -983,9 +983,15 @@ const QString QZSettings::calories_from_hr = QStringLiteral("calories_from_hr");
 const QString QZSettings::height = QStringLiteral("height");
 const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
+const QString QZSettings::zwift_click_name = QStringLiteral("zwift_click_name");
+const QString QZSettings::default_zwift_click_name = QStringLiteral("Auto");
+const QString QZSettings::zwift_play_left_name = QStringLiteral("zwift_play_left_name");
+const QString QZSettings::default_zwift_play_left_name = QStringLiteral("Auto");
+const QString QZSettings::zwift_play_right_name = QStringLiteral("zwift_play_right_name");
+const QString QZSettings::default_zwift_play_right_name = QStringLiteral("Auto");
 
 
-const uint32_t allSettingsCount = 807;
+const uint32_t allSettingsCount = 810;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1813,6 +1819,9 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::height, QZSettings::default_height},
     {QZSettings::taurua_ic90, QZSettings::default_taurua_ic90},
     {QZSettings::proform_csx210, QZSettings::default_proform_csx210},
+    {QZSettings::zwift_click_name, QZSettings::default_zwift_click_name},
+    {QZSettings::zwift_play_left_name, QZSettings::default_zwift_play_left_name},
+    {QZSettings::zwift_play_right_name, QZSettings::default_zwift_play_right_name},
     {QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed},
 };
 
