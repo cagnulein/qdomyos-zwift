@@ -6,6 +6,8 @@
 #import <AVFoundation/AVFoundation.h>
 #import <ConnectIQ/ConnectIQ.h>
 #import "qdomyoszwift-Swift2.h"
+#import "swiftDebug.h"
+#import "swiftDebugBridge.h"
 #include "ios/lockscreen.h"
 #include "devices/bluetoothdevice.h"
 #include <QDebug>
@@ -32,6 +34,20 @@ static WorkoutTracking* workoutTracking = nil;
 static GarminConnect* Garmin = 0;
 
 static AdbClient *_adb = 0;
+
+static NSString *LockscreenStringFromCString(const char *message)
+{
+    if (!message)
+    {
+        return nil;
+    }
+    NSString *string = [[NSString alloc] initWithCString:message encoding:NSUTF8StringEncoding];
+    if (!string)
+    {
+        string = [NSString stringWithFormat:@"(invalid UTF8) %s", message];
+    }
+    return string;
+}
 
 static ios_eliteariafan* ios_eliteAriaFan = nil;
 static ios_echelonconnectsport* ios_echelonConnectSport = nil;
@@ -375,11 +391,21 @@ double lockscreen::getVolume()
 }
 
 void lockscreen::debug(const char* debugstring) {
-    qDebug() << debugstring;
+    SwiftDebugLogCString(debugstring);
 }
 
 void lockscreen::nslog(const char* log) {
-    NSLog([[NSString alloc] initWithUTF8String:log]);
+    if (!log)
+    {
+        return;
+    }
+    NSString *string = [[NSString alloc] initWithUTF8String:log];
+    if (!string)
+    {
+        string = [NSString stringWithFormat:@"(invalid UTF8) %s", log];
+    }
+    SwiftDebugLogNSString(string);
+    NSLog(@"%@", string);
 }
 
 void lockscreen::set_action_profile(const char* profile) {
@@ -391,21 +417,71 @@ const char* lockscreen::get_action_profile() {
 }
 
 void lockscreen::adb_connect(const char*  IP) {
-    if(_adb == 0) return;
-    
-    [_adb connect:[NSString stringWithCString:IP encoding:NSASCIIStringEncoding] didResponse:^(BOOL succ, NSString *result) {
-        
-        qDebug() << result;
+    if(_adb == 0) {
+        SwiftDebugLogNSString(@"ADB connect skipped: client not initialized");
+        return;
+    }
+
+    NSString *ipString = nil;
+    if (IP)
+    {
+        ipString = [NSString stringWithCString:IP encoding:NSASCIIStringEncoding];
+    }
+
+    if (!ipString)
+    {
+        NSString *loggedAddress = LockscreenStringFromCString(IP);
+        if (loggedAddress)
+        {
+            SwiftDebugLogNSString([NSString stringWithFormat:@"ADB connect aborted: invalid address %@", loggedAddress]);
+        }
+        else
+        {
+            SwiftDebugLogNSString(@"ADB connect aborted: address is null");
+        }
+        return;
+    }
+
+    SwiftDebugLogNSString([NSString stringWithFormat:@"ADB connect request: %@", ipString]);
+
+    [_adb connect:ipString didResponse:^(BOOL succ, NSString *result) {
+        NSString *response = result ?: @"(no response)";
+        SwiftDebugLogNSString([NSString stringWithFormat:@"ADB connect %@: %@", succ ? @"success" : @"failure", response]);
 
     }];
 }
     
 void lockscreen::adb_sendcommand(const char* command) {
-    if(_adb == 0) return;
-    
-    [_adb shell:[NSString stringWithCString:command encoding:NSASCIIStringEncoding] didResponse:^(BOOL succ, NSString *result) {
-        
-        qDebug() << result;
+    if(_adb == 0) {
+        SwiftDebugLogNSString(@"ADB sendcommand skipped: client not initialized");
+        return;
+    }
+
+    NSString *commandString = nil;
+    if (command)
+    {
+        commandString = [NSString stringWithCString:command encoding:NSASCIIStringEncoding];
+    }
+
+    if (!commandString)
+    {
+        NSString *loggedCommand = LockscreenStringFromCString(command);
+        if (loggedCommand)
+        {
+            SwiftDebugLogNSString([NSString stringWithFormat:@"ADB sendcommand aborted: invalid command %@", loggedCommand]);
+        }
+        else
+        {
+            SwiftDebugLogNSString(@"ADB sendcommand aborted: command is null");
+        }
+        return;
+    }
+
+    SwiftDebugLogNSString([NSString stringWithFormat:@"ADB sendcommand request: %@", commandString]);
+
+    [_adb shell:commandString didResponse:^(BOOL succ, NSString *result) {
+        NSString *response = result ?: @"(no response)";
+        SwiftDebugLogNSString([NSString stringWithFormat:@"ADB sendcommand %@: %@", succ ? @"success" : @"failure", response]);
 
     }];
 }
