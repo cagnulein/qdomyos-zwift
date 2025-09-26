@@ -14,6 +14,10 @@
 #include "adb_client.h"
 #include "../../swiftDebugBridge.h"
 
+// -- Add static function prototypes here --
+static void adb_log(const char *message);
+static void adb_log_format(const char *format, ...);
+
 static transport_type __adb_transport = kTransportAny;
 static const char* __adb_serial = NULL;
 
@@ -389,3 +393,4 @@ oops:
     adb_close(fd);
     return 0;
 }
+
