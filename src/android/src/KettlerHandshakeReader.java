@@ -26,6 +26,9 @@ public class KettlerHandshakeReader {
     private static final UUID HANDSHAKE_WRITE_CHAR_UUID = UUID.fromString("638a1105-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID POWER_CONTROL_CHAR_UUID = UUID.fromString("638a100e-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID RPM_CHAR_UUID = UUID.fromString("638a1002-7bde-3e25-ffc5-9de9b2a0197a");
+    private static final UUID POWER_DATA_CHAR_UUID = UUID.fromString("638a1003-7bde-3e25-ffc5-9de9b2a0197a");
+    private static final UUID CYCLING_POWER_SERVICE_UUID = UUID.fromString("00001818-0000-1000-8000-00805f9b34fb");
+    private static final UUID CYCLING_POWER_MEASUREMENT_CHAR_UUID = UUID.fromString("00002a63-0000-1000-8000-00805f9b34fb");
     private static final UUID CLIENT_CHARACTERISTIC_CONFIG_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     // CSC Service UUID
@@ -46,6 +49,8 @@ public class KettlerHandshakeReader {
     private static final int MAX_HANDSHAKE_READ_ATTEMPTS = 6;
     private static final long HANDSHAKE_READ_RETRY_DELAY_MS = 200;
     private static final int HANDSHAKE_SEED_EXPECTED_LENGTH = 2;
+    private static boolean postHandshakeNotificationsEnabled = false;
+    private static boolean initialPowerReadRequested = false;
     // Native callback methods - will be implemented in C++
     public static native void onHandshakeSeedReceived(byte[] seedData);
     public static native void onHandshakeReadError(String error);
@@ -259,10 +264,6 @@ public class KettlerHandshakeReader {
                     pendingDescriptorWrites += enableNotification(gatt, cscChar);
                 }
 
-                // Setup Kettler RPM notifications
-                BluetoothGattCharacteristic rpmChar = kettlerService.getCharacteristic(RPM_CHAR_UUID);
-                pendingDescriptorWrites += enableNotification(gatt, rpmChar);
-
                 attemptHandshakeRead(gatt);
 
             } else {
@@ -292,7 +293,15 @@ public class KettlerHandshakeReader {
                 }
             } else {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
-                    QLog.w(TAG, "Read callback for unexpected characteristic: " + characteristic.getUuid());
+                    if (POWER_DATA_CHAR_UUID.equals(characteristic.getUuid()) ||
+                        CYCLING_POWER_MEASUREMENT_CHAR_UUID.equals(characteristic.getUuid())) {
+                        byte[] value = characteristic.getValue();
+                        if (value != null) {
+                            onDataReceived(characteristic.getUuid().toString(), value);
+                        }
+                    } else {
+                        QLog.w(TAG, "Read callback for unexpected characteristic: " + characteristic.getUuid());
+                    }
                 } else {
                     QLog.e(TAG, "Characteristic read failed with status: " + status + " for " + characteristic.getUuid());
                 }
@@ -322,6 +331,8 @@ public class KettlerHandshakeReader {
             if (HANDSHAKE_WRITE_CHAR_UUID.equals(characteristic.getUuid()) && status == BluetoothGatt.GATT_SUCCESS) {
                 QLog.d(TAG, "Handshake write completed successfully");
                 handshakeCompleted = true;
+                enablePostHandshakeNotifications(gatt);
+                requestInitialPowerRead(gatt);
             }
         }
 
@@ -361,6 +372,8 @@ public class KettlerHandshakeReader {
         pendingHandshakeCharacteristic = null;
         handshakeReadInProgress = false;
         handshakeReadAttempts = 0;
+        postHandshakeNotificationsEnabled = false;
+        initialPowerReadRequested = false;
     }
 
     private static void attemptHandshakeRead(BluetoothGatt gatt) {
@@ -425,6 +438,56 @@ public class KettlerHandshakeReader {
 
         QLog.e(TAG, "Failed to initiate descriptor write for characteristic: " + characteristic.getUuid());
         return 0;
+    }
+
+    private static void enablePostHandshakeNotifications(BluetoothGatt gatt) {
+        if (gatt == null || postHandshakeNotificationsEnabled) {
+            return;
+        }
+
+        BluetoothGattService kettlerService = gatt.getService(KETTLER_SERVICE_UUID);
+        if (kettlerService != null) {
+            pendingDescriptorWrites += enableNotification(gatt, kettlerService.getCharacteristic(RPM_CHAR_UUID));
+            pendingDescriptorWrites += enableNotification(gatt, kettlerService.getCharacteristic(POWER_DATA_CHAR_UUID));
+        }
+
+        BluetoothGattService powerService = gatt.getService(CYCLING_POWER_SERVICE_UUID);
+        if (powerService != null) {
+            pendingDescriptorWrites +=
+                enableNotification(gatt, powerService.getCharacteristic(CYCLING_POWER_MEASUREMENT_CHAR_UUID));
+        }
+
+        postHandshakeNotificationsEnabled = true;
+    }
+
+    private static void requestInitialPowerRead(BluetoothGatt gatt) {
+        if (gatt == null || initialPowerReadRequested) {
+            return;
+        }
+
+        initialPowerReadRequested = true;
+        mainHandler.postDelayed(() -> {
+            if (bluetoothGatt != gatt) {
+                return;
+            }
+
+            BluetoothGattService kettlerService = gatt.getService(KETTLER_SERVICE_UUID);
+            if (kettlerService != null) {
+                BluetoothGattCharacteristic powerChar = kettlerService.getCharacteristic(POWER_DATA_CHAR_UUID);
+                if (powerChar != null) {
+                    gatt.readCharacteristic(powerChar);
+                }
+            }
+
+            BluetoothGattService powerService = gatt.getService(CYCLING_POWER_SERVICE_UUID);
+            if (powerService != null) {
+                BluetoothGattCharacteristic cpChar =
+                    powerService.getCharacteristic(CYCLING_POWER_MEASUREMENT_CHAR_UUID);
+                if (cpChar != null) {
+                    gatt.readCharacteristic(cpChar);
+                }
+            }
+        }, 500);
     }
 
     private static boolean processHandshakeSeed(byte[] data) {

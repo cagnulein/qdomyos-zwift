@@ -406,6 +406,7 @@ void kettlerracersbike::subscribeKettlerNotifications()
     }
 
     QBluetoothUuid rpmUuid(QStringLiteral("638a1002-7bde-3e25-ffc5-9de9b2a0197a"));
+    QBluetoothUuid powerUuid(QStringLiteral("638a1003-7bde-3e25-ffc5-9de9b2a0197a"));
     QBluetoothUuid char1Uuid(QStringLiteral("638a100c-7bde-3e25-ffc5-9de9b2a0197a"));
     QBluetoothUuid char2Uuid(QStringLiteral("638a1010-7bde-3e25-ffc5-9de9b2a0197a"));
 
@@ -421,6 +422,7 @@ void kettlerracersbike::subscribeKettlerNotifications()
     };
 
     subscribeDescriptor(gattKettlerService->characteristic(rpmUuid), QStringLiteral("Kettler RPM"));
+    subscribeDescriptor(gattKettlerService->characteristic(powerUuid), QStringLiteral("Kettler power"));
     subscribeDescriptor(gattKettlerService->characteristic(char1Uuid), QStringLiteral("Kettler char1"));
     subscribeDescriptor(gattKettlerService->characteristic(char2Uuid), QStringLiteral("Kettler char2"));
 
@@ -555,6 +557,9 @@ void kettlerracersbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1002-7bde-3e25-ffc5-9de9b2a0197a"))) {
         // Kettler RPM characteristic
         kettlerPacketReceived(newValue);
+    } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1003-7bde-3e25-ffc5-9de9b2a0197a")) ||
+               characteristic.uuid() == QBluetoothUuid(QBluetoothUuid::CyclingPowerMeasurement)) {
+        powerPacketReceived(newValue);
     }
 
     QSettings settings;
@@ -652,9 +657,27 @@ void kettlerracersbike::kettlerPacketReceived(const QByteArray &packet)
     Q_UNUSED(packet);
 }
 
-void kettlerracersbike::powerPacketReceived(const QByteArray &b) {
-    // Power data parsing if needed
-    Q_UNUSED(b)
+void kettlerracersbike::powerPacketReceived(const QByteArray &packet) {
+    if (packet.size() < 2) {
+        return;
+    }
+
+    int wattsValue = 0;
+
+    if (packet.size() == 2) {
+        wattsValue = static_cast<int>(static_cast<quint8>(packet.at(0)) |
+                                      (static_cast<quint8>(packet.at(1)) << 8));
+    } else if (packet.size() >= 4) {
+        qint16 instantPower = static_cast<qint16>(static_cast<quint8>(packet.at(2)) |
+                                                  (static_cast<quint8>(packet.at(3)) << 8));
+        wattsValue = qMax(0, static_cast<int>(instantPower));
+    } else {
+        return;
+    }
+
+    wattsValue = qBound(0, wattsValue, 2000);
+    powerSensor(static_cast<uint16_t>(wattsValue));
+    lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
 }
 
 void kettlerracersbike::update() {
@@ -791,6 +814,10 @@ void kettlerracersbike::onAndroidDataReceived(const QString& characteristicUuid,
     // Kettler RPM characteristic
     else if (uuid == "638a1002-7bde-3e25-ffc5-9de9b2a0197a") {
         kettlerPacketReceived(data);
+    }
+    else if (uuid == "638a1003-7bde-3e25-ffc5-9de9b2a0197a" ||
+             uuid == "00002a63-0000-1000-8000-00805f9b34fb") {
+        powerPacketReceived(data);
     }
     // Other characteristics can be handled here as needed
     else {
