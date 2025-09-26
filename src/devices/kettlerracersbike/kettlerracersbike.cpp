@@ -323,12 +323,6 @@ void kettlerracersbike::sendHandshake(const QByteArray &seed) {
         return;
     }
 
-    if (!gattKettlerService || !gattKeyWriteCharKettlerId.isValid()) {
-        emit debug(QStringLiteral("Kettler :: handshake write characteristic invalid."));
-        handshakeRequested = false;
-        return;
-    }
-
     emit debug(QStringLiteral("Kettler :: handshake data encrypted: ") + payload.toHex(' '));
 
 #ifdef Q_OS_ANDROID
@@ -343,6 +337,12 @@ void kettlerracersbike::sendHandshake(const QByteArray &seed) {
         handshakeRequested = false;
     }
 #else
+    if (!gattKettlerService || !gattKeyWriteCharKettlerId.isValid()) {
+        emit debug(QStringLiteral("Kettler :: handshake write characteristic invalid."));
+        handshakeRequested = false;
+        return;
+    }
+
     // Use Qt Bluetooth for other platforms
     gattKettlerService->writeCharacteristic(gattKeyWriteCharKettlerId, payload);
     handshakeDone = true;
