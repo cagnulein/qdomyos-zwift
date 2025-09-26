@@ -1,5 +1,7 @@
 #include "kettlerhandshake.h"
 
+#include <QRandomGenerator>
+
 #include <algorithm>
 #include <array>
 
@@ -23,14 +25,34 @@ constexpr std::array<unsigned char, 16> kKettlerKey = {
 
 namespace kettler {
 
-QByteArray computeHandshake(const QByteArray &seed)
+QByteArray buildHandshakeSeed(const QByteArray &sessionSeed)
 {
-    if (seed.size() != 6) {
+    if (sessionSeed.isEmpty()) {
+        return {};
+    }
+
+    QByteArray raw(6, 0);
+    raw[1] = 0x01; // matches the behaviour observed in the original APK
+
+    // Session bytes are provided little-endian – swap to match firmware expectations
+    raw[2] = sessionSeed.size() > 1 ? static_cast<char>(sessionSeed.at(1)) : 0x00;
+    raw[3] = static_cast<char>(sessionSeed.at(0));
+
+    auto *rng = QRandomGenerator::system();
+    raw[4] = static_cast<char>(rng->generate() & 0xFF);
+    raw[5] = static_cast<char>(rng->generate() & 0xFF);
+
+    return raw;
+}
+
+QByteArray computeHandshake(const QByteArray &handshakeRaw)
+{
+    if (handshakeRaw.size() != 6) {
         return {};
     }
 
     QByteArray padded(16, static_cast<char>(0x0A));
-    std::copy(seed.begin(), seed.end(), padded.begin());
+    std::copy(handshakeRaw.begin(), handshakeRaw.end(), padded.begin());
 
     auto expandKey = []() {
         std::array<unsigned char, 176> roundKeys{};

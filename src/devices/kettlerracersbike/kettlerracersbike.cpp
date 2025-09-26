@@ -308,14 +308,15 @@ void kettlerracersbike::sendHandshake(const QByteArray &seed) {
         return;
     }
 
-    emit debug(QStringLiteral("Kettler :: handshake data raw: ") + seed.toHex(' '));
-
-    if (seed.size() != 6) {
-        emit debug(QStringLiteral("Kettler :: handshake seed has unexpected length (requires 6 bytes)."));
+    const QByteArray handshakeRaw = kettler::buildHandshakeSeed(seed);
+    if (handshakeRaw.size() != 6) {
+        emit debug(QStringLiteral("Kettler :: handshake seed not available (requires 2 bytes from device)."));
         return;
     }
 
-    const QByteArray payload = kettler::computeHandshake(seed);
+    emit debug(QStringLiteral("Kettler :: handshake data raw: ") + handshakeRaw.toHex(' '));
+
+    const QByteArray payload = kettler::computeHandshake(handshakeRaw);
     if (payload.size() != 16) {
         emit debug(QStringLiteral("Kettler :: handshake computation failed."));
         handshakeRequested = false;

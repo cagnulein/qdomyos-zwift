@@ -10,20 +10,18 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import java.lang.reflect.Method;
 import org.cagnulen.qdomyoszwift.QLog;
 
 import java.util.UUID;
+import java.util.Arrays;
 
 public class KettlerHandshakeReader {
     private static final String TAG = "KettlerHandshakeReader";
 
     // Kettler Service and Characteristic UUIDs
     private static final UUID KETTLER_SERVICE_UUID = UUID.fromString("638af000-7bde-3e25-ffc5-9de9b2a0197a");
-    private static final UUID HANDSHAKE_PREFIX_CHAR_UUID = UUID.fromString("638a1103-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID HANDSHAKE_READ_CHAR_UUID = UUID.fromString("638a1104-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID HANDSHAKE_WRITE_CHAR_UUID = UUID.fromString("638a1105-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID POWER_CONTROL_CHAR_UUID = UUID.fromString("638a100e-7bde-3e25-ffc5-9de9b2a0197a");
@@ -43,18 +41,11 @@ public class KettlerHandshakeReader {
     private static boolean handshakeCompleted = false;
     private static int pendingDescriptorWrites = 0;
     private static BluetoothGattCharacteristic pendingHandshakeCharacteristic = null;
-    private static BluetoothGattCharacteristic handshakePrefixCharacteristic = null;
-    private static BluetoothGattCharacteristic handshakeSeedCharacteristic = null;
     private static boolean handshakeReadInProgress = false;
     private static int handshakeReadAttempts = 0;
     private static final int MAX_HANDSHAKE_READ_ATTEMPTS = 6;
     private static final long HANDSHAKE_READ_RETRY_DELAY_MS = 200;
-    private static final int HANDSHAKE_SEED_EXPECTED_LENGTH = 6;
-    private static byte[] handshakeSeedBuffer = new byte[HANDSHAKE_SEED_EXPECTED_LENGTH];
-    private static int handshakeSeedBytesRead = 0;
-    private static boolean handshakePrefixRead = false;
-    private static int handshakeChunkRetries = 0;
-    private static final int HANDSHAKE_CHUNK_RETRY_LIMIT = 6;
+    private static final int HANDSHAKE_SEED_EXPECTED_LENGTH = 2;
     // Native callback methods - will be implemented in C++
     public static native void onHandshakeSeedReceived(byte[] seedData);
     public static native void onHandshakeReadError(String error);
@@ -238,10 +229,8 @@ public class KettlerHandshakeReader {
                 }
 
                 // Start handshake process
-                handshakePrefixCharacteristic = kettlerService.getCharacteristic(HANDSHAKE_PREFIX_CHAR_UUID);
-                handshakeSeedCharacteristic = kettlerService.getCharacteristic(HANDSHAKE_READ_CHAR_UUID);
-
-                if (handshakeSeedCharacteristic == null) {
+                BluetoothGattCharacteristic handshakeChar = kettlerService.getCharacteristic(HANDSHAKE_READ_CHAR_UUID);
+                if (handshakeChar == null) {
                     QLog.e(TAG, "Handshake characteristic not found");
                     onHandshakeReadError("Handshake characteristic not found");
                     cleanup();
@@ -249,7 +238,7 @@ public class KettlerHandshakeReader {
                 }
 
                 // Check if characteristic supports read
-                int properties = handshakeSeedCharacteristic.getProperties();
+                int properties = handshakeChar.getProperties();
                 QLog.d(TAG, "Handshake characteristic properties: " + properties);
                 if ((properties & BluetoothGattCharacteristic.PROPERTY_READ) == 0) {
                     QLog.e(TAG, "Handshake characteristic does not support read");
@@ -258,14 +247,10 @@ public class KettlerHandshakeReader {
                     return;
                 }
 
-                pendingHandshakeCharacteristic = handshakeSeedCharacteristic;
+                pendingHandshakeCharacteristic = handshakeChar;
                 handshakeReadInProgress = false;
                 handshakeReadAttempts = 0;
                 pendingDescriptorWrites = 0;
-                handshakePrefixRead = (handshakePrefixCharacteristic == null);
-                handshakeSeedBuffer = new byte[HANDSHAKE_SEED_EXPECTED_LENGTH];
-                handshakeSeedBytesRead = 0;
-                handshakeChunkRetries = 0;
 
                 // Setup CSC notifications
                 BluetoothGattService cscService = gatt.getService(CSC_SERVICE_UUID);
@@ -277,17 +262,6 @@ public class KettlerHandshakeReader {
                 // Setup Kettler RPM notifications
                 BluetoothGattCharacteristic rpmChar = kettlerService.getCharacteristic(RPM_CHAR_UUID);
                 pendingDescriptorWrites += enableNotification(gatt, rpmChar);
-
-                if (handshakePrefixCharacteristic != null &&
-                        (handshakePrefixCharacteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_READ) != 0) {
-                    boolean prefixReadStarted = gatt.readCharacteristic(handshakePrefixCharacteristic);
-                    if (prefixReadStarted) {
-                        handshakeReadInProgress = true;
-                        return;
-                    } else {
-                        QLog.w(TAG, "Failed to read handshake prefix characteristic; continuing with seed read");
-                    }
-                }
 
                 attemptHandshakeRead(gatt);
 
@@ -302,74 +276,14 @@ public class KettlerHandshakeReader {
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             QLog.d(TAG, "onCharacteristicRead: status=" + status);
 
-            if (HANDSHAKE_PREFIX_CHAR_UUID.equals(characteristic.getUuid())) {
-                handshakeReadInProgress = false;
-                handshakeReadAttempts = 0;
-                handshakeChunkRetries = 0;
-
-                byte[] data = characteristic.getValue();
-                if (data != null && data.length > 0) {
-                    int bytesToCopy = Math.min(4, data.length);
-                    System.arraycopy(data, 0, handshakeSeedBuffer, 0, bytesToCopy);
-                    handshakeSeedBytesRead = bytesToCopy;
-                    handshakePrefixRead = true;
-                    pendingHandshakeCharacteristic = handshakeSeedCharacteristic;
-
-                    StringBuilder hex = new StringBuilder();
-                    for (int i = 0; i < bytesToCopy; ++i) {
-                        hex.append(String.format("%02X ", handshakeSeedBuffer[i]));
-                    }
-                    QLog.d(TAG, "Handshake prefix read, length: " + bytesToCopy + ", data: " + hex);
-                } else {
-                    QLog.w(TAG, "Handshake prefix returned empty data");
-                    handshakeSeedBytesRead = 0;
-                }
-
-                attemptHandshakeRead(gatt);
-                return;
-            }
-
             if (HANDSHAKE_READ_CHAR_UUID.equals(characteristic.getUuid())) {
                 handshakeReadInProgress = false;
 
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     byte[] data = characteristic.getValue();
-                    if (data != null && data.length > 0) {
-                        appendHandshakeChunk(data);
-
-                        if (handshakeSeedBytesRead < HANDSHAKE_SEED_EXPECTED_LENGTH) {
-                            if (!requestNextHandshakeChunk(gatt)) {
-                                handshakeChunkRetries++;
-                                if (handshakeChunkRetries >= HANDSHAKE_CHUNK_RETRY_LIMIT) {
-                                    QLog.e(TAG, "Failed to obtain complete handshake seed after multiple retries");
-                                    onHandshakeReadError("Failed to read complete handshake seed");
-                                    cleanup();
-                                } else {
-                                    mainHandler.postDelayed(() -> attemptHandshakeRead(gatt), HANDSHAKE_READ_RETRY_DELAY_MS);
-                                }
-                            }
-                        } else {
-                            handshakeReadAttempts = 0;
-                            handshakeChunkRetries = 0;
-                            byte[] finalSeed = new byte[HANDSHAKE_SEED_EXPECTED_LENGTH];
-                            System.arraycopy(handshakeSeedBuffer, 0, finalSeed, 0, HANDSHAKE_SEED_EXPECTED_LENGTH);
-
-                            StringBuilder hex = new StringBuilder();
-                            for (byte b : finalSeed) {
-                                hex.append(String.format("%02X ", b));
-                            }
-                            QLog.d(TAG, "Handshake seed assembled, length: " + finalSeed.length + ", data: " + hex);
-
-                            pendingHandshakeCharacteristic = null;
-                            handshakeSeedBuffer = new byte[HANDSHAKE_SEED_EXPECTED_LENGTH];
-                            handshakeSeedBytesRead = 0;
-
-                            onHandshakeSeedReceived(finalSeed);
-                        }
-                    } else {
-                        QLog.e(TAG, "Characteristic read returned null/empty data");
-                        onHandshakeReadError("Characteristic read returned null data");
-                        cleanup();
+                    if (processHandshakeSeed(data)) {
+                        handshakeReadAttempts = 0;
+                        pendingHandshakeCharacteristic = null;
                     }
                 } else {
                     QLog.e(TAG, "Characteristic read failed with status: " + status);
@@ -445,34 +359,14 @@ public class KettlerHandshakeReader {
     private static void resetHandshakeState() {
         pendingDescriptorWrites = 0;
         pendingHandshakeCharacteristic = null;
-        handshakePrefixCharacteristic = null;
-        handshakeSeedCharacteristic = null;
         handshakeReadInProgress = false;
         handshakeReadAttempts = 0;
-        handshakePrefixRead = false;
-        handshakeSeedBuffer = new byte[HANDSHAKE_SEED_EXPECTED_LENGTH];
-        handshakeSeedBytesRead = 0;
-        handshakeChunkRetries = 0;
     }
 
     private static void attemptHandshakeRead(BluetoothGatt gatt) {
-        BluetoothGattCharacteristic target;
-        if (!handshakePrefixRead && handshakePrefixCharacteristic != null
-                && (handshakePrefixCharacteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_READ) != 0
-                && handshakeSeedBytesRead < 4) {
-            target = handshakePrefixCharacteristic;
-        } else {
-            target = handshakeSeedCharacteristic;
-        }
-
-        if (target == null) {
-            QLog.e(TAG, "No handshake characteristic available to read");
-            onHandshakeReadError("Handshake characteristic unavailable");
-            cleanup();
+        if (pendingHandshakeCharacteristic == null) {
             return;
         }
-
-        pendingHandshakeCharacteristic = target;
 
         if (pendingDescriptorWrites > 0) {
             QLog.d(TAG, "Handshake read waiting for pending descriptor writes: " + pendingDescriptorWrites);
@@ -533,66 +427,25 @@ public class KettlerHandshakeReader {
         return 0;
     }
 
-    private static void appendHandshakeChunk(byte[] data) {
-        if (handshakeSeedBytesRead >= HANDSHAKE_SEED_EXPECTED_LENGTH) {
-            return;
+    private static boolean processHandshakeSeed(byte[] data) {
+        if (data == null || data.length == 0) {
+            QLog.e(TAG, "Characteristic read returned null/empty data");
+            onHandshakeReadError("Characteristic read returned null data");
+            cleanup();
+            return false;
         }
 
-        int bytesToCopy = Math.min(data.length, HANDSHAKE_SEED_EXPECTED_LENGTH - handshakeSeedBytesRead);
-        System.arraycopy(data, 0, handshakeSeedBuffer, handshakeSeedBytesRead, bytesToCopy);
-        handshakeSeedBytesRead += bytesToCopy;
+        int length = Math.min(data.length, HANDSHAKE_SEED_EXPECTED_LENGTH);
+        byte[] seed = Arrays.copyOf(data, length);
 
         StringBuilder hex = new StringBuilder();
-        for (int i = 0; i < bytesToCopy; ++i) {
-            hex.append(String.format("%02X ", data[i]));
+        for (int i = 0; i < length; ++i) {
+            hex.append(String.format("%02X ", seed[i]));
         }
-        QLog.d(TAG, "Handshake chunk appended (" + bytesToCopy + " bytes): " + hex + " total=" + handshakeSeedBytesRead);
-    }
+        QLog.d(TAG, "Handshake seed assembled, length: " + length + ", data: " + hex);
 
-    private static boolean requestNextHandshakeChunk(BluetoothGatt gatt) {
-        if (handshakeSeedCharacteristic == null) {
-            return false;
-        }
-
-        int offset = handshakeSeedBytesRead;
-        if (offset >= HANDSHAKE_SEED_EXPECTED_LENGTH) {
-            return false;
-        }
-
-        QLog.d(TAG, "Requesting additional handshake bytes at offset " + offset);
-
-        try {
-            Method method = BluetoothGatt.class.getDeclaredMethod("readCharacteristic", BluetoothGattCharacteristic.class, int.class);
-            method.setAccessible(true);
-            Object result = method.invoke(gatt, handshakeSeedCharacteristic, offset);
-            boolean success;
-            if (result instanceof Integer) {
-                success = ((Integer) result) == BluetoothGatt.GATT_SUCCESS;
-            } else if (result instanceof Boolean) {
-                success = (Boolean) result;
-            } else {
-                success = false;
-            }
-
-            if (success) {
-                handshakeReadInProgress = true;
-                return true;
-            }
-
-            QLog.e(TAG, "readCharacteristic(offset) reflection returned failure: " + result);
-        } catch (NoSuchMethodException e) {
-            QLog.e(TAG, "readCharacteristic with offset not available: " + e.getMessage());
-        } catch (Exception e) {
-            QLog.e(TAG, "Error invoking readCharacteristic with offset: " + e.getMessage());
-        }
-
-        if (Build.VERSION.SDK_INT >= 33) {
-            QLog.e(TAG, "Offset read failed even though API level supports it");
-        } else {
-            QLog.w(TAG, "Offset read not supported on this Android version");
-        }
-
-        return false;
+        onHandshakeSeedReceived(seed);
+        return true;
     }
 
 }
