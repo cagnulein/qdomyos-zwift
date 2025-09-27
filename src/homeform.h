@@ -362,6 +362,7 @@ class homeform : public QObject {
         }
     }
 
+
     Q_INVOKABLE bool firstRun() {
         QSettings settings;
         
@@ -866,11 +867,11 @@ class homeform : public QObject {
     bool pelotonAskStart() { return m_pelotonAskStart; }
     void Minus(const QString &);
     void Plus(const QString &);
+    Q_INVOKABLE void Start();
+    Q_INVOKABLE void Stop();
     void trainprogram_open_clicked(const QUrl &fileName);
 
   private slots:
-    void Start();
-    void Stop();
     void StopFromTrainProgram(bool paused);
     void StartRequested();
     void StopRequested();
