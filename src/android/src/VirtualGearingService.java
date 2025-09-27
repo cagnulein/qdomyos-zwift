@@ -133,16 +133,20 @@ public class VirtualGearingService extends AccessibilityService {
         return currentPackageName != null ? currentPackageName : "unknown";
     }
 
-    private static int[] getScreenSize() {
+    public static int[] getScreenSize() {
         if (instance != null) {
             try {
                 android.content.res.Resources resources = instance.getResources();
                 android.util.DisplayMetrics displayMetrics = resources.getDisplayMetrics();
-                return new int[]{displayMetrics.widthPixels, displayMetrics.heightPixels};
+                int width = displayMetrics.widthPixels;
+                int height = displayMetrics.heightPixels;
+                QLog.d(TAG, "Screen size: " + width + "x" + height + " (density=" + displayMetrics.density + ")");
+                return new int[]{width, height};
             } catch (Exception e) {
                 QLog.e(TAG, "Error getting screen size from service", e);
             }
         }
+        QLog.w(TAG, "Using fallback screen size");
         return new int[]{1080, 1920}; // Default fallback
     }
 }

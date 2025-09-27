@@ -20,6 +20,9 @@ public slots:
     void simulateShiftDown();
     void simulateTouch(int x, int y);
     bool isServiceRunning();
+    QString getLastTouchCoordinates();
+    QString getShiftUpCoordinates();
+    QString getShiftDownCoordinates();
 
 private:
     static VirtualGearingDevice* m_instance;

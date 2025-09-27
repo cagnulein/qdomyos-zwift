@@ -73,20 +73,37 @@ public class AppConfiguration {
     };
 
     public static AppConfig getConfigForPackage(String packageName) {
-        if (packageName == null) {
-            QLog.w(TAG, "Package name is null, using default config");
+        // Use custom coordinates from settings instead of hardcoded values
+        return getCurrentConfig();
+    }
+
+    // Get current configuration from user settings
+    public static AppConfig getCurrentConfig() {
+        try {
+            double shiftUpX = VirtualGearingBridge.getVirtualGearingShiftUpX();
+            double shiftUpY = VirtualGearingBridge.getVirtualGearingShiftUpY();
+            double shiftDownX = VirtualGearingBridge.getVirtualGearingShiftDownX();
+            double shiftDownY = VirtualGearingBridge.getVirtualGearingShiftDownY();
+            int appIndex = VirtualGearingBridge.getVirtualGearingApp();
+
+            String appName = "Custom";
+            if (appIndex >= 0 && appIndex < SUPPORTED_APPS.length) {
+                appName = SUPPORTED_APPS[appIndex].appName;
+            }
+
+            QLog.d(TAG, "Using custom coordinates: shiftUp(" + shiftUpX + "," + shiftUpY +
+                        ") shiftDown(" + shiftDownX + "," + shiftDownY + ") for " + appName);
+
+            return new AppConfig(
+                appName,
+                "*", // Package name not relevant for custom config
+                new TouchCoordinate(shiftUpX, shiftUpY),
+                new TouchCoordinate(shiftDownX, shiftDownY)
+            );
+        } catch (Exception e) {
+            QLog.e(TAG, "Error getting custom config, using fallback", e);
             return getDefaultConfig();
         }
-
-        for (AppConfig config : SUPPORTED_APPS) {
-            if (config.packageName.equals(packageName)) {
-                QLog.d(TAG, "Found specific config for: " + packageName + " (" + config.appName + ")");
-                return config;
-            }
-        }
-
-        QLog.d(TAG, "No specific config found for: " + packageName + ", using default");
-        return getDefaultConfig();
     }
 
     public static AppConfig getDefaultConfig() {

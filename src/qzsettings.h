@@ -2696,6 +2696,20 @@ class QZSettings {
     static const QString virtual_gearing_device;
     static constexpr bool default_virtual_gearing_device = false;
 
+    // Virtual Gearing - Generic coordinate settings (app-agnostic)
+    static const QString virtual_gearing_shift_up_x;
+    static constexpr double default_virtual_gearing_shift_up_x = 0.98;
+    static const QString virtual_gearing_shift_up_y;
+    static constexpr double default_virtual_gearing_shift_up_y = 0.94;
+    static const QString virtual_gearing_shift_down_x;
+    static constexpr double default_virtual_gearing_shift_down_x = 0.80;
+    static const QString virtual_gearing_shift_down_y;
+    static constexpr double default_virtual_gearing_shift_down_y = 0.94;
+
+    // Virtual Gearing - App selection
+    static const QString virtual_gearing_app;
+    static constexpr int default_virtual_gearing_app = 0; // 0=MyWhoosh default
+
     static const QString taurua_ic90;
     static constexpr bool default_taurua_ic90 = false;
 

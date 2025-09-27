@@ -982,11 +982,16 @@ const QString QZSettings::calories_active_only = QStringLiteral("calories_active
 const QString QZSettings::calories_from_hr = QStringLiteral("calories_from_hr");
 const QString QZSettings::height = QStringLiteral("height");
 const QString QZSettings::virtual_gearing_device = QStringLiteral("virtual_gearing_device");
+const QString QZSettings::virtual_gearing_shift_up_x = QStringLiteral("virtual_gearing_shift_up_x");
+const QString QZSettings::virtual_gearing_shift_up_y = QStringLiteral("virtual_gearing_shift_up_y");
+const QString QZSettings::virtual_gearing_shift_down_x = QStringLiteral("virtual_gearing_shift_down_x");
+const QString QZSettings::virtual_gearing_shift_down_y = QStringLiteral("virtual_gearing_shift_down_y");
+const QString QZSettings::virtual_gearing_app = QStringLiteral("virtual_gearing_app");
 const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 
 
-const uint32_t allSettingsCount = 808;
+const uint32_t allSettingsCount = 813;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1816,6 +1821,11 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_csx210, QZSettings::default_proform_csx210},
     {QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed},
     {QZSettings::virtual_gearing_device, QZSettings::default_virtual_gearing_device},
+    {QZSettings::virtual_gearing_shift_up_x, QZSettings::default_virtual_gearing_shift_up_x},
+    {QZSettings::virtual_gearing_shift_up_y, QZSettings::default_virtual_gearing_shift_up_y},
+    {QZSettings::virtual_gearing_shift_down_x, QZSettings::default_virtual_gearing_shift_down_x},
+    {QZSettings::virtual_gearing_shift_down_y, QZSettings::default_virtual_gearing_shift_down_y},
+    {QZSettings::virtual_gearing_app, QZSettings::default_virtual_gearing_app},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

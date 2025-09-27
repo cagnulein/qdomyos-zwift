@@ -490,7 +490,11 @@ void bike::gearUp() {
                 }
             } else if (vgd->isServiceRunning()) {
                 qDebug() << "bike::gearUp() - Using virtual gearing device";
+                QString coordinates = vgd->getShiftUpCoordinates();
                 vgd->simulateShiftUp();
+
+                // Show toast with coordinates
+                homeform::singleton()->setToastRequested("Virtual Gear Up → " + coordinates);
                 return;
             } else {
                 qDebug() << "bike::gearUp() - Virtual gearing service not running, falling back to normal gearing";
@@ -523,7 +527,11 @@ void bike::gearDown() {
                 }
             } else if (vgd->isServiceRunning()) {
                 qDebug() << "bike::gearDown() - Using virtual gearing device";
+                QString coordinates = vgd->getShiftDownCoordinates();
                 vgd->simulateShiftDown();
+
+                // Show toast with coordinates
+                homeform::singleton()->setToastRequested("Virtual Gear Down → " + coordinates);
                 return;
             } else {
                 qDebug() << "bike::gearDown() - Virtual gearing service not running, falling back to normal gearing";

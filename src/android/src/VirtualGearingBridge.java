@@ -100,4 +100,46 @@ public class VirtualGearingBridge {
         QLog.d(TAG, "Service running: " + running);
         return running;
     }
+
+    // Native methods to get settings from C++ side
+    public static native double getVirtualGearingShiftUpX();
+    public static native double getVirtualGearingShiftUpY();
+    public static native double getVirtualGearingShiftDownX();
+    public static native double getVirtualGearingShiftDownY();
+    public static native int getVirtualGearingApp();
+
+    // Methods to get coordinates that will be/were sent
+    public static String getShiftUpCoordinates() {
+        try {
+            AppConfiguration.AppConfig config = AppConfiguration.getCurrentConfig();
+            // Use VirtualGearingService to get screen size (it has access to service context)
+            int[] screenSize = VirtualGearingService.getScreenSize();
+            int x = config.shiftUp.getX(screenSize[0]);
+            int y = config.shiftUp.getY(screenSize[1]);
+            return x + "," + y;
+        } catch (Exception e) {
+            QLog.e(TAG, "Error getting shift up coordinates", e);
+            return "0,0";
+        }
+    }
+
+    public static String getShiftDownCoordinates() {
+        try {
+            AppConfiguration.AppConfig config = AppConfiguration.getCurrentConfig();
+            // Use VirtualGearingService to get screen size (it has access to service context)
+            int[] screenSize = VirtualGearingService.getScreenSize();
+            int x = config.shiftDown.getX(screenSize[0]);
+            int y = config.shiftDown.getY(screenSize[1]);
+            return x + "," + y;
+        } catch (Exception e) {
+            QLog.e(TAG, "Error getting shift down coordinates", e);
+            return "0,0";
+        }
+    }
+
+    public static String getLastTouchCoordinates() {
+        // For now, return the last coordinates that would be sent for shift up
+        // This could be enhanced to track actual last touch
+        return getShiftUpCoordinates();
+    }
 }

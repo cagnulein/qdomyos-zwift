@@ -1209,6 +1209,11 @@ import VirtualGearingDevice 1.0
             property bool taurua_ic90: false
             property bool proform_csx210: false
             property bool virtual_gearing_device: false
+            property double virtual_gearing_shift_up_x: 0.98
+            property double virtual_gearing_shift_up_y: 0.94
+            property double virtual_gearing_shift_down_x: 0.80
+            property double virtual_gearing_shift_down_y: 0.94
+            property int virtual_gearing_app: 0
         }
 
 
@@ -12892,6 +12897,7 @@ import VirtualGearingDevice 1.0
                         checked: settings.virtual_gearing_device
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
+                        visible: Qt.platform.os === "android"
                         onClicked: {
                             settings.virtual_gearing_device = checked;
                             if (checked) {
@@ -12914,6 +12920,7 @@ import VirtualGearingDevice 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                        visible: Qt.platform.os === "android"
                     }
 
                     Button {
@@ -12923,6 +12930,98 @@ import VirtualGearingDevice 1.0
                         onClicked: {
                             VirtualGearingDevice.openAccessibilitySettings()
                         }
+                    }
+
+                    // App Selection ComboBox
+                    Row {
+                        visible: settings.virtual_gearing_device && Qt.platform.os === "android"
+                        Layout.fillWidth: true
+                        spacing: 10
+
+                        Label {
+                            text: qsTr("Target App:")
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        ComboBox {
+                            id: virtualGearingAppCombo
+                            model: ["MyWhoosh", "IndieVelo", "Biketerra", "RGT Cycling", "Zwift"]
+                            currentIndex: settings.virtual_gearing_app
+                            onCurrentIndexChanged: {
+                                settings.virtual_gearing_app = currentIndex;
+                                // Auto-populate coordinates based on selected app
+                                if (currentIndex === 0) { // MyWhoosh
+                                    settings.virtual_gearing_shift_up_x = 0.98;
+                                    settings.virtual_gearing_shift_up_y = 0.94;
+                                    settings.virtual_gearing_shift_down_x = 0.80;
+                                    settings.virtual_gearing_shift_down_y = 0.94;
+                                } else if (currentIndex === 1) { // IndieVelo
+                                    settings.virtual_gearing_shift_up_x = 0.66;
+                                    settings.virtual_gearing_shift_up_y = 0.74;
+                                    settings.virtual_gearing_shift_down_x = 0.575;
+                                    settings.virtual_gearing_shift_down_y = 0.74;
+                                } else if (currentIndex === 2) { // Biketerra
+                                    settings.virtual_gearing_shift_up_x = 0.8;
+                                    settings.virtual_gearing_shift_up_y = 0.5;
+                                    settings.virtual_gearing_shift_down_x = 0.2;
+                                    settings.virtual_gearing_shift_down_y = 0.5;
+                                } else { // RGT Cycling, Zwift and others
+                                    settings.virtual_gearing_shift_up_x = 0.95;
+                                    settings.virtual_gearing_shift_up_y = 0.85;
+                                    settings.virtual_gearing_shift_down_x = 0.75;
+                                    settings.virtual_gearing_shift_down_y = 0.85;
+                                }
+                            }
+                        }
+                    }
+
+                    // Coordinate Customization
+                    GridLayout {
+                        visible: settings.virtual_gearing_device && Qt.platform.os === "android"
+                        Layout.fillWidth: true
+                        columns: 4
+
+                        Label { text: qsTr("Shift Up X:") }
+                        TextField {
+                            text: settings.virtual_gearing_shift_up_x.toFixed(3)
+                            onAccepted: settings.virtual_gearing_shift_up_x = parseFloat(text)
+                            validator: DoubleValidator { bottom: 0.0; top: 1.0; decimals: 3 }
+                        }
+
+                        Label { text: qsTr("Shift Up Y:") }
+                        TextField {
+                            text: settings.virtual_gearing_shift_up_y.toFixed(3)
+                            onAccepted: settings.virtual_gearing_shift_up_y = parseFloat(text)
+                            validator: DoubleValidator { bottom: 0.0; top: 1.0; decimals: 3 }
+                        }
+
+                        Label { text: qsTr("Shift Down X:") }
+                        TextField {
+                            text: settings.virtual_gearing_shift_down_x.toFixed(3)
+                            onAccepted: settings.virtual_gearing_shift_down_x = parseFloat(text)
+                            validator: DoubleValidator { bottom: 0.0; top: 1.0; decimals: 3 }
+                        }
+
+                        Label { text: qsTr("Shift Down Y:") }
+                        TextField {
+                            text: settings.virtual_gearing_shift_down_y.toFixed(3)
+                            onAccepted: settings.virtual_gearing_shift_down_y = parseFloat(text)
+                            validator: DoubleValidator { bottom: 0.0; top: 1.0; decimals: 3 }
+                        }
+                    }
+
+                    Label {
+                        visible: settings.virtual_gearing_device && Qt.platform.os === "android"
+                        text: qsTr("Coordinates are percentages (0.0-1.0) of screen dimensions. Select an app above to auto-populate with default values, then customize as needed.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     IndicatorOnlySwitch {
