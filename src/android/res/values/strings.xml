@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="virtual_gearing_service_description">Virtual Gearing Service for QZ - Enables touch simulation for virtual shifting in cycling apps</string>
+</resources>

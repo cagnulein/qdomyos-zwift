@@ -106,6 +106,16 @@
                                     android:name=".ScreenCaptureService"
                                     android:foregroundServiceType="mediaProjection" />
 
+                <service android:name=".VirtualGearingService"
+                    android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+                    android:exported="true">
+                    <intent-filter>
+                        <action android:name="android.accessibilityservice.AccessibilityService" />
+                    </intent-filter>
+                    <meta-data android:name="android.accessibilityservice"
+                        android:resource="@xml/virtual_gearing_service_config" />
+                </service>
+
                                 <meta-data
                                     android:name="com.google.mlkit.vision.DEPENDENCIES"
                                     android:value="ocr" />

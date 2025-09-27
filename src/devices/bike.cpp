@@ -2,6 +2,7 @@
 #include "devices/bike.h"
 #include "qdebugfixup.h"
 #include "homeform.h"
+#include "virtualgearingdevice.h"
 #include <QSettings>
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
@@ -466,7 +467,81 @@ double bike::gearsZwiftRatio() {
         case 23:
             return 5.14;
         case 24:
-            return 5.49;                        
+            return 5.49;
     }
     return 1;
+}
+
+void bike::gearUp() {
+    QSettings settings;
+
+    // Check if virtual gearing device is enabled
+    if (settings.value(QZSettings::virtual_gearing_device, QZSettings::default_virtual_gearing_device).toBool()) {
+#ifdef Q_OS_ANDROID
+        VirtualGearingDevice* vgd = VirtualGearingDevice::instance();
+        if (vgd) {
+            // Check if accessibility service is enabled
+            if (!vgd->isAccessibilityServiceEnabled()) {
+                static bool warned = false;
+                if (!warned) {
+                    qDebug() << "bike::gearUp() - VirtualGearingService not enabled in accessibility settings";
+                    qDebug() << "Please enable the Virtual Gearing Service in Android Accessibility Settings";
+                    warned = true;
+                }
+            } else if (vgd->isServiceRunning()) {
+                qDebug() << "bike::gearUp() - Using virtual gearing device";
+                QString coordinates = vgd->getShiftUpCoordinates();
+                vgd->simulateShiftUp();
+
+                // Show toast with coordinates
+                homeform::singleton()->setToastRequested("Virtual Gear Up → " + coordinates);
+                return;
+            } else {
+                qDebug() << "bike::gearUp() - Virtual gearing service not running, falling back to normal gearing";
+            }
+        }
+#endif
+    }
+
+    // Normal gearing logic
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    setGears(gears() + (gears_zwift_ratio ? 1 :
+                        settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble()));
+}
+
+void bike::gearDown() {
+    QSettings settings;
+
+    // Check if virtual gearing device is enabled
+    if (settings.value(QZSettings::virtual_gearing_device, QZSettings::default_virtual_gearing_device).toBool()) {
+#ifdef Q_OS_ANDROID
+        VirtualGearingDevice* vgd = VirtualGearingDevice::instance();
+        if (vgd) {
+            // Check if accessibility service is enabled
+            if (!vgd->isAccessibilityServiceEnabled()) {
+                static bool warned = false;
+                if (!warned) {
+                    qDebug() << "bike::gearDown() - VirtualGearingService not enabled in accessibility settings";
+                    qDebug() << "Please enable the Virtual Gearing Service in Android Accessibility Settings";
+                    warned = true;
+                }
+            } else if (vgd->isServiceRunning()) {
+                qDebug() << "bike::gearDown() - Using virtual gearing device";
+                QString coordinates = vgd->getShiftDownCoordinates();
+                vgd->simulateShiftDown();
+
+                // Show toast with coordinates
+                homeform::singleton()->setToastRequested("Virtual Gear Down → " + coordinates);
+                return;
+            } else {
+                qDebug() << "bike::gearDown() - Virtual gearing service not running, falling back to normal gearing";
+            }
+        }
+#endif
+    }
+
+    // Normal gearing logic
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    setGears(gears() - (gears_zwift_ratio ? 1 :
+                        settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble()));
 }

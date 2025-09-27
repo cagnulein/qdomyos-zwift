@@ -372,3 +372,4 @@ The ProForm 995i implementation serves as the reference example:
 
 - When adding a new setting in QML (setting-tiles.qml), you must:
   * Add the property at the END of the properties list  
+- #usa le qdebug invece che le emit debug

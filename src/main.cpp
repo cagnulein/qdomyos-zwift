@@ -30,6 +30,7 @@
 #include "mqttpublisher.h"
 #include "androidstatusbar.h"
 #include "fontmanager.h"
+#include "virtualgearingdevice.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -782,6 +783,12 @@ int main(int argc, char *argv[]) {
                  bikeResistanceOffset,
                  bikeResistanceGain); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
 
+#ifdef Q_OS_ANDROID
+    // Initialize VirtualGearingDevice for Android keypress simulation
+    VirtualGearingDevice* vgd = new VirtualGearingDevice();
+    Q_UNUSED(vgd)
+#endif
+
     QString mqtt_host = settings.value(QZSettings::mqtt_host, QZSettings::default_mqtt_host).toString();
     int mqtt_port = settings.value(QZSettings::mqtt_port, QZSettings::default_mqtt_port).toInt();
     QString mqtt_username = settings.value(QZSettings::mqtt_username, QZSettings::default_mqtt_username).toString();
@@ -807,6 +814,7 @@ int main(int argc, char *argv[]) {
 #endif
     {
         AndroidStatusBar::registerQmlType();
+        VirtualGearingDevice::registerQmlType();
         
 #ifdef Q_OS_ANDROID
         FontManager fontManager;
