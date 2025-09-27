@@ -40,6 +40,54 @@ public class KettlerHandshakeReader {
     private static String deviceAddress;
     private static Handler mainHandler = new Handler(Looper.getMainLooper());
 
+    // Simple single-op GATT queue to serialize operations
+    private interface GattOperation { boolean execute(BluetoothGatt g); String name(); }
+    private static final java.util.ArrayDeque<GattOperation> gattQueue = new java.util.ArrayDeque<>();
+    private static boolean gattOpInProgress = false;
+    private static final int GATT_OP_RETRY_DELAY_MS = 200;
+    private static final java.util.HashSet<UUID> notificationsSet = new java.util.HashSet<>();
+
+    private static void enqueue(GattOperation op) {
+        synchronized (gattQueue) {
+            gattQueue.add(op);
+        }
+        // Kick the runner on the main thread
+        mainHandler.post(KettlerHandshakeReader::runNextGattOp);
+    }
+
+    private static void runNextGattOp() {
+        if (bluetoothGatt == null) return;
+        if (gattOpInProgress) return;
+        final GattOperation next;
+        synchronized (gattQueue) {
+            next = gattQueue.poll();
+        }
+        if (next == null) return;
+
+        boolean started = false;
+        try {
+            started = next.execute(bluetoothGatt);
+        } catch (Throwable t) {
+            QLog.e(TAG, "Exception starting GATT op '" + next.name() + "': " + t.getMessage());
+        }
+        if (started) {
+            gattOpInProgress = true;
+        } else {
+            // Could not start now; retry shortly and move on to avoid deadlocks
+            QLog.e(TAG, "Failed to start GATT op '" + next.name() + "', retrying soon");
+            mainHandler.postDelayed(() -> {
+                synchronized (gattQueue) { gattQueue.addFirst(next); }
+                gattOpInProgress = false;
+                runNextGattOp();
+            }, GATT_OP_RETRY_DELAY_MS);
+        }
+    }
+
+    private static void onGattOperationComplete() {
+        gattOpInProgress = false;
+        mainHandler.post(KettlerHandshakeReader::runNextGattOp);
+    }
+
     private static boolean isConnected = false;
     private static boolean handshakeCompleted = false;
     private static int pendingDescriptorWrites = 0;
@@ -264,7 +312,18 @@ public class KettlerHandshakeReader {
                     pendingDescriptorWrites += enableNotification(gatt, cscChar);
                 }
 
-                attemptHandshakeRead(gatt);
+                // Enqueue handshake read after notification setup; the queue will serialize correctly
+                if (pendingHandshakeCharacteristic != null) {
+                    enqueue(new GattOperation() {
+                        @Override public boolean execute(BluetoothGatt g) {
+                            QLog.d(TAG, "Reading handshake characteristic (queued attempt " + (handshakeReadAttempts + 1) + ")...");
+                            handshakeReadAttempts++;
+                            handshakeReadInProgress = true;
+                            return g.readCharacteristic(pendingHandshakeCharacteristic);
+                        }
+                        @Override public String name() { return "readHandshakeSeed"; }
+                    });
+                }
 
             } else {
                 QLog.e(TAG, "Service discovery failed with status: " + status);
@@ -304,8 +363,10 @@ public class KettlerHandshakeReader {
                     }
                 } else {
                     QLog.e(TAG, "Characteristic read failed with status: " + status + " for " + characteristic.getUuid());
-                }
-            }
+        }
+        // Mark current queued op complete (for both handshake and any other reads)
+        onGattOperationComplete();
+        }
         }
 
         @Override
@@ -321,7 +382,8 @@ public class KettlerHandshakeReader {
                 QLog.e(TAG, "Descriptor write failed with status: " + status);
             }
 
-            attemptHandshakeRead(gatt);
+            // Continue with next queued op (e.g., handshake read)
+            onGattOperationComplete();
         }
 
         @Override
@@ -334,6 +396,8 @@ public class KettlerHandshakeReader {
                 enablePostHandshakeNotifications(gatt);
                 requestInitialPowerRead(gatt);
             }
+            // Complete op in case it was queued elsewhere
+            onGattOperationComplete();
         }
 
         @Override
@@ -374,6 +438,9 @@ public class KettlerHandshakeReader {
         handshakeReadAttempts = 0;
         postHandshakeNotificationsEnabled = false;
         initialPowerReadRequested = false;
+        notificationsSet.clear();
+        synchronized (gattQueue) { gattQueue.clear(); }
+        gattOpInProgress = false;
     }
 
     private static void attemptHandshakeRead(BluetoothGatt gatt) {
@@ -419,25 +486,43 @@ public class KettlerHandshakeReader {
             return 0;
         }
 
-        boolean notificationSet = gatt.setCharacteristicNotification(characteristic, true);
-        if (!notificationSet) {
-            QLog.e(TAG, "Failed to enable notifications for characteristic: " + characteristic.getUuid());
-        }
-
-        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG_UUID);
-        if (descriptor == null) {
-            QLog.e(TAG, "Client configuration descriptor not found for characteristic: " + characteristic.getUuid());
+        final UUID cuuid = characteristic.getUuid();
+        final int props = characteristic.getProperties();
+        final boolean supportsNotify = (props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0;
+        final boolean supportsIndicate = (props & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0;
+        if (!supportsNotify && !supportsIndicate) {
+            QLog.e(TAG, "Characteristic does not support notify/indicate: " + cuuid);
             return 0;
         }
 
-        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-        boolean writeInitiated = gatt.writeDescriptor(descriptor);
-        if (writeInitiated) {
-            return 1;
+        if (!notificationsSet.contains(cuuid)) {
+            boolean notificationSet = gatt.setCharacteristicNotification(characteristic, true);
+            if (!notificationSet) {
+                QLog.e(TAG, "Failed to enable notifications for characteristic: " + cuuid);
+            }
+            notificationsSet.add(cuuid);
         }
 
-        QLog.e(TAG, "Failed to initiate descriptor write for characteristic: " + characteristic.getUuid());
-        return 0;
+        final BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG_UUID);
+        if (descriptor == null) {
+            QLog.e(TAG, "Client configuration descriptor not found for characteristic: " + cuuid);
+            return 0;
+        }
+
+        final byte[] cccdValue = supportsNotify
+                ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                : BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
+
+        enqueue(new GattOperation() {
+            @Override public boolean execute(BluetoothGatt g) {
+                descriptor.setValue(cccdValue);
+                QLog.d(TAG, "Writing CCCD for " + cuuid + " value=" + (cccdValue == BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE ? "notify" : "indicate"));
+                return g.writeDescriptor(descriptor);
+            }
+            @Override public String name() { return "writeDescriptor(" + cuuid + ")"; }
+        });
+
+        return 1;
     }
 
     private static void enablePostHandshakeNotifications(BluetoothGatt gatt) {
@@ -475,7 +560,10 @@ public class KettlerHandshakeReader {
             if (kettlerService != null) {
                 BluetoothGattCharacteristic powerChar = kettlerService.getCharacteristic(POWER_DATA_CHAR_UUID);
                 if (powerChar != null) {
-                    gatt.readCharacteristic(powerChar);
+                    enqueue(new GattOperation() {
+                        @Override public boolean execute(BluetoothGatt gg) { return gg.readCharacteristic(powerChar); }
+                        @Override public String name() { return "read(POWER_DATA_CHAR_UUID)"; }
+                    });
                 }
             }
 
@@ -484,7 +572,10 @@ public class KettlerHandshakeReader {
                 BluetoothGattCharacteristic cpChar =
                     powerService.getCharacteristic(CYCLING_POWER_MEASUREMENT_CHAR_UUID);
                 if (cpChar != null) {
-                    gatt.readCharacteristic(cpChar);
+                    enqueue(new GattOperation() {
+                        @Override public boolean execute(BluetoothGatt gg) { return gg.readCharacteristic(cpChar); }
+                        @Override public String name() { return "read(CYCLING_POWER_MEASUREMENT)"; }
+                    });
                 }
             }
         }, 500);
