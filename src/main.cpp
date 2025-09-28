@@ -815,28 +815,28 @@ int main(int argc, char *argv[]) {
                  bikeResistanceOffset,
                  bikeResistanceGain); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
     
-    #ifdef ANT_LINUX_ENABLED
+#ifdef ANT_LINUX_ENABLED
     if (ant_footpod_enabled) {
-        qInfo() << "[main] ANT+ feature enabled. Arming startup trigger...";
+        qInfo() << "[ANT+] ANT+ feature enabled. Arming startup trigger...";
 
         QObject::connect(&bl, &bluetooth::bluetoothDeviceConnected, [&](bluetoothdevice *dev) {
             if (dev && dev->deviceType() == bluetoothdevice::TREADMILL) {
                 
-                qInfo() << "[main] Treadmill object created. Starting 10-second timer to allow for device initialization...";
+                qInfo() << "[ANT+] Treadmill object created. Starting 10-second timer to allow for device initialization...";
 
                 // Use a single-shot timer to start the ANT+ manager after a safe delay.
                 // This is non-blocking and allows the main thread to be occupied by btinit().
                 QTimer::singleShot(10000, [dev]() {
                     // Check if the device is still connected after the delay.
                     if (dev && dev->connected()) {
-                        qInfo() << "[main] Initialization delay complete. Starting ANT+ Manager.";
+                        qInfo() << "[ANT+] Initialization delay complete. Starting ANT+ Manager.";
                         
                         // Use invokeMethod for a clean, queued call to the singleton.
                         QMetaObject::invokeMethod(&AntManager::instance(), [dev](){
                             AntManager::instance().startForDevice(dev);
                         }, Qt::QueuedConnection);
                     } else {
-                        qWarning() << "[main] Device disconnected during initialization delay - ANT+ not started.";
+                        qWarning() << "[ANT+] Device disconnected during initialization delay - ANT+ not started.";
                     }
                 });
             }
@@ -845,11 +845,11 @@ int main(int argc, char *argv[]) {
         // The graceful shutdown connection remains essential.
         // Note the correction from app.data() to app.get() for QScopedPointer.
         QObject::connect(app.get(), &QCoreApplication::aboutToQuit, &AntManager::instance(), [&]() {
-            qInfo() << "[main] Application shutting down. Stopping ANT+ Manager.";
+            qInfo() << "[ANT+] Application shutting down. Stopping ANT+ Manager.";
             AntManager::instance().stopForDevice(nullptr);
         });
     }
-    #endif
+#endif
 
     QString mqtt_host = settings.value(QZSettings::mqtt_host, QZSettings::default_mqtt_host).toString();
     int mqtt_port = settings.value(QZSettings::mqtt_port, QZSettings::default_mqtt_port).toInt();

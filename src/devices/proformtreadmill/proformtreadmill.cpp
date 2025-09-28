@@ -3136,19 +3136,14 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     lastPacket = newValue;
 
-#ifdef ANT_LINUX_ENABLED
-    if(!initDone){
-        return;
-    }
-#endif // ANT_LINUX_ENABLED
-
     if (proform_treadmill_705_cst && currentSpeed().value() == 0)
     {
         QString hexString = newValue.toHex(' ');
         if (hexString.startsWith("fe 02 25 04 00 00") && newValue.at(17) == 0x01)
         {
             emit debug(QStringLiteral("start button pressed on console!"));
-	        if(!homeform::singleton()) Distance = 0;
+	    if(!homeform::singleton())
+            	Distance = 0;
             requestStart = 1;
             return;
         }
