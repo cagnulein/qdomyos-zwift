@@ -18,7 +18,7 @@ public:
 public slots:
     void writeFitBackup(const QString &filename, 
                        const QList<SessionLine> &session,
-                       bluetoothdevice::BLUETOOTH_TYPE deviceType,
+                       BLUETOOTH_TYPE deviceType,
                        uint32_t processType,
                        FIT_SPORT workoutType,
                        const QString &workoutName,

@@ -18,7 +18,7 @@
 using namespace std::chrono_literals;
 
 tacxneo2::tacxneo2(bool noWriteResistance, bool noHeartService) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;

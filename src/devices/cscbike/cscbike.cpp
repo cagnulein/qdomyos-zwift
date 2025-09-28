@@ -17,7 +17,7 @@
 using namespace std::chrono_literals;
 
 cscbike::cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;

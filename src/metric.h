@@ -1,6 +1,7 @@
 #ifndef METRIC_H
 #define METRIC_H
 
+#include "bluetoothdevicetype.h"
 #include "qdebugfixup.h"
 #include "sessionline.h"
 #include <QDateTime>
@@ -18,7 +19,7 @@ class metric {
     } _metric_type;
 
     metric();
-    void setType(_metric_type t);
+    void setType(_metric_type t, BLUETOOTH_TYPE bt = UNKNOWN);
     void setValue(double value, bool applyGainAndOffset = true);
     double value();
     double valueRaw();
@@ -78,6 +79,7 @@ class metric {
     double m_rateAtSec = 0;
 
     _metric_type m_type = METRIC_OTHER;
+    BLUETOOTH_TYPE m_bluetooth_type = UNKNOWN;
 
     bool paused = false;
 };

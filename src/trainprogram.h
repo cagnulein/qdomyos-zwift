@@ -76,7 +76,7 @@ class trainprogram : public QObject {
                  bool videoAvailable = false);
     void save(const QString &filename);
     static trainprogram *load(const QString &filename, bluetooth *b, QString Extension);
-    static QList<trainrow> loadXML(const QString &filename, bluetoothdevice::BLUETOOTH_TYPE device_type);
+    static QList<trainrow> loadXML(const QString &filename, BLUETOOTH_TYPE device_type);
     static bool saveXML(const QString &filename, const QList<trainrow> &rows);
     static bool hasTargetPower(const QString &filename);
     QTime totalElapsedTime();

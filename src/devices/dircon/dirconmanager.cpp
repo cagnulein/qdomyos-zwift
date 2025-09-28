@@ -171,9 +171,9 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
     QSettings settings;
     DirconProcessorService *service;
     QList<DirconProcessorService *> services, proc_services;
-    bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
+    BLUETOOTH_TYPE dt = Bike->deviceType();
     bt = Bike;
-    uint8_t type = dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL ? DM_MACHINE_TYPE_TREADMILL
+    uint8_t type = dt == TREADMILL || dt == ELLIPTICAL ? DM_MACHINE_TYPE_TREADMILL
                                                                                          : DM_MACHINE_TYPE_BIKE;
     qDebug() << "Building Dircom Manager";
     uint16_t server_base_port =
@@ -236,7 +236,7 @@ double DirconManager::currentGear() {
     QSettings settings;
     if(settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool() && writeP0003)
         return writeP0003->currentGear();
-    else if(bt && bt->deviceType() == bluetoothdevice::BIKE)
+    else if(bt && bt->deviceType() == BIKE)
         return ((bike*)bt)->gears();
     return 0;
 }

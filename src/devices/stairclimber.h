@@ -11,7 +11,7 @@ class stairclimber : public bluetoothdevice {
     stairclimber();
     bool connected() override;
     virtual uint16_t watts(double weight);
-    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
+    BLUETOOTH_TYPE deviceType() override;
     void clearStats() override;
     void setLap() override;
     void setPaused(bool p) override;

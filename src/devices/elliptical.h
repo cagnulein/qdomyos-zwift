@@ -24,7 +24,7 @@ class elliptical : public bluetoothdevice {
     virtual int pelotonToEllipticalResistance(int pelotonResistance);
     virtual bool inclinationAvailableByHardware();
     virtual bool inclinationSeparatedFromResistance();
-    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
+    BLUETOOTH_TYPE deviceType() override;
     void clearStats() override;
     void setPaused(bool p) override;
     void setLap() override;

@@ -20,7 +20,7 @@ using namespace std::chrono_literals;
 
 schwinn170bike::schwinn170bike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                double bikeResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;

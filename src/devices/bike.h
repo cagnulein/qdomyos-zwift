@@ -31,7 +31,7 @@ class bike : public bluetoothdevice {
     virtual resistance_t resistanceFromPowerRequest(uint16_t power);
     virtual uint16_t powerFromResistanceRequest(resistance_t requestResistance);
     virtual bool ergManagedBySS2K() { return false; }
-    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
+    BLUETOOTH_TYPE deviceType() override;
     metric pelotonResistance();
     void clearStats() override;
     void setLap() override;

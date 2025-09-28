@@ -26,7 +26,7 @@ using namespace std;
 
 qfit::qfit(QObject *parent) : QObject(parent) {}
 
-void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
+void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_TYPE type,
                 uint32_t processFlag, FIT_SPORT overrideSport, QString workoutName, QString bluetooth_device_name,
                 QString workoutSource, QString pelotonWorkoutId, QString pelotonUrl, QString trainingProgramFile) {
     QSettings settings;
@@ -47,8 +47,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     std::fstream file;
     uint32_t firstRealIndex = 0;
     for (int i = 0; i < session.length(); i++) {
-        if ((session.at(i).speed > 0 && (type == bluetoothdevice::TREADMILL || type == bluetoothdevice::ELLIPTICAL)) ||
-            (session.at(i).cadence > 0 && (type == bluetoothdevice::BIKE || type == bluetoothdevice::ROWING))) {
+        if ((session.at(i).speed > 0 && (type == TREADMILL || type == ELLIPTICAL)) ||
+            (session.at(i).cadence > 0 && (type == BIKE || type == ROWING))) {
             firstRealIndex = i;
             break;
         }
@@ -259,7 +259,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         sessionMesg.SetSport(overrideSport);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
         qDebug() << "overriding FIT sport " << overrideSport;
-    } else if (type == bluetoothdevice::TREADMILL) {
+    } else if (type == TREADMILL) {
         if(session.last().stepCount > 0)
             sessionMesg.SetTotalStrides(session.last().stepCount);
 
@@ -274,7 +274,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             if(strava_treadmill)
                 sessionMesg.SetSubSport(FIT_SUB_SPORT_TREADMILL);
         }
-    } else if (type == bluetoothdevice::ELLIPTICAL) {
+    } else if (type == ELLIPTICAL) {
         if (strava_virtual_activity) {
             if (speed_avg == 0 || speed_avg > 6.5)
                 sessionMesg.SetSport(FIT_SPORT_RUNNING);
@@ -285,7 +285,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             sessionMesg.SetSport(FIT_SPORT_FITNESS_EQUIPMENT);
             sessionMesg.SetSubSport(FIT_SUB_SPORT_ELLIPTICAL);
         }
-    } else if (type == bluetoothdevice::ROWING) {
+    } else if (type == ROWING) {
 
         sessionMesg.SetSport(FIT_SPORT_ROWING);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_INDOOR_ROWING);
@@ -297,11 +297,11 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             sessionMesg.SetMaxCadence(session.last().maxStrokesRate);
         if (session.last().avgStrokesLength)
             sessionMesg.SetAvgStrokeDistance(session.last().avgStrokesLength);
-    } else if (type == bluetoothdevice::STAIRCLIMBER) {
+    } else if (type == STAIRCLIMBER) {
 
         sessionMesg.SetSport(FIT_SPORT_GENERIC);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_STAIR_CLIMBING);
-    } else if (type == bluetoothdevice::JUMPROPE) {
+    } else if (type == JUMPROPE) {
 
         sessionMesg.SetSport(FIT_SPORT_JUMP_ROPE);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
@@ -490,19 +490,19 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     if (overrideSport != FIT_SPORT_INVALID) {
 
         lapMesg.SetSport(FIT_SPORT_GENERIC);
-    } else if (type == bluetoothdevice::TREADMILL) {
+    } else if (type == TREADMILL) {
 
         lapMesg.SetSport(FIT_SPORT_RUNNING);
-    } else if (type == bluetoothdevice::ELLIPTICAL) {
+    } else if (type == ELLIPTICAL) {
 
         lapMesg.SetSport(FIT_SPORT_RUNNING);
-    } else if (type == bluetoothdevice::ROWING) {
+    } else if (type == ROWING) {
 
         lapMesg.SetSport(FIT_SPORT_ROWING);
-    } else if (type == bluetoothdevice::JUMPROPE) {
+    } else if (type == JUMPROPE) {
 
         lapMesg.SetSport(FIT_SPORT_JUMP_ROPE);
-    } else if (type == bluetoothdevice::STAIRCLIMBER) {
+    } else if (type == STAIRCLIMBER) {
 
         lapMesg.SetSport(FIT_SPORT_GENERIC);
         lapMesg.SetSubSport(FIT_SUB_SPORT_STAIR_CLIMBING);
@@ -566,7 +566,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         newRecord.SetPower(sl.watt);
         newRecord.SetResistance(sl.resistance);
         newRecord.SetCalories(sl.calories);
-        if (type == bluetoothdevice::TREADMILL) {
+        if (type == TREADMILL) {
             newRecord.SetStepLength(sl.instantaneousStrideLengthCM * 10);
             newRecord.SetVerticalOscillation(sl.verticalOscillationMM);
             newRecord.SetStanceTime(sl.groundContactMS);
@@ -618,7 +618,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
             lapMesg.SetMessageIndex(lap_index++);
             lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_DISTANCE);
-            if (type == bluetoothdevice::JUMPROPE)
+            if (type == JUMPROPE)
                 lapMesg.SetRepetitionNum(session.at(i - 1).inclination);
             lastLapTimer = sl.elapsedTime;
             lastLapOdometer = sl.distance;

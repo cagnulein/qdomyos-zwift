@@ -1754,8 +1754,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("MRK-S26S-")) ||
                         (b.name().toUpper().startsWith("MRK-S26C-")) ||
                         (b.name().toUpper().startsWith("ROBX")) ||
+                        (b.name().toUpper().startsWith("ORLAUF_ARES")) ||
                         (b.name().toUpper().startsWith("SPEEDMAGPRO")) ||                        
                         (b.name().toUpper().startsWith("XCX-")) ||
+                        (b.name().toUpper().startsWith("D500V2")) ||
                         (b.name().toUpper().startsWith("NEO BIKE PLUS ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) && !b.name().toUpper().endsWith(QStringLiteral("SKI")) && !b.name().toUpper().endsWith(QStringLiteral("ROW"))) || 
                         (b.name().toUpper().startsWith("L-") && b.name().length() == 11) ||
@@ -2587,7 +2589,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && fitplus_bike) ||
                         (b.name().toUpper().startsWith("H9110 OSAKA")) ||
                         b.name().startsWith(QStringLiteral("MRK-"))) &&
-                       !fitPlusBike && !ftmsBike && !ftmsRower && !snodeBike && filter) {
+                       !fitPlusBike && !ftmsBike && !ftmsRower && !snodeBike && !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 fitPlusBike =
@@ -2734,11 +2736,11 @@ void bluetooth::connectedAndDiscovered() {
         settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool();
 
     // only at the first very connection, setting the user default resistance
-    if (device() && firstConnected && device()->deviceType() == bluetoothdevice::BIKE &&
+    if (device() && firstConnected && device()->deviceType() == BIKE &&
         settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start).toUInt() != 1) {
         qobject_cast<bike *>(device())->changeResistance(
             settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start).toUInt());
-    } else if (device() && firstConnected && device()->deviceType() == bluetoothdevice::ELLIPTICAL &&
+    } else if (device() && firstConnected && device()->deviceType() == ELLIPTICAL &&
                settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start).toUInt() !=
                    1) {
         qobject_cast<elliptical *>(device())->changeResistance(
@@ -2906,7 +2908,7 @@ void bluetooth::connectedAndDiscovered() {
 #else
                 settings.setValue(QZSettings::power_sensor_address, b.deviceUuid().toString());
 #endif
-                if (device() && device()->deviceType() == bluetoothdevice::BIKE) {
+                if (device() && device()->deviceType() == BIKE) {
                     powerSensor = new stagesbike(false, false, true);
                     // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
@@ -2915,7 +2917,7 @@ void bluetooth::connectedAndDiscovered() {
                     connect(powerSensor, &bluetoothdevice::cadenceChanged, this->device(),
                             &bluetoothdevice::cadenceSensor);
                     powerSensor->deviceDiscovered(b);
-                } else if (device() && device()->deviceType() == bluetoothdevice::TREADMILL) {
+                } else if (device() && device()->deviceType() == TREADMILL) {
                     powerSensorRun = new strydrunpowersensor(false, false, true);
                     // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
@@ -2972,7 +2974,7 @@ void bluetooth::connectedAndDiscovered() {
     for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
         if (((b.name().startsWith(eliteSterzoSmartName))) && !eliteSterzoSmart &&
             !eliteSterzoSmartName.startsWith(QStringLiteral("Disabled")) && this->device() &&
-            this->device()->deviceType() == bluetoothdevice::BIKE) {
+            this->device()->deviceType() == BIKE) {
             settings.setValue(QZSettings::elite_sterzo_smart_lastdevice_name, b.name());
 
 #ifndef Q_OS_IOS
@@ -2994,7 +2996,7 @@ void bluetooth::connectedAndDiscovered() {
     if(settings.value(QZSettings::sram_axs_controller, QZSettings::default_sram_axs_controller).toBool()) {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (((b.name().toUpper().startsWith("SRAM "))) && !sramAXSController && this->device() &&
-                    this->device()->deviceType() == bluetoothdevice::BIKE) {
+                    this->device()->deviceType() == BIKE) {
 
                 sramAXSController = new sramaxscontroller();
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
@@ -3013,7 +3015,7 @@ void bluetooth::connectedAndDiscovered() {
     if(settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool()) {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (((b.name().toUpper().startsWith("ZWIFT CLICK"))) && !zwiftClickRemote && this->device() &&
-                    this->device()->deviceType() == bluetoothdevice::BIKE) {
+                    this->device()->deviceType() == BIKE) {
 
                 if(b.manufacturerData(2378).size() > 0) {
                     qDebug() << "this should be 9. is it? " << int(b.manufacturerData(2378).at(0));
@@ -3038,7 +3040,7 @@ void bluetooth::connectedAndDiscovered() {
     if(settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool()) {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (((b.name().toUpper().startsWith("SQUARE"))) && !eliteSquareController && this->device() &&
-                this->device()->deviceType() == bluetoothdevice::BIKE) {
+                this->device()->deviceType() == BIKE) {
 
                 eliteSquareController = new elitesquarecontroller(this->device());
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
@@ -3058,7 +3060,7 @@ void bluetooth::connectedAndDiscovered() {
         bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if ((((b.name().toUpper().startsWith("ZWIFT PLAY"))) || b.name().toUpper().startsWith("ZWIFT RIDE") || b.name().toUpper().startsWith("ZWIFT SF2")) && zwiftPlayDevice.size() < 2 && this->device() &&
-                    this->device()->deviceType() == bluetoothdevice::BIKE) {
+                    this->device()->deviceType() == BIKE) {
 
                 if(b.manufacturerData(2378).size() > 0) {
                     qDebug() << "this should be 3 or 2. is it? " << int(b.manufacturerData(2378).at(0));
@@ -3101,8 +3103,8 @@ void bluetooth::connectedAndDiscovered() {
             settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool(),
             settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool(),
             settings.value(QZSettings::ant_garmin, QZSettings::default_ant_garmin).toBool(),
-            device()->deviceType() == bluetoothdevice::TREADMILL ||
-            device()->deviceType() == bluetoothdevice::ELLIPTICAL,
+            device()->deviceType() == TREADMILL ||
+            device()->deviceType() == ELLIPTICAL,
             settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool(),
             settings.value(QZSettings::technogym_group_cycle, QZSettings::default_technogym_group_cycle).toBool(),
             settings.value(QZSettings::ant_bike_device_number, QZSettings::default_ant_bike_device_number).toInt(),
@@ -4121,7 +4123,7 @@ void bluetooth::stateFileUpdate() {
     if (!device()) {
         return;
     }
-    if (device()->deviceType() != bluetoothdevice::TREADMILL) {
+    if (device()->deviceType() != TREADMILL) {
         return;
     }
 

@@ -7,6 +7,7 @@
 //
 
 #import "AdbClient.h"
+#import "../../swiftDebugBridge.h"
 
 #include <stdio.h>
 #include "adb.h"
@@ -28,6 +29,8 @@ extern int do_sync_push(const char *lpath, const char *rpath, int verifyApk);
 -(void) read:(int)fd toResponse:(ResponseBlock)block;
 -(void) shell:(NSString *) cmd toResponse:(ResponseBlock)block;
 -(void) pm:(NSString *)cmd toResponse:(ResponseBlock)block;
+-(void) logMessage:(NSString *)message;
+-(NSString *)stringFromCString:(const char *)cString;
 @end
 
 
@@ -41,11 +44,16 @@ extern int do_sync_push(const char *lpath, const char *rpath, int verifyApk);
     {
         adb_sysdeps_init();
         _queue = dispatch_queue_create("adb-queue", DISPATCH_QUEUE_SERIAL);
+        [self logMessage:@"ADBClient initialized"];
         
         NSString *path = [[NSBundle mainBundle] bundlePath];
         if (setenv("HOME", path.UTF8String, YES) != 0)
         {
-            NSLog(@"WARN! can't set HOME directory. adb may not find adbkey files");
+            [self logMessage:@"WARN! can't set HOME directory. adb may not find adbkey files"];
+        }
+        else
+        {
+            [self logMessage:[NSString stringWithFormat:@"ADB HOME set to %@", path]];
         }
         
     }
@@ -58,7 +66,10 @@ extern int do_sync_push(const char *lpath, const char *rpath, int verifyApk);
 {
     if ((self = [self init]))
     {
-        if (flg) adb_trace_init("all");
+        if (flg) {
+            adb_trace_init("all");
+            [self logMessage:@"ADB verbose tracing enabled"];
+        }
     }
     return self;
 }
@@ -71,20 +82,25 @@ extern int do_sync_push(const char *lpath, const char *rpath, int verifyApk);
         char *buf = "host:devices-l" ;
         char *tmp;
         
+        [self logMessage:@"ADB devices command issued"];
         tmp = adb_query(buf);
         if (tmp)
         {
             if (block)
             {
                 NSString *result = [NSString stringWithFormat:@"List of devices attached\n%s", tmp];
+                [self logMessage:result];
                 block(YES, result);
             }
             free(tmp);
         }
         else
         {
+            const char *error = adb_error();
+            NSString *errorMessage = [self stringFromCString:error];
+            [self logMessage:errorMessage];
             if(block)
-                block(NO, [NSString stringWithUTF8String:adb_error()]);
+                block(NO, errorMessage);
         }
         
     });
@@ -100,12 +116,14 @@ extern int do_sync_push(const char *lpath, const char *rpath, int verifyApk);
         char *tmp;
         
         snprintf(buf, sizeof buf, "host:connect:%s", addr.UTF8String);
+        [self logMessage:[NSString stringWithFormat:@"ADB connect request -> %s", buf]];
         tmp = adb_query(buf);
         if (tmp)
         {
             if (block)
             {
                 NSString *result = [NSString stringWithUTF8String:tmp];
+                [self logMessage:[NSString stringWithFormat:@"ADB connect response: %@", result]];
                 if ([result rangeOfString:@"connected"].location != NSNotFound)
                     block(YES, result);
                 else
@@ -115,8 +133,11 @@ extern int do_sync_push(const char *lpath, const char *rpath, int verifyApk);
         }
         else
         {
+            const char *error = adb_error();
+            NSString *errorMessage = [self stringFromCString:error];
+            [self logMessage:errorMessage];
             if(block)
-                block(NO, [NSString stringWithUTF8String:adb_error()]);
+                block(NO, errorMessage);
         }
        
     });
@@ -137,16 +158,22 @@ extern int do_sync_push(const char *lpath, const char *rpath, int verifyApk);
         else
             snprintf(buf, sizeof buf, "host:disconnect:");
 
+        [self logMessage:[NSString stringWithFormat:@"ADB disconnect request -> %s", buf]];
         tmp = adb_query(buf);
         if (tmp)
         {
+            NSString *response = [NSString stringWithUTF8String:tmp];
+            [self logMessage:[NSString stringWithFormat:@"ADB disconnect response: %@", response]];
             if (block)
-                block(YES, [NSString stringWithUTF8String:tmp]);
+                block(YES, response);
             free(tmp);
         }
         else
         {
-            if(block) block(NO, [NSString stringWithUTF8String:adb_error()]);
+            const char *error = adb_error();
+            NSString *errorMessage = [self stringFromCString:error];
+            [self logMessage:errorMessage];
+            if(block) block(NO, errorMessage);
         }
         
 
@@ -172,18 +199,22 @@ extern int do_sync_push(const char *lpath, const char *rpath, int verifyApk);
         
         if ([apkPath length] == 0)
         {
-            if (block) block(NO, @"can't find filename in arguments");
+            NSString *message = @"can't find filename in arguments";
+            [self logMessage:message];
+            if (block) block(NO, message);
             return;
         }
         
         apk_file = apkPath.UTF8String;
         snprintf(apk_dest, sizeof apk_dest, where, get_basename(apk_file));
+        [self logMessage:[NSString stringWithFormat:@"ADB install push %@ -> %s", apkPath, apk_dest]];
         err = do_sync_push(apk_file, apk_dest, 1 /* verify APK */);
         if (err) {
+           [self logMessage:@"ADB install: push failed"];
            if(block) block(NO, nil);
             return;
         }
-        
+
         NSString *installCmd = [NSString stringWithFormat:@"shell:pm install"];
         if (flags & ADBInstallFlag_Replace)
             installCmd = [installCmd stringByAppendingString:@" -r"];
@@ -195,10 +226,11 @@ extern int do_sync_push(const char *lpath, const char *rpath, int verifyApk);
             installCmd = [installCmd stringByAppendingString:@" -g"];
         
         installCmd = [installCmd stringByAppendingFormat:@" %s", apk_dest];
-        
+
         int fd = adb_connect(installCmd.UTF8String);
         if(fd >= 0)
         {
+            [self logMessage:[NSString stringWithFormat:@"ADB install command sent: %@", installCmd]];
             char buf[BUF_SIZE];
             int len;
             
@@ -217,10 +249,16 @@ extern int do_sync_push(const char *lpath, const char *rpath, int verifyApk);
                 if (block)
                 {
                     *(buf + len) = '\0';
+                    NSString *message = [self stringFromCString:buf];
+                    [self logMessage:message];
                     if (*buf == 'S')
-                        block(YES, [NSString stringWithUTF8String:buf]);
+                    {
+                        block(YES, message);
+                    }
                     else if (*buf == 'F')
-                        block(NO, [NSString stringWithUTF8String:buf]);
+                    {
+                        block(NO, message);
+                    }
                 }
             }
 
@@ -228,8 +266,13 @@ extern int do_sync_push(const char *lpath, const char *rpath, int verifyApk);
         }
         else
         {
+            const char *error = adb_error();
+            NSString *errorMessage = [self stringFromCString:error];
+            [self logMessage:errorMessage];
             if(block)
-                block(NO, [NSString stringWithCString:adb_error() encoding:NSUTF8StringEncoding]);
+            {
+                block(NO, errorMessage);
+            }
         }
  
         [self shell:[NSString stringWithFormat:@"rm %s", apk_dest] toResponse:nil];
@@ -253,7 +296,11 @@ extern int do_sync_push(const char *lpath, const char *rpath, int verifyApk);
         if ([cmd length] != 0)
             [self shell:cmd toResponse:block];
         else if (block)
-            block(NO, @"must have command");
+        {
+            NSString *message = @"must have command";
+            [self logMessage:message];
+            block(NO, message);
+        }
     });
 }
 
@@ -271,13 +318,17 @@ extern int do_sync_push(const char *lpath, const char *rpath, int verifyApk);
     int fd = adb_connect([NSString stringWithFormat:@"shell:%@", cmd].UTF8String);
     if(fd >= 0)
     {
+        [self logMessage:[NSString stringWithFormat:@"ADB shell command opened: %@", cmd]];
         [self read:fd toResponse:block];
         adb_close(fd);
     }
     else
         
     {
-        if(block) block(NO, [NSString stringWithUTF8String:adb_error()]);
+        const char *error = adb_error();
+        NSString *errorMessage = [self stringFromCString:error];
+        [self logMessage:errorMessage];
+        if(block) block(NO, errorMessage);
     }
 
 }
@@ -303,10 +354,35 @@ extern int do_sync_push(const char *lpath, const char *rpath, int verifyApk);
         if (block)
         {
             *(buf + len) = '\0';
-            block(YES, [NSString stringWithUTF8String:buf]);
+            NSString *message = [self stringFromCString:buf];
+            [self logMessage:message];
+            block(YES, message);
         }
     }
 
+}
+
+-(void) logMessage:(NSString *)message
+{
+    if (message.length == 0)
+    {
+        return;
+    }
+    SwiftDebugLogNSString(message);
+}
+
+-(NSString *)stringFromCString:(const char *)cString
+{
+    if (!cString)
+    {
+        return nil;
+    }
+    NSString *message = [[NSString alloc] initWithCString:cString encoding:NSUTF8StringEncoding];
+    if (!message)
+    {
+        message = [NSString stringWithFormat:@"(invalid UTF8) %s", cString];
+    }
+    return message;
 }
 
 @end

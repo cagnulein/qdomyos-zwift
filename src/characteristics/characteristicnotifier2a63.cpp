@@ -8,7 +8,7 @@ int CharacteristicNotifier2A63::notify(QByteArray &value) {
     if (normalizeWattage < 0)
         normalizeWattage = 0;
     
-    if (Bike->deviceType() == bluetoothdevice::BIKE) {
+    if (Bike->deviceType() == BIKE) {
         /*
          // set measurement
          measurement[2] = power & 0xFF;

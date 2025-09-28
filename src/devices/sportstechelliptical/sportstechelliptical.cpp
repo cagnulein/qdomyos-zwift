@@ -16,7 +16,7 @@ using namespace std::chrono_literals;
 
 sportstechelliptical::sportstechelliptical(bool noWriteResistance, bool noHeartService, int8_t ellipticalResistanceOffset,
                                double ellipticalResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;

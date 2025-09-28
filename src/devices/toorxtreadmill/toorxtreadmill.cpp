@@ -9,7 +9,7 @@
 using namespace std::chrono_literals;
 
 toorxtreadmill::toorxtreadmill() {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     initDone = false;

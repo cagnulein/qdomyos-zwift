@@ -20,7 +20,7 @@ bluetoothdevice::~bluetoothdevice() {
     }
 }
 
-bluetoothdevice::BLUETOOTH_TYPE bluetoothdevice::deviceType() { return bluetoothdevice::UNKNOWN; }
+BLUETOOTH_TYPE bluetoothdevice::deviceType() { return UNKNOWN; }
 void bluetoothdevice::start() { requestStart = 1; lastStart = QDateTime::currentMSecsSinceEpoch(); }
 void bluetoothdevice::stop(bool pause) {
     requestStop = 1;
@@ -237,7 +237,7 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const b
         !power_as_bike && !power_as_treadmill)
         watt_calc = false;
 
-    if(deviceType() == bluetoothdevice::BIKE && !from_accessory)  // append only if it's coming from the bike, not from the power sensor
+    if(deviceType() == BIKE && !from_accessory)  // append only if it's coming from the bike, not from the power sensor
         _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value());
 
     if (!_firstUpdate && !paused) {

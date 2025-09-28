@@ -57,7 +57,7 @@ void rower::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void rower::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 double rower::requestedSpeed() { return requestSpeed; }
 
-bluetoothdevice::BLUETOOTH_TYPE rower::deviceType() { return bluetoothdevice::ROWING; }
+BLUETOOTH_TYPE rower::deviceType() { return ROWING; }
 
 void rower::clearStats() {
 

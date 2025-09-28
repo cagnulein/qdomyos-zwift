@@ -16,7 +16,7 @@ using namespace std::chrono_literals;
 
 speraxtreadmill::speraxtreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
                                    double forceInitInclination) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;

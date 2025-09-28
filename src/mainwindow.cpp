@@ -75,7 +75,7 @@ void MainWindow::update() {
         ui->calories->setText(QString::number(bluetoothManager->device()->calories().value(), 'f', 0));
         ui->fanBar->setValue(bluetoothManager->device()->fanSpeed());
 
-        if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        if (bluetoothManager->device()->deviceType() == TREADMILL) {
             if (bluetoothManager->device()->currentSpeed().value()) {
                 pace = 10000 / (((treadmill *)bluetoothManager->device())->currentPace().second() +
                                 (((treadmill *)bluetoothManager->device())->currentPace().minute() * 60));
@@ -98,7 +98,7 @@ void MainWindow::update() {
             ui->inclination->setText(QString::number(inclination, 'f', 1));
             ui->elevationGain->setText(
                 QString::number(((treadmill *)bluetoothManager->device())->elevationGain().value(), 'f', 1));
-        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+        } else if (bluetoothManager->device()->deviceType() == BIKE) {
 
             cadence = ((bike *)bluetoothManager->device())->currentCadence().value();
             resistance = ((bike *)bluetoothManager->device())->currentResistance().value();
@@ -106,7 +106,7 @@ void MainWindow::update() {
             ui->watt->setText(QString::number(watts));
             ui->resistance->setText(QString::number(resistance));
             ui->cadence->setText(QString::number(cadence));
-        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+        } else if (bluetoothManager->device()->deviceType() == ROWING) {
 
             cadence = ((rower *)bluetoothManager->device())->currentCadence().value();
             resistance = ((rower *)bluetoothManager->device())->currentResistance().value();
@@ -114,7 +114,7 @@ void MainWindow::update() {
             ui->watt->setText(QString::number(watts));
             ui->resistance->setText(QString::number(resistance));
             ui->cadence->setText(QString::number(cadence));
-        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+        } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
 
             cadence = ((elliptical *)bluetoothManager->device())->currentCadence().value();
             resistance = ((elliptical *)bluetoothManager->device())->currentResistance().value();
@@ -144,19 +144,19 @@ void MainWindow::update() {
             ui->connectionToTreadmill->setEnabled(true);
             if (bluetoothManager->device()->VirtualDevice()) {
 
-                if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL &&
+                if (bluetoothManager->device()->deviceType() == TREADMILL &&
                     ((virtualtreadmill *)((treadmill *)bluetoothManager->device())->VirtualDevice())->connected()) {
 
                     ui->connectionToZwift->setEnabled(true);
-                } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE &&
+                } else if (bluetoothManager->device()->deviceType() == BIKE &&
                            ((virtualbike *)((bike *)bluetoothManager->device())->VirtualDevice())->connected()) {
 
                     ui->connectionToZwift->setEnabled(true);
-                } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING &&
+                } else if (bluetoothManager->device()->deviceType() == ROWING &&
                            ((virtualbike *)((rower *)bluetoothManager->device())->VirtualDevice())->connected()) {
 
                     ui->connectionToZwift->setEnabled(true);
-                } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL &&
+                } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL &&
                            ((virtualtreadmill *)((elliptical *)bluetoothManager->device())->VirtualDevice())
                                ->connected()) {
 
@@ -373,7 +373,7 @@ void MainWindow::loadTrainProgram(const QString &fileName) {
             }
             gpx g;
             QList<trainrow> list;
-            auto g_list = g.open(fileName, bluetoothManager->device() ? bluetoothManager->device()->deviceType() : bluetoothdevice::BIKE);
+            auto g_list = g.open(fileName, bluetoothManager->device() ? bluetoothManager->device()->deviceType() : BIKE);
             list.reserve(g_list.count() + 1);
             for (const auto &p : qAsConst(g_list)) {
                 trainrow r;
@@ -537,7 +537,7 @@ void MainWindow::on_difficulty_valueChanged(int value) {
 
 void MainWindow::on_speedMinus_clicked() {
     if (bluetoothManager->device()) {
-        if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        if (bluetoothManager->device()->deviceType() == TREADMILL) {
             ((treadmill *)bluetoothManager->device())
                 ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value() - 0.5);
         }
@@ -546,7 +546,7 @@ void MainWindow::on_speedMinus_clicked() {
 
 void MainWindow::on_speedPlus_clicked() {
     if (bluetoothManager->device()) {
-        if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        if (bluetoothManager->device()->deviceType() == TREADMILL) {
             ((treadmill *)bluetoothManager->device())
                 ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value() + 0.5);
         }
@@ -555,7 +555,7 @@ void MainWindow::on_speedPlus_clicked() {
 
 void MainWindow::on_inclinationMinus_clicked() {
     if (bluetoothManager->device()) {
-        if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        if (bluetoothManager->device()->deviceType() == TREADMILL) {
             double perc = ((treadmill *)bluetoothManager->device())->currentInclination().value() - 0.5;
             ((treadmill *)bluetoothManager->device())->changeInclination(perc, perc);
         }
@@ -564,7 +564,7 @@ void MainWindow::on_inclinationMinus_clicked() {
 
 void MainWindow::on_inclinationPlus_clicked() {
     if (bluetoothManager->device()) {
-        if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        if (bluetoothManager->device()->deviceType() == TREADMILL) {
             double perc = ((treadmill *)bluetoothManager->device())->currentInclination().value() + 0.5;
             ((treadmill *)bluetoothManager->device())->changeInclination(perc, perc);
         }
@@ -573,13 +573,13 @@ void MainWindow::on_inclinationPlus_clicked() {
 
 void MainWindow::on_resistanceMinus_clicked() {
     if (bluetoothManager->device()) {
-        if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+        if (bluetoothManager->device()->deviceType() == BIKE) {
             ((bike *)bluetoothManager->device())
                 ->changeResistance(((bike *)bluetoothManager->device())->currentResistance().value() - 1);
-        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+        } else if (bluetoothManager->device()->deviceType() == ROWING) {
             ((rower *)bluetoothManager->device())
                 ->changeResistance(((rower *)bluetoothManager->device())->currentResistance().value() - 1);
-        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+        } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
             ((elliptical *)bluetoothManager->device())
                 ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance().value() - 1);
         }
@@ -588,13 +588,13 @@ void MainWindow::on_resistanceMinus_clicked() {
 
 void MainWindow::on_resistancePlus_clicked() {
     if (bluetoothManager->device()) {
-        if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+        if (bluetoothManager->device()->deviceType() == BIKE) {
             ((bike *)bluetoothManager->device())
                 ->changeResistance(((bike *)bluetoothManager->device())->currentResistance().value() + 1);
-        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+        } else if (bluetoothManager->device()->deviceType() == ROWING) {
             ((rower *)bluetoothManager->device())
                 ->changeResistance(((rower *)bluetoothManager->device())->currentResistance().value() + 1);
-        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+        } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
             ((elliptical *)bluetoothManager->device())
                 ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance().value() + 1);
         }
