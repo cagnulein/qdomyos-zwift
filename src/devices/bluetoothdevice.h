@@ -512,6 +512,7 @@ class bluetoothdevice : public QObject {
     void instantaneousStrideLengthChanged(double length);
     void groundContactChanged(double groundContact);
     void verticalOscillationChanged(double verticalOscillation);
+    void disconnected();
 
   protected:
     /**
