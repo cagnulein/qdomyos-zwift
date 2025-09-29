@@ -785,9 +785,6 @@ void kettlerracersbike::onAndroidHandshakeSeedReceived(const QByteArray& seedDat
 {
     qDebug() << QStringLiteral("Android handshake seed received:") << seedData.toHex(' ');
 
-    // Reset the request flag
-    handshakeRequested = false;
-
     // Process the handshake using existing logic
     sendHandshake(seedData);
 }
