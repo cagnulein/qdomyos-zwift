@@ -98,7 +98,6 @@ public class KettlerHandshakeReader {
     private static final long HANDSHAKE_READ_RETRY_DELAY_MS = 200;
     private static final int HANDSHAKE_SEED_EXPECTED_LENGTH = 2;
     private static boolean postHandshakeNotificationsEnabled = false;
-    private static boolean initialPowerReadRequested = false;
     // Native callback methods - will be implemented in C++
     public static native void onHandshakeSeedReceived(byte[] seedData);
     public static native void onHandshakeReadError(String error);
@@ -305,13 +304,6 @@ public class KettlerHandshakeReader {
                 handshakeReadAttempts = 0;
                 pendingDescriptorWrites = 0;
 
-                // Setup CSC notifications
-                BluetoothGattService cscService = gatt.getService(CSC_SERVICE_UUID);
-                if (cscService != null) {
-                    BluetoothGattCharacteristic cscChar = cscService.getCharacteristic(CSC_MEASUREMENT_CHAR_UUID);
-                    pendingDescriptorWrites += enableNotification(gatt, cscChar);
-                }
-
                 // Enqueue handshake read after notification setup; the queue will serialize correctly
                 if (pendingHandshakeCharacteristic != null) {
                     enqueue(new GattOperation() {
@@ -394,7 +386,6 @@ public class KettlerHandshakeReader {
                 QLog.d(TAG, "Handshake write completed successfully");
                 handshakeCompleted = true;
                 enablePostHandshakeNotifications(gatt);
-                requestInitialPowerRead(gatt);
             }
             // Complete op in case it was queued elsewhere
             onGattOperationComplete();
@@ -437,7 +428,6 @@ public class KettlerHandshakeReader {
         handshakeReadInProgress = false;
         handshakeReadAttempts = 0;
         postHandshakeNotificationsEnabled = false;
-        initialPowerReadRequested = false;
         notificationsSet.clear();
         synchronized (gattQueue) { gattQueue.clear(); }
         gattOpInProgress = false;
@@ -543,42 +533,6 @@ public class KettlerHandshakeReader {
         }
 
         postHandshakeNotificationsEnabled = true;
-    }
-
-    private static void requestInitialPowerRead(BluetoothGatt gatt) {
-        if (gatt == null || initialPowerReadRequested) {
-            return;
-        }
-
-        initialPowerReadRequested = true;
-        mainHandler.postDelayed(() -> {
-            if (bluetoothGatt != gatt) {
-                return;
-            }
-
-            BluetoothGattService kettlerService = gatt.getService(KETTLER_SERVICE_UUID);
-            if (kettlerService != null) {
-                BluetoothGattCharacteristic powerChar = kettlerService.getCharacteristic(POWER_DATA_CHAR_UUID);
-                if (powerChar != null) {
-                    enqueue(new GattOperation() {
-                        @Override public boolean execute(BluetoothGatt gg) { return gg.readCharacteristic(powerChar); }
-                        @Override public String name() { return "read(POWER_DATA_CHAR_UUID)"; }
-                    });
-                }
-            }
-
-            BluetoothGattService powerService = gatt.getService(CYCLING_POWER_SERVICE_UUID);
-            if (powerService != null) {
-                BluetoothGattCharacteristic cpChar =
-                    powerService.getCharacteristic(CYCLING_POWER_MEASUREMENT_CHAR_UUID);
-                if (cpChar != null) {
-                    enqueue(new GattOperation() {
-                        @Override public boolean execute(BluetoothGatt gg) { return gg.readCharacteristic(cpChar); }
-                        @Override public String name() { return "read(CYCLING_POWER_MEASUREMENT)"; }
-                    });
-                }
-            }
-        }, 500);
     }
 
     private static boolean processHandshakeSeed(byte[] data) {
