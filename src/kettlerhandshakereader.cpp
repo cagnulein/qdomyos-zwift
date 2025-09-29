@@ -81,7 +81,7 @@ void KettlerHandshakeReader::connectToDevice(const QString& deviceAddress)
 #endif
 }
 
-void KettlerHandshakeReader::sendHandshakeResponse(const QByteArray& handshakeData)
+bool KettlerHandshakeReader::sendHandshakeResponse(const QByteArray& handshakeData)
 {
 #ifdef Q_OS_ANDROID
     qDebug() << "KettlerHandshakeReader::sendHandshakeResponse called with" << handshakeData.size() << "bytes";
@@ -94,10 +94,10 @@ void KettlerHandshakeReader::sendHandshakeResponse(const QByteArray& handshakeDa
         env->SetByteArrayRegion(jHandshakeData, 0, handshakeData.size(), reinterpret_cast<const jbyte*>(handshakeData.data()));
 
         // Call the static Java method
-        QAndroidJniObject::callStaticMethod<void>(
+        jboolean writeSuccess = QAndroidJniObject::callStaticMethod<jboolean>(
             "org/cagnulen/qdomyoszwift/KettlerHandshakeReader",
             "sendHandshakeResponse",
-            "([B)V",
+            "([B)Z",
             jHandshakeData
         );
 
@@ -109,14 +109,20 @@ void KettlerHandshakeReader::sendHandshakeResponse(const QByteArray& handshakeDa
             env->ExceptionDescribe();
             env->ExceptionClear();
             qDebug() << "KettlerHandshakeReader: Java exception during handshake response";
+            return false;
         }
+
+        return writeSuccess == JNI_TRUE;
 
     } catch (const std::exception& e) {
         qDebug() << "KettlerHandshakeReader: C++ exception in sendHandshakeResponse:" << e.what();
+        return false;
     }
+    return false;
 #else
     Q_UNUSED(handshakeData)
     qDebug() << "KettlerHandshakeReader: sendHandshakeResponse not supported on this platform";
+    return false;
 #endif
 }
 

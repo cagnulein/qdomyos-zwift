@@ -21,7 +21,7 @@ public:
     static KettlerHandshakeReader* getInstance();
 
     void connectToDevice(const QString& deviceAddress);
-    void sendHandshakeResponse(const QByteArray& handshakeData);
+    bool sendHandshakeResponse(const QByteArray& handshakeData);
     void setPower(int power);
     void disconnectDevice();
 

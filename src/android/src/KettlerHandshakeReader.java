@@ -146,29 +146,30 @@ public class KettlerHandshakeReader {
         }
     }
 
-    public static void sendHandshakeResponse(byte[] handshakeData) {
+    public static boolean sendHandshakeResponse(byte[] handshakeData) {
         QLog.d(TAG, "sendHandshakeResponse called");
 
         if (bluetoothGatt == null || !isConnected) {
             QLog.e(TAG, "Device not connected");
-            return;
+            return false;
         }
 
         BluetoothGattService kettlerService = bluetoothGatt.getService(KETTLER_SERVICE_UUID);
         if (kettlerService == null) {
             QLog.e(TAG, "Kettler service not found");
-            return;
+            return false;
         }
 
         BluetoothGattCharacteristic handshakeWriteChar = kettlerService.getCharacteristic(HANDSHAKE_WRITE_CHAR_UUID);
         if (handshakeWriteChar == null) {
             QLog.e(TAG, "Handshake write characteristic not found");
-            return;
+            return false;
         }
 
         handshakeWriteChar.setValue(handshakeData);
         boolean writeSuccess = bluetoothGatt.writeCharacteristic(handshakeWriteChar);
         QLog.d(TAG, "Handshake write initiated: " + writeSuccess);
+        return writeSuccess;
     }
 
     public static void setPower(int power) {

@@ -328,10 +328,15 @@ void kettlerracersbike::sendHandshake(const QByteArray &seed) {
 #ifdef Q_OS_ANDROID
     // Use Android native BLE for handshake response
     if (androidHandshakeReader) {
-        androidHandshakeReader->sendHandshakeResponse(payload);
-        handshakeDone = true;
+        const bool writeOk = androidHandshakeReader->sendHandshakeResponse(payload);
         handshakeRequested = false;
-        // Notifications are already subscribed in the Android implementation
+
+        if (writeOk) {
+            handshakeDone = true;
+            // Notifications are already subscribed in the Android implementation
+        } else {
+            emit debug(QStringLiteral("Kettler :: handshake write failed, will retry."));
+        }
     } else {
         qDebug() << QStringLiteral("Kettler :: Android handshake reader not available");
         handshakeRequested = false;
@@ -689,17 +694,8 @@ void kettlerracersbike::update() {
     }
 
     // Android handshake timing is handled automatically by the Android implementation
-    static QElapsedTimer handshakeTimer;
-    if (!handshakeDone && kettlerServiceReady) {
-        const qint64 intervalMs = 1000;
-
+    if (!handshakeDone) {
         if (!handshakeRequested) {
-            handshakeTimer.restart();
-            requestHandshakeSeed();
-        } else if (!handshakeTimer.isValid() || handshakeTimer.hasExpired(intervalMs)) {
-            emit debug(QStringLiteral("retrying Kettler handshake seed read"));
-            handshakeTimer.restart();
-            handshakeRequested = false;
             requestHandshakeSeed();
         }
     }
@@ -761,7 +757,6 @@ void kettlerracersbike::onAndroidDeviceConnected()
 
     // Set the connection state flags
     kettlerServiceReady = true;
-    handshakeRequested = false;
     handshakeDone = false;
     notificationsSubscribed = false;
 }
@@ -784,6 +779,11 @@ void kettlerracersbike::onAndroidDeviceDisconnected()
 void kettlerracersbike::onAndroidHandshakeSeedReceived(const QByteArray& seedData)
 {
     qDebug() << QStringLiteral("Android handshake seed received:") << seedData.toHex(' ');
+
+    if (handshakeDone) {
+        qDebug() << QStringLiteral("Kettler :: handshake already completed, skipping seed reuse.");
+        return;
+    }
 
     // Process the handshake using existing logic
     sendHandshake(seedData);
