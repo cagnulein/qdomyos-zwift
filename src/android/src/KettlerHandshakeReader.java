@@ -47,6 +47,12 @@ public class KettlerHandshakeReader {
     private static final int GATT_OP_RETRY_DELAY_MS = 200;
     private static final java.util.HashSet<UUID> notificationsSet = new java.util.HashSet<>();
 
+    private static void clearQueuedHandshakeOps() {
+        synchronized (gattQueue) {
+            gattQueue.removeIf(op -> "readHandshakeSeed".equals(op.name()));
+        }
+    }
+
     private static void enqueue(GattOperation op) {
         synchronized (gattQueue) {
             gattQueue.add(op);
@@ -337,6 +343,7 @@ public class KettlerHandshakeReader {
                     if (processHandshakeSeed(data)) {
                         handshakeReadAttempts = 0;
                         pendingHandshakeCharacteristic = null;
+                        clearQueuedHandshakeOps();
                     }
                 } else {
                     QLog.e(TAG, "Characteristic read failed with status: " + status);
@@ -356,11 +363,14 @@ public class KettlerHandshakeReader {
                     }
                 } else {
                     QLog.e(TAG, "Characteristic read failed with status: " + status + " for " + characteristic.getUuid());
+                }
+            }
+
+            // Mark current queued op complete (for both handshake and any other reads)
+            onGattOperationComplete();
         }
-        // Mark current queued op complete (for both handshake and any other reads)
-        onGattOperationComplete();
-        }
-        }
+
+}
 
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
@@ -386,6 +396,10 @@ public class KettlerHandshakeReader {
             if (HANDSHAKE_WRITE_CHAR_UUID.equals(characteristic.getUuid()) && status == BluetoothGatt.GATT_SUCCESS) {
                 QLog.d(TAG, "Handshake write completed successfully");
                 handshakeCompleted = true;
+                pendingHandshakeCharacteristic = null;
+                handshakeReadInProgress = false;
+                handshakeReadAttempts = 0;
+                clearQueuedHandshakeOps();
                 enablePostHandshakeNotifications(gatt);
             }
             // Complete op in case it was queued elsewhere

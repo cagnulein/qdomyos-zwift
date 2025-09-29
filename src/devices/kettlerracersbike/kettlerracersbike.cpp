@@ -329,13 +329,13 @@ void kettlerracersbike::sendHandshake(const QByteArray &seed) {
     // Use Android native BLE for handshake response
     if (androidHandshakeReader) {
         const bool writeOk = androidHandshakeReader->sendHandshakeResponse(payload);
-        handshakeRequested = false;
-
         if (writeOk) {
             handshakeDone = true;
+            handshakeRequested = false;
             // Notifications are already subscribed in the Android implementation
         } else {
             emit debug(QStringLiteral("Kettler :: handshake write failed, will retry."));
+            handshakeRequested = false;
         }
     } else {
         qDebug() << QStringLiteral("Kettler :: Android handshake reader not available");
