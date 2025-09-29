@@ -370,8 +370,6 @@ public class KettlerHandshakeReader {
             onGattOperationComplete();
         }
 
-}
-
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             if (pendingDescriptorWrites > 0) {
