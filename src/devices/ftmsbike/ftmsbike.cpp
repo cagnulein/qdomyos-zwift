@@ -262,7 +262,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
         } else {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
-            if(_3G_Cardio_RB || SL010)
+            if(_3G_Cardio_RB || SL010 || YPBM)
                 requestResistance = requestResistance * 10;
             write[1] = ((uint8_t)(requestResistance));
             writeCharacteristic(write, sizeof(write),
@@ -1633,9 +1633,14 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("HAMMER")) {
             qDebug() << QStringLiteral("HAMMER found");
             HAMMER = true;
+        } else if(device.name().toUpper().startsWith("YPBM") && device.name().length() == 10) {
+            qDebug() << QStringLiteral("YPBM found");
+            YPBM = true;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
         }
 
-        
+
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
             resistance_lvl_mode = true;
         }
