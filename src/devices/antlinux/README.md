@@ -4,7 +4,9 @@ This guide will help you transform your Raspberry Pi running QDomyos-Zwift (QZ) 
 
 ## Prerequisites
 
-This guide assumes you are comfortable using Linux and already have a working QDomyos-Zwift source installation on a Raspberry Pi. This will not work with pre-built QZ packages - you need the source code to compile with ANT+ support.
+This guide assumes you are comfortable using Linux and already have a working QDomyos-Zwift source installation on a Raspberry Pi, if not then first follow these instructions https://github.com/cagnulein/qdomyos-zwift/blob/master/docs/10_Installation.md
+
+This will not work with pre-built QZ packages - you need the source code to compile with ANT+ support.
 
 ### Tested Environment
 
@@ -121,7 +123,7 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 
 ```bash
 # Add your user to the plugdev group for direct USB device access
-sudo usermod -aG plugdev $USER```
+sudo usermod -aG plugdev $USER
 ```
 
 ```bash
@@ -134,8 +136,8 @@ sudo reboot
 After rebooting, run the included diagnostic script to verify that your entire environment is correctly configured before you attempt to build.
 
 ```bash
-# Run the automated checklist from the correct directory
-bash $HOME/qdomyos-zwift/src/devices/antlinux/build_check_list.sh
+# Run the automated checklist
+sudo bash $HOME/qdomyos-zwift/src/devices/antlinux/build_check_list.sh
 ```
 
 If the checklist reports any critical failures, resolve them before proceeding.
@@ -165,8 +167,11 @@ cd $HOME/qdomyos-zwift/src/
 ```
 
 ```bash
-# Clean previous build and generate a new Makefile
-make clean && qmake qdomyos-zwift.pro
+# Clean previous build
+make clean
+
+# Generate a new Makefile
+qmake qdomyos-zwift.pro
 ```
 
 During the `qmake` step, look for this message to confirm ANT+ support is detected:
@@ -187,7 +192,6 @@ After successfully building, test QZ with ANT+ broadcasting:
 
 ```bash
 # Run QZ in no-GUI mode with ANT+ footpod broadcasting enabled
-# The `sudo` command is required.
 sudo ./qdomyos-zwift -no-gui -ant-footpod
 ```
 
