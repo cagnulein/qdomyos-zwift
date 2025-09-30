@@ -162,7 +162,7 @@ class AntBroadcaster:
         level = logging.DEBUG if verbose else logging.INFO
         if not log.handlers:
             handler = logging.StreamHandler()
-            formatter = logging.Formatter('%(asctime)s - ANT_PYTHON - %(levelname)s - %(message)s')
+            formatter = logging.Formatter('%(message)s')
             handler.setFormatter(formatter)
             log.addHandler(handler)
             log.propagate = False
