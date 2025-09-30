@@ -47,7 +47,7 @@ git pull
 
 ```bash
 # Ensure qdomyos-zwift.pro includes the ANT+ module.
-grep -q "include(devices/antlinux/antlinux.pri)" qdomyos-zwift.pro || echo -e '\ninclude(devices/antlinux/antlinux.pri)' >> qdomyos-zwift.pro
+grep -q "include(devices/antlinux/antlinux.pri)" qdomyos-zwift.pro || echo -e 'include(devices/antlinux/antlinux.pri)' >> qdomyos-zwift.pro
 ```
 
 ```bash

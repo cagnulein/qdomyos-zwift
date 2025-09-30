@@ -1,3 +1,17 @@
+#!/usr/bin/env python3
+# -----------------------------------------------------------------------------
+# QDomyos-Zwift: ANT+ Virtual Footpod Feature
+# Build Utility: Python to C++ Header Converter
+#
+# Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
+# Contributor(s): bassai-sho
+# Licensed under GPL-3.0 - see project repository for full license
+#
+# This is a build-time utility script. It takes a Python script as input
+# and converts its content into a C++ string literal inside a header file (.h),
+# allowing the Python code to be embedded directly into the final binary.
+# -----------------------------------------------------------------------------
+
 import sys
 import textwrap
 

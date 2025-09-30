@@ -1,4 +1,19 @@
-# FILE: qdomyos-zwift/src/devices/antlinux/ant_broadcaster.py
+#!/usr/bin/env python3
+# -----------------------------------------------------------------------------
+# QDomyos-Zwift: ANT+ Virtual Footpod Feature
+# ANT+ SDM Broadcaster - Python Core
+#
+# Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
+# Contributor(s): bassai-sho
+# Licensed under GPL-3.0 - see project repository for full license
+#
+# This script handles the low-level ANT+ communication using the `openant`
+# library. It runs in a dedicated thread, broadcasting treadmill speed data
+# using a specific ANT+ SDM (footpod) payload structure determined to be
+# compatible with Garmin watch receivers. This module is designed to be
+# embedded and controlled by the C++ AntWorker class.
+# -----------------------------------------------------------------------------
+
 import logging
 import time
 import threading
@@ -16,6 +31,35 @@ except ImportError:
     _openant_available = False
 
 log = logging.getLogger("AntBroadcaster")
+
+def _calculate_pace_range(speed_mps: float) -> (str, str):
+    """Calculates and formats the expected pace range in min/km and min/mi."""
+    if speed_mps < 0.2: # Corresponds to ~0.7 km/h, a reasonable lower limit
+        return "--:--", "--:--"
+    
+    # --- Pace per Kilometer ---
+    speed_kmh = speed_mps * 3.6
+    pace_min_per_km_float = 60.0 / speed_kmh
+    total_seconds_km = pace_min_per_km_float * 60
+    lower_bound_sec_km = (total_seconds_km // 5) * 5
+    upper_bound_sec_km = lower_bound_sec_km + 5
+    km_range_str = "~{}:{:02d}-{}:{:02d}".format(
+        int(lower_bound_sec_km // 60), int(lower_bound_sec_km % 60),
+        int(upper_bound_sec_km // 60), int(upper_bound_sec_km % 60)
+    )
+    
+    # --- Pace per Mile ---
+    KM_TO_MILES = 1.60934
+    speed_mph = speed_kmh / KM_TO_MILES
+    pace_min_per_mi_float = 60.0 / speed_mph
+    total_seconds_mi = pace_min_per_mi_float * 60
+    lower_bound_sec_mi = (total_seconds_mi // 5) * 5
+    upper_bound_sec_mi = lower_bound_sec_mi + 5
+    mi_range_str = "~{}:{:02d}-{}:{:02d}".format(
+        int(lower_bound_sec_mi // 60), int(lower_bound_sec_mi % 60),
+        int(upper_bound_sec_mi // 60), int(upper_bound_sec_mi % 60)
+    )
+    return km_range_str, mi_range_str
 
 def _reset_ant_dongle():
     """Finds and resets the first available ANT+ USB dongle to ensure a clean state."""
@@ -92,6 +136,12 @@ class AntBroadcaster:
                 
                 if self._ant_channel:
                     self._ant_channel.send_broadcast_data(list_payload)
+
+                # This message will only appear when the -ant-verbose flag is used.
+                if log.isEnabledFor(logging.DEBUG):
+                    pace_km, pace_mi = _calculate_pace_range(current_speed)
+                    log.debug(f"TX: speed={current_speed:.2f} m/s | Stride={self._stride_count} | Pace/km: {pace_km} | Pace/mi: {pace_mi}")
+
             except Exception as e:
                 log.error(f"Broadcast error: {e}. Stopping thread.", exc_info=True)
                 self._running.set()

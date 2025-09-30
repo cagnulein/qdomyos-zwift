@@ -1,3 +1,15 @@
+// -----------------------------------------------------------------------------
+// QDomyos-Zwift: ANT+ Virtual Footpod Feature
+// C++/Python Bridge for ANT+ Broadcasting (Header)
+//
+// Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
+// Contributor(s): bassai-sho
+// Licensed under GPL-3.0 - see project repository for full license
+//
+// This file declares the AntWorker class, the QObject responsible for managing
+// the pybind11-based interaction with the embedded Python ANT+ broadcaster.
+// -----------------------------------------------------------------------------
+
 #ifdef ANT_LINUX_ENABLED
 #ifndef ANTWORKER_H
 #define ANTWORKER_H

@@ -1,3 +1,17 @@
+// -----------------------------------------------------------------------------
+// QDomyos-Zwift: ANT+ Virtual Footpod Feature
+// C++/Python Bridge for ANT+ Broadcasting (Implementation)
+//
+// Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
+// Contributor(s): bassai-sho
+// Licensed under GPL-3.0 - see project repository for full license
+//
+// This file implements the AntWorker class. It runs on a dedicated QThread
+// and serves as the bridge between the C++ application and the Python ANT+
+// script. It manages the embedded Python interpreter's lifecycle, polls the
+// treadmill for speed, and passes data to the Python script.
+// -----------------------------------------------------------------------------
+
 #ifdef ANT_LINUX_ENABLED
 #include "AntWorker.h"
 #include <QDebug>
@@ -118,10 +132,12 @@ AntWorker::AntWorker(bluetoothdevice* device, QObject *parent)
 
 AntWorker::~AntWorker() {
     // Safety net - but cleanup should already be done in stop()
-    if (m_pyBroadcaster || m_pyGuard) {
-        qWarning() << "[ANT+] Destructor cleanup - Python resources still active";
-        shutdownPython();
-    }
+    //if (m_pyBroadcaster || m_pyGuard) {
+    //    qWarning() << "[ANT+] Destructor cleanup - Python resources still active";
+    //    shutdownPython();
+    //}
+    // The main cleanup is now in stop(), but this is a final safety net.
+    // We explicitly do not call shutdownPython() here to avoid finalization conflicts.
     qInfo() << "[ANT+] AntWorker destroyed.";
 }
 
@@ -158,7 +174,7 @@ void AntWorker::stop() {
         m_timer = nullptr;
     }
 
-    // CRITICAL: Clean up Python resources on worker thread
+    //Clean up Python resources on worker thread
     shutdownPython();
     
     qInfo() << "[ANT+] Worker cleanup complete, emitting finished signal";

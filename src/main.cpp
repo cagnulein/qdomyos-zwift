@@ -52,6 +52,7 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
+#include "bluetoothdevicetype.h" 
 #include "devices/antlinux/AntManager.h"
 bool ant_footpod_enabled = false;
 bool ant_verbose = false;
@@ -257,6 +258,14 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
     QSettings settings;
     bool nogui = false;
 
+    // --- BEGIN DIAGNOSTIC LOGGING ---
+    // Open a dedicated log file for startup flags. 'a' means append.
+    FILE* logfile = fopen("setupflags.log", "a");
+    if (logfile) {
+        fprintf(logfile, "--- Application Startup ---\n");
+    }
+    // --- END DIAGNOSTIC LOGGING ---
+
     for (int i = 1; i < argc; ++i) {
         if (!qstrcmp(argv[i], "-h") || !qstrcmp(argv[i], "--help")) {
             displayHelp();
@@ -385,22 +394,35 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-power-sensor-as-treadmill")) {
             power_sensor_as_treadmill = true;
         }
-#ifdef ANT_LINUX_ENABLED
-        if (!qstrcmp(argv[i], "-ant-footpod"))
+
+        // --- Low-level logging for each argument ---
+        if (logfile) fprintf(logfile, "Parsing arg %d: %s\n", i, argv[i]);
+
+        #ifdef ANT_LINUX_ENABLED
+        if (logfile) fprintf(logfile, "  -> ANT_LINUX_ENABLED is DEFINED.\n");
+        if (!qstrcmp(argv[i], "-ant-footpod")) {
             ant_footpod_enabled = true;
-        if (!qstrcmp(argv[i], "-ant-verbose"))
+            if (logfile) fprintf(logfile, "  -> MATCH: -ant-footpod. Flag set to true.\n");
+        }
+        if (!qstrcmp(argv[i], "-ant-verbose")) {
             ant_verbose = true;
+            if (logfile) fprintf(logfile, "  -> MATCH: -ant-verbose. Flag set to true.\n");
+        }
         if (!qstrcmp(argv[i], "-ant-device")) {
+            if (logfile) fprintf(logfile, "  -> MATCH: -ant-device.\n");
             if (i + 1 < argc) {
                 int id = atoi(argv[++i]);
                 if (id > 0 && id < 65536) {
                     ant_device_id = id;
+                    if (logfile) fprintf(logfile, "     -> Value: %d\n", id);
                 } else {
-                    printf("ERROR: -ant-device <id> must be between 1 and 65535.\n");
+                    if (logfile) fprintf(logfile, "     -> ERROR: Invalid ID value: %d\n", id);
                 }
             }
         }
-#endif
+        #else
+        if (logfile) fprintf(logfile, "  -> ANT_LINUX_ENABLED is NOT DEFINED.\n");
+        #endif
     }
 
     if (nogui) {
@@ -815,28 +837,28 @@ int main(int argc, char *argv[]) {
                  bikeResistanceOffset,
                  bikeResistanceGain); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
     
-#ifdef ANT_LINUX_ENABLED
+    #ifdef ANT_LINUX_ENABLED
     if (ant_footpod_enabled) {
-        qInfo() << "[ANT+] ANT+ feature enabled. Arming startup trigger...";
+        qInfo() << "[main] ANT+ feature enabled. Arming startup trigger...";
 
         QObject::connect(&bl, &bluetooth::bluetoothDeviceConnected, [&](bluetoothdevice *dev) {
-            if (dev && dev->deviceType() == bluetoothdevice::TREADMILL) {
+            if (dev && dev->deviceType() == TREADMILL) {
                 
-                qInfo() << "[ANT+] Treadmill object created. Starting 10-second timer to allow for device initialization...";
+                qInfo() << "[main] Treadmill object created. Starting 10-second timer to allow for device initialization...";
 
                 // Use a single-shot timer to start the ANT+ manager after a safe delay.
                 // This is non-blocking and allows the main thread to be occupied by btinit().
                 QTimer::singleShot(10000, [dev]() {
                     // Check if the device is still connected after the delay.
                     if (dev && dev->connected()) {
-                        qInfo() << "[ANT+] Initialization delay complete. Starting ANT+ Manager.";
+                        qInfo() << "[main] Initialization delay complete. Starting ANT+ Manager.";
                         
                         // Use invokeMethod for a clean, queued call to the singleton.
                         QMetaObject::invokeMethod(&AntManager::instance(), [dev](){
                             AntManager::instance().startForDevice(dev);
                         }, Qt::QueuedConnection);
                     } else {
-                        qWarning() << "[ANT+] Device disconnected during initialization delay - ANT+ not started.";
+                        qWarning() << "[main] Device disconnected during initialization delay - ANT+ not started.";
                     }
                 });
             }
@@ -845,11 +867,11 @@ int main(int argc, char *argv[]) {
         // The graceful shutdown connection remains essential.
         // Note the correction from app.data() to app.get() for QScopedPointer.
         QObject::connect(app.get(), &QCoreApplication::aboutToQuit, &AntManager::instance(), [&]() {
-            qInfo() << "[ANT+] Application shutting down. Stopping ANT+ Manager.";
+            qInfo() << "[main] Application shutting down. Stopping ANT+ Manager.";
             AntManager::instance().stopForDevice(nullptr);
         });
     }
-#endif
+    #endif
 
     QString mqtt_host = settings.value(QZSettings::mqtt_host, QZSettings::default_mqtt_host).toString();
     int mqtt_port = settings.value(QZSettings::mqtt_port, QZSettings::default_mqtt_port).toInt();

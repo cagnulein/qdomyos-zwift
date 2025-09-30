@@ -1,10 +1,16 @@
 #!/bin/bash
+# -----------------------------------------------------------------------------
+# QDomyos-Zwift: ANT+ Virtual Footpod Feature
+# Build Environment Diagnostic Script
 #
-# QZ Python Build Environment Troubleshooter (v3.1)
-# This script validates the project source, Python setup, qmake configuration,
-# system resources, and USB permissions. It is designed to be run from any
-# directory within the qdomyos-zwift project.
+# Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
+# Contributor(s): bassai-sho
+# Licensed under GPL-3.0 - see project repository for full license
 #
+# This script is a diagnostic tool designed to validate a user's complete
+# setup for building the project with ANT+ support. It checks Git submodules,
+# Python environment, project file configuration, and USB permissions.
+# -----------------------------------------------------------------------------
 
 # --- Color Definitions for clearer output ---
 C_GREEN="\033[0;32m"

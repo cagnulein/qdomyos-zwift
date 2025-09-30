@@ -1,6 +1,21 @@
-# ===================================================================
-# ANT+ Footpod Support for Linux (Modular PRI File)
-# ===================================================================
+# -----------------------------------------------------------------------------
+# QDomyos-Zwift: ANT+ Virtual Footpod Feature
+# qmake Project Include File for ANT+ (Linux)
+#
+# Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
+# Contributor(s): bassai-sho
+# Licensed under GPL-3.0 - see project repository for full license
+#
+# This file contains the qmake logic to conditionally enable and configure the
+# ANT+ virtual footpod feature for Linux builds (native and cross-compiled).
+# It is included by the main .pro file and performs the following tasks:
+#   - Detects the Python virtual environment via the '.ant_venv_path' file.
+#   - Sets the ANT_LINUX_ENABLED preprocessor directive.
+#   - Adds the necessary source files (AntManager, AntWorker) to the build.
+#   - Configures include paths and libraries for Python and pybind11.
+#   - Defines the rule to generate the C++ header from the Python script.
+#   - Applies build flags, such as disabling LTO for specific files.
+# -----------------------------------------------------------------------------
 
 # This feature is only enabled for Linux desktop builds (g++ or clang).
 linux-g++:!android|linux-clang:!android {

@@ -1,3 +1,16 @@
+// -----------------------------------------------------------------------------
+// QDomyos-Zwift: ANT+ Virtual Footpod Feature
+// C++ Singleton for ANT+ Worker Lifecycle Management (Implementation)
+//
+// Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
+// Contributor(s): bassai-sho
+// Licensed under GPL-3.0 - see project repository for full license
+//
+// This file implements the AntManager singleton. Its responsibility is to create,
+// manage, and destroy the AntWorker and its QThread in response to treadmill
+// connection and disconnection events, ensuring a clean lifecycle.
+// -----------------------------------------------------------------------------
+
 #include "AntManager.h"
 
 #ifdef ANT_LINUX_ENABLED

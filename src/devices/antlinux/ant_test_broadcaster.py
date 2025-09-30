@@ -4,10 +4,12 @@
 # Test Script for ant_broadcaster.py (C++ Architecture Simulation)
 #
 # Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
+# Contributor(s): bassai-sho
 # Licensed under GPL-3.0 - see project repository for full license
 #
 # This script resets the ANT+ USB dongle and tests the ant_broadcaster.py
-# module by simulating the behavior of the C++ host application.
+# module by simulating the behavior of the C++ host application. It is used
+# for standalone validation of the Python and ANT+ hardware functionality.
 #
 # Command to run:
 # sudo $HOME/ant_venv/bin/python3 $HOME/qdomyos-zwift/src/devices/antlinux/ant_test_broadcaster.py
