@@ -96,6 +96,7 @@ class AntBroadcaster:
         self._total_time = 0.0
         self._stride_count = 0
         self._last_tick = 0.0
+        self._last_log_time = 0.0
 
     def _broadcasting_loop(self):
         """The main loop that runs on a dedicated thread to send data at ~4Hz."""
@@ -137,10 +138,10 @@ class AntBroadcaster:
                 if self._ant_channel:
                     self._ant_channel.send_broadcast_data(list_payload)
 
-                # This message will only appear when the -ant-verbose flag is used.
-                if log.isEnabledFor(logging.DEBUG):
-                    pace_km, pace_mi = _calculate_pace_range(current_speed)
-                    log.debug(f"TX: speed={current_speed:.2f} m/s | Stride={self._stride_count} | Pace/km: {pace_km} | Pace/mi: {pace_mi}")
+                    if log.isEnabledFor(logging.DEBUG) and (now - self._last_log_time >= 1.0):
+                        self._last_log_time = now # Update the timestamp
+                        pace_km, pace_mi = _calculate_pace_range(current_speed)
+                        log.debug(f"TX: speed={current_speed:.2f} m/s | Stride={self._stride_count} | Pace/km: {pace_km} | Pace/mi: {pace_mi}")
 
             except Exception as e:
                 log.error(f"Broadcast error: {e}. Stopping thread.", exc_info=True)
@@ -162,7 +163,7 @@ class AntBroadcaster:
         level = logging.DEBUG if verbose else logging.INFO
         if not log.handlers:
             handler = logging.StreamHandler()
-            formatter = logging.Formatter('%(message)s')
+            formatter = logging.Formatter('%(messageL)s')
             handler.setFormatter(formatter)
             log.addHandler(handler)
             log.propagate = False
