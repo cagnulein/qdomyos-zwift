@@ -26,9 +26,8 @@ public class KettlerHandshakeReader {
     private static final UUID HANDSHAKE_WRITE_CHAR_UUID = UUID.fromString("638a1105-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID POWER_CONTROL_CHAR_UUID = UUID.fromString("638a100e-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID RPM_CHAR_UUID = UUID.fromString("638a1002-7bde-3e25-ffc5-9de9b2a0197a");
-    private static final UUID POWER_DATA_CHAR_UUID = UUID.fromString("638a1003-7bde-3e25-ffc5-9de9b2a0197a");
-    private static final UUID CYCLING_POWER_SERVICE_UUID = UUID.fromString("00001818-0000-1000-8000-00805f9b34fb");
-    private static final UUID CYCLING_POWER_MEASUREMENT_CHAR_UUID = UUID.fromString("00002a63-0000-1000-8000-00805f9b34fb");
+    private static final UUID KETTLER_CHAR_100C_UUID = UUID.fromString("638a100c-7bde-3e25-ffc5-9de9b2a0197a");
+    private static final UUID KETTLER_CHAR_1010_UUID = UUID.fromString("638a1010-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID CLIENT_CHARACTERISTIC_CONFIG_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     // CSC Service UUID
@@ -351,16 +350,9 @@ public class KettlerHandshakeReader {
                     cleanup();
                 }
             } else {
+                // Non-handshake characteristic reads (not currently used)
                 if (status == BluetoothGatt.GATT_SUCCESS) {
-                    if (POWER_DATA_CHAR_UUID.equals(characteristic.getUuid()) ||
-                        CYCLING_POWER_MEASUREMENT_CHAR_UUID.equals(characteristic.getUuid())) {
-                        byte[] value = characteristic.getValue();
-                        if (value != null) {
-                            onDataReceived(characteristic.getUuid().toString(), value);
-                        }
-                    } else {
-                        QLog.w(TAG, "Read callback for unexpected characteristic: " + characteristic.getUuid());
-                    }
+                    QLog.w(TAG, "Read callback for unexpected characteristic: " + characteristic.getUuid());
                 } else {
                     QLog.e(TAG, "Characteristic read failed with status: " + status + " for " + characteristic.getUuid());
                 }
@@ -535,14 +527,22 @@ public class KettlerHandshakeReader {
 
         BluetoothGattService kettlerService = gatt.getService(KETTLER_SERVICE_UUID);
         if (kettlerService != null) {
+            // Only enable notifications for characteristics that work correctly
+            // 638a1002 - RPM data (cadence)
             pendingDescriptorWrites += enableNotification(gatt, kettlerService.getCharacteristic(RPM_CHAR_UUID));
-            pendingDescriptorWrites += enableNotification(gatt, kettlerService.getCharacteristic(POWER_DATA_CHAR_UUID));
+            // 638a100c - Kettler data
+            pendingDescriptorWrites += enableNotification(gatt, kettlerService.getCharacteristic(KETTLER_CHAR_100C_UUID));
+            // 638a1010 - Kettler data
+            pendingDescriptorWrites += enableNotification(gatt, kettlerService.getCharacteristic(KETTLER_CHAR_1010_UUID));
+
+            // NOTE: 638a1003 (POWER_DATA_CHAR_UUID) is NOT enabled - it causes crashes
+            // NOTE: 00002a63 (CYCLING_POWER_MEASUREMENT) is NOT needed based on working app analysis
         }
 
-        BluetoothGattService powerService = gatt.getService(CYCLING_POWER_SERVICE_UUID);
-        if (powerService != null) {
-            pendingDescriptorWrites +=
-                enableNotification(gatt, powerService.getCharacteristic(CYCLING_POWER_MEASUREMENT_CHAR_UUID));
+        // Also enable CSC (Cycling Speed and Cadence) service if available
+        BluetoothGattService cscService = gatt.getService(CSC_SERVICE_UUID);
+        if (cscService != null) {
+            pendingDescriptorWrites += enableNotification(gatt, cscService.getCharacteristic(CSC_MEASUREMENT_CHAR_UUID));
         }
 
         postHandshakeNotificationsEnabled = true;

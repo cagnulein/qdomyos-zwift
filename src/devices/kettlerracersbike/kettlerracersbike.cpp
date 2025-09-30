@@ -812,9 +812,12 @@ void kettlerracersbike::onAndroidDataReceived(const QString& characteristicUuid,
     else if (uuid == "638a1002-7bde-3e25-ffc5-9de9b2a0197a") {
         kettlerPacketReceived(data);
     }
-    else if (uuid == "638a1003-7bde-3e25-ffc5-9de9b2a0197a" ||
-             uuid == "00002a63-0000-1000-8000-00805f9b34fb") {
-        powerPacketReceived(data);
+    // Kettler characteristics 100c and 1010 (additional data from working app)
+    else if (uuid == "638a100c-7bde-3e25-ffc5-9de9b2a0197a" ||
+             uuid == "638a1010-7bde-3e25-ffc5-9de9b2a0197a") {
+        // These characteristics are enabled for compatibility with the working app
+        // Data format to be analyzed if needed
+        qDebug() << QStringLiteral("Kettler characteristic data") << uuid << ":" << data.toHex(' ');
     }
     // Other characteristics can be handled here as needed
     else {
