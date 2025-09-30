@@ -415,7 +415,7 @@ void kettlerracersbike::subscribeKettlerNotifications()
     }
 
     QBluetoothUuid rpmUuid(QStringLiteral("638a1002-7bde-3e25-ffc5-9de9b2a0197a"));
-    QBluetoothUuid powerUuid(QStringLiteral("638a1003-7bde-3e25-ffc5-9de9b2a0197a"));
+    QBluetoothUuid powerUuid(QStringLiteral("638a100e-7bde-3e25-ffc5-9de9b2a0197a"));
     QBluetoothUuid char1Uuid(QStringLiteral("638a100c-7bde-3e25-ffc5-9de9b2a0197a"));
     QBluetoothUuid char2Uuid(QStringLiteral("638a1010-7bde-3e25-ffc5-9de9b2a0197a"));
 
@@ -566,7 +566,7 @@ void kettlerracersbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1002-7bde-3e25-ffc5-9de9b2a0197a"))) {
         // Kettler RPM characteristic
         kettlerPacketReceived(newValue);
-    } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1003-7bde-3e25-ffc5-9de9b2a0197a")) ||
+    } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a100e-7bde-3e25-ffc5-9de9b2a0197a")) ||
                characteristic.uuid() == QBluetoothUuid(QBluetoothUuid::CyclingPowerMeasurement)) {
         powerPacketReceived(newValue);
     }
@@ -823,6 +823,11 @@ void kettlerracersbike::onAndroidDataReceived(const QString& characteristicUuid,
     // Kettler RPM characteristic
     else if (uuid == "638a1002-7bde-3e25-ffc5-9de9b2a0197a") {
         kettlerPacketReceived(data);
+    }
+    // Kettler POWER DATA characteristic (638a100E) - THE KEY FOR WATTS!
+    else if (uuid == "638a100e-7bde-3e25-ffc5-9de9b2a0197a" ||
+             uuid == "00002a63-0000-1000-8000-00805f9b34fb") {
+        powerPacketReceived(data);
     }
     // Kettler characteristics 100c and 1010 (additional data from working app)
     else if (uuid == "638a100c-7bde-3e25-ffc5-9de9b2a0197a" ||

@@ -26,6 +26,7 @@ public class KettlerHandshakeReader {
     private static final UUID HANDSHAKE_WRITE_CHAR_UUID = UUID.fromString("638a1105-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID POWER_CONTROL_CHAR_UUID = UUID.fromString("638a100e-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID RPM_CHAR_UUID = UUID.fromString("638a1002-7bde-3e25-ffc5-9de9b2a0197a");
+    private static final UUID POWER_DATA_CHAR_UUID = UUID.fromString("638a100e-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID KETTLER_CHAR_100C_UUID = UUID.fromString("638a100c-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID KETTLER_CHAR_1010_UUID = UUID.fromString("638a1010-7bde-3e25-ffc5-9de9b2a0197a");
     private static final UUID CLIENT_CHARACTERISTIC_CONFIG_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
@@ -46,9 +47,17 @@ public class KettlerHandshakeReader {
     private static final int GATT_OP_RETRY_DELAY_MS = 200;
     private static final java.util.HashSet<UUID> notificationsSet = new java.util.HashSet<>();
 
+    private static final String OP_READ_HANDSHAKE = "readHandshakeSeed";
+
     private static void clearQueuedHandshakeOps() {
         synchronized (gattQueue) {
-            gattQueue.removeIf(op -> "readHandshakeSeed".equals(op.name()));
+            java.util.Iterator<GattOperation> it = gattQueue.iterator();
+            while (it.hasNext()) {
+                GattOperation op = it.next();
+                if (OP_READ_HANDSHAKE.equals(op.name())) {
+                    it.remove();
+                }
+            }
         }
     }
 
@@ -319,7 +328,7 @@ public class KettlerHandshakeReader {
                             handshakeReadInProgress = true;
                             return g.readCharacteristic(pendingHandshakeCharacteristic);
                         }
-                        @Override public String name() { return "readHandshakeSeed"; }
+                        @Override public String name() { return OP_READ_HANDSHAKE; }
                     });
                 }
 
@@ -527,16 +536,31 @@ public class KettlerHandshakeReader {
 
         BluetoothGattService kettlerService = gatt.getService(KETTLER_SERVICE_UUID);
         if (kettlerService != null) {
-            // Only enable notifications for characteristics that work correctly
+            // Enable notifications for essential characteristics
             // 638a1002 - RPM data (cadence)
             pendingDescriptorWrites += enableNotification(gatt, kettlerService.getCharacteristic(RPM_CHAR_UUID));
-            // 638a100c - Kettler data
-            pendingDescriptorWrites += enableNotification(gatt, kettlerService.getCharacteristic(KETTLER_CHAR_100C_UUID));
-            // 638a1010 - Kettler data
-            pendingDescriptorWrites += enableNotification(gatt, kettlerService.getCharacteristic(KETTLER_CHAR_1010_UUID));
 
-            // NOTE: 638a1003 (POWER_DATA_CHAR_UUID) is NOT enabled - it causes crashes
-            // NOTE: 00002a63 (CYCLING_POWER_MEASUREMENT) is NOT needed based on working app analysis
+            // 638a100E - POWER_DATA (actual power reading from device) - THE KEY FOR WATTS!
+            BluetoothGattCharacteristic powerDataChar = kettlerService.getCharacteristic(POWER_DATA_CHAR_UUID);
+            if (powerDataChar != null) {
+                QLog.d(TAG, "Found power data characteristic 638a100E, enabling notifications");
+                pendingDescriptorWrites += enableNotification(gatt, powerDataChar);
+            } else {
+                QLog.w(TAG, "Power data characteristic 638a100E not found on this device");
+            }
+
+            // Try optional characteristics if they exist (not all Kettler models have them)
+            BluetoothGattCharacteristic char100c = kettlerService.getCharacteristic(KETTLER_CHAR_100C_UUID);
+            if (char100c != null) {
+                QLog.d(TAG, "Found optional characteristic 638a100c, enabling notifications");
+                pendingDescriptorWrites += enableNotification(gatt, char100c);
+            }
+
+            BluetoothGattCharacteristic char1010 = kettlerService.getCharacteristic(KETTLER_CHAR_1010_UUID);
+            if (char1010 != null) {
+                QLog.d(TAG, "Found optional characteristic 638a1010, enabling notifications");
+                pendingDescriptorWrites += enableNotification(gatt, char1010);
+            }
         }
 
         // Also enable CSC (Cycling Speed and Cadence) service if available
