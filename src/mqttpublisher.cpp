@@ -241,14 +241,14 @@ void MQTTPublisher::handleControlCommand(const QString& command, const QVariant&
     
     if(mainCommand == "start") {
         if (auto *home = homeform::singleton()) {
-            QMetaObject::invokeMethod(home, "Start", Qt::QueuedConnection);
+            home->Start();
         } else if (m_device) {
             m_device->start();
         }
         return;
     } else if(mainCommand == "stop") {
         if (auto *home = homeform::singleton()) {
-            QMetaObject::invokeMethod(home, "Stop", Qt::QueuedConnection);
+            home->Stop();
         } else if (m_device) {
             m_device->stop(false);
         }
