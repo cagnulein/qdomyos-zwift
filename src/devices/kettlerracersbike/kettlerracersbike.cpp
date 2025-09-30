@@ -160,6 +160,9 @@ bool kettlerracersbike::connected() {
 }
 
 void kettlerracersbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
+#ifdef Q_OS_ANDROID
+    Q_UNUSED(state);
+#else
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
@@ -170,6 +173,7 @@ void kettlerracersbike::controllerStateChanged(QLowEnergyController::ControllerS
         kettlerServiceReady = false;
         m_control->connectToDevice();
     }
+#endif
 }
 
 void kettlerracersbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
@@ -694,12 +698,15 @@ void kettlerracersbike::update() {
     }
 
     // Android handshake timing is handled automatically by the Android implementation
-    if (!handshakeDone) {
-        if (!handshakeRequested) {
-            requestHandshakeSeed();
-        }
+    if (!handshakeDone && !handshakeRequested) {
+        requestHandshakeSeed();
     }
 #else
+    if (!m_control) {
+        emit disconnected();
+        return;
+    }
+
     // For other platforms, use Qt Bluetooth state checking
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -728,9 +735,14 @@ void kettlerracersbike::update() {
 
     if (initRequest) {
         initRequest = false;
-    } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
-               gattKettlerService && gattKettlerService->state() == QLowEnergyService::ServiceDiscovered &&
+#ifdef Q_OS_ANDROID
+    } else if (kettlerServiceReady) {
+#else
+    } else if (bluetoothDevice.isValid() && m_control &&
+               m_control->state() == QLowEnergyController::DiscoveredState && gattKettlerService &&
+               gattKettlerService->state() == QLowEnergyService::ServiceDiscovered &&
                gattWriteCharKettlerId.isValid() && initDone) {
+#endif
         update_metrics(true, watts());
 
         // Check if we need to send power or grade commands
