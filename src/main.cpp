@@ -258,14 +258,6 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
     QSettings settings;
     bool nogui = false;
 
-    // --- BEGIN DIAGNOSTIC LOGGING ---
-    // Open a dedicated log file for startup flags. 'a' means append.
-    FILE* logfile = fopen("setupflags.log", "a");
-    if (logfile) {
-        fprintf(logfile, "--- Application Startup ---\n");
-    }
-    // --- END DIAGNOSTIC LOGGING ---
-
     for (int i = 1; i < argc; ++i) {
         if (!qstrcmp(argv[i], "-h") || !qstrcmp(argv[i], "--help")) {
             displayHelp();
@@ -395,33 +387,21 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             power_sensor_as_treadmill = true;
         }
 
-        // --- Low-level logging for each argument ---
-        if (logfile) fprintf(logfile, "Parsing arg %d: %s\n", i, argv[i]);
-
         #ifdef ANT_LINUX_ENABLED
-        if (logfile) fprintf(logfile, "  -> ANT_LINUX_ENABLED is DEFINED.\n");
         if (!qstrcmp(argv[i], "-ant-footpod")) {
             ant_footpod_enabled = true;
-            if (logfile) fprintf(logfile, "  -> MATCH: -ant-footpod. Flag set to true.\n");
         }
         if (!qstrcmp(argv[i], "-ant-verbose")) {
             ant_verbose = true;
-            if (logfile) fprintf(logfile, "  -> MATCH: -ant-verbose. Flag set to true.\n");
         }
         if (!qstrcmp(argv[i], "-ant-device")) {
-            if (logfile) fprintf(logfile, "  -> MATCH: -ant-device.\n");
             if (i + 1 < argc) {
                 int id = atoi(argv[++i]);
                 if (id > 0 && id < 65536) {
                     ant_device_id = id;
-                    if (logfile) fprintf(logfile, "     -> Value: %d\n", id);
-                } else {
-                    if (logfile) fprintf(logfile, "     -> ERROR: Invalid ID value: %d\n", id);
                 }
             }
         }
-        #else
-        if (logfile) fprintf(logfile, "  -> ANT_LINUX_ENABLED is NOT DEFINED.\n");
         #endif
     }
 

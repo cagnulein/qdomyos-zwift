@@ -139,10 +139,11 @@ class AntBroadcaster:
                     self._ant_channel.send_broadcast_data(list_payload)
 
                     if log.isEnabledFor(logging.DEBUG) and (now - self._last_log_time >= 1.0):
-                        self._last_log_time = now # Update the timestamp
+                        self._last_log_time = now
                         pace_km, pace_mi = _calculate_pace_range(current_speed)
-                        log.debug(f"TX: speed={current_speed:.2f} m/s | Stride={self._stride_count} | Pace/km: {pace_km} | Pace/mi: {pace_mi}")
-
+                        log.debug("TX: speed=%.2f m/s | Stride=%d | Pace/km: %s | Pace/mi: %s",
+                                  current_speed, self._stride_count, pace_km, pace_mi)
+                        
             except Exception as e:
                 log.error(f"Broadcast error: {e}. Stopping thread.", exc_info=True)
                 self._running.set()
@@ -163,7 +164,7 @@ class AntBroadcaster:
         level = logging.DEBUG if verbose else logging.INFO
         if not log.handlers:
             handler = logging.StreamHandler()
-            formatter = logging.Formatter('%(messageL)s')
+            formatter = logging.Formatter('%(message)s')
             handler.setFormatter(formatter)
             log.addHandler(handler)
             log.propagate = False
