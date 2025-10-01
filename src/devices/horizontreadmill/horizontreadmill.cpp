@@ -948,7 +948,7 @@ void horizontreadmill::update() {
             requestInclination = treadmillInclinationOverrideReverse(requestInclination);
 
             // this treadmill doesn't send the incline, so i'm forcing it manually
-            if(schwinn_810_treadmill) {
+            if(schwinn_810_treadmill || FIT_TM) {
                 Inclination = requestInclination;
             }
 
@@ -2551,6 +2551,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("MX-TM "))) {
             qDebug() << QStringLiteral("MX-TM found");
             MX_TM = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("FIT-TM-"))) {
+            qDebug() << QStringLiteral("FIT-TM- found (real inclination)");
+            FIT_TM = true;
         } else if (device.name().toUpper().startsWith(QStringLiteral("FIT-"))) {
             qDebug() << QStringLiteral("FIT- found");
             FIT = true;
