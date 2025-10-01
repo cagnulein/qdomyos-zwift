@@ -72,7 +72,19 @@ HomeForm {
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("New lap started!")
             }
-         }
+        }
+    }
+
+    MessageDialog {
+        id: stopConfirmationDialog
+        text: qsTr("Stop Workout")
+        informativeText: qsTr("Do you really want to stop the current workout?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            close();
+            inner_stop();
+        }
+        onNoClicked: close()
     }
 
     Timer {
@@ -141,7 +153,11 @@ HomeForm {
 
     start.onClicked: { start_clicked(); }
     stop.onClicked: {
-        inner_stop();
+        if (rootItem.confirmStopEnabled()) {
+            stopConfirmationDialog.open();
+        } else {
+            inner_stop();
+        }
     }
     lap.onClicked: { lap_clicked(); popupLap.open(); popupLapAutoClose.running = true; }
 

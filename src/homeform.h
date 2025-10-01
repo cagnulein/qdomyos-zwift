@@ -402,6 +402,11 @@ class homeform : public QObject {
                ((virtualtreadmill *)bluetoothManager->device()->VirtualDevice())->autoInclinationEnabled();
     }
 
+    Q_INVOKABLE bool confirmStopEnabled() {
+        QSettings settings;
+        return settings.value(QZSettings::confirm_stop_workout, QZSettings::default_confirm_stop_workout).toBool();
+    }
+
     Q_INVOKABLE bool locationServices() {
         return m_locationServices;
     }

@@ -2688,6 +2688,12 @@ class QZSettings {
     static constexpr bool default_calories_from_hr = false;
 
     /**
+     * @brief Show a confirmation dialog before stopping a workout from the UI.
+     */
+    static const QString confirm_stop_workout;
+    static constexpr bool default_confirm_stop_workout = false;
+
+    /**
      * @brief User height in centimeters for BMR calculation
      */
     static const QString height;
