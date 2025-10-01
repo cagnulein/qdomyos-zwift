@@ -80,6 +80,8 @@ class echelonconnectsport : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    void waitForAPacket();
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
     lockscreen* iOS_echelonConnectSport = nullptr;
@@ -87,6 +89,7 @@ class echelonconnectsport : public bike {
 
   Q_SIGNALS:
     void disconnected();
+    void packetReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
