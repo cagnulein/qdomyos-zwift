@@ -35,6 +35,10 @@ public class KettlerHandshakeReader {
     private static final UUID CSC_SERVICE_UUID = UUID.fromString("00001816-0000-1000-8000-00805f9b34fb");
     private static final UUID CSC_MEASUREMENT_CHAR_UUID = UUID.fromString("00002a5b-0000-1000-8000-00805f9b34fb");
 
+    // Cycling Power Service UUID
+    private static final UUID CYCLING_POWER_SERVICE_UUID = UUID.fromString("00001818-0000-1000-8000-00805f9b34fb");
+    private static final UUID CYCLING_POWER_MEASUREMENT_CHAR_UUID = UUID.fromString("00002a63-0000-1000-8000-00805f9b34fb");
+
     private static BluetoothGatt bluetoothGatt;
     private static Context appContext;
     private static String deviceAddress;
@@ -567,6 +571,15 @@ public class KettlerHandshakeReader {
         BluetoothGattService cscService = gatt.getService(CSC_SERVICE_UUID);
         if (cscService != null) {
             pendingDescriptorWrites += enableNotification(gatt, cscService.getCharacteristic(CSC_MEASUREMENT_CHAR_UUID));
+        }
+
+        // Enable Cycling Power service if available
+        BluetoothGattService cyclingPowerService = gatt.getService(CYCLING_POWER_SERVICE_UUID);
+        if (cyclingPowerService != null) {
+            QLog.d(TAG, "Found Cycling Power service, enabling power measurement notifications");
+            pendingDescriptorWrites += enableNotification(gatt, cyclingPowerService.getCharacteristic(CYCLING_POWER_MEASUREMENT_CHAR_UUID));
+        } else {
+            QLog.w(TAG, "Cycling Power service not found on this device");
         }
 
         postHandshakeNotificationsEnabled = true;
