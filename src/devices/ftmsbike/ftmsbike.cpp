@@ -254,7 +254,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if(SL010)
             Resistance = requestResistance;
         
-        if(JFBK5_0 || DIRETO_XR) {
+        if(JFBK5_0 || DIRETO_XR || YPBM) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -262,7 +262,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
         } else {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
-            if(_3G_Cardio_RB || SL010 || YPBM)
+            if(_3G_Cardio_RB || SL010)
                 requestResistance = requestResistance * 10;
             write[1] = ((uint8_t)(requestResistance));
             writeCharacteristic(write, sizeof(write),
@@ -1638,6 +1638,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             YPBM = true;
             resistance_lvl_mode = true;
             ergModeSupported = false;
+            max_resistance = 32;
         }
 
 
