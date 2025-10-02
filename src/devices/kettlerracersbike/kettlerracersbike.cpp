@@ -771,6 +771,24 @@ void kettlerracersbike::onAndroidDeviceConnected()
     kettlerServiceReady = true;
     handshakeDone = false;
     notificationsSubscribed = false;
+
+    // ******************************************* virtual bike init *************************************
+    if (!firstStateChanged && !this->hasVirtualDevice()) {
+        QSettings settings;
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+
+        if (virtual_device_enabled) {
+            emit debug(QStringLiteral("creating virtual bike interface..."));
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, 4, 1);
+            connect(virtualBike, &virtualbike::changeInclination, this, &kettlerracersbike::changeInclination);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+        }
+    }
+    firstStateChanged = 1;
+    // ***************************************************************************************************
+
+    initDone = true;
 }
 
 void kettlerracersbike::onAndroidDeviceDisconnected()
