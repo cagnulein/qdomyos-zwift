@@ -467,8 +467,14 @@ uint8_t toorxtreadmill::GetHeartRateFromPacket(const QByteArray &packet) { retur
 uint8_t toorxtreadmill::GetInclinationFromPacket(const QByteArray &packet) { return packet.at(15); }
 
 double toorxtreadmill::GetSpeedFromPacket(const QByteArray &packet) {
+    QSettings settings;
+    // the treadmill send the speed in miles for some models
+    double miles = 1;
+    if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
+        miles = 1.60934;
+
     double convertedData = ((double)((double)((uint8_t)packet.at(13)) * 100.0) + ((double)packet.at(14))) / 100.0;
-    return convertedData;
+    return convertedData * miles;
 }
 
 uint16_t toorxtreadmill::GetCaloriesFromPacket(const QByteArray &packet) {
