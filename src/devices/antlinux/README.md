@@ -6,18 +6,18 @@ This guide will help you transform your Raspberry Pi running QDomyos-Zwift (QZ) 
 
 This guide assumes you are comfortable using Linux and already have a working QDomyos-Zwift source installation on a Raspberry Pi, if not then first follow these instructions https://github.com/cagnulein/qdomyos-zwift/blob/master/docs/10_Installation.md
 
-This will not work with pre-built QZ packages - you need the source code to compile with ANT+ support.
+This will not work with pre-built QZ packages, you need the source code to compile with ANT+ support.
 
 ### Tested Environment and compilation
 
 This guide has been tested with:
-- Compiled: Cross compiled running on x86_64
-- Hardware: Binary running on a Raspberry Pi Zero 2 W
-- Operating System: Raspberry Pi OS (64-bit, Bookworm)
+- Cross compiled running on x86_64
+- qdomyos-zwift binary running on a Raspberry Pi Zero 2 W
+- Raspberry Pi OS (64-bit, Bookworm)
 - ANT+ Dongle: Garmin ANT+ USB-m
 - ANT+ Compatible Device: Garmin Forerunner 245
 
-Please note a Raspberry Pi 4 (with 4GB or 8GB of RAM) or a Raspberry Pi 5 would be recommended to compile this project. The Pi Zero 2 W is an amazing device for its size and power, capable of running the compiled binary. However it's designed for embedded projects and light tasks, not heavy software compilation such as this.
+Please note a Raspberry Pi 4 (with 4GB or 8GB of RAM) or a Raspberry Pi 5 would be a recommendation to compile this project. The Pi Zero 2 W is a great device for its size and is capable of running the compiled qdomyos-zwift binary. However, it's not designed for heavy software compilation.
 
 ### ANT+ Requirements
 
@@ -30,7 +30,7 @@ An ANT+ compatible device like a Garmin fitness watch or other compatible device
 
 ### Backup Recommendation
 
-Consider backing up your system before proceeding.
+Consider if you need backing up your system before proceeding.
 
 ## Installation
 
@@ -41,7 +41,7 @@ Ensure your QZ source is in `$HOME/qdomyos-zwift/`
 Start by updating your system and installing the required packages:
 
 ```bash
-# This block of code are the steps from the main guide and for reference. Only follow if starting from scratch.
+# This block are the steps from the main guide and for reference. Only follow if starting from scratch.
 sudo update && upgrade
 
 sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtbase5-private-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 qtlocation5-dev qtquickcontrols2-5-dev libqt5texttospeech5-dev libqt5texttospeech5 g++ make qtbase5-dev libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
@@ -138,6 +138,11 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 sudo usermod -aG plugdev $USER
 ```
 
+```bash
+# reboot system to use settings
+sudo reboot
+```
+
 ### Step 5 - Verify Setup
 
 After rebooting, run the included diagnostic script to verify that your entire environment is correctly configured before you attempt to build.
@@ -184,7 +189,8 @@ During the `qmake` step, look for this message to confirm ANT+ support is detect
 
 If this message is missing, return to the verification steps.
 
-Now, build the application. This may take a long time on a Raspberry Pi.
+Build the application.
+
 ```bash
 # Compile QDomyos-Zwift with ANT+ footpod support
 make
