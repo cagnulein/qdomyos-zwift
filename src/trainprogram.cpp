@@ -1,5 +1,6 @@
 #include "trainprogram.h"
 #include "zwiftworkout.h"
+#include "homeform.h"
 #include <QFile>
 #include <QMutexLocker>
 #include <QtXml/QtXml>
@@ -34,8 +35,19 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
         this->tags = *tags;
     
     if(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0) {
+        static bool zwift_auth_toast_shown = false;
+
         zwift_auth_token = new AuthToken(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString(), settings.value(QZSettings::zwift_password, QZSettings::default_zwift_password).toString());
         zwift_auth_token->getAccessToken();
+
+        if(!zwift_auth_toast_shown && homeform::singleton()) {
+            if(zwift_auth_token->access_token.length() > 0) {
+                homeform::singleton()->setToastRequested("Zwift Login OK!");
+            } else {
+                homeform::singleton()->setToastRequested("Zwift Auth Failed!");
+            }
+            zwift_auth_toast_shown = true;
+        }
     }
 
     /*
