@@ -8,13 +8,16 @@ This guide assumes you are comfortable using Linux and already have a working QD
 
 This will not work with pre-built QZ packages - you need the source code to compile with ANT+ support.
 
-### Tested Environment
+### Tested Environment and compilation
 
-This guide has been tested on:
-- Hardware: Raspberry Pi Zero 2 W
+This guide has been tested with:
+- Compiled: Cross compiled running on x86_64
+- Hardware: Binary running on a Raspberry Pi Zero 2 W
 - Operating System: Raspberry Pi OS (64-bit, Bookworm)
-- QZ Installation: Source compilation in `$HOME/qdomyos-zwift/src/`
+- ANT+ Dongle: Garmin ANT+ USB-m
 - ANT+ Compatible Device: Garmin Forerunner 245
+
+Please note a Raspberry Pi 4 (with 4GB or 8GB of RAM) or a Raspberry Pi 5 would be recommended to compile this project. The Pi Zero 2 W is an amazing device for its size and power, capable of running the compiled binary. However it's designed for embedded projects and light tasks, not heavy software compilation such as this.
 
 ### ANT+ Requirements
 
@@ -38,11 +41,26 @@ Ensure your QZ source is in `$HOME/qdomyos-zwift/`
 Start by updating your system and installing the required packages:
 
 ```bash
-# Move into the QZ source directory
-cd $HOME/qdomyos-zwift/src/
+# This block of code are the steps from the main guide and for reference. Only follow if starting from scratch.
+sudo update && upgrade
+
+sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtbase5-private-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 qtlocation5-dev qtquickcontrols2-5-dev libqt5texttospeech5-dev libqt5texttospeech5 g++ make qtbase5-dev libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
+
+git clone https://github.com/cagnulein/qdomyos-zwift.git
+
+# Move into the QZ directory
+cd $HOME/qdomyos-zwift
+
+# Update the submodules
+git submodule update --init src/smtpclient/
+git submodule update --init src/qmdnsengine/
+git submodule update --init tst/googletest/
 ```
 
 ```bash
+# Move into the QZ source directory
+cd $HOME/qdomyos-zwift/src
+
 # Pull the latest changes from the repository
 git pull
 ```
@@ -56,12 +74,6 @@ grep -q "include(devices/antlinux/antlinux.pri)" qdomyos-zwift.pro || echo -e 'i
 # Update package lists and install essential libraries for ANT+ support
 sudo apt-get update
 sudo apt-get install -y libusb-1.0-0-dev libudev-dev python3-pip python3-venv
-```
-
-Optionally, install ccache to speed up repeated compilations:
-```bash
-# Install compiler cache to significantly reduce rebuild times (highly recommended)
-sudo apt-get install -y ccache
 ```
 
 ### Step 2 - Create Python Virtual Environment
@@ -126,11 +138,6 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 sudo usermod -aG plugdev $USER
 ```
 
-```bash
-# A reboot is the most reliable way to apply group membership changes
-sudo reboot
-```
-
 ### Step 5 - Verify Setup
 
 After rebooting, run the included diagnostic script to verify that your entire environment is correctly configured before you attempt to build.
@@ -167,9 +174,6 @@ cd $HOME/qdomyos-zwift/src/
 ```
 
 ```bash
-# Clean previous build
-make clean
-
 # Generate a new Makefile
 qmake qdomyos-zwift.pro
 ```
