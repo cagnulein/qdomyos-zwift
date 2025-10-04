@@ -1,13 +1,17 @@
 #ifndef IO_UNDER_QT
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import <CoreBluetooth/CoreBluetooth.h>
+#import <WatchConnectivity/WatchConnectivity.h>
 #import <ActivityKit/ActivityKit.h>
+#import <ConnectIQ/ConnectIQ.h>
 #import "qdomyoszwift-Swift2.h"
 #include "ios/ios_liveactivity.h"
 #include <QDebug>
 
 @class LiveActivityManager;
 
-static LiveActivityManager* _liveActivityManager API_AVAILABLE(ios(16.1)) = nil;
+static LiveActivityManager* _liveActivityManager = nil;
 
 void ios_liveactivity::startLiveActivity(const char* deviceName) {
     if (@available(iOS 16.1, *)) {

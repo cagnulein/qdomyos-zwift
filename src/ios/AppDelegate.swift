@@ -19,15 +19,8 @@ var pedometer = CMPedometer()
     let w = watchAppStart()
     let SwiftDebug = swiftDebug()
 
-    // Backing store that is always available
-    private var _liveActivityManagerStorage: Any?
-
-    // Computed property that is conditionally available
-    @available(iOS 16.1, *)
-    var liveActivityManager: LiveActivityManager? {
-        get { _liveActivityManagerStorage as? LiveActivityManager }
-        set { _liveActivityManagerStorage = newValue }
-    }
+    // Live Activity manager (iOS 16.1+)
+    private var liveActivityManager: Any?
 
     @objc public func request()
     {
@@ -54,7 +47,7 @@ var pedometer = CMPedometer()
 
         // Initialize Live Activity manager
         if #available(iOS 16.1, *) {
-            liveActivityManager = LiveActivityManager()
+            liveActivityManager = LiveActivityManager() as Any
             print("Live Activity manager initialized")
         }
 

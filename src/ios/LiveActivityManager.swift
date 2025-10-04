@@ -28,7 +28,7 @@ struct FitnessActivityAttributes: ActivityAttributes {
 @available(iOS 16.1, *)
 @objc public class LiveActivityManager: NSObject {
 
-    private var currentActivity: Activity<FitnessActivityAttributes>?
+    private var currentActivity: Any?
 
     @objc public func startActivity(deviceName: String) {
         // Check if Live Activities are supported
@@ -51,11 +51,12 @@ struct FitnessActivityAttributes: ActivityAttributes {
         )
 
         do {
-            currentActivity = try Activity<FitnessActivityAttributes>.request(
+            let activity = try Activity<FitnessActivityAttributes>.request(
                 attributes: attributes,
                 contentState: initialState,
                 pushType: nil
             )
+            currentActivity = activity
             print("Live Activity started successfully")
         } catch {
             print("Failed to start Live Activity: \(error.localizedDescription)")
@@ -63,7 +64,7 @@ struct FitnessActivityAttributes: ActivityAttributes {
     }
 
     @objc public func updateActivity(speed: Double, cadence: Double, power: Double, heartRate: Int, distance: Double, kcal: Double) {
-        guard let activity = currentActivity else {
+        guard let activity = currentActivity as? Activity<FitnessActivityAttributes> else {
             print("No active Live Activity to update")
             return
         }
@@ -83,7 +84,7 @@ struct FitnessActivityAttributes: ActivityAttributes {
     }
 
     @objc public func endActivity() {
-        guard let activity = currentActivity else {
+        guard let activity = currentActivity as? Activity<FitnessActivityAttributes> else {
             return
         }
 
