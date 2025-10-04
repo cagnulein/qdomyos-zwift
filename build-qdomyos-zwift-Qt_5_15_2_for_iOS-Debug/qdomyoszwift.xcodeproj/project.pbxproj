@@ -130,6 +130,8 @@
 		87097D31275EA9AF0020EE6F /* moc_sportsplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87097D30275EA9AE0020EE6F /* moc_sportsplusbike.cpp */; };
 		870A5DB32CEF8FB100839641 /* moc_technogymbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870A5DB22CEF8FB100839641 /* moc_technogymbike.cpp */; };
 		870A5DB52CEF8FD200839641 /* technogymbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870A5DB42CEF8FD200839641 /* technogymbike.cpp */; };
+		870C72652E91565E00DC8A84 /* ios_liveactivity.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870C72632E91565E00DC8A84 /* ios_liveactivity.mm */; };
+		870C72662E91565E00DC8A84 /* LiveActivityManager.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870C72642E91565E00DC8A84 /* LiveActivityManager.swift */; };
 		8710706C29C48AEA0094D0F3 /* handleurl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710706B29C48AEA0094D0F3 /* handleurl.cpp */; };
 		8710706E29C48AF30094D0F3 /* moc_handleurl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710706D29C48AF30094D0F3 /* moc_handleurl.cpp */; };
 		8710707329C4A5E70094D0F3 /* GarminConnect.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710707229C4A5E70094D0F3 /* GarminConnect.swift */; };
@@ -974,6 +976,9 @@
 		87097D30275EA9AE0020EE6F /* moc_sportsplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sportsplusbike.cpp; sourceTree = "<group>"; };
 		870A5DB22CEF8FB100839641 /* moc_technogymbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_technogymbike.cpp; sourceTree = "<group>"; };
 		870A5DB42CEF8FD200839641 /* technogymbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = technogymbike.cpp; path = ../src/devices/technogymbike/technogymbike.cpp; sourceTree = SOURCE_ROOT; };
+		870C72622E91565E00DC8A84 /* ios_liveactivity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_liveactivity.h; path = ../src/ios/ios_liveactivity.h; sourceTree = SOURCE_ROOT; };
+		870C72632E91565E00DC8A84 /* ios_liveactivity.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_liveactivity.mm; path = ../src/ios/ios_liveactivity.mm; sourceTree = SOURCE_ROOT; };
+		870C72642E91565E00DC8A84 /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveActivityManager.swift; path = ../src/ios/LiveActivityManager.swift; sourceTree = SOURCE_ROOT; };
 		8710706A29C48AE90094D0F3 /* handleurl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = handleurl.h; path = ../src/handleurl.h; sourceTree = "<group>"; };
 		8710706B29C48AEA0094D0F3 /* handleurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = handleurl.cpp; path = ../src/handleurl.cpp; sourceTree = "<group>"; };
 		8710706D29C48AF30094D0F3 /* moc_handleurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_handleurl.cpp; sourceTree = "<group>"; };
@@ -2278,6 +2283,9 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				870C72622E91565E00DC8A84 /* ios_liveactivity.h */,
+				870C72632E91565E00DC8A84 /* ios_liveactivity.mm */,
+				870C72642E91565E00DC8A84 /* LiveActivityManager.swift */,
 				876C646E2E74139F00F1BEC0 /* fitbackupwriter.h */,
 				876C646F2E74139F00F1BEC0 /* fitbackupwriter.cpp */,
 				876C64702E74139F00F1BEC0 /* moc_fitbackupwriter.cpp */,
@@ -3594,6 +3602,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				870C72652E91565E00DC8A84 /* ios_liveactivity.mm in Compile Sources */,
+				870C72662E91565E00DC8A84 /* LiveActivityManager.swift in Compile Sources */,
 				8738249627E646E3004F1B46 /* characteristicnotifier2acd.cpp in Compile Sources */,
 				8738249127E646E3004F1B46 /* dirconpacket.cpp in Compile Sources */,
 				870A5DB52CEF8FD200839641 /* technogymbike.cpp in Compile Sources */,
