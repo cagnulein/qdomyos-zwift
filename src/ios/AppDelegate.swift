@@ -18,7 +18,8 @@ var pedometer = CMPedometer()
 @objc public class healthkit:NSObject {
     let w = watchAppStart()
     let SwiftDebug = swiftDebug()
-        
+    var liveActivityManager: LiveActivityManager?
+
     @objc public func request()
     {
         SwiftDebug.qtDebug("swift debug test")
@@ -31,10 +32,10 @@ var pedometer = CMPedometer()
             Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateHeartRate), userInfo: nil, repeats: true)
         }
         Server.server?.start()
-	
+
         LocalNotificationHelper.requestPermission()
         WatchKitConnection.shared.startSession()
-        
+
         if CMPedometer.isStepCountingAvailable() {
             pedometer.startUpdates(from: Date()) { pedometerData, error in
                 guard let pedometerData = pedometerData, error == nil else { return }
@@ -42,7 +43,12 @@ var pedometer = CMPedometer()
             }
         }
 
-        
+        // Initialize Live Activity manager
+        if #available(iOS 16.1, *) {
+            liveActivityManager = LiveActivityManager()
+            print("Live Activity manager initialized")
+        }
+
         //w.startWatchApp()
     }
     
