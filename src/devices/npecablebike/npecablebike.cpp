@@ -582,6 +582,11 @@ void npecablebike::serviceScanDone(void) {
     auto services_list = m_control->services();
 
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        // Ignore the service 4b480001-6e6f-7274-6870-6f6c65656e67
+        if (s == QBluetoothUuid(QStringLiteral("4b480001-6e6f-7274-6870-6f6c65656e67"))) {
+            emit debug(QStringLiteral("Ignoring service: ") + s.toString());
+            continue;
+        }
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &npecablebike::stateChanged);
