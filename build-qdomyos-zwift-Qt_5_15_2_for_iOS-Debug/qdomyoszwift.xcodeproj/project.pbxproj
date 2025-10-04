@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -131,7 +131,6 @@
 		870A5DB32CEF8FB100839641 /* moc_technogymbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870A5DB22CEF8FB100839641 /* moc_technogymbike.cpp */; };
 		870A5DB52CEF8FD200839641 /* technogymbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870A5DB42CEF8FD200839641 /* technogymbike.cpp */; };
 		870C72652E91565E00DC8A84 /* ios_liveactivity.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870C72632E91565E00DC8A84 /* ios_liveactivity.mm */; };
-		870C72662E91565E00DC8A84 /* LiveActivityManager.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870C72642E91565E00DC8A84 /* LiveActivityManager.swift */; };
 		8710706C29C48AEA0094D0F3 /* handleurl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710706B29C48AEA0094D0F3 /* handleurl.cpp */; };
 		8710706E29C48AF30094D0F3 /* moc_handleurl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710706D29C48AF30094D0F3 /* moc_handleurl.cpp */; };
 		8710707329C4A5E70094D0F3 /* GarminConnect.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710707229C4A5E70094D0F3 /* GarminConnect.swift */; };
@@ -599,6 +598,12 @@
 		87EBB2AB2D39214E00348B15 /* moc_workoutmodel.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EBB2A12D39214E00348B15 /* moc_workoutmodel.cpp */; };
 		87EFB56E25BD703D0039DD5A /* proformtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFB56C25BD703C0039DD5A /* proformtreadmill.cpp */; };
 		87EFB57025BD704A0039DD5A /* moc_proformtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFB56F25BD704A0039DD5A /* moc_proformtreadmill.cpp */; };
+		87EFC5662E918D35005BB573 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87EFC5652E918D35005BB573 /* WidgetKit.framework */; };
+		87EFC5672E918D35005BB573 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87FA94662B6B89FD00B6AB9A /* SwiftUI.framework */; };
+		87EFC5762E918D38005BB573 /* QZWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 87EFC5642E918D35005BB573 /* QZWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		87EFC57D2E918DAA005BB573 /* LiveActivityBridge.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFC57C2E918DAA005BB573 /* LiveActivityBridge.swift */; };
+		87EFC58F2E919DB7005BB573 /* QZWorkoutAttributes.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFC58E2E919DB7005BB573 /* QZWorkoutAttributes.swift */; };
+		87EFC5902E919DB7005BB573 /* QZWorkoutAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EFC58E2E919DB7005BB573 /* QZWorkoutAttributes.swift */; };
 		87EFE45927A518F5006EA1C3 /* nautiluselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFE45827A518F5006EA1C3 /* nautiluselliptical.cpp */; };
 		87EFE45B27A51901006EA1C3 /* moc_nautiluselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFE45A27A51900006EA1C3 /* moc_nautiluselliptical.cpp */; };
 		87F02E4029178524000DB52C /* octaneelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F02E3E29178523000DB52C /* octaneelliptical.cpp */; };
@@ -706,6 +711,13 @@
 			remoteGlobalIDString = 876E4E102594747F00BD5714;
 			remoteInfo = watchkit;
 		};
+		87EFC5742E918D38005BB573 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6DB9C3763D02B1415CD9D565 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 87EFC5632E918D35005BB573;
+			remoteInfo = QZWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -729,6 +741,17 @@
 				876E4E1B2594748000BD5714 /* watchkit Extension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		87EFC57B2E918D38005BB573 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				87EFC5762E918D38005BB573 /* QZWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		99542592E9780B9225F24AA8 /* Embed Frameworks */ = {
@@ -978,7 +1001,6 @@
 		870A5DB42CEF8FD200839641 /* technogymbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = technogymbike.cpp; path = ../src/devices/technogymbike/technogymbike.cpp; sourceTree = SOURCE_ROOT; };
 		870C72622E91565E00DC8A84 /* ios_liveactivity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_liveactivity.h; path = ../src/ios/ios_liveactivity.h; sourceTree = SOURCE_ROOT; };
 		870C72632E91565E00DC8A84 /* ios_liveactivity.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_liveactivity.mm; path = ../src/ios/ios_liveactivity.mm; sourceTree = SOURCE_ROOT; };
-		870C72642E91565E00DC8A84 /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveActivityManager.swift; path = ../src/ios/LiveActivityManager.swift; sourceTree = SOURCE_ROOT; };
 		8710706A29C48AE90094D0F3 /* handleurl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = handleurl.h; path = ../src/handleurl.h; sourceTree = "<group>"; };
 		8710706B29C48AEA0094D0F3 /* handleurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = handleurl.cpp; path = ../src/handleurl.cpp; sourceTree = "<group>"; };
 		8710706D29C48AF30094D0F3 /* moc_handleurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_handleurl.cpp; sourceTree = "<group>"; };
@@ -1698,6 +1720,11 @@
 		87EFB56C25BD703C0039DD5A /* proformtreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformtreadmill.cpp; path = ../src/devices/proformtreadmill/proformtreadmill.cpp; sourceTree = "<group>"; };
 		87EFB56D25BD703C0039DD5A /* proformtreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformtreadmill.h; path = ../src/devices/proformtreadmill/proformtreadmill.h; sourceTree = "<group>"; };
 		87EFB56F25BD704A0039DD5A /* moc_proformtreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformtreadmill.cpp; sourceTree = "<group>"; };
+		87EFC5642E918D35005BB573 /* QZWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = QZWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		87EFC5652E918D35005BB573 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		87EFC57C2E918DAA005BB573 /* LiveActivityBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveActivityBridge.swift; path = ../src/ios/LiveActivityBridge.swift; sourceTree = SOURCE_ROOT; };
+		87EFC57E2E919C98005BB573 /* QZWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QZWidgetExtension.entitlements; sourceTree = "<group>"; };
+		87EFC58E2E919DB7005BB573 /* QZWorkoutAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QZWorkoutAttributes.swift; path = QZWidget/QZWorkoutAttributes.swift; sourceTree = "<group>"; };
 		87EFE45727A518F5006EA1C3 /* nautiluselliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nautiluselliptical.h; path = ../src/devices/nautiluselliptical/nautiluselliptical.h; sourceTree = "<group>"; };
 		87EFE45827A518F5006EA1C3 /* nautiluselliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = nautiluselliptical.cpp; path = ../src/devices/nautiluselliptical/nautiluselliptical.cpp; sourceTree = "<group>"; };
 		87EFE45A27A51900006EA1C3 /* moc_nautiluselliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_nautiluselliptical.cpp; sourceTree = "<group>"; };
@@ -1934,11 +1961,34 @@
 		FF5BDAB0076F3391B219EA52 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		87EFC5772E918D38005BB573 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 87EFC5632E918D35005BB573 /* QZWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		87EFC5682E918D35005BB573 /* QZWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (87EFC5772E918D38005BB573 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = QZWidget; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		876E4E172594748000BD5714 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		87EFC5612E918D35005BB573 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				87EFC5672E918D35005BB573 /* SwiftUI.framework in Frameworks */,
+				87EFC5662E918D35005BB573 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2283,9 +2333,10 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87EFC58E2E919DB7005BB573 /* QZWorkoutAttributes.swift */,
+				87EFC57C2E918DAA005BB573 /* LiveActivityBridge.swift */,
 				870C72622E91565E00DC8A84 /* ios_liveactivity.h */,
 				870C72632E91565E00DC8A84 /* ios_liveactivity.mm */,
-				870C72642E91565E00DC8A84 /* LiveActivityManager.swift */,
 				876C646E2E74139F00F1BEC0 /* fitbackupwriter.h */,
 				876C646F2E74139F00F1BEC0 /* fitbackupwriter.cpp */,
 				876C64702E74139F00F1BEC0 /* moc_fitbackupwriter.cpp */,
@@ -3139,6 +3190,7 @@
 				4D765E1B1EA6C757220C63E7 /* CoreFoundation.framework */,
 				FCC237CA5AD60B9BA4447615 /* Foundation.framework */,
 				344F66310C19536DB4886D8F /* qtpcre2 */,
+				87EFC5652E918D35005BB573 /* WidgetKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -3401,6 +3453,7 @@
 		E8C543AB96796ECAA2E65C57 /* qdomyoszwift */ = {
 			isa = PBXGroup;
 			children = (
+				87EFC57E2E919C98005BB573 /* QZWidgetExtension.entitlements */,
 				8768C8CE2BBC12170099DBE1 /* adb */,
 				87BAC3BE2BA497160003E925 /* PrivacyInfo.xcprivacy */,
 				8745B2752AFCB4A300991A39 /* android */,
@@ -3411,6 +3464,7 @@
 				74B182DB50CB5611B5C1C297 /* Supporting Files */,
 				876E4E122594747F00BD5714 /* watchkit */,
 				876E4E1E2594748000BD5714 /* watchkit Extension */,
+				87EFC5682E918D35005BB573 /* QZWidget */,
 				AF39DD055C3EF8226FBE929D /* Frameworks */,
 				858FCAB0EB1F29CF8B07677C /* Bundle Data */,
 				FE0A091FDBFB3E9C31B7A1BD /* Products */,
@@ -3425,6 +3479,7 @@
 				040B10E2EF2CEF79F2205FE2 /* qdomyoszwift.app */,
 				876E4E112594747F00BD5714 /* watchkit.app */,
 				876E4E1A2594748000BD5714 /* watchkit Extension.appex */,
+				87EFC5642E918D35005BB573 /* QZWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3441,11 +3496,13 @@
 				30414803F31797EB689AE508 /* Copy Bundle Resources */,
 				99542592E9780B9225F24AA8 /* Embed Frameworks */,
 				876E4E332594748100BD5714 /* Embed Watch Content */,
+				87EFC57B2E918D38005BB573 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				876E4E312594748100BD5714 /* PBXTargetDependency */,
+				87EFC5752E918D38005BB573 /* PBXTargetDependency */,
 			);
 			name = qdomyoszwift;
 			packageProductDependencies = (
@@ -3491,6 +3548,28 @@
 			productReference = 876E4E1A2594748000BD5714 /* watchkit Extension.appex */;
 			productType = "com.apple.product-type.watchkit2-extension";
 		};
+		87EFC5632E918D35005BB573 /* QZWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 87EFC5782E918D38005BB573 /* Build configuration list for PBXNativeTarget "QZWidgetExtension" */;
+			buildPhases = (
+				87EFC5602E918D35005BB573 /* Sources */,
+				87EFC5612E918D35005BB573 /* Frameworks */,
+				87EFC5622E918D35005BB573 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				87EFC5682E918D35005BB573 /* QZWidget */,
+			);
+			name = QZWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = QZWidgetExtension;
+			productReference = 87EFC5642E918D35005BB573 /* QZWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -3498,7 +3577,7 @@
 			isa = PBXProject;
 			attributes = {
 				DefaultBuildSystemTypeForWorkspace = Original;
-				LastSwiftUpdateCheck = 1220;
+				LastSwiftUpdateCheck = 2600;
 				TargetAttributes = {
 					799833E5566DEFFC37E4BF1E = {
 						DevelopmentTeam = 6335M7T29D;
@@ -3513,6 +3592,9 @@
 						CreatedOnToolsVersion = 12.2;
 						DevelopmentTeam = 6335M7T29D;
 						ProvisioningStyle = Automatic;
+					};
+					87EFC5632E918D35005BB573 = {
+						CreatedOnToolsVersion = 26.0.1;
 					};
 				};
 			};
@@ -3535,6 +3617,7 @@
 				799833E5566DEFFC37E4BF1E /* qdomyoszwift */,
 				876E4E102594747F00BD5714 /* watchkit */,
 				876E4E192594748000BD5714 /* watchkit Extension */,
+				87EFC5632E918D35005BB573 /* QZWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -3581,6 +3664,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		87EFC5622E918D35005BB573 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -3598,12 +3688,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		87EFC5602E918D35005BB573 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				87EFC5902E919DB7005BB573 /* QZWorkoutAttributes.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F7E50F631C51CD5B5DC0BC43 /* Compile Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				870C72652E91565E00DC8A84 /* ios_liveactivity.mm in Compile Sources */,
-				870C72662E91565E00DC8A84 /* LiveActivityManager.swift in Compile Sources */,
 				8738249627E646E3004F1B46 /* characteristicnotifier2acd.cpp in Compile Sources */,
 				8738249127E646E3004F1B46 /* dirconpacket.cpp in Compile Sources */,
 				870A5DB52CEF8FD200839641 /* technogymbike.cpp in Compile Sources */,
@@ -3852,6 +3949,7 @@
 				87943AB429E0215D007575F2 /* localipaddress.cpp in Compile Sources */,
 				87EB917627EE5FB3002535E1 /* nautilusbike.cpp in Compile Sources */,
 				ACB47DC464A2BC9D39C544AD /* gpx.cpp in Compile Sources */,
+				87EFC57D2E918DAA005BB573 /* LiveActivityBridge.swift in Compile Sources */,
 				6361329E515248BB41640C07 /* homeform.cpp in Compile Sources */,
 				87A18F072660D5C1002D7C96 /* ftmsrower.cpp in Compile Sources */,
 				87C5F0D026285E7E0067A1B5 /* moc_smtpclient.cpp in Compile Sources */,
@@ -3963,6 +4061,7 @@
 				873824AE27E64706004F1B46 /* moc_browser.cpp in Compile Sources */,
 				8738249727E646E3004F1B46 /* characteristicnotifier2a53.cpp in Compile Sources */,
 				876C64712E74139F00F1BEC0 /* moc_fitbackupwriter.cpp in Compile Sources */,
+				87EFC58F2E919DB7005BB573 /* QZWorkoutAttributes.swift in Compile Sources */,
 				876C64722E74139F00F1BEC0 /* fitbackupwriter.cpp in Compile Sources */,
 				DF373364C5474D877506CB26 /* FitMesg.mm in Compile Sources */,
 				87FE06812D170D3C00CDAAF6 /* moc_trxappgateusbrower.cpp in Compile Sources */,
@@ -4141,6 +4240,11 @@
 			isa = PBXTargetDependency;
 			target = 876E4E102594747F00BD5714 /* watchkit */;
 			targetProxy = 876E4E302594748100BD5714 /* PBXContainerItemProxy */;
+		};
+		87EFC5752E918D38005BB573 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 87EFC5632E918D35005BB573 /* QZWidgetExtension */;
+			targetProxy = 87EFC5742E918D38005BB573 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -4465,7 +4569,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1175;
+				CURRENT_PROJECT_VERSION = 1176;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -4643,6 +4747,7 @@
 				QMAKE_PKGINFO_TYPEINFO = "????";
 				QMAKE_SHORT_VERSION = 1.7;
 				QT_LIBRARY_SUFFIX = "";
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
@@ -4665,7 +4770,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1175;
+				CURRENT_PROJECT_VERSION = 1176;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 6335M7T29D;
@@ -4846,6 +4951,7 @@
 				QMAKE_PKGINFO_TYPEINFO = "????";
 				QMAKE_SHORT_VERSION = 1.7;
 				QT_LIBRARY_SUFFIX = _debug;
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
@@ -4901,7 +5007,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1175;
+				CURRENT_PROJECT_VERSION = 1176;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -4997,7 +5103,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1175;
+				CURRENT_PROJECT_VERSION = 1176;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -5089,7 +5195,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1174;
+				CURRENT_PROJECT_VERSION = 1176;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -5205,7 +5311,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1174;
+				CURRENT_PROJECT_VERSION = 1176;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
@@ -5277,6 +5383,186 @@
 			};
 			name = Release;
 		};
+		87EFC5792E918D38005BB573 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = QZWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6335M7T29D;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = QZWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = QZWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.cagnulein.qdomyoszwift.QZWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SwiftUI,
+					"-framework",
+					WidgetKit,
+				);
+				LIBRARY_SEARCH_PATHS = "";
+			};
+			name = Debug;
+		};
+		87EFC57A2E918D38005BB573 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = QZWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 6335M7T29D;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = QZWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = QZWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.cagnulein.qdomyoszwift.QZWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SwiftUI,
+					"-framework",
+					WidgetKit,
+				);
+				LIBRARY_SEARCH_PATHS = "";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -5303,6 +5589,15 @@
 			buildConfigurations = (
 				876E4E342594748100BD5714 /* Debug */,
 				876E4E352594748100BD5714 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		87EFC5782E918D38005BB573 /* Build configuration list for PBXNativeTarget "QZWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				87EFC5792E918D38005BB573 /* Debug */,
+				87EFC57A2E918D38005BB573 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

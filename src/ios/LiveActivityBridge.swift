@@ -1,37 +1,20 @@
 //
-//  LiveActivityManager.swift
-//  qdomyos-zwift
+//  LiveActivityBridge.swift
+//  QDomyos-Zwift
 //
-//  iOS Live Activity manager for fitness metrics
+//  Bridge between C++/Objective-C and Swift Live Activities
 //
 
 import Foundation
 import ActivityKit
-import SwiftUI
 
-// Define the attributes for the Live Activity
 @available(iOS 16.1, *)
-struct FitnessActivityAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
-        var speed: Double
-        var cadence: Double
-        var power: Double
-        var heartRate: Int
-        var distance: Double
-        var kcal: Double
-    }
+@objc public class LiveActivityBridge: NSObject {
 
-    var deviceName: String
-}
-
-// Live Activity manager class
-@available(iOS 16.1, *)
-@objc public class LiveActivityManager: NSObject {
-
-    private var currentActivity: Any?
+    private var currentActivity: Activity<QZWorkoutAttributes>?
 
     @objc public func startActivity(deviceName: String) {
-        // Check if Live Activities are supported
+        // Check if Live Activities are supported and enabled
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
             print("Live Activities are not enabled")
             return
@@ -40,8 +23,8 @@ struct FitnessActivityAttributes: ActivityAttributes {
         // End any existing activity first
         endActivity()
 
-        let attributes = FitnessActivityAttributes(deviceName: deviceName)
-        let initialState = FitnessActivityAttributes.ContentState(
+        let attributes = QZWorkoutAttributes(deviceName: deviceName)
+        let initialState = QZWorkoutAttributes.ContentState(
             speed: 0.0,
             cadence: 0.0,
             power: 0.0,
@@ -51,25 +34,25 @@ struct FitnessActivityAttributes: ActivityAttributes {
         )
 
         do {
-            let activity = try Activity<FitnessActivityAttributes>.request(
+            let activity = try Activity<QZWorkoutAttributes>.request(
                 attributes: attributes,
                 contentState: initialState,
                 pushType: nil
             )
             currentActivity = activity
-            print("Live Activity started successfully")
+            print("✅ Live Activity started successfully")
         } catch {
-            print("Failed to start Live Activity: \(error.localizedDescription)")
+            print("❌ Failed to start Live Activity: \(error.localizedDescription)")
         }
     }
 
     @objc public func updateActivity(speed: Double, cadence: Double, power: Double, heartRate: Int, distance: Double, kcal: Double) {
-        guard let activity = currentActivity as? Activity<FitnessActivityAttributes> else {
+        guard let activity = currentActivity else {
             print("No active Live Activity to update")
             return
         }
 
-        let updatedState = FitnessActivityAttributes.ContentState(
+        let updatedState = QZWorkoutAttributes.ContentState(
             speed: speed,
             cadence: cadence,
             power: power,
@@ -84,12 +67,12 @@ struct FitnessActivityAttributes: ActivityAttributes {
     }
 
     @objc public func endActivity() {
-        guard let activity = currentActivity as? Activity<FitnessActivityAttributes> else {
+        guard let activity = currentActivity else {
             return
         }
 
         Task {
-            await activity.end(dismissalPolicy: .immediate)
+            await activity.end(using: nil, dismissalPolicy: .immediate)
             currentActivity = nil
             print("Live Activity ended")
         }

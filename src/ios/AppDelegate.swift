@@ -19,9 +19,6 @@ var pedometer = CMPedometer()
     let w = watchAppStart()
     let SwiftDebug = swiftDebug()
 
-    // Live Activity manager (iOS 16.1+)
-    private var liveActivityManager: Any?
-
     @objc public func request()
     {
         SwiftDebug.qtDebug("swift debug test")
@@ -43,12 +40,6 @@ var pedometer = CMPedometer()
                 guard let pedometerData = pedometerData, error == nil else { return }
                     print("\(pedometerData.numberOfSteps.intValue) STEP CAD.")
             }
-        }
-
-        // Initialize Live Activity manager
-        if #available(iOS 16.1, *) {
-            liveActivityManager = LiveActivityManager() as Any
-            print("Live Activity manager initialized")
         }
 
         //w.startWatchApp()

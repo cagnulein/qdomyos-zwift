@@ -3,22 +3,22 @@
 #import <UIKit/UIKit.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <WatchConnectivity/WatchConnectivity.h>
-#import <ActivityKit/ActivityKit.h>
 #import <ConnectIQ/ConnectIQ.h>
+#import <ActivityKit/ActivityKit.h>
 #import "qdomyoszwift-Swift2.h"
 #include "ios/ios_liveactivity.h"
 #include <QDebug>
 
-@class LiveActivityManager;
+@class LiveActivityBridge;
 
-static LiveActivityManager* _liveActivityManager = nil;
+static LiveActivityBridge* _liveActivityManager = nil;
 
 void ios_liveactivity::startLiveActivity(const char* deviceName) {
     if (@available(iOS 16.1, *)) {
         if (_liveActivityManager == nil) {
-            _liveActivityManager = [[LiveActivityManager alloc] init];
+            _liveActivityManager = [[LiveActivityBridge alloc] init];
         }
-        NSString *name = [NSString stringWithCString:deviceName encoding:NSASCIIStringEncoding];
+        NSString *name = [NSString stringWithCString:deviceName encoding:NSUTF8StringEncoding];
         [_liveActivityManager startActivityWithDeviceName:name];
         qDebug() << "Live Activity started for device:" << deviceName;
     } else {
