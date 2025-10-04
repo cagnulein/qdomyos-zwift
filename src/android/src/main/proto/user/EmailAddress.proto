@@ -1,0 +1,19 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.user";
+option java_outer_classname = "EmailAddressProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "util/IFitError.proto";
+
+message EmailAddress {
+  string value = 1;
+}
+
+message EmailAddressResult {
+  oneof errorOrEmailAddress {
+    IFitError error = 1;
+    EmailAddress emailAddress = 2;
+  }
+}

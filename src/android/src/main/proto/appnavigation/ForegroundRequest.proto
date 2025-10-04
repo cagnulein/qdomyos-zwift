@@ -1,0 +1,14 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.appnavigation";
+option java_outer_classname = "ForegroundRequestProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message ForegroundFqnRequest {
+  string fqn = 1;
+}
+
+message ForegroundClassNameRequest {
+  string className = 1;
+}
