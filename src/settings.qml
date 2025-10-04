@@ -1208,7 +1208,9 @@ import Qt.labs.platform 1.1
             property int chart_display_mode: 0
             property bool zwift_play_vibration: true
             property bool toorxtreadmill_discovery_completed: false
-
+            property bool taurua_ic90: false
+            property bool proform_csx210: false
+            property bool confirm_stop_workout: false
         }
 
 
@@ -4014,7 +4016,8 @@ import Qt.labs.platform 1.1
                                     "Nordictrack GX 4.4 Pro",
                                     "TDF 1.0 PFEVEX71316.0",
                                     "Proform XBike",
-                                    "Proform 225 CSX PFEX32925 INT.0"
+                                    "Proform 225 CSX PFEX32925 INT.0",
+                                    "Proform CSX210"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -4049,7 +4052,8 @@ import Qt.labs.platform 1.1
                                                     settings.nordictrack_gx_44_pro ? 15 :
                                                     settings.proform_bike_PFEVEX71316_0 ? 16 :
                                                     settings.proform_xbike ? 17 :
-                                                    settings.proform_225_csx_PFEX32925_INT_0 ? 18 : 0;
+                                                    settings.proform_225_csx_PFEX32925_INT_0 ? 18 :
+                                                    settings.proform_csx210 ? 19 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -4082,6 +4086,7 @@ import Qt.labs.platform 1.1
                                     settings.proform_bike_PFEVEX71316_0 = false;
                                     settings.proform_xbike = false;
                                     settings.proform_225_csx_PFEX32925_INT_0 = false;
+                                    settings.proform_csx210 = false;
 
                                     // Set corresponding setting for selected model
                                     switch (currentIndex) {
@@ -4103,6 +4108,7 @@ import Qt.labs.platform 1.1
                                         case 16: settings.proform_bike_PFEVEX71316_0 = true; break;
                                         case 17: settings.proform_xbike = true; break;
                                         case 18: settings.proform_225_csx_PFEX32925_INT_0 = true; break;
+                                        case 19: settings.proform_csx210 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -8699,7 +8705,21 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.hop_sport_hs_090h_bike = checked; window.settings_restart_to_apply = true; }
-                    }                    
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Taurua IC90 Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.taurua_ic90
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.taurua_ic90 = checked; window.settings_restart_to_apply = true; }
+                    }
 
                     IndicatorOnlySwitch {
                         id: jtxFitnessSprintTreadmillDelegate
@@ -9358,6 +9378,33 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Allows you to force QZ to connect to your equipment (see “Bluetooth Troubleshooting” below). Default is “Disabled.”")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Confirm Stop Workout")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.confirm_stop_workout
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.confirm_stop_workout = checked
+                    }
+
+                    Label {
+                        text: qsTr("Shows a confirmation popup before stopping the workout from the UI.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

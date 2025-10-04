@@ -85,7 +85,7 @@ void treadmill::changeSpeedAndInclination(double speed, double inclination) {
 }
 metric treadmill::currentInclination() { return Inclination; }
 bool treadmill::connected() { return false; }
-bluetoothdevice::BLUETOOTH_TYPE treadmill::deviceType() { return bluetoothdevice::TREADMILL; }
+BLUETOOTH_TYPE treadmill::deviceType() { return TREADMILL; }
 
 double treadmill::minStepInclination() { return 0.5; }
 double treadmill::minStepSpeed() { return 0.5; }

@@ -137,7 +137,7 @@ metric elliptical::currentInclination() { return Inclination; }
 uint8_t elliptical::fanSpeed() { return FanSpeed; }
 bool elliptical::connected() { return false; }
 
-bluetoothdevice::BLUETOOTH_TYPE elliptical::deviceType() { return bluetoothdevice::ELLIPTICAL; }
+BLUETOOTH_TYPE elliptical::deviceType() { return ELLIPTICAL; }
 
 void elliptical::clearStats() {
     moving.clear(true);
