@@ -47,7 +47,7 @@ struct QZWidgetLiveActivity: Widget {
 
                 DynamicIslandExpandedRegion(.bottom) {
                     HStack {
-                        Label(String(format: "%.2f km", context.state.distance), systemImage: "map")
+                        Label(String(format: "%.2f km", context.state.distance / 1000.0), systemImage: "map")
                         Spacer()
                         Label("\(Int(context.state.kcal)) kcal", systemImage: "flame.fill")
                             .foregroundColor(.orange)
@@ -102,7 +102,7 @@ struct LockScreenLiveActivityView: View {
 
             HStack(spacing: 16) {
                 MetricView(icon: "arrow.clockwise", value: "\(Int(context.state.cadence))", unit: "rpm")
-                MetricView(icon: "map", value: String(format: "%.2f", context.state.distance), unit: "km")
+                MetricView(icon: "map", value: String(format: "%.2f", context.state.distance / 1000.0), unit: "km")
                 MetricView(icon: "flame.fill", value: "\(Int(context.state.kcal))", unit: "kcal", color: .orange)
             }
         }
@@ -142,7 +142,7 @@ struct QZWidgetLiveActivity_Previews: PreviewProvider {
         cadence: 85,
         power: 200,
         heartRate: 145,
-        distance: 12.5,
+        distance: 12500,  // meters (will be displayed as 12.50 km)
         kcal: 320
     )
 
