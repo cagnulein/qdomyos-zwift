@@ -70,8 +70,9 @@ class deerruntreadmill : public treadmill {
     
     QLowEnergyService *unlock_service = nullptr;
     QLowEnergyCharacteristic unlock_characteristic;
-    
+
     bool pitpat = false;
+    bool superun_ba04 = false;
 
     bool initDone = false;
     bool initRequest = false;
