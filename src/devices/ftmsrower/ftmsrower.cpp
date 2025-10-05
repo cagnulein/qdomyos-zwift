@@ -19,7 +19,7 @@
 using namespace std::chrono_literals;
 
 ftmsrower::ftmsrower(bool noWriteResistance, bool noHeartService) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -276,6 +276,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     if (PM5 && (characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060031-43e5-11e4-916c-0800200c9a66")) ||
                 characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060032-43e5-11e4-916c-0800200c9a66")) ||
                 characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060033-43e5-11e4-916c-0800200c9a66")) ||
+                characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060035-43e5-11e4-916c-0800200c9a66")) ||
                 characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060036-43e5-11e4-916c-0800200c9a66")))) {
         
         parseConcept2Data(characteristic, newValue);

@@ -27,7 +27,7 @@ horizontreadmill::horizontreadmill(bool noWriteResistance, bool noHeartService) 
 
     testProfileCRC();
 
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -948,7 +948,7 @@ void horizontreadmill::update() {
             requestInclination = treadmillInclinationOverrideReverse(requestInclination);
 
             // this treadmill doesn't send the incline, so i'm forcing it manually
-            if(schwinn_810_treadmill) {
+            if(schwinn_810_treadmill || FIT_TM) {
                 Inclination = requestInclination;
             }
 
@@ -972,7 +972,7 @@ void horizontreadmill::update() {
                 forceIncline(requestInclination);
 
                 // this treadmill doesn't send the incline, so i'm forcing it manually
-                if(SW_TREADMILL) {
+                if(SW_TREADMILL || mobvoi_treadmill) {
                     Inclination = requestInclination;
                 }
             }
@@ -2551,6 +2551,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("MX-TM "))) {
             qDebug() << QStringLiteral("MX-TM found");
             MX_TM = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("FIT-TM-"))) {
+            qDebug() << QStringLiteral("FIT-TM- found (real inclination)");
+            FIT_TM = true;
         } else if (device.name().toUpper().startsWith(QStringLiteral("FIT-"))) {
             qDebug() << QStringLiteral("FIT- found");
             FIT = true;
