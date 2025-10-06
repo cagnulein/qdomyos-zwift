@@ -198,15 +198,19 @@ void kettlerracersbike::serviceScanDone(void) {
     }
 
     connect(gattKettlerService, &QLowEnergyService::stateChanged, this, &kettlerracersbike::stateChanged);
+
+    // Discover Kettler service details first
+    emit debug(QStringLiteral("Discovering Kettler service details..."));
     gattKettlerService->discoverDetails();
 
-    // CSC service: 00001816-0000-1000-8000-00805f9b34fb
+    // CSC service will be discovered AFTER Kettler service is fully discovered
+    // to avoid concurrent GATT operations (see stateChanged handler)
     QBluetoothUuid cscServiceUuid(QStringLiteral("00001816-0000-1000-8000-00805f9b34fb"));
     gattCSCService = m_control->createServiceObject(cscServiceUuid);
 
     if (gattCSCService != nullptr) {
         connect(gattCSCService, &QLowEnergyService::stateChanged, this, &kettlerracersbike::stateChanged);
-        gattCSCService->discoverDetails();
+        // Don't call discoverDetails() here - will be called after Kettler service is ready
     }
 }
 
@@ -429,6 +433,13 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
             qDebug() << QStringLiteral("gattKeyWriteCharKettlerId invalid");
         } else {
             qDebug() << QStringLiteral("gattKeyWriteCharKettlerId valid, properties:") << gattKeyWriteCharKettlerId.properties();
+        }
+
+        // Now that Kettler service is discovered, discover CSC service details
+        // This serializes GATT operations to avoid conflicts on Android
+        if (gattCSCService && gattCSCService->state() != QLowEnergyService::ServiceDiscovered) {
+            emit debug(QStringLiteral("Discovering CSC service details..."));
+            gattCSCService->discoverDetails();
         }
 
         // Request handshake seed with a delay to avoid GATT operation conflicts
