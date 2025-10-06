@@ -64,6 +64,7 @@ class domyostreadmill : public treadmill {
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
+    QDateTime lastInclinationChanged = QDateTime::currentDateTime();
 
     QTimer *refresh;
 

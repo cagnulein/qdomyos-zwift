@@ -14,12 +14,15 @@
 
 using namespace std::chrono_literals;
 
-sportstechbike::sportstechbike(bool noWriteResistance, bool noHeartService) {
-    m_watt.setType(metric::METRIC_WATT);
+sportstechbike::sportstechbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
+                               double bikeResistanceGain) {
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->bikeResistanceGain = bikeResistanceGain;
+    this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &sportstechbike::update);
     refresh->start(200ms);
@@ -155,7 +158,6 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
             }
         }
     }
-    FanSpeed = 0;
 
     if (!firstCharChanged) {
         Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QTime::currentTime()))));
@@ -298,7 +300,7 @@ void sportstechbike::stateChanged(QLowEnergyService::ServiceState state) {
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&sportstechbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &sportstechbike::changeInclination);
                 this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);

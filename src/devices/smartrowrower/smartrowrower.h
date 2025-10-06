@@ -35,7 +35,7 @@
 class smartrowrower : public rower {
     Q_OBJECT
   public:
-    smartrowrower(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
+    smartrowrower(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     resistance_t maxResistance() override { return max_resistance; }
@@ -61,7 +61,7 @@ class smartrowrower : public rower {
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
 
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     uint8_t counterPoll = 1;
     uint8_t sec1Update = 0;

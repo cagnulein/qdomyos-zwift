@@ -35,7 +35,7 @@
 class proformbike : public bike {
     Q_OBJECT
   public:
-    proformbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
+    proformbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     resistance_t maxResistance() override { return max_resistance; }
@@ -55,11 +55,11 @@ class proformbike : public bike {
     uint16_t watts() override;
     void forceResistance(resistance_t requestResistance);
     void forceIncline(double incline);
-    void innerWriteResistance();
+    bool innerWriteResistance();
 
     QTimer *refresh;
     uint8_t counterPoll = 0;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
@@ -77,6 +77,26 @@ class proformbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    bool proform_studio = false;
+    bool proform_tdf_10 = false;
+    bool nordictrack_GX4_5_bike = false;
+    bool nordictrack_gx_2_7 = false;
+    bool proform_hybrid_trainer_PFEL03815 = false;
+    bool proform_bike_sb = false;
+    bool proform_cycle_trainer_300_ci =false;
+    bool proform_bike_225_csx = false;
+    bool proform_bike_325_csx = false;
+    bool proform_tour_de_france_clc = false;
+    bool proform_studio_NTEX71021 = false;
+    bool freemotion_coachbike_b22_7 = false;
+    bool proform_cycle_trainer_400 = false;
+    bool proform_bike_PFEVEX71316_1 = false;
+    bool nordictrack_gx_44_pro = false;
+    bool proform_bike_PFEVEX71316_0 = false;
+    bool proform_xbike = false;
+    bool proform_225_csx_PFEX32925_INT_0 = false;
+    bool proform_csx210 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

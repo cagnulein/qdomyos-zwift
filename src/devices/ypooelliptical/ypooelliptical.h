@@ -37,16 +37,19 @@
 class ypooelliptical : public elliptical {
     Q_OBJECT
   public:
-    ypooelliptical(bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4,
+    ypooelliptical(bool noWriteResistance = false, bool noHeartService = false, int8_t bikeResistanceOffset = 4,
                    double bikeResistanceGain = 1.0);
     bool connected() override;
+    double minStepInclination() override;
+    bool inclinationSeparatedFromResistance() override;
 
   private:
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+    void writeCharacteristic(QLowEnergyCharacteristic* characteristic, QLowEnergyService *service, uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
     uint16_t watts();
     void forceResistance(resistance_t requestResistance);
+    void forceInclination(double inclination);
 
     QTimer *refresh;
 
@@ -54,11 +57,14 @@ class ypooelliptical : public elliptical {
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattCustomService = nullptr;
 
+    QLowEnergyCharacteristic gattFTMSWriteCharControlPointId;
+    QLowEnergyService *gattFTMSService = nullptr;
+
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     const uint8_t max_resistance = 72; // 24;
     const uint8_t default_resistance = 6;
@@ -70,6 +76,16 @@ class ypooelliptical : public elliptical {
     bool noHeartService = false;
 
     uint8_t counterPoll = 0;
+    bool SCH_590E = false;
+    bool E35 = false;
+    bool KETTLER = false;
+    bool CARDIOPOWER_EEGO = false;
+    bool MYELLIPTICAL = false;
+    bool SKANDIKA = false;
+    bool DOMYOS = false;
+    bool FEIER = false;
+    bool MX_AS = false;
+    bool FTMS = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

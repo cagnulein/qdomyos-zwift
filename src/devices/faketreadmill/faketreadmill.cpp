@@ -17,7 +17,7 @@
 using namespace std::chrono_literals;
 
 faketreadmill::faketreadmill(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -33,8 +33,9 @@ void faketreadmill::update() {
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     QDateTime now = QDateTime::currentDateTime();
+    float _watts = watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat());
 
-    update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
+    update_metrics(true, _watts);
 
     if (requestSpeed != -1) {
         Speed = requestSpeed;
@@ -43,10 +44,18 @@ void faketreadmill::update() {
     }
 
     if (requestInclination != -100) {
-        Inclination = requestInclination;
+        double step =
+            settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline)
+                .toDouble();
+        double r = qRound(requestInclination / step) * step;
+        Inclination = r;
         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
         requestInclination = -100;
     }
+    
+    StepCount = StepCount.value() + 0.5;
+
+    _ergTable.collectTreadmillData(Speed.value(), _watts, Inclination.value());
 
     cadenceFromAppleWatch();
 

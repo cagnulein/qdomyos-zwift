@@ -9,13 +9,13 @@
 
 using namespace std::chrono_literals;
 
-iconceptelliptical::iconceptelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+iconceptelliptical::iconceptelliptical(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                        double bikeResistanceGain) {
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     initDone = false;

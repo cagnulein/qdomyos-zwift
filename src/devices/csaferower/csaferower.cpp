@@ -3,7 +3,7 @@
 using namespace std::chrono_literals;
 
 csaferower::csaferower(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -18,20 +18,33 @@ csaferower::csaferower(bool noWriteResistance, bool noHeartService, bool noVirtu
     connect(t, &csaferowerThread::onHeart, this, &csaferower::onHeart);
     connect(t, &csaferowerThread::onCalories, this, &csaferower::onCalories);
     connect(t, &csaferowerThread::onDistance, this, &csaferower::onDistance);
+    connect(t, &csaferowerThread::onPace, this, &csaferower::onPace);
+    connect(t, &csaferowerThread::onStatus, this, &csaferower::onStatus);
     t->start();
 }
 
-void csaferower::onPower(double power) {
-    qDebug() << "Current Power received:" << power;
-    m_watt = power;
-
-    double pace = (pow((2.8 / power), (1. / 3))) * 1000; // pace to m/km put *500 instead to have a m/500m
-    Speed = (60.0 / (double)(pace)) * 30.0;
+void csaferower::onPace(double pace) {
+    qDebug() << "Current Pace received:" << pace;
+    if(distanceIsChanging && pace > 0)
+        Speed = (60.0 / (double)(pace)) * 60.0;
+    else
+        Speed = 0;
 
     qDebug() << "Current Speed calculated:" << Speed.value() << pace;
 }
 
-void csaferower::onCadence(double cadence) { qDebug() << "Current Cadence received:" << cadence; }
+
+void csaferower::onPower(double power) {
+    qDebug() << "Current Power received:" << power;
+    if(distanceIsChanging)
+        m_watt = power;
+}
+
+void csaferower::onCadence(double cadence) {
+    qDebug() << "Current Cadence received:" << cadence;
+    if(distanceIsChanging)
+        Cadence = cadence;
+}
 
 void csaferower::onHeart(double hr) {
     qDebug() << "Current Heart received:" << hr;
@@ -62,14 +75,30 @@ void csaferower::onCalories(double calories) {
     KCal = calories;
 }
 
-void csaferower::onDistance(double distance) { qDebug() << "Current Distance received:" << distance / 1000.0; }
+void csaferower::onDistance(double distance) {
+    qDebug() << "Current Distance received:" << distance / 1000.0;
+
+    if(distance != distanceReceived.value()) {
+        distanceIsChanging = true;
+        distanceReceived = distance;
+    } else if(abs(distanceReceived.lastChanged().secsTo(QDateTime::currentDateTime())) > 2) {
+        distanceIsChanging = false;
+        m_watt = 0;
+        Cadence = 0;
+        Speed = 0;
+    }
+
+}
+
+void csaferower::onStatus(char status) {
+    qDebug() << "Current Status received:" << status;
+}
 
 csaferowerThread::csaferowerThread() {}
 
 void csaferowerThread::run() {
     QSettings settings;
-    /*devicePort =
-        settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();*/
+    deviceFilename = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
 
     openPort();
     csafe *aa = new csafe();
@@ -81,7 +110,9 @@ void csaferowerThread::run() {
         command << "CSAFE_GETPOWER_CMD";
         command << "CSAFE_GETCALORIES_CMD";
         command << "CSAFE_GETHRCUR_CMD";
-        QByteArray ret = aa->write(command);
+        command << "CSAFE_GETPACE_CMD";
+        command << "CSAFE_GETSTATUS_CMD";
+        QByteArray ret = aa->write(command,true);
 
         qDebug() << " >> " << ret.toHex(' ');
         rawWrite((uint8_t *)ret.data(), ret.length());
@@ -96,6 +127,9 @@ void csaferowerThread::run() {
         if (f["CSAFE_GETCADENCE_CMD"].isValid()) {
             emit onCadence(f["CSAFE_GETCADENCE_CMD"].value<QVariantList>()[0].toDouble());
         }
+        if (f["CSAFE_GETPACE_CMD"].isValid()) {
+            emit onPace(f["CSAFE_GETPACE_CMD"].value<QVariantList>()[0].toDouble());
+        }
         if (f["CSAFE_GETPOWER_CMD"].isValid()) {
             emit onPower(f["CSAFE_GETPOWER_CMD"].value<QVariantList>()[0].toDouble());
         }
@@ -107,6 +141,10 @@ void csaferowerThread::run() {
         }
         if (f["CSAFE_PM_GET_WORKDISTANCE"].isValid()) {
             emit onDistance(f["CSAFE_PM_GET_WORKDISTANCE"].value<QVariantList>()[0].toDouble());
+        }
+        if (f["CSAFE_GETSTATUS_CMD"].isValid()) {
+            char statusChar = static_cast<char>(f["CSAFE_GETSTATUS_CMD"].value<QVariantList>()[0].toUInt() & 0x0f);
+            emit onStatus(statusChar);
         }
 
         memset(rx, 0x00, sizeof(rx));
@@ -125,6 +163,9 @@ int csaferowerThread::closePort() {
 }
 
 int csaferowerThread::openPort() {
+
+qDebug() << "Opening serial port " << deviceFilename.toLatin1();
+
 #ifdef Q_OS_ANDROID
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "open",
                                               "(Landroid/content/Context;)V", QtAndroid::androidContext().object());

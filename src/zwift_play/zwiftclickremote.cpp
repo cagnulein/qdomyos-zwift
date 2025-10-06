@@ -1,3 +1,4 @@
+#include "homeform.h"
 #include "zwiftclickremote.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -12,6 +13,11 @@ using namespace std::chrono_literals;
 #ifdef Q_OS_IOS
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
+
+volatile int8_t AbstractZapDevice::risingEdge = 0;
+QTimer* AbstractZapDevice::autoRepeatTimer = nullptr;
+bool AbstractZapDevice::lastButtonPlus = false;
+QDateTime AbstractZapDevice::lastFrame = QDateTime::currentDateTime();
 
 zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap) {
 #ifdef Q_OS_IOS
@@ -28,10 +34,16 @@ zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDev
 void zwiftclickremote::update() {
     if (initRequest && !initDone) {
         initRequest = false;
-        initDone = true;
         QByteArray s = playDevice->buildHandshakeStart();
         qDebug() << s.length();
         writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
+        initDone = true;
+    } else if(initDone) {
+        countRxTimeout++;
+        if(countRxTimeout == 10) {
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("Zwift device: UPGRADE THE FIRMWARE!");
+        }
     }
 }
 
@@ -48,24 +60,39 @@ void zwiftclickremote::disconnectBluetooth() {
 }
 
 void zwiftclickremote::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
-                                               const QByteArray &newValue) {
-    Q_UNUSED(characteristic);
+                                             const QByteArray &newValue) {
+    handleCharacteristicValueChanged(characteristic.uuid(), newValue);
+}
+
+void zwiftclickremote::handleCharacteristicValueChanged(const QBluetoothUuid &uuid, const QByteArray &newValue) {
     emit packetReceived();
+    countRxTimeout = 0;
 
-    qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << QString(newValue) << characteristic.uuid().Name << characteristic.uuid().toString() << typeZap;
+    qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << QString(newValue) << uuid.toString() << typeZap;
 
-    if(characteristic.uuid() == QBluetoothUuid(QStringLiteral("00000002-19CA-4651-86E5-FA29DCDD09D1"))) {
+    if(uuid == QBluetoothUuid(QStringLiteral("00000002-19CA-4651-86E5-FA29DCDD09D1"))) {
         playDevice->processCharacteristic("Async", newValue, typeZap);
-    } else if(characteristic.uuid() == QBluetoothUuid(QStringLiteral("00000004-19CA-4651-86E5-FA29DCDD09D1"))) {
+    } else if(uuid == QBluetoothUuid(QStringLiteral("00000004-19CA-4651-86E5-FA29DCDD09D1"))) {
         playDevice->processCharacteristic("SyncTx", newValue, typeZap);
-    } else if(characteristic.uuid() == QBluetoothUuid::BatteryLevel) {
+    } else if(uuid == QBluetoothUuid::BatteryLevel) {
+        
     }
 }
 
-
 void zwiftclickremote::writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic *writeChar,
-                                             uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                             bool wait_for_response) {
+                                           uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+                                           bool wait_for_response) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    iOS_zwiftClickRemote->zwiftClickRemote_WriteCharacteristic(data, data_len, this); // Pass 'this' pointer
+    if (!disable_log) {
+        QByteArray buffer((const char *)data, data_len);
+        qDebug() << QStringLiteral(" >> ") + buffer.toHex(' ') + QStringLiteral(" // ") + info;
+    }
+    return;
+#endif
+#endif
+
     QEventLoop loop;
     QTimer timeout;
 
@@ -107,7 +134,8 @@ void zwiftclickremote::writeCharacteristic(QLowEnergyService *service, QLowEnerg
         qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info;
     }
 
-    loop.exec();
+    if(wait_for_response) // without this, it crashes on ios after sometimes
+        loop.exec();
 }
 
 void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
@@ -118,6 +146,7 @@ void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
+#ifndef Q_OS_IOS
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
         if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
@@ -199,6 +228,7 @@ void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
             }
         }
     }
+#endif
 }
 
 void zwiftclickremote::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -218,6 +248,7 @@ void zwiftclickremote::serviceScanDone(void) {
 
     initRequest = false;
 
+#ifndef Q_OS_IOS
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
@@ -229,6 +260,7 @@ void zwiftclickremote::serviceScanDone(void) {
             m_control->disconnectFromDevice();
         }
     }
+#endif
 }
 
 void zwiftclickremote::errorService(QLowEnergyService::ServiceError err) {
@@ -247,6 +279,19 @@ void zwiftclickremote::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QSettings settings;
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
+    
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    iOS_zwiftClickRemote = new lockscreen();
+      iOS_zwiftClickRemote->zwiftClickRemote(
+          device.name().toStdString().c_str(),
+          device.deviceUuid().toString().toUpper().replace('{',"").replace('}',"").toStdString().c_str(),
+          this
+      );
+    return;
+#endif
+#endif
+
     {
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -283,6 +328,10 @@ void zwiftclickremote::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool zwiftclickremote::connected() {
+#ifdef Q_OS_IOS
+    return true;
+#endif
+
     if (!m_control) {
         return false;
     }
@@ -291,11 +340,24 @@ bool zwiftclickremote::connected() {
 
 void zwiftclickremote::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
-    if (state == QLowEnergyController::UnconnectedState && m_control) {
+    if (state == QLowEnergyController::UnconnectedState) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initRequest = false;
         initDone = false;
 
-        m_control->connectToDevice();
+        if(m_control)
+            m_control->connectToDevice();
     }
+}
+
+void zwiftclickremote::vibrate(uint8_t pattern) {
+    if(!initDone) return;
+    
+    QSettings settings;
+    bool zwift_play_vibration = settings.value(QZSettings::zwift_play_vibration, QZSettings::default_zwift_play_vibration).toBool();
+    if(!zwift_play_vibration) return;
+    
+    QByteArray s = QByteArray::fromHex("1212080A060802100018");
+    s.append(pattern);
+    writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "vibrate", false, false);
 }

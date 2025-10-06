@@ -34,8 +34,10 @@ import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.util.SparseArray;
+import android.os.Build;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 
@@ -47,14 +49,21 @@ public class ChannelService extends Service {
     private AntChannelProvider mAntChannelProvider = null;
     private boolean mAllowAddChannel = false;
 
+    public static native void nativeSetResistance(int resistance);
+    public static native void nativeSetPower(int power);
+    public static native void nativeSetInclination(double inclination);
+
     HeartChannelController heartChannelController = null;
     PowerChannelController powerChannelController = null;
     SpeedChannelController speedChannelController = null;
     SDMChannelController sdmChannelController = null;
+    BikeChannelController bikeChannelController = null; // Added BikeChannelController reference
+    BikeTransmitterController bikeTransmitterController = null; // Added BikeTransmitterController reference
 
     private ServiceConnection mAntRadioServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            QLog.v(TAG, "onServiceConnected");
             // Must pass in the received IBinder object to correctly construct an AntService object
             mAntRadioService = new AntService(service);
 
@@ -69,6 +78,8 @@ public class ChannelService extends Service {
                 // radio by attempting to acquire a channel.
                 boolean legacyInterfaceInUse = mAntChannelProvider.isLegacyInterfaceInUse();
 
+                QLog.v(TAG, "onServiceConnected mChannelAvailable=" + mChannelAvailable + " legacyInterfaceInUse=" + legacyInterfaceInUse);
+
                 // If there are channels OR legacy interface in use, allow adding channels
                 if (mChannelAvailable || legacyInterfaceInUse) {
                     mAllowAddChannel = true;
@@ -77,7 +88,11 @@ public class ChannelService extends Service {
                     mAllowAddChannel = false;
                 }
 
-
+                try {
+                    openAllChannels();
+                } catch (ChannelNotAvailableException exception) {
+                    QLog.e(TAG, "Channel not available!!");
+                }
             } catch (RemoteException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -108,11 +123,19 @@ public class ChannelService extends Service {
             if (null != sdmChannelController) {
                 sdmChannelController.speed = speed;
             }
+            // Update bike transmitter with speed data (only if not treadmill)
+            if (!Ant.treadmill && null != bikeTransmitterController) {
+                bikeTransmitterController.setSpeedKph(speed);
+            }
         }
 
         void setPower(int power) {
             if (null != powerChannelController) {
                 powerChannelController.power = power;
+            }
+            // Update bike transmitter with power data (only if not treadmill)
+            if (!Ant.treadmill && null != bikeTransmitterController) {
+                bikeTransmitterController.setPower(power);
             }
         }
 
@@ -126,13 +149,162 @@ public class ChannelService extends Service {
             if (null != sdmChannelController) {
                 sdmChannelController.cadence = cadence;
             }
+            // Update bike transmitter with cadence data (only if not treadmill)
+            if (!Ant.treadmill && null != bikeTransmitterController) {
+                bikeTransmitterController.setCadence(cadence);
+            }
         }
 
         int getHeart() {
             if (null != heartChannelController) {
+                QLog.v(TAG, "getHeart");
                 return heartChannelController.heart;
             }
+            if (null != bikeChannelController) {
+                return bikeChannelController.getHeartRate();
+            }
             return 0;
+        }
+
+        // Added getters for bike channel data
+        int getBikeCadence() {
+            if (null != bikeChannelController) {
+                return bikeChannelController.getCadence();
+            }
+            return 0;
+        }
+
+        int getBikePower() {
+            if (null != bikeChannelController) {
+                return bikeChannelController.getPower();
+            }
+            return 0;
+        }
+
+        double getBikeSpeed() {
+            if (null != bikeChannelController) {
+                return bikeChannelController.getSpeedKph();
+            }
+            return 0.0;
+        }
+
+        long getBikeDistance() {
+            if (null != bikeChannelController) {
+                return bikeChannelController.getDistance();
+            }
+            return 0;
+        }
+
+        boolean isBikeConnected() {
+            return (bikeChannelController != null && bikeChannelController.isConnected());
+        }
+
+        // ========== BIKE TRANSMITTER METHODS ==========
+
+        /**
+         * Start the bike transmitter (only available if not treadmill)
+         */
+        boolean startBikeTransmitter() {
+            QLog.v(TAG, "ChannelServiceComm.startBikeTransmitter");
+            
+            if (Ant.treadmill) {
+                QLog.w(TAG, "Bike transmitter not available in treadmill mode");
+                return false;
+            }
+            
+            if (bikeTransmitterController != null) {
+                return bikeTransmitterController.startTransmission();
+            }
+            QLog.w(TAG, "Bike transmitter controller is null");
+            return false;
+        }
+
+        /**
+         * Stop the bike transmitter
+         */
+        void stopBikeTransmitter() {
+            QLog.v(TAG, "ChannelServiceComm.stopBikeTransmitter");
+            
+            if (bikeTransmitterController != null) {
+                bikeTransmitterController.stopTransmission();
+            }
+        }
+
+        /**
+         * Check if bike transmitter is active (only if not treadmill)
+         */
+        boolean isBikeTransmitterActive() {
+            if (Ant.treadmill) {
+                return false;
+            }
+            return (bikeTransmitterController != null && bikeTransmitterController.isTransmitting());
+        }
+
+        /**
+         * Update bike transmitter with extended metrics (only if not treadmill)
+         */
+        void updateBikeTransmitterExtendedMetrics(long distanceMeters, int heartRate, 
+                                                 double elapsedTimeSeconds, int resistance, 
+                                                 double inclination) {
+            if (!Ant.treadmill && bikeTransmitterController != null) {
+                bikeTransmitterController.setDistance(distanceMeters);
+                bikeTransmitterController.setHeartRate(heartRate);
+                bikeTransmitterController.setElapsedTime(elapsedTimeSeconds);
+                bikeTransmitterController.setResistance(resistance);
+                bikeTransmitterController.setInclination(inclination);
+            }
+        }
+
+        /**
+         * Get the last requested resistance from ANT+ controller (only if not treadmill)
+         */
+        int getRequestedResistanceFromAnt() {
+            if (!Ant.treadmill && bikeTransmitterController != null) {
+                return bikeTransmitterController.getRequestedResistance();
+            }
+            return -1;
+        }
+
+        /**
+         * Get the last requested power from ANT+ controller (only if not treadmill)
+         */
+        int getRequestedPowerFromAnt() {
+            if (!Ant.treadmill && bikeTransmitterController != null) {
+                return bikeTransmitterController.getRequestedPower();
+            }
+            return -1;
+        }
+
+        /**
+         * Get the last requested inclination from ANT+ controller (only if not treadmill)
+         */
+        double getRequestedInclinationFromAnt() {
+            if (!Ant.treadmill && bikeTransmitterController != null) {
+                return bikeTransmitterController.getRequestedInclination();
+            }
+            return -100.0;
+        }
+
+        /**
+         * Clear any pending control requests (only if not treadmill)
+         */
+        void clearAntControlRequests() {
+            if (!Ant.treadmill && bikeTransmitterController != null) {
+                bikeTransmitterController.clearControlRequests();
+            }
+        }
+
+        /**
+         * Get transmission info for debugging (only if not treadmill)
+         */
+        String getBikeTransmitterInfo() {
+            if (Ant.treadmill) {
+                return "Bike transmitter disabled in treadmill mode";
+            }
+            if (bikeTransmitterController != null) {
+                return bikeTransmitterController.getTransmissionInfo();
+            }
+            return "Bike transmitter not initialized";
         }
 
         /**
@@ -144,15 +316,81 @@ public class ChannelService extends Service {
     }
 
     public void openAllChannels() throws ChannelNotAvailableException {
-        if (Ant.heartRequest)
-            heartChannelController = new HeartChannelController(acquireChannel());
+        if (Ant.heartRequest && heartChannelController == null)
+            heartChannelController = new HeartChannelController(Ant.antHeartDeviceNumber);
 
         if (Ant.speedRequest) {
-            if(Ant.treadmill) {
+            if(Ant.treadmill && sdmChannelController == null) {
                 sdmChannelController = new SDMChannelController(acquireChannel());
-            } else {
+            } else if(powerChannelController == null) {
                 powerChannelController = new PowerChannelController(acquireChannel());
                 speedChannelController = new SpeedChannelController(acquireChannel());
+            }
+        }
+
+        // Add initialization for BikeChannelController (receiver)
+        if (Ant.bikeRequest && bikeChannelController == null) {
+            bikeChannelController = new BikeChannelController(Ant.technoGymGroupCycle, Ant.antBikeDeviceNumber);
+        }
+
+        // Add initialization for BikeTransmitterController (transmitter) - only when NOT treadmill
+        if (!Ant.treadmill && bikeTransmitterController == null) {
+            QLog.v(TAG, "Initializing BikeTransmitterController (not treadmill mode)");
+            try {
+                // Acquire channel like other controllers
+                AntChannel transmitterChannel = acquireChannel();
+                if (transmitterChannel != null) {
+                    bikeTransmitterController = new BikeTransmitterController(transmitterChannel);
+                    
+                    // Set up control command listener to handle requests from ANT+ devices
+                    bikeTransmitterController.setControlCommandListener(new BikeTransmitterController.ControlCommandListener() {
+                        @Override
+                        public void onResistanceChangeRequested(int resistance) {
+                            QLog.d(TAG, "ChannelService: ANT+ Resistance change requested: " + resistance);
+                            // Send broadcast intent to notify the main application
+                            Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_RESISTANCE_CHANGE");
+                            intent.putExtra("resistance", resistance);
+                            nativeSetResistance(resistance);
+                            sendBroadcast(intent);
+                        }
+
+                        @Override
+                        public void onPowerChangeRequested(int power) {
+                            QLog.d(TAG, "ChannelService: ANT+ Power change requested: " + power + "W");
+                            // Send broadcast intent to notify the main application
+                            Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_POWER_CHANGE");
+                            intent.putExtra("power", power);
+                            nativeSetPower(power);
+                            sendBroadcast(intent);
+                        }
+
+                        @Override
+                        public void onInclinationChangeRequested(double inclination) {
+                            QLog.d(TAG, "ChannelService: ANT+ Inclination change requested: " + inclination + "%");
+                            // Send broadcast intent to notify the main application
+                            Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_INCLINATION_CHANGE");
+                            intent.putExtra("inclination", inclination);
+                            nativeSetInclination(inclination);
+                            sendBroadcast(intent);
+                        }
+                    });
+                    
+                    QLog.i(TAG, "BikeTransmitterController initialized successfully (bike mode)");
+                    
+                    // Start the bike transmitter immediately after initialization
+                    boolean transmissionStarted = bikeTransmitterController.startTransmission();
+                    if (transmissionStarted) {
+                        QLog.i(TAG, "BikeTransmitterController transmission started automatically");
+                    } else {
+                        QLog.w(TAG, "Failed to start BikeTransmitterController transmission");
+                    }
+                } else {
+                    QLog.e(TAG, "Failed to acquire channel for BikeTransmitterController");
+                }
+                
+            } catch (Exception e) {
+                QLog.e(TAG, "Failed to initialize BikeTransmitterController: " + e.getMessage());
+                bikeTransmitterController = null;
             }
         }
     }
@@ -166,10 +404,18 @@ public class ChannelService extends Service {
             speedChannelController.close();
         if (sdmChannelController != null)
             sdmChannelController.close();
+        if (bikeChannelController != null)  // Added closing bikeChannelController
+            bikeChannelController.close();
+        if (bikeTransmitterController != null) {  // Added closing bikeTransmitterController
+            bikeTransmitterController.close();  // Use close() method like other controllers
+        }
+
         heartChannelController = null;
         powerChannelController = null;
         speedChannelController = null;
         sdmChannelController = null;
+        bikeChannelController = null;  // Added nullifying bikeChannelController
+        bikeTransmitterController = null;  // Added nullifying bikeTransmitterController
     }
 
     AntChannel acquireChannel() throws ChannelNotAvailableException {
@@ -190,13 +436,13 @@ public class ChannelService extends Service {
                 else {
                     NetworkKey mNK = new NetworkKey(new byte[]{(byte) 0xb9, (byte) 0xa5, (byte) 0x21, (byte) 0xfb,
                             (byte) 0xbd, (byte) 0x72, (byte) 0xc3, (byte) 0x45});
-                    Log.v(TAG, mNK.toString());
+                    QLog.v(TAG, mNK.toString());
                     mAntChannel = mAntChannelProvider.acquireChannelOnPrivateNetwork(this, mNK);
                 }
             } catch (RemoteException e) {
-                Log.v(TAG, "ACP Remote Ex");
+                QLog.v(TAG, "ACP Remote Ex");
             } catch (UnsupportedFeatureException e) {
-                Log.v(TAG, "ACP UnsupportedFeature Ex");
+                QLog.v(TAG, "ACP UnsupportedFeature Ex");
             }
         }
         return mAntChannel;
@@ -213,14 +459,14 @@ public class ChannelService extends Service {
     private final BroadcastReceiver mChannelProviderStateChangedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "onReceive");
+            QLog.d(TAG, "onReceive");
             if (AntChannelProvider.ACTION_CHANNEL_PROVIDER_STATE_CHANGED.equals(intent.getAction())) {
                 boolean update = false;
                 // Retrieving the data contained in the intent
                 int numChannels = intent.getIntExtra(AntChannelProvider.NUM_CHANNELS_AVAILABLE, 0);
                 boolean legacyInterfaceInUse = intent.getBooleanExtra(AntChannelProvider.LEGACY_INTERFACE_IN_USE, false);
 
-                Log.d(TAG, "onReceive" + mAllowAddChannel + " " +  numChannels + " " + legacyInterfaceInUse);
+                QLog.d(TAG, "onReceive" + mAllowAddChannel + " " +  numChannels + " " + legacyInterfaceInUse);
 
                 if (mAllowAddChannel) {
                     // Was a acquire channel allowed
@@ -239,7 +485,7 @@ public class ChannelService extends Service {
                         try {
                             openAllChannels();
                         } catch (ChannelNotAvailableException exception) {
-                            Log.e(TAG, "Channel not available!!");
+                            QLog.e(TAG, "Channel not available!!");
                         }
                     }
                 }
@@ -248,10 +494,14 @@ public class ChannelService extends Service {
     };
 
     private void doBindAntRadioService() {
-        if (BuildConfig.DEBUG) Log.v(TAG, "doBindAntRadioService");
+        if (BuildConfig.DEBUG) QLog.v(TAG, "doBindAntRadioService");
 
-        // Start listing for channel available intents
-        registerReceiver(mChannelProviderStateChangedReceiver, new IntentFilter(AntChannelProvider.ACTION_CHANNEL_PROVIDER_STATE_CHANGED));
+        ContextCompat.registerReceiver(
+            this,
+            mChannelProviderStateChangedReceiver,
+            new IntentFilter(AntChannelProvider.ACTION_CHANNEL_PROVIDER_STATE_CHANGED),
+            ContextCompat.RECEIVER_EXPORTED
+        );
 
         // Creating the intent and calling context.bindService() is handled by
         // the static bindService() method in AntService
@@ -259,14 +509,14 @@ public class ChannelService extends Service {
     }
 
     private void doUnbindAntRadioService() {
-        if (BuildConfig.DEBUG) Log.v(TAG, "doUnbindAntRadioService");
+        if (BuildConfig.DEBUG) QLog.v(TAG, "doUnbindAntRadioService");
 
         // Stop listing for channel available intents
         try {
             unregisterReceiver(mChannelProviderStateChangedReceiver);
         } catch (IllegalArgumentException exception) {
             if (BuildConfig.DEBUG)
-                Log.d(TAG, "Attempting to unregister a never registered Channel Provider State Changed receiver.");
+                QLog.d(TAG, "Attempting to unregister a never registered Channel Provider State Changed receiver.");
         }
 
         if (mAntRadioServiceBound) {
@@ -301,7 +551,7 @@ public class ChannelService extends Service {
     }
 
     static void die(String error) {
-        Log.e(TAG, "DIE: " + error);
+        QLog.e(TAG, "DIE: " + error);
     }
 
 }

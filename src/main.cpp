@@ -5,10 +5,11 @@
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
 #include <unistd.h> // getuid
+#include "EventHandler.h"
 #endif
 #endif
 #include <QQmlContext>
-
+#include "logwriter.h"
 #include "bluetooth.h"
 #include "devices/domyostreadmill/domyostreadmill.h"
 #include "homeform.h"
@@ -21,9 +22,14 @@
 #include <QQmlApplicationEngine>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QList>
 #ifdef CHARTJS
 #include <QtWebView/QtWebView>
 #endif
+
+#include "mqttpublisher.h"
+#include "androidstatusbar.h"
+#include "fontmanager.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -37,6 +43,8 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
+
+#include "osc.h"
 
 #include "handleurl.h"
 
@@ -65,13 +73,23 @@ bool battery_service = false;
 bool service_changed = false;
 bool bike_wheel_revs = false;
 bool run_cadence_sensor = false;
+bool horizon_treadmill_7_8 = false;
+bool horizon_treadmill_force_ftms = false;
 bool nordictrack_10_treadmill = false;
+bool proform_performance_300i_treadmill = false;
 bool reebok_fr30_treadmill = false;
+bool zwift_play = false;
+bool zwift_click = false;
+bool zwift_play_emulator = false;
+bool virtual_device_bluetooth = true;
+QString eventGearDevice = QStringLiteral("");
 QString trainProgram;
 QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
-uint8_t bikeResistanceOffset = 4;
+int8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
+QString power_sensor_name = QStringLiteral("Disabled");
+bool power_sensor_as_treadmill = false;
 QString logfilename = QStringLiteral("debug-") +
                       QDateTime::currentDateTime()
                           .toString()
@@ -82,12 +100,151 @@ QString logfilename = QStringLiteral("debug-") +
 QUrl profileToLoad;
 static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandler(0);
 
+// Function to display help information and exit
+void displayHelp() {
+    printf("qDomyos-Zwift Usage:\n");
+    printf("General options:\n");
+    printf("  -h, --help                    Display this help message and exit\n");
+    printf("  -no-gui                       Run in non-GUI mode\n");
+    printf("  -qml                          Force QML mode\n");
+    printf("  -noqml                        Disable QML mode\n");
+    printf("  -miles                        Use miles instead of kilometers\n");
+    printf("  -no-console                   Disable console output\n");
+    printf("  -no-log                       Disable logging\n");
+    printf("  -profile <name>               Load specific profile\n");
+
+    printf("\nDevice configuration:\n");
+    printf("  -name <device_name>           Set device name\n");
+    printf("  -poll-device-time <ms>        Set device polling time in milliseconds\n");
+    printf("  -no-write-resistance          Disable resistance writing\n");
+    printf("  -no-heart-service             Disable heart rate service\n");
+    printf("  -heart-service                Enable heart rate service\n");
+    printf("  -no-virtual-device-bluetooth  Disable virtual device bluetooth\n");
+
+    printf("\nBike specific options:\n");
+    printf("  -only-virtualbike             Run only virtual bike mode\n");
+    printf("  -bike-resistance-gain <value> Set bike resistance gain\n");
+    printf("  -bike-resistance-offset <value> Set bike resistance offset\n");
+    printf("  -bike-cadence-sensor          Enable bike cadence sensor\n");
+    printf("  -bike-power-sensor            Enable bike power sensor\n");
+    printf("  -bike-wheel-revs              Enable bike wheel revolution tracking\n");
+    printf("  -power-sensor-name <name>     Set power sensor name\n");
+    printf("  -power-sensor-as-treadmill    Use power sensor as treadmill\n");
+
+    printf("\nTreadmill specific options:\n");
+    printf("  -only-virtualtreadmill        Run only virtual treadmill mode\n");
+    printf("  -run-cadence-sensor           Enable run cadence sensor\n");
+    printf("  -horizon-treadmill-7-8        Enable Horizon 7.8 treadmill support\n");
+    printf("  -horizon-treadmill-force-ftms Force FTMS for Horizon treadmill\n");
+    printf("  -nordictrack-10-treadmill     Enable NordicTrack 10 treadmill support\n");
+    printf("  -proform-perf-300i-treadmill  Enable Proform Performance 300i support\n");
+    printf("  -reebok_fr30_treadmill        Enable Reebok FR30 treadmill support\n");
+
+    printf("\nBluetooth options:\n");
+    printf("  -no-reconnection              Disable bluetooth reconnection\n");
+    printf("  -bluetooth_relaxed            Enable relaxed bluetooth mode\n");
+    printf("  -battery-service              Enable battery service\n");
+    printf("  -service-changed              Enable service changed notifications\n");
+    printf("  -bluetooth-event-gear-device <device> Set bluetooth event gear device\n");
+
+    printf("\nIntegration options:\n");
+    printf("  -zwift_play                   Enable Zwift Play\n");
+    printf("  -zwift_click                  Enable Zwift Click\n");
+    printf("  -zwift_play_emulator          Enable Zwift Play emulator\n");
+    printf("  -test-peloton                 Enable Peloton test mode\n");
+    printf("  -test-hfb                     Enable Home Fitness Buddy test mode\n");
+    printf("  -test-pzp                     Enable Power Zone Pack test mode\n");
+    printf("  -train <program>              Specify training program\n");
+
+    printf("\nPeloton options:\n");
+    printf("  -peloton-username <username>  Set Peloton username\n");
+    printf("  -peloton-password <password>  Set Peloton password\n");
+
+    printf("\nPower Zone Pack options:\n");
+    printf("  -pzp-username <username>      Set Power Zone Pack username\n");
+    printf("  -pzp-password <password>      Set Power Zone Pack password\n");
+
+    printf("\nOther options:\n");
+    printf("  -test-resistance              Enable resistance testing\n");
+    printf("  -fit-file-saved-on-quit       Save FIT file on application quit\n");
+
+    exit(0);
+}
+
+
+#ifdef Q_CC_MSVC
+#include <windows.h>
+#include <dbghelp.h>
+#include <rtcapi.h>
+#include <cstdio>
+
+void PrintStack() {
+    CONTEXT context = {};
+    RtlCaptureContext(&context);
+
+    STACKFRAME64 stackFrame = {};
+    stackFrame.AddrPC.Offset = context.Rip;  // Per x64, usa Rip
+    stackFrame.AddrPC.Mode = AddrModeFlat;
+    stackFrame.AddrFrame.Offset = context.Rbp;
+    stackFrame.AddrFrame.Mode = AddrModeFlat;
+    stackFrame.AddrStack.Offset = context.Rsp;
+    stackFrame.AddrStack.Mode = AddrModeFlat;
+
+    HANDLE process = GetCurrentProcess();
+    HANDLE thread = GetCurrentThread();
+
+    SymInitialize(process, NULL, TRUE);
+
+    while (StackWalk64(
+        IMAGE_FILE_MACHINE_AMD64, process, thread, &stackFrame, &context,
+        NULL, SymFunctionTableAccess64, SymGetModuleBase64, NULL)) {
+        printf("Address: 0x%llx\n", stackFrame.AddrPC.Offset);
+    }
+
+    SymCleanup(process);
+}
+
+int __cdecl CustomRTCErrorHandler(int errorType, const wchar_t* filename, int linenumber, 
+                           const wchar_t* moduleName, const wchar_t* format, ...)
+{
+    // Buffer for the formatted error message
+    wchar_t errorMessage[512];
+    va_list args;
+    
+    // Format the error message using varargs
+    va_start(args, format);
+    vswprintf(errorMessage, sizeof(errorMessage)/sizeof(wchar_t), format, args);
+    va_end(args);
+    
+    // Print complete error information
+    fwprintf(stderr, L"Runtime Error Check Failed!\n");
+    fwprintf(stderr, L"Error Type: %d\n", errorType);
+    fwprintf(stderr, L"File: %ls\n", filename ? filename : L"Unknown");
+    fwprintf(stderr, L"Line: %d\n", linenumber);
+    fwprintf(stderr, L"Module: %ls\n", moduleName ? moduleName : L"Unknown");
+    fwprintf(stderr, L"Error Message: %ls\n", errorMessage);
+    fwprintf(stderr, L"----------------------------------------\n");
+    
+    #ifdef _DEBUG
+        __debugbreak();  // Break into debugger in debug builds
+    #endif
+  
+    PrintStack();
+
+    return 1;  // Return non-zero to indicate error was handled    
+}
+#endif
+
 QCoreApplication *createApplication(int &argc, char *argv[]) {
 
     QSettings settings;
     bool nogui = false;
 
     for (int i = 1; i < argc; ++i) {
+        if (!qstrcmp(argv[i], "-h") || !qstrcmp(argv[i], "--help")) {
+            displayHelp();
+            // displayHelp() will exit the program
+        }
         if (!qstrcmp(argv[i], "-no-gui")) {
             nogui = true;
             forceQml = false;
@@ -102,6 +259,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             noConsole = true;
         if (!qstrcmp(argv[i], "-test-resistance"))
             testResistance = true;
+        if (!qstrcmp(argv[i], "-no-virtual-device-bluetooth"))
+            virtual_device_bluetooth = false;
         if (!qstrcmp(argv[i], "-no-log"))
             logs = false;
         if (!qstrcmp(argv[i], "-no-write-resistance"))
@@ -130,10 +289,22 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             bike_wheel_revs = true;
         if (!qstrcmp(argv[i], "-run-cadence-sensor"))
             run_cadence_sensor = true;
+        if (!qstrcmp(argv[i], "-horizon-treadmill-7-8"))
+            horizon_treadmill_7_8 = true; 
+        if (!qstrcmp(argv[i], "-horizon-treadmill-force-ftms"))
+            horizon_treadmill_force_ftms = true; 
         if (!qstrcmp(argv[i], "-nordictrack-10-treadmill"))
             nordictrack_10_treadmill = true;
+        if (!qstrcmp(argv[i], "-proform-perf-300i-treadmill"))
+            proform_performance_300i_treadmill = true;
         if (!qstrcmp(argv[i], "-reebok_fr30_treadmill"))
             reebok_fr30_treadmill = true;
+        if (!qstrcmp(argv[i], "-zwift_play"))
+            zwift_play = true;
+        if (!qstrcmp(argv[i], "-zwift_click"))
+            zwift_click = true;
+        if (!qstrcmp(argv[i], "-zwift_play_emulator"))
+            zwift_play_emulator = true;
         if (!qstrcmp(argv[i], "-test-peloton"))
             testPeloton = true;
         if (!qstrcmp(argv[i], "-test-hfb"))
@@ -147,6 +318,10 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-name")) {
 
             deviceName = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-bluetooth-event-gear-device")) {
+
+            eventGearDevice = argv[++i];
         }
         if (!qstrcmp(argv[i], "-peloton-username")) {
 
@@ -186,6 +361,12 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             } else {
                 qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
             }
+        }
+        if (!qstrcmp(argv[i], "-power-sensor-name")) {
+            power_sensor_name = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-power-sensor-as-treadmill")) {
+            power_sensor_as_treadmill = true;
         }
     }
 
@@ -232,12 +413,25 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
     }
 }
 
+// Global thread and writer instance
+static QThread *logThread = nullptr;
+static LogWriter *logWriter = nullptr;
+
+void initializeLogThread() {
+    if (!logThread) {
+        logThread = new QThread();
+        logWriter = new LogWriter();
+        logWriter->moveToThread(logThread);
+        logThread->start();
+    }
+}
+
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
 
     QSettings settings;
     static bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
-    if ((logs == false && !forceQml) || (logdebug == false && forceQml))
+    if ( (logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
     if (logdebug == false)
 #endif
@@ -270,13 +464,15 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
         QString path = homeform::getWritableAppDir();
 
-        // Linux log files are generated on binary location
+        // Ensure thread is initialized
+        initializeLogThread();
 
-        QFile outFile(path + logfilename);
-        outFile.open(QIODevice::WriteOnly | QIODevice::Append);
-        QTextStream ts(&outFile);
-        ts << txt;
-        fprintf(stderr, "%s", txt.toLocal8Bit().constData());
+        // Write log in the worker thread
+        QMetaObject::invokeMethod(logWriter, "writeLog",
+                                 Qt::QueuedConnection,
+                                 Q_ARG(QString, path + logfilename),
+                                 Q_ARG(QString, txt));
+
     }
     (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
@@ -286,6 +482,10 @@ int main(int argc, char *argv[]) {
     qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");
 #endif
 
+#ifdef Q_CC_MSVC
+  _RTC_SetErrorFuncW(CustomRTCErrorHandler);
+#endif
+  
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 #else
@@ -317,10 +517,38 @@ int main(int argc, char *argv[]) {
     app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
 
     QSettings settings;
-#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+
+#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
+    QString profileName = "";
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    profileName = lockscreen::get_action_profile();
+    lockscreen::nslog(QString("quick_action profile " + profileName).toLatin1());
+#endif
+#else
+    QAndroidJniObject javaPath = QAndroidJniObject::fromString(homeform::getWritableAppDir());
+    QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Shortcuts", "getProfileExtras",
+                                                "(Landroid/content/Context;)Ljava/lang/String;", QtAndroid::androidContext().object());
+    profileName = r.toString();
+#endif
+    
+    QFileInfo pp(profileName);
+    profileName = pp.baseName();
+    
+    if(profileName.count()) {
+        if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
+            profileToLoad = QUrl::fromLocalFile(homeform::getProfileDir() + "/" + profileName + ".qzs");
+        } else {
+            qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
+        }
+    }
+#endif
+
     if (!profileToLoad.isEmpty()) {
         homeform::loadSettings(profileToLoad);
     }
+
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
 
     if (fit_file_saved_on_quit) {
         settings.setValue(QZSettings::fit_file_saved_on_quit, true);
@@ -332,11 +560,6 @@ int main(int argc, char *argv[]) {
 #endif
     {
         bool defaultNoHeartService = !noHeartService;
-
-        // Android 10 doesn't support multiple services for peripheral mode
-        if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 10)) {
-            settings.setValue(QZSettings::bike_heartrate_service, true);
-        }
 
         // some Android 6 doesn't support wake lock
         if (QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 7) &&
@@ -361,8 +584,17 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::service_changed, service_changed);
         settings.setValue(QZSettings::bike_wheel_revs, bike_wheel_revs);
         settings.setValue(QZSettings::run_cadence_sensor, run_cadence_sensor);
+        settings.setValue(QZSettings::horizon_treadmill_7_8, horizon_treadmill_7_8);
+        settings.setValue(QZSettings::horizon_treadmill_force_ftms, horizon_treadmill_force_ftms);
         settings.setValue(QZSettings::nordictrack_10_treadmill, nordictrack_10_treadmill);
+        settings.setValue(QZSettings::proform_performance_300i, proform_performance_300i_treadmill);
         settings.setValue(QZSettings::reebok_fr30_treadmill, reebok_fr30_treadmill);
+        settings.setValue(QZSettings::zwift_click, zwift_click);
+        settings.setValue(QZSettings::zwift_play, zwift_play);
+        settings.setValue(QZSettings::zwift_play_emulator, zwift_play_emulator);
+        settings.setValue(QZSettings::virtual_device_bluetooth, virtual_device_bluetooth);
+        settings.setValue(QZSettings::power_sensor_name, power_sensor_name);
+        settings.setValue(QZSettings::power_sensor_as_treadmill, power_sensor_as_treadmill);
     }
 #endif
 
@@ -372,11 +604,18 @@ int main(int argc, char *argv[]) {
         qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
     }
 #endif
+    
+    // Register custom meta types used in queued invocations
+    qRegisterMetaType<SessionLine>("SessionLine");
+    qRegisterMetaType<QList<SessionLine>>("QList<SessionLine>");
+    qRegisterMetaType<BLUETOOTH_TYPE>("BLUETOOTH_TYPE");
+    qRegisterMetaType<uint32_t>("uint32_t");
+    qRegisterMetaType<FIT_SPORT>("FIT_SPORT");
 
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email")) {
+        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token")) {
 
             qDebug() << s << settings.value(s);
         }
@@ -397,7 +636,7 @@ int main(int argc, char *argv[]) {
         l.append(SessionLine(i%20,i%10,i,i%300,i%10,i%180,i%6,i%120,i,i, d));
     }
     QString path = homeform::getWritableAppDir();
-    qfit::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", l, bluetoothdevice::BIKE);
+    qfit::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", l, BIKE);
     return 0;
 #endif
 
@@ -531,7 +770,7 @@ int main(int argc, char *argv[]) {
             QtAndroid::requestPermissionsSync(QStringList({"android.permission.POST_NOTIFICATIONS"}));
         if (resultHash["android.permission.POST_NOTIFICATIONS"] == QtAndroid::PermissionResult::Denied)
             qDebug() << "POST_NOTIFICATIONS denied!";
-    }
+    }    
 #endif
 
     /* test virtual echelon
@@ -542,6 +781,19 @@ int main(int argc, char *argv[]) {
     bluetooth bl(logs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance,
                  bikeResistanceOffset,
                  bikeResistanceGain); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
+
+    QString mqtt_host = settings.value(QZSettings::mqtt_host, QZSettings::default_mqtt_host).toString();
+    int mqtt_port = settings.value(QZSettings::mqtt_port, QZSettings::default_mqtt_port).toInt();
+    QString mqtt_username = settings.value(QZSettings::mqtt_username, QZSettings::default_mqtt_username).toString();
+    QString mqtt_password = settings.value(QZSettings::mqtt_password, QZSettings::default_mqtt_password).toString();
+    if(mqtt_host.length() > 0) {
+        MQTTPublisher* mqtt = new MQTTPublisher(mqtt_host, mqtt_port, mqtt_username, mqtt_password, &bl);
+    }
+
+    QString OSC_ip = settings.value(QZSettings::OSC_ip, QZSettings::default_OSC_ip).toString();
+    if(OSC_ip.length() > 0) {
+        OSC* osc = new OSC(&bl);
+    }
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -554,6 +806,12 @@ int main(int argc, char *argv[]) {
     if (forceQml)
 #endif
     {
+        AndroidStatusBar::registerQmlType();
+        
+#ifdef Q_OS_ANDROID
+        FontManager fontManager;
+        fontManager.initializeEmojiFont();
+#endif
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(
@@ -575,6 +833,9 @@ int main(int argc, char *argv[]) {
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(true));
 #else
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(false));
+#endif
+#ifdef Q_OS_ANDROID
+        engine.rootContext()->setContextProperty("fontManager", &fontManager);
 #endif
         engine.load(url);
         homeform *h = new homeform(&engine, &bl);
@@ -600,6 +861,11 @@ int main(int argc, char *argv[]) {
         unlockScreen();
 #endif
     }
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    else {
+        bl.homeformLoaded = true;
+    }
+#endif
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (qobject_cast<QApplication *>(app.data())) {
@@ -614,6 +880,13 @@ int main(int argc, char *argv[]) {
     } else {
         // start non-GUI version...
     }
+
+#ifdef Q_OS_LINUX
+#ifndef Q_OS_ANDROID
+    if(eventGearDevice.length())
+        new BluetoothHandler(&bl, eventGearDevice);
+#endif
+#endif
     return app->exec();
 #endif
 }

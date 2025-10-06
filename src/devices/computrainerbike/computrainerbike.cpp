@@ -13,10 +13,10 @@
 
 using namespace std::chrono_literals;
 
-computrainerbike::computrainerbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+computrainerbike::computrainerbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                    double bikeResistanceGain) {
     QSettings settings;
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     target_watts.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);

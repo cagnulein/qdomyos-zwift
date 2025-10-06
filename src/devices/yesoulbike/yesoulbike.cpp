@@ -14,9 +14,9 @@
 
 using namespace std::chrono_literals;
 
-yesoulbike::yesoulbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+yesoulbike::yesoulbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                        double bikeResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -332,6 +332,10 @@ void yesoulbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     // if (device.name().startsWith(QStringLiteral("YESOUL")))
     {
         bluetoothDevice = device;
+        if(device.name().toUpper().startsWith("YS_G1M_")) {
+            YS_G1M = true;
+            qDebug() << "YS_G1M workaround";
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &yesoulbike::serviceDiscovered);

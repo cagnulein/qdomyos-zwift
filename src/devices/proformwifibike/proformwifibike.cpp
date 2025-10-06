@@ -14,10 +14,11 @@
 
 using namespace std::chrono_literals;
 
-proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                  double bikeResistanceGain) {
     QSettings settings;
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
+    m_rawWatt.setType(metric::METRIC_WATT);
     target_watts.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -34,6 +35,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
     ok = connect(&websocket, &QWebSocket::connected, [&]() { qDebug() << "connected!"; });
     ok = connect(&websocket, &QWebSocket::disconnected, [&]() {
         qDebug() << "disconnected!";
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
         connectToDevice();
     });
 
@@ -218,9 +220,14 @@ void proformwifibike::forceResistance(double requestResistance) {
     }
 
     double inc = qRound(requestResistance / 0.5) * 0.5;
-    QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(inc) + "\"}}";
-    if (!inclinationAvailableByHardware())
+    QString send;
+    if (inclinationAvailableByHardware()) {
+        if(max_incline_supported > 0 && inc > max_incline_supported)
+            inc = max_incline_supported;
+        send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(inc) + "\"}}";
+    } else {
         send = "{\"type\":\"set\",\"values\":{\"Resistance\":\"" + QString::number(requestResistance) + "\"}}";
+    }
 
     qDebug() << "forceResistance" << send;
     websocket.sendTextMessage(send);
@@ -254,7 +261,7 @@ void proformwifibike::innerWriteResistance() {
             requestResistance = 1;
         }
 
-        if (requestResistance != currentResistance().value()) {
+        if (requestResistance != currentResistance().value() && !inclinationAvailableByHardware() && requestInclination == -100) {
             emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
             auto virtualBike = this->VirtualBike();
             if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
@@ -319,6 +326,11 @@ void proformwifibike::update() {
         }
 
         if(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()) > 10000) {
+
+            Speed = 0;
+            m_watt = 0;
+            Cadence = 0;            
+
             // the bike is not responding
             qDebug() << "bike not responding...Let's close the connection!";
             websocket.close();
@@ -472,21 +484,41 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     // some buggy TDF1 bikes send spurious wattage at the end with cadence = 0
     if (Cadence.value() > 0) {
         if (!values[QStringLiteral("Current Watts")].isUndefined()) {
-            double watt = values[QStringLiteral("Current Watts")].toString().toDouble();
+            m_rawWatt = values[QStringLiteral("Current Watts")].toString().toDouble();
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
-                m_watt = watt;
+                m_watt = m_rawWatt.value();
             emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
         } else if (!values[QStringLiteral("Watt attuali")].isUndefined()) {
             double watt = values[QStringLiteral("Watt attuali")].toString().toDouble();
             m_watt = watt;
             emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
         }
+    } else {
+        qDebug() << "watt to 0 due to cadence = 0";
+        m_watt = 0;
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
     }
 
     if (!values[QStringLiteral("Actual Incline")].isUndefined()) {
+        bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
         double incline = values[QStringLiteral("Actual Incline")].toString().toDouble();
+        // if the bike has the inclination, QZ is using it to change the resistance when it's not in ERG mode.
+        // so I would like to keep the real inclination value instead of showing to the user the modified inclination + gears.
+        // this is very helpful when you're following a GPX for example
+        if(inclinationAvailableByHardware() && !erg_mode)
+            incline = incline - gears();
+        Inclination = incline;
+        emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+    } else if (!values[QStringLiteral("Incline")].isUndefined()) {
+        bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+        double incline = values[QStringLiteral("Incline")].toString().toDouble();
+        // if the bike has the inclination, QZ is using it to change the resistance when it's not in ERG mode.
+        // so I would like to keep the real inclination value instead of showing to the user the modified inclination + gears.
+        // this is very helpful when you're following a GPX for example
+        if(inclinationAvailableByHardware() && !erg_mode)
+            incline = incline - gears();
         Inclination = incline;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
     }
@@ -531,8 +563,8 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
                         value = 5.0;
                     }
                     if (value != 0.0) {
-                        forceResistance(currentInclination().value() + value); // to force an immediate change
                         setGears(gears() + value);
+                        forceResistance(lastRawRequestedInclinationValue + gears()); // to force an immediate change
                     }
                 } else {
                     double value = 0;

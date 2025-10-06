@@ -30,7 +30,7 @@ class rower : public bluetoothdevice {
     virtual uint16_t watts();
     virtual resistance_t pelotonToBikeResistance(int pelotonResistance);
     virtual resistance_t resistanceFromPowerRequest(uint16_t power);
-    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
+    BLUETOOTH_TYPE deviceType() override;
     metric pelotonResistance();
     void clearStats() override;
     void setLap() override;
@@ -59,7 +59,6 @@ class rower : public bluetoothdevice {
     metric RequestedPelotonResistance;
     double requestInclination = -100;
     metric RequestedCadence;
-    metric RequestedPower;
     metric RequestedSpeed;
     volatile double requestSpeed = -1;
     metric StrokesLength;

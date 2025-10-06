@@ -35,7 +35,7 @@
 class nordictrackelliptical : public elliptical {
     Q_OBJECT
   public:
-    nordictrackelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    nordictrackelliptical(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                           double bikeResistanceGain);
     bool connected() override;
     int pelotonToEllipticalResistance(int pelotonResistance) override;
@@ -57,7 +57,7 @@ class nordictrackelliptical : public elliptical {
 
     QTimer *refresh;
     uint8_t counterPoll = 0;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;

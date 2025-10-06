@@ -77,14 +77,14 @@ class lifefitnesstreadmill : public treadmill {
     uint8_t firstStateChanged = 0;
     double lastSpeed = 0.0;
     double lastInclination = 0;
-    int64_t lastStart = 0;
-    int64_t lastStop = 0;
 
     bool initDone = false;
     bool initRequest = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    bool lifet5 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

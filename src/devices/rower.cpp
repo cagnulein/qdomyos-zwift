@@ -25,7 +25,8 @@ void rower::setGears(double gears) {
     QSettings settings;
     qDebug() << "setGears" << gears;
     m_gears = gears;
-    settings.setValue(QZSettings::gears_current_value, m_gears);
+    if (settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool())
+        settings.setValue(QZSettings::gears_current_value, m_gears);
     if (lastRawRequestedResistanceValue != -1) {
         changeResistance(lastRawRequestedResistanceValue);
     }
@@ -56,7 +57,7 @@ void rower::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void rower::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 double rower::requestedSpeed() { return requestSpeed; }
 
-bluetoothdevice::BLUETOOTH_TYPE rower::deviceType() { return bluetoothdevice::ROWING; }
+BLUETOOTH_TYPE rower::deviceType() { return ROWING; }
 
 void rower::clearStats() {
 
@@ -84,6 +85,10 @@ void rower::clearStats() {
     WattKg.clear(false);
 
     speedLast500mValues.clear();
+
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].clear(false);
+    }    
 }
 
 void rower::setPaused(bool p) {
@@ -109,6 +114,10 @@ void rower::setPaused(bool p) {
     StrokesCount.setPaused(p);
     StrokesLength.setPaused(p);
     WattKg.setPaused(p);
+
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setPaused(p);
+    }    
 }
 
 void rower::setLap() {
@@ -136,6 +145,9 @@ void rower::setLap() {
     WattKg.setLap(false);
 
     speedLast500mValues.clear();
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setLap(false);
+    }    
 }
 
 // min/500m

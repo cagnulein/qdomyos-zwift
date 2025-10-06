@@ -24,7 +24,7 @@ paferstreadmill::paferstreadmill(uint32_t pollDeviceTime, bool noConsole, bool n
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
 
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;
@@ -196,6 +196,19 @@ void paferstreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     emit packetReceived();
 
+    if (newValue.length() == 4 && value.at(0) == 0x55 && value.at(1) == 0x09 && value.at(2) == 0x01 &&
+        value.at(3) == 0x01) {
+        qDebug() << "Paferstreadmill: pressing start button";
+        emit tapeStarted();
+        requestStart = 1;
+        return;
+    } else if (newValue.length() == 4 && value.at(0) == 0x55 && value.at(1) == 0x09 && value.at(2) == 0x01 &&
+        value.at(3) == 0x00) {
+        qDebug() << "Paferstreadmill: pressing stop button";
+        requestStop = 1;
+        return;
+    }
+
     if ((newValue.length() != 13))
         return;
 
@@ -208,8 +221,9 @@ void paferstreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     else
 #endif
     {
-        /*if(heartRateBeltName.startsWith("Disabled"))
-        Heart = value.at(18);*/
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+            update_hr_from_external();
+        }
     }
 
     cadenceFromAppleWatch();

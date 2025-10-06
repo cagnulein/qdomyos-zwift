@@ -57,7 +57,9 @@ class kingsmithr2treadmill : public treadmill {
     const QByteArray ENCRYPT_TABLE_v5 =
         QStringLiteral("iaCw4FGHIJqLhN+P9RVTU/WcY6ObDdefgEZjklmnopQrsBuvMxXz1yA2t5078KS3=").toUtf8();
     const QByteArray ENCRYPT_TABLE_v6 =
-        QStringLiteral("ZaCw4FGHIJqLhN+P8RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5079KS3=").toUtf8();        
+        QStringLiteral("ZaCw4FGHIJqLhN+P8RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5079KS3=").toUtf8();
+    const QByteArray ENCRYPT_TABLE_v7 =
+        QStringLiteral("baCw4FGHIJqLhN+P9RVTU/WcY6OZDdefgEijklmnopQrsBuvMxXz1yA2t5078KS3=").toUtf8();
 
     double GetInclinationFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
@@ -80,6 +82,11 @@ class kingsmithr2treadmill : public treadmill {
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
 
+    enum KINGSMITH_R2_CONTROL_MODE { AUTOMODE = 0, MANUAL, STANDBY, UNKNOWN_CONTROL_MODE };
+    enum KINGSMITH_R2_RUN_STATE { STOP = 0, START, UNKNOWN_RUN_STATE };
+    KINGSMITH_R2_CONTROL_MODE lastControlMode = UNKNOWN_CONTROL_MODE;
+    KINGSMITH_R2_RUN_STATE lastRunState = UNKNOWN_RUN_STATE;
+
     QTimer *refresh;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
@@ -90,7 +97,12 @@ class kingsmithr2treadmill : public treadmill {
     bool initRequest = false;
 
     bool KS_NACH_X21C = false;
+    bool KS_NACH_X21C_2 = false;
+    bool KS_HDSY_X21C = false;
+    bool KS_HDSY_X21C_2 = false;
     bool KS_NGCH_G1C = false;
+    bool KS_NGCH_G1C_2 = false;
+    bool KS_NACH_MXG = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

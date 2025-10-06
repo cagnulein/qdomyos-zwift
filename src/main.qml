@@ -8,6 +8,7 @@ import QtMultimedia 5.15
 import org.cagnulein.qdomyoszwift 1.0
 import QtQuick.Window 2.12
 import Qt.labs.platform 1.1
+import AndroidStatusBar 1.0
 
 ApplicationWindow {
     id: window
@@ -17,19 +18,57 @@ ApplicationWindow {
     visible: true
 	 objectName: "stack"
     title: qsTr("qDomyos-Zwift")
+    
+    // Force update on orientation change
+    property int currentOrientation: Screen.orientation
+    onCurrentOrientationChanged: {
+        if (Qt.platform.os === "android") {
+            console.log("Orientation changed to:", currentOrientation)
+            // Force property binding updates by accessing the properties
+            var temp = AndroidStatusBar.height + AndroidStatusBar.navigationBarHeight + AndroidStatusBar.leftInset + AndroidStatusBar.rightInset
+        }
+    }
+    
+    // Helper functions for cleaner padding calculations
+    function getTopPadding() {
+        if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
+               AndroidStatusBar.height : AndroidStatusBar.leftInset;
+    }
+    
+    function getBottomPadding() {
+        if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
+               AndroidStatusBar.navigationBarHeight : AndroidStatusBar.rightInset;
+    }
+    
+    function getLeftPadding() {
+        if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
+        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 
+               AndroidStatusBar.leftInset : 0;
+    }
+    
+    function getRightPadding() {
+        if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
+        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 
+               AndroidStatusBar.rightInset : 0;
+    }
 
     signal gpx_open_clicked(url name)
     signal gpxpreview_open_clicked(url name)
     signal profile_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
+    signal fitfile_preview_clicked(url name)
     signal trainprogram_open_other_folder(url name)
     signal gpx_open_other_folder(url name)
     signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
+    signal fitfile_preview(string s)
     signal gpx_save_clicked()
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
     signal strava_connect_clicked()
+    signal peloton_connect_clicked()
     signal loadSettings(url name)
     signal saveSettings(url name)
     signal deleteSettings(url name)
@@ -42,6 +81,7 @@ ApplicationWindow {
     signal keyMediaNext()
     signal floatingOpen()
     signal openFloatingWindowBrowser();
+    signal strava_upload_file_prepare();
 
     property bool lockTiles: false
     property bool settings_restart_to_apply: false
@@ -51,7 +91,10 @@ ApplicationWindow {
         property string profile_name: "default"        
         property string theme_status_bar_background_color: "#800080"
         property bool volume_change_gears: false
+        property string peloton_username: "username"
+        property string peloton_password: "password"
     }
+
 
     Store {
         id: iapStore
@@ -180,9 +223,36 @@ ApplicationWindow {
 		 Label {
              anchors.horizontalCenter: parent.horizontalCenter
 		     text: qsTr("Program has been loaded correctly. Press start to begin!")
-			}
+		 }
 		 }
 	}
+
+    MessageDialog {
+           id: popupPelotonAuth
+           text: "Peloton Authentication Change"
+           informativeText: "Peloton has moved to a new authentication system. Username and password are no longer required.\n\nWould you like to switch to the new authentication method now?"
+           buttons: (MessageDialog.Yes | MessageDialog.No)
+           onYesClicked: {
+               settings.peloton_username = "username"
+               settings.peloton_password = "password"
+               stackView.push("WebPelotonAuth.qml")
+               peloton_connect_clicked()
+           }
+           onNoClicked: this.visible = false
+           visible: false
+       }
+
+    Timer {
+       id: pelotonAuthCheck
+       interval: 1000  // 1 second delay after startup
+       running: true
+       repeat: false
+       onTriggered: {
+           if (settings.peloton_password !== "password") {
+               popupPelotonAuth.visible = true
+           }
+       }
+    }
 
     Popup {
         id: popupClassificaHelper
@@ -344,6 +414,40 @@ ApplicationWindow {
          }
     }
 
+    Popup {
+        id: popupPelotonConnected
+         parent: Overlay.overlay
+         enabled: rootItem.pelotonPopupVisible
+         onEnabledChanged: { if(rootItem.pelotonPopupVisible) popupPelotonConnected.open() }
+         onClosed: { rootItem.pelotonPopupVisible = false; }
+
+         x: Math.round((parent.width - width) / 2)
+         y: Math.round((parent.height - height) / 2)
+         width: 380
+         height: 120
+         modal: true
+         focus: true
+         palette.text: "white"
+         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+         enter: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
+         }
+         exit: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
+         }
+         Column {
+             anchors.horizontalCenter: parent.horizontalCenter
+         Label {
+             anchors.horizontalCenter: parent.horizontalCenter
+             width: 370
+             height: 120
+             text: qsTr("Your Peloton account is now connected!<br><br>Restart the app to apply this change!")
+            }
+         }
+    }
+
     Timer {
         id: popupLicenseAutoClose
         interval: 120000; running: rootItem.licensePopupVisible; repeat: false
@@ -394,10 +498,22 @@ ApplicationWindow {
         visible: false
     }
 
+    MessageDialog {
+        text: "Strava"
+        informativeText: "Do you want to upload the workout to Strava?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {strava_upload_file_prepare(); rootItem.stravaUploadRequested = false;}
+        onNoClicked: {rootItem.stravaUploadRequested = false;}
+        visible: rootItem.stravaUploadRequested
+    }
+
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
+        topPadding: getTopPadding()
+        leftPadding: getLeftPadding()
+        rightPadding: getRightPadding()
 
         ToolButton {
             id: toolButton
@@ -606,6 +722,10 @@ ApplicationWindow {
         id: drawer
         width: window.width * 0.66
         height: window.height
+        topPadding: getTopPadding()
+        bottomPadding: getBottomPadding()
+        leftPadding: getLeftPadding()
+        rightPadding: getRightPadding()
 
         ScrollView {
             contentWidth: -1
@@ -635,12 +755,24 @@ ApplicationWindow {
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;
                         stackView.push("settings.qml")
+                        stackView.currentItem.peloton_connect_clicked.connect(function() {
+                            peloton_connect_clicked()
+                         });
                         drawer.close()
                     }
                 }
 
+            ItemDelegate {
+                text: qsTr("Workouts History")
+                width: parent.width
+                onClicked: {
+                    stackView.push("WorkoutsHistory.qml")
+                    stackView.currentItem.fitfile_preview_clicked.connect(fitfile_preview_clicked)
+                    drawer.close()
+                }
+            }
                 ItemDelegate {
-                    text: qsTr("👜Swag Bag")
+                    text: qsTr("Swag Bag")
                     width: parent.width
                     onClicked: {
                         stackView.push("SwagBagView.qml")
@@ -662,7 +794,7 @@ ApplicationWindow {
                 }
                 ItemDelegate {
                     id: gpx_open
-                    text: qsTr("🗺️ Open GPX")
+                    text: qsTr("Open GPX")
                     width: parent.width
                     onClicked: {
                         stackView.push("GPXList.qml")
@@ -678,7 +810,7 @@ ApplicationWindow {
                 }
                 ItemDelegate {
                     id: trainprogram_open
-                    text: qsTr("📈 Open Train Program")
+                    text: qsTr("Open Train Program")
                     width: parent.width
                     onClicked: {
                         stackView.push("TrainingProgramsList.qml")
@@ -722,6 +854,15 @@ ApplicationWindow {
                     }
                 }
                 ItemDelegate {
+                    id: wizardItem
+                    text: qsTr("Wizard")
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("Wizard.qml")
+                        drawer.close()
+                    }
+                }
+                ItemDelegate {
                     id: help
                     text: qsTr("Help")
                     width: parent.width
@@ -758,7 +899,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.16.45"
+                    text: "version 2.20.11"
                     width: parent.width
                 }
 
@@ -776,6 +917,26 @@ ApplicationWindow {
                     onClicked: {
                         stackView.push("WebStravaAuth.qml")
                         strava_connect_clicked()
+                        drawer.close()
+                    }
+                }
+
+                ItemDelegate {
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/Button_Connect_Rect_DarkMode.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
+                    }
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("WebPelotonAuth.qml")
+                        stackView.currentItem.goBack.connect(function() {
+                            stackView.pop();
+                        })
+                        peloton_connect_clicked()
                         drawer.close()
                     }
                 }
@@ -803,6 +964,9 @@ ApplicationWindow {
         id: stackView
         initialItem: "Home.qml"
         anchors.fill: parent
+        anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
+        anchors.rightMargin: getRightPadding()
+        anchors.leftMargin: getLeftPadding()
         focus: true
         Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
         Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
@@ -811,8 +975,18 @@ ApplicationWindow {
                 keyMediaPrevious();
             else if (event.key === Qt.Key_MediaNext)
                 keyMediaNext();
+            else if (OS_VERSION === "Other" && event.key === Qt.Key_Z)
+                volumeDown();
+            else if (OS_VERSION === "Other" && event.key === Qt.Key_X)
+                volumeUp();
 
             event.accepted = settings.volume_change_gears;
         }
     }
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;height:480;width:640}
+}
+##^##*/

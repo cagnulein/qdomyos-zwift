@@ -2,6 +2,7 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
+#include "homeform.h"
 #include "virtualdevices/virtualbike.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
@@ -15,8 +16,8 @@
 using namespace std::chrono_literals;
 
 domyoselliptical::domyoselliptical(bool noWriteResistance, bool noHeartService, bool testResistance,
-                                   uint8_t bikeResistanceOffset, double bikeResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+                                   int8_t bikeResistanceOffset, double bikeResistanceGain) {
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
 
@@ -367,7 +368,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 
 double domyoselliptical::GetSpeedFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = (packet.at(6) << 8) | packet.at(7);
+    uint16_t convertedData = (packet.at(6) << 8) | ((uint8_t)packet.at(7));
     double data = (double)convertedData / 10.0f;
     return data;
 }
@@ -513,6 +514,14 @@ void domyoselliptical::serviceScanDone(void) {
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &domyoselliptical::stateChanged);
+    if(!gattCommunicationChannelService) {
+        QSettings settings;
+        settings.setValue(QZSettings::domyos_elliptical_fmts, true);
+
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Domyos Elliptial it's a FTMS. Restart QZ to apply the fix, thanks.");
+        return;
+    }
     gattCommunicationChannelService->discoverDetails();
 }
 

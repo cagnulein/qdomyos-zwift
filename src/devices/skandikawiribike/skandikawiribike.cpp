@@ -13,9 +13,9 @@
 
 using namespace std::chrono_literals;
 
-skandikawiribike::skandikawiribike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+skandikawiribike::skandikawiribike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                    double bikeResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
 
@@ -247,8 +247,8 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            if (X2000) {
-                Heart = newValue.at(8);
+            if (X2000 || delightechBike) {
+                Heart = newValue.at(8); // X-2000 or delightech app/protocol compatible bike (e.g. Skandika Morpheus)
             } else {
                 Heart = 0;
             }
@@ -427,8 +427,14 @@ void skandikawiribike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         bluetoothDevice = device;
 
         if (device.name().toUpper().startsWith(QLatin1String("HT"))) {
-            X2000 = true;
-            qDebug() << "X-2000 WORKAROUND!";
+            if (device.name().length() == 11) { // Bikes like the Skandika X-2000 Foldaway Bike
+                X2000 = true; 
+                qDebug() << "X-2000 WORKAROUND!";
+            } else if (device.name().length() == 12) // Bikes compatible with delightech app/protocol, for example Skandika Morpheus
+            {
+                qDebug() << "deligthechbike WORKAROUND!";
+                delightechBike = true; 
+            }
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -478,7 +484,7 @@ uint16_t skandikawiribike::watts() {
     // ref
     // https://translate.google.com/translate?hl=it&sl=en&u=https://support.wattbike.com/hc/en-us/articles/115001881825-Power-Resistance-and-Cadence-Tables&prev=search&pto=aue
 
-    if (currentSpeed().value() <= 0) {
+    if (currentCadence().value() == 0) { // only update watts if pedaling
         return 0;
     }
 

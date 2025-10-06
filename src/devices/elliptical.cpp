@@ -31,11 +31,46 @@ void elliptical::update_metrics(bool watt_calc, const double watts) {
     }
 
     METS = calculateMETS();
-    elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
+    if (currentInclination().value() > 0)
+        elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
 
     _lastTimeUpdate = current;
     _firstUpdate = false;
 }
+
+resistance_t elliptical::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something
+
+void elliptical::changePower(int32_t power) {
+
+    RequestedPower = power; // in order to paint in any case the request power on the charts
+
+    if (!autoResistanceEnable) {
+        qDebug() << QStringLiteral("changePower ignored because auto resistance is disabled");
+        return;
+    }
+
+    requestPower = power; // used by some bikes that have ERG mode builtin
+    QSettings settings;
+    bool force_resistance =
+        settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
+            .toBool();
+    // bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(); //Not used
+    // anywhere in code
+    double erg_filter_upper =
+        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+    double erg_filter_lower =
+        settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+    double deltaDown = wattsMetric().value() - ((double)power);
+    double deltaUp = ((double)power) - wattsMetric().value();
+    qDebug() << QStringLiteral("filter  ") + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +
+                    QString::number(erg_filter_upper) + " " + QString::number(erg_filter_lower);
+    if (/*!ergModeSupported &&*/ force_resistance /*&& erg_mode*/ &&
+        (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower)) {
+        resistance_t r = (resistance_t)resistanceFromPowerRequest(power);
+        changeResistance(r); // resistance start from 1
+    }
+}
+
 
 uint16_t elliptical::watts() {
 
@@ -73,6 +108,7 @@ double elliptical::speedFromWatts() {
 }
 
 void elliptical::changeResistance(resistance_t resistance) {
+    qDebug() << "changeResistance" << resistance;
     lastRawRequestedResistanceValue = resistance;
     requestResistance = resistance + gears();
     RequestedResistance = resistance + gears();
@@ -82,13 +118,14 @@ void elliptical::setGears(double gears) {
     QSettings settings;
     qDebug() << "setGears" << gears;
     m_gears = gears;
-    settings.setValue(QZSettings::gears_current_value, m_gears);
+    if (settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool())
+        settings.setValue(QZSettings::gears_current_value, m_gears);
     if (lastRawRequestedResistanceValue != -1) {
         changeResistance(lastRawRequestedResistanceValue);
     }
 }
 void elliptical::changeInclination(double grade, double inclination) {
-    Q_UNUSED(grade);
+    qDebug() << "changeInclination" << grade << inclination;
     if (autoResistanceEnable) {
         requestInclination = inclination;
     }
@@ -100,7 +137,7 @@ metric elliptical::currentInclination() { return Inclination; }
 uint8_t elliptical::fanSpeed() { return FanSpeed; }
 bool elliptical::connected() { return false; }
 
-bluetoothdevice::BLUETOOTH_TYPE elliptical::deviceType() { return bluetoothdevice::ELLIPTICAL; }
+BLUETOOTH_TYPE elliptical::deviceType() { return ELLIPTICAL; }
 
 void elliptical::clearStats() {
     moving.clear(true);
@@ -116,6 +153,9 @@ void elliptical::clearStats() {
     WeightLoss.clear(false);
     WattKg.clear(false);
     Inclination.clear(false);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].clear(false);
+    }    
 }
 
 void elliptical::setPaused(bool p) {
@@ -132,6 +172,9 @@ void elliptical::setPaused(bool p) {
     Inclination.setPaused(p);
     WeightLoss.setPaused(p);
     WattKg.setPaused(p);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setPaused(p);
+    }    
 }
 
 void elliptical::setLap() {
@@ -148,6 +191,9 @@ void elliptical::setLap() {
     WattKg.setLap(false);
 
     Inclination.setLap(false);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setLap(false);
+    }
 }
 
 int elliptical::pelotonToEllipticalResistance(int pelotonResistance) { return pelotonResistance; }
@@ -164,3 +210,4 @@ metric elliptical::pelotonResistance() { return m_pelotonResistance; }
 metric elliptical::lastRequestedPelotonResistance() { return RequestedPelotonResistance; }
 metric elliptical::lastRequestedResistance() { return RequestedResistance; }
 bool elliptical::inclinationAvailableByHardware() { return true; }
+bool elliptical::inclinationSeparatedFromResistance() { return false; }

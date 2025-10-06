@@ -13,9 +13,9 @@
 
 using namespace std::chrono_literals;
 
-domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testResistance, uint8_t bikeResistanceOffset,
+domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testResistance, int8_t bikeResistanceOffset,
                        double bikeResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
 
@@ -353,7 +353,23 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
        and speed status return;*/
 
     double speed = GetSpeedFromPacket(value);
-    double kcal = GetKcalFromPacket(value);
+    if (!settings.value(QZSettings::kcal_ignore_builtin, QZSettings::default_kcal_ignore_builtin).toBool())
+        KCal = GetKcalFromPacket(value);
+    else {
+        if (watts())
+            KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                                    200.0) /
+                                (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                                now)))); //(( (0.048* Output in watts +1.19) * body
+                                                                            // weight in kg * 3.5) / 200 ) / 60
+    }
+
+    if(!firstCharacteristicChanged) {
+        Distance += ((speed / (double)3600.0) /
+                     ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(now))));
+    }
+
     double distance = GetDistanceFromPacket(value);
 
     double ucadence = ((uint8_t)value.at(9));
@@ -419,7 +435,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     qDebug() << QStringLiteral("Current cadence: ") + QString::number(Cadence.value());
     qDebug() << QStringLiteral("Current resistance: ") + QString::number(Resistance.value());
     qDebug() << QStringLiteral("Current heart: ") + QString::number(Heart.value());
-    qDebug() << QStringLiteral("Current KCal: ") + QString::number(kcal);
+    qDebug() << QStringLiteral("Current KCal: ") + QString::number(KCal.value());
     qDebug() << QStringLiteral("Current Distance: ") + QString::number(distance);
     qDebug() << QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs);
     qDebug() << QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime);
@@ -436,8 +452,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
             watts(), Inclination.value(), Speed.value(),
             fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
-    KCal = kcal;
-    Distance = distance;
+    firstCharacteristicChanged = false;
 }
 
 double domyosbike::GetSpeedFromPacket(const QByteArray &packet) {
@@ -671,7 +686,41 @@ resistance_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
 
 uint16_t domyosbike::wattsFromResistance(double resistance) {
     QSettings settings;
-    if (!settings.value(QZSettings::domyos_bike_500_profile_v1, QZSettings::default_domyos_bike_500_profile_v1)
+    if (settings.value(QZSettings::domyos_bike_500_profile_v2, QZSettings::default_domyos_bike_500_profile_v2).toBool()) {
+        switch ((int)resistance) {
+        case 1:
+            return (5.0 * Cadence.value()) / 9.5488;
+        case 2:
+            return (5.7 * Cadence.value()) / 9.5488;
+        case 3:
+            return (6.5 * Cadence.value()) / 9.5488;
+        case 4:
+            return (7.5 * Cadence.value()) / 9.5488;
+        case 5:
+            return (8.6 * Cadence.value()) / 9.5488;
+        case 6:
+            return (9.9 * Cadence.value()) / 9.5488;
+        case 7:
+            return (11.4 * Cadence.value()) / 9.5488;
+        case 8:
+            return (13.6 * Cadence.value()) / 9.5488;
+        case 9:
+            return (15.3 * Cadence.value()) / 9.5488;
+        case 10:
+            return (17.3 * Cadence.value()) / 9.5488;
+        case 11:
+            return (19.8 * Cadence.value()) / 9.5488;
+        case 12:
+            return (22.5 * Cadence.value()) / 9.5488;
+        case 13:
+            return (25.6 * Cadence.value()) / 9.5488;
+        case 14:
+            return (28.4 * Cadence.value()) / 9.5488;
+        case 15:
+            return (35.9 * Cadence.value()) / 9.5488;
+        }
+        return 0;
+    } else if (!settings.value(QZSettings::domyos_bike_500_profile_v1, QZSettings::default_domyos_bike_500_profile_v1)
              .toBool() ||
         resistance < 8)
         return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));

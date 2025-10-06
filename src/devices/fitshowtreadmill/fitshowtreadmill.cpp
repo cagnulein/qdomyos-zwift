@@ -3,6 +3,7 @@
 #include "keepawakehelper.h"
 #endif
 #include "virtualdevices/virtualtreadmill.h"
+#include "homeform.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -18,6 +19,8 @@ fitshowtreadmill::fitshowtreadmill(uint32_t pollDeviceTime, bool noConsole, bool
                                    double forceInitInclination) {
     Q_UNUSED(noConsole)
 
+    m_watt.setType(metric::METRIC_WATT, deviceType());
+    Speed.setType(metric::METRIC_SPEED);
     this->noHeartService = noHeartService;
 
     if (forceInitSpeed > 0) {
@@ -157,8 +160,9 @@ void fitshowtreadmill::update() {
     }
 
     if (initRequest) {
-        initRequest = false;
-        btinit(true);
+        QSettings settings;
+        initRequest = false;        
+        btinit(settings.value(QZSettings::atletica_lightspeed_treadmill, QZSettings::default_atletica_lightspeed_treadmill).toBool());
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotifyCharacteristic.isValid() && initDone) {
@@ -206,7 +210,7 @@ void fitshowtreadmill::update() {
             if (requestInclination != inc) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 inc = requestInclination;
-                double speed = currentSpeed().value();
+                double speed = currentSpeed().valueRaw();
                 if (requestSpeed != -1) {
                     speed = requestSpeed;
                     requestSpeed = -1;
@@ -295,6 +299,13 @@ void fitshowtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
         qDebug() << "adding" << gatt.toString() << "as the default service";
         serviceId = gatt; // NOTE: clazy-rule-of-tow
     }
+    if(gatt == QBluetoothUuid((quint16)0x1826) && !fs_connected && !tunturi_t80_connected) {
+        QSettings settings;
+        settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
+        qDebug() << "forcing FTMS treadmill since it has FTMS";
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("FTMS treadmill found, restart the app to apply the change");
+    }
 }
 
 void fitshowtreadmill::sendSportData() {
@@ -321,6 +332,13 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     emit packetReceived();
 
     lastPacket = value;
+
+    if(characteristic.uuid() == QBluetoothUuid((quint16)0x2a53) && value.length() >= 4) {
+        Cadence = value.at(3);
+        emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
+        return;
+    }
+
     const uint8_t *full_array = (uint8_t *)value.constData();
     uint8_t full_len = value.length();
     if (!checkIncomingPacket(full_array, full_len)) {
@@ -416,7 +434,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             }
         } else if (par == FITSHOW_STATUS_RUNNING || par == FITSHOW_STATUS_STOP || par == FITSHOW_STATUS_PAUSED ||
                    par == FITSHOW_STATUS_END) {
-            if (full_len >= 17) {
+            if (full_len >= 16) {
                 if (par == FITSHOW_STATUS_RUNNING)
                     IS_RUNNING = true;
                 else {
@@ -427,7 +445,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 }
 
                 double speed = array[2] / 10.0;
-                double incline = array[3];
+                double incline = (int8_t)array[3];
                 uint16_t seconds_elapsed = anyrun ? array[4] * 60 + array[5] : array[4] | array[5] << 8;
                 double distance = (anyrun ? (array[7] | array[6] << 8) : (array[6] | array[7] << 8)) / 10.0;
                 double kcal = anyrun ? (array[9] | array[8] << 8) : (array[8] | array[9] << 8);
@@ -458,7 +476,6 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     lastTimeCharacteristicChanged = QDateTime::currentDateTime();
                 }
 
-                getCadence(step_count);
                 StepCount = step_count;
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
@@ -515,11 +532,11 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 else
 #endif
                 {
-                    if (settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString().startsWith(QStringLiteral("Disabled")) && 
-                        (heart == 0 || disable_hr_frommachinery)) {
-                        update_hr_from_external();
-                    } else {
-                        Heart = heart;
+                    if (settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString().startsWith(QStringLiteral("Disabled"))) {
+                        if (heart == 0 || disable_hr_frommachinery)
+                            update_hr_from_external();
+                        else 
+                            Heart = heart;
                     }
                 }
 
@@ -601,7 +618,6 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 double distance = array[4] | array[5] << 8;
                 uint16_t step_count = array[8] | array[9] << 8;
 
-                getCadence(step_count);
                 StepCount = step_count;
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
@@ -614,20 +630,6 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 // Distance = distance;
             }
         }
-    }
-}
-
-void fitshowtreadmill::getCadence(uint16_t step_count) {
-    if(step_count != StepCount.value()) {
-        int ms = abs(lastChangedStepCount.msecsTo(QDateTime::currentDateTime()));
-        int cadence = (step_count - StepCount.value()) * 60000 / ms;
-        if(cadence < 255) {
-            cadenceRaw = cadence;
-            Cadence = cadenceRaw.average20s();
-            emit debug(QStringLiteral("Current raw cadence: ") + QString::number(cadence));
-            emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
-        }
-        lastChangedStepCount = QDateTime::currentDateTime();
     }
 }
 
@@ -695,6 +697,13 @@ void fitshowtreadmill::btinit(bool startTape) {
 void fitshowtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+
+    if(gattCommunicationRSCService != nullptr && (gattCommunicationRSCService->state() != QLowEnergyService::ServiceDiscovered ||
+        gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered)) {
+        qDebug() << QStringLiteral("not all services discovered");
+        return;        
+    }
+
     if (state == QLowEnergyService::ServiceDiscovered) {
         uint32_t id32;
         auto characteristics_list = gattCommunicationChannelService->characteristics();
@@ -738,6 +747,36 @@ void fitshowtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         gattCommunicationChannelService->writeDescriptor(
             gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
     }
+
+    if(gattCommunicationRSCService != nullptr) {
+        connect(gattCommunicationRSCService, &QLowEnergyService::characteristicChanged, this, &fitshowtreadmill::characteristicChanged);
+
+        qDebug() << gattCommunicationRSCService->serviceUuid() << QStringLiteral("connected!");
+
+        auto characteristics_list = gattCommunicationRSCService->characteristics();
+        for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+            auto descriptors_list = c.descriptors();
+            for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
+                qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+            }
+
+            if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
+                QByteArray descriptor;
+                descriptor.append((char)0x01);
+                descriptor.append((char)0x00);
+                if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                    gattCommunicationRSCService->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                } else {
+                    qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                                << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                                << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                << QStringLiteral(" is not valid");
+                }
+
+                qDebug() << gattCommunicationRSCService->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
+            }
+        }        
+    }
 }
 
 void fitshowtreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -760,7 +799,7 @@ void fitshowtreadmill::serviceScanDone(void) {
     if (!gattCommunicationChannelService) {
         qDebug() << "service not valid";
         return;
-    }
+    }    
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &fitshowtreadmill::stateChanged);
 #ifdef _MSC_VER
     // QTBluetooth bug on Win10 (https://bugreports.qt.io/browse/QTBUG-78488)
@@ -768,6 +807,20 @@ void fitshowtreadmill::serviceScanDone(void) {
 #else
     gattCommunicationChannelService->discoverDetails();
 #endif
+
+    // useful for the cadence
+    gattCommunicationRSCService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1814));
+    if (!gattCommunicationRSCService) {
+        qDebug() << "gattCommunicationFTMSService not valid";
+        return;
+    } 
+
+#ifdef _MSC_VER
+    // QTBluetooth bug on Win10 (https://bugreports.qt.io/browse/QTBUG-78488)
+    QTimer::singleShot(0, [=]() { gattCommunicationRSCService->discoverDetails(); });
+#else
+    gattCommunicationRSCService->discoverDetails();
+#endif       
 }
 
 void fitshowtreadmill::errorService(QLowEnergyService::ServiceError err) {
@@ -785,13 +838,16 @@ void fitshowtreadmill::error(QLowEnergyController::Error err) {
 void fitshowtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    /*if (device.name().startsWith(QStringLiteral("FS-")) ||
-        (device.name().startsWith(QStringLiteral("SW")) && device.name().length() == 14))*/
-
-    if (device.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT"))) {
+    if (device.name().toUpper().startsWith(QStringLiteral("FS-"))) {
+        qDebug() << "FS FIX!";
+        fs_connected = true;
+    } else if (device.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT"))) {
         qDebug() << "NOBLEPRO FIX!";
         minStepInclinationValue = 0.5;
         noblepro_connected = true;
+    } else if (device.name().toUpper().startsWith(QStringLiteral("TUNTURI T80-"))) {
+        qDebug() << "TUNTURI T80 detected - ignoring FTMS forcing";
+        tunturi_t80_connected = true;
     }
 
     {

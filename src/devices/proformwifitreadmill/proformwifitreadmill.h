@@ -42,10 +42,11 @@
 class proformwifitreadmill : public treadmill {
     Q_OBJECT
   public:
-    proformwifitreadmill(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    proformwifitreadmill(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                          double bikeResistanceGain);
     bool connected() override;
     virtual bool canStartStop() override { return false; }
+    double minStepSpeed() override { return 0.1; }
 
   private:
     QWebSocket websocket;
@@ -56,6 +57,7 @@ class proformwifitreadmill : public treadmill {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void forceSpeed(double requestSpeed);
+    void forceSpeedMPH(double requestSpeed);
     void forceIncline(double requestIncline);
     void startDiscover();
     void sendPoll();
@@ -63,7 +65,7 @@ class proformwifitreadmill : public treadmill {
 
     QTimer *refresh;
     uint8_t counterPoll = 0;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     double max_incline_supported = 15;
     double min_incline_supported = 0;
@@ -74,6 +76,7 @@ class proformwifitreadmill : public treadmill {
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
+    metric SpeedMPH;
 
     bool initDone = false;
     bool initRequest = false;

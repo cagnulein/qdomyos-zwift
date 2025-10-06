@@ -2,13 +2,14 @@
 #define TREADMILL_H
 #include "devices/bluetoothdevice.h"
 #include <QObject>
+#include "treadmillErgTable.h"
 
 class treadmill : public bluetoothdevice {
     Q_OBJECT
 
   public:
     treadmill();
-    void update_metrics(bool watt_calc, const double watts);
+    void update_metrics(bool watt_calc, const double watts, const bool from_accessory = false);
     metric lastRequestedSpeed() { return RequestedSpeed; }
     QTime lastRequestedPace();
     metric lastRequestedInclination() { return RequestedInclination; }
@@ -17,6 +18,7 @@ class treadmill : public bluetoothdevice {
     virtual double requestedSpeed();
     virtual double currentTargetSpeed();
     virtual double requestedInclination();
+    metric lastRequestedPower();
     virtual double minStepInclination();
     virtual double minStepSpeed();
     virtual bool canStartStop() { return true; }
@@ -24,9 +26,9 @@ class treadmill : public bluetoothdevice {
     metric currentGroundContact() { return GroundContactMS; }
     metric currentVerticalOscillation() { return VerticalOscillationMM; }
     metric currentStepCount() { return StepCount; }
-    uint16_t watts(double weight);
+    virtual uint16_t watts(double weight);
     static uint16_t wattsCalc(double weight, double speed, double inclination);
-    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
+    BLUETOOTH_TYPE deviceType() override;
     void clearStats() override;
     void setLap() override;
     void setPaused(bool p) override;
@@ -45,14 +47,18 @@ class treadmill : public bluetoothdevice {
     void cadenceFromAppleWatch();
     virtual bool canHandleSpeedChange() { return true; }
     virtual bool canHandleInclineChange() { return true; }
+    double runningStressScore();
+    QTime speedToPace(double Speed);
 
   public slots:
     virtual void changeSpeed(double speed);
     void changeInclination(double grade, double percentage) override;
+    void changePower(int32_t power) override;
     virtual void changeSpeedAndInclination(double speed, double inclination);
     void cadenceSensor(uint8_t cadence) override;
     void powerSensor(uint16_t power) override;
     void speedSensor(double speed) override;
+    void inclinationSensor(double grade, double inclination) override;
     void instantaneousStrideLengthSensor(double length) override;
     void groundContactSensor(double groundContact) override;
     void verticalOscillationSensor(double verticalOscillation) override;
@@ -66,18 +72,29 @@ class treadmill : public bluetoothdevice {
     double requestInclination = -100;
     double lastSpeed = 0.0;
     double lastInclination = 0;
+    metric rawSpeed;
+    metric rawInclination;
     metric RequestedSpeed;
     metric RequestedInclination;
     metric InstantaneousStrideLengthCM;
     metric GroundContactMS;
-    metric VerticalOscillationMM;
-    metric StepCount;
+    metric VerticalOscillationMM;    
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
+    treadmillErgTable _ergTable;
+    
+    // Power following logic
+    bool callingFromFollowPower = false;  // Flag to track if change comes from followPowerBySpeed
+    double targetWatts = -1;              // Target watts to maintain during power following
+
+    void parseSpeed(double speed);
+    void parseInclination(double speed);
+    bool areInclinationSettingsDefault();
 
   private:
     bool simulateInclinationWithSpeed();
+    bool followPowerBySpeed();
     void evaluateStepCount();
 };
 

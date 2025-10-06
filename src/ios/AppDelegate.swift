@@ -55,6 +55,18 @@ var pedometer = CMPedometer()
     {
         return WatchKitConnection.stepCadence;
     }
+
+    @objc public func setSteps(steps: Int) -> Void
+    {
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        WatchKitConnection.steps = steps;
+        Server.server?.send(createString(sender: sender))
+    }
     
     @objc public func setDistance(distance: Double) -> Void
     {
@@ -77,6 +89,18 @@ var pedometer = CMPedometer()
 			sender = "PHONE"
 		}
         WatchKitConnection.kcal = kcal;
+        Server.server?.send(createString(sender: sender))
+    }
+    
+    @objc public func setTotalKcal(totalKcal: Double) -> Void
+    {
+		var sender: String
+		if UIDevice.current.userInterfaceIdiom == .pad {
+			sender = "PAD"
+		} else {
+			sender = "PHONE"
+		}
+        WatchKitConnection.totalKcal = totalKcal;
         Server.server?.send(createString(sender: sender))
     }
     
@@ -117,7 +141,7 @@ var pedometer = CMPedometer()
     }
     
     func createString(sender: String) -> String {
-        return "SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#ODO=\(WatchKitConnection.distance)#";
+        return "SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#TOTALKCAL=\(WatchKitConnection.totalKcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#ODO=\(WatchKitConnection.distance)#";
     }
     
     @objc func updateHeartRate() {

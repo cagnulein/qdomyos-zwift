@@ -2,29 +2,27 @@
 
 ## About
 
-The testing project tst/qdomyos-zwift-tests.pro contains tests code that uses the Google Test library.
+The testing project tst/qdomyos-zwift-tests.pro contains test code that uses the Google Test library.
 
 ## Adding a new device
 
-New devices are added to the main QZ application by creating a sublcass of the bluetoothdevice class. 
+New devices are added to the main QZ application by creating or modifying a subclass of the bluetoothdevice class.
 
-At minimum, each device has a corresponding TestData class in the test project, which is coded to provide information to the test framework to generate tests for device detection and potentially other things.
+At minimum, each device has a corresponding BluetoothDeviceTestData object constructed in the DeviceTestDataIndex class in the test project, which is coded to provide information to the test framework to generate tests for device detection and potentially other things.
 
 In the test project
-* create a new folder for the device under tst/Devices. This is for anything you define for testing this device.
-* add a new class with header file and optionally .cpp file to the project in that folder. Name the cass DeviceNameTestData.
-* edit the header file to inherit the class from the testdata abstract class appropriate to the device type, i.e. BikeTestData, RowerTestData, EllipticalTestData, TreadmillTestData.
-* have this subclass' constructor pass a unique test name to the superclass.
+* add a new device name constant to the DeviceIndex class.
+* locate the implementation of DeviceTestDataindex::Initialize and build the test data from a call to DeviceTestDataIndex::RegisterNewDeviceTestData(...)
+* pass the device name constant defined in the DeviceIndex class  to the call to DeviceTestDataIndex::RegisterNewDeviceTestData(...).
 
-The tests are not organised around real devices that are handled, but the bluetoothdevice class that handles them - the "driver" of sorts.
+The tests are not organised around real devices that are handled, but the bluetoothdevice subclass that handles them - the "driver" of sorts.
 
 You need to provide the following:
 - patterns for valid names (e.g. equals a value, starts with a value, case sensitivity, specific length)
 - invalid names to ensure the device is not identified when the name is invalid
-- configuration settings that are required for the device to be detected
+- configuration settings that are required for the device to be detected, including bluetooth device information configuration
 - invalid configurations to test that the device is not detected, e.g. when it's disabled in the settings, but the name is correct
-- exclusion devices: if a device with the same name but of a higher priority type is detected, this devivce should not be detected
-- valid and invalid QBluetoothDeviceInfo configurations, e.g. to check the device is only detected when the manufacturer data is set correctly, or certain services are availble or not.
+- exclusion devices: for example if a device with the same name but of a higher priority type is detected, this device should not be detected
 
 ## Tools in the Test Framework
 
@@ -37,10 +35,20 @@ i.e. a test will
 * perform device detection
 * use the TestSettings object to restore the previous settings either directly or by letting its destructor be called.
 
+### DeviceDiscoveryInfo
+
+This class:
+* stores values for a specific subset of the QZSettings keys.
+* provides methods to read and write the values it knows about from and to a QSettings object.
+* provides a QBluetoothDeviceInfo object configured with the device name currently being tested.
+
+It is used in conjunction with a TestSettings object to write a configuration during a test.
+
+
 ## Writing a device detection test
 
-Because of the way the TestData classes currently work, it may be necessary to define multiple test data classes to cover the various cases.
-For example, if any of a list of names is enough to identify a device, or another group of names but with a certain service in the bluetooth device info, that will require multiple classes.
+Because of the way the BluetoothDeviceTestDataBuilder currently works, it may be necessary to define multiple test data objects to cover the various cases.
+For example, if any of a list of names is enough to identify a device, or another group of names but with a certain service in the bluetooth device info, that will require multiple test data objects.
 
 ### Recognition by Name
 
@@ -60,98 +68,82 @@ Reading this, to identify this device:
 
 In this case, we are not testing the last two, but can test the first two.
 
+In deviceindex.h:
 
 ```
-#pragma once
-
-#include "Devices/Bike/biketestdata.h"
-#include "devices/domyosbike/domyosbike.h"
-
-class DomyosBikeTestData : public BikeTestData {
-
-public:
-    DomyosBikeTestData() : BikeTestData("Domyos Bike") {
-
-        this->addDeviceName("Domyos-Bike", comparison::StartsWith);
-        this->addInvalidDeviceName("DomyosBridge", comparison::StartsWith);
-    }
-
-	// not used yet
-    deviceType get_expectedDeviceType() const override { return deviceType::DomyosBike; }
-
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<domyosbike*>(detectedDevice)!=nullptr;
-    }
-};
+static const QString DomyosBike;
 ```
 
-The constructor adds a valid device name, and an invalid one. Various overloads of these methods and other members of the comparison enumeration provide other capabilities for specifying test data. If you add a valid device name that says the name should start with a value, additional names will be added automatically to the valid list with additional characters to test that it is in fact a "starts with" relationship. Also, valid and invalid names will be generated base on whether the comparison is case sensitive or not.
+In deviceindex.cpp:
 
-The get_expectedDeviceType() function is not actually used and is part of an unfinished refactoring of the device detection code, whereby the bluetoothdevice object doesn't actually get created intially. You could add a new value to the deviceType enum and return that, but it's not used yet. There's always deviceType::None.
+```
+DEFINE_DEVICE(DomyosBike, "Domyos Bike");
+```
 
-The get_isExpectedDevice(bluetoothdevice *) function must be overridden to indicate if the specified object is of the type expected for this test data.
+This pair adds the "friendly name" for the device as a constant, and also adds the key/value pair to an index.
+
+In DeviceTestDataIndex::Initialize():
+
+```
+// Domyos bike
+RegisterNewDeviceTestData(DeviceIndex::DomyosBike)
+	->expectDevice<domyosbike>()        
+	->acceptDeviceName("Domyos-Bike", DeviceNameComparison::StartsWith)
+	->rejectDeviceName("DomyosBridge", DeviceNameComparison::StartsWith);
+```
+
+This set of instructions adds a valid device name, and an invalid one. Various overloads of these methods, other methods, and other members of the comparison enumeration provide other capabilities for specifying test data. If you add a valid device name that says the name should start with a value, additional names will be added automatically to the valid list with additional characters to test that it is in fact a "starts with" relationship. Also, valid and invalid names will be generated based on whether the comparison is case sensitive or not.
 
 ### Configuration Settings
 
-Consider the CompuTrainerTestData. This device is not detected by name, but only by whether or not it is enabled in the settings.
-To specify this in the test data, we override one of the configureSettings methods, the one for the simple case where there is a single valid and a single invalid configuration. 
+Consider the CompuTrainer bike. This device is not detected by name, but only by whether or not it is enabled in the settings.
+To specify this in the test data, we use one of the BluetoothDeviceTestData::configureSettingsWith(...) methods, the one for the simple case where there is a single QZSetting with a specific enabling and disabling value.
 
-The DeviceDiscoveryInfo class has been updated to contain the device's configuration setting (computrainer_serial_port). 
-- if an enabling configuration is requested (enable==true) a string that is known to be accepted is supplied
-- if a disabling configuration is requested (enable==false) an empty string is supplied.
+Settings from QSettings that contribute to tests should be put into the DeviceDiscoveryInfo class.
+
+For example, for the Computrainer Bike, the "computrainer_serialport" value from the QSettings determines if the bike should be detected or not.
+
+The computrainer_serialport QZSettings key should be registered in devicediscoveryinfo.cpp
+
+In devicediscoveryinfo.cpp:
+```
+void InitializeTrackedSettings() {
+
+	...
+
+	trackedSettings.insert(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport);
+
+	...
+}
 
 ```
-#pragma once
 
-#include "Devices/Bike/biketestdata.h"
-#include "devices/computrainerbike/computrainerbike.h"
+For this test data,
+* if enabling configurations are requested, the computrainer_serialport setting will be populated with "COMX"
+* if disabling configurations are requested, the computrainer_serialport setting will be populated with ""
 
-class CompuTrainerTestData : public BikeTestData {
-protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
-        info.computrainer_serial_port = enable ? "X":QString();
-        return true;
-    }
-public:
-    CompuTrainerTestData() : BikeTestData("CompuTrainer Bike") {
-        // any name
-        this->addDeviceName("", comparison::StartsWithIgnoreCase);
-    }
+DeviceTestDataIndex::Initialize():
 
-    deviceType get_expectedDeviceType() const override { return deviceType::CompuTrainerBike; }
-
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<computrainerbike*>(detectedDevice)!=nullptr;
-    }
-};
 ```
+// Computrainer Bike
+RegisterNewDeviceTestData(DeviceIndex::ComputrainerBike)
+	->expectDevice<computrainerbike>()
+	->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
+	->configureSettingsWith(QZSettings::computrainer_serialport, "COMX", "");
+```
+
 
 Similarly, the Pafers Bike has a simple configuration setting:
 
 ```
-#include "Devices/Bike/biketestdata.h"
-#include "devices/pafersbike/pafersbike.h"
-
-
-class PafersBikeTestData : public BikeTestData {
-protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
-        // the treadmill is given priority
-        info.pafers_treadmill = !enable;
-        return true;
-    }
-public:
-    PafersBikeTestData() : BikeTestData("Pafers Bike") {
-        this->addDeviceName("PAFERS_", comparison::StartsWithIgnoreCase);
-    }
-
-    deviceType get_expectedDeviceType() const override { return deviceType::PafersBike; }
-
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<pafersbike*>(detectedDevice)!=nullptr;
-    }
-};
+    // Pafers Bike
+    RegisterNewDeviceTestData(DeviceIndex::PafersBike)
+        ->expectDevice<pafersbike>()
+        ->acceptDeviceName("PAFERS_", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith(QZSettings::pafers_treadmill,false);
 ```
+
+In that case, ```configureSettingsWith(QZSettings::pafers_treadmill,false)``` indicates that the pafers_treadmill setting will be false for enabling configurations and true for disabling ones.
 
 A more complicated example is the Pafers Treadmill. It involves a name match, but also some configuration settings obtained earlier...
 
@@ -170,76 +162,60 @@ bool pafers_treadmill_bh_iboxster_plus =
 ```
 
 Here the device could be activated due to a name match and various combinations of settings.
-For this, the configureSettings function that takes a vector of DeviceDiscoveryInfo objects which is populated with configurations that lead to the specified result (enable = detected, !enable=not detected).
+For this, the configureSettingsWith(...) function that takes a lambda function which consumes a vector of DeviceDiscoveryInfo objects which is populated with configurations that lead to the specified result (enable = detected, !enable=not detected).
 
 ```
-#pragma once
+// Pafers Treadmill
+RegisterNewDeviceTestData(DeviceIndex::PafersTreadmill)
+	->expectDevice<paferstreadmill>()
+	->acceptDeviceName("PAFERS_", DeviceNameComparison::StartsWithIgnoreCase)
+	->configureSettingsWith( [](const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations)->void {
+		DeviceDiscoveryInfo config(info);
 
-#include "Devices/Treadmill/treadmilltestdata.h"
-#include "devices/paferstreadmill/paferstreadmill.h"
-
-class PafersTreadmillTestData : public TreadmillTestData {
-protected:
-    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
-        DeviceDiscoveryInfo config(info);
-
-        if (enable) {
-            for(int x = 1; x<=3; x++) {
-                config.pafers_treadmill = x & 1;
-                config.pafers_treadmill_bh_iboxster_plus = x & 2;
-                configurations.push_back(config);
-            }
-        } else {
-            config.pafers_treadmill = false;
-            config.pafers_treadmill_bh_iboxster_plus = false;
-            configurations.push_back(config);
-        }
-    }
-
-public:
-    PafersTreadmillTestData() : TreadmillTestData("Pafers Treadmill") {
-        this->addDeviceName("PAFERS_", comparison::StartsWithIgnoreCase);
-    }
-
-    deviceType get_expectedDeviceType() const override { return deviceType::PafersTreadmill; }
-
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<paferstreadmill*>(detectedDevice)!=nullptr;
-    }
-};
+		if (enable) {
+			for(int x = 1; x<=3; x++) {
+				config.setValue(QZSettings::pafers_treadmill, x & 1);
+				config.setValue(QZSettings::pafers_treadmill_bh_iboxster_plus, x & 2);
+				configurations.push_back(config);
+			}
+		} else {
+			config.setValue(QZSettings::pafers_treadmill, false);
+			config.setValue(QZSettings::pafers_treadmill_bh_iboxster_plus, false);
+			configurations.push_back(config);
+		}
+	});
 ```
 
 ### Considering Extra QBluetoothDeviceInfo Content
 
 Detection of some devices requires some specific bluetooth device information. 
 
-Supplying enabling and disabling QBluetoothDeviceInfo objects is done using a similar pattern to the multiple configurations scenario.
-For example, the M3iBike requires specific manufacturer information.
-
+Supplying enabling and disabling QBluetoothDeviceInfo objects is done by accessing the QBluetoothDeviceInfo member of the DeviceDiscoveryInfo object.
+For example, the M3iBike requires specific manufacturer information, using the simpler of the lambda functions accepted by the configureSettingsWith function.
 
 ```
-void M3IBikeTestData::configureBluetoothDeviceInfos(const QBluetoothDeviceInfo& info,  bool enable, std::vector<QBluetoothDeviceInfo>& bluetoothDeviceInfos) const {
-    // The M3I bike detector looks into the manufacturer data.
+	// M3I Bike
+    RegisterNewDeviceTestData(DeviceIndex::M3IBike)
+        ->expectDevice<m3ibike>()
+        ->acceptDeviceName("M3", DeviceNameComparison::StartsWith)
+        ->configureSettingsWith(
+            [](DeviceDiscoveryInfo& info,  bool enable)->void
+            {
+                // The M3I bike detector looks into the manufacturer data.
+                if(!enable) {
+                    info.DeviceInfo()->setManufacturerData(1, QByteArray("Invalid manufacturer data."));
+                    return;
+                }
 
-    QBluetoothDeviceInfo result = info;
-
-    if(!enable) {
-        result.setManufacturerData(1, QByteArray("Invalid manufacturer data."));
-        bluetoothDeviceInfos.push_back(result);
-
-        return;
-    }
-
-    int key=0;
-    result.setManufacturerData(key++, hex2bytes("02010639009F00000000000000000014008001"));
-
-    bluetoothDeviceInfos.push_back(result);
-}
+                int key=0;
+                info.DeviceInfo()->setManufacturerData(key++, hex2bytes("02010639009F00000000000000000014008001"));
+            });
 
 ```
 
-The test framework populates the incoming QBluetoothDeviceInfo object with a name and a UUID. This is expected to have nothing else defined. 
-Another example is one of the test data classes for detecting a device that uses the statesbike class:
+The test framework populates the incoming QBluetoothDeviceInfo object with a UUID and the name (generated from the acceptDeviceName and rejectDeviceName calls) currently being tested.
+This is expected to have nothing else defined. 
+Another example is one of the test data definitions for detecting a device that uses the stagesbike class:
 
 Detection code from bluetooth.cpp:
 
@@ -247,37 +223,49 @@ Detection code from bluetooth.cpp:
 ((b.name().toUpper().startsWith("KICKR CORE")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && deviceHasService(b, QBluetoothUuid((quint16)0x1818)))
 ```
 
-This condition is actually extracted from a more complicated example where the current test data classes can't cover all the detection criteria in one implementation. This is why this class inherits from StagesBikeTestData rather than BikeTestData directly.
+This condition is actually extracted from a more complicated example where the BluetoothDeviceTestData class can't cover all the detection criteria with one instance. 
 
 ```
-class StagesBike3TestData : public StagesBikeTestData {
-protected:
-    void configureBluetoothDeviceInfos(const QBluetoothDeviceInfo& info,  bool enable, std::vector<QBluetoothDeviceInfo>& bluetoothDeviceInfos) const override {
-        // The condition, if the name is acceptable, is:
-        // !deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && deviceHasService(b, QBluetoothUuid((quint16)0x1818)))
+// Stages Bike General
+auto stagesBikeExclusions = { GetTypeId<ftmsbike>() };
 
-        if(enable) {
-            QBluetoothDeviceInfo result = info;
-            result.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1818)}));
-            bluetoothDeviceInfos.push_back(result);
-        } else {
-            QBluetoothDeviceInfo hasInvalid = info;
-            hasInvalid.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1826)}));
-            QBluetoothDeviceInfo hasBoth = hasInvalid;
-            hasBoth.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1818),QBluetoothUuid((quint16)0x1826)}));
+//
+// ... other stages bike variants
+//
 
-            bluetoothDeviceInfos.push_back(info); // has neither
-            bluetoothDeviceInfos.push_back(hasInvalid);
-            bluetoothDeviceInfos.push_back(hasBoth);
-        }
-    }
+// Stages Bike (KICKR CORE)
+RegisterNewDeviceTestData(DeviceIndex::StagesBike_KICKRCORE)
+	->expectDevice<stagesbike>()        
+	->acceptDeviceName("KICKR CORE", DeviceNameComparison::StartsWithIgnoreCase)
+	->excluding(stagesBikeExclusions)
+	->configureSettingsWith(
+		[](const DeviceDiscoveryInfo& info,  bool enable, std::vector<DeviceDiscoveryInfo>& configurations)->void
+		{
+			// The condition, if the name is acceptable, is:
+			// !deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && deviceHasService(b, QBluetoothUuid((quint16)0x1818)))
 
-public:
-    StagesBike3TestData() : StagesBikeTestData("Stages Bike (KICKR CORE)") {
+			if(enable) {
+				DeviceDiscoveryInfo result = info;
+				result.addBluetoothService(QBluetoothUuid((quint16)0x1818));
+				result.removeBluetoothService(QBluetoothUuid((quint16)0x1826));
+				configurations.push_back(result);
+			} else {
+				DeviceDiscoveryInfo hasNeither = info;
+				hasNeither.removeBluetoothService(QBluetoothUuid((quint16)0x1818));
+				hasNeither.removeBluetoothService(QBluetoothUuid((quint16)0x1826));
 
-        this->addDeviceName("KICKR CORE", comparison::StartsWithIgnoreCase);
-    }
-};
+				DeviceDiscoveryInfo hasInvalid = info;
+				hasInvalid.addBluetoothService(QBluetoothUuid((quint16)0x1826));
+				DeviceDiscoveryInfo hasBoth = hasInvalid;
+				hasBoth.addBluetoothService(QBluetoothUuid((quint16)0x1818));
+				hasBoth.addBluetoothService(QBluetoothUuid((quint16)0x1826));
+
+				configurations.push_back(info); // has neither
+				configurations.push_back(hasInvalid);
+				configurations.push_back(hasBoth);
+			}
+		});
+
 ```
 
 In this case, it populates the vector with the single enabling configuration if that's what's been requested, otherwise 3 disabling ones.
@@ -286,7 +274,7 @@ In this case, it populates the vector with the single enabling configuration if 
 
 Sometimes there might be ambiguity when multiple devices are available, and the detection code may specify that if the other conditions match, but certain specific kinds of devices (the exclusion devices) have already been detected, the newly matched device should be ignored.
 
-The TestData class can be made to cover this by overriding the configureExclusions() method to add instances of the TestData classes for the exclusion devices to the object's internal list of exclusions.
+The test data object can be made to cover this by calling the excluding(...) functions to add type identifiers for the bluetoothdevice classes for the exclusion devices to the object's internal list of exclusions.
 
 Detection code:
 
@@ -294,39 +282,19 @@ Detection code:
 } else if (b.name().startsWith(QStringLiteral("ECH")) && !echelonRower && !echelonStride &&
                        !echelonConnectSport && filter) {
 ```
-The configureExclusions code is overridden to specify the exclusion test data objects. Note that the test for a previously detected device of the same type is not included.
+The excluding<T>() template function is called to specify the exclusion device type. Note that the test for a previously detected device of the same type is not included.
 
 ```
-#pragma once
-
-#include "Devices/Bike/biketestdata.h"
-#include "Devices/EchelonRower/echelonrowertestdata.h"
-#include "Devices/EchelonStrideTreadmill/echelonstridetreadmilltestdata.h"
-#include "devices/echelonconnectsport/echelonconnectsport.h"
-
-class EchelonConnectSportBikeTestData : public BikeTestData {
-
-public:
-    EchelonConnectSportBikeTestData() : BikeTestData("Echelon Connect Sport Bike") {
-        this->addDeviceName("ECH", comparison::StartsWith);
-    }
-
-    void configureExclusions() override {
-        this->exclude(new EchelonRowerTestData());
-        this->exclude(new EchelonStrideTreadmillTestData());
-    }
-
-    deviceType get_expectedDeviceType() const override { return deviceType::EchelonConnectSport; }
-
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<echelonconnectsport*>(detectedDevice)!=nullptr;
-    }
-};
-
+// Echelon Connect Sport Bike
+RegisterNewDeviceTestData(DeviceIndex::EchelonConnectSportBike)
+	->expectDevice<echelonconnectsport>()        
+	->acceptDeviceName("ECH", DeviceNameComparison::StartsWith)
+	->excluding<echelonrower>()
+	->excluding<echelonstride>();
 
 ```
 
-### When a single TestData Class Can't Cover all the Conditions
+### When a single test data object can't cover all the conditions
 
 Detection code:
 
@@ -348,116 +316,81 @@ This presents 3 scenarios for the current test framework.
 2. Match the name "KICKR CORE", presence and absence of specific service ids
 3. Match the name "ASSIOMA" and the power sensor name setting starts with "Disabled"
 					   
-The framework is not currently capable of specifying all these scenarios in a single class. 
-The generated test data is approximately the combinations of these lists: names * settings * bluetoothdeviceInfo * exclusions.
-If a combination should not exist, a separate class should be used.
+The framework is not currently capable of specifying all these scenarios in a single test data object, without checking the name of the supplied QBluetoothDeviceInfo object against name conditions specified and constructing extra configurations based on that.
+The generated test data is approximately the combinations of these lists: names * settings * exclusions.
+If a combination should not exist, separate test data objects should be used.
 
-In the example of the StagesBikeTestData classes, the exclusions, which apply to all situations, are implemented in the superclass StagesBikeTestData,
+In the example of the Stages Bike test data, the exclusions, which apply to all situations, are implemented in an array of type ids:
 
-
-```
-#pragma once
-
-#include "Devices/Bike/biketestdata.h"
-#include "devices/stagesbike/stagesbike.h"
-#include "Devices/FTMSBike/ftmsbiketestdata.h"
-
-class StagesBikeTestData : public BikeTestData {
-protected:
-    StagesBikeTestData(std::string testName): BikeTestData(testName) {
-    }
-   
-    void configureExclusions() override {
-        this->exclude(new FTMSBike1TestData());
-        this->exclude(new FTMSBike2TestData());
-    }
-    
-public:
-
-    deviceType get_expectedDeviceType() const override { return deviceType::StagesBike; }
-
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<stagesbike*>(detectedDevice)!=nullptr;
-    }
-};
-```
-
-The name-match only in one subclass:
 
 ```
-class StagesBike1TestData : public StagesBikeTestData {
-
-public:
-    StagesBike1TestData() : StagesBikeTestData("Stages Bike") {
-        this->addDeviceName("STAGES ", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("TACX SATORI", comparison::StartsWithIgnoreCase);
-    }
-
-};
-
+// Stages Bike General
+auto stagesBikeExclusions = { GetTypeId<ftmsbike>() };
 ```
 
-The name and setting match in another subclass:
+The name-match only in one test data instance:
 
 ```
+// Stages Bike
+RegisterNewDeviceTestData(DeviceIndex::StagesBike)
+	->expectDevice<stagesbike>()        
+	->acceptDeviceNames({"STAGES ", "TACX SATORI"}, DeviceNameComparison::StartsWithIgnoreCase)
+	->acceptDeviceName("QD", DeviceNameComparison::IgnoreCase)
+	->excluding(stagesBikeExclusions);
+```
 
-class StagesBike2TestData : public StagesBikeTestData {
-protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
-        info.powerSensorName = enable ? "Disabled":"Roberto";
-        return true;
-    }
-public:
-    StagesBike2TestData() : StagesBikeTestData("Stages Bike (Assioma / Power Sensor disabled") {
+The name and setting match in another instance:
 
-        this->addDeviceName("ASSIOMA", comparison::StartsWithIgnoreCase);
-    }
-};
+```
+// Stages Bike Stages Bike (Assioma / Power Sensor disabled
+RegisterNewDeviceTestData(DeviceIndex::StagesBike_Assioma_PowerSensorDisabled)
+	->expectDevice<stagesbike>()        
+	->acceptDeviceName("ASSIOMA", DeviceNameComparison::StartsWithIgnoreCase)
+	->configureSettingsWith(QZSettings::power_sensor_name, "DisabledX", "XDisabled")
+	->excluding( stagesBikeExclusions);
 
 ```
 The name and bluetooth device info configurations in another:
 
 ```
+// Stages Bike (KICKR CORE)
+RegisterNewDeviceTestData(DeviceIndex::StagesBike_KICKRCORE)
+	->expectDevice<stagesbike>()        
+	->acceptDeviceName("KICKR CORE", DeviceNameComparison::StartsWithIgnoreCase)
+	->excluding(stagesBikeExclusions)
+	->configureSettingsWith(
+		[](const DeviceDiscoveryInfo& info,  bool enable, std::vector<DeviceDiscoveryInfo>& configurations)->void
+		{
+			// The condition, if the name is acceptable, is:
+			// !deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && deviceHasService(b, QBluetoothUuid((quint16)0x1818)))
 
-class StagesBike3TestData : public StagesBikeTestData {
-protected:
-    void configureBluetoothDeviceInfos(const QBluetoothDeviceInfo& info,  bool enable, std::vector<QBluetoothDeviceInfo>& bluetoothDeviceInfos) const override {
-        // The condition, if the name is acceptable, is:
-        // !deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && deviceHasService(b, QBluetoothUuid((quint16)0x1818)))
+			if(enable) {
+				DeviceDiscoveryInfo result = info;
+				result.addBluetoothService(QBluetoothUuid((quint16)0x1818));
+				result.removeBluetoothService(QBluetoothUuid((quint16)0x1826));
+				configurations.push_back(result);
+			} else {
+				DeviceDiscoveryInfo hasNeither = info;
+				hasNeither.removeBluetoothService(QBluetoothUuid((quint16)0x1818));
+				hasNeither.removeBluetoothService(QBluetoothUuid((quint16)0x1826));
 
-        if(enable) {
-            QBluetoothDeviceInfo result = info;
-            result.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1818)}));
-            bluetoothDeviceInfos.push_back(result);
-        } else {
-            QBluetoothDeviceInfo hasInvalid = info;
-            hasInvalid.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1826)}));
-            QBluetoothDeviceInfo hasBoth = hasInvalid;
-            hasBoth.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1818),QBluetoothUuid((quint16)0x1826)}));
+				DeviceDiscoveryInfo hasInvalid = info;
+				hasInvalid.addBluetoothService(QBluetoothUuid((quint16)0x1826));
+				DeviceDiscoveryInfo hasBoth = hasInvalid;
+				hasBoth.addBluetoothService(QBluetoothUuid((quint16)0x1818));
+				hasBoth.addBluetoothService(QBluetoothUuid((quint16)0x1826));
 
-            bluetoothDeviceInfos.push_back(info); // has neither
-            bluetoothDeviceInfos.push_back(hasInvalid);
-            bluetoothDeviceInfos.push_back(hasBoth);
-        }
-    }
-
-public:
-    StagesBike3TestData() : StagesBikeTestData("Stages Bike (KICKR CORE)") {
-
-        this->addDeviceName("KICKR CORE", comparison::StartsWithIgnoreCase);
-    }
-};
+				configurations.push_back(info); // has neither
+				configurations.push_back(hasInvalid);
+				configurations.push_back(hasBoth);
+			}
+		});
 
 ```
 
 ## Telling Google Test Where to Look
 
-To register your test data class(es) with Google Test:
+The BluetoothDeviceTestSuite configuration specifies that the test data will be obtained from the DeviceTestDataIndex class, so there's nothing more to do.
 
-- open tst/Devices/devices.h
-- add a #include for your new header file(s)
-- add your new classes to the BluetoothDeviceTestDataTypes list.
-
-This will add tests for your new device class to test runs of the tests in the BluetoothDeviceTestSuite class, which are about detecting, and not detecting devices in circumstances generated from the TestData classes.
 
 

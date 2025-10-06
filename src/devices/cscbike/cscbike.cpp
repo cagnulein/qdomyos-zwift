@@ -12,11 +12,12 @@
 #include <QLowEnergyConnectionParameters>
 #endif
 #include <chrono>
+#include "homeform.h"
 
 using namespace std::chrono_literals;
 
 cscbike::cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -71,7 +72,14 @@ void cscbike::update() {
         }
     }
 
-    m_watt = wattFromHR(false);
+    bool rogue_echo_bike = settings.value(QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike).toBool();
+    
+    if (rogue_echo_bike) {
+        double rpm = currentCadence().value();
+        m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404;
+    } else {
+        m_watt = wattFromHR(false);
+    }
     emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
@@ -87,7 +95,9 @@ void cscbike::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(true, watts());
+        bool cadence_sensor_as_bike =
+            settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
+        update_metrics(false, watts(), !cadence_sensor_as_bike);
 
         if(lastGoodCadence.secsTo(QDateTime::currentDateTime()) > 5 && !charNotified) {
             readMethod = true;
@@ -139,7 +149,7 @@ void cscbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
-    // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
+    qDebug() << "characteristicChanged << " << characteristic.uuid() << newValue.toHex(' ') << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     // QString heartRateBeltName = //unused QString
@@ -153,10 +163,12 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
     charNotified = true;
 
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
-
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A19)) {
         battery = newValue.at(0);
+        if(battery != battery_level)
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested(bluetoothDevice.name() + QStringLiteral(" Battery Level ") + QString::number(battery) + " %");
+        battery_level = battery;
         qDebug() << QStringLiteral("battery: ") << battery;
         return;
     }
@@ -210,7 +222,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
     if (CrankRevs != oldCrankRevs && deltaT) {
         double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
-        if (cadence >= 0 && cadence < 256)
+        if ((cadence >= 0 && cadence < 256 && CrankPresent) || (!CrankPresent && WheelPresent))
             Cadence = cadence;
         lastGoodCadence = now;
     } else if (lastGoodCadence.msecsTo(now) > 2000) {
@@ -305,10 +317,11 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
+    QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::CyclingSpeedAndCadence);
+    QBluetoothUuid Battery(QBluetoothUuid::BatteryService);
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
 #ifdef Q_OS_WINDOWS
-        QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::CyclingSpeedAndCadence);
         qDebug() << "windows workaround, check only CyclingSpeedAndCadence ftms service"
                  << (s->serviceUuid() == CyclingSpeedAndCadence);
         if (s->serviceUuid() == CyclingSpeedAndCadence)
@@ -323,14 +336,18 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     qDebug() << QStringLiteral("all services discovered!");
 
-    QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::CyclingSpeedAndCadence);
-
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
 
             if(s->serviceUuid() == CyclingSpeedAndCadence) {
                 qDebug() << "CyclingSpeedAndCadence found";
                 cadenceService = s;
+            }
+
+            if(s->serviceUuid() != CyclingSpeedAndCadence && s->serviceUuid() != Battery) {
+                //  No data from sensors and avatar won’t move in Zwift (even when data showed on first try) (Issue #2178)
+                qDebug() << "avoid unwaned service";
+                continue;
             }
 
             // establish hook into notifications

@@ -66,7 +66,7 @@ public slots:
         } else {
             QUrl url("https://secure.zwift.com/auth/realms/zwift/tokens/access/codes");
             QUrlQuery postData;
-            postData.addQueryItem("username", username);
+            postData.addQueryItem("username", QUrl::toPercentEncoding(username));
             postData.addQueryItem("password", password);
             postData.addQueryItem("grant_type", "password");
             postData.addQueryItem("client_id", "Zwift_Mobile_Link");
@@ -100,7 +100,7 @@ private slots:
             access_token_expiration = now.toMSecsSinceEpoch() + (expires_in - 5) * 1000;
             refresh_token_expiration = now.toMSecsSinceEpoch() + (refresh_expires_in - 5) * 1000;
 
-            qDebug() << "Access Token: " << access_token;
+            qDebug() << "Access Token received successfully";
         } else {
             qDebug() << "Error fetching token: " << reply->errorString();
         }

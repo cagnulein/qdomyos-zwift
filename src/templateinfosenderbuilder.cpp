@@ -236,6 +236,13 @@ void TemplateInfoSenderBuilder::clearSessionArray() {
     }
 }
 
+void TemplateInfoSenderBuilder::clearPreviewSessionArray() {
+    int len = previewSessionArray.count();
+    for (int i = 0; i < len; i++) {
+        previewSessionArray.removeAt(0);
+    }
+}
+
 void TemplateInfoSenderBuilder::start(bluetoothdevice *dev) {
     device = nullptr;
     clearSessionArray();
@@ -292,8 +299,8 @@ void TemplateInfoSenderBuilder::onSetResistance(const QJsonValue &msgContent, Te
     outObj[QStringLiteral("value")] = QJsonValue(QJsonValue::Null);
     if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains(QStringLiteral("value")) &&
         (resVal = msgContent[QStringLiteral("value")]).isDouble()) {
-        bluetoothdevice::BLUETOOTH_TYPE tp = device->deviceType();
-        if (tp == bluetoothdevice::BIKE || tp == bluetoothdevice::ROWING) {
+        BLUETOOTH_TYPE tp = device->deviceType();
+        if (tp == BIKE || tp == ROWING) {
             int res;
             if ((res = resVal.toInt()) >= 0 && res < std::numeric_limits<resistance_t>::max()) {
                 ((bike *)device)->changeResistance((resistance_t)res);
@@ -335,7 +342,7 @@ void TemplateInfoSenderBuilder::onSetPower(const QJsonValue &msgContent, Templat
     outObj[QStringLiteral("value")] = QJsonValue(QJsonValue::Null);
     if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains(QStringLiteral("value")) &&
         (resVal = msgContent[QStringLiteral("value")]).isDouble() &&
-        (device->deviceType() == bluetoothdevice::BIKE || device->deviceType() == bluetoothdevice::ROWING)) {
+        (device->deviceType() == BIKE || device->deviceType() == ROWING)) {
         int val;
         if ((val = resVal.toInt()) > 0) {
             ((bike *)device)->changePower((uint32_t)val);
@@ -355,7 +362,7 @@ void TemplateInfoSenderBuilder::onSetCadence(const QJsonValue &msgContent, Templ
     outObj[QStringLiteral("value")] = QJsonValue(QJsonValue::Null);
     if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains(QStringLiteral("value")) &&
         (resVal = msgContent[QStringLiteral("value")]).isDouble() &&
-        (device->deviceType() == bluetoothdevice::BIKE || device->deviceType() == bluetoothdevice::ROWING)) {
+        (device->deviceType() == BIKE || device->deviceType() == ROWING)) {
         int val;
         if ((val = resVal.toInt()) > 0) {
             ((bike *)device)->changeCadence((uint16_t)val);
@@ -376,7 +383,7 @@ void TemplateInfoSenderBuilder::onSetSpeed(const QJsonValue &msgContent, Templat
     outObj[QStringLiteral("value")] = QJsonValue(QJsonValue::Null);
     if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains(QStringLiteral("value")) &&
         (resVal = msgContent[QStringLiteral("value")]).isDouble() &&
-        device->deviceType() == bluetoothdevice::TREADMILL && (vald = resVal.toDouble()) >= 0) {
+        device->deviceType() == TREADMILL && (vald = resVal.toDouble()) >= 0) {
         ((treadmill *)device)->changeSpeed(vald);
         outObj[QStringLiteral("value")] = vald;
     }
@@ -459,7 +466,7 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
         }
     } else {
         QList<trainrow> lst = trainprogram::loadXML(homeform::getWritableAppDir() + QStringLiteral("training/") +
-                                                    fileXml + QStringLiteral(".xml"));
+                                                        fileXml + QStringLiteral(".xml"), (device ? device->deviceType() : BIKE ));
         for (auto &row : lst) {
             QJsonObject item;
             TRAINPROGRAM_FIELD_TO_STRING();
@@ -512,6 +519,14 @@ void TemplateInfoSenderBuilder::onAppendActivityDescription(const QJsonValue &ms
     QJsonObject main;
     main[QStringLiteral("content")] = activityDescription;
     main[QStringLiteral("msg")] = QStringLiteral("R_appendactivitydescription");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onGetPreviewSessionArray(TemplateInfoSender *tempSender) {
+    QJsonObject main;
+    main[QStringLiteral("content")] = previewSessionArray;
+    main[QStringLiteral("msg")] = QStringLiteral("R_getpreviewsessionarray");
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -879,6 +894,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("getsessionarray")) {
                     onGetSessionArray(sender);
                     return;
+                } else if (msg == QStringLiteral("getpreviewsessionarray")) {
+                    onGetPreviewSessionArray(sender);
+                    return;
                 }
                 if (msg == QStringLiteral("start")) {
                     onStart(sender);
@@ -944,11 +962,11 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                 sett.setProperty(key, settLJ);
             }
         }
-        obj.setProperty(QStringLiteral("BIKE_TYPE"), (int)bluetoothdevice::BIKE);
-        obj.setProperty(QStringLiteral("ELLIPTICAL_TYPE"), (int)bluetoothdevice::ELLIPTICAL);
-        obj.setProperty(QStringLiteral("ROWING_TYPE"), (int)bluetoothdevice::ROWING);
-        obj.setProperty(QStringLiteral("TREADMILL_TYPE"), (int)bluetoothdevice::TREADMILL);
-        obj.setProperty(QStringLiteral("UNKNOWN_TYPE"), (int)bluetoothdevice::UNKNOWN);
+        obj.setProperty(QStringLiteral("BIKE_TYPE"), (int)BIKE);
+        obj.setProperty(QStringLiteral("ELLIPTICAL_TYPE"), (int)ELLIPTICAL);
+        obj.setProperty(QStringLiteral("ROWING_TYPE"), (int)ROWING);
+        obj.setProperty(QStringLiteral("TREADMILL_TYPE"), (int)TREADMILL);
+        obj.setProperty(QStringLiteral("UNKNOWN_TYPE"), (int)UNKNOWN);
     }
     if (!device) {
         obj.setProperty(QStringLiteral("deviceId"), QJSValue());
@@ -957,7 +975,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         QTime elLap = device->lapElapsedTime();
         QString name;
         QString nickName;
-        bluetoothdevice::BLUETOOTH_TYPE tp = device->deviceType();
+        BLUETOOTH_TYPE tp = device->deviceType();
 
         metric dep;
 #ifdef Q_OS_IOS
@@ -1010,7 +1028,8 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("jouls"), device->jouls().value());
         obj.setProperty(QStringLiteral("elevation"), device->elevationGain().value());
         obj.setProperty(QStringLiteral("difficult"), device->difficult());
-        obj.setProperty(QStringLiteral("watts"), (dep = device->wattsMetric()).value());
+        obj.setProperty(QStringLiteral("watts"), (device->wattsMetricforUI()));
+        dep = device->wattsMetric();
         obj.setProperty(QStringLiteral("watts_avg"), dep.average());
         obj.setProperty(QStringLiteral("watts_color"), homeform::singleton()->watt->valueFontColor());
         obj.setProperty(QStringLiteral("watts_lapavg"), dep.lapAverage());
@@ -1028,6 +1047,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("peloton_offset"), pelotonOffset());
         obj.setProperty(QStringLiteral("peloton_ask_start"), pelotonAskStart());
         obj.setProperty(QStringLiteral("autoresistance"), homeform::singleton()->autoResistance());
+        obj.setProperty(QStringLiteral("nextrow"), homeform::singleton()->nextRows->value());
         if (homeform::singleton()->trainingProgram()) {
             el = homeform::singleton()->trainingProgram()->currentRowRemainingTime();
             obj.setProperty(QStringLiteral("row_remaining_time_s"), el.second());
@@ -1054,7 +1074,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                     .isEmpty()
                 ? QString(QStringLiteral("N/A"))
                 : nickName);
-        if (tp == bluetoothdevice::BIKE) {
+        if (tp == BIKE) {
             obj.setProperty(QStringLiteral("gears"), ((bike *)device)->gears());
             obj.setProperty(QStringLiteral("target_resistance"), ((bike *)device)->lastRequestedResistance().value());
             obj.setProperty(QStringLiteral("target_peloton_resistance"),
@@ -1066,6 +1086,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("power_zone_lapmax"), ((bike *)device)->currentPowerZone().lapMax());
             obj.setProperty(QStringLiteral("target_power_zone"), ((bike *)device)->targetPowerZone().value());
             obj.setProperty(QStringLiteral("power_zone_color"), homeform::singleton()->ftp->valueFontColor());
+            obj.setProperty(QStringLiteral("target_power_zone_color"), homeform::singleton()->target_zone->valueFontColor());
             obj.setProperty(QStringLiteral("peloton_resistance"),
                             (dep = ((bike *)device)->pelotonResistance()).value());
             obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
@@ -1089,7 +1110,10 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("req_cadence"), (dep = ((bike *)device)->lastRequestedCadence()).value());
             obj.setProperty(QStringLiteral("req_resistance"),
                             (dep = ((bike *)device)->lastRequestedResistance()).value());
-        } else if (tp == bluetoothdevice::ROWING) {
+            obj.setProperty(QStringLiteral("inclination"),
+                            (dep = ((bike *)device)->currentInclination()).value());
+            obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
+        } else if (tp == ROWING) {
             obj.setProperty(QStringLiteral("gears"), ((rower *)device)->gears());
             el = ((rower *)device)->lastRequestedPace();
             obj.setProperty(QStringLiteral("target_speed"), ((rower *)device)->lastRequestedSpeed().value());
@@ -1115,7 +1139,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("cranktime"), ((rower *)device)->lastCrankEventTime());
             obj.setProperty(QStringLiteral("strokescount"), ((rower *)device)->currentStrokesCount().value());
             obj.setProperty(QStringLiteral("strokeslength"), ((rower *)device)->currentStrokesLength().value());
-        } else if (tp == bluetoothdevice::TREADMILL) {
+        } else if (tp == TREADMILL) {
             obj.setProperty(QStringLiteral("target_speed"), ((treadmill *)device)->lastRequestedSpeed().value());
             el = ((treadmill *)device)->lastRequestedPace();
             obj.setProperty(QStringLiteral("target_pace_s"), el.second());
@@ -1138,7 +1162,9 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                             (dep = ((treadmill *)device)->currentGroundContact()).value());
             obj.setProperty(QStringLiteral("verticaloscillation"),
                             (dep = ((treadmill *)device)->currentVerticalOscillation()).value());
-        } else if (tp == bluetoothdevice::ELLIPTICAL) {
+        } else if (tp == ELLIPTICAL) {
+            obj.setProperty(QStringLiteral("resistance"), (dep = ((elliptical *)device)->currentResistance()).value());
+            obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
             obj.setProperty(QStringLiteral("cadence"), (dep = ((elliptical *)device)->currentCadence()).value());
             obj.setProperty(QStringLiteral("cadence_color"), homeform::singleton()->cadence->valueFontColor());
             obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
@@ -1158,4 +1184,135 @@ void TemplateInfoSenderBuilder::workoutEventStateChanged(bluetoothdevice::WORKOU
     if (state == bluetoothdevice::STARTED) {
         clearSessionArray();
     }
+}
+
+void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport) {
+    previewSessionOnChart(session, sport, "");
+}
+
+void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport, const QString &workoutName) {
+    auto startTime = std::chrono::high_resolution_clock::now();
+    qDebug() << "previewSessionOnChart: Starting with" << session->size() << "elements";
+    
+    clearPreviewSessionArray();
+    auto afterClear = std::chrono::high_resolution_clock::now();
+    qDebug() << "Clear took:" << std::chrono::duration_cast<std::chrono::milliseconds>(afterClear - startTime).count() << "ms";
+    
+    buildContext(true);
+    auto afterContext = std::chrono::high_resolution_clock::now();
+    qDebug() << "buildContext took:" << std::chrono::duration_cast<std::chrono::milliseconds>(afterContext - afterClear).count() << "ms";
+    
+    if (session->isEmpty()) {
+        return;
+    }
+    
+    // Pre-calculate stats for performance
+    double avgWatts = 0, maxWatts = 0, avgHeart = 0, maxHeart = 0, avgSpeed = 0, maxSpeed = 0, avgCadence = 0, maxCadence = 0;
+    double totalWatts = 0, totalHeart = 0, totalSpeed = 0, totalCadence = 0;
+    int validWatts = 0, validHeart = 0, validSpeed = 0, validCadence = 0;
+    
+    // Single optimized pass
+    for (const SessionLine &s : *session) {
+        if (s.watt > 0) { totalWatts += s.watt; validWatts++; maxWatts = qMax((double)s.watt, maxWatts); }
+        if (s.heart > 0) { totalHeart += s.heart; validHeart++; maxHeart = qMax((double)s.heart, maxHeart); }
+        if (s.speed > 0) { totalSpeed += s.speed; validSpeed++; maxSpeed = qMax(s.speed, maxSpeed); }
+        if (s.cadence > 0) { totalCadence += s.cadence; validCadence++; maxCadence = qMax((double)s.cadence, maxCadence); }
+    }
+    
+    avgWatts = validWatts > 0 ? totalWatts / validWatts : 0;
+    avgHeart = validHeart > 0 ? totalHeart / validHeart : 0;
+    avgSpeed = validSpeed > 0 ? totalSpeed / validSpeed : 0;
+    avgCadence = validCadence > 0 ? totalCadence / validCadence : 0;
+    
+    auto afterStats = std::chrono::high_resolution_clock::now();
+    qDebug() << "Stats calculation took:" << std::chrono::duration_cast<std::chrono::milliseconds>(afterStats - afterContext).count() << "ms";
+    
+    // Pre-calculate common values outside the loop
+    QSettings settings;
+    const QString nickName = settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString();
+    const QString displayNickName = nickName.isEmpty() ? QStringLiteral("N/A") : nickName;
+    const QString displayWorkoutName = workoutName.isEmpty() ? QStringLiteral("FIT Workout") : workoutName;
+    const QString instructorName = QStringLiteral("");
+    
+    // Get properly formatted date from first session element for summary display
+    const QString workoutStartDateFormatted = !session->isEmpty() ? session->first().time.toString() : QStringLiteral("");
+    
+    auto afterPreCalc = std::chrono::high_resolution_clock::now();
+    qDebug() << "Pre-calculation took:" << std::chrono::duration_cast<std::chrono::milliseconds>(afterPreCalc - afterStats).count() << "ms";
+    
+    // Reserve space for better performance
+    previewSessionArray = QJsonArray();
+    
+    qDebug() << "Starting main loop with" << session->size() << "elements";
+    int processedItems = 0;
+    
+    // Pre-create template QJsonObject for reuse
+    QJsonObject itemTemplate;
+    itemTemplate[QStringLiteral("speed_avg")] = avgSpeed;
+    itemTemplate[QStringLiteral("speed_max")] = maxSpeed;
+    itemTemplate[QStringLiteral("heart_avg")] = avgHeart;
+    itemTemplate[QStringLiteral("heart_max")] = maxHeart;
+    itemTemplate[QStringLiteral("watts_avg")] = avgWatts;
+    itemTemplate[QStringLiteral("watts_max")] = maxWatts;
+    itemTemplate[QStringLiteral("workoutName")] = displayWorkoutName;
+    itemTemplate[QStringLiteral("instructorName")] = instructorName;
+    itemTemplate[QStringLiteral("nickName")] = displayNickName;
+    itemTemplate[QStringLiteral("cadence_avg")] = avgCadence;
+    itemTemplate[QStringLiteral("cadence_max")] = maxCadence;
+    itemTemplate[QStringLiteral("workoutStartDate")] = workoutStartDateFormatted;
+    
+    // Simple optimized loop - no coordinates
+    for (const SessionLine &s : *session) {
+        QJsonObject item = itemTemplate; // Copy template (includes workoutStartDate)
+        
+        // Time calculation (optimized)
+        const int totalSeconds = s.elapsedTime;
+        item[QStringLiteral("elapsed_s")] = totalSeconds % 60;
+        item[QStringLiteral("elapsed_m")] = (totalSeconds % 3600) / 60;
+        item[QStringLiteral("elapsed_h")] = totalSeconds / 3600;
+        
+        // Variable properties only
+        item[QStringLiteral("speed")] = s.speed;
+        item[QStringLiteral("calories")] = s.calories;
+        item[QStringLiteral("distance")] = s.distance;
+        item[QStringLiteral("heart")] = s.heart;
+        item[QStringLiteral("elevation")] = s.elevationGain;
+        item[QStringLiteral("watts")] = s.watt;
+        
+        // Sport-specific properties
+        if (sport == FIT_SPORT_CYCLING) {
+            item[QStringLiteral("cadence")] = s.cadence;
+            item[QStringLiteral("resistance")] = s.resistance;
+        } else if (sport == FIT_SPORT_ROWING) {
+            item[QStringLiteral("cadence")] = s.cadence;
+            item[QStringLiteral("resistance")] = s.resistance;
+            item[QStringLiteral("strokescount")] = static_cast<int>(s.totalStrokes);
+            item[QStringLiteral("strokeslength")] = static_cast<double>(s.avgStrokesLength);
+        } else if (sport == FIT_SPORT_RUNNING || sport == FIT_SPORT_WALKING) {
+            item[QStringLiteral("inclination")] = s.inclination;
+            item[QStringLiteral("stridelength")] = s.instantaneousStrideLengthCM;
+            item[QStringLiteral("groundcontact")] = s.groundContactMS;
+            item[QStringLiteral("verticaloscillation")] = s.verticalOscillationMM;
+        } else if (sport == FIT_SUB_SPORT_ELLIPTICAL) {
+            item[QStringLiteral("inclination")] = s.inclination;
+        }
+        
+        previewSessionArray.append(item);
+        processedItems++;
+        
+        // Log progress every 1000 items
+        if (processedItems % 1000 == 0) {
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            qDebug() << "Processed" << processedItems << "items, elapsed:" 
+                     << std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - afterPreCalc).count() << "ms";
+        }
+    }
+    
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+    auto loopTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - afterPreCalc).count();
+    
+    qDebug() << "previewSessionOnChart: Added" << previewSessionArray.size() << "elements to preview array";
+    qDebug() << "Total time:" << totalTime << "ms, Main loop time:" << loopTime << "ms";
+    qDebug() << "Average per item:" << (session->size() > 0 ? (double)loopTime / session->size() : 0) << "ms";
 }

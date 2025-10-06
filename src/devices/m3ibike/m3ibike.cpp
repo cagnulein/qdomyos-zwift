@@ -260,7 +260,7 @@ m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     heartRateBeltDisabled = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
                                 .toString()
                                 .startsWith(QStringLiteral("Disabled"));
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
@@ -720,6 +720,8 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         {
             if (heartRateBeltDisabled && (k3.pulse == 0 || settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool())) {
                 update_hr_from_external();
+            } else if(!heartRateBeltDisabled) {
+                // we don't have to anything in this case
             } else {
                 Heart = k3.pulse;
             }

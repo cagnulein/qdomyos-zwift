@@ -11,7 +11,7 @@
 using namespace std::chrono_literals;
 
 iconceptbike::iconceptbike() {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     initDone = false;
@@ -22,7 +22,13 @@ iconceptbike::iconceptbike() {
 void iconceptbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    if (device.name().toUpper().startsWith(QStringLiteral("BH DUALKIT"))) {
+    //if (device.name().toUpper().startsWith(QStringLiteral("BH DUALKIT")))
+    {
+        if (device.name().toUpper().startsWith(QStringLiteral("BH-"))) {
+            i_Nexor = true;
+            qDebug() << "BH i-Nexor workaround enabled";
+        }
+
         bluetoothDevice = device;
 
         // Create a discovery agent and connect to its signals
@@ -79,6 +85,8 @@ void iconceptbike::serviceDiscovered(const QBluetoothServiceInfo &service) {
             connect(socket, &QBluetoothSocket::disconnected, this, &iconceptbike::disconnected);
             connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
                     &iconceptbike::onSocketErrorOccurred);
+        } else {
+            qDebug () << QStringLiteral("service ignored!");
         }
     }
 }
@@ -130,50 +138,109 @@ void iconceptbike::update() {
 void iconceptbike::rfCommConnected() {
     emit debug(QStringLiteral("connected ") + socket->peerName());
 
-    const uint8_t init1[] = {0x55, 0x0c, 0x01, 0xff, 0x55, 0xbb, 0x01, 0xff, 0x55, 0x24, 0x01, 0xff, 0x55, 0x25, 0x01,
-                             0xff, 0x55, 0x26, 0x01, 0xff, 0x55, 0x27, 0x01, 0xff, 0x55, 0x02, 0x01, 0xff, 0x55, 0x03,
-                             0x01, 0xff, 0x55, 0x04, 0x01, 0xff, 0x55, 0x06, 0x01, 0xff, 0x55, 0x1f, 0x01, 0xff, 0x55,
-                             0xa0, 0x01, 0xff, 0x55, 0xb0, 0x01, 0xff, 0x55, 0xb2, 0x01, 0xff, 0x55, 0xb3, 0x01, 0xff,
-                             0x55, 0xb4, 0x01, 0xff, 0x55, 0xb5, 0x01, 0xff, 0x55, 0xb6, 0x01, 0xff, 0x55, 0xb7, 0x01,
-                             0xff, 0x55, 0xb8, 0x01, 0xff, 0x55, 0xb9, 0x01, 0xff, 0x55, 0xba, 0x01, 0xff};
-    const uint8_t init2[] = {0x55, 0x0b, 0x01, 0xff, 0x55, 0x18, 0x01, 0xff, 0x55, 0x19,
-                             0x01, 0xff, 0x55, 0x1a, 0x01, 0xff, 0x55, 0x1b, 0x01, 0xff};
-    const uint8_t init3[] = {0x55, 0x17, 0x01, 0x01, 0x55, 0xb5, 0x01, 0xff};
-    const uint8_t init4[] = {0x55, 0x01, 0x06, 0x1e, 0x00, 0x3c, 0x00, 0xaa, 0x00};
-    const uint8_t init5[] = {0x55, 0x15, 0x01, 0x00};
-    const uint8_t init6[] = {0x55, 0x11, 0x01, 0x01};
-    const uint8_t init7[] = {0x55, 0x0a, 0x01, 0x01};
-    const uint8_t init8[] = {0x55, 0x07, 0x01, 0xff};
-    const uint8_t init9[] = {0x55, 0x11, 0x01, 0x08};
+    if(i_Nexor) {
+        const uint8_t init01[] = {0x55, 0x0c, 0x01, 0xff, 0x55, 0xbb, 0x01, 0xff, 0x55, 0x24, 0x01, 0xff, 0x55, 0x25, 0x01,
+                                 0xff, 0x55, 0x26, 0x01, 0xff, 0x55, 0x27, 0x01, 0xff, 0x55, 0x02, 0x01, 0xff, 0x55, 0x03,
+                                 0x01, 0xff, 0x55, 0x04, 0x01, 0xff, 0x55, 0x06, 0x01, 0xff, 0x55, 0x1f, 0x01, 0xff, 0x55,
+                                 0xa0, 0x01, 0xff, 0x55, 0xb0, 0x01, 0xff, 0x55, 0xb2, 0x01, 0xff, 0x55, 0xb3, 0x01, 0xff,
+                                 0x55, 0xb4, 0x01, 0xff, 0x55, 0xb5, 0x01, 0xff, 0x55, 0xb6, 0x01, 0xff, 0x55, 0xb7, 0x01,
+                                 0xff, 0x55, 0xb8, 0x01, 0xff, 0x55, 0xb9, 0x01, 0xff, 0x55, 0xba, 0x01, 0xff};
+        const uint8_t init02[] = {0x55, 0x0b, 0x01, 0xff, 0x55, 0x18, 0x01, 0xff, 0x55, 0x19,
+                                 0x01, 0xff, 0x55, 0x1a, 0x01, 0xff, 0x55, 0x1b, 0x01, 0xff};
+        socket->write((char *)init01, sizeof(init01));
+        qDebug() << QStringLiteral(" init01 write");
+        socket->write((char *)init02, sizeof(init02));
+        qDebug() << QStringLiteral(" init02 write");
+        QThread::msleep(2000);
 
-    socket->write((char *)init1, sizeof(init1));
-    qDebug() << QStringLiteral(" init1 write");
-    socket->write((char *)init2, sizeof(init2));
-    qDebug() << QStringLiteral(" init2 write");
-    QThread::msleep(2000);
-    socket->write((char *)init3, sizeof(init3));
-    qDebug() << QStringLiteral(" init3 write");
-    QThread::msleep(2000);
-    socket->write((char *)init3, sizeof(init3));
-    qDebug() << QStringLiteral(" init3 write");
-    QThread::msleep(500);
-    socket->write((char *)init4, sizeof(init4));
-    qDebug() << QStringLiteral(" init4 write");
-    QThread::msleep(600);
-    socket->write((char *)init5, sizeof(init5));
-    qDebug() << QStringLiteral(" init5 write");
-    QThread::msleep(600);
-    socket->write((char *)init6, sizeof(init6));
-    qDebug() << QStringLiteral(" init6 write");
-    QThread::msleep(600);
-    socket->write((char *)init7, sizeof(init7));
-    qDebug() << QStringLiteral(" init7 write");
-    QThread::msleep(600);
-    socket->write((char *)init8, sizeof(init8));
-    qDebug() << QStringLiteral(" init8 write");
-    QThread::msleep(600);
-    socket->write((char *)init9, sizeof(init9));
-    qDebug() << QStringLiteral(" init9 write");
+        const uint8_t init1[] = {0x55, 0x0a, 0x01, 0x02, 0x53};
+        socket->write((char *)init1, sizeof(init1));
+        qDebug() << QStringLiteral(" init1 write");
+
+        const uint8_t init2[] = {0x55, 0x17, 0x01, 0x01, 0x4f};
+        socket->write((char *)init2, sizeof(init2));
+        qDebug() << QStringLiteral(" init2 write");
+        QThread::msleep(600);
+
+        const uint8_t init3[] = {0x55, 0x01, 0x06, 0x21, 0x01, 0x50, 0x00, 0xb4, 0x00};
+        socket->write((char *)init3, sizeof(init3));
+        qDebug() << QStringLiteral(" init3 write");
+        QThread::msleep(400);
+
+        const uint8_t init4[] = {0x55, 0x17, 0x01, 0x01};
+        socket->write((char *)init4, sizeof(init4));
+        qDebug() << QStringLiteral(" init4 write");
+        QThread::msleep(200);
+
+        const uint8_t init5[] = {0x55, 0x15, 0x01, 0x00};
+        socket->write((char *)init5, sizeof(init5));
+        qDebug() << QStringLiteral(" init5 write");
+        QThread::msleep(600);
+
+        const uint8_t init6[] = {0x55, 0x11, 0x01, 0x01};
+        socket->write((char *)init6, sizeof(init6));
+        qDebug() << QStringLiteral(" init6 write");
+        QThread::msleep(200);
+
+        socket->write((char *)init4, sizeof(init4));
+        qDebug() << QStringLiteral(" init4 write");
+        QThread::msleep(400);
+
+        const uint8_t init7[] = {0x55, 0x0a, 0x01, 0x01};
+        socket->write((char *)init7, sizeof(init7));
+        qDebug() << QStringLiteral(" init7 write");
+        QThread::msleep(600);
+
+        const uint8_t init8[] = {0x55, 0x07, 0x01, 0xff};
+        socket->write((char *)init8, sizeof(init8));
+        qDebug() << QStringLiteral(" init8 write");
+        QThread::msleep(600);
+    } else {
+        const uint8_t init1[] = {0x55, 0x0c, 0x01, 0xff, 0x55, 0xbb, 0x01, 0xff, 0x55, 0x24, 0x01, 0xff, 0x55, 0x25, 0x01,
+                                 0xff, 0x55, 0x26, 0x01, 0xff, 0x55, 0x27, 0x01, 0xff, 0x55, 0x02, 0x01, 0xff, 0x55, 0x03,
+                                 0x01, 0xff, 0x55, 0x04, 0x01, 0xff, 0x55, 0x06, 0x01, 0xff, 0x55, 0x1f, 0x01, 0xff, 0x55,
+                                 0xa0, 0x01, 0xff, 0x55, 0xb0, 0x01, 0xff, 0x55, 0xb2, 0x01, 0xff, 0x55, 0xb3, 0x01, 0xff,
+                                 0x55, 0xb4, 0x01, 0xff, 0x55, 0xb5, 0x01, 0xff, 0x55, 0xb6, 0x01, 0xff, 0x55, 0xb7, 0x01,
+                                 0xff, 0x55, 0xb8, 0x01, 0xff, 0x55, 0xb9, 0x01, 0xff, 0x55, 0xba, 0x01, 0xff};
+        const uint8_t init2[] = {0x55, 0x0b, 0x01, 0xff, 0x55, 0x18, 0x01, 0xff, 0x55, 0x19,
+                                 0x01, 0xff, 0x55, 0x1a, 0x01, 0xff, 0x55, 0x1b, 0x01, 0xff};
+        const uint8_t init3[] = {0x55, 0x17, 0x01, 0x01, 0x55, 0xb5, 0x01, 0xff};
+        const uint8_t init4[] = {0x55, 0x01, 0x06, 0x1e, 0x00, 0x3c, 0x00, 0xaa, 0x00};
+        const uint8_t init5[] = {0x55, 0x15, 0x01, 0x00};
+        const uint8_t init6[] = {0x55, 0x11, 0x01, 0x01};
+        const uint8_t init7[] = {0x55, 0x0a, 0x01, 0x01};
+        const uint8_t init8[] = {0x55, 0x07, 0x01, 0xff};
+        const uint8_t init9[] = {0x55, 0x11, 0x01, 0x08};
+
+        socket->write((char *)init1, sizeof(init1));
+        qDebug() << QStringLiteral(" init1 write");
+        socket->write((char *)init2, sizeof(init2));
+        qDebug() << QStringLiteral(" init2 write");
+        QThread::msleep(2000);
+        socket->write((char *)init3, sizeof(init3));
+        qDebug() << QStringLiteral(" init3 write");
+        QThread::msleep(2000);
+        socket->write((char *)init3, sizeof(init3));
+        qDebug() << QStringLiteral(" init3 write");
+        QThread::msleep(500);
+        socket->write((char *)init4, sizeof(init4));
+        qDebug() << QStringLiteral(" init4 write");
+        QThread::msleep(600);
+        socket->write((char *)init5, sizeof(init5));
+        qDebug() << QStringLiteral(" init5 write");
+        QThread::msleep(600);
+        socket->write((char *)init6, sizeof(init6));
+        qDebug() << QStringLiteral(" init6 write");
+        QThread::msleep(600);
+        socket->write((char *)init7, sizeof(init7));
+        qDebug() << QStringLiteral(" init7 write");
+        QThread::msleep(600);
+        socket->write((char *)init8, sizeof(init8));
+        qDebug() << QStringLiteral(" init8 write");
+        QThread::msleep(600);
+        socket->write((char *)init9, sizeof(init9));
+        qDebug() << QStringLiteral(" init9 write");
+    }
 
     initDone = true;
     // requestStart = 1;
@@ -195,7 +262,9 @@ void iconceptbike::readSocket() {
             bool bh_spada_2_watt =
                 settings.value(QZSettings::bh_spada_2_watt, QZSettings::default_bh_spada_2_watt).toBool();
             elapsed = GetElapsedTimeFromPacket(line);
-            Distance = GetDistanceFromPacket(line);
+            //Distance = GetDistanceFromPacket(line);
+            QDateTime now = QDateTime::currentDateTime();
+            Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
             KCal = GetCaloriesFromPacket(line);
             if (bh_spada_2_watt) {
                 m_watt = GetWattFromPacket(line);
@@ -213,7 +282,7 @@ void iconceptbike::readSocket() {
                           200.0) /
                          (60000.0 /
                           ((double)lastRefreshCharacteristicChanged.msecsTo(
-                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                              now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                                 //* 3.5) / 200 ) / 60
             } else {
                 Speed = GetSpeedFromPacket(line);
@@ -226,7 +295,7 @@ void iconceptbike::readSocket() {
                 LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
             }
 
-            lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+            lastRefreshCharacteristicChanged = now;
 
 #ifdef Q_OS_ANDROID
             if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {

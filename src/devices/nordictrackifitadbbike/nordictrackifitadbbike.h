@@ -60,19 +60,21 @@ class nordictrackifitadbbikeLogcatAdbThread : public QThread {
 class nordictrackifitadbbike : public bike {
     Q_OBJECT
   public:
-    nordictrackifitadbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    nordictrackifitadbbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                            double bikeResistanceGain);
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool inclinationAvailableByHardware() override;
-    resistance_t resistanceFromPowerRequest(uint16_t power) override;    
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    bool ifitCompatible() override;
 
   private:
-    const resistance_t max_resistance = 17; // max inclination for s22i
+    const resistance_t max_resistance = 20; // max inclination for s22i
     void forceResistance(double resistance);
     uint16_t watts() override;
     double getDouble(QString v);
     uint16_t wattsFromResistance(double inclination, double cadence);
+    double bikeResistanceToPeloton(resistance_t resistance);
 
     QTimer *refresh;
 

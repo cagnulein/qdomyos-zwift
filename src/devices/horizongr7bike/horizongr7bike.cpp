@@ -16,9 +16,9 @@
 
 using namespace std::chrono_literals;
 
-horizongr7bike::horizongr7bike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+horizongr7bike::horizongr7bike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                double bikeResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;

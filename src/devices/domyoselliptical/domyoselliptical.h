@@ -32,7 +32,7 @@ class domyoselliptical : public elliptical {
     Q_OBJECT
   public:
     domyoselliptical(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
-                     uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
+                     int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~domyoselliptical();
     bool connected() override;
     bool inclinationAvailableByHardware() override;
@@ -64,7 +64,7 @@ class domyoselliptical : public elliptical {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool testResistance = false;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bool searchStopped = false;
     uint8_t sec1Update = 0;

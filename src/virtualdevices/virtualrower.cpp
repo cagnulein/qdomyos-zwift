@@ -7,6 +7,13 @@
 #include <QSettings>
 #include <QtMath>
 #include <chrono>
+#include <QThread>
+
+#ifdef Q_OS_ANDROID
+#include "androidactivityresultreceiver.h"
+#include "keepawakehelper.h"
+#include <QAndroidJniObject>
+#endif
 
 using namespace std::chrono_literals;
 
@@ -154,6 +161,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         Q_ASSERT(leController);
 
         serviceFIT = leController->addService(serviceDataFIT);
+        QThread::msleep(100); // give time to Android to add the service async.ly
 
         if (!this->noHeartService || heart_only) {
             serviceHR = leController->addService(serviceDataHR);
@@ -169,7 +177,12 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             pars.setInterval(100, 100);
         }
 
+#ifdef Q_OS_ANDROID
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#else
         leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
 
         //! [Start Advertising]
     }
@@ -299,12 +312,19 @@ void virtualrower::reconnect() {
     leController->disconnectFromDevice();
 
     serviceFIT = leController->addService(serviceDataFIT);
+    QThread::msleep(100); // give time to Android to add the service async.ly
     if (!this->noHeartService || heart_only)
         serviceHR = leController->addService(serviceDataHR);
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
+                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#else
     leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
+
 }
 
 void virtualrower::rowerProvider() {

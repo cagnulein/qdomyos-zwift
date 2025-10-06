@@ -7,7 +7,7 @@ import Qt.labs.settings 1.0
 import Qt.labs.platform 1.1
 import QtMultimedia 5.15
 
-HomeForm{
+HomeForm {
     objectName: "home"
     background: Rectangle {
         anchors.fill: parent
@@ -33,6 +33,7 @@ HomeForm{
         property bool theme_tile_shadow_enabled: true
         property string theme_tile_shadow_color: "#9C27B0"
         property int theme_tile_secondline_textsize: 12
+        property bool skipLocationServicesDialog: false
     }
 
     MessageDialog {
@@ -71,7 +72,19 @@ HomeForm{
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("New lap started!")
             }
-         }
+        }
+    }
+
+    MessageDialog {
+        id: stopConfirmationDialog
+        text: qsTr("Stop Workout")
+        informativeText: qsTr("Do you really want to stop the current workout?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            close();
+            inner_stop();
+        }
+        onNoClicked: close()
     }
 
     Timer {
@@ -86,6 +99,49 @@ HomeForm{
         onTriggered: {if(rootItem.stopRequested) {rootItem.stopRequested = false; inner_stop(); }}
     }
 
+    property bool locationServiceRequsted: false
+
+    MessageDialog {
+        id: locationServicesDialog
+        text: "Permissions Required"
+        informativeText: "QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            locationServiceRequsted = true
+            rootItem.enableLocationServices()
+        }
+        onNoClicked: remindLocationServicesDialog.visible = true
+        visible: !rootItem.locationServices() && !locationServiceRequsted && !settings.skipLocationServicesDialog
+    }
+
+    MessageDialog {
+        id: remindLocationServicesDialog
+        text: "Reminder Preference"
+        informativeText: "Would you like to be reminded about enabling Location Services next time?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: settings.skipLocationServicesDialog = false
+        onNoClicked: settings.skipLocationServicesDialog = true
+        visible: false
+    }
+
+    MessageDialog {
+        text: "Restart the app"
+        informativeText: "To apply the changes, you need to restart the app.\nWould you like to do that now?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: Qt.callLater(Qt.quit)
+        onNoClicked: this.visible = false;
+        visible: locationServiceRequsted
+    }
+
+    Timer {
+        interval: 200; running: true; repeat: false
+        onTriggered: {
+            if(rootItem.firstRun()) {
+                stackView.push("Wizard.qml")
+            }
+        }
+    }
+
     function inner_stop() {
         stop_clicked();
         rootItem.save_screenshot();
@@ -97,269 +153,305 @@ HomeForm{
 
     start.onClicked: { start_clicked(); }
     stop.onClicked: {
-        inner_stop();
+        if (rootItem.confirmStopEnabled()) {
+            stopConfirmationDialog.open();
+        } else {
+            inner_stop();
+        }
     }
     lap.onClicked: { lap_clicked(); popupLap.open(); popupLapAutoClose.running = true; }
 
-    Component.onCompleted: { console.log("completed"); }
+    Component.onCompleted: {
+        console.log("home.qml completed");
+    }
 
-        GridView {
+    GridView {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.fill: parent
+        cellWidth: 175 * settings.ui_zoom / 100
+        cellHeight: 130 * settings.ui_zoom / 100
+        focus: true
+        model: appModel
+        leftMargin: { if(OS_VERSION === "Android") (Screen.width % cellWidth) / 2; else (parent.width % cellWidth) / 2; }
+        anchors.topMargin: (!window.lockTiles ? rootItem.topBarHeight + 30 : 0)
+        id: gridView
+        objectName: "gridview"
+        onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
+        Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
+        Screen.onPrimaryOrientationChanged:{
+            if(OS_VERSION === "Android")
+                gridView.leftMargin = (Screen.width % cellWidth) / 2;
+            else
+                gridView.leftMargin = (parent.width % cellWidth) / 2;
+        }
+
+        delegate: Item {
+            id: id1
+            width: 170 * settings.ui_zoom / 100
+            height: 125 * settings.ui_zoom / 100
+
+            visible: visibleItem
+            Component.onCompleted: console.log("completed " + objectName)
+
+            Behavior on x {
+                enabled: id1.state != "active"
+                NumberAnimation { duration: 400; easing.type: Easing.OutBack }
+            }
+
+            Behavior on y {
+                enabled: id1.state != "active"
+                NumberAnimation { duration: 400; easing.type: Easing.OutBack }
+            }
+
+            SequentialAnimation on rotation {
+                NumberAnimation { to:  2; duration: 60 }
+                NumberAnimation { to: -2; duration: 120 }
+                NumberAnimation { to:  0; duration: 60 }
+                running: loc.currentId !== -1 && id1.state !== "active" && window.lockTiles
+                loops: Animation.Infinite; alwaysRunToEnd: true
+            }
+
+            states: State {
+                name: "active"; when: loc.currentId === gridId && window.lockTiles
+                PropertyChanges { target: id1; x: loc.mouseX - gridView.x - width/2; y: loc.mouseY - gridView.y - height/2; scale: 0.5; z: 10 }
+            }
+
+            transitions: Transition { NumberAnimation { property: "scale"; duration: 200} }
+
+            Rectangle {
+                width: 168 * settings.ui_zoom / 100
+                height: 123 * settings.ui_zoom / 100
+                radius: 3
+                border.width: 1
+                border.color: (settings.theme_tile_shadow_enabled ? settings.theme_tile_shadow_color : settings.theme_tile_background_color)
+                color: settings.theme_tile_background_color
+                id: rect
+            }
+
+            DropShadow {
+                visible: settings.theme_tile_shadow_enabled
+                anchors.fill: rect
+                cached: true
+                horizontalOffset: 3
+                verticalOffset: 3
+                radius: 8.0
+                samples: 16
+                color: settings.theme_tile_shadow_color
+                source: rect
+            }
+
+            Timer {
+                id: toggleIconTimer
+                interval: 500; running: true; repeat: true
+                onTriggered: { if(identificator === "inclination" && rootItem.autoInclinationEnabled()) myIcon.visible = !myIcon.visible; else myIcon.visible = settings.theme_tile_icon_enabled && !largeButton; }
+            }
+
+            Image {
+                id: myIcon
+                x: 5
+                anchors {
+                         bottom: id1.bottom
+                }
+                width: 48 * settings.ui_zoom / 100
+                height: 48 * settings.ui_zoom / 100
+                source: icon
+                visible: settings.theme_tile_icon_enabled && !largeButton
+            }
+            Text {
+                objectName: "value"
+                id: myValue
+                color: valueFontColor
+                y: 0
+                anchors {
+                    horizontalCenter: parent.horizontalCenter
+                }
+                text: value
+                horizontalAlignment: Text.AlignHCenter
+                font.pointSize: valueFontSize * settings.ui_zoom / 100
+                font.bold: true
+                visible: !largeButton
+            }
+            Text {
+                objectName: "secondLine"
+                id: secondLineText
+                color: "white"
+                y: myValue.bottom
+                anchors {
+                    top: myValue.bottom
+                    horizontalCenter: parent.horizontalCenter
+                }
+                text: secondLine
+                horizontalAlignment: Text.AlignHCenter
+                font.pointSize: settings.theme_tile_secondline_textsize * settings.ui_zoom / 100
+                font.bold: false
+                visible: !largeButton
+            }
+            Text {
+                id: myText
+                anchors {
+                    top: myIcon.top
+                }
+                font.bold: true
+                     font.pointSize: labelFontSize
+                color: "white"
+                text: name
+                anchors.left: parent.left
+                anchors.leftMargin: 55 * settings.ui_zoom / 100
+                anchors.topMargin: 20 * settings.ui_zoom / 100
+                visible: !largeButton
+            }
+            RoundButton {
+                objectName: minusName
+                autoRepeat: true
+                text: "-"
+                onClicked: minus_clicked(objectName)
+                visible: writable && !largeButton
+                anchors.top: myValue.top
+                anchors.left: parent.left
+                anchors.leftMargin: 2
+                width: 48 * settings.ui_zoom / 100
+                height: 48 * settings.ui_zoom / 100
+            }
+            RoundButton {
+                autoRepeat: true
+                objectName: plusName
+                text: "+"
+                onClicked: plus_clicked(objectName)
+                visible: writable && !largeButton
+                anchors.top: myValue.top
+                anchors.right: parent.right
+                anchors.rightMargin: 2
+                width: 48 * settings.ui_zoom / 100
+                height: 48 * settings.ui_zoom / 100
+            }
+            RoundButton {
+                autoRepeat: true
+                objectName: identificator
+                text: largeButtonLabel
+                onClicked: largeButton_clicked(objectName)
+                visible: largeButton
+                anchors.fill: rect
+                      background: Rectangle {
+                          color: largeButtonColor
+                            radius: 20
+                            }
+                font.pointSize: 20 * settings.ui_zoom / 100
+            }
+        }
+    }
+
+    footer: Item {
+        id: footerItem
+        width: parent.width
+        height: footerHeight
+        property real footerHeight: (rootItem.chartFooterVisible ? parent.height / 4 : parent.height / 2)
+        property real minHeight: parent.height / 4
+        property real maxHeight: parent.height * 3 / 4
+        anchors.bottom: parent.bottom
+        clip: true
+        visible: rootItem.chartFooterVisible || rootItem.videoVisible
+
+        Rectangle {
+            id: dragHandle
+            width: parent.width / 5
+            height: 10
+            color: "#9C27B0"
+            anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.fill: parent
-            cellWidth: 175 * settings.ui_zoom / 100
-            cellHeight: 130 * settings.ui_zoom / 100
-            focus: true
-            model: appModel
-            leftMargin: { if(OS_VERSION === "Android") (Screen.width % cellWidth) / 2; else (parent.width % cellWidth) / 2; }
-            anchors.topMargin: (!window.lockTiles ? rootItem.topBarHeight + 30 : 0)
-            id: gridView
-            objectName: "gridview"
-            onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
-            Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
-            Screen.onPrimaryOrientationChanged:{
-                if(OS_VERSION === "Android")
-                    gridView.leftMargin = (Screen.width % cellWidth) / 2;
-                else
-                    gridView.leftMargin = (parent.width % cellWidth) / 2;
+            visible: rootItem.chartFooterVisible || rootItem.videoVisible
+
+            Canvas {
+                anchors.fill: parent
+                onPaint: {
+                    var ctx = getContext("2d");
+                    ctx.strokeStyle = "#FFFFFF";
+                    ctx.lineWidth = 2;
+
+                    for (var i = 0; i < 3; i++) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, (i + 1) * parent.height / 4);
+                        ctx.lineTo(parent.width, (i + 1) * parent.height / 4);
+                        ctx.stroke();
+                    }
+                }
             }
 
-            //        highlight: Rectangle {
-            //            width: 150
-            //           height: 150
-            //            color: "lightsteelblue"
-            //        }
-            delegate: Item {
-                id: id1
-                width: 170 * settings.ui_zoom / 100
-                height: 125 * settings.ui_zoom / 100
+            MouseArea {
+                id: dragArea
+                anchors.fill: parent
+                cursorShape: Qt.SizeVerCursor
 
-                visible: visibleItem
-                Component.onCompleted: console.log("completed " + objectName)
+                property real startY: 0
+                property real startHeight: 0
 
-                Behavior on x {
-                    enabled: id1.state != "active"
-                    NumberAnimation { duration: 400; easing.type: Easing.OutBack }
+                onPressed: {
+                    startY = mouseY
+                    startHeight = footerItem.height
                 }
 
-                Behavior on y {
-                    enabled: id1.state != "active"
-                    NumberAnimation { duration: 400; easing.type: Easing.OutBack }
-                }
-
-                SequentialAnimation on rotation {
-                    NumberAnimation { to:  2; duration: 60 }
-                    NumberAnimation { to: -2; duration: 120 }
-                    NumberAnimation { to:  0; duration: 60 }
-                    running: loc.currentId !== -1 && id1.state !== "active" && window.lockTiles
-                    loops: Animation.Infinite; alwaysRunToEnd: true
-                }
-
-                states: State {
-                    name: "active"; when: loc.currentId === gridId && window.lockTiles
-                    PropertyChanges { target: id1; x: loc.mouseX - gridView.x - width/2; y: loc.mouseY - gridView.y - height/2; scale: 0.5; z: 10 }
-                }
-
-                transitions: Transition { NumberAnimation { property: "scale"; duration: 200} }
-
-                Rectangle {
-                    width: 168 * settings.ui_zoom / 100
-                    height: 123 * settings.ui_zoom / 100
-                    radius: 3
-                    border.width: 1
-                    border.color: (settings.theme_tile_shadow_enabled ? settings.theme_tile_shadow_color : settings.theme_tile_background_color)
-                    color: settings.theme_tile_background_color
-                    id: rect
-                }
-
-                DropShadow {
-                    visible: settings.theme_tile_shadow_enabled
-                    anchors.fill: rect
-                    cached: true
-                    horizontalOffset: 3
-                    verticalOffset: 3
-                    radius: 8.0
-                    samples: 16
-                    color: settings.theme_tile_shadow_color
-                    source: rect
-                }
-
-                Timer {
-                    id: toggleIconTimer
-                    interval: 500; running: true; repeat: true
-                    onTriggered: { if(identificator === "inclination" && rootItem.autoInclinationEnabled()) myIcon.visible = !myIcon.visible; else myIcon.visible = settings.theme_tile_icon_enabled && !largeButton; }
-                }
-
-                Image {
-                    id: myIcon
-                    x: 5
-                    anchors {
-                             bottom: id1.bottom
+                onMouseYChanged: {
+                    if (pressed) {
+                        var newHeight = Math.max(footerItem.minHeight, Math.min(footerItem.maxHeight, startHeight + startY - mouseY))
+                        footerItem.footerHeight = newHeight
                     }
-                    width: 48 * settings.ui_zoom / 100
-                    height: 48 * settings.ui_zoom / 100
-                    source: icon
-                    visible: settings.theme_tile_icon_enabled && !largeButton
                 }
-                Text {
-                    objectName: "value"
-                    id: myValue
-                    color: valueFontColor
-                    y: 0
-                    anchors {
-                        horizontalCenter: parent.horizontalCenter
-                    }
-                    text: value
-                    horizontalAlignment: Text.AlignHCenter
-                    font.pointSize: valueFontSize * settings.ui_zoom / 100
-                    font.bold: true
-                    visible: !largeButton
-                }
-                Text {
-                    objectName: "secondLine"
-                    id: secondLineText
-                    color: "white"
-                    y: myValue.bottom
-                    anchors {
-                        top: myValue.bottom
-                        horizontalCenter: parent.horizontalCenter
-                    }
-                    text: secondLine
-                    horizontalAlignment: Text.AlignHCenter
-                    font.pointSize: settings.theme_tile_secondline_textsize * settings.ui_zoom / 100
-                    font.bold: false
-                    visible: !largeButton
-                }
-                Text {
-                    id: myText
-                    anchors {
-                        top: myIcon.top
-                    }
-                    font.bold: true
-                         font.pointSize: labelFontSize
-                    color: "white"
-                    text: name
-                    anchors.left: parent.left
-                    anchors.leftMargin: 55 * settings.ui_zoom / 100
-                    anchors.topMargin: 20 * settings.ui_zoom / 100
-                    visible: !largeButton
-                }
-                RoundButton {
-                    objectName: minusName
-                    autoRepeat: true
-                    text: "-"
-                    onClicked: minus_clicked(objectName)
-                    visible: writable && !largeButton
-                    anchors.top: myValue.top
-                    anchors.left: parent.left
-                    anchors.leftMargin: 2
-                    width: 48 * settings.ui_zoom / 100
-                    height: 48 * settings.ui_zoom / 100
-                }
-                RoundButton {
-                    autoRepeat: true
-                    objectName: plusName
-                    text: "+"
-                    onClicked: plus_clicked(objectName)
-                    visible: writable && !largeButton
-                    anchors.top: myValue.top
-                    anchors.right: parent.right
-                    anchors.rightMargin: 2
-                    width: 48 * settings.ui_zoom / 100
-                    height: 48 * settings.ui_zoom / 100
-                }
-                RoundButton {
-                    autoRepeat: true
-                    objectName: identificator
-                    text: largeButtonLabel
-                    onClicked: largeButton_clicked(objectName)
-                    visible: largeButton
-                    anchors.fill: rect
-						  background: Rectangle {
-						      color: largeButtonColor
-								radius: 20
-								}
-                    font.pointSize: 20 * settings.ui_zoom / 100
-                    //width: 48 * settings.ui_zoom / 100
-                    //height: 48 * settings.ui_zoom / 100
-                }
-
-                /*MouseArea {
-                    anchors.fill: parent
-                    onClicked: parent.GridView.view.currentIndex = index
-                }*/
             }
         }
 
-        footer:
-            Item {
-                width: parent.width
-                height: (rootItem.chartFooterVisible ? parent.height / 4 : parent.height / 2)
-                anchors.top: gridView.bottom
-                visible: rootItem.chartFooterVisible || rootItem.videoVisible
-
-                Rectangle {
-                    id: chartFooterRectangle
-                    visible: rootItem.chartFooterVisible
-                    anchors.fill: parent
-                    ChartFooter {
-                        anchors.fill: parent
-                        visible: rootItem.chartFooterVisible
-                    }
-                }
-
-                Rectangle {
-                    objectName: "footerrectangle"
-                    visible: rootItem.videoVisible
-                    anchors.fill: parent
-                    // Removed Timer, Play/Pause/Resume is now done via Homeform.cpp
-                    /*
-                    Timer {
-                        id: pauseTimer
-                        interval: 1000; running: true; repeat: true
-                        onTriggered: { if(visible == true) { (rootItem.currentSpeed > 0  ?
-                                            videoPlaybackHalf.play() :
-                                            videoPlaybackHalf.pause()) } }
-                    }
-                    */
-
-                    onVisibleChanged: {
-                        if(visible === true) {
-                            console.log("mediaPlayer onCompleted: " + rootItem.videoPath)
-                            console.log("videoRate: " + rootItem.videoRate)
-                            videoPlaybackHalf.source = rootItem.videoPath
-                            //videoPlaybackHalf.playbackRate = rootItem.videoRate
-
-                            videoPlaybackHalf.seek(rootItem.videoPosition)
-                            videoPlaybackHalf.play()
-                            videoPlaybackHalf.muted = rootItem.currentCoordinateValid
-                        } else {
-                            videoPlaybackHalf.stop()
-                        }
-
-                    }
-
-                    MediaPlayer {
-                           id: videoPlaybackHalf
-                           objectName: "videoplaybackhalf"
-                           autoPlay: false
-                           playbackRate: rootItem.videoRate
-
-                           onError: {
-                               if (videoPlaybackHalf.NoError !== error) {
-                                   console.log("[qmlvideo] VideoItem.onError error " + error + " errorString " + errorString)
-                               }
-                           }
-
-                       }
-
-                    VideoOutput {
-                             id:videoPlayer
-                             anchors.fill: parent
-                             source: videoPlaybackHalf
-                         }
-                }
-
+        Rectangle {
+            id: chartFooterRectangle
+            visible: rootItem.chartFooterVisible
+            anchors.top: dragHandle.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            ChartFooter {
+                anchors.fill: parent
+                visible: rootItem.chartFooterVisible
+            }
         }
+
+        Rectangle {
+            objectName: "footerrectangle"
+            visible: rootItem.videoVisible
+            anchors.top: dragHandle.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+
+            onVisibleChanged: {
+                if(visible === true) {
+                    console.log("mediaPlayer onCompleted: " + rootItem.videoPath)
+                    console.log("videoRate: " + rootItem.videoRate)
+                    videoPlaybackHalf.source = rootItem.videoPath
+                    videoPlaybackHalf.seek(rootItem.videoPosition)
+                    videoPlaybackHalf.play()
+                    videoPlaybackHalf.muted = rootItem.currentCoordinateValid
+                } else {
+                    videoPlaybackHalf.stop()
+                }
+            }
+
+            MediaPlayer {
+                id: videoPlaybackHalf
+                objectName: "videoplaybackhalf"
+                autoPlay: false
+                playbackRate: rootItem.videoRate
+
+                onError: {
+                    if (videoPlaybackHalf.NoError !== error) {
+                        console.log("[qmlvideo] VideoItem.onError error " + error + " errorString " + errorString)
+                    }
+                }
+            }
+
+            VideoOutput {
+                id: videoPlayer
+                anchors.fill: parent
+                source: videoPlaybackHalf
+            }
+        }
+    }
 
     MouseArea {
         property int currentId: -1 // Original position in model

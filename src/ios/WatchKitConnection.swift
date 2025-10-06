@@ -19,15 +19,18 @@ protocol WatchKitConnectionProtocol {
 }
 
 class WatchKitConnection: NSObject {
+    let SwiftDebug = swiftDebug()
     static let shared = WatchKitConnection()
     weak var delegate: WatchKitConnectionDelegate?
     static var currentHeartRate = 0
     static var distance = 0.0
     static var stepCadence = 0
     static var kcal = 0.0
+    static var totalKcal = 0.0
     static var speed = 0.0
     static var power = 0.0
     static var cadence = 0.0
+    static var steps = 0
     
     private override init() {
         super.init()
@@ -43,9 +46,19 @@ class WatchKitConnection: NSObject {
         return WatchKitConnection.stepCadence;
     }
     
+    public func steps() -> Int
+    {
+        return WatchKitConnection.steps;
+    }
+    
     public func setKCal(Kcal: Double) -> Void
     {
         WatchKitConnection.kcal = Kcal;
+    }
+    
+    public func setTotalKCal(TotalKcal: Double) -> Void
+    {
+        WatchKitConnection.totalKcal = TotalKcal;
     }
     
     public func setDistance(Distance: Double) -> Void
@@ -136,6 +149,9 @@ extension WatchKitConnection: WCSessionDelegate {
         replyValues["cadence"] = WatchKitConnection.cadence
         replyValues["power"] = WatchKitConnection.power
         replyValues["speed"] = WatchKitConnection.speed
+        replyValues["steps"] = Double(WatchKitConnection.steps)
+        
+        SwiftDebug.qtDebug(replyValues.debugDescription)
         
         replyHandler(replyValues)
                 

@@ -94,13 +94,10 @@ class fitshowtreadmill : public treadmill {
     void writeCharacteristic(const uint8_t *data, uint8_t data_len, const QString &info = QString());
     bool writePayload(const uint8_t *data, uint8_t data_len, const QString &info = QString());
     void scheduleWrite(const uint8_t *data, uint8_t data_len, const QString &info = QString());
-    void getCadence(uint16_t step_count);
     void startDiscover();
     void sendSportData();
     void removeFromBuffer();
     QBluetoothUuid serviceId;
-    int64_t lastStart = 0;
-    int64_t lastStop = 0;
     int retrySend = 0;
     bool noHeartService = false;
     bool anyrun = false;
@@ -114,7 +111,7 @@ class fitshowtreadmill : public treadmill {
     bool firstCharacteristicChanged = true;
     int MAX_INCLINE = 30;
     int COUNTDOWN_VALUE = 0;
-    int MAX_SPEED = 30;
+    int MAX_SPEED = 300;
     int MIN_INCLINE = 0;
     int MIN_SPEED = 0;
     int UNIT = -100;
@@ -144,17 +141,19 @@ class fitshowtreadmill : public treadmill {
     QTimer *refresh;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
+    QLowEnergyService *gattCommunicationRSCService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 
     QDateTime lastChangedStepCount = QDateTime::currentDateTime();
-    metric cadenceRaw;
 
     bool initDone = false;
     bool initRequest = false;
 
     double minStepInclinationValue = 1.0;
     bool noblepro_connected = false;
+    bool fs_connected = false;
+    bool tunturi_t80_connected = false;
 
     metric rawInclination;
 

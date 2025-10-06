@@ -42,18 +42,29 @@ class stagesbike : public bike {
     bool ergManagedBySS2K() override { return true; }
 
   private:
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
-                             bool wait_for_response = false);
+    void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic,
+                                           uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
+                                           bool wait_for_response = false);
     uint16_t wattsFromResistance(double resistance);
     metric ResistanceFromFTMSAccessory;
     uint64_t ResistanceFromFTMSAccessoryLastTime = 0;
     void startDiscover();
     uint16_t watts() override;
 
+    // Elite Methods
+    QByteArray setTargetPower(quint16 watts);
+    QByteArray setBrakeLevel(double level);
+    QByteArray setSimulationMode(double grade, double crr, double wrc, double windSpeedKPH, double draftingFactor);
+
     QTimer *refresh;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
-    // QLowEnergyCharacteristic gattNotify1Characteristic;
+
+    QLowEnergyService* eliteService = nullptr;
+    QLowEnergyCharacteristic eliteWriteCharacteristic;
+    QLowEnergyCharacteristic eliteWriteCharacteristic2;
+
+    double lastGearValue = 0;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -92,6 +103,8 @@ class stagesbike : public bike {
     void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+
+    void inclinationChanged(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

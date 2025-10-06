@@ -16,7 +16,7 @@ using namespace std::chrono_literals;
 
 kingsmithr1protreadmill::kingsmithr1protreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService,
                                                  double forceInitSpeed, double forceInitInclination) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;
@@ -299,6 +299,7 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
             lastTargetSpeed = -1;
         }
     } else {
+        Cadence = 0;
         lastStop = 0;
         targetSpeed = 0;
         lastTargetSpeed = GetTargetSpeedFromPacket(value);
@@ -339,10 +340,29 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
         lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     }
 
-    cadenceFromAppleWatch();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
+    // it's not the perfect setting for this, but it's better than nothing...
+    if(disable_hr_frommachinery)
+        cadenceFromAppleWatch();
+    else {
+        double sc = GetStepsFromPacket(value);
+        StepCount = sc;
+        if(lastStepCount < StepCount.value()) {
+            double c = (StepCount.value() - lastStepCount) / (lastTimeStepCountChanged.msecsTo(QDateTime::currentDateTime()) / 60000.0);
+            if(c < 255)
+                cadenceRaw = c;
+            Cadence = cadenceRaw.average5s();
+            lastTimeStepCountChanged = QDateTime::currentDateTime();
+        }
+        lastStepCount = sc;
+    }    
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current target speed: ") + QString::number(targetSpeed));
+    emit debug(QStringLiteral("Current StepCount: ") + QString::number(StepCount.value()));
+    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
     // emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
@@ -381,6 +401,12 @@ double kingsmithr1protreadmill::GetTargetSpeedFromPacket(const QByteArray &packe
     uint8_t convertedData = (uint8_t)packet.at(14);
     double data = (double)convertedData / 10.0f;
     return data;
+}
+
+double kingsmithr1protreadmill::GetStepsFromPacket(const QByteArray &packet) {
+
+    uint16_t convertedData = (packet.at(12) << 8) | ((uint8_t)packet.at(13));
+    return (double)convertedData;
 }
 
 void kingsmithr1protreadmill::btinit(bool startTape) {

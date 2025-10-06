@@ -18,12 +18,12 @@ using namespace std::chrono_literals;
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
 
-keepbike::keepbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+keepbike::keepbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
 #ifdef Q_OS_IOS
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -355,7 +355,9 @@ void keepbike::stateChanged(QLowEnergyService::ServiceState state) {
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
-        Q_ASSERT(gattWriteCharacteristic.isValid());
+        if(!gattWriteCharacteristic.isValid()) {
+            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
+        }
         Q_ASSERT(gattNotifyCharacteristic.isValid());
 
         // establish hook into notifications

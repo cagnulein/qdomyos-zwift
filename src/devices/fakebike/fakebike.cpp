@@ -17,7 +17,7 @@
 using namespace std::chrono_literals;
 
 fakebike::fakebike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -48,10 +48,13 @@ void fakebike::update() {
 
     if (requestPower != -1) {
         // bepo70: don't know if this conversion is really needed, i would do it anyway.
-        m_watt = (double)requestPower;
-        Cadence = requestPower;
+        m_watt = (double)requestPower * (1.0 + (((double)rand() / RAND_MAX) * 0.4 - 0.2));
+        if(requestPower)
+            Cadence = 50 + (static_cast<double>(rand()) / RAND_MAX) * 50;
+        else
+            Cadence = 0;
         emit debug(QStringLiteral("writing power ") + QString::number(requestPower));
-        requestPower = -1;
+        //requestPower = -1;
         // bepo70: Disregard the current inclination for calculating speed. When the video
         //         has a high inclination you have to give many power to get the desired playback speed,
         //         if inclination is very low little more power gives a quite high speed jump.
@@ -61,6 +64,14 @@ void fakebike::update() {
             m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
             speedLimit());
     }
+    
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    if (watts())
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                              // kg * 3.5) / 200 ) / 60
     
     if (Cadence.value() > 0) {
         CrankRevs++;
@@ -77,7 +88,7 @@ void fakebike::update() {
 
     Distance += ((Speed.value() / (double)3600.0) /
                  ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();    
 
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice() && !noVirtualDevice
@@ -163,4 +174,22 @@ void fakebike::changeInclinationRequested(double grade, double percentage) {
     changeInclination(grade, percentage);
 }
 
+uint16_t fakebike::wattsFromResistance(double resistance) {
+    return _ergTable.estimateWattage(Cadence.value(), resistance);
+}
+
+resistance_t fakebike::resistanceFromPowerRequest(uint16_t power) {
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), maxResistance());
+}
+
+
+uint16_t fakebike::watts() { return m_watt.value(); }
 bool fakebike::connected() { return true; }
+
+double fakebike::maxGears() {
+    return 24;
+}
+
+double fakebike::minGears() {
+    return 1;
+}

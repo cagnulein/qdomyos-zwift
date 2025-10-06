@@ -1,5 +1,5 @@
 #include "horizontreadmill.h"
-
+#include "homeform.h"
 #include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
 #include "virtualdevices/virtualtreadmill.h"
@@ -27,7 +27,7 @@ horizontreadmill::horizontreadmill(bool noWriteResistance, bool noHeartService) 
 
     testProfileCRC();
 
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -48,12 +48,18 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
         return;
     }
 
+    int timeA = 8000;
+    int timeB = 3000;
+    if (!gattCustomService) {
+        timeA = timeB = 300; // for the normal treadmills, the timeout must be small, otherwise we are blocking the update timer on iOS
+    }
+
     if (wait_for_response) {
         connect(this, &horizontreadmill::packetReceived, &loop, &QEventLoop::quit);
-        timeout.singleShot(8000, &loop, SLOT(quit())); // 6 seconds are important
+        timeout.singleShot(timeA, &loop, SLOT(quit())); // 6 seconds are important
     } else {
         connect(service, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop, SLOT(quit()));
-        timeout.singleShot(3000, &loop, SLOT(quit()));
+        timeout.singleShot(timeB, &loop, SLOT(quit()));
     }
 
     if (writeBuffer) {
@@ -61,7 +67,11 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    service->writeCharacteristic(characteristic, *writeBuffer);
+    if (characteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        service->writeCharacteristic(characteristic, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
+    } else {
+        service->writeCharacteristic(characteristic, *writeBuffer);
+    }
 
     if (!disable_log)
         qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
@@ -172,6 +182,10 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, true);
             waitForAPacket();
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...0%");
+            }
+
         init1:
             initPacketRecv = false;
 
@@ -253,10 +267,17 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, true);
 
             if (!initPacketRecv) {
+                if(gattFTMSService && homeform::singleton()) {
+                    homeform::singleton()->setToastRequested("Enable the 'Force Using FTMS' setting under the Settings->Treadmill Options->Horizon Treadmill options and restart the app");
+                }
                 qDebug() << "init 1 not received";
                 waitForAPacket();
                 goto init1;
             }
+
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...15%");
+            }        
 
         init2:
             initPacketRecv = false;
@@ -344,6 +365,10 @@ void horizontreadmill::btinit() {
                 goto init2;
             }
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...25%");
+            }            
+
         init3:
             initPacketRecv = false;
 
@@ -428,6 +453,10 @@ void horizontreadmill::btinit() {
                 qDebug() << "init 3 not received";
                 waitForAPacket();
                 goto init3;
+            }
+
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...35%");
             }
 
         init4:
@@ -516,6 +545,10 @@ void horizontreadmill::btinit() {
                 goto init4;
             }
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...50%");
+            }            
+
         init5:
             initPacketRecv = false;
 
@@ -600,6 +633,10 @@ void horizontreadmill::btinit() {
                 qDebug() << "init 5 not received";
                 waitForAPacket();
                 goto init5;
+            }
+
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...65%");
             }
 
         init6:
@@ -688,6 +725,10 @@ void horizontreadmill::btinit() {
                 goto init6;
             }
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...80%");
+            }            
+
         init7:
             initPacketRecv = false;
 
@@ -774,6 +815,10 @@ void horizontreadmill::btinit() {
                 goto init7;
             }
 
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization in progress...90%");
+            }
+
         init8:
             initPacketRecv = false;
 
@@ -799,8 +844,27 @@ void horizontreadmill::btinit() {
                 waitForAPacket();
                 goto init8;
             }
+
+            if(homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Treadmill initialization completed!");
+            }            
         }
         messageID = 0x10;
+    }
+
+    if(YPOO_MINI_PRO) {
+        uint8_t write[] = {0x01, 0x00, 0x00, 0x03, 0x08, 0x00, 0x02, 0x09};
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointIdYpooMiniPro, write, sizeof(write), "requestControl", false, false);
+        QThread::msleep(500);
+    }
+
+    if(wellfit_treadmill || SW_TREADMILL || YPOO_MINI_PRO) {
+        uint8_t write[] = {FTMS_REQUEST_CONTROL};
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                            false);
+        QThread::msleep(500);
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                            false);
     }
 
     initDone = true;
@@ -814,6 +878,8 @@ void horizontreadmill::update() {
         emit disconnected();
         return;
     }
+
+    qDebug() << initRequest << firstStateChanged << bluetoothDevice.isValid();
 
     if (initRequest && firstStateChanged) {
         btinit();
@@ -861,20 +927,31 @@ void horizontreadmill::update() {
             // updateDisplay(elapsed);
         }
 
+        // this treadmill can't go below 1
+        if(mobvoi_tmp_treadmill && requestSpeed < 1)
+            requestSpeed = -1;
+        
         if (requestSpeed != -1) {
             bool minSpeed =
                 fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() - 0.09);
             bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
             qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
                      << float_one_point_round(currentSpeed().value());
-            if (requestSpeed != currentSpeed().value() && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
+            if (float_one_point_round(requestSpeed) != float_one_point_round(currentSpeed().value()) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
                 forceSpeedNeed) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                forceSpeed(requestSpeed);
+                forceSpeed(float_one_point_round(requestSpeed));
             }
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
+            requestInclination = treadmillInclinationOverrideReverse(requestInclination);
+
+            // this treadmill doesn't send the incline, so i'm forcing it manually
+            if(schwinn_810_treadmill || FIT_TM) {
+                Inclination = requestInclination;
+            }
+
             qDebug() << "requestInclination=" << requestInclination;
             if (requestInclination < minInclination)
                 requestInclination = minInclination;
@@ -883,10 +960,21 @@ void horizontreadmill::update() {
                 requestInclination = std::llround(requestInclination * 2) / 2.0;
                 qDebug() << "requestInclination after rounding=" << requestInclination;
             }
+
+            // this treadmill doesn't handle the 0.5%
+            if(sole_f85_treadmill && requestInclination == 0.5)
+                requestInclination = 1.0;
+
             if (requestInclination != currentInclination().value() && requestInclination >= minInclination &&
                 requestInclination <= 15) {
+               
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
+
+                // this treadmill doesn't send the incline, so i'm forcing it manually
+                if(SW_TREADMILL || mobvoi_treadmill) {
+                    Inclination = requestInclination;
+                }
             }
             requestInclination = -100;
         }
@@ -1006,10 +1094,19 @@ void horizontreadmill::update() {
                         }
                     }
                 } else {
+                    // horizon paragon x
                     Speed = 0;
-                    uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
-                    writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
-                                        QStringLiteral("stopping"), false, true);
+                    if (requestPause == -1) {
+                        uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x14, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
+                        writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
+                                            QStringLiteral("requestStop"), false, true);
+                    } else {
+                        requestPause = -1;
+                        uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
+                        writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
+                                            QStringLiteral("requestPause"), false, true);
+                        horizonPaused = true;
+                    }
                 }
             } else if (gattFTMSService) {
                 if (requestPause == -1) {
@@ -1027,6 +1124,10 @@ void horizontreadmill::update() {
                 }
             }
 
+            if(SW_TREADMILL) {
+                Inclination = 0;
+            }
+            
             lastStop = QDateTime::currentMSecsSinceEpoch();
 
             requestStop = -1;
@@ -1066,6 +1167,7 @@ bool horizontreadmill::checkIfForceSpeedNeeding(double requestSpeed) {
 // example frame: 55aa320003050400532c00150000
 void horizontreadmill::forceSpeed(double requestSpeed) {
     QSettings settings;
+    const double miles_conversion = 0.621371;
     bool horizon_paragon_x =
         settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
@@ -1118,7 +1220,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1128,8 +1230,12 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
 
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
-        writeS[1] = ((uint16_t)(requestSpeed * 100)) & 0xFF;
-        writeS[2] = ((uint16_t)(requestSpeed * 100)) >> 8;
+        if(BOWFLEX_T9) {
+            requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles, at least seems so!!
+        }
+        uint16_t speed_int = round(requestSpeed * 100);
+        writeS[1] = speed_int & 0xFF;
+        writeS[2] = speed_int >> 8;
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceSpeed"), false, false);
@@ -1143,7 +1249,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
     if(tunturi_t60_treadmill)
-        Inclination = requestIncline;
+        Inclination = treadmillInclinationOverride(requestIncline);
 
     if (gattCustomService) {
         if (!horizon_paragon_x) {
@@ -1184,7 +1290,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1280,7 +1386,97 @@ void horizontreadmill::forceIncline(double requestIncline) {
 
             writeS[1] = conversion[r];
             writeS[2] = conversion1[r];
+        } else if(ICONCEPT_FTMS_treadmill) {
+            if(requestInclination > 0 && requestInclination < 1) {
+                writeS[1] = 0x3C;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 1 && requestInclination < 2) {
+                writeS[1] = 0x82;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 2 && requestInclination < 3) {
+                writeS[1] = 0xC8;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 3 && requestInclination < 4) {
+                writeS[1] = 0x04;
+                writeS[2] = 0x01;
+            } else if(requestInclination >= 4 && requestInclination < 5) {
+                writeS[1] = 0x4A;
+                writeS[2] = 0x01;
+            } else if(requestInclination >= 5 && requestInclination < 6) {
+                writeS[1] = 0x90;
+                writeS[2] = 0x01;
+            } else if(requestInclination >= 6 && requestInclination < 7) {
+                writeS[1] = 0xCC;
+                writeS[2] = 0x01;
+            } else if(requestInclination >= 7 && requestInclination < 8) {
+                writeS[1] = 0x12;
+                writeS[2] = 0x02;
+            } else if(requestInclination >= 8 && requestInclination < 9) {
+                writeS[1] = 0x58;
+                writeS[2] = 0x02;
+            } else if(requestInclination >= 9 && requestInclination < 10) {
+                writeS[1] = 0x94;
+                writeS[2] = 0x02;
+            } else if(requestInclination >= 10 && requestInclination < 11) {
+                writeS[1] = 0xDA;
+                writeS[2] = 0x02;
+            } else if(requestInclination >= 11 && requestInclination < 12) {
+                writeS[1] = 0x20;
+                writeS[2] = 0x03;
+            } else if(requestInclination >= 12 && requestInclination < 13) {
+                writeS[1] = 0x5C;
+                writeS[2] = 0x03;
+            } else if(requestInclination >= 13 && requestInclination < 14) {
+                writeS[1] = 0xA2;
+                writeS[2] = 0x03;
+            } else if(requestInclination >= 14 && requestInclination < 15) {
+                writeS[1] = 0xE8;
+                writeS[2] = 0x03;
+            } else {
+                writeS[1] = 0x00;
+                writeS[2] = 0x00;
+            }
+        } else if(T3G_PRO || T3G_ELITE) {
+            if(requestInclination > 0 && requestInclination < 1) {
+                writeS[1] = 0x10;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 1 && requestInclination < 2) {
+                writeS[1] = 0x1a;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 2 && requestInclination < 3) {
+                writeS[1] = 0x24;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 3 && requestInclination < 4) {
+                writeS[1] = 0x2e;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 4 && requestInclination < 5) {
+                writeS[1] = 0x38;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 5 && requestInclination < 6) {
+                writeS[1] = 0x42;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 6 && requestInclination < 7) {
+                writeS[1] = 0x4c;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 7 && requestInclination < 8) {
+                writeS[1] = 0x56;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 8 && requestInclination < 9) {
+                writeS[1] = 0x60;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 9 && requestInclination < 10) {
+                writeS[1] = 0x6A;
+                writeS[2] = 0x00;
+            } else if(requestInclination >= 10 && requestInclination < 11) {
+                writeS[1] = 0x74;
+                writeS[2] = 0x00;
+            } else {
+                writeS[1] = 0x00;
+                writeS[2] = 0x00;
+            }
         } else {
+            if(HORIZON_78AT_treadmill)
+                requestIncline = requestIncline / 2.0;
             writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
             writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
         }
@@ -1310,6 +1506,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     QDateTime now = QDateTime::currentDateTime();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
@@ -1342,20 +1539,20 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && lastPacketComplete.length() > 70 &&
         lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17) {
-        Speed = (((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
+        parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
                            (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
                  100.0) *
-                1.60934; // miles/h
+                1.60934); // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-        Inclination = (double)((uint8_t)lastPacketComplete.at(30)) / 10.0;
+        parseInclination(treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0));
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
-        if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+        if (firstDistanceCalculated && watts(weight))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                ((((0.048 * ((double)watts(weight)) +
                     1.19) *
-                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                   weight * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 now)))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -1370,19 +1567,18 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         distanceEval = true;
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() > 70 &&
                newValue.at(0) == 0x55 && newValue.at(5) == 0x12) {
-        Speed =
-            (((double)(((uint16_t)((uint8_t)newValue.at(62)) << 8) | (uint16_t)((uint8_t)newValue.at(61)))) / 1000.0) *
-            1.60934; // miles/h
+        parseSpeed((((double)(((uint16_t)((uint8_t)newValue.at(62)) << 8) | (uint16_t)((uint8_t)newValue.at(61)))) / 1000.0) *
+                       1.60934); // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-        Inclination = (double)((uint8_t)newValue.at(63)) / 10.0;
+        parseInclination(treadmillInclinationOverride((double)((uint8_t)newValue.at(63)) / 10.0));
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
-        if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+        if (firstDistanceCalculated && watts(weight))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                ((((0.048 * ((double)watts(weight)) +
                     1.19) *
-                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                   weight * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 now)))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -1397,16 +1593,16 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         distanceEval = true;
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 29 &&
                newValue.at(0) == 0x55) {
-        Speed = ((double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) | (uint16_t)((uint8_t)newValue.at(14)))) / 10.0;
+        parseSpeed(((double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) | (uint16_t)((uint8_t)newValue.at(14)))) / 10.0);
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         // Inclination = (double)((uint8_t)newValue.at(3)) / 10.0;
         // emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
-        if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+        if (firstDistanceCalculated && watts(weight))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                ((((0.048 * ((double)watts(weight)) +
                     1.19) *
-                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                   weight * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 now)))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -1428,7 +1624,166 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         Speed = 0;
         horizonPaused = true;
         qDebug() << "stop from the treadmill";
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
+        union flags {
+            struct {
+                uint16_t moreData : 1;
+                uint16_t avgSpeed : 1;
+                uint16_t instantCadence : 1;
+                uint16_t avgCadence : 1;
+                uint16_t totDistance : 1;
+                uint16_t resistanceLvl : 1;
+                uint16_t instantPower : 1;
+                uint16_t avgPower : 1;
+                uint16_t expEnergy : 1;
+                uint16_t heartRate : 1;
+                uint16_t metabolic : 1;
+                uint16_t elapsedTime : 1;
+                uint16_t remainingTime : 1;
+                uint16_t spare : 3;
+            };
+
+            uint16_t word_flags;
+        };
+
+        flags Flags;
+        int index = 0;
+        Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
+        index += 2;
+
+        if (!Flags.moreData) {
+            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                  (uint16_t)((uint8_t)newValue.at(index)))) /
+                        100.0;
+            index += 2;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        }
+
+        if (Flags.avgSpeed) {
+            double avgSpeed;
+            avgSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)newValue.at(index)))) /
+                       100.0;
+            index += 2;
+            emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
+        }
+
+        if (Flags.instantCadence) {
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                    (uint16_t)((uint8_t)newValue.at(index)))) /
+                          2.0;
+            }
+            index += 2;
+            emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        }
+
+        if (Flags.avgCadence) {
+            double avgCadence;
+            avgCadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index)))) /
+                         2.0;
+            index += 2;
+            emit debug(QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence));
+        }
+
+        if (Flags.totDistance) {
+
+            /*
+             * the distance sent from the most trainers is a total distance, so it's useless for QZ
+             *
+            Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                  (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint32_t)((uint8_t)newValue.at(index)))) /
+                       1000.0;*/
+            index += 3;
+        }
+
+        Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+
+        if (Flags.resistanceLvl) {
+            Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
+            index += 2;
+            emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+        }
+
+        if (Flags.instantPower) {
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                           .toString()
+                           .startsWith(QStringLiteral("Disabled")))
+                m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
+            index += 2;
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+        }
+
+        if (Flags.avgPower && newValue.length() > index + 1) {
+            double avgPower;
+            avgPower = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)newValue.at(index))));
+            index += 2;
+            emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
+        }
+
+        if (Flags.expEnergy && newValue.length() > index + 1) {
+            /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));*/
+            index += 2;
+
+                   // energy per hour
+            index += 2;
+
+                   // energy per minute
+            index += 1;
+        }
+
+        if (watts(weight))
+            KCal += ((((0.048 * ((double)watts(weight)) + 1.19) *
+                       weight * 3.5) /
+                      200.0) /
+                     (60000.0 /
+                      ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                   // kg * 3.5) / 200 ) / 60
+
+        emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+
+#ifdef Q_OS_ANDROID
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
+#endif
+        {
+            if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
+                Heart = ((double)(((uint8_t)newValue.at(index))));
+                // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
+                emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+            } else {
+                Flags.heartRate = false;
+            }
+            heart = Flags.heartRate;
+        }
+
+        if (Flags.metabolic) {
+            // todo
+        }
+
+        if (Flags.elapsedTime) {
+            // todo
+        }
+
+        if (Flags.remainingTime) {
+            // todo
+        }
+
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
+        bool horizon_treadmill_7_0_at_24 = settings.value(QZSettings::horizon_treadmill_7_0_at_24, QZSettings::default_horizon_treadmill_7_0_at_24).toBool();
         lastPacket = newValue;
 
         // default flags for this treadmill is 84 04
@@ -1461,9 +1816,16 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         index += 2;
 
         if (!Flags.moreData) {
-            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                              (uint16_t)((uint8_t)newValue.at(index)))) /
-                    100.0;
+            double speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                     (uint16_t)((uint8_t)newValue.at(index)))) /
+                           100.0;
+            if(BOWFLEX_T9) {
+                const double miles_conversion = 0.621371;
+                // this treadmill sends the speed in miles!
+                speed *= miles_conversion;
+            }
+            if(!mobvoi_tmp_treadmill || (mobvoi_tmp_treadmill && !horizonPaused))
+                parseSpeed(speed);
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
@@ -1485,7 +1847,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
         // else
         {
-            if (firstDistanceCalculated)
+            if (firstDistanceCalculated && !isPaused())
                 Distance += ((Speed.value() / 3600000.0) *
                              ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
             distanceEval = true;
@@ -1494,10 +1856,51 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.inclination) {
-            if(!tunturi_t60_treadmill)
-                Inclination = ((double)(((int16_t)((int16_t)newValue.at(index + 1)) << 8) |
-                                        (int16_t)((uint8_t)newValue.at(index)))) /
-                            10.0;
+            if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill)
+                parseInclination(treadmillInclinationOverride((double)(
+                                  (int16_t)(
+                                      ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
+                                      (uint8_t)newValue.at(index)
+                                      )
+                                  ) /
+                                                              10.0));
+            else if(ICONCEPT_FTMS_treadmill) {
+                uint8_t val1 = (uint8_t)newValue.at(index);
+                uint8_t val2 = (uint8_t)newValue.at(index + 1);
+                if(val1 == 0x3C && val2 == 0x00) {
+                    Inclination = 1;
+                } else if(val1 == 0x82 && val2 == 0x00) {
+                    Inclination = 2;
+                } else if(val1 == 0xC8 && val2 == 0x00) {
+                    Inclination = 3;
+                } else if(val1 == 0x04 && val2 == 0x01) {
+                    Inclination = 4;
+                } else if(val1 == 0x4A && val2 == 0x01) {
+                    Inclination = 5;
+                } else if(val1 == 0x90 && val2 == 0x01) {
+                    Inclination = 6;
+                } else if(val1 == 0xCC && val2 == 0x01) {
+                    Inclination = 7;
+                } else if(val1 == 0x12 && val2 == 0x02) {
+                    Inclination = 8;
+                } else if(val1 == 0x58 && val2 == 0x02) {
+                    Inclination = 9;
+                } else if(val1 == 0x94 && val2 == 0x02) {
+                    Inclination = 10;
+                } else if(val1 == 0xDA && val2 == 0x02) {
+                    Inclination = 11;
+                } else if(val1 == 0x20 && val2 == 0x03) {
+                    Inclination = 12;
+                } else if(val1 == 0x5C && val2 == 0x03) {
+                    Inclination = 13;
+                } else if(val1 == 0xA2 && val2 == 0x03) {
+                    Inclination = 14;
+                } else if(val1 == 0xE8 && val2 == 0x03) {
+                    Inclination = 15;                    
+                } else {
+                    Inclination = 0;
+                }
+            }
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         }
@@ -1515,8 +1918,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         if (Flags.expEnergy) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)newValue.at(index))));
+            /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));*/
             index += 2;
 
             // energy per hour
@@ -1524,21 +1927,20 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
             // energy per minute
             index += 1;
-        } else {
-            if (firstDistanceCalculated &&
-                watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                KCal +=
-                    ((((0.048 *
-                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-                        1.19) *
-                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                      200.0) /
-                     (60000.0 /
-                      ((double)lastRefreshCharacteristicChanged.msecsTo(
-                          now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                            // kg * 3.5) / 200 ) / 60
-            distanceEval = true;
         }
+        if (firstDistanceCalculated &&
+            watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+            KCal +=
+                ((((0.048 *
+                        ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 /
+                  ((double)lastRefreshCharacteristicChanged.msecsTo(
+                      now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                        // kg * 3.5) / 200 ) / 60
+        distanceEval = true;
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
@@ -1556,16 +1958,37 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 } else {
                     emit debug(QStringLiteral("Error on parsing heart!"));
                 }
-                // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
+                index += 1;
             }
         }
 
         if (Flags.metabolic) {
+            index += 1;
             // todo
         }
 
         if (Flags.elapsedTime) {
-            // todo
+            if (index + 1 < newValue.length()) {
+                static uint16_t old_local_elapsed = 0;
+                static QDateTime last_local_elapsed_change = QDateTime::currentDateTime();
+                uint16_t local_elapsed = ((((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));
+                qDebug() << QStringLiteral("Local Time Elapsed") << local_elapsed;
+                // this treadmill sends here if the user is really running
+                if(old_local_elapsed != local_elapsed) {
+                    last_local_elapsed_change = QDateTime::currentDateTime();
+                    horizonPaused = false;
+                }
+                QDateTime current_time = QDateTime::currentDateTime();
+                 // Only if more than 2 seconds have passed since the last update
+                 if(mobvoi_tmp_treadmill && last_local_elapsed_change.secsTo(current_time) >= 2) {
+                    Speed = 0;
+                    horizonPaused = true;
+                    qDebug() << "Forcing Speed to 0 since the treadmill saws that the user is not really running";
+                }
+                old_local_elapsed = local_elapsed;
+            }
+            index += 2;
         }
 
         if (Flags.remainingTime) {
@@ -1606,9 +2029,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         index += 3;
 
         if (!Flags.moreData && newValue.length() > index + 1) {
-            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+            parseSpeed(((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)newValue.at(index)))) /
-                    100.0;
+                       100.0);
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
             index += 2;
         }
@@ -1688,8 +2111,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         if (Flags.expEnergy && newValue.length() > index + 1) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)newValue.at(index))));
+            /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));*/
             index += 2;
 
             // energy per hour
@@ -1697,21 +2120,21 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
             // energy per minute
             index += 1;
-        } else {
-            if (firstDistanceCalculated &&
-                watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                KCal +=
-                    ((((0.048 *
-                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-                        1.19) *
-                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                      200.0) /
-                     (60000.0 /
-                      ((double)lastRefreshCharacteristicChanged.msecsTo(
-                          now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                            // kg * 3.5) / 200 ) / 60
-            distanceEval = true;
         }
+
+        if (firstDistanceCalculated &&
+            watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+            KCal +=
+                ((((0.048 *
+                        ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 /
+                  ((double)lastRefreshCharacteristicChanged.msecsTo(
+                      now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                        // kg * 3.5) / 200 ) / 60
+        distanceEval = true;
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
@@ -1742,6 +2165,42 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         if (Flags.remainingTime) {
             // todo
         }
+    } else if (characteristic.uuid() == QBluetoothUuid::RSCMeasurement) {
+        uint8_t flags = (uint8_t)newValue.at(0);
+        bool InstantaneousStrideLengthPresent = (flags & 0x01);
+        bool TotalDistancePresent = (flags & 0x02) ? true : false;
+        bool WalkingorRunningStatusbits = (flags & 0x04) ? true : false;
+        bool double_cadence = settings
+                                  .value(QZSettings::powr_sensor_running_cadence_double,
+                                         QZSettings::default_powr_sensor_running_cadence_double)
+                                  .toBool();
+        double cadence_multiplier = 1.0;
+        if (double_cadence)
+            cadence_multiplier = 2.0;
+
+        // Unit is in m/s with a resolution of 1/256
+        uint16_t speedMs = (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(1)));
+        double speed = (((double)speedMs) / 256.0) * 3.6; // km/h
+        double cadence = (uint8_t)newValue.at(3) * cadence_multiplier;
+        if (newValue.length() >= 6 && InstantaneousStrideLengthPresent) {
+            instantaneousStrideLengthCMAvailableFromDevice = true;
+            InstantaneousStrideLengthCM =
+                (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4))) / 2;
+            emit instantaneousStrideLengthChanged(InstantaneousStrideLengthCM.value());
+            qDebug() << QStringLiteral("Current InstantaneousStrideLengthCM:") << InstantaneousStrideLengthCM.value();
+            if (InstantaneousStrideLengthCM.value() == 0) {
+                GroundContactMS.setValue(0);
+                VerticalOscillationMM.setValue(0);
+                emit groundContactChanged(GroundContactMS.value());
+                emit verticalOscillationChanged(VerticalOscillationMM.value());
+                qDebug() << QStringLiteral("Current GroundContactMS:") << GroundContactMS.value();
+                qDebug() << QStringLiteral("Current VerticalOscillationMM:") << VerticalOscillationMM.value();
+            }
+        }
+
+        Cadence = cadence;
+        emit cadenceChanged(cadence);
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
@@ -1778,10 +2237,22 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
+    QBluetoothUuid _gattInclinationSupported((quint16)0x2AD5);
+    QBluetoothUuid _DomyosServiceId(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
+    QBluetoothUuid _YpooMiniProCharId(QStringLiteral("d18d2c10-c44c-11e8-a355-529269fb1459"));
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
+
+        if(s->serviceUuid() == _DomyosServiceId && DOMYOS) {
+            settings.setValue(QZSettings::domyostreadmill_notfmts, true);
+            settings.sync();
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("Domyos Treadmill presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
+            return;
+        }
+
         if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
@@ -1808,9 +2279,9 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
 
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
+                if (c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
@@ -1821,9 +2292,16 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     // some treadmills doesn't have the control point and also are Cross Trainer devices so i need
                     // anyway to get the FTMS Service at least
                     gattFTMSService = s;
+                } else if(c.uuid() == _YpooMiniProCharId && YPOO_MINI_PRO) {
+                    qDebug() << QStringLiteral("YPOO MINI PRO Control Point found");
+                    gattWriteCharControlPointIdYpooMiniPro = c;
                 }
+                /* else if (c.uuid() == _gattInclinationSupported) {
+                    s->readCharacteristic(c);
+                    qDebug() << s->serviceUuid() << c.uuid() << "reading!";
+                }*/
 
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService &&
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService && !BOWFLEX_T9 && !MX_TM &&
                     !settings
                          .value(QZSettings::horizon_treadmill_force_ftms,
                                 QZSettings::default_horizon_treadmill_force_ftms)
@@ -1846,7 +2324,10 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
-                    ((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid() && !gattCustomService) ||
+                    // if it's a FTMS treadmill and has FTMS and/or RSC service too
+                    ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
+                       || (s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence))
+                      && !gattCustomService) ||
                      (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()))) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
@@ -1862,6 +2343,24 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     }
 
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
+                } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
+                                                                                                                      // if it's a FTMS treadmill and has FTMS and/or RSC service too
+                           ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid()))
+                             && !gattCustomService))) {
+                    QByteArray descriptor;
+                    descriptor.append((char)0x02);
+                    descriptor.append((char)0x00);
+                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                        notificationSubscribed++;
+                    } else {
+                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << QStringLiteral(" is not valid");
+                    }
+
+                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
                 }
             }
         }
@@ -1933,6 +2432,17 @@ void horizontreadmill::characteristicWritten(const QLowEnergyCharacteristic &cha
 
 void horizontreadmill::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
+    QBluetoothUuid _gattInclinationSupported((quint16)0x2AD5);
+    if(characteristic.uuid() == _gattInclinationSupported && newValue.length() > 2) {
+        minInclination = ((double)(
+             (int16_t)(
+                 ((int16_t)(int8_t)newValue.at(1) << 8) |
+                 (uint8_t)newValue.at(0)
+                 )
+             ) /
+         10.0);
+        qDebug() << "new minInclination is " << minInclination;
+    }
 }
 
 void horizontreadmill::serviceScanDone(void) {
@@ -1941,25 +2451,13 @@ void horizontreadmill::serviceScanDone(void) {
     initRequest = false;
     firstStateChanged = 0;
     auto services_list = m_control->services();
-    QBluetoothUuid ftmsService((quint16)0x1826);
-    QBluetoothUuid CustomService((quint16)0xFFF0);
 
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
-#ifdef Q_OS_WIN
-        if (s == ftmsService || s == CustomService)
-#endif
-        {
             qDebug() << s << "discovering...";
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
             connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                     &horizontreadmill::stateChanged);
             gattCommunicationChannelService.constLast()->discoverDetails();
-        }
-#ifdef Q_OS_WIN
-        else {
-            qDebug() << s << "NOT discovering!";
-        }
-#endif
     }
 }
 
@@ -1987,26 +2485,85 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
+        QSettings settings;
         bluetoothDevice = device;
 
-        if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
+        if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
+            mobvoi_tmp_treadmill = true;
+            qDebug() << QStringLiteral("MOBVOI TMP workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
             mobvoi_treadmill = true;
             qDebug() << QStringLiteral("MOBVOI TM workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL"))) {
             kettler_treadmill = true;
             qDebug() << QStringLiteral("KETTLER TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("WELLFIT TM"))) {
+            wellfit_treadmill = true;
+            qDebug() << QStringLiteral("WELLFIT TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) {
             anplus_treadmill = true;
             qDebug() << QStringLiteral("ANPLUS TREADMILL workaround ON!");
-        } else if (device.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-")) ||
+                   device.name().toUpper().startsWith(QStringLiteral("TUNTURI T90-"))) {
             tunturi_t60_treadmill = true;
             qDebug() << QStringLiteral("TUNTURI T60 TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("F85"))) {
             sole_f85_treadmill = true;
+            settings.setValue(QZSettings::treadmill_step_incline, 1.0); // this treadmill doesn't handle 0.5 inclination
             minInclination = -5.0;
             qDebug() << QStringLiteral("SOLE F85 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("F89"))) {
+            sole_f89_treadmill = true;
+            minInclination = -5.0;
+            qDebug() << QStringLiteral("SOLE F89 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TT8"))) {
+            sole_tt8_treadmill = true;
+            minInclination = -6.0;
+            qDebug() << QStringLiteral("SOLE TT8 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("S77"))) {
+            sole_s77_treadmill = true;
+            qDebug() << QStringLiteral("SOLE S77 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("SCHWINN 810"))) {
+            schwinn_810_treadmill = true;
+            qDebug() << QStringLiteral("Schwinn 810 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TREADMILL"))) { // Technogym Run
+            technogymrun = true;
+            qDebug() << QStringLiteral("Technogym Run TREADMILL workaround ON!");
+        } else if(device.name().toUpper().startsWith(QStringLiteral("SW"))) {
+            qDebug() << QStringLiteral("SW TREADMILL workaround ON!");
+            SW_TREADMILL = true;
+            disableAutoPause = true;
+        } else if(device.name().toUpper().startsWith("HORIZON_7.8AT")) {
+            HORIZON_78AT_treadmill = true;
+            qDebug() << QStringLiteral("HORIZON_7.8AT workaround ON!");
+        } else if(device.name().toUpper().startsWith("T01_")) {
+            ICONCEPT_FTMS_treadmill = true;
+            qDebug() << QStringLiteral("ICONCEPT_FTMS_treadmill workaround ON!");
+        } else if ((device.name().toUpper().startsWith("DOMYOS"))) {
+            qDebug() << QStringLiteral("DOMYOS found");
+            DOMYOS = true;
+        } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9_")))) {
+            qDebug() << QStringLiteral("BOWFLEX T9 found");
+            BOWFLEX_T9 = true;
+        } else if ((device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")))) {
+            qDebug() << QStringLiteral("YPOO-MINI PRO found");
+            YPOO_MINI_PRO = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("MX-TM "))) {
+            qDebug() << QStringLiteral("MX-TM found");
+            MX_TM = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("FIT-TM-"))) {
+            qDebug() << QStringLiteral("FIT-TM- found (real inclination)");
+            FIT_TM = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("FIT-"))) {
+            qDebug() << QStringLiteral("FIT- found");
+            FIT = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("3G PRO "))) {
+            qDebug() << QStringLiteral("3G PRO");
+            T3G_PRO = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("3G ELITE "))) {
+            qDebug() << QStringLiteral("3G ELITE");
+            T3G_ELITE = true;
         }
-
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
             trx3500_treadmill = true;
@@ -2014,6 +2571,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #ifdef Q_OS_IOS            
             QZ_EnableDiscoveryCharsAndDescripttors = false;
 #endif            
+        } else if(device.name().toUpper().startsWith(QStringLiteral("TRX4500"))) {
+            qDebug() << QStringLiteral("TRX4500 TREADMILL workaround ON!");
+#ifdef Q_OS_IOS
+            QZ_EnableDiscoveryCharsAndDescripttors = false;
+#endif
         } else {
 #ifdef Q_OS_IOS            
             QZ_EnableDiscoveryCharsAndDescripttors = true;
@@ -2104,6 +2666,8 @@ int horizontreadmill::GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count, int crc
 }
 
 bool horizontreadmill::autoPauseWhenSpeedIsZero() {
+    if(disableAutoPause == true)
+        return false;
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
         return true;
     else
@@ -2119,7 +2683,7 @@ bool horizontreadmill::autoStartWhenSpeedIsGreaterThenZero() {
 
     // the horizon starts with a strange speed, since that i can auto start (maybe the best way to solve this
     // is to understand why it's starting with this strange speed)
-    if (!horizon_paragon_x && !horizon_treadmill_7_8)
+    if (!horizon_paragon_x && !horizon_treadmill_7_8 && !mobvoi_tmp_treadmill)
         return false;
 
     if ((lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000)) && requestStop == -1)
@@ -2723,7 +3287,7 @@ void horizontreadmill::testProfileCRC() {
 double horizontreadmill::minStepInclination() {
     QSettings settings;
     bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
-    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill)
+    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill || FIT || T3G_PRO || T3G_ELITE)
         return 1.0;
     else
         return 0.5;

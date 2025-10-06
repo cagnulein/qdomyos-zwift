@@ -46,11 +46,21 @@ void WebServerInfoSender::acceptError(QAbstractSocket::SocketError socketError) 
 bool WebServerInfoSender::isRunning() const { return innerTcpServer && innerTcpServer->isListening(); }
 bool WebServerInfoSender::send(const QString &data) {
     if (isRunning() && !data.isEmpty()) {
+        QMutexLocker locker(&clientsMutex);
         bool rv = true, oldrv = false;
-        for (QWebSocket *client : sendToClients) {
-            rv = client->sendTextMessage(data) > 0;
-            if (!oldrv)
-                oldrv = rv;
+        for (auto it = sendToClients.begin(); it != sendToClients.end();) {
+            if (it->isNull()) {
+                // Remove null pointers
+                it = sendToClients.erase(it);
+            } else {
+                QWebSocket *client = it->data();
+                if (client) {
+                    rv = client->sendTextMessage(data) > 0;
+                    if (!oldrv)
+                        oldrv = rv;
+                }
+                ++it;
+            }
         }
         return rv;
     } else
@@ -68,6 +78,12 @@ void WebServerInfoSender::innerStop() {
         innerTcpServer = 0;
         httpServer = 0;
     }
+
+    // Clear all collections
+    QMutexLocker locker(&clientsMutex);
+    clients.clear();
+    sendToClients.clear();
+    reply2Req.clear();
 }
 
 bool WebServerInfoSender::init() {
@@ -236,35 +252,62 @@ void WebServerInfoSender::onNewConnection() {
     QWebSocket *pSocket = httpServer->nextPendingWebSocketConnection();
     QUrl requestUrl = pSocket->requestUrl();
     qDebug() << QStringLiteral("WebSocket connection") << requestUrl;
+
+    QMutexLocker locker(&clientsMutex);
+    
+    // Handle different types of WebSocket connections based on the path
     if (requestUrl.path() == QStringLiteral("/fetcher")) {
         connect(pSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(processFetcherRequest(QString)));
         connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processFetcherRawRequest(QByteArray)));
     } else {
         connect(pSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(processTextMessage(QString)));
         connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processBinaryMessage(QByteArray)));
-        sendToClients << pSocket;
+        sendToClients << QPointer<QWebSocket>(pSocket);
     }
     connect(pSocket, SIGNAL(disconnected()), this, SLOT(socketDisconnected()));
 
-    clients << pSocket;
+    // Store the WebSocket connection
+    clients << QPointer<QWebSocket>(pSocket);
 }
 
 void WebServerInfoSender::socketDisconnected() {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
     qDebug() << QStringLiteral("socketDisconnected:") << pClient;
     if (pClient) {
-        clients.removeAll(pClient);
-        if (!sendToClients.removeAll(pClient)) {
-            QMutableHashIterator<QNetworkReply *, QPair<QJsonObject, QWebSocket *>> i(reply2Req);
-            while (i.hasNext()) {
-                i.next();
-                if (i.value().second == pClient) {
-                    i.remove();
-                    break;
-                }
+        QMutexLocker locker(&clientsMutex);
+        qDebug() << QStringLiteral("socketDisconnected:") << clients.size();
+        
+        // Remove from sendToClients (QPointer)
+        for (auto it = sendToClients.begin(); it != sendToClients.end();) {
+            if (it->isNull() || it->data() == pClient) {
+                it = sendToClients.erase(it);
+            } else {
+                ++it;
             }
         }
-        pClient->deleteLater();
+        qDebug() << QStringLiteral("socketDisconnected: sendToClients removed");
+        
+        // Remove from reply2Req map
+        QMutableHashIterator<QNetworkReply *, QPair<QJsonObject, QWebSocket *>> i(reply2Req);
+        while (i.hasNext()) {
+            i.next();
+            if (i.value().second == pClient) {
+                qDebug() << QStringLiteral("socketDisconnected: reply2Req remove");
+                i.remove();
+                break;
+            }
+        }
+        
+        // Remove from clients (QPointer)
+        for (auto it = clients.begin(); it != clients.end();) {
+            if (it->isNull() || it->data() == pClient) {
+                it = clients.erase(it);
+            } else {
+                ++it;
+            }
+        }
+        
+        qDebug() << QStringLiteral("socketDisconnected: cleanup completed");
     }
 }
 

@@ -33,6 +33,9 @@ var maxHeartRate = 190;
 var heartZones = [];
 var miles = 1;
 var powerChart = null;
+var watts_max = 0;
+
+var firstElapsedTargetPower = 0;
 
 function process_trainprogram(arr) {
     let powerWorkout = false;
@@ -40,10 +43,12 @@ function process_trainprogram(arr) {
 
     for (let el of arr.list) {
         // if the power is ok or it was a power zone workout but this segment is a freeride tag...
-        if(el.power != -1 || powerWorkout) {
+        if(el.power !== -1 || powerWorkout) {
             powerWorkout = true;
             for (i=0; i<el.duration_s; i++) {
-                powerChart.data.datasets[1].data.push({x: elapsed++, y: el.power});                                            
+                powerChart.data.datasets[1].data.push({x: elapsed++, y: el.power});
+                if(watts_max < el.power)
+                    watts_max = el.power;
             }
         }
     }
@@ -52,8 +57,19 @@ function process_trainprogram(arr) {
 }
 
 function process_arr(arr) {    
-    let ctx = document.getElementById('canvas').getContext('2d');
-    let div = document.getElementById('divcanvas');
+    // Try to get the active canvas - check all possible canvas IDs
+    let ctx, div;
+    if (document.getElementById('canvas') && document.getElementById('canvas').offsetParent !== null) {
+        ctx = document.getElementById('canvas').getContext('2d');
+        div = document.getElementById('divcanvas');
+    } else if (document.getElementById('canvasFull') && document.getElementById('canvasFull').offsetParent !== null) {
+        ctx = document.getElementById('canvasFull').getContext('2d');
+        div = document.getElementById('divcanvasFull');
+    } else {
+        // Fallback to the first available canvas
+        ctx = (document.getElementById('canvas') || document.getElementById('canvasFull')).getContext('2d');
+        div = document.getElementById('divcanvas') || document.getElementById('divcanvasFull');
+    }
 
     let reqpower = [];
     let reqcadence = [];
@@ -72,8 +88,7 @@ function process_arr(arr) {
     let workoutName = '';
     let workoutStartDate = '';
     let instructorName = '';
-    let watts_avg = 0;
-    let watts_max = 0;
+    let watts_avg = 0;    
     let heart_avg = 0;
     let heart_max = 0;
     let jouls = 0;
@@ -115,7 +130,8 @@ function process_arr(arr) {
         workoutStartDate = el.workoutStartDate;
         instructorName = el.instructorName;
         watts_avg = el.watts_avg;
-        watts_max = el.watts_max;
+        if(watts_max < el.watts)
+            watts_max = el.watts;
         heart_avg = el.heart_avg;
         heart_max = el.heart_max;
         jouls = el.jouls;
@@ -125,9 +141,6 @@ function process_arr(arr) {
         distance = el.distance;
         calories = el.calories;
         maxEl = time;
-        wattel.x = time;
-        wattel.y = el.watts;
-        watts.push(wattel);
         if(el.watts < ftpZones[0])
             distributionPowerZones[0]++;
         else if(el.watts < ftpZones[1])
@@ -176,6 +189,15 @@ function process_arr(arr) {
         inclinationel.x = time;
         inclinationel.y = el.inclination;
         inclination.push(inclinationel);
+
+        if(el.target_power > 0) { // in order to add only metrics of the training program
+            if(firstElapsedTargetPower === 0) {
+                firstElapsedTargetPower = el.elapsed_s + (el.elapsed_m * 60) + (el.elapsed_h * 3600);
+            }
+            wattel.x = (el.elapsed_s + (el.elapsed_m * 60) + (el.elapsed_h * 3600)) - firstElapsedTargetPower;
+            wattel.y = el.watts;
+            watts.push(wattel);
+        }
     }
 
     const backgroundFill = {
@@ -346,20 +368,20 @@ function process_arr(arr) {
                         text: 'Watt'
                     },
                     min: 0,
-                    max: (watts_max > ftpZones[4] + 10 ? watts_max + 10 : ftpZones[4] + 10),
+                    suggestedMax: (watts_max > ftpZones[4] + 10 ? watts_max + 10 : ftpZones[4] + 10),
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
                         callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5]].includes(value) ?
-                            value === ftpZones[0] * 0.8 ? 'zone 1' :
-                            value === ftpZones[0] ? 'zone 2' :
-                            value === ftpZones[1] ? 'zone 3' :
-                            value === ftpZones[2] ? 'zone 4' :
-                            value === ftpZones[3] ? 'zone 5' :
-                            value === ftpZones[4] ? 'zone 6' :
-                            value === ftpZones[5] ? 'zone 7' : undefined : undefined,
+                            value === ftpZones[0] * 0.8 ? 'power z1' :
+                            value === ftpZones[0] ? 'power z2' :
+                            value === ftpZones[1] ? 'power z3' :
+                            value === ftpZones[2] ? 'power z4' :
+                            value === ftpZones[3] ? 'power z5' :
+                            value === ftpZones[4] ? 'power z6' :
+                            value === ftpZones[5] ? 'power z7' : undefined : undefined,
                         color: 'black',
-                        padding: -50,
+                        padding: -70,
                         align: 'end',
                         z: 1,
                     }
@@ -370,6 +392,122 @@ function process_arr(arr) {
     powerChart = new Chart(ctx, config);
 
     refresh();
+}
+
+// Global variables for zoom functionality
+var isZoomedPower = false;
+var isZoomedHeart = false;
+var currentTime = 0;
+var zoomUpdateIntervalPower = null;
+var zoomUpdateIntervalHeart = null;
+
+// Function to toggle zoom mode
+window.toggleChartZoom = function(chartType, enabled) {
+    if (chartType === 'power' && powerChart) {
+        isZoomedPower = enabled;
+        
+        if (enabled) {
+            startZoomMode('power');
+        } else {
+            stopZoomMode('power');
+        }
+    } else if (chartType === 'heart' && window.heartChart) {
+        isZoomedHeart = enabled;
+        
+        if (enabled) {
+            startZoomMode('heart');
+        } else {
+            stopZoomMode('heart');
+        }
+    }
+};
+
+function startZoomMode(chartType) {
+    if (chartType === 'power' && powerChart) {
+        // Update zoom range every 1 second to follow "now"
+        zoomUpdateIntervalPower = setInterval(function() {
+            updateZoomRange('power');
+        }, 1000);
+        
+        // Initial zoom setup
+        updateZoomRange('power');
+    } else if (chartType === 'heart' && window.heartChart) {
+        // Update zoom range every 1 second to follow "now"
+        zoomUpdateIntervalHeart = setInterval(function() {
+            updateZoomRange('heart');
+        }, 1000);
+        
+        // Initial zoom setup
+        updateZoomRange('heart');
+    }
+}
+
+function stopZoomMode(chartType) {
+    if (chartType === 'power' && powerChart) {
+        // Clear the interval
+        if (zoomUpdateIntervalPower) {
+            clearInterval(zoomUpdateIntervalPower);
+            zoomUpdateIntervalPower = null;
+        }
+        
+        // Reset to show all data and restore original tick settings
+        powerChart.options.scales.x.min = undefined;
+        powerChart.options.scales.x.max = undefined;
+        powerChart.options.scales.x.ticks.stepSize = undefined;
+        powerChart.options.scales.x.ticks.maxTicksLimit = undefined;
+        powerChart.update('none');
+    } else if (chartType === 'heart' && window.heartChart) {
+        // Clear the interval
+        if (zoomUpdateIntervalHeart) {
+            clearInterval(zoomUpdateIntervalHeart);
+            zoomUpdateIntervalHeart = null;
+        }
+        
+        // Reset to show all data and restore original tick settings
+        window.heartChart.options.scales.x.min = undefined;
+        window.heartChart.options.scales.x.max = undefined;
+        window.heartChart.options.scales.x.ticks.stepSize = undefined;
+        window.heartChart.options.scales.x.ticks.maxTicksLimit = undefined;
+        window.heartChart.update('none');
+    }
+}
+
+function updateZoomRange(chartType) {
+    if (chartType === 'power' && powerChart && powerChart.data.datasets[0] && powerChart.data.datasets[0].data) {
+        // Get the latest data point time (current time)
+        let latestDataPoint = powerChart.data.datasets[0].data[powerChart.data.datasets[0].data.length - 1];
+        if (!latestDataPoint) return;
+        
+        currentTime = latestDataPoint.x;
+        
+        // Set zoom range: -30s to +2min from current time
+        let zoomStart = Math.max(0, currentTime - 30);  // -30 seconds, but not below 0
+        let zoomEnd = currentTime + 120;  // +2 minutes
+        
+        // Update chart scale with proper tick configuration for zoom
+        powerChart.options.scales.x.min = zoomStart;
+        powerChart.options.scales.x.max = zoomEnd;
+        powerChart.options.scales.x.ticks.stepSize = 30; // 30 second intervals in zoom mode
+        powerChart.options.scales.x.ticks.maxTicksLimit = 6; // Limit number of ticks
+        powerChart.update('none');
+    } else if (chartType === 'heart' && window.heartChart && window.heartChart.data.datasets[0] && window.heartChart.data.datasets[0].data) {
+        // Get the latest data point time (current time)
+        let latestDataPoint = window.heartChart.data.datasets[0].data[window.heartChart.data.datasets[0].data.length - 1];
+        if (!latestDataPoint) return;
+        
+        currentTime = latestDataPoint.x;
+        
+        // Set zoom range: -30s to +2min from current time
+        let zoomStart = Math.max(0, currentTime - 30);  // -30 seconds, but not below 0
+        let zoomEnd = currentTime + 120;  // +2 minutes
+        
+        // Update chart scale with proper tick configuration for zoom
+        window.heartChart.options.scales.x.min = zoomStart;
+        window.heartChart.options.scales.x.max = zoomEnd;
+        window.heartChart.options.scales.x.ticks.stepSize = 30; // 30 second intervals in zoom mode
+        window.heartChart.options.scales.x.ticks.maxTicksLimit = 6; // Limit number of ticks
+        window.heartChart.update('none');
+    }
 }
 
 function refresh() {
@@ -388,7 +526,16 @@ function refresh() {
 }
 
 function process_workout(arr) {    
-    powerChart.data.datasets[0].data.push({x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600), y: arr.watts});
+    if(arr.target_power > 0) { // in order to add only metrics of the training program
+        if(firstElapsedTargetPower === 0) {
+            firstElapsedTargetPower = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
+            powerChart.data.datasets[0].data = [];
+        }
+    }
+
+    powerChart.data.datasets[0].data.push({x: (arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600)) - firstElapsedTargetPower, y: arr.watts});
+    if(watts_max < arr.watts)
+        watts_max = arr.watts;
     powerChart.update();
     refresh();
 }

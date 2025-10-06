@@ -38,7 +38,7 @@ public:
     /**
      * @brief Specifies a value that will be added to the resistance requests going to the bike, after the gain has been applied.
      */
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
 
     /**
      * @brief The resistance requests going to the bike should be multiplied by this, before adding the resistance offset.

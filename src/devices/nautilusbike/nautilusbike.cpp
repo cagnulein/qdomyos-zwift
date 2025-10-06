@@ -15,8 +15,8 @@
 using namespace std::chrono_literals;
 
 nautilusbike::nautilusbike(bool noWriteResistance, bool noHeartService, bool testResistance,
-                           uint8_t bikeResistanceOffset, double bikeResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+                           int8_t bikeResistanceOffset, double bikeResistanceGain) {
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
 
@@ -216,7 +216,7 @@ double nautilusbike::GetSpeedFromPacket(const QByteArray &packet) {
     const double miles = 1.60934;
     uint16_t convertedData = 0;
     double data = 0;
-    convertedData = (packet.at(4) << 8) | packet.at(3);
+    convertedData = (packet.at(4) << 8) | ((uint8_t)packet.at(3));
     data = (double)convertedData / 100.0f;
     if (!B616)
         data = data * miles;

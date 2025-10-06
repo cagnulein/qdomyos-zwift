@@ -15,7 +15,7 @@
 using namespace std::chrono_literals;
 
 sportsplusbike::sportsplusbike(bool noWriteResistance, bool noHeartService) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -459,7 +459,7 @@ void sportsplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         bluetoothDevice = device;
         if ((bluetoothDevice.name().toUpper().contains(QStringLiteral("CARE")) &&
-             bluetoothDevice.name().length() == 11)) // CARE9040177 - Carefitness CV-351)
+             bluetoothDevice.name().length() >= 11)) // CARE9040177 - Carefitness CV-351)
         {
             carefitness_bike = true;
         }

@@ -14,6 +14,7 @@
     <script src="globals.js"></script>
     <script src="main_ws_manager.js"></script>
               <script src="dochartlive.js"></script>
+              <script src="dochartliveheart.js"></script>
          <script src="html2canvas.min.js"></script>
     <style>
     canvas{
@@ -32,12 +33,122 @@
         overflow-x: none;
         margin: 0px;
         }
+    .zoom-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(156, 39, 176, 0.8);
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        z-index: 1000;
+        font-size: 12px;
+    }
+    .zoom-button:hover {
+        background: rgba(156, 39, 176, 1);
+    }
+    .chart-container {
+        position: relative;
+    }
     </style>
 </head>
 
 <body style="background-color:#1d2330">    
-    <div id="divcanvas" style="width:100vw;height:100vh; background-color:white; border: 0px solid #aaa; overflow: hidden;">
-             <canvas id="canvas"></canvas>
-		</div>
+    <div id="chartContainer">
+        <table id="bothChartsTable" style="border-spacing: 0px; display: table;">
+            <tr>
+              <td>
+                <div id="divcanvas" class="chart-container" style="width:50vw;height:100vh; background-color:white; border: 0px solid #aaa; overflow: hidden;">
+                   <button class="zoom-button" onclick="toggleZoom('power')">📊</button>
+                   <canvas id="canvas"></canvas>
+                </div>
+              </td>
+              <td>
+                <div id="divcanvasheart" class="chart-container" style="width:50vw;height:100vh; background-color:white; border: 0px solid #aaa; overflow: hidden;">
+                    <button class="zoom-button" onclick="toggleZoom('heart')">❤️</button>
+                    <canvas id="canvasheart"></canvas>
+                 </div>
+              </td>
+            </tr>
+        </table>
+        
+        <div id="powerChartOnly" style="display: none;">
+            <div id="divcanvasFull" class="chart-container" style="width:100vw;height:100vh; background-color:white; border: 0px solid #aaa; overflow: hidden;">
+                <button class="zoom-button" onclick="toggleZoom('power')">📊</button>
+                <canvas id="canvasFull"></canvas>
+            </div>
+        </div>
+        
+        <div id="heartChartOnly" style="display: none;">
+            <div id="divcanvasheartFull" class="chart-container" style="width:100vw;height:100vh; background-color:white; border: 0px solid #aaa; overflow: hidden;">
+                <button class="zoom-button" onclick="toggleZoom('heart')">❤️</button>
+                <canvas id="canvasheartFull"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentZoomMode = {power: false, heart: false};
+        let originalTimeRange = null;
+        
+        function setChartDisplayMode(mode) {
+            const bothChartsTable = document.getElementById('bothChartsTable');
+            const powerChartOnly = document.getElementById('powerChartOnly');
+            const heartChartOnly = document.getElementById('heartChartOnly');
+            
+            // Hide all containers
+            bothChartsTable.style.display = 'none';
+            powerChartOnly.style.display = 'none';
+            heartChartOnly.style.display = 'none';
+            
+            // Show selected mode
+            switch(mode) {
+                case 0: // Both charts
+                    bothChartsTable.style.display = 'table';
+                    break;
+                case 1: // Heart rate only
+                    heartChartOnly.style.display = 'block';
+                    break;
+                case 2: // Power only
+                    powerChartOnly.style.display = 'block';
+                    break;
+            }
+        }
+        
+        function toggleZoom(chartType) {
+            currentZoomMode[chartType] = !currentZoomMode[chartType];
+            
+            if (currentZoomMode[chartType]) {
+                // Enable zoom mode (-30s to +2min from now)
+                setZoomMode(chartType, true);
+            } else {
+                // Disable zoom mode (show all data)
+                setZoomMode(chartType, false);
+            }
+        }
+        
+        function setZoomMode(chartType, enabled) {
+            // This function will be extended to work with the actual chart instances
+            // For now, it's a placeholder that the chart scripts can override
+            console.log(`Zoom ${enabled ? 'enabled' : 'disabled'} for ${chartType} chart`);
+            
+            if (window.toggleChartZoom) {
+                window.toggleChartZoom(chartType, enabled);
+            }
+        }
+        
+        // Listen for messages from the QML WebView to change display mode
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.action === 'setChartDisplayMode') {
+                setChartDisplayMode(event.data.mode);
+            }
+        });
+        
+        // Initialize with both charts visible
+        setChartDisplayMode(0);
+    </script>
+      
 </body>
 </html>

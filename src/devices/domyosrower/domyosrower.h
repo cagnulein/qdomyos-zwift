@@ -36,7 +36,7 @@ class domyosrower : public rower {
     Q_OBJECT
   public:
     domyosrower(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
-                uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
+                int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~domyosrower();
     bool connected() override;
 
@@ -72,7 +72,7 @@ class domyosrower : public rower {
     bool noHeartService = false;
     bool testResistance = false;
     bool ftmsRower = false;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bool searchStopped = false;
     uint8_t sec1Update = 0;
