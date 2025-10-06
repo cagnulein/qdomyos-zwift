@@ -365,6 +365,19 @@ void kettlerracersbike::subscribeKettlerNotifications()
     subscribeDescriptor(gattKettlerService->characteristic(char1Uuid), QStringLiteral("Kettler char1"));
     subscribeDescriptor(gattKettlerService->characteristic(char2Uuid), QStringLiteral("Kettler char2"));
 
+    // Also subscribe to CSC service if available
+    if (gattCSCService) {
+        QBluetoothUuid cscMeasurementUuid(QStringLiteral("00002a5b-0000-1000-8000-00805f9b34fb"));
+        auto cscChar = gattCSCService->characteristic(cscMeasurementUuid);
+        if (cscChar.isValid()) {
+            auto descriptor = cscChar.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+            if (descriptor.isValid()) {
+                gattCSCService->writeDescriptor(descriptor, QByteArray::fromHex("0100"));
+                emit debug(QStringLiteral("CSC notification subscribed"));
+            }
+        }
+    }
+
     notificationsSubscribed = true;
 }
 
@@ -417,6 +430,14 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
         } else {
             qDebug() << QStringLiteral("gattKeyWriteCharKettlerId valid, properties:") << gattKeyWriteCharKettlerId.properties();
         }
+
+        // Request handshake seed with a delay to avoid GATT operation conflicts
+        // Similar to Java implementation which uses 1000ms delay
+        QTimer::singleShot(500, this, [this]() {
+            if (!handshakeRequested && !handshakeDone) {
+                requestHandshakeSeed();
+            }
+        });
     }
 
     if (service == gattCSCService && state == QLowEnergyService::ServiceDiscovered) {
@@ -433,14 +454,7 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCSCService, &QLowEnergyService::characteristicChanged, this,
                 &kettlerracersbike::characteristicChanged);
 
-        auto cscChar = gattCSCService->characteristic(_gattNotifyCharacteristicCSCId);
-        if (cscChar.isValid()) {
-            auto descriptor = cscChar.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
-            if (descriptor.isValid()) {
-                gattCSCService->writeDescriptor(descriptor, QByteArray::fromHex("0100"));
-                emit debug(QStringLiteral("CSC notification subscribed"));
-            }
-        }
+        // CSC notifications will be enabled after handshake completion in subscribeKettlerNotifications()
     }
     if (state == QLowEnergyService::ServiceDiscovered) {
         // ******************************************* virtual bike init *************************************
