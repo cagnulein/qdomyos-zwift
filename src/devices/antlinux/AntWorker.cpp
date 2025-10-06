@@ -53,22 +53,48 @@ struct PythonLogger {
 QString findVenvSitePackages() {
     // When run with `sudo`, the `SUDO_USER` variable contains the original user's name.
     QByteArray sudoUser = qgetenv("SUDO_USER");
+    QByteArray qzUser = qgetenv("QZ_USER");
+    QString userName;
     QString homePath;
 
     if (!sudoUser.isEmpty()) {
-        // If we know the original user, construct the path to their home directory.
-        homePath = "/home/" + QString::fromLocal8Bit(sudoUser);
-        qInfo() << "[ANT+] Detected sudo user:" << sudoUser << ", setting home path to" << homePath;
+        // Case 1: Running with "sudo" or "sudo -E". Use the original user's name.
+        userName = QString::fromLocal8Bit(sudoUser);
+        homePath = "/home/" + userName;
+        qInfo() << "[ANT+] Detected sudo user via SUDO_USER:" << userName << ", using home path" << homePath;
+    } else if (!qzUser.isEmpty()) {
+        // Case 2: Running as a systemd service with the QZ_USER variable correctly set.
+        userName = QString::fromLocal8Bit(qzUser);
+        homePath = "/home/" + userName;
+        qInfo() << "[ANT+] Detected service user via QZ_USER:" << qzUser << ", using home path" << homePath;
+    } else if (getuid() == 0) {
+        // --- Detect misconfigured systemd service ---
+        // Case 3: We are running as root (uid 0), but neither SUDO_USER nor QZ_USER is set.
+        // This is the signature of a misconfigured service file.
+        qWarning() << "[ANT+] CRITICAL: Application is running as root without SUDO_USER or QZ_USER environment variables.";
+        qWarning() << "[ANT+] GUIDANCE: This indicates a misconfigured systemd service file.";
+        qWarning() << "[ANT+] GUIDANCE: To fix this, edit '/lib/systemd/system/qz.service' and add the following line under the [Service] section:";
+        qWarning() << "[ANT+]   Environment=\"QZ_USER=your_actual_username\"";
+        qWarning() << "[ANT+] GUIDANCE: Then, run 'sudo systemctl daemon-reload' and restart the service.";
+        return QString(); // Abort initialization.
     } else {
-        // If not run with sudo (e.g., direct root login), use the current home path.
+        // Case 4: Fallback for a normal user running the app (unlikely, but safe).
+        userName = qgetenv("USER");
         homePath = QDir::homePath();
-        qInfo() << "[ANT+] No sudo user detected, using default home path:" << homePath;
+        qInfo() << "[ANT+] No sudo/service user detected, using default home path for user" << userName;
     }
     
-    QString pythonExecutable = homePath + "/ant_venv/bin/python3";
+    QString venvPath = homePath + "/ant_venv";
+    QString pythonExecutable = venvPath + "/bin/python3";
 
     if (!QFile::exists(pythonExecutable)) {
         qWarning() << "[ANT+] CRITICAL: Python executable not found at the expected path:" << pythonExecutable;
+        qWarning() << "[ANT+] GUIDANCE: This feature requires a Python virtual environment named 'ant_venv' in the user's home directory.";
+        if (!userName.isEmpty() && userName != "root") {
+            qWarning() << "[ANT+] GUIDANCE: To fix this, run the following commands as the '" << userName << "' user (NOT as root):";
+            qWarning() << "[ANT+]   1. python3 -m venv" << venvPath;
+            qWarning() << "[ANT+]   2." << (venvPath + "/bin/pip") << "install openant pyusb pybind11";
+        }
         return QString();
     }
 

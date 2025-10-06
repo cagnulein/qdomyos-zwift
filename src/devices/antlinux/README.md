@@ -227,7 +227,7 @@ To have QZ start automatically with ANT+ support, modify your systemd service fi
 sudo nano /lib/systemd/system/qz.service
 ```
 
-Ensure the `[Service]` section looks like this. The key changes are running as `root` and adding the ANT+ command-line flag.
+Ensure the `[Service]` section looks like this. The key changes are running as `root` , replace 'pi' with your actual username if different and adding the ANT+ command-line flag.
 
 ```ini
 [Unit]
@@ -239,12 +239,14 @@ After=multi-user.target
 User=root
 Group=plugdev
 
-# Set the working directory to where the binary is located
+# Replace 'pi' with username used for virtual python environment 
+Environment="QZ_USER=pi"
+
+# Set working directory where log file is to be written too
 WorkingDirectory=/home/pi/qdomyos-zwift/src
 
-# The command to execute (replace 'pi' with your actual username)
-# the various options are dependent on your desired setup
-ExecStart=/home/pi/qdomyos-zwift/src/qdomyos-zwift -no-gui -no-log -ant-footpod
+# The QZ command to execute, amend path location and flags as needed
+ExecStart=/home/pi/qdomyos-zwift/src/qdomyos-zwift-arm64 -no-gui -log -ant-footpod
 
 # Ensure graceful shutdown on stop
 KillSignal=SIGINT
@@ -255,9 +257,9 @@ WantedBy=multi-user.target
 
 Apply the changes:
 ```bash
-# Reload systemd configuration and restart the QZ service
+# Reload systemd configuration and start the QZ service
 sudo systemctl daemon-reload
-sudo systemctl restart qz
+sudo systemctl start qz
 sudo systemctl status qz
 ```
 
