@@ -1624,6 +1624,9 @@ class QZSettings {
     static const QString floating_transparency;
     static constexpr int default_floating_transparency = 80;
 
+    static const QString floating_port;
+    static constexpr int default_floating_port = 0;
+
     static const QString floating_startup;
     static constexpr int default_floating_startup = false;
 

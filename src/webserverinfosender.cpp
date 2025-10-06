@@ -1,4 +1,5 @@
 #include "webserverinfosender.h"
+#include "qzsettings.h"
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -75,9 +76,21 @@ bool WebServerInfoSender::init() {
     if (!folders.isEmpty()) {
         QString relative;
         int idx;
-        port = settings.value(QStringLiteral("template_") + templateId + QStringLiteral("_port"), 6666).toInt(&ok);
-        if (!ok)
-            port = 6666;
+        // Check if floating_port is set for inner_QZWS template
+        if (templateId == QStringLiteral("inner_QZWS")) {
+            int floating_port = settings.value(QZSettings::floating_port, QZSettings::default_floating_port).toInt();
+            if (floating_port != 0) {
+                port = floating_port;
+            } else {
+                port = settings.value(QStringLiteral("template_") + templateId + QStringLiteral("_port"), 6666).toInt(&ok);
+                if (!ok)
+                    port = 6666;
+            }
+        } else {
+            port = settings.value(QStringLiteral("template_") + templateId + QStringLiteral("_port"), 6666).toInt(&ok);
+            if (!ok)
+                port = 6666;
+        }
         if (!httpServer)
             httpServer = new QHttpServer(this);
         relative2Absolute.clear();
