@@ -16,6 +16,7 @@
 #include "ios/ios_echelonconnectsport.h"
 #include "ios/ios_wahookickrsnapbike.h"
 #include "ios/ios_zwiftclickremote.h"
+#include "ios/ios_liveactivity.h"
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
@@ -196,6 +197,12 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
 void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance, double totalKcal) {
     if(workoutTracking != nil && !appleWatchAppInstalled())
         [workoutTracking addMetricsWithPower:watt cadence:cadence*2 speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:totalKcal];
+
+    // Start Live Activity on first update, then keep updating
+    if (!ios_liveactivity::isLiveActivityRunning()) {
+        ios_liveactivity::startLiveActivity("QZ");
+    }
+    ios_liveactivity::updateLiveActivity(speed, cadence, watt, [h heartRate], currentDistance, currentCalories);
 }
 
 void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator)
