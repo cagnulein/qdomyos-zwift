@@ -227,18 +227,7 @@ void kettlerracersbike::errorService(QLowEnergyService::ServiceError err) {
 void kettlerracersbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
-    // align behavior with other devices (e.g., Tacx): once CCCD is written
-    // we are effectively ready, notify the stack/UI
-    initRequest = true;
-    emit connectedAndDiscovered();
-
-    // Some Kettler firmware appears to start streaming only after
-    // a first benign write on the power control char (see Test logs)
-    if (!primedNotifyStart && gattWriteCharKettlerId.isValid()) {
-        uint8_t zero[2] = {0x00, 0x00};
-        writeCharacteristic(zero, sizeof(zero), QStringLiteral("prime notifications"), false, false);
-        primedNotifyStart = true;
-    }
+    // Note: connectedAndDiscovered and prime notifications are now called after handshake completion
 }
 
 void kettlerracersbike::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -247,8 +236,27 @@ void kettlerracersbike::descriptorRead(const QLowEnergyDescriptor &descriptor, c
 
 void kettlerracersbike::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
                                              const QByteArray &newValue) {
-    Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
+
+    // Check if this is the handshake write confirmation
+    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1105-7bde-3e25-ffc5-9de9b2a0197a"))) {
+        emit debug(QStringLiteral("Kettler :: Handshake write confirmed, enabling notifications"));
+        handshakeDone = true;
+
+        // Now subscribe to notifications
+        subscribeKettlerNotifications();
+
+        // Prime notifications with 00 00 write (some Kettler firmware needs this)
+        if (!primedNotifyStart && gattWriteCharKettlerId.isValid()) {
+            uint8_t zero[2] = {0x00, 0x00};
+            writeCharacteristic(zero, sizeof(zero), QStringLiteral("prime notifications"), false, false);
+            primedNotifyStart = true;
+        }
+
+        // Notify the stack/UI that we are ready
+        initRequest = true;
+        emit connectedAndDiscovered();
+    }
 }
 
 void kettlerracersbike::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
@@ -290,9 +298,9 @@ void kettlerracersbike::sendHandshake(const QByteArray &seed) {
 
     // Use Qt Bluetooth for all platforms
     gattKettlerService->writeCharacteristic(gattKeyWriteCharKettlerId, payload);
-    handshakeDone = true;
     handshakeRequested = false;
-    subscribeKettlerNotifications();
+    // handshakeDone will be set in characteristicWritten after write confirmation
+    // subscribeKettlerNotifications will be called there as well
 }
 
 void kettlerracersbike::requestHandshakeSeed()
