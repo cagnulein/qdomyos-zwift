@@ -609,6 +609,8 @@ jobs:
           QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
           SRC_FILE="${{ github.workspace }}/qt-patches/android/5.15.0/qtconnectivity/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
           WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
+          ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
+          ANDROID_JAR="${ANDROID_SDK_ROOT}/platforms/android-31/android.jar"
 
           echo "Creating work directory..."
           mkdir -p "$WORK_DIR/org/qtproject/qt5/android/bluetooth"
@@ -626,8 +628,8 @@ jobs:
             sed -i '1527,1557s|^        \*/|        |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
             sed -i '1557s|\*/|  |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
-            echo "Compiling patched QtBluetoothLE.java..."
-            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+            echo "Compiling patched QtBluetoothLE.java with Android SDK..."
+            javac -source 1.8 -target 1.8 -bootclasspath "$ANDROID_JAR" -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
             if [ $? -eq 0 ]; then
               echo "Compilation successful, updating JAR..."
@@ -1684,6 +1686,8 @@ jobs:
           QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
           SRC_FILE="${{ github.workspace }}/qt-patches/android/5.15.0/qtconnectivity/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
           WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
+          ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
+          ANDROID_JAR="${ANDROID_SDK_ROOT}/platforms/android-31/android.jar"
 
           echo "Creating work directory..."
           mkdir -p "$WORK_DIR/org/qtproject/qt5/android/bluetooth"
@@ -1701,8 +1705,8 @@ jobs:
             sed -i '1527,1557s|^        \*/|        |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
             sed -i '1557s|\*/|  |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
-            echo "Compiling patched QtBluetoothLE.java..."
-            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+            echo "Compiling patched QtBluetoothLE.java with Android SDK..."
+            javac -source 1.8 -target 1.8 -bootclasspath "$ANDROID_JAR" -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
             if [ $? -eq 0 ]; then
               echo "Compilation successful, updating JAR..."
@@ -1833,6 +1837,8 @@ jobs:
           QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
           SRC_FILE="${{ github.workspace }}/qt-patches/android/5.15.0/qtconnectivity/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
           WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
+          ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
+          ANDROID_JAR="${ANDROID_SDK_ROOT}/platforms/android-31/android.jar"
 
           echo "Creating work directory..."
           mkdir -p "$WORK_DIR/org/qtproject/qt5/android/bluetooth"
@@ -1850,8 +1856,8 @@ jobs:
             sed -i '1527,1557s|^        \*/|        |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
             sed -i '1557s|\*/|  |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
-            echo "Compiling patched QtBluetoothLE.java..."
-            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+            echo "Compiling patched QtBluetoothLE.java with Android SDK..."
+            javac -source 1.8 -target 1.8 -bootclasspath "$ANDROID_JAR" -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
             if [ $? -eq 0 ]; then
               echo "Compilation successful, updating JAR..."
@@ -1980,6 +1986,8 @@ jobs:
           QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
           SRC_FILE="${{ github.workspace }}/qt-patches/android/5.15.0/qtconnectivity/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
           WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
+          ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
+          ANDROID_JAR="${ANDROID_SDK_ROOT}/platforms/android-31/android.jar"
 
           echo "Creating work directory..."
           mkdir -p "$WORK_DIR/org/qtproject/qt5/android/bluetooth"
@@ -1997,8 +2005,8 @@ jobs:
             sed -i '1527,1557s|^        \*/|        |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
             sed -i '1557s|\*/|  |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
-            echo "Compiling patched QtBluetoothLE.java..."
-            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+            echo "Compiling patched QtBluetoothLE.java with Android SDK..."
+            javac -source 1.8 -target 1.8 -bootclasspath "$ANDROID_JAR" -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
             if [ $? -eq 0 ]; then
               echo "Compilation successful, updating JAR..."
