@@ -100,5 +100,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 </dict>
 </plist>
