@@ -254,7 +254,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if(SL010)
             Resistance = requestResistance;
         
-        if(JFBK5_0 || DIRETO_XR) {
+        if(JFBK5_0 || DIRETO_XR || YPBM) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -1432,6 +1432,20 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && ((zwiftPlayService != nullptr && gears_zwift_ratio) || !ergModeSupported)) {
             qDebug() << "discarding";
             return;
+        } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
+            // handling watt gain and offset for erg mode
+            double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+            double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+
+            if (watt_gain != 1.0 || watt_offset != 0) {
+                uint16_t powerRequested = (((uint8_t)b.at(1)) + (b.at(2) << 8));
+                qDebug() << "applying watt_gain/watt_offset from" << powerRequested;
+                powerRequested = ((powerRequested / watt_gain) - watt_offset);
+                qDebug() << "to" << powerRequested;
+
+                b[1] = powerRequested & 0xFF;
+                b[2] = powerRequested >> 8;
+            }
         }
         // gears on erg mode is quite useless and it's confusing
         /* else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
@@ -1633,9 +1647,15 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("HAMMER")) {
             qDebug() << QStringLiteral("HAMMER found");
             HAMMER = true;
+        } else if(device.name().toUpper().startsWith("YPBM") && device.name().length() == 10) {
+            qDebug() << QStringLiteral("YPBM found");
+            YPBM = true;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 32;
         }
 
-        
+
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
             resistance_lvl_mode = true;
         }

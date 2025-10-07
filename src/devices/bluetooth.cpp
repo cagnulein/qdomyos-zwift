@@ -685,7 +685,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
                 filter = (b.name().compare(filterDevice, Qt::CaseInsensitive) == 0);
             }
-            if (b.name().startsWith(QStringLiteral("M3")) && !m3iBike && filter) {
+            const QString deviceName = b.name();
+            const QString upperDeviceName = deviceName.toUpper();
+            bool isTrxAppGateUsbBikeTC = false;
+            if (upperDeviceName.startsWith(QStringLiteral("TC")) && deviceName.length() == 5) {
+                isTrxAppGateUsbBikeTC = true;
+                for (int idx = 2; idx < deviceName.length(); ++idx) {
+                    if (!deviceName.at(idx).isDigit()) {
+                        isTrxAppGateUsbBikeTC = false;
+                        break;
+                    }
+                }
+            }
+            if (deviceName.startsWith(QStringLiteral("M3")) && !m3iBike && filter) {
 
                 if (m3ibike::isCorrectUnit(b)) {
                     this->setLastBluetoothDevice(b);
@@ -1487,6 +1499,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("AB300S-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TF04-")) ||                           // Sport Synology Z5 Treadmill #2415
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-")) && !b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||                            // FIT-1596 and sports tech f37s treadmill #2412
+                        b.name().toUpper().startsWith(QStringLiteral("FIT-TM-")) ||                             // FIT-TM- treadmill with real inclination
                         b.name().toUpper().startsWith(QStringLiteral("LJJ-")) ||                            // LJJ-02351A
                         b.name().toUpper().startsWith(QStringLiteral("WLT-EP-")) ||                             // Flow elliptical
                         (b.name().toUpper().startsWith("SCHWINN 810")) ||
@@ -1496,6 +1509,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                          b.name().toUpper().startsWith(QStringLiteral("ANPIUS-")) ||
                          b.name().toUpper().startsWith(QStringLiteral("KICKR RUN")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM-01")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("TP1")) && b.name().length() == 3) ||
                         (b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D"))) ||                     // Kingsmith WalkingPad Z1
                         (b.name().toUpper().startsWith(QStringLiteral("KS-AP-"))) ||                        // Kingsmith WalkingPad R3 Hybrid+
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
@@ -1754,12 +1768,14 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("MRK-S26S-")) ||
                         (b.name().toUpper().startsWith("MRK-S26C-")) ||
                         (b.name().toUpper().startsWith("ROBX")) ||
+                        (b.name().toUpper().startsWith("ORLAUF_ARES")) ||
                         (b.name().toUpper().startsWith("SPEEDMAGPRO")) ||                        
                         (b.name().toUpper().startsWith("XCX-")) ||
                         (b.name().toUpper().startsWith("D500V2")) ||
                         (b.name().toUpper().startsWith("NEO BIKE PLUS ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) && !b.name().toUpper().endsWith(QStringLiteral("SKI")) && !b.name().toUpper().endsWith(QStringLiteral("ROW"))) || 
                         (b.name().toUpper().startsWith("L-") && b.name().length() == 11) ||
+                        (b.name().toUpper().startsWith("DMASUN-") && b.name().toUpper().endsWith("-BIKE")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||
                         (b.name().toUpper().startsWith("VFSPINBIKE")) ||
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -1769,7 +1785,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("SUITO")) || (b.name().toUpper().startsWith("D2RIDE")) ||
                         (b.name().toUpper().startsWith("DIRETO X")) || (b.name().toUpper().startsWith("MERACH-667-")) ||
                         !b.name().compare(ftms_bike, Qt::CaseInsensitive) || (b.name().toUpper().startsWith("SMB1")) ||
-                        (b.name().toUpper().startsWith("UBIKE FTMS")) || (b.name().toUpper().startsWith("INRIDE"))) &&
+                        (b.name().toUpper().startsWith("UBIKE FTMS")) || (b.name().toUpper().startsWith("INRIDE")) ||
+                        (b.name().toUpper().startsWith("YPBM") && b.name().length() == 10)) &&
                         ftms_rower.contains(QZSettings::default_ftms_rower) &&
                        !ftmsBike && !ftmsRower && !snodeBike && !fitPlusBike && !stagesBike && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2065,7 +2082,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(apexBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
                 apexBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(apexBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("BKOOLSMARTPRO")) && !bkoolBike && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("BKOOLSMARTPRO")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("BKOOLFITNESSBIKE"))) && !bkoolBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 bkoolBike = new bkoolbike(noWriteResistance, noHeartService);
@@ -2445,15 +2463,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(activioTreadmill, &activiotreadmill::debug, this, &bluetooth::debug);
                 activioTreadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(activioTreadmill);
-            } else if (((b.name().startsWith(QStringLiteral("TOORX"))) ||
-                        (b.name().startsWith(QStringLiteral("V-RUN"))) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("K80_"))) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+"))) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+"))) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("I-RUNNING"))) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("DKN RUN"))) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("ADIDAS "))) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("REEBOK")))) &&
+            } else if (((deviceName.startsWith(QStringLiteral("TOORX"))) ||
+                        (deviceName.startsWith(QStringLiteral("V-RUN"))) ||
+                        (upperDeviceName.startsWith(QStringLiteral("K80_"))) ||
+                        (upperDeviceName.startsWith(QStringLiteral("I-CONSOLE+"))) ||
+                        (upperDeviceName.startsWith(QStringLiteral("ICONSOLE+"))) ||
+                        (upperDeviceName.startsWith(QStringLiteral("I-RUNNING"))) ||
+                        (upperDeviceName.startsWith(QStringLiteral("DKN RUN"))) ||
+                        (upperDeviceName.startsWith(QStringLiteral("ADIDAS "))) ||
+                        (upperDeviceName.startsWith(QStringLiteral("REEBOK")))) &&
                        !trxappgateusb && !trxappgateusbBike && !toorx_bike && !toorx_ftms && !toorx_ftms_treadmill && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) &&
                            ftms_bike.contains(QZSettings::default_ftms_bike) &&
                        filter) {
@@ -2467,22 +2485,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(trxappgateusb, &trxappgateusbtreadmill::debug, this, &bluetooth::debug);
                 trxappgateusb->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(trxappgateusb);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("TUN ")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("FITHIWAY")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("FIT HI WAY")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("BIKZU_")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("PASYOU-")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("VIRTUFIT")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("IBIKING+")) ||
-                        ((b.name().startsWith(QStringLiteral("TOORX")) ||
-                          b.name().toUpper().startsWith(QStringLiteral("I-CONSOIE+")) ||
-                          b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||                          
-                          b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
-                          b.name().toUpper().startsWith(QStringLiteral("VIFHTR2.1")) ||
-                          (b.name().toUpper().startsWith(QStringLiteral("REEBOK"))) ||
-                          b.name().toUpper().contains(QStringLiteral("CR011R")) ||
-                          (b.name().toUpper().startsWith(QStringLiteral("FAL-SPORTS")) && toorx_bike) ||
-                          b.name().toUpper().startsWith(QStringLiteral("DKN MOTION"))) &&
+            } else if (isTrxAppGateUsbBikeTC ||
+                        (upperDeviceName.startsWith(QStringLiteral("TUN ")) ||
+                        upperDeviceName.startsWith(QStringLiteral("FITHIWAY")) ||
+                        upperDeviceName.startsWith(QStringLiteral("FIT HI WAY")) ||
+                        upperDeviceName.startsWith(QStringLiteral("BIKZU_")) ||
+                        upperDeviceName.startsWith(QStringLiteral("PASYOU-")) ||
+                        upperDeviceName.startsWith(QStringLiteral("VIRTUFIT")) ||
+                        upperDeviceName.startsWith(QStringLiteral("IBIKING+")) ||
+                        ((deviceName.startsWith(QStringLiteral("TOORX")) ||
+                          upperDeviceName.startsWith(QStringLiteral("I-CONSOIE+")) ||
+                          upperDeviceName.startsWith(QStringLiteral("I-CONSOLE+")) ||                          
+                          upperDeviceName.startsWith(QStringLiteral("ICONSOLE+")) ||
+                          upperDeviceName.startsWith(QStringLiteral("VIFHTR2.1")) ||
+                          (upperDeviceName.startsWith(QStringLiteral("REEBOK"))) ||
+                          upperDeviceName.contains(QStringLiteral("CR011R")) ||
+                          (upperDeviceName.startsWith(QStringLiteral("FAL-SPORTS")) && toorx_bike) ||
+                          upperDeviceName.startsWith(QStringLiteral("DKN MOTION"))) &&
                          (toorx_bike))) &&
                        !trxappgateusb && !toorx_ftms && !toorx_ftms_treadmill && !trxappgateusbBike && filter && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical)) {
                 this->setLastBluetoothDevice(b);
@@ -2588,7 +2607,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && fitplus_bike) ||
                         (b.name().toUpper().startsWith("H9110 OSAKA")) ||
                         b.name().startsWith(QStringLiteral("MRK-"))) &&
-                       !fitPlusBike && !ftmsBike && !ftmsRower && !snodeBike && filter) {
+                       !fitPlusBike && !ftmsBike && !ftmsRower && !snodeBike && !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 fitPlusBike =

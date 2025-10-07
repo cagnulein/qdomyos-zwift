@@ -49,7 +49,12 @@ void bkoolbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    gattCustomService->writeCharacteristic(gattWriteCharCustomId, *writeBuffer);
+    if (gattWriteCharCustomService.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCustomService->writeCharacteristic(gattWriteCharCustomId, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCustomService->writeCharacteristic(gattWriteCharCustomId, *writeBuffer);
+    }    
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
