@@ -12,8 +12,6 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
-#include <QAndroidJniObject>
-#include <QAndroidJniEnvironment>
 #endif
 #include "homeform.h"
 
@@ -378,56 +376,7 @@ void kettlerracersbike::requestHandshakeSeed()
         return;
     }
 
-#ifdef Q_OS_ANDROID
-    // Try direct Android read via reflection as workaround for Qt's executeReadJob bug
-    qDebug() << QStringLiteral("Kettler :: Attempting direct Android read via KettlerReadHelper");
-
-    QAndroidJniEnvironment env;
-
-    // Get Android context
-    QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod(
-        "org/qtproject/qt5/android/QtNative",
-        "activity",
-        "()Landroid/app/Activity;"
-    );
-
-    if (!activity.isValid()) {
-        qDebug() << QStringLiteral("Kettler :: Cannot get Android activity, falling back to Qt read");
-    } else {
-        QString deviceAddr = this->bluetoothDevice.address().toString();
-        QAndroidJniObject jDeviceAddress = QAndroidJniObject::fromString(deviceAddr);
-        QAndroidJniObject jServiceUuid = QAndroidJniObject::fromString(QStringLiteral("638af000-7bde-3e25-ffc5-9de9b2a0197a"));
-        QAndroidJniObject jCharUuid = QAndroidJniObject::fromString(QStringLiteral("638a1104-7bde-3e25-ffc5-9de9b2a0197a"));
-
-        bool result = QAndroidJniObject::callStaticMethod<jboolean>(
-            "org/cagnulen/qdomyoszwift/KettlerReadHelper",
-            "readCharacteristicDirect",
-            "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z",
-            activity.object<jobject>(),
-            jDeviceAddress.object<jstring>(),
-            jServiceUuid.object<jstring>(),
-            jCharUuid.object<jstring>()
-        );
-
-        if (env->ExceptionCheck()) {
-            env->ExceptionDescribe();
-            env->ExceptionClear();
-            qDebug() << QStringLiteral("Kettler :: JNI exception occurred");
-        } else {
-            qDebug() << QStringLiteral("Kettler :: readCharacteristicDirect result:") << result;
-
-            if (result) {
-                qDebug() << QStringLiteral("Kettler :: Android direct read initiated, waiting for callback");
-                return;  // Wait for Android callback
-            } else {
-                qDebug() << QStringLiteral("Kettler :: Android direct read failed, falling back to Qt");
-            }
-        }
-    }
-#endif
-
-    // Fallback to Qt Bluetooth
-    qDebug() << QStringLiteral("reading Kettler handshake seed via Qt - characteristic properties:") << gattKeyReadCharKettlerId.properties();
+    qDebug() << QStringLiteral("reading Kettler handshake seed - characteristic properties:") << gattKeyReadCharKettlerId.properties();
     gattKettlerService->readCharacteristic(gattKeyReadCharKettlerId);
     qDebug() << QStringLiteral("Kettler :: readCharacteristic call successful, waiting for response...");
 }

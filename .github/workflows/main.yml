@@ -603,6 +603,48 @@ jobs:
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
+      - name: Patch QtBluetoothLE executeReadJob
+        run: |
+          # Fix Qt's executeReadJob bug by uncommenting the read implementation
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
+
+          echo "Creating work directory..."
+          mkdir -p "$WORK_DIR"
+          cd "$WORK_DIR"
+
+          echo "Extracting QtAndroidBluetooth.jar..."
+          jar xf "$QT_BT_JAR"
+
+          JAVA_FILE="org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
+
+          if [ -f "$JAVA_FILE" ]; then
+            echo "Found $JAVA_FILE, applying patch..."
+
+            # Remove the "return true; //rviola" line at line 1527
+            # and uncomment lines 1528-1558
+            sed -i '1527d' "$JAVA_FILE"
+            sed -i '1527,1558s|^/\*|  |g' "$JAVA_FILE"
+            sed -i '1527,1558s|\*/|  |g' "$JAVA_FILE"
+
+            echo "Recompiling QtBluetoothLE.java..."
+            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" "$JAVA_FILE"
+
+            if [ $? -eq 0 ]; then
+              echo "Compilation successful, updating JAR..."
+              jar uf "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.class
+              echo "QtBluetoothLE.jar patched successfully!"
+            else
+              echo "ERROR: Compilation failed!"
+              exit 1
+            fi
+          else
+            echo "WARNING: QtBluetoothLE.java not found in JAR, skipping patch"
+          fi
+
+          cd ..
+          rm -rf "$WORK_DIR"
+
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
@@ -1634,6 +1676,48 @@ jobs:
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
+      - name: Patch QtBluetoothLE executeReadJob
+        run: |
+          # Fix Qt's executeReadJob bug by uncommenting the read implementation
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
+
+          echo "Creating work directory..."
+          mkdir -p "$WORK_DIR"
+          cd "$WORK_DIR"
+
+          echo "Extracting QtAndroidBluetooth.jar..."
+          jar xf "$QT_BT_JAR"
+
+          JAVA_FILE="org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
+
+          if [ -f "$JAVA_FILE" ]; then
+            echo "Found $JAVA_FILE, applying patch..."
+
+            # Remove the "return true; //rviola" line at line 1527
+            # and uncomment lines 1528-1558
+            sed -i '1527d' "$JAVA_FILE"
+            sed -i '1527,1558s|^/\*|  |g' "$JAVA_FILE"
+            sed -i '1527,1558s|\*/|  |g' "$JAVA_FILE"
+
+            echo "Recompiling QtBluetoothLE.java..."
+            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" "$JAVA_FILE"
+
+            if [ $? -eq 0 ]; then
+              echo "Compilation successful, updating JAR..."
+              jar uf "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.class
+              echo "QtBluetoothLE.jar patched successfully!"
+            else
+              echo "ERROR: Compilation failed!"
+              exit 1
+            fi
+          else
+            echo "WARNING: QtBluetoothLE.java not found in JAR, skipping patch"
+          fi
+
+          cd ..
+          rm -rf "$WORK_DIR"
+
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
@@ -1739,6 +1823,48 @@ jobs:
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
+      - name: Patch QtBluetoothLE executeReadJob
+        run: |
+          # Fix Qt's executeReadJob bug by uncommenting the read implementation
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
+
+          echo "Creating work directory..."
+          mkdir -p "$WORK_DIR"
+          cd "$WORK_DIR"
+
+          echo "Extracting QtAndroidBluetooth.jar..."
+          jar xf "$QT_BT_JAR"
+
+          JAVA_FILE="org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
+
+          if [ -f "$JAVA_FILE" ]; then
+            echo "Found $JAVA_FILE, applying patch..."
+
+            # Remove the "return true; //rviola" line at line 1527
+            # and uncomment lines 1528-1558
+            sed -i '1527d' "$JAVA_FILE"
+            sed -i '1527,1558s|^/\*|  |g' "$JAVA_FILE"
+            sed -i '1527,1558s|\*/|  |g' "$JAVA_FILE"
+
+            echo "Recompiling QtBluetoothLE.java..."
+            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" "$JAVA_FILE"
+
+            if [ $? -eq 0 ]; then
+              echo "Compilation successful, updating JAR..."
+              jar uf "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.class
+              echo "QtBluetoothLE.jar patched successfully!"
+            else
+              echo "ERROR: Compilation failed!"
+              exit 1
+            fi
+          else
+            echo "WARNING: QtBluetoothLE.java not found in JAR, skipping patch"
+          fi
+
+          cd ..
+          rm -rf "$WORK_DIR"
+
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
@@ -1841,6 +1967,48 @@ jobs:
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+
+      - name: Patch QtBluetoothLE executeReadJob
+        run: |
+          # Fix Qt's executeReadJob bug by uncommenting the read implementation
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
+
+          echo "Creating work directory..."
+          mkdir -p "$WORK_DIR"
+          cd "$WORK_DIR"
+
+          echo "Extracting QtAndroidBluetooth.jar..."
+          jar xf "$QT_BT_JAR"
+
+          JAVA_FILE="org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
+
+          if [ -f "$JAVA_FILE" ]; then
+            echo "Found $JAVA_FILE, applying patch..."
+
+            # Remove the "return true; //rviola" line at line 1527
+            # and uncomment lines 1528-1558
+            sed -i '1527d' "$JAVA_FILE"
+            sed -i '1527,1558s|^/\*|  |g' "$JAVA_FILE"
+            sed -i '1527,1558s|\*/|  |g' "$JAVA_FILE"
+
+            echo "Recompiling QtBluetoothLE.java..."
+            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" "$JAVA_FILE"
+
+            if [ $? -eq 0 ]; then
+              echo "Compilation successful, updating JAR..."
+              jar uf "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.class
+              echo "QtBluetoothLE.jar patched successfully!"
+            else
+              echo "ERROR: Compilation failed!"
+              exit 1
+            fi
+          else
+            echo "WARNING: QtBluetoothLE.java not found in JAR, skipping patch"
+          fi
+
+          cd ..
+          rm -rf "$WORK_DIR"
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
