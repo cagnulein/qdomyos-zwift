@@ -605,30 +605,29 @@ jobs:
 
       - name: Patch QtBluetoothLE executeReadJob
         run: |
-          # Fix Qt's executeReadJob bug by uncommenting the read implementation
+          # Fix Qt's executeReadJob bug by patching source and recompiling
           QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          SRC_FILE="${{ github.workspace }}/qt-patches/android/5.15.0/qtconnectivity/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
           WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
 
           echo "Creating work directory..."
-          mkdir -p "$WORK_DIR"
+          mkdir -p "$WORK_DIR/org/qtproject/qt5/android/bluetooth"
           cd "$WORK_DIR"
 
-          echo "Extracting QtAndroidBluetooth.jar..."
-          jar xf "$QT_BT_JAR"
-
-          JAVA_FILE="org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
-
-          if [ -f "$JAVA_FILE" ]; then
-            echo "Found $JAVA_FILE, applying patch..."
+          if [ -f "$SRC_FILE" ]; then
+            echo "Copying source and applying patch..."
+            cp "$SRC_FILE" org/qtproject/qt5/android/bluetooth/
 
             # Remove the "return true; //rviola" line at line 1527
-            # and uncomment lines 1528-1558
-            sed -i '1527d' "$JAVA_FILE"
-            sed -i '1527,1558s|^/\*|  |g' "$JAVA_FILE"
-            sed -i '1527,1558s|\*/|  |g' "$JAVA_FILE"
+            sed -i '1527d' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
-            echo "Recompiling QtBluetoothLE.java..."
-            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" "$JAVA_FILE"
+            # Uncomment lines 1527-1557 (after deletion, original 1528-1558)
+            sed -i '1527s|^/\*||' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+            sed -i '1527,1557s|^        \*/|        |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+            sed -i '1557s|\*/|  |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+
+            echo "Compiling patched QtBluetoothLE.java..."
+            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
             if [ $? -eq 0 ]; then
               echo "Compilation successful, updating JAR..."
@@ -636,10 +635,13 @@ jobs:
               echo "QtBluetoothLE.jar patched successfully!"
             else
               echo "ERROR: Compilation failed!"
+              echo "First 100 lines of patched source:"
+              head -100 org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
               exit 1
             fi
           else
-            echo "WARNING: QtBluetoothLE.java not found in JAR, skipping patch"
+            echo "ERROR: Source file not found at $SRC_FILE"
+            exit 1
           fi
 
           cd ..
@@ -1678,30 +1680,29 @@ jobs:
 
       - name: Patch QtBluetoothLE executeReadJob
         run: |
-          # Fix Qt's executeReadJob bug by uncommenting the read implementation
+          # Fix Qt's executeReadJob bug by patching source and recompiling
           QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          SRC_FILE="${{ github.workspace }}/qt-patches/android/5.15.0/qtconnectivity/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
           WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
 
           echo "Creating work directory..."
-          mkdir -p "$WORK_DIR"
+          mkdir -p "$WORK_DIR/org/qtproject/qt5/android/bluetooth"
           cd "$WORK_DIR"
 
-          echo "Extracting QtAndroidBluetooth.jar..."
-          jar xf "$QT_BT_JAR"
-
-          JAVA_FILE="org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
-
-          if [ -f "$JAVA_FILE" ]; then
-            echo "Found $JAVA_FILE, applying patch..."
+          if [ -f "$SRC_FILE" ]; then
+            echo "Copying source and applying patch..."
+            cp "$SRC_FILE" org/qtproject/qt5/android/bluetooth/
 
             # Remove the "return true; //rviola" line at line 1527
-            # and uncomment lines 1528-1558
-            sed -i '1527d' "$JAVA_FILE"
-            sed -i '1527,1558s|^/\*|  |g' "$JAVA_FILE"
-            sed -i '1527,1558s|\*/|  |g' "$JAVA_FILE"
+            sed -i '1527d' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
-            echo "Recompiling QtBluetoothLE.java..."
-            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" "$JAVA_FILE"
+            # Uncomment lines 1527-1557 (after deletion, original 1528-1558)
+            sed -i '1527s|^/\*||' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+            sed -i '1527,1557s|^        \*/|        |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+            sed -i '1557s|\*/|  |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+
+            echo "Compiling patched QtBluetoothLE.java..."
+            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
             if [ $? -eq 0 ]; then
               echo "Compilation successful, updating JAR..."
@@ -1709,10 +1710,13 @@ jobs:
               echo "QtBluetoothLE.jar patched successfully!"
             else
               echo "ERROR: Compilation failed!"
+              echo "First 100 lines of patched source:"
+              head -100 org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
               exit 1
             fi
           else
-            echo "WARNING: QtBluetoothLE.java not found in JAR, skipping patch"
+            echo "ERROR: Source file not found at $SRC_FILE"
+            exit 1
           fi
 
           cd ..
@@ -1825,30 +1829,29 @@ jobs:
 
       - name: Patch QtBluetoothLE executeReadJob
         run: |
-          # Fix Qt's executeReadJob bug by uncommenting the read implementation
+          # Fix Qt's executeReadJob bug by patching source and recompiling
           QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          SRC_FILE="${{ github.workspace }}/qt-patches/android/5.15.0/qtconnectivity/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
           WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
 
           echo "Creating work directory..."
-          mkdir -p "$WORK_DIR"
+          mkdir -p "$WORK_DIR/org/qtproject/qt5/android/bluetooth"
           cd "$WORK_DIR"
 
-          echo "Extracting QtAndroidBluetooth.jar..."
-          jar xf "$QT_BT_JAR"
-
-          JAVA_FILE="org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
-
-          if [ -f "$JAVA_FILE" ]; then
-            echo "Found $JAVA_FILE, applying patch..."
+          if [ -f "$SRC_FILE" ]; then
+            echo "Copying source and applying patch..."
+            cp "$SRC_FILE" org/qtproject/qt5/android/bluetooth/
 
             # Remove the "return true; //rviola" line at line 1527
-            # and uncomment lines 1528-1558
-            sed -i '1527d' "$JAVA_FILE"
-            sed -i '1527,1558s|^/\*|  |g' "$JAVA_FILE"
-            sed -i '1527,1558s|\*/|  |g' "$JAVA_FILE"
+            sed -i '1527d' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
-            echo "Recompiling QtBluetoothLE.java..."
-            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" "$JAVA_FILE"
+            # Uncomment lines 1527-1557 (after deletion, original 1528-1558)
+            sed -i '1527s|^/\*||' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+            sed -i '1527,1557s|^        \*/|        |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+            sed -i '1557s|\*/|  |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+
+            echo "Compiling patched QtBluetoothLE.java..."
+            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
             if [ $? -eq 0 ]; then
               echo "Compilation successful, updating JAR..."
@@ -1856,10 +1859,13 @@ jobs:
               echo "QtBluetoothLE.jar patched successfully!"
             else
               echo "ERROR: Compilation failed!"
+              echo "First 100 lines of patched source:"
+              head -100 org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
               exit 1
             fi
           else
-            echo "WARNING: QtBluetoothLE.java not found in JAR, skipping patch"
+            echo "ERROR: Source file not found at $SRC_FILE"
+            exit 1
           fi
 
           cd ..
@@ -1970,30 +1976,29 @@ jobs:
 
       - name: Patch QtBluetoothLE executeReadJob
         run: |
-          # Fix Qt's executeReadJob bug by uncommenting the read implementation
+          # Fix Qt's executeReadJob bug by patching source and recompiling
           QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          SRC_FILE="${{ github.workspace }}/qt-patches/android/5.15.0/qtconnectivity/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
           WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
 
           echo "Creating work directory..."
-          mkdir -p "$WORK_DIR"
+          mkdir -p "$WORK_DIR/org/qtproject/qt5/android/bluetooth"
           cd "$WORK_DIR"
 
-          echo "Extracting QtAndroidBluetooth.jar..."
-          jar xf "$QT_BT_JAR"
-
-          JAVA_FILE="org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
-
-          if [ -f "$JAVA_FILE" ]; then
-            echo "Found $JAVA_FILE, applying patch..."
+          if [ -f "$SRC_FILE" ]; then
+            echo "Copying source and applying patch..."
+            cp "$SRC_FILE" org/qtproject/qt5/android/bluetooth/
 
             # Remove the "return true; //rviola" line at line 1527
-            # and uncomment lines 1528-1558
-            sed -i '1527d' "$JAVA_FILE"
-            sed -i '1527,1558s|^/\*|  |g' "$JAVA_FILE"
-            sed -i '1527,1558s|\*/|  |g' "$JAVA_FILE"
+            sed -i '1527d' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
-            echo "Recompiling QtBluetoothLE.java..."
-            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" "$JAVA_FILE"
+            # Uncomment lines 1527-1557 (after deletion, original 1528-1558)
+            sed -i '1527s|^/\*||' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+            sed -i '1527,1557s|^        \*/|        |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+            sed -i '1557s|\*/|  |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
+
+            echo "Compiling patched QtBluetoothLE.java..."
+            javac -source 1.8 -target 1.8 -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
 
             if [ $? -eq 0 ]; then
               echo "Compilation successful, updating JAR..."
@@ -2001,10 +2006,13 @@ jobs:
               echo "QtBluetoothLE.jar patched successfully!"
             else
               echo "ERROR: Compilation failed!"
+              echo "First 100 lines of patched source:"
+              head -100 org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
               exit 1
             fi
           else
-            echo "WARNING: QtBluetoothLE.java not found in JAR, skipping patch"
+            echo "ERROR: Source file not found at $SRC_FILE"
+            exit 1
           fi
 
           cd ..
