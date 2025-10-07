@@ -1524,8 +1524,7 @@ public class QtBluetoothLE {
     // Returns true if nextJob should be skipped.
     private boolean executeReadJob(ReadWriteJob nextJob)
     {
-	return true; //rviola
-/*
+
         boolean result;
         switch (nextJob.entry.type) {
             case Characteristic:
@@ -1555,7 +1554,7 @@ public class QtBluetoothLE {
             case CharacteristicValue:
                 return true; //skip
         }
-        return false;*/
+        return false;  
     }
 
     /*
