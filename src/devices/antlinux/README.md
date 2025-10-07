@@ -10,14 +10,13 @@ This will not work with pre-built QZ packages, you need the source code to compi
 
 ### Tested Environment and compilation
 
-This guide has been tested with:
-- Cross compiled running on x86_64
-- qdomyos-zwift binary running on a Raspberry Pi Zero 2 W
-- Raspberry Pi OS (64-bit, Bookworm)
-- ANT+ Dongle: Garmin ANT+ USB-m
-- ANT+ Compatible Device: Garmin Forerunner 245
+This guide has been tested using:
+- qdomyos-zwift running on Raspberry Pi Zero 2 W (Raspbian Bookworm)
+- Garmin ANT+ USB-m Dongle
+- Garmin Forerunner 245 Watch
+- Proform 705 CST treadmill
 
-Please note a Raspberry Pi 4 (with 4GB or 8GB of RAM) or a Raspberry Pi 5 would be a recommendation to compile this project. The Pi Zero 2 W is a great device for its size and is capable of running the compiled qdomyos-zwift binary. However, it's not designed for heavy software compilation.
+Please note a Raspberry Pi 4 (with 4GB or 8GB of RAM) or a Raspberry Pi 5 would be recommended to compile this project. The Pi Zero 2 W is a great device and capable of running the qdomyos-zwift binary. However, it's not designed for heavy software compilation.
 
 ### ANT+ Requirements
 
@@ -26,7 +25,7 @@ To add ANT+ support, you will need an ANT+ USB dongle. Common models include:
 - Garmin ANT+ USB-m (0fcf:1009)
 - Wahoo ANT+ USB (11fd:0001)
 
-An ANT+ compatible device like a Garmin fitness watch or other compatible device.
+A compatible device like a Garmin fitness watch or other similar ANT+ device.
 
 ### Backup Recommendation
 
