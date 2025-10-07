@@ -605,49 +605,8 @@ jobs:
 
       - name: Patch QtBluetoothLE executeReadJob
         run: |
-          # Fix Qt's executeReadJob bug by patching source and recompiling
-          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
-          SRC_FILE="${{ github.workspace }}/qt-patches/android/5.15.0/qtconnectivity/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
-          WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
-          ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
-          ANDROID_JAR="${ANDROID_SDK_ROOT}/platforms/android-31/android.jar"
-
-          echo "Creating work directory..."
-          mkdir -p "$WORK_DIR/org/qtproject/qt5/android/bluetooth"
-          cd "$WORK_DIR"
-
-          if [ -f "$SRC_FILE" ]; then
-            echo "Copying source and applying patch..."
-            cp "$SRC_FILE" org/qtproject/qt5/android/bluetooth/
-
-            # Remove the "return true; //rviola" line at line 1527
-            sed -i '1527d' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-
-            # Uncomment lines 1527-1557 (after deletion, original 1528-1558)
-            sed -i '1527s|^/\*||' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-            sed -i '1527,1557s|^        \*/|        |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-            sed -i '1557s|\*/|  |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-
-            echo "Compiling patched QtBluetoothLE.java with Android SDK..."
-            javac -source 1.8 -target 1.8 -bootclasspath "$ANDROID_JAR" -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-
-            if [ $? -eq 0 ]; then
-              echo "Compilation successful, updating JAR..."
-              jar uf "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.class
-              echo "QtBluetoothLE.jar patched successfully!"
-            else
-              echo "ERROR: Compilation failed!"
-              echo "First 100 lines of patched source:"
-              head -100 org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-              exit 1
-            fi
-          else
-            echo "ERROR: Source file not found at $SRC_FILE"
-            exit 1
-          fi
-
-          cd ..
-          rm -rf "$WORK_DIR"
+          # Fix Qt's executeReadJob bug - just copy pre-patched JAR
+          echo "Using pre-patched QtAndroidBluetooth.jar from qt-patches (no compilation needed)"
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
@@ -1682,49 +1641,8 @@ jobs:
 
       - name: Patch QtBluetoothLE executeReadJob
         run: |
-          # Fix Qt's executeReadJob bug by patching source and recompiling
-          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
-          SRC_FILE="${{ github.workspace }}/qt-patches/android/5.15.0/qtconnectivity/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
-          WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
-          ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
-          ANDROID_JAR="${ANDROID_SDK_ROOT}/platforms/android-31/android.jar"
-
-          echo "Creating work directory..."
-          mkdir -p "$WORK_DIR/org/qtproject/qt5/android/bluetooth"
-          cd "$WORK_DIR"
-
-          if [ -f "$SRC_FILE" ]; then
-            echo "Copying source and applying patch..."
-            cp "$SRC_FILE" org/qtproject/qt5/android/bluetooth/
-
-            # Remove the "return true; //rviola" line at line 1527
-            sed -i '1527d' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-
-            # Uncomment lines 1527-1557 (after deletion, original 1528-1558)
-            sed -i '1527s|^/\*||' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-            sed -i '1527,1557s|^        \*/|        |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-            sed -i '1557s|\*/|  |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-
-            echo "Compiling patched QtBluetoothLE.java with Android SDK..."
-            javac -source 1.8 -target 1.8 -bootclasspath "$ANDROID_JAR" -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-
-            if [ $? -eq 0 ]; then
-              echo "Compilation successful, updating JAR..."
-              jar uf "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.class
-              echo "QtBluetoothLE.jar patched successfully!"
-            else
-              echo "ERROR: Compilation failed!"
-              echo "First 100 lines of patched source:"
-              head -100 org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-              exit 1
-            fi
-          else
-            echo "ERROR: Source file not found at $SRC_FILE"
-            exit 1
-          fi
-
-          cd ..
-          rm -rf "$WORK_DIR"
+          # Fix Qt's executeReadJob bug - just copy pre-patched JAR
+          echo "Using pre-patched QtAndroidBluetooth.jar from qt-patches (no compilation needed)"
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
@@ -1833,49 +1751,8 @@ jobs:
 
       - name: Patch QtBluetoothLE executeReadJob
         run: |
-          # Fix Qt's executeReadJob bug by patching source and recompiling
-          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
-          SRC_FILE="${{ github.workspace }}/qt-patches/android/5.15.0/qtconnectivity/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
-          WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
-          ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
-          ANDROID_JAR="${ANDROID_SDK_ROOT}/platforms/android-31/android.jar"
-
-          echo "Creating work directory..."
-          mkdir -p "$WORK_DIR/org/qtproject/qt5/android/bluetooth"
-          cd "$WORK_DIR"
-
-          if [ -f "$SRC_FILE" ]; then
-            echo "Copying source and applying patch..."
-            cp "$SRC_FILE" org/qtproject/qt5/android/bluetooth/
-
-            # Remove the "return true; //rviola" line at line 1527
-            sed -i '1527d' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-
-            # Uncomment lines 1527-1557 (after deletion, original 1528-1558)
-            sed -i '1527s|^/\*||' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-            sed -i '1527,1557s|^        \*/|        |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-            sed -i '1557s|\*/|  |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-
-            echo "Compiling patched QtBluetoothLE.java with Android SDK..."
-            javac -source 1.8 -target 1.8 -bootclasspath "$ANDROID_JAR" -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-
-            if [ $? -eq 0 ]; then
-              echo "Compilation successful, updating JAR..."
-              jar uf "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.class
-              echo "QtBluetoothLE.jar patched successfully!"
-            else
-              echo "ERROR: Compilation failed!"
-              echo "First 100 lines of patched source:"
-              head -100 org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-              exit 1
-            fi
-          else
-            echo "ERROR: Source file not found at $SRC_FILE"
-            exit 1
-          fi
-
-          cd ..
-          rm -rf "$WORK_DIR"
+          # Fix Qt's executeReadJob bug - just copy pre-patched JAR
+          echo "Using pre-patched QtAndroidBluetooth.jar from qt-patches (no compilation needed)"
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
@@ -1982,49 +1859,8 @@ jobs:
 
       - name: Patch QtBluetoothLE executeReadJob
         run: |
-          # Fix Qt's executeReadJob bug by patching source and recompiling
-          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
-          SRC_FILE="${{ github.workspace }}/qt-patches/android/5.15.0/qtconnectivity/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java"
-          WORK_DIR="${{ github.workspace }}/qt-bluetooth-patch-temp"
-          ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
-          ANDROID_JAR="${ANDROID_SDK_ROOT}/platforms/android-31/android.jar"
-
-          echo "Creating work directory..."
-          mkdir -p "$WORK_DIR/org/qtproject/qt5/android/bluetooth"
-          cd "$WORK_DIR"
-
-          if [ -f "$SRC_FILE" ]; then
-            echo "Copying source and applying patch..."
-            cp "$SRC_FILE" org/qtproject/qt5/android/bluetooth/
-
-            # Remove the "return true; //rviola" line at line 1527
-            sed -i '1527d' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-
-            # Uncomment lines 1527-1557 (after deletion, original 1528-1558)
-            sed -i '1527s|^/\*||' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-            sed -i '1527,1557s|^        \*/|        |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-            sed -i '1557s|\*/|  |' org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-
-            echo "Compiling patched QtBluetoothLE.java with Android SDK..."
-            javac -source 1.8 -target 1.8 -bootclasspath "$ANDROID_JAR" -cp "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-
-            if [ $? -eq 0 ]; then
-              echo "Compilation successful, updating JAR..."
-              jar uf "$QT_BT_JAR" org/qtproject/qt5/android/bluetooth/QtBluetoothLE.class
-              echo "QtBluetoothLE.jar patched successfully!"
-            else
-              echo "ERROR: Compilation failed!"
-              echo "First 100 lines of patched source:"
-              head -100 org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java
-              exit 1
-            fi
-          else
-            echo "ERROR: Source file not found at $SRC_FILE"
-            exit 1
-          fi
-
-          cd ..
-          rm -rf "$WORK_DIR"
+          # Fix Qt's executeReadJob bug - just copy pre-patched JAR
+          echo "Using pre-patched QtAndroidBluetooth.jar from qt-patches (no compilation needed)"
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
