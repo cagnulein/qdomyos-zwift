@@ -76,6 +76,7 @@ public class QtBluetoothLE {
     private boolean mLeScanRunning = false;
 
     private BluetoothGatt mBluetoothGatt = null;
+    private static QtBluetoothLE sConnectedInstance = null; // For Kettler direct read access
     private HandlerThread mHandlerThread = null;
     private Handler mHandler = null;
     private Constructor mCharacteristicConstructor = null;
@@ -663,6 +664,11 @@ public class QtBluetoothLE {
                 // fallback to less reliable API 18 version
                 mBluetoothGatt = mRemoteGattDevice.connectGatt(qtContext, false, gattCallback);
             }
+        }
+
+        // Save instance for Kettler direct read access
+        if (mBluetoothGatt != null) {
+            sConnectedInstance = this;
         }
 
         return mBluetoothGatt != null;
@@ -1524,7 +1530,8 @@ public class QtBluetoothLE {
     // Returns true if nextJob should be skipped.
     private boolean executeReadJob(ReadWriteJob nextJob)
     {
-
+	return true; //rviola
+/*
         boolean result;
         switch (nextJob.entry.type) {
             case Characteristic:
@@ -1554,7 +1561,49 @@ public class QtBluetoothLE {
             case CharacteristicValue:
                 return true; //skip
         }
-        return false;  
+        return false;*/
+    }
+
+    // Custom method for direct characteristic read (for Kettler Racer S)
+    // This bypasses Qt's job queue and directly calls BluetoothGatt.readCharacteristic()
+    public boolean readCharacteristicDirectly(String serviceUuid, String characteristicUuid) {
+        if (mBluetoothGatt == null) {
+            android.util.Log.w("QtBluetoothGatt", "readCharacteristicDirectly: mBluetoothGatt is null");
+            return false;
+        }
+
+        try {
+            java.util.UUID svcUUID = java.util.UUID.fromString(serviceUuid);
+            java.util.UUID charUUID = java.util.UUID.fromString(characteristicUuid);
+
+            android.bluetooth.BluetoothGattService service = mBluetoothGatt.getService(svcUUID);
+            if (service == null) {
+                android.util.Log.w("QtBluetoothGatt", "readCharacteristicDirectly: service not found");
+                return false;
+            }
+
+            android.bluetooth.BluetoothGattCharacteristic characteristic = service.getCharacteristic(charUUID);
+            if (characteristic == null) {
+                android.util.Log.w("QtBluetoothGatt", "readCharacteristicDirectly: characteristic not found");
+                return false;
+            }
+
+            boolean result = mBluetoothGatt.readCharacteristic(characteristic);
+            android.util.Log.d("QtBluetoothGatt", "readCharacteristicDirectly: result=" + result);
+            return result;
+        } catch (Exception e) {
+            android.util.Log.e("QtBluetoothGatt", "readCharacteristicDirectly: exception", e);
+            return false;
+        }
+    }
+
+    // Static wrapper for calling readCharacteristicDirectly on the connected instance
+    public static boolean readCharacteristicDirectlyStatic(String serviceUuid, String characteristicUuid) {
+        if (sConnectedInstance == null) {
+            android.util.Log.w("QtBluetoothGatt", "readCharacteristicDirectlyStatic: no connected instance");
+            return false;
+        }
+        return sConnectedInstance.readCharacteristicDirectly(serviceUuid, characteristicUuid);
     }
 
     /*

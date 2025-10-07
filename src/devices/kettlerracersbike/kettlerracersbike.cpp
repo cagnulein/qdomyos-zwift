@@ -12,6 +12,7 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
+#include <QAndroidJniObject>
 #endif
 #include "homeform.h"
 
@@ -377,8 +378,25 @@ void kettlerracersbike::requestHandshakeSeed()
     }
 
     qDebug() << QStringLiteral("reading Kettler handshake seed - characteristic properties:") << gattKeyReadCharKettlerId.properties();
+
+#ifdef Q_OS_ANDROID
+    // On Android, use direct Java call to bypass Qt's buggy executeReadJob
+    QString serviceUuid = QStringLiteral("638a1100-7bde-3e25-ffc5-9de9b2a0197a");
+    QString charUuid = QStringLiteral("638a1105-7bde-3e25-ffc5-9de9b2a0197a");
+
+    bool result = QAndroidJniObject::callStaticMethod<jboolean>(
+        "org/qtproject/qt5/android/bluetooth/QtBluetoothLE",
+        "readCharacteristicDirectlyStatic",
+        "(Ljava/lang/String;Ljava/lang/String;)Z",
+        QAndroidJniObject::fromString(serviceUuid).object<jstring>(),
+        QAndroidJniObject::fromString(charUuid).object<jstring>()
+    );
+
+    qDebug() << QStringLiteral("Kettler :: readCharacteristicDirectlyStatic result:") << result;
+#else
     gattKettlerService->readCharacteristic(gattKeyReadCharKettlerId);
     qDebug() << QStringLiteral("Kettler :: readCharacteristic call successful, waiting for response...");
+#endif
 }
 
 void kettlerracersbike::subscribeKettlerNotifications()
