@@ -257,6 +257,45 @@ void kettlerracersbike::characteristicWritten(const QLowEnergyCharacteristic &ch
             primedNotifyStart = true;
         }
 
+        // Now discover CSC service after handshake is complete
+        if (gattCSCService && gattCSCService->state() != QLowEnergyService::ServiceDiscovered) {
+            emit debug(QStringLiteral("Discovering CSC service details after handshake..."));
+            gattCSCService->discoverDetails();
+        }
+
+        // Create virtual bike interface after handshake
+        if (!firstStateChanged && !this->hasVirtualDevice()
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            && !h
+#endif
+#endif
+        ) {
+            QSettings settings;
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+            if (ios_peloton_workaround && cadence) {
+                qDebug() << "ios_peloton_workaround activated!";
+                h = new lockscreen();
+                h->virtualbike_ios();
+            } else
+#endif
+#endif
+            if (virtual_device_enabled) {
+                emit debug(QStringLiteral("creating virtual bike interface..."));
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, 4, 1);
+                connect(virtualBike, &virtualbike::changeInclination, this, &kettlerracersbike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+            }
+        }
+        firstStateChanged = 1;
+        initDone = true;
+
         // Notify the stack/UI that we are ready
         initRequest = true;
         emit connectedAndDiscovered();
@@ -435,15 +474,8 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
             qDebug() << QStringLiteral("gattKeyWriteCharKettlerId valid, properties:") << gattKeyWriteCharKettlerId.properties();
         }
 
-        // Now that Kettler service is discovered, discover CSC service details
-        // This serializes GATT operations to avoid conflicts on Android
-        if (gattCSCService && gattCSCService->state() != QLowEnergyService::ServiceDiscovered) {
-            emit debug(QStringLiteral("Discovering CSC service details..."));
-            gattCSCService->discoverDetails();
-        }
-
-        // Request handshake seed with a delay to avoid GATT operation conflicts
-        // Similar to Java implementation which uses 1000ms delay
+        // Request handshake seed FIRST before any other operations
+        // CSC service discovery and virtual bike creation will happen AFTER handshake
         QTimer::singleShot(500, this, [this]() {
             if (!handshakeRequested && !handshakeDone) {
                 requestHandshakeSeed();
@@ -467,42 +499,8 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
 
         // CSC notifications will be enabled after handshake completion in subscribeKettlerNotifications()
     }
-    if (state == QLowEnergyService::ServiceDiscovered) {
-        // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !this->hasVirtualDevice()
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            && !h
-#endif
-#endif
-        ) {
-            QSettings settings;
-            bool virtual_device_enabled =
-                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-            bool ios_peloton_workaround =
-                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-            if (ios_peloton_workaround && cadence) {
-                qDebug() << "ios_peloton_workaround activated!";
-                h = new lockscreen();
-                h->virtualbike_ios();
-            } else
-#endif
-#endif
-            if (virtual_device_enabled) {
-                emit debug(QStringLiteral("creating virtual bike interface..."));
-                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, 4, 1);
-                connect(virtualBike, &virtualbike::changeInclination, this, &kettlerracersbike::changeInclination);
-                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
-            }
-        }
-        firstStateChanged = 1;
-        // ***************************************************************************************************
 
-        initDone = true;
-    }
+    // Virtual bike creation and CSC discovery moved to characteristicWritten after handshake completion
 }
 
 void kettlerracersbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
