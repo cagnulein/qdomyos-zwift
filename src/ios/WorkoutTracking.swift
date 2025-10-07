@@ -38,9 +38,13 @@ protocol WorkoutTrackingProtocol {
     let configuration = HKWorkoutConfiguration()
     var workoutBuilder: HKWorkoutBuilder!
     var workoutInProgress: Bool = false
-    
+    private var heartRateQuery: HKAnchoredObjectQuery?
+    private var heartRateQueryAnchor: HKQueryAnchor?
+    private let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
+    private let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)
+
     weak var delegate: WorkoutTrackingDelegate?
-    
+
     override init() {
         super.init()
     }        
@@ -71,6 +75,61 @@ extension WorkoutTracking {
             workoutBuilder = try HKWorkoutBuilder(healthStore: healthStore, configuration: configuration, device: .local())
         } catch {
             return
+        }
+    }
+
+    private func startHeartRateStreamingQuery() {
+        guard heartRateQuery == nil else { return }
+        guard HKHealthStore.isHealthDataAvailable() else {
+            SwiftDebug.qtDebug("WorkoutTracking: Health data unavailable for heart rate query")
+            return
+        }
+        guard let heartRateType = heartRateType else {
+            SwiftDebug.qtDebug("WorkoutTracking: Heart rate type unavailable")
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: Date(), end: nil, options: .strictStartDate)
+        let query = HKAnchoredObjectQuery(type: heartRateType, predicate: predicate, anchor: heartRateQueryAnchor, limit: HKObjectQueryNoLimit) { [weak self] _, samples, _, newAnchor, error in
+            self?.handleHeartRateSamples(samples, error: error)
+            self?.heartRateQueryAnchor = newAnchor
+        }
+
+        query.updateHandler = { [weak self] _, samples, _, newAnchor, error in
+            self?.handleHeartRateSamples(samples, error: error)
+            self?.heartRateQueryAnchor = newAnchor
+        }
+
+        heartRateQuery = query
+        healthStore.execute(query)
+    }
+
+    private func stopHeartRateStreamingQuery() {
+        if let query = heartRateQuery {
+            healthStore.stop(query)
+        }
+        heartRateQuery = nil
+        heartRateQueryAnchor = nil
+    }
+
+    private func handleHeartRateSamples(_ samples: [HKSample]?, error: Error?) {
+        if let error = error {
+            SwiftDebug.qtDebug("WorkoutTracking: Heart rate query error " + error.localizedDescription)
+            return
+        }
+
+        guard
+            let quantitySamples = samples as? [HKQuantitySample],
+            let latestSample = quantitySamples.last
+        else {
+            return
+        }
+
+        let bpm = latestSample.quantity.doubleValue(for: heartRateUnit)
+
+        DispatchQueue.main.async {
+            WatchKitConnection.currentHeartRate = Int(round(bpm))
+            self.delegate?.didReceiveHealthKitHeartRate(bpm)
         }
     }
 }
@@ -151,6 +210,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         SwiftDebug.qtDebug("WorkoutTracking: Start workout")
         setSport(Int(deviceType))
         configWorkout()
+        startHeartRateStreamingQuery()
         workoutBuilder.beginCollection(withStart: Date()) { (success, error) in
             SwiftDebug.qtDebug(success.description)
             if let error = error {
@@ -158,10 +218,12 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             }
         }
     }
-    
+
     @objc func stopWorkOut() {
         SwiftDebug.qtDebug("WorkoutTracking: Stop workout")
-        
+
+        stopHeartRateStreamingQuery()
+
         guard let workoutBuilder = self.workoutBuilder,
               let startDate = workoutBuilder.startDate else {
             SwiftDebug.qtDebug("WorkoutTracking: Cannot stop workout - no workout builder or start date available")
