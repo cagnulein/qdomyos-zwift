@@ -16,13 +16,10 @@ using namespace std::chrono_literals;
 
 deerruntreadmill::deerruntreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
                                    double forceInitInclination) {
-    QSettings settings;
     m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;
-
-    superun_ba04 = settings.value(QZSettings::superun_ba04, QZSettings::default_superun_ba04).toBool();
 
     if (forceInitSpeed > 0) {
         lastSpeed = forceInitSpeed;
@@ -441,6 +438,8 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattNotifyCharacteristicId((quint16)0xfff2);
     QBluetoothUuid _pitpatWriteCharacteristicId((quint16)0xfba1);
     QBluetoothUuid _pitpatNotifyCharacteristicId((quint16)0xfba2);
+    QBluetoothUuid _superunWriteCharacteristicId((quint16)0xff01);
+    QBluetoothUuid _superunNotifyCharacteristicId((quint16)0xff02);
     QBluetoothUuid _unlockCharacteristicId((quint16)0x2b2a);
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
@@ -455,7 +454,7 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 qDebug() << QStringLiteral("unlock char uuid") << c.uuid() << QStringLiteral("handle") << c.handle()
                          << c.properties();
             }
-            
+
             unlock_characteristic = unlock_service->characteristic(_unlockCharacteristicId);
             if (unlock_characteristic.isValid()) {
                 emit debug(QStringLiteral("unlock characteristic found"));
@@ -473,6 +472,9 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         if (pitpat) {
             gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_pitpatWriteCharacteristicId);
             gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_pitpatNotifyCharacteristicId);
+        } else if (superun_ba04) {
+            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_superunWriteCharacteristicId);
+            gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_superunNotifyCharacteristicId);
         } else {
             gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
             gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
@@ -516,6 +518,7 @@ void deerruntreadmill::characteristicWritten(const QLowEnergyCharacteristic &cha
 void deerruntreadmill::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xfff0);
     QBluetoothUuid _pitpatServiceId((quint16)0xfba0);
+    QBluetoothUuid _superunServiceId((quint16)0xffff);
     QBluetoothUuid _unlockServiceId((quint16)0x1801);
     emit debug(QStringLiteral("serviceScanDone"));
 
@@ -531,6 +534,11 @@ void deerruntreadmill::serviceScanDone(void) {
         emit debug(QStringLiteral("Detected pitpat treadmill variant"));
         gattCommunicationChannelService = m_control->createServiceObject(_pitpatServiceId);
         unlock_service = m_control->createServiceObject(_unlockServiceId);
+    } else if (services_list.contains(_superunServiceId)) {
+        superun_ba04 = true;
+        pitpat = false;
+        emit debug(QStringLiteral("Detected Superun BA04 treadmill variant"));
+        gattCommunicationChannelService = m_control->createServiceObject(_superunServiceId);
     } else {
         pitpat = false;
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);

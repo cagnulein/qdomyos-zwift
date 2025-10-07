@@ -1208,7 +1208,6 @@ import Qt.labs.platform 1.1
             property bool taurua_ic90: false
             property bool proform_csx210: false
             property bool confirm_stop_workout: false
-            property bool superun_ba04: false
         }
 
 
@@ -8547,31 +8546,6 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.horizon_treadmill_force_ftms = checked; window.settings_restart_to_apply = true; }
-                            }
-                        }
-                    }
-
-                    AccordionElement {
-                        id: pitpatDeerrunTreadmillAccordion
-                        title: qsTr("PitPat/Deerrun Treadmill Options")
-                        indicatRectColor: Material.color(Material.Grey)
-                        textColor: Material.color(Material.Yellow)
-                        color: Material.backgroundColor
-                        accordionContent: ColumnLayout {
-                            spacing: 0
-                            IndicatorOnlySwitch {
-                                id: superunBA04Delegate
-                                text: qsTr("Superun BA04")
-                                spacing: 0
-                                bottomPadding: 0
-                                topPadding: 0
-                                rightPadding: 0
-                                leftPadding: 0
-                                clip: false
-                                checked: settings.superun_ba04
-                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                Layout.fillWidth: true
-                                onClicked: { settings.superun_ba04 = checked; window.settings_restart_to_apply = true; }
                             }
                         }
                     }
