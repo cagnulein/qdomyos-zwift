@@ -13,6 +13,7 @@
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #include <QAndroidJniObject>
+#include <QAndroidJniEnvironment>
 #endif
 #include "homeform.h"
 
@@ -384,6 +385,9 @@ void kettlerracersbike::requestHandshakeSeed()
     QString serviceUuid = QStringLiteral("638a1100-7bde-3e25-ffc5-9de9b2a0197a");
     QString charUuid = QStringLiteral("638a1105-7bde-3e25-ffc5-9de9b2a0197a");
 
+    qDebug() << QStringLiteral("Kettler :: Calling readCharacteristicDirectlyStatic with service:") << serviceUuid << " char:" << charUuid;
+
+    QAndroidJniEnvironment env;
     bool result = QAndroidJniObject::callStaticMethod<jboolean>(
         "org/qtproject/qt5/android/bluetooth/QtBluetoothLE",
         "readCharacteristicDirectlyStatic",
@@ -391,6 +395,13 @@ void kettlerracersbike::requestHandshakeSeed()
         QAndroidJniObject::fromString(serviceUuid).object<jstring>(),
         QAndroidJniObject::fromString(charUuid).object<jstring>()
     );
+
+    if (env->ExceptionCheck()) {
+        qDebug() << QStringLiteral("Kettler :: JNI Exception occurred!");
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+        result = false;
+    }
 
     qDebug() << QStringLiteral("Kettler :: readCharacteristicDirectlyStatic result:") << result;
 #else
