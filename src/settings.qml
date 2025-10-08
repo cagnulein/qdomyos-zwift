@@ -3282,7 +3282,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the bluetooth name of your bike.")
+                        text: qsTr("If you have a generic FTMS bike and the tile doesn't appear on the main QZ screen, select here the bluetooth name of your bike.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
