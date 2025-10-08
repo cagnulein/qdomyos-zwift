@@ -382,7 +382,7 @@ void kettlerracersbike::requestHandshakeSeed()
 
 #ifdef Q_OS_ANDROID
     // On Android, use direct Java call to bypass Qt's buggy executeReadJob
-    QString serviceUuid = QStringLiteral("638a1100-7bde-3e25-ffc5-9de9b2a0197a");
+    QString serviceUuid = QStringLiteral("638af000-7bde-3e25-ffc5-9de9b2a0197a");
     QString charUuid = QStringLiteral("638a1105-7bde-3e25-ffc5-9de9b2a0197a");
 
     qDebug() << QStringLiteral("Kettler :: Calling readCharacteristicDirectlyStatic with service:") << serviceUuid << " char:" << charUuid;
