@@ -163,6 +163,8 @@ void trxappgateusbrower::characteristicChanged(const QLowEnergyCharacteristic &c
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
     double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
+    bool heart_ignore_builtin = settings.value(QZSettings::heart_ignore_builtin,
+                                                QZSettings::default_heart_ignore_builtin).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -173,6 +175,8 @@ void trxappgateusbrower::characteristicChanged(const QLowEnergyCharacteristic &c
     }
 
     // Parse data based on device type
+    uint8_t deviceHeartRate = 0;  // Used for Mearch NovaRow R50
+
     if (mearch_novarow_r50) {
         // Mearch NovaRow R50 data format parsing
         // elapsedSecond = (values[4] - 1) * 60 + values[5] - 1
@@ -191,7 +195,13 @@ void trxappgateusbrower::characteristicChanged(const QLowEnergyCharacteristic &c
         KCal = (newValue.at(12) - 1) * 99 + (newValue.at(13) - 1);
 
         // heartbeat = (values[14] - 1) * 99 + (values[15] - 1)
-        // Heart rate handled below
+        deviceHeartRate = (newValue.at(14) - 1) * 99 + (newValue.at(15) - 1);
+
+        // Use device heart rate only if it's valid (> 0) and not ignoring builtin
+        if (!heart_ignore_builtin && deviceHeartRate > 0) {
+            Heart = deviceHeartRate;
+        }
+        // Otherwise, external heart rate will be handled below
 
         // power = (values[16] - 1) * 99 + (values[17] - 1)
         m_watt = (newValue.at(16) - 1) * 99 + (newValue.at(17) - 1);
@@ -228,7 +238,11 @@ void trxappgateusbrower::characteristicChanged(const QLowEnergyCharacteristic &c
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            update_hr_from_external();
+            // Update from external sources only if device HR is 0 or ignoring builtin
+            if (deviceHeartRate == 0 || heart_ignore_builtin) {
+                update_hr_from_external();
+            }
+            // If deviceHeartRate > 0 and not ignoring builtin, Heart was already set above in parsing section
         }
     }
 
