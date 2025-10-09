@@ -48,6 +48,17 @@ struct PythonLogger {
     void flush() {}
 };
 
+int estimateCadence(double speed_kmh) {
+    if (speed_kmh < 5.0) { // Walking pace
+        return static_cast<int>(speed_kmh * 15.0 + 45.0); // Simple linear scale for walking
+    }
+    // Running pace
+    // Formula: y = 5x + 110, where x is speed in km/h
+    int cadence = static_cast<int>(speed_kmh * 5.0 + 110.0);
+    // Cap at a reasonable maximum, e.g., 200 SPM
+    return std::min(cadence, 200);
+}
+
 // This helper function finds the site-packages directory of the user's venv,
 // correctly handling the environment when run with `sudo`.
 QString findVenvSitePackages() {
@@ -213,17 +224,21 @@ void AntWorker::doWork() {
     }
 
     double speed_kmh = 0.0;
+    int estimated_cadence = 0;
     if (m_device && m_device->connected()) {
         speed_kmh = m_device->currentSpeed().value();
         if (m_connectionTimer.elapsed() < 10000) { speed_kmh = 0.0; }
         if (!std::isfinite(speed_kmh) || speed_kmh < 0) { speed_kmh = 0.0; }
+        if (speed_kmh > 0.5) { // Only calculate if moving
+            estimated_cadence = estimateCadence(speed_kmh);
+        }
     } else {
         m_connectionTimer.restart();
     }
 
     try {
         py::gil_scoped_acquire gil;
-        m_pyBroadcaster->attr("send_ant_data")(speed_kmh / 3.6);
+        m_pyBroadcaster->attr("send_ant_data")(speed_kmh / 3.6, estimated_cadence);
     } catch (const py::error_already_set& e) {
         qCritical() << "[ANT+] Python exception in doWork:" << e.what();
         stop(); // Stop broadcasting on error

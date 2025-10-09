@@ -93,6 +93,8 @@ class AntBroadcaster:
         self._running = threading.Event()
         self._data_lock = threading.Lock()
         self._speed_mps = 0.0
+        self._cadence_spm = 0.0
+        self._stride_accumulator = 0.0        
         self._total_time = 0.0
         self._stride_count = 0
         self._last_tick = 0.0
@@ -109,9 +111,20 @@ class AntBroadcaster:
             dt = now - self._last_tick
             self._last_tick = now
             self._total_time += dt
-            
+
             with self._data_lock:
                 current_speed = self._speed_mps
+
+            # Calculate how many strides should have occurred in the last time slice (dt).
+            strides_this_tick = (current_cadence / 60.0) * dt
+            self._stride_accumulator += strides_this_tick
+
+            # If the accumulator has passed a whole number, increment the stride count
+            # and subtract the whole number from the accumulator.
+            if self._stride_accumulator >= 1.0:
+                num_strides = int(self._stride_accumulator)
+                self._stride_count = (self._stride_count + num_strides) & 0xFF
+                self._stride_accumulator -= num_strides
 
             if current_speed > 0.1:
                 self._stride_count = (self._stride_count + 1) & 0xFF
@@ -220,6 +233,7 @@ class AntBroadcaster:
         self._thread = None
         log.info("ANT+ broadcaster stopped and resources released.")
 
-    def send_ant_data(self, speed_mps: float):
+    def send_ant_data(self, speed_mps: float, cadence_spm: int):
         with self._data_lock:
             self._speed_mps = speed_mps
+            self._cadence_spm = cadence_spm
