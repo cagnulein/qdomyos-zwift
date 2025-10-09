@@ -135,6 +135,7 @@ void kettlerracersbike::controllerStateChanged(QLowEnergyController::ControllerS
         handshakeDone = false;
         notificationsSubscribed = false;
         kettlerServiceReady = false;
+        connectedAndDiscoveredEmitted = false;
         m_control->connectToDevice();
     }
 }
@@ -214,6 +215,13 @@ void kettlerracersbike::serviceScanDone(void) {
         connect(gattCSCService, &QLowEnergyService::stateChanged, this, &kettlerracersbike::stateChanged);
         // Don't call discoverDetails() here - will be called after Kettler service is ready
     }
+
+    // Prepare Cycling Power service (0x1818) if present; discover after handshake
+    QBluetoothUuid powerServiceUuid(QStringLiteral("00001818-0000-1000-8000-00805f9b34fb"));
+    gattPowerService = m_control->createServiceObject(powerServiceUuid);
+    if (gattPowerService != nullptr) {
+        connect(gattPowerService, &QLowEnergyService::stateChanged, this, &kettlerracersbike::stateChanged);
+    }
 }
 
 void kettlerracersbike::error(QLowEnergyController::Error err) {
@@ -246,23 +254,18 @@ void kettlerracersbike::characteristicWritten(const QLowEnergyCharacteristic &ch
 
     // Check if this is the handshake write confirmation
     if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1105-7bde-3e25-ffc5-9de9b2a0197a"))) {
-        emit debug(QStringLiteral("Kettler :: Handshake write confirmed, enabling notifications"));
+        emit debug(QStringLiteral("Kettler :: Handshake write confirmed"));
         handshakeDone = true;
 
-        // Now subscribe to notifications
-        subscribeKettlerNotifications();
-
-        // Prime notifications with 00 00 write (some Kettler firmware needs this)
-        if (!primedNotifyStart && gattWriteCharKettlerId.isValid()) {
-            uint8_t zero[2] = {0x00, 0x00};
-            writeCharacteristic(zero, sizeof(zero), QStringLiteral("prime notifications"), false, false);
-            primedNotifyStart = true;
-        }
-
-        // Now discover CSC service after handshake is complete
+        // After handshake is complete, discover additional services first,
+        // then enable notifications to avoid CCC writes before discovery completes.
         if (gattCSCService && gattCSCService->state() != QLowEnergyService::ServiceDiscovered) {
             emit debug(QStringLiteral("Discovering CSC service details after handshake..."));
             gattCSCService->discoverDetails();
+        }
+        if (gattPowerService && gattPowerService->state() != QLowEnergyService::ServiceDiscovered) {
+            emit debug(QStringLiteral("Discovering Cycling Power (0x1818) service details after handshake..."));
+            gattPowerService->discoverDetails();
         }
 
         // Create virtual bike interface after handshake
@@ -298,9 +301,21 @@ void kettlerracersbike::characteristicWritten(const QLowEnergyCharacteristic &ch
         firstStateChanged = 1;
         initDone = true;
 
-        // Notify the stack/UI that we are ready
-        initRequest = true;
-        emit connectedAndDiscovered();
+        // Defer connectedAndDiscovered until after CCC subscriptions
+        // If CSC service is not present, subscribe now and emit immediately
+        if (!gattCSCService) {
+            subscribeKettlerNotifications();
+            if (!primedNotifyStart && gattWriteCharKettlerId.isValid()) {
+                uint8_t zero[2] = {0x00, 0x00};
+                writeCharacteristic(zero, sizeof(zero), QStringLiteral("prime notifications"), false, false);
+                primedNotifyStart = true;
+            }
+            if (!connectedAndDiscoveredEmitted) {
+                initRequest = true;
+                emit connectedAndDiscovered();
+                connectedAndDiscoveredEmitted = true;
+            }
+        }
     }
 }
 
@@ -526,7 +541,26 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCSCService, &QLowEnergyService::characteristicChanged, this,
                 &kettlerracersbike::characteristicChanged);
 
-        // CSC notifications will be enabled after handshake completion in subscribeKettlerNotifications()
+        // Now that CSC is discovered, if handshake is done, enable notifications and prime
+        if (handshakeDone && !notificationsSubscribed) {
+            subscribeKettlerNotifications();
+            if (!primedNotifyStart && gattWriteCharKettlerId.isValid()) {
+                uint8_t zero[2] = {0x00, 0x00};
+                writeCharacteristic(zero, sizeof(zero), QStringLiteral("prime notifications"), false, false);
+                primedNotifyStart = true;
+            }
+            // Now signal ready to the rest of the stack/UI
+            if (!connectedAndDiscoveredEmitted) {
+                initRequest = true;
+                emit connectedAndDiscovered();
+                connectedAndDiscoveredEmitted = true;
+            }
+        }
+    }
+
+    if (service == gattPowerService && state == QLowEnergyService::ServiceDiscovered) {
+        emit debug(QStringLiteral("Cycling Power (0x1818) service connected"));
+        // Nothing to subscribe for Kettler path here
     }
 
     // Virtual bike creation and CSC discovery moved to characteristicWritten after handshake completion
