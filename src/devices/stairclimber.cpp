@@ -10,7 +10,7 @@
 stairclimber::stairclimber() {}
 
 bool stairclimber::connected() { return false; }
-bluetoothdevice::BLUETOOTH_TYPE stairclimber::deviceType() { return bluetoothdevice::STAIRCLIMBER; }
+BLUETOOTH_TYPE stairclimber::deviceType() { return STAIRCLIMBER; }
 
 
 uint16_t stairclimber::watts(double weight) {

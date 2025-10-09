@@ -401,9 +401,14 @@ class homeform : public QObject {
             settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
                 .toBool();
         return bluetoothManager && bluetoothManager->device() &&
-               bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL && !virtual_bike &&
+               bluetoothManager->device()->deviceType() == TREADMILL && !virtual_bike &&
                bluetoothManager->device()->VirtualDevice() &&
                ((virtualtreadmill *)bluetoothManager->device()->VirtualDevice())->autoInclinationEnabled();
+    }
+
+    Q_INVOKABLE bool confirmStopEnabled() {
+        QSettings settings;
+        return settings.value(QZSettings::confirm_stop_workout, QZSettings::default_confirm_stop_workout).toBool();
     }
 
     Q_INVOKABLE bool locationServices() {
@@ -439,9 +444,9 @@ class homeform : public QObject {
         }
     }
     QString workoutNameBasedOnBluetoothDevice() {
-        if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+        if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == BIKE) {
             return QStringLiteral("Ride");
-        } else if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+        } else if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == ROWING) {
             return QStringLiteral("Row");
         } else {
             return QStringLiteral("Run");

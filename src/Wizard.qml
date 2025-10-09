@@ -845,7 +845,6 @@ Page {
                         text: qsTr("Finish")
                         onClicked: {
                             settings.tile_gears_enabled = true;
-                            settings.gears_gain = 0.5;
                             stackViewLocal.push(finalStepComponent);
                         }
                     }
@@ -904,7 +903,6 @@ Page {
                         text: qsTr("Finish")
                         onClicked: {
                             settings.tile_gears_enabled = true;
-                            settings.gears_gain = 1;
                             stackViewLocal.push(finalStepComponent);
                         }
                     }

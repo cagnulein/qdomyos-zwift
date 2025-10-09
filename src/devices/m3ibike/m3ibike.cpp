@@ -261,7 +261,7 @@ m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     heartRateBeltDisabled = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
                                 .toString()
                                 .startsWith(QStringLiteral("Disabled"));
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;

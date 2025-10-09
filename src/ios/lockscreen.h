@@ -18,7 +18,7 @@ class lockscreen {
     void setCadence(double cadence);
     void startWorkout(unsigned short deviceType);
     void stopWorkout();
-    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance, double totalKcal);
+    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance, double totalKcal, bool useMiles);
     bool appleWatchAppInstalled();
 
     // virtualbike
