@@ -293,26 +293,34 @@ public class QtBluetoothLE {
             Log.d(TAG, "onCharacteristicRead: UUID=" + characteristic.getUuid() + " status=" + status +
                   " value=" + java.util.Arrays.toString(characteristic.getValue()));
 
+            // Check if this is a direct read (bypass queue) - handle BEFORE timeout check
+            if (sDirectReadPending && status == 0) {
+                Log.d(TAG, "Direct read detected, calling leCharacteristicRead for UUID: " + characteristic.getUuid());
+                byte[] value = characteristic.getValue();
+                if (value != null && value.length > 0) {
+                    // Call Qt's native callback directly for direct reads
+                    // Use handle -1 to indicate this is not from Qt's queue
+                    leCharacteristicRead(qtObject, characteristic.getService().getUuid().toString(),
+                                      -1, characteristic.getUuid().toString(),
+                                      characteristic.getProperties(), value);
+                }
+                // Clear the flag after handling
+                sDirectReadPending = false;
+
+                //unlock the queue for next item
+                synchronized (readWriteQueue) {
+                    pendingJob = null;
+                }
+                performNextIO();
+                return;
+            }
+
             int foundHandle = -1;
             synchronized (this) {
                 foundHandle = handleForCharacteristic(characteristic);
                 if (foundHandle == -1 || foundHandle >= entries.size() ) {
                     Log.w(TAG, "Cannot find characteristic read request for read notification - handle: " +
                                foundHandle + " size: " + entries.size());
-
-                    // Check if this is a direct read (bypass queue)
-                    if (sDirectReadPending && status == 0) {
-                        Log.d(TAG, "Direct read detected, calling leCharacteristicRead for UUID: " + characteristic.getUuid());
-                        byte[] value = characteristic.getValue();
-                        if (value != null && value.length > 0) {
-                            // Call Qt's native callback directly for direct reads
-                            leCharacteristicRead(qtObject, characteristic.getService().getUuid().toString(),
-                                              foundHandle, characteristic.getUuid().toString(),
-                                              characteristic.getProperties(), value);
-                        }
-                        // Clear the flag after handling
-                        sDirectReadPending = false;
-                    }
 
                     //unlock the queue for next item
                     synchronized (readWriteQueue) {
