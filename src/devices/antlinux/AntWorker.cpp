@@ -48,14 +48,23 @@ struct PythonLogger {
     void flush() {}
 };
 
+// Estimates a realistic running cadence (in Strides Per Minute) from speed.
+// This is based on a two-part linear model derived from common running biomechanics.
+// The goal is to approximate the behavior of a recreational runner.
 int estimateCadence(double speed_kmh) {
-    if (speed_kmh < 5.0) { // Walking pace
-        return static_cast<int>(speed_kmh * 15.0 + 45.0); // Simple linear scale for walking
+    // For walking paces (e.g., < 5 km/h), cadence has a steeper relationship with speed.
+    // This model targets ~120 SPM at a brisk 5 km/h walk.
+    if (speed_kmh < 5.0) {
+        return static_cast<int>(speed_kmh * 15.0 + 45.0);
     }
-    // Running pace
-    // Formula: y = 5x + 110, where x is speed in km/h
+    
+    // For running paces, cadence increases more slowly than stride length.
+    // This model is based on anchor points of a 10 km/h jog at ~160 SPM
+    // and a 14 km/h tempo run at ~180 SPM (the often-cited ideal).
+    // Formula: cadence = (speed_kmh * 5) + 110
     int cadence = static_cast<int>(speed_kmh * 5.0 + 110.0);
-    // Cap at a reasonable maximum, e.g., 200 SPM
+    
+    // Cap the cadence at a reasonable maximum to avoid unrealistic values at high speeds.
     return std::min(cadence, 200);
 }
 

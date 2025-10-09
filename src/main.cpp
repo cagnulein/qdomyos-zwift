@@ -397,13 +397,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-ant-device")) {
             if (i + 1 < argc) {
                 int id = atoi(argv[++i]);
-                qDebug() << "[ANT+] value " << argv[i];
                 if (id > 0 && id < 65536) {
                     ant_device_id = id;
-                    qDebug() << "[ANT+] -ant-device " << ant_device_id;
-                }FIT_TURN_TYPE_ROUNDABOUT_45_IDX45
-                else {
-                    qDebug() << "[ANT+] id failed, using " << ant_device_id;
                 }
             }
         }

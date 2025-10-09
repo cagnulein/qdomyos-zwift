@@ -122,15 +122,19 @@ def main():
             speed_kmh = 8.0 + 4.0 * math.sin(elapsed_time * 2 * math.pi / 60.0)
             speed_mps = speed_kmh / 3.6
 
+            estimated_cadence = 0
+            if speed_kmh > 0.5:
+                estimated_cadence = estimate_cadence(speed_kmh)
+
             # 3. This mirrors the C++ call from AntWorker::doWork()
-            broadcaster.send_ant_data(speed_mps)
+            broadcaster.send_ant_data(speed_mps, estimated_cadence)
 
             pace_km_str, pace_mi_str = calculate_and_format_pace_range(speed_kmh)
             
             output = (f"Time: {int(elapsed_time):>3}s | "
                       f"Speed: {speed_kmh:5.2f} km/h | "
-                      f"Pace/km: {pace_km_str:<12} | "
-                      f"Pace/mi: {pace_mi_str:<12}   ")
+                      f"Cadence: {estimated_cadence:>3} SPM | "
+                      f"Pace/km: {pace_km_str:<12}")
             print(output, end="\r")
             sys.stdout.flush()
 
