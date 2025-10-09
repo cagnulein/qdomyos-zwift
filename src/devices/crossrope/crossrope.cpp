@@ -23,7 +23,7 @@ crossrope::crossrope(uint32_t pollDeviceTime, bool noConsole, bool noHeartServic
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
 
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;

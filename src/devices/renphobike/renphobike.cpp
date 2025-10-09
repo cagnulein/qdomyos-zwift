@@ -17,7 +17,7 @@ renphobike::renphobike(bool noWriteResistance, bool noHeartService) {
 
     ergModeSupported = true; // IMPORTANT, only for this bike
 
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     m_rawWatt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);

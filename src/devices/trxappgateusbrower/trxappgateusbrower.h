@@ -70,6 +70,7 @@ class trxappgateusbrower : public rower {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool mearch_novarow_r50 = false;
 
     uint8_t counterPoll = 0;
     bool searchStopped = false;
