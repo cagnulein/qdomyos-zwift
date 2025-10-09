@@ -347,6 +347,20 @@ set(ALL_SOURCES
     ${RESOURCE_SOURCES}
 )
 
+# Optional: Google Protobuf (desktop)
+if(NOT ANDROID AND NOT IOS)
+    find_package(Protobuf QUIET)
+    if(Protobuf_FOUND)
+        message(STATUS "Protobuf found: enabling protobuf features")
+        list(APPEND ALL_SOURCES
+            zwift-api/zwift_messages.pb.cc
+        )
+        target_compile_definitions(${TARGET_NAME} PRIVATE PROTOBUF)
+    else()
+        message(STATUS "Protobuf not found: protobuf features disabled")
+    endif()
+endif()
+
 # Platform-specific sources
 if(WIN32)
     list(APPEND ALL_SOURCES
@@ -451,6 +465,9 @@ else()
         Qt6::Charts
         Qt6::Core5Compat
     )
+    if(Protobuf_FOUND)
+        target_link_libraries(${TARGET_NAME} PRIVATE protobuf::libprotobuf)
+    endif()
     target_compile_definitions(${TARGET_NAME} PRIVATE HAVE_BLUETOOTH HAVE_CORE5COMPAT)
 endif()
 

@@ -74,6 +74,20 @@ qtHaveModule(httpserver) {
     HEADERS += webserverinfosender.h
 }
 
+# Enable Google Protobuf on desktop if available
+unix:!android:!ios {
+    packagesExist(protobuf) {
+        message(Protobuf found via pkg-config; enabling PROTOBUF)
+        DEFINES += PROTOBUF
+        SOURCES += \
+            $$PWD/zwift-api/zwift_messages.pb.cc
+        LIBS += $$system(pkg-config --libs protobuf)
+        QMAKE_CXXFLAGS += $$system(pkg-config --cflags protobuf)
+    } else {
+        message(Protobuf not found; PROTOBUF disabled on desktop)
+    }
+}
+
 SOURCES += \
     $$PWD/characteristics/characteristicnotifier0002.cpp \
     $$PWD/characteristics/characteristicnotifier0004.cpp \

@@ -392,9 +392,29 @@ void ftmsbike::update() {
 
             env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
 #else
+            auto appendVarint = [](QByteArray &arr, quint64 value) {
+                while (value >= 0x80) {
+                    arr.append(char((value & 0x7F) | 0x80));
+                    value >>= 7;
+                }
+                arr.append(char(value & 0x7F));
+            };
+
+            // Build PhysicalParam (field 2: GearRatioX10000, varint)
+            QByteArray physical;
+            physical.append(char(0x10)); // field 2, wire type 0 (varint)
+            appendVarint(physical, static_cast<quint64>(gear_value));
+
+            // Wrap into HubCommand.Physical (field 5, length-delimited)
+            QByteArray hubPayload;
+            hubPayload.append(char(0x2A)); // field 5, wire type 2 (len)
+            appendVarint(hubPayload, static_cast<quint64>(physical.size()));
+            hubPayload.append(physical);
+
+            // Prepend command code 0x04
             QByteArray proto;
-            qDebug() << "ERROR: gear message not handled!";
-            return;
+            proto.append(char(0x04));
+            proto.append(hubPayload);
 #endif
             writeCharacteristicZwiftPlay((uint8_t*)proto.data(), proto.length(), "gear", false, true);
 
@@ -1426,9 +1446,30 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
             env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
 #else
+            auto appendVarint = [](QByteArray &arr, quint64 value) {
+                while (value >= 0x80) {
+                    arr.append(char((value & 0x7F) | 0x80));
+                    value >>= 7;
+                }
+                arr.append(char(value & 0x7F));
+            };
+            auto zigzag = [](qint32 v) -> quint32 { return (static_cast<quint32>(v) << 1) ^ static_cast<quint32>(v >> 31); };
+
+            // Build SimulationParam (field 2: InclineX100, sint32 varint zigzag)
+            QByteArray simulation;
+            simulation.append(char(0x10)); // field 2, wire type 0 (varint)
+            appendVarint(simulation, static_cast<quint64>(zigzag(static_cast<qint32>(slope))));
+
+            // Wrap into HubCommand.Simulation (field 4, length-delimited)
+            QByteArray hubPayload;
+            hubPayload.append(char(0x22)); // field 4, wire type 2 (len)
+            appendVarint(hubPayload, static_cast<quint64>(simulation.size()));
+            hubPayload.append(simulation);
+
+            // Prepend command code 0x04
             QByteArray message;
-            qDebug() << "implement zwift hub protobuf!";
-            return;
+            message.append(char(0x04));
+            message.append(hubPayload);
 #endif
             writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
             return;

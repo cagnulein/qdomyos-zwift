@@ -14,14 +14,13 @@
 #include "windows_zwift_incline_paddleocr_thread.h"
 #include "windows_zwift_workout_paddleocr_thread.h"
 #endif
-#ifdef PROTOBUF
-#ifdef Q_CC_MSVC
-#include "zwift-api/zwift_messages.pb.h"
-#endif
-#endif
 #include "localipaddress.h"
 
 using namespace std::chrono_literals;
+
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS) && defined(PROTOBUF)
+#include "zwift-api/zwift_messages.pb.h"
+#endif
 
 trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *description, QString *tags,
                            bool videoAvailable) {
@@ -36,7 +35,6 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
     if (tags)
         this->tags = *tags;
     
-#ifdef PROTOBUF
     if(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0) {
         static bool zwift_auth_toast_shown = false;
 
@@ -52,7 +50,6 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
             zwift_auth_toast_shown = true;
         }
     }
-#endif
 
     /*
     int c = 0;
@@ -631,7 +628,6 @@ void trainprogram::scheduler() {
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
         
-        #ifdef PROTOBUF
         if(bluetoothManager->device() && (bluetoothManager->device()->deviceType() == TREADMILL || bluetoothManager->device()->deviceType() == ELLIPTICAL) &&
            settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 && zwift_auth_token &&
            zwift_auth_token->access_token.length() > 0) {
@@ -686,16 +682,14 @@ void trainprogram::scheduler() {
 
                         float alt = QJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
                         float distance = QJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
-#elif defined Q_CC_MSVC
+#elif defined(PROTOBUF)
                         PlayerState state;
                         float alt = 0;
                         float distance = 0;
                         if (state.ParseFromArray(bb.constData(), bb.size())) {
-                            // Parsing riuscito, ora puoi accedere ai dati in `state`
                             alt = state.altitude();
                             distance = state.distance();
                         } else {
-                            // Errore durante il parsing
                             qDebug() << "Error parsing PlayerState";
                         }
 #else
@@ -704,7 +698,6 @@ void trainprogram::scheduler() {
 #endif
                         static float old_distance = 0;
                         static float old_alt = 0;
-                        
                         qDebug() << "zwift api incline1" << old_distance << old_alt << distance << alt;
 
                         if(old_distance > 0) {
