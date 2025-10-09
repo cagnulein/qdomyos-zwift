@@ -1,0 +1,26 @@
+Qt Android patched libraries
+
+Qt version: 6.10.0
+ABI: arm64-v8a
+
+FFmpeg:
+- Source: ffmpeg-android-maker (Javernaut)
+- FFmpeg version: 7.1.1
+- Flags: --enable-jni --enable-mediacodec
+- Files: ffmpeg/arm64-v8a/libav*.so, libsw*.so
+
+OpenSSL:
+- Source: openssl/openssl.git
+- Tag/branch: openssl-3.6
+- Files: openssl/arm64-v8a/libssl.so, libcrypto.so
+
+Notes:
+- Replace these into your local Qt install:
+  - FFmpeg: <Qt>/6.10.0/android_arm64_v8a/lib/
+  - OpenSSL: wherever your Android build expects OpenSSL (e.g., extra libs)
+- Ensure linker flags for 16KB pages in your Android app link step:
+  - -Wl,-z,max-page-size=16384 -Wl,-z,common-page-size=16384
+
+Include directories:
+- ffmpeg/include (libav*, libsw* headers)
+- openssl/include (openssl headers)
