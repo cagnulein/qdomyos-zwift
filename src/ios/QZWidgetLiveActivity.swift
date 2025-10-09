@@ -23,7 +23,9 @@ struct QZWidgetLiveActivity: Widget {
                 // Expanded UI
                 DynamicIslandExpandedRegion(.leading) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Label("\(Int(context.state.speed)) km/h", systemImage: "speedometer")
+                        let speed = context.attributes.useMiles ? context.state.speed * 0.621371 : context.state.speed
+                        let speedUnit = context.attributes.useMiles ? "mph" : "km/h"
+                        Label("\(Int(speed)) \(speedUnit)", systemImage: "speedometer")
                             .font(.caption)
                         Label("\(context.state.heartRate) bpm", systemImage: "heart.fill")
                             .font(.caption)
@@ -47,7 +49,10 @@ struct QZWidgetLiveActivity: Widget {
 
                 DynamicIslandExpandedRegion(.bottom) {
                     HStack {
-                        Label(String(format: "%.2f km", context.state.distance / 1000.0), systemImage: "map")
+                        let distanceKm = context.state.distance / 1000.0
+                        let distance = context.attributes.useMiles ? distanceKm * 0.621371 : distanceKm
+                        let distanceUnit = context.attributes.useMiles ? "mi" : "km"
+                        Label(String(format: "%.2f \(distanceUnit)", distance), systemImage: "map")
                         Spacer()
                         Label("\(Int(context.state.kcal)) kcal", systemImage: "flame.fill")
                             .foregroundColor(.orange)
@@ -95,14 +100,19 @@ struct LockScreenLiveActivityView: View {
             }
 
             HStack(spacing: 16) {
-                MetricView(icon: "speedometer", value: String(format: "%.1f", context.state.speed), unit: "km/h")
+                let speed = context.attributes.useMiles ? context.state.speed * 0.621371 : context.state.speed
+                let speedUnit = context.attributes.useMiles ? "mph" : "km/h"
+                MetricView(icon: "speedometer", value: String(format: "%.1f", speed), unit: speedUnit)
                 MetricView(icon: "heart.fill", value: "\(context.state.heartRate)", unit: "bpm", color: .red)
                 MetricView(icon: "bolt.fill", value: "\(Int(context.state.power))", unit: "W", color: .yellow)
             }
 
             HStack(spacing: 16) {
+                let distanceKm = context.state.distance / 1000.0
+                let distance = context.attributes.useMiles ? distanceKm * 0.621371 : distanceKm
+                let distanceUnit = context.attributes.useMiles ? "mi" : "km"
                 MetricView(icon: "arrow.clockwise", value: "\(Int(context.state.cadence))", unit: "rpm")
-                MetricView(icon: "map", value: String(format: "%.2f", context.state.distance / 1000.0), unit: "km")
+                MetricView(icon: "map", value: String(format: "%.2f", distance), unit: distanceUnit)
                 MetricView(icon: "flame.fill", value: "\(Int(context.state.kcal))", unit: "kcal", color: .orange)
             }
         }
@@ -136,13 +146,13 @@ struct MetricView: View {
 // MARK: - Preview
 @available(iOS 16.1, *)
 struct QZWidgetLiveActivity_Previews: PreviewProvider {
-    static let attributes = QZWorkoutAttributes(deviceName: "QZ Bike")
+    static let attributes = QZWorkoutAttributes(deviceName: "QZ Bike", useMiles: false)
     static let contentState = QZWorkoutAttributes.ContentState(
         speed: 25.5,
         cadence: 85,
         power: 200,
         heartRate: 145,
-        distance: 12500,  // meters (will be displayed as 12.50 km)
+        distance: 12500,  // meters (will be displayed as 12.50 km or 7.77 mi)
         kcal: 320
     )
 

@@ -30,8 +30,10 @@ public struct QZWorkoutAttributes: ActivityAttributes {
     }
 
     public var deviceName: String
+    public var useMiles: Bool
 
-    public init(deviceName: String) {
+    public init(deviceName: String, useMiles: Bool) {
         self.deviceName = deviceName
+        self.useMiles = useMiles
     }
 }
