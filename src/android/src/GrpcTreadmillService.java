@@ -50,6 +50,10 @@ import com.ifit.glassos.workout.RpmServiceGrpc;
 import com.ifit.glassos.settings.FanState;
 import com.ifit.glassos.settings.FanStateMessage;
 import com.ifit.glassos.settings.FanStateServiceGrpc;
+import com.ifit.glassos.workout.WorkoutService;
+import com.ifit.glassos.workout.WorkoutServiceGrpc;
+import com.ifit.glassos.workout.WorkoutResult;
+import com.ifit.glassos.workout.StartWorkoutResponse;
 
 import org.cagnulen.qdomyoszwift.QLog;
 
@@ -79,6 +83,7 @@ public class GrpcTreadmillService {
     private CadenceServiceGrpc.CadenceServiceBlockingStub cadenceStub;
     private RpmServiceGrpc.RpmServiceBlockingStub rpmStub;
     private FanStateServiceGrpc.FanStateServiceBlockingStub fanStub;
+    private WorkoutServiceGrpc.WorkoutServiceBlockingStub workoutStub;
 
     // Control flags and current values
     private volatile boolean isUpdating = false;
@@ -390,6 +395,7 @@ public class GrpcTreadmillService {
         cadenceStub = CadenceServiceGrpc.newBlockingStub(channel);
         rpmStub = RpmServiceGrpc.newBlockingStub(channel);
         fanStub = FanStateServiceGrpc.newBlockingStub(channel);
+        workoutStub = WorkoutServiceGrpc.newBlockingStub(channel);
 
         QLog.i(TAG, "gRPC connection initialized with client certificates");
     }
@@ -854,6 +860,129 @@ public class GrpcTreadmillService {
         }
     }
     
+    private void startWorkoutInstance() {
+        executorService.execute(() -> {
+            try {
+                Metadata headers = createHeaders();
+                WorkoutServiceGrpc.WorkoutServiceBlockingStub stubWithHeaders = workoutStub.withInterceptors(
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
+                );
+
+                Empty request = Empty.newBuilder().build();
+                StartWorkoutResponse response = stubWithHeaders.startNewWorkout(request);
+
+                QLog.i(TAG, "Started workout via WorkoutService");
+                if (response.hasResult()) {
+                    QLog.d(TAG, "Workout started with result: " + response.getResult());
+                }
+
+            } catch (Exception e) {
+                QLog.e(TAG, "Failed to start workout", e);
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onError("workout_start", e.getMessage()));
+                }
+            }
+        });
+    }
+
+    private void stopWorkoutInstance() {
+        executorService.execute(() -> {
+            try {
+                Metadata headers = createHeaders();
+                WorkoutServiceGrpc.WorkoutServiceBlockingStub stubWithHeaders = workoutStub.withInterceptors(
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
+                );
+
+                Empty request = Empty.newBuilder().build();
+                WorkoutResult result = stubWithHeaders.stop(request);
+
+                QLog.i(TAG, "Stopped workout via WorkoutService");
+
+            } catch (Exception e) {
+                QLog.e(TAG, "Failed to stop workout", e);
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onError("workout_stop", e.getMessage()));
+                }
+            }
+        });
+    }
+
+    private void pauseWorkoutInstance() {
+        executorService.execute(() -> {
+            try {
+                Metadata headers = createHeaders();
+                WorkoutServiceGrpc.WorkoutServiceBlockingStub stubWithHeaders = workoutStub.withInterceptors(
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
+                );
+
+                Empty request = Empty.newBuilder().build();
+                WorkoutResult result = stubWithHeaders.pause(request);
+
+                QLog.i(TAG, "Paused workout via WorkoutService");
+
+            } catch (Exception e) {
+                QLog.e(TAG, "Failed to pause workout", e);
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onError("workout_pause", e.getMessage()));
+                }
+            }
+        });
+    }
+
+    private void resumeWorkoutInstance() {
+        executorService.execute(() -> {
+            try {
+                Metadata headers = createHeaders();
+                WorkoutServiceGrpc.WorkoutServiceBlockingStub stubWithHeaders = workoutStub.withInterceptors(
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
+                );
+
+                Empty request = Empty.newBuilder().build();
+                WorkoutResult result = stubWithHeaders.resume(request);
+
+                QLog.i(TAG, "Resumed workout via WorkoutService");
+
+            } catch (Exception e) {
+                QLog.e(TAG, "Failed to resume workout", e);
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onError("workout_resume", e.getMessage()));
+                }
+            }
+        });
+    }
+
+    public static void startWorkout() {
+        if (instance != null) {
+            instance.startWorkoutInstance();
+        } else {
+            QLog.e(TAG, "Service not initialized. Call initialize() first.");
+        }
+    }
+
+    public static void stopWorkout() {
+        if (instance != null) {
+            instance.stopWorkoutInstance();
+        } else {
+            QLog.e(TAG, "Service not initialized. Call initialize() first.");
+        }
+    }
+
+    public static void pauseWorkout() {
+        if (instance != null) {
+            instance.pauseWorkoutInstance();
+        } else {
+            QLog.e(TAG, "Service not initialized. Call initialize() first.");
+        }
+    }
+
+    public static void resumeWorkout() {
+        if (instance != null) {
+            instance.resumeWorkoutInstance();
+        } else {
+            QLog.e(TAG, "Service not initialized. Call initialize() first.");
+        }
+    }
+
     public static void shutdown() {
         if (instance != null) {
             instance.shutdownInstance();

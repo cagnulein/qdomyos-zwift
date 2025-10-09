@@ -645,15 +645,66 @@ void nordictrackifitadbtreadmill::update() {
     if (requestStart != -1) {
         emit debug(QStringLiteral("starting..."));
 
-        // btinit();
+#ifdef Q_OS_ANDROID
+        // Start or Resume workout via gRPC WorkoutService
+        if (grpcInitialized) {
+            if (isPaused()) {
+                // Resume from pause
+                QAndroidJniObject::callStaticMethod<void>(
+                    "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                    "resumeWorkout",
+                    "()V"
+                );
+                emit debug("Resumed workout via gRPC WorkoutService");
+            } else {
+                // Start new workout
+                QAndroidJniObject::callStaticMethod<void>(
+                    "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                    "startWorkout",
+                    "()V"
+                );
+                emit debug("Started workout via gRPC WorkoutService");
+            }
+        }
+#endif
 
         requestStart = -1;
         emit tapeStarted();
     }
     if (requestStop != -1) {
         emit debug(QStringLiteral("stopping..."));
-        // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+
+#ifdef Q_OS_ANDROID
+        // Stop workout via gRPC WorkoutService
+        if (grpcInitialized) {
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "stopWorkout",
+                "()V"
+            );
+            emit debug("Stopped workout via gRPC WorkoutService");
+        }
+#endif
+
         requestStop = -1;
+    }
+
+    if (requestPause != -1) {
+        emit debug(QStringLiteral("pausing..."));
+
+#ifdef Q_OS_ANDROID
+        // Pause workout via gRPC WorkoutService
+        if (grpcInitialized) {
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "pauseWorkout",
+                "()V"
+            );
+            emit debug("Paused workout via gRPC WorkoutService");
+        }
+#endif
+
+        requestPause = -1;
     }
 
 #ifdef Q_OS_ANDROID
