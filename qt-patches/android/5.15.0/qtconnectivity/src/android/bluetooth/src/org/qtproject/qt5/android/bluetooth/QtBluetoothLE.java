@@ -295,13 +295,17 @@ public class QtBluetoothLE {
 
             // Check if this is a direct read (bypass queue) - handle BEFORE timeout check
             if (sDirectReadPending && status == 0) {
-                Log.d(TAG, "Direct read detected, calling leCharacteristicRead for UUID: " + characteristic.getUuid());
+                Log.d(TAG, "Direct read detected, getting handle for UUID: " + characteristic.getUuid());
+
+                // Get the proper handle so Qt can find the characteristic and emit the signal
+                int handle = handleForCharacteristic(characteristic);
+                Log.d(TAG, "Direct read: obtained handle = " + handle + " (Qt handle will be " + (handle + 1) + ")");
+
                 byte[] value = characteristic.getValue();
                 if (value != null && value.length > 0) {
-                    // Call Qt's native callback directly for direct reads
-                    // Use handle -1 to indicate this is not from Qt's queue
+                    // Call Qt's native callback with proper handle so the signal fires in C++
                     leCharacteristicRead(qtObject, characteristic.getService().getUuid().toString(),
-                                      -1, characteristic.getUuid().toString(),
+                                      handle + 1, characteristic.getUuid().toString(),
                                       characteristic.getProperties(), value);
                 }
                 // Clear the flag after handling
