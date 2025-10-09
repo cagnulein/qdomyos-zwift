@@ -50,7 +50,6 @@ import com.ifit.glassos.workout.RpmServiceGrpc;
 import com.ifit.glassos.settings.FanState;
 import com.ifit.glassos.settings.FanStateMessage;
 import com.ifit.glassos.settings.FanStateServiceGrpc;
-import com.ifit.glassos.workout.WorkoutService;
 import com.ifit.glassos.workout.WorkoutServiceGrpc;
 import com.ifit.glassos.workout.WorkoutResult;
 import com.ifit.glassos.workout.StartWorkoutResponse;
