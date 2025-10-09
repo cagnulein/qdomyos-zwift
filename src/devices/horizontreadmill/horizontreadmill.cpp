@@ -1624,6 +1624,18 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         Speed = 0;
         horizonPaused = true;
         qDebug() << "stop from the treadmill";
+    } else if (TP1 && characteristic.uuid() == QBluetoothUuid((quint16)0x2ADA) && newValue.length() == 2 &&
+               (uint8_t)newValue.at(0) == 0x02 && (uint8_t)newValue.at(1) == 0x01) {
+        // TP1 treadmill start command received
+        qDebug() << "TP1 treadmill: received start packet from treadmill, sending start command";
+        emit debug(QStringLiteral("TP1 treadmill: received start packet from treadmill, sending start command"));
+
+        if (gattFTMSService) {
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false, false);
+            write[0] = {FTMS_START_RESUME};
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start TP1", false, false);
+        }
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
         union flags {
             struct {
@@ -2563,6 +2575,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("3G ELITE "))) {
             qDebug() << QStringLiteral("3G ELITE");
             T3G_ELITE = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TP1")) && device.name().length() == 3) {
+            qDebug() << QStringLiteral("TP1 treadmill found");
+            TP1 = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {

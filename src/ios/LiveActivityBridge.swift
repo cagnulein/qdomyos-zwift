@@ -13,7 +13,7 @@ import ActivityKit
 
     private var currentActivity: Activity<QZWorkoutAttributes>?
 
-    @objc public func startActivity(deviceName: String) {
+    @objc public func startActivity(deviceName: String, useMiles: Bool) {
         // Check if Live Activities are supported and enabled
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
             print("Live Activities are not enabled")
@@ -23,7 +23,7 @@ import ActivityKit
         // End any existing activity first
         endActivity()
 
-        let attributes = QZWorkoutAttributes(deviceName: deviceName)
+        let attributes = QZWorkoutAttributes(deviceName: deviceName, useMiles: useMiles)
         let initialState = QZWorkoutAttributes.ContentState(
             speed: 0.0,
             cadence: 0.0,
@@ -40,7 +40,7 @@ import ActivityKit
                 pushType: nil
             )
             currentActivity = activity
-            print("✅ Live Activity started successfully")
+            print("✅ Live Activity started successfully (useMiles: \(useMiles))")
         } catch {
             print("❌ Failed to start Live Activity: \(error.localizedDescription)")
         }

@@ -13,14 +13,14 @@
 
 static LiveActivityBridge* _liveActivityManager = nil;
 
-void ios_liveactivity::startLiveActivity(const char* deviceName) {
+void ios_liveactivity::startLiveActivity(const char* deviceName, bool useMiles) {
     if (@available(iOS 16.1, *)) {
         if (_liveActivityManager == nil) {
             _liveActivityManager = [[LiveActivityBridge alloc] init];
         }
         NSString *name = [NSString stringWithCString:deviceName encoding:NSUTF8StringEncoding];
-        [_liveActivityManager startActivityWithDeviceName:name];
-        qDebug() << "Live Activity started for device:" << deviceName;
+        [_liveActivityManager startActivityWithDeviceName:name useMiles:useMiles];
+        qDebug() << "Live Activity started for device:" << deviceName << "useMiles:" << useMiles;
     } else {
         qDebug() << "Live Activities require iOS 16.1 or later";
     }

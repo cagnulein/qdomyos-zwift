@@ -3282,7 +3282,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the bluetooth name of your bike.")
+                        text: qsTr("If you have a generic FTMS bike and the tiles don't appear on the main QZ screen, select here the bluetooth name of your bike.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9698,7 +9698,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("QZ can open a external browser in order to auth strava to QZ. Default: disabled.")
+                        text: qsTr("QZ can open an external browser in order to auth strava to QZ. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -10761,7 +10761,7 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can't get the inclination from the treadmill. Enabling this and QZ will add a inclination gain to the power read from the Stryd. Default: disabled.")
+                                text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can't get the inclination from the treadmill. Enabling this and QZ will add an inclination gain to the power read from the Stryd. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
