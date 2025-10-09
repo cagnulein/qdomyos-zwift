@@ -43,6 +43,15 @@ macx: CONFIG += static
 macx {
     QMAKE_INFO_PLIST = macx/Info.plist
 }
+
+android {
+    QMAKE_LFLAGS += -Wl,-z,max-page-size=16384 -Wl,-z,common-page-size=16384
+    ANDROID_EXTRA_LIBS += \
+        C:/Qt/6.10.0/android_arm64_v8a/lib/libssl_1_1.so \
+        C:/Qt/6.10.0/android_arm64_v8a/lib/libcrypto_1_1.so
+}
+
+
 INCLUDEPATH += qmdnsengine/src/include
 
 # The following define makes your compiler emit warnings if you use
