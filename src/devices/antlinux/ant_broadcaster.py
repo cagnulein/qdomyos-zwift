@@ -118,6 +118,7 @@ class AntBroadcaster:
 
             # Calculate how many strides should have occurred in the last time slice (dt).
             stride_rate_sps = (current_cadence / 2.0) / 60.0
+            strides_this_tick = stride_rate_sps * dt
             self._stride_accumulator += strides_this_tick
 
             # If the accumulator has passed a whole number, increment the stride count
