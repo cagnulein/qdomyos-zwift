@@ -561,6 +561,10 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
     if (service == gattPowerService && state == QLowEnergyService::ServiceDiscovered) {
         emit debug(QStringLiteral("Cycling Power (0x1818) service connected"));
 
+        // Connect signal for characteristic changes
+        connect(gattPowerService, &QLowEnergyService::characteristicChanged, this,
+                &kettlerracersbike::characteristicChanged);
+
         // Subscribe to Cycling Power Measurement characteristic (0x2a63)
         QBluetoothUuid powerMeasurementUuid(QBluetoothUuid::CyclingPowerMeasurement);
         auto powerChar = gattPowerService->characteristic(powerMeasurementUuid);
