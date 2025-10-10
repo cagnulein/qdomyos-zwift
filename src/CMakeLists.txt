@@ -345,6 +345,9 @@ set(ALL_SOURCES
     ${FIT_SDK_SOURCES}
     ${SMTP_CLIENT_SOURCES}
     ${RESOURCE_SOURCES}
+    # Headers with Q_OBJECT that require AUTOMOC
+    zwift-api/zwift_client_auth.h
+    zwift-api/PlayerStateWrapper.h
 )
 
 # Optional: Google Protobuf (desktop)
