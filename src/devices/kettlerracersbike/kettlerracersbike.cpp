@@ -560,7 +560,17 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     if (service == gattPowerService && state == QLowEnergyService::ServiceDiscovered) {
         emit debug(QStringLiteral("Cycling Power (0x1818) service connected"));
-        // Nothing to subscribe for Kettler path here
+
+        // Subscribe to Cycling Power Measurement characteristic (0x2a63)
+        QBluetoothUuid powerMeasurementUuid(QBluetoothUuid::CyclingPowerMeasurement);
+        auto powerChar = gattPowerService->characteristic(powerMeasurementUuid);
+        if (powerChar.isValid()) {
+            auto descriptor = powerChar.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+            if (descriptor.isValid()) {
+                gattPowerService->writeDescriptor(descriptor, QByteArray::fromHex("0100"));
+                emit debug(QStringLiteral("Cycling Power (0x1818) notification subscribed"));
+            }
+        }
     }
 
     // Virtual bike creation and CSC discovery moved to characteristicWritten after handshake completion
