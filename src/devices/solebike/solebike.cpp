@@ -434,7 +434,7 @@ void solebike::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
@@ -448,7 +448,7 @@ void solebike::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &solebike::characteristicWritten);
         connect(gattCommunicationChannelService,
-                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                &QLowEnergyService::errorOccurred,
                 this, &solebike::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &solebike::descriptorWritten);
@@ -493,7 +493,7 @@ void solebike::stateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
-            gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattNotifyCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
@@ -546,12 +546,12 @@ void solebike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &solebike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &solebike::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, &solebike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &solebike::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
