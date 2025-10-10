@@ -100,7 +100,7 @@ class AntBroadcaster:
         self._last_tick = 0.0
         self._last_log_time = 0.0
         self._last_broadcast_time = 0
-        self._page_toggle = False  # NEW: Alternate between Page 1 and Page 2
+        self._page_toggle = False
 
     def _broadcasting_loop(self):
         """The main loop that runs on a dedicated thread to send data at ~4Hz."""
@@ -150,31 +150,33 @@ class AntBroadcaster:
             delta_time_field = int(delta_time_ms * 0.03125) & 0xFF
             
             try:
-                # CRITICAL FIX: Alternate between Page 1 (speed/distance) and Page 2 (cadence)
-                # Real ANT+ footpods send both pages to provide complete data
+                # Alternate between Page 1 (speed/distance) and Page 2 (cadence)
                 if self._page_toggle:
-                    # PAGE 2: Cadence page
+                    # PAGE 2: Cadence page (corrected structure)
+                    # Based on ANT+ SDM spec, cadence uses integer + fractional bytes
                     # Byte 0: Page Number (0x02)
-                    # Byte 1: Reserved (0xFF)
-                    # Byte 2: Cadence (integer part) - strides per minute
+                    # Byte 1: Cadence (integer) - strides per minute
+                    # Byte 2: Cadence (fractional) - 1/256 strides per minute
                     # Byte 3: Reserved (0xFF)
                     # Byte 4: Speed (integer m/s)
                     # Byte 5: Speed (fractional)
                     # Byte 6: Stride Count
                     # Byte 7: Latency (use 0x00)
                     
-                    # Cadence in ANT+ SDM is STRIDES per minute, not steps
-                    cadence_strides_per_min = int(current_cadence / 2.0) & 0xFF
+                    # Cadence in ANT+ SDM Page 2 is STRIDES per minute (not steps)
+                    cadence_strides_per_min = current_cadence / 2.0
+                    cadence_int = int(cadence_strides_per_min) & 0xFF
+                    cadence_frac = int((cadence_strides_per_min - cadence_int) * 256.0) & 0xFF
                     
                     packed_payload = struct.pack('<BBBBBBBB',
-                                                 0x02,                      # Page 2: Cadence
-                                                 0xFF,                      # Reserved
-                                                 cadence_strides_per_min,   # Cadence (strides/min)
-                                                 0xFF,                      # Reserved
-                                                 speed_int,                 # Speed integer
-                                                 speed_frac,                # Speed fractional
-                                                 self._stride_count,        # Stride count
-                                                 0x00)                      # Latency
+                                                 0x02,              # Page 2: Cadence
+                                                 cadence_int,       # Cadence integer (strides/min)
+                                                 cadence_frac,      # Cadence fractional
+                                                 0xFF,              # Reserved
+                                                 speed_int,         # Speed integer
+                                                 speed_frac,        # Speed fractional
+                                                 self._stride_count,# Stride count
+                                                 0x00)              # Latency
                 else:
                     # PAGE 1: Speed/Distance page (original implementation)
                     packed_payload = struct.pack('<BBBBBBBB', 
