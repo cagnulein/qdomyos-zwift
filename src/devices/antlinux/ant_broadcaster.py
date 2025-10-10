@@ -167,17 +167,17 @@ class AntBroadcaster:
                     cadence_strides_per_min = current_cadence / 2.0
                     cadence_int = int(cadence_strides_per_min) & 0xFF
                     cadence_frac = int((cadence_strides_per_min - cadence_int) * 256.0) & 0xFF
-                    
+                    # Garmin expects a non-standard Speed format [INT, FRAC]
+                    # but the standard Cadence format [FRAC, INT].
                     packed_payload = struct.pack('<BBBBBBBB',
-                                                 0x02,              # Page 2: Cadence
-                                                 cadence_int,       # Cadence integer (strides/min)
-                                                 cadence_frac,      # Cadence fractional
-                                                 0xFF,              # Reserved
-                                                 speed_int,         # Speed integer
-                                                 speed_frac,        # Speed fractional
-#                                                 self._stride_count,# Stride count
-                                                 90, # Stride count
-                                                 0x00)              # Latency
+                                                0x02,              # Byte 0: Page Number (Correct)
+                                                cadence_frac,      # Byte 1: Cadence FRACTIONAL (Corrected Order)
+                                                cadence_int,       # Byte 2: Cadence INTEGER (Corrected Order)
+                                                0xFF,              # Byte 3: Reserved - must be 0xFF (Corrected)
+                                                speed_int,         # Byte 4: Speed INTEGER (Garmin specific, keep as is)
+                                                speed_frac,        # Byte 5: Speed FRACTIONAL (Garmin specific, keep as is)
+                                                0xFF,              # Byte 6: Reserved - must be 0xFF (Corrected)
+                                                0xFF)              # Byte 7: Reserved - must be 0xFF (Corrected)
                 else:
                     # PAGE 1: Speed/Distance page (original implementation)
                     packed_payload = struct.pack('<BBBBBBBB', 
