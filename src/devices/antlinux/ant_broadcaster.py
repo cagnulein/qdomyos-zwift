@@ -170,11 +170,11 @@ class AntBroadcaster:
                     
                     packed_payload = struct.pack('<BBBBBBBB',
                                                  0x02,              # Page 2: Cadence
-                                                 cadence_frac,      # Cadence fractional
-                                                 cadence_int,       # Cadence integer (strides/min)
-                                                 0xFF,              # Reserved
                                                  speed_int,         # Speed integer
                                                  speed_frac,        # Speed fractional
+                                                 0xFF,              # Reserved
+                                                 cadence_int,       # Cadence integer (strides/min)
+                                                 cadence_frac,      # Cadence fractional
                                                  self._stride_count,# Stride count
                                                  0x00)              # Latency
                 else:
