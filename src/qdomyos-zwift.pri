@@ -47,8 +47,8 @@ macx {
 android {
     QMAKE_LFLAGS += -Wl,-z,max-page-size=16384 -Wl,-z,common-page-size=16384
     ANDROID_EXTRA_LIBS += \
-        C:/Qt/6.10.0/android_arm64_v8a/lib/libssl_1_1.so \
-        C:/Qt/6.10.0/android_arm64_v8a/lib/libcrypto_1_1.so
+        $$[QT_INSTALL_LIBS]/libssl_1_1.so \
+        $$[QT_INSTALL_LIBS]/libcrypto_1_1.so
 }
 
 
