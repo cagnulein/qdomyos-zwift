@@ -1914,6 +1914,8 @@ class QZSettings {
 
     static const QString proform_rower_sport_rl;
     static constexpr bool default_proform_rower_sport_rl = false;
+    static const QString proform_rower_750r;
+    static constexpr bool default_proform_rower_750r = false;
 
     static const QString strava_date_prefix;
     static constexpr bool default_strava_date_prefix = false;

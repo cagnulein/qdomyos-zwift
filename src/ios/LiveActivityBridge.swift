@@ -30,7 +30,8 @@ import ActivityKit
             power: 0.0,
             heartRate: 0,
             distance: 0.0,
-            kcal: 0.0
+            kcal: 0.0,
+            useMiles: useMiles
         )
 
         do {
@@ -46,7 +47,7 @@ import ActivityKit
         }
     }
 
-    @objc public func updateActivity(speed: Double, cadence: Double, power: Double, heartRate: Int, distance: Double, kcal: Double) {
+    @objc public func updateActivity(speed: Double, cadence: Double, power: Double, heartRate: Int, distance: Double, kcal: Double, useMiles: Bool) {
         guard let activity = currentActivity else {
             print("No active Live Activity to update")
             return
@@ -58,7 +59,8 @@ import ActivityKit
             power: power,
             heartRate: heartRate,
             distance: distance,
-            kcal: kcal
+            kcal: kcal,
+            useMiles: useMiles
         )
 
         Task {
