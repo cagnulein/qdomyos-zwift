@@ -99,7 +99,8 @@ class AntBroadcaster:
         self._stride_count = 0
         self._last_tick = 0.0
         self._last_log_time = 0.0
-        self._last_broadcast_time = 0  # Track for delta time calculation (CADENCE FIX)
+        self._last_broadcast_time = 0
+        self._page_toggle = False  # NEW: Alternate between Page 1 and Page 2
 
     def _broadcasting_loop(self):
         """The main loop that runs on a dedicated thread to send data at ~4Hz."""
@@ -135,6 +136,7 @@ class AntBroadcaster:
             # Calculate elapsed time in milliseconds
             elapsed_ms = int(self._total_time * 1000)
             
+            # Time fields matching Java implementation
             time_field_1 = ((elapsed_ms % 256000) // 5) & 0xFF
             time_field_2 = ((elapsed_ms % 256000) // 1000) & 0xFF
             
@@ -142,30 +144,52 @@ class AntBroadcaster:
             speed_int = int(current_speed)
             speed_frac = int(round((current_speed - speed_int) * 256.0)) & 0xFF
             
-            # This is critical for Garmin watches to display live cadence
-            # payload[7] = (byte) ((double)deltaTime * 0.03125);
-            # 0.03125 = 1/32, encodes time delta in 1/32 second units
+            # Calculate delta time field (Byte 7 for Page 1)
             delta_time_ms = elapsed_ms - self._last_broadcast_time
             self._last_broadcast_time = elapsed_ms
             delta_time_field = int(delta_time_ms * 0.03125) & 0xFF
             
-            # --- Use struct.pack to build the payload ---
-            # Format: '<' = little-endian
-            #         'B' = unsigned char (1 byte)
-            # This creates a robust 8-byte 'bytes' object.
             try:
-                # 1. Pack data into a binary bytes object.
-                packed_payload = struct.pack('<BBBBBBBB', 
-                                             0x01,              # Byte 0: Page Number
-                                             time_field_1,      # Byte 1: (time % 256000) / 5
-                                             time_field_2,      # Byte 2: (time % 256000) / 1000
-                                             0x00,              # Byte 3: Reserved
-                                             speed_int,         # Byte 4: Speed integer
-                                             speed_frac,        # Byte 5: Speed fractional
-                                             self._stride_count,# Byte 6: Stride count
-                                             delta_time_field)  # Byte 7: deltaTime * 0.03125
+                # CRITICAL FIX: Alternate between Page 1 (speed/distance) and Page 2 (cadence)
+                # Real ANT+ footpods send both pages to provide complete data
+                if self._page_toggle:
+                    # PAGE 2: Cadence page
+                    # Byte 0: Page Number (0x02)
+                    # Byte 1: Reserved (0xFF)
+                    # Byte 2: Cadence (integer part) - strides per minute
+                    # Byte 3: Reserved (0xFF)
+                    # Byte 4: Speed (integer m/s)
+                    # Byte 5: Speed (fractional)
+                    # Byte 6: Stride Count
+                    # Byte 7: Latency (use 0x00)
+                    
+                    # Cadence in ANT+ SDM is STRIDES per minute, not steps
+                    cadence_strides_per_min = int(current_cadence / 2.0) & 0xFF
+                    
+                    packed_payload = struct.pack('<BBBBBBBB',
+                                                 0x02,                      # Page 2: Cadence
+                                                 0xFF,                      # Reserved
+                                                 cadence_strides_per_min,   # Cadence (strides/min)
+                                                 0xFF,                      # Reserved
+                                                 speed_int,                 # Speed integer
+                                                 speed_frac,                # Speed fractional
+                                                 self._stride_count,        # Stride count
+                                                 0x00)                      # Latency
+                else:
+                    # PAGE 1: Speed/Distance page (original implementation)
+                    packed_payload = struct.pack('<BBBBBBBB', 
+                                                 0x01,              # Page 1: Speed/Distance
+                                                 time_field_1,      # (time % 256000) / 5
+                                                 time_field_2,      # (time % 256000) / 1000
+                                                 0x00,              # Reserved
+                                                 speed_int,         # Speed integer
+                                                 speed_frac,        # Speed fractional
+                                                 self._stride_count,# Stride count
+                                                 delta_time_field)  # deltaTime * 0.03125
 
-                # 2. Convert the bytes object into a list of integers.
+                # Toggle for next iteration
+                self._page_toggle = not self._page_toggle
+
                 list_payload = list(packed_payload)
                 
                 if self._ant_channel:
@@ -174,8 +198,10 @@ class AntBroadcaster:
                     if log.isEnabledFor(logging.DEBUG) and (now - self._last_log_time >= 1.0):
                         self._last_log_time = now
                         pace_km, pace_mi = _calculate_pace_range(current_speed)
-                        log.debug("TX: speed=%.2f m/s | Stride=%d | Pace/km: %s | Pace/mi: %s",
-                                  current_speed, self._stride_count, pace_km, pace_mi)
+                        page_name = "Page 2 (Cadence)" if self._page_toggle else "Page 1 (Speed)"
+                        log.debug("TX %s: speed=%.2f m/s | Cadence=%d SPM | Stride=%d | Pace/km: %s",
+                                  page_name, current_speed, int(current_cadence), 
+                                  self._stride_count, pace_km)
                         
             except Exception as e:
                 log.error(f"Broadcast error: {e}. Stopping thread.", exc_info=True)
