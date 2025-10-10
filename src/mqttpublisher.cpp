@@ -266,7 +266,7 @@ void MQTTPublisher::handleControlCommand(const QString& command, const QVariant&
 void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QString& command, const QVariant& value) {
     if(!m_device) return;
     
-    if(deviceType == "bike" && m_device->deviceType() == bluetoothdevice::BIKE) {
+    if(deviceType == "bike" && m_device->deviceType() == BIKE) {
         bike* bikeDevice = static_cast<bike*>(m_device);
         
         if(command == "resistance") {
@@ -285,7 +285,7 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
             bikeDevice->gearDown();
         }
         
-    } else if(deviceType == "treadmill" && m_device->deviceType() == bluetoothdevice::TREADMILL) {
+    } else if(deviceType == "treadmill" && m_device->deviceType() == TREADMILL) {
         treadmill* treadDevice = static_cast<treadmill*>(m_device);
         
         if(command == "speed") {
@@ -296,7 +296,7 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
             treadDevice->changePower(value.toInt());
         }
         
-    } else if(deviceType == "rowing" && m_device->deviceType() == bluetoothdevice::ROWING) {
+    } else if(deviceType == "rowing" && m_device->deviceType() == ROWING) {
         rower* rowDevice = static_cast<rower*>(m_device);
         
         if(command == "resistance") {
@@ -309,7 +309,7 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
             rowDevice->changeSpeed(value.toDouble());
         }
         
-    } else if(deviceType == "elliptical" && m_device->deviceType() == bluetoothdevice::ELLIPTICAL) {
+    } else if(deviceType == "elliptical" && m_device->deviceType() == ELLIPTICAL) {
         elliptical* ellipticalDevice = static_cast<elliptical*>(m_device);
         
         if(command == "resistance") {
@@ -541,7 +541,7 @@ void MQTTPublisher::publishWorkoutData() {
 
     // Device Specific Metrics
     switch (m_device->deviceType()) {
-        case bluetoothdevice::BIKE: {
+        case BIKE: {
             bike* bikeDevice = static_cast<bike*>(m_device);
             publishToTopic("bike/gears", bikeDevice->gears());
             publishToTopic("bike/target_resistance", bikeDevice->lastRequestedResistance().value());
@@ -576,7 +576,7 @@ void MQTTPublisher::publishWorkoutData() {
             publishToTopic("bike/cranktime", bikeDevice->lastCrankEventTime());
             break;
         }
-        case bluetoothdevice::TREADMILL: {
+        case TREADMILL: {
             treadmill* treadDevice = static_cast<treadmill*>(m_device);
             publishToTopic("treadmill/target_speed", treadDevice->lastRequestedSpeed().value());
             publishToTopic("treadmill/target_inclination", treadDevice->lastRequestedInclination().value());
@@ -598,7 +598,7 @@ void MQTTPublisher::publishWorkoutData() {
             publishToTopic("treadmill/vertical_oscillation", treadDevice->currentVerticalOscillation().value());
             break;
         }
-        case bluetoothdevice::ROWING: {
+        case ROWING: {
             rower* rowDevice = static_cast<rower*>(m_device);
             metric cadence = m_device->currentCadence();
             publishToTopic("rowing/cadence/current", cadence.value());
@@ -649,7 +649,7 @@ void MQTTPublisher::publishDiscoveryConfig() {
     // Control entities based on device type
     if (m_device) {
         switch (m_device->deviceType()) {
-            case bluetoothdevice::BIKE: {
+            case BIKE: {
                 // Bike-specific sensors
                 publishSensorDiscovery("bike_resistance", "Resistance", baseTopic + "bike/resistance/current", "", "", "mdi:tune");
                 publishSensorDiscovery("bike_cadence", "Cadence", baseTopic + "bike/cadence/current", "rpm", "", "mdi:rotate-right");
@@ -682,7 +682,7 @@ void MQTTPublisher::publishDiscoveryConfig() {
                 
                 break;
             }
-            case bluetoothdevice::TREADMILL: {
+            case TREADMILL: {
                 // Treadmill-specific sensors
                 publishSensorDiscovery("treadmill_inclination", "Inclination", baseTopic + "treadmill/inclination/current", "%", "", "mdi:angle-acute");
                 publishSensorDiscovery("treadmill_cadence", "Cadence", baseTopic + "treadmill/cadence/current", "spm", "", "mdi:run");
@@ -694,7 +694,7 @@ void MQTTPublisher::publishDiscoveryConfig() {
                 
                 break;
             }
-            case bluetoothdevice::ROWING: {
+            case ROWING: {
                 // Rowing-specific sensors
                 publishSensorDiscovery("rowing_resistance", "Resistance", baseTopic + "rowing/resistance/current", "", "", "mdi:tune");
                 publishSensorDiscovery("rowing_cadence", "Stroke Rate", baseTopic + "rowing/cadence/current", "spm", "", "mdi:rowing");
@@ -706,7 +706,7 @@ void MQTTPublisher::publishDiscoveryConfig() {
                 
                 break;
             }
-            case bluetoothdevice::ELLIPTICAL: {
+            case ELLIPTICAL: {
                 // Elliptical-specific sensors  
                 publishSensorDiscovery("elliptical_resistance", "Resistance", baseTopic + "elliptical/resistance/current", "", "", "mdi:tune");
                 publishSensorDiscovery("elliptical_cadence", "Cadence", baseTopic + "elliptical/cadence/current", "rpm", "", "mdi:rotate-right");

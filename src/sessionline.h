@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QGeoCoordinate>
 #include <QTimer>
+#include <QMetaType>
 
 #include "definitions.h"
 
@@ -53,5 +54,8 @@ class SessionLine {
                 double coreTemp, double bodyTemp, double heatStrainIndex,
                 const QDateTime &time = QDateTime::currentDateTime());
 };
+
+// Make SessionLine known to Qt's meta-type system (required for queued connections/Q_ARG usage)
+Q_DECLARE_METATYPE(SessionLine)
 
 #endif // SESSIONLINE_H

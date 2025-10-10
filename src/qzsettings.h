@@ -1914,6 +1914,8 @@ class QZSettings {
 
     static const QString proform_rower_sport_rl;
     static constexpr bool default_proform_rower_sport_rl = false;
+    static const QString proform_rower_750r;
+    static constexpr bool default_proform_rower_750r = false;
 
     static const QString strava_date_prefix;
     static constexpr bool default_strava_date_prefix = false;
@@ -2716,10 +2718,22 @@ class QZSettings {
     static constexpr bool default_calories_from_hr = false;
 
     /**
+     * @brief Show a confirmation dialog before stopping a workout from the UI.
+     */
+    static const QString confirm_stop_workout;
+    static constexpr bool default_confirm_stop_workout = false;
+
+    /**
      * @brief User height in centimeters for BMR calculation
      */
     static const QString height;
     static constexpr double default_height = 175.0;
+
+    static const QString taurua_ic90;
+    static constexpr bool default_taurua_ic90 = false;
+
+    static const QString proform_csx210;
+    static constexpr bool default_proform_csx210 = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

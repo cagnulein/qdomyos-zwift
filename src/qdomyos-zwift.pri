@@ -111,6 +111,7 @@ SOURCES += \
     $$PWD/fitdatabaseprocessor.cpp \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
     $$PWD/logwriter.cpp \
+    $$PWD/fitbackupwriter.cpp \
     $$PWD/mqtt/qmqttauthenticationproperties.cpp \
     $$PWD/mqtt/qmqttclient.cpp \
     $$PWD/mqtt/qmqttconnection.cpp \
@@ -392,6 +393,7 @@ HEADERS += \
     $$PWD/fitdatabaseprocessor.h \
     $$PWD/inclinationresistancetable.h \
     $$PWD/logwriter.h \
+    $$PWD/fitbackupwriter.h \
     $$PWD/osc.h \
     $$PWD/oscpp/client.hpp \
     $$PWD/oscpp/detail/endian.hpp \
@@ -950,7 +952,8 @@ DISTFILES += \
 	android/src/org/qtproject/qt/android/purchasing/Base64.java \
 	android/src/org/qtproject/qt/android/purchasing/Base64DecoderException.java \
 	ios/AppDelegate.swift \
-	ios/BLEPeripheralManager.swift
+	ios/BLEPeripheralManager.swift \
+	ios/LiveActivityManager.swift
 
 win32: DISTFILES += \
    $$PWD/adb/AdbWinApi.dll \
@@ -967,6 +970,7 @@ ios {
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
     ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
+    ios/ios_liveactivity.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
 	 fit-sdk/FitEncode.mm \
@@ -978,7 +982,8 @@ ios {
 
     SOURCES += ios/M3iNSQT.cpp
 
-    OBJECTIVE_HEADERS += ios/M3iNS.h
+    OBJECTIVE_HEADERS += ios/M3iNS.h \
+    ios/ios_liveactivity.h
 
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
@@ -1006,4 +1011,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.20.10
+VERSION = 2.20.11

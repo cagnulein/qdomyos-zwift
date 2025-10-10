@@ -17,7 +17,7 @@ using namespace std::chrono_literals;
 
 domyoselliptical::domyoselliptical(bool noWriteResistance, bool noHeartService, bool testResistance,
                                    int8_t bikeResistanceOffset, double bikeResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
 

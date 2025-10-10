@@ -108,8 +108,10 @@ class horizontreadmill : public treadmill {
     bool YPOO_MINI_PRO = false;
     bool MX_TM = false;
     bool FIT = false;
+    bool FIT_TM = false;
     bool T3G_PRO = false;
     bool T3G_ELITE = false;
+    bool TP1 = false;
 
     void testProfileCRC();
     void updateProfileCRC();

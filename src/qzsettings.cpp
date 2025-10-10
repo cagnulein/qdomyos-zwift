@@ -687,6 +687,7 @@ const QString QZSettings::default_ftms_treadmill = QStringLiteral("Disabled");
 const QString QZSettings::ant_speed_offset = QStringLiteral("ant_speed_offset");
 const QString QZSettings::ant_speed_gain = QStringLiteral("ant_speed_gain");
 const QString QZSettings::proform_rower_sport_rl = QStringLiteral("proform_rower_sport_rl");
+const QString QZSettings::proform_rower_750r = QStringLiteral("proform_rower_750r");
 const QString QZSettings::strava_date_prefix = QStringLiteral("strava_date_prefix");
 const QString QZSettings::race_mode = QStringLiteral("race_mode");
 const QString QZSettings::proform_pro_1000_treadmill = QStringLiteral("proform_pro_1000_treadmill");
@@ -990,10 +991,13 @@ const QString QZSettings::tile_auto_virtual_shifting_sprint_order = QStringLiter
 const QString QZSettings::chart_display_mode = QStringLiteral("chart_display_mode");
 const QString QZSettings::calories_active_only = QStringLiteral("calories_active_only");
 const QString QZSettings::calories_from_hr = QStringLiteral("calories_from_hr");
+const QString QZSettings::confirm_stop_workout = QStringLiteral("confirm_stop_workout");
 const QString QZSettings::height = QStringLiteral("height");
+const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
+const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 
 
-const uint32_t allSettingsCount = 805;
+const uint32_t allSettingsCount = 809;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1572,6 +1576,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ant_speed_offset, QZSettings::default_ant_speed_offset},
     {QZSettings::ant_speed_gain, QZSettings::default_ant_speed_gain},
     {QZSettings::proform_rower_sport_rl, QZSettings::default_proform_rower_sport_rl},
+    {QZSettings::proform_rower_750r, QZSettings::default_proform_rower_750r},
     {QZSettings::strava_date_prefix, QZSettings::default_strava_date_prefix},
     {QZSettings::race_mode, QZSettings::default_race_mode},
     {QZSettings::proform_pro_1000_treadmill, QZSettings::default_proform_pro_1000_treadmill},
@@ -1817,7 +1822,10 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike},
     {QZSettings::calories_active_only, QZSettings::default_calories_active_only},
     {QZSettings::calories_from_hr, QZSettings::default_calories_from_hr},
+    {QZSettings::confirm_stop_workout, QZSettings::default_confirm_stop_workout},
     {QZSettings::height, QZSettings::default_height},
+    {QZSettings::taurua_ic90, QZSettings::default_taurua_ic90},
+    {QZSettings::proform_csx210, QZSettings::default_proform_csx210},
     {QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed},
 };
 
