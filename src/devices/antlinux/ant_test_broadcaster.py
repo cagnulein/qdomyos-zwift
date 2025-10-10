@@ -141,9 +141,13 @@ def main():
 
             pace_km_str, pace_mi_str = calculate_and_format_pace_range(speed_kmh)
             
+            # Show both the estimated cadence and the resulting stride rate
+            stride_rate_spm = estimated_cadence_spm / 2.0
+            
             output = (f"Time: {int(elapsed_time):>3}s | "
                       f"Speed: {speed_kmh:5.2f} km/h | "
-                      f"Cadence: {estimated_cadence:>3} SPM | "
+                      f"Cadence: {estimated_cadence_spm:>3} SPM | "
+                      f"Stride Rate: {stride_rate_spm:4.1f} SPM | "
                       f"Pace/km: {pace_km_str:<12}")
             print(output, end="\r")
             sys.stdout.flush()
