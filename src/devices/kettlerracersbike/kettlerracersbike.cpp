@@ -658,6 +658,7 @@ void kettlerracersbike::cscPacketReceived(const QByteArray &packet) {
                 // Speed calculation (assuming wheel circumference of 2.1m)
                 double speed = (wheelRevDelta * 2.1 * 1024.0) / (wheelTimeDelta * 3.6);
                 Speed = speed;
+                qDebug() << QStringLiteral("Current Speed: ") << Speed.value();
             }
         }
 
@@ -681,6 +682,7 @@ void kettlerracersbike::cscPacketReceived(const QByteArray &packet) {
                 if (cadence > 0 && cadence < 255) {
                     Cadence = cadence;
                     lastGoodCadence = QDateTime::currentDateTime();
+                    qDebug() << QStringLiteral("Current Cadence: ") << Cadence.value();
                 }
             }
         }
@@ -688,6 +690,9 @@ void kettlerracersbike::cscPacketReceived(const QByteArray &packet) {
         oldCrankRevs = crankRevolutions;
         oldLastCrankEventTime = crankEventTime;
         CrankRevsRead = crankRevolutions;
+
+        qDebug() << QStringLiteral("Current CrankRevsRead: ") << CrankRevsRead;
+        qDebug() << QStringLiteral("Last CrankEventTime: ") << crankEventTime;
     }
 }
 
@@ -716,6 +721,7 @@ void kettlerracersbike::powerPacketReceived(const QByteArray &packet) {
 
     wattsValue = qBound(0, wattsValue, 2000);
     powerSensor(static_cast<uint16_t>(wattsValue));
+    qDebug() << QStringLiteral("Current Watt: ") << m_watt.value();
     lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
 }
 
@@ -758,15 +764,25 @@ void kettlerracersbike::update() {
                gattWriteCharKettlerId.isValid() && initDone) {
         update_metrics(true, watts());
 
+        auto virtualBike = this->VirtualBike();
+
         // Check if we need to send power or grade commands
         if (requestPower != -1) {
             changePower(requestPower);
             requestPower = -1;
         }
         if (requestInclination != -100) {
-            forceInclination(requestInclination);
+            emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
+            forceInclination(requestInclination + (gears() / 2.0)); // Apply gears offset to inclination (scaled by 0.5)
             requestInclination = -100;
+        } else if ((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
+            // In order to send the new gear value ASAP when FTMS is connected
+            emit debug(QStringLiteral("applying gear change to inclination: ") + QString::number(lastRawRequestedInclinationValue) +
+                      QStringLiteral(" + ") + QString::number(gears() / 2.0));
+            forceInclination(lastRawRequestedInclinationValue + (gears() / 2.0));
         }
+
+        lastGearValue = gears();
     }
 }
 
