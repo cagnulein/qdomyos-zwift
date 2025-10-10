@@ -918,7 +918,7 @@ import Qt.labs.platform 1.1
 
             // from version 2.16.45
             property bool toorx_srx_3500: false  
-            property real inclination_delay_seconds: 0.0
+            property real inclination_delay_seconds: 0.0            
 
             // from version 2.16.47
             property string ergDataPoints: ""
@@ -1208,6 +1208,8 @@ import Qt.labs.platform 1.1
             property bool taurua_ic90: false
             property bool proform_csx210: false
             property bool confirm_stop_workout: false
+
+            property int floating_port: 0
         }
 
 
@@ -4846,6 +4848,43 @@ import Qt.labs.platform 1.1
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelFloatingPort
+                            text: qsTr("Floating Window Port:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: floatingPortField
+                            text: settings.floating_port
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.floating_port = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okFloatingPortButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.floating_port = floatingPortField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Android Only: static port for the floating window. Set to 0 for dynamic port (default).")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter

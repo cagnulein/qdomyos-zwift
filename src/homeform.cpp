@@ -168,7 +168,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     settings.setValue(sKey + QStringLiteral("enabled"), true);
     settings.setValue(sKey + QStringLiteral("type"), TEMPLATE_TYPE_WEBSERVER);
+    // Port is now managed by floating_port setting (0 = dynamic, other = static)
     settings.setValue(sKey + QStringLiteral("port"), 0);
+
     this->innerTemplateManager =
         TemplateInfoSenderBuilder::getInstance(innerId, QStringList({QStringLiteral(":/inner_templates/")}), this);
 
@@ -944,6 +946,10 @@ void homeform::floatingOpen() {
         QSettings settings;
         // Get the floating window type setting (0 = classic, 1 = horizontal)
         int floatingWindowType = settings.value(QZSettings::floatingwindow_type, QZSettings::default_floatingwindow_type).toInt();
+        int port = settings.value(QZSettings::floating_port, QZSettings::default_floating_port).toInt();
+        if (port == 0) {
+            port = settings.value("template_inner_QZWS_port", 6666).toInt();
+        }
         
         // Determine which HTML file to use based on the setting
         QString htmlFile = (floatingWindowType == 0) ? "floating.htm" : "hfloating.htm";
@@ -953,7 +959,7 @@ void homeform::floatingOpen() {
         QAndroidJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/FloatingHandler", "show", "(Landroid/content/Context;IIIILjava/lang/String;)V",
             QtAndroid::androidContext().object(), 
-            settings.value("template_inner_QZWS_port", 6666).toInt(),
+            port,
             settings.value(QZSettings::floating_width, QZSettings::default_floating_width).toInt(),
             settings.value(QZSettings::floating_height, QZSettings::default_floating_height).toInt(),
             settings.value(QZSettings::floating_transparency, QZSettings::default_floating_transparency).toInt(),

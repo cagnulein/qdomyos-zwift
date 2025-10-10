@@ -576,6 +576,7 @@ const QString QZSettings::nordictrack_ifit_adb_remote = QStringLiteral("nordictr
 const QString QZSettings::floating_height = QStringLiteral("floating_height");
 const QString QZSettings::floating_width = QStringLiteral("floating_width");
 const QString QZSettings::floating_transparency = QStringLiteral("floating_transparency");
+const QString QZSettings::floating_port = QStringLiteral("floating_port");
 const QString QZSettings::floating_startup = QStringLiteral("floating_startup");
 const QString QZSettings::norditrack_s25i_treadmill = QStringLiteral("norditrack_s25i_treadmill");
 const QString QZSettings::toorx_ftms_treadmill = QStringLiteral("toorx_ftms_treadmill");
@@ -986,7 +987,7 @@ const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 
 
-const uint32_t allSettingsCount = 808;
+const uint32_t allSettingsCount = 809;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1464,6 +1465,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::floating_height, QZSettings::default_floating_height},
     {QZSettings::floating_width, QZSettings::default_floating_width},
     {QZSettings::floating_transparency, QZSettings::default_floating_transparency},
+    {QZSettings::floating_port, QZSettings::default_floating_port},
     {QZSettings::floating_startup, QZSettings::default_floating_startup},
     {QZSettings::norditrack_s25i_treadmill, QZSettings::default_norditrack_s25i_treadmill},
     {QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill},
