@@ -35,8 +35,11 @@ from ant_broadcaster import AntBroadcaster
 
 def estimate_cadence(speed_kmh: float) -> int:
     """
-    Estimates a realistic running cadence (in Strides Per Minute) from speed.
+    Estimates a realistic running cadence (in Steps Per Minute) from speed.
     This function mirrors the logic in the C++ AntWorker.
+    
+    NOTE: Returns SPM (Steps Per Minute), not strides per minute.
+    The broadcaster will convert SPM to stride rate internally.
     """
     if speed_kmh < 5.0:
         return int(speed_kmh * 15.0 + 45.0)
@@ -141,13 +144,14 @@ def main():
 
             pace_km_str, pace_mi_str = calculate_and_format_pace_range(speed_kmh)
             
-            # Show both the estimated cadence and the resulting stride rate          
-            stride_rate_spm = estimated_cadence / 2.0
+            # Show both the estimated cadence (SPM) and the resulting stride rate (strides/min)
+            # NOTE: Stride rate = cadence / 2 (since 2 steps = 1 stride)
+            stride_rate_per_min = estimated_cadence / 2.0
             
             output = (f"Time: {int(elapsed_time):>3}s | "
                       f"Speed: {speed_kmh:5.2f} km/h | "
                       f"Cadence: {estimated_cadence:>3} SPM | "
-                      f"Stride Rate: {stride_rate_spm:4.1f} SPM | "
+                      f"Stride Rate: {stride_rate_per_min:5.1f} strides/min | "
                       f"Pace/km: {pace_km_str:<12}")
             print(output, end="\r")
             sys.stdout.flush()

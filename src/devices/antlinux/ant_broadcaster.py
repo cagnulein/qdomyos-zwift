@@ -99,6 +99,7 @@ class AntBroadcaster:
         self._stride_count = 0
         self._last_tick = 0.0
         self._last_log_time = 0.0
+        self._last_broadcast_time = 0  # Track for delta time calculation (CADENCE FIX)
 
     def _broadcasting_loop(self):
         """The main loop that runs on a dedicated thread to send data at ~4Hz."""
@@ -131,11 +132,22 @@ class AntBroadcaster:
             if current_speed > 0.1:
                 self._stride_count = (self._stride_count + 1) & 0xFF
             
+            # Calculate elapsed time in milliseconds
             elapsed_ms = int(self._total_time * 1000)
-            time_field_1 = (elapsed_ms // 5) & 0xFF
-            time_field_2 = (elapsed_ms // 1000) & 0xFF
+            
+            time_field_1 = ((elapsed_ms % 256000) // 5) & 0xFF
+            time_field_2 = ((elapsed_ms % 256000) // 1000) & 0xFF
+            
+            # Speed calculation
             speed_int = int(current_speed)
             speed_frac = int(round((current_speed - speed_int) * 256.0)) & 0xFF
+            
+            # This is critical for Garmin watches to display live cadence
+            # payload[7] = (byte) ((double)deltaTime * 0.03125);
+            # 0.03125 = 1/32, encodes time delta in 1/32 second units
+            delta_time_ms = elapsed_ms - self._last_broadcast_time
+            self._last_broadcast_time = elapsed_ms
+            delta_time_field = int(delta_time_ms * 0.03125) & 0xFF
             
             # --- Use struct.pack to build the payload ---
             # Format: '<' = little-endian
@@ -144,8 +156,14 @@ class AntBroadcaster:
             try:
                 # 1. Pack data into a binary bytes object.
                 packed_payload = struct.pack('<BBBBBBBB', 
-                                             0x01, time_field_1, time_field_2, 0x00, 
-                                             speed_int, speed_frac, self._stride_count, 0x00)
+                                             0x01,              # Byte 0: Page Number
+                                             time_field_1,      # Byte 1: (time % 256000) / 5
+                                             time_field_2,      # Byte 2: (time % 256000) / 1000
+                                             0x00,              # Byte 3: Reserved
+                                             speed_int,         # Byte 4: Speed integer
+                                             speed_frac,        # Byte 5: Speed fractional
+                                             self._stride_count,# Byte 6: Stride count
+                                             delta_time_field)  # Byte 7: deltaTime * 0.03125
 
                 # 2. Convert the bytes object into a list of integers.
                 list_payload = list(packed_payload)
