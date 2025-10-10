@@ -1208,6 +1208,7 @@ import Qt.labs.platform 1.1
             property bool taurua_ic90: false
             property bool proform_csx210: false
             property bool confirm_stop_workout: false
+            property bool proform_rower_750r: false
         }
 
 
@@ -8993,6 +8994,25 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.proform_rower_sport_rl = checked; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Proform Rower 750R")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.proform_rower_750r
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    settings.proform_rower_750r = checked;
+                                    if (checked) {
+                                        settings.proform_rower_sport_rl = false;
+                                    }
+                                    window.settings_restart_to_apply = true;
+                                }
                             }
                             RowLayout {
                                 spacing: 10
