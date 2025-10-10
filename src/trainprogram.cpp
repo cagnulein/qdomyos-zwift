@@ -659,14 +659,13 @@ void trainprogram::scheduler() {
                         zwift_counter = 0;
                         QByteArray bb = zwift_world->playerStatus(zwift_player_id);
                         qDebug() << " ZWIFT API PROTOBUF << " + bb.toHex(' ');
+                        float alt = 0;
+                        float distance = 0;
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
                         h->zwift_api_decodemessage_player(bb.data(), bb.length());
-                        float alt = h->zwift_api_getaltitude();
-                        float distance = h->zwift_api_getdistance();
-#else
-                        float alt = 0;
-                        float distance = 0;
+                        alt = h->zwift_api_getaltitude();
+                        distance = h->zwift_api_getdistance();
 #endif
 #elif defined(Q_OS_ANDROID)
                         QJniEnvironment env;
@@ -680,21 +679,16 @@ void trainprogram::scheduler() {
                             "org/cagnulen/qdomyoszwift/ZwiftAPI", "zwift_api_decodemessage_player", "([B)V", d);
                         env->DeleteLocalRef(d);
 
-                        float alt = QJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
-                        float distance = QJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
+                        alt = QJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
+                        distance = QJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
 #elif defined(PROTOBUF)
                         PlayerState state;
-                        float alt = 0;
-                        float distance = 0;
                         if (state.ParseFromArray(bb.constData(), bb.size())) {
                             alt = state.altitude();
                             distance = state.distance();
                         } else {
                             qDebug() << "Error parsing PlayerState";
                         }
-#else
-                        float alt = 0;
-                        float distance = 0;
 #endif
                         static float old_distance = 0;
                         static float old_alt = 0;
@@ -741,7 +735,6 @@ void trainprogram::scheduler() {
                 }
             }
         }
-#endif
 
         // in case no workout has been selected
         // Zwift OCR
