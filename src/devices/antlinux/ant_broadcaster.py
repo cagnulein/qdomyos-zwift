@@ -114,6 +114,7 @@ class AntBroadcaster:
 
             with self._data_lock:
                 current_speed = self._speed_mps
+                current_cadence = self._cadence_spm
 
             # Calculate how many strides should have occurred in the last time slice (dt).
             strides_this_tick = (current_cadence / 60.0) * dt

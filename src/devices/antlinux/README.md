@@ -40,10 +40,11 @@ Ensure your QZ source is in `$HOME/qdomyos-zwift/`
 Start by updating your system and installing the required packages:
 
 ```bash
-# This block are the steps from the main guide and for reference. Only follow if starting from scratch.
-sudo update && upgrade
+# These are the steps from the main guide and included here for reference. Only follow if starting from scratch.
+sudo apt-get update
+sudo apt-get upgrade
 
-sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtbase5-private-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 qtlocation5-dev qtquickcontrols2-5-dev libqt5texttospeech5-dev libqt5texttospeech5 g++ make qtbase5-dev libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
+sudo apt-get install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtbase5-private-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 qtlocation5-dev qtquickcontrols2-5-dev libqt5texttospeech5-dev libqt5texttospeech5 g++ make qtbase5-dev libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
 
 git clone https://github.com/cagnulein/qdomyos-zwift.git
 
@@ -57,15 +58,16 @@ git submodule update --init tst/googletest/
 ```
 
 ```bash
-# Move into the QZ source directory
-cd $HOME/qdomyos-zwift/src
-
-# Pull the latest changes from the repository
+# From the QZ directory, pull the latest changes from the repository
+cd $HOME/qdomyos-zwift
 git pull
 ```
 
 ```bash
-# Ensure qdomyos-zwift.pro includes the ANT+ module.
+# Move into the QZ source subdirectory
+cd $HOME/qdomyos-zwift/src
+
+# Ensure the file qdomyos-zwift.pro includes the ANT+ module.
 grep -q "include(devices/antlinux/antlinux.pri)" qdomyos-zwift.pro || echo -e 'include(devices/antlinux/antlinux.pri)' >> qdomyos-zwift.pro
 ```
 
@@ -99,7 +101,7 @@ $HOME/ant_venv/bin/python3 -m pip install pybind11 pyusb openant
 This step creates a "bridge" file that tells the QZ build system where to find your Python environment.
 
 ```bash
-# Navigate to the QDomyos-Zwift source directory
+# Navigate to the QDomyos-Zwift source subdirectory
 cd $HOME/qdomyos-zwift/src
 ```
 
@@ -226,7 +228,7 @@ To have QZ start automatically with ANT+ support, modify your systemd service fi
 sudo nano /lib/systemd/system/qz.service
 ```
 
-Ensure the `[Service]` section looks like this. The key changes are running as `root` , replace 'pi' with your actual username if different and adding the ANT+ command-line flag.
+Ensure the `[Service]` section looks like this. The key changes are running as `root`, replace 'pi' with your actual username if different and adding the ANT+ command-line flag.
 
 ```ini
 [Unit]
@@ -241,11 +243,11 @@ Group=plugdev
 # Replace 'pi' with username used for virtual python environment 
 Environment="QZ_USER=pi"
 
-# Set working directory where log file is to be written too
+# Set working directory where log file is to be written to
 WorkingDirectory=/home/pi/qdomyos-zwift/src
 
 # The QZ command to execute, amend path location and flags as needed
-ExecStart=/home/pi/qdomyos-zwift/src/qdomyos-zwift-arm64 -no-gui -log -ant-footpod
+ExecStart=/home/pi/qdomyos-zwift/src/qdomyos-zwift -no-gui -log -ant-footpod
 
 # Ensure graceful shutdown on stop
 KillSignal=SIGINT
@@ -271,4 +273,4 @@ sudo systemctl status qz
 | **Out of memory during compilation** | Increase swap space. Edit `/etc/dphys-swapfile` and set `CONF_SWAPSIZE=2048`, then restart the service. |
 | **`ant_test_broadcaster.py` hangs or fails** | 1. Ensure you ran the script with `sudo`. <br> 2. Verify you have rebooted after **Step 4**. <br> 3. Unplug and replug the ANT+ dongle. |
 | **Watch connects, but pace is always --:--** | The application is not processing treadmill data. This means the model-specific flag is not set. You must edit the **root user's** config file (`sudo nano /root/.config/Roberto\ Viola/qDomyos-Zwift.conf`) and set the correct flag (e.g., `proform_treadmill_705_cst=true`). |
-| **`systemctl stop qz` command hangs** | The `KillSignal=SIGINT` line is missing from your `qz.service` file. This is essential for graceful shutdown.
+| **`systemctl stop qz` command hangs** | The `KillSignal=SIGINT` line is missing from your `qz.service` file. This is essential for graceful shutdown. |

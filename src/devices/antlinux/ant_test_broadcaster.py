@@ -33,6 +33,16 @@ except ImportError:
 
 from ant_broadcaster import AntBroadcaster
 
+def estimate_cadence(speed_kmh: float) -> int:
+    """
+    Estimates a realistic running cadence (in Strides Per Minute) from speed.
+    This function mirrors the logic in the C++ AntWorker.
+    """
+    if speed_kmh < 5.0:
+        return int(speed_kmh * 15.0 + 45.0)
+    cadence = int(speed_kmh * 5.0 + 110.0)
+    return min(cadence, 200)
+
 def calculate_and_format_pace_range(speed_kmh: float) -> (str, str):
     """Calculates and formats the expected pace range in min/km and min/mi."""
     if speed_kmh < 0.5:
