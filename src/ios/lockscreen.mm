@@ -202,7 +202,7 @@ void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, uns
     if (!ios_liveactivity::isLiveActivityRunning()) {
         ios_liveactivity::startLiveActivity("QZ", useMiles);
     }
-    ios_liveactivity::updateLiveActivity(speed, cadence, watt, [h heartRate], currentDistance, currentCalories);
+    ios_liveactivity::updateLiveActivity(speed, cadence, watt, [h heartRate], currentDistance, currentCalories, useMiles);
 }
 
 void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator)
