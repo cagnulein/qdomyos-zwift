@@ -73,7 +73,12 @@ def calculate_and_format_pace_range(speed_kmh: float) -> (str, str):
 
 def reset_ant_dongle():
     """Finds and resets the first available ANT+ USB dongle."""
-    SUPPORTED_DONGLES = [(0x0fcf, 0x1009), (0x0fcf, 0x1008), (0x11fd, 0x0001)]
+    SUPPORTED_DONGLES = [
+        (0x0fcf, 0x1009),  # Garmin USB-m Stick (Modern)
+        (0x0fcf, 0x1008),  # Garmin USB2 Stick (Older)
+        (0x0fcf, 0x1004),  # Dynastream/Generic ANTUSB2 Stick (Cycplus, Anself, etc.)
+        (0x11fd, 0x0001)   # Suunto ANT+ Dongle
+    ]
     print("--- Pre-Test USB Reset ---")
     try:
         dongle = next((usb.core.find(idVendor=v, idProduct=p) for v, p in SUPPORTED_DONGLES if usb.core.find(idVendor=v, idProduct=p)), None)

@@ -63,7 +63,12 @@ def _calculate_pace_range(speed_mps: float) -> (str, str):
 
 def _reset_ant_dongle():
     """Finds and resets the first available ANT+ USB dongle to ensure a clean state."""
-    SUPPORTED_DONGLES = [(0x0fcf, 0x1009), (0x0fcf, 0x1008), (0x11fd, 0x0001)]
+    SUPPORTED_DONGLES = [
+        (0x0fcf, 0x1009),  # Garmin USB-m Stick (Modern)
+        (0x0fcf, 0x1008),  # Garmin USB2 Stick (Older)
+        (0x0fcf, 0x1004),  # Dynastream/Generic ANTUSB2 Stick (Cycplus, Anself, etc.)
+        (0x11fd, 0x0001)   # Suunto ANT+ Dongle
+    ]
     try:
         dongle = next((usb.core.find(idVendor=v, idProduct=p) for v, p in SUPPORTED_DONGLES if usb.core.find(idVendor=v, idProduct=p)), None)
         if dongle is None:
@@ -116,6 +121,9 @@ class AntBroadcaster:
         # Ramp step to achieve ~3 second ramp from 0 to 150 SPM
         self._cadence_ramp_step = 12.5
 
+        # Cached values for performance
+        self._time_mod_base = 256000
+
     def _broadcasting_loop(self):
         """The main loop that runs on a dedicated thread to send data at ~4Hz."""
         log.info("ANT+ broadcasting thread started.")
@@ -136,61 +144,56 @@ class AntBroadcaster:
                 
                 current_speed = self._speed_mps
                 current_cadence = self._current_cadence
+                target_cadence_for_log = self._target_cadence # For logging
 
             # Calculate distance and strides
             self._total_distance += current_speed * dt
             
-            stride_rate_sps = (current_cadence / 2.0) / 60.0
-            strides_this_tick = stride_rate_sps * dt
-            self._stride_accumulator += strides_this_tick
-            
-            if self._stride_accumulator >= 1.0:
-                num_strides = int(self._stride_accumulator)
-                self._stride_count = (self._stride_count + num_strides) & 0xFF
-                self._stride_accumulator -= num_strides
+            # Only perform stride calculations if moving
+            if current_cadence > 0:
+                stride_rate_sps = current_cadence * 0.5 / 60.0
+                strides_this_tick = stride_rate_sps * dt
+                self._stride_accumulator += strides_this_tick
+                
+                if self._stride_accumulator >= 1.0:
+                    num_strides = int(self._stride_accumulator)
+                    self._stride_count = (self._stride_count + num_strides) & 0xFF
+                    self._stride_accumulator -= num_strides
 
-            # Fallback stride increment for very low speeds to keep connection alive
-            if current_speed > 0.1 and strides_this_tick < 0.01:
-                self._stride_count = (self._stride_count + 1) & 0xFF
-            
             # Calculate common data fields
             elapsed_ms = int(self._total_time * 1000)
             speed_int = int(current_speed)
             speed_frac = int(round((current_speed - speed_int) * 256.0)) & 0xFF
-            distance_int = int(self._total_distance) % 256
+            distance_int = int(self._total_distance) & 0xFF # Optimized modulo
             
             try:
-                # Send manufacturer info for first 16 broadcasts for pairing
-                if self._broadcast_counter < 16:
-                    packed_payload = struct.pack('<BBBBBBBB',
-                                                0x50, 0xFF, 0x01, 0x00, 0x01, 0x00, 0xFF, 0xFF)
-                    page_name = "Mfg Info"
+                # --- 7:1 PAYLOAD SELECTION LOGIC ---
+                # Manufacturer info broadcast has been removed for faster data startup.
+                # The 7:1 payload cycle now starts immediately.
+                if (self._broadcast_counter & 0x07) == 7:
+                    # Send Page 2 (Cadence & Speed)
+                    page_name = "Cadence/Speed (Page 2)"
+                    cadence_strides = current_cadence * 0.5
+                    cadence_int = int(cadence_strides)
+                    cadence_frac = int((cadence_strides - cadence_int) * 256.0)
+                    
+                    packed_payload = struct.pack('<BBBBBBBB', 
+                                                0x02, self._stride_count, cadence_frac,
+                                                cadence_int, speed_int, speed_frac,
+                                                self._stride_count, 0x00)
                 else:
-                    # --- 7:1 PAYLOAD SELECTION LOGIC ---
-                    if (self._broadcast_counter - 16) % 8 == 7:
-                        # Send Page 2 (Cadence & Speed)
-                        page_name = "Cadence/Speed (Page 2)"
-                        cadence_strides = current_cadence / 2.0
-                        cadence_int = int(cadence_strides)
-                        cadence_frac = int((cadence_strides - cadence_int) * 256.0)
-                        
-                        packed_payload = struct.pack('<BBBBBBBB', 
-                                                    0x02, self._stride_count, cadence_frac,
-                                                    cadence_int, speed_int, speed_frac,
-                                                    self._stride_count, 0x00)
-                    else:
-                        # Send Page 1 (Standard Speed/Distance)
-                        page_name = "Speed/Distance (Page 1)"
-                        time_field_1 = ((elapsed_ms % 256000) // 5) & 0xFF
-                        time_field_2 = ((elapsed_ms % 256000) // 1000) & 0xFF
-                        delta_time_ms = elapsed_ms - self._last_broadcast_time
-                        self._last_broadcast_time = elapsed_ms
-                        delta_time_field = int(delta_time_ms * 0.03125) & 0xFF
-                        
-                        packed_payload = struct.pack('<BBBBBBBB', 
-                                                    0x01, time_field_1, time_field_2,
-                                                    distance_int, speed_int, speed_frac,
-                                                    self._stride_count, delta_time_field)
+                    # Send Page 1 (Standard Speed/Distance)
+                    page_name = "Speed/Distance (Page 1)"
+                    time_field_1 = ((elapsed_ms % self._time_mod_base) // 5) & 0xFF
+                    time_field_2 = ((elapsed_ms % self._time_mod_base) // 1000) & 0xFF
+                    delta_time_ms = elapsed_ms - self._last_broadcast_time
+                    self._last_broadcast_time = elapsed_ms
+                    delta_time_field = (delta_time_ms >> 5) & 0xFF
+                    
+                    packed_payload = struct.pack('<BBBBBBBB', 
+                                                0x01, time_field_1, time_field_2,
+                                                distance_int, speed_int, speed_frac,
+                                                self._stride_count, delta_time_field)
 
                 if self._ant_channel:
                     self._ant_channel.send_broadcast_data(list(packed_payload))
@@ -198,8 +201,8 @@ class AntBroadcaster:
                     if log.isEnabledFor(logging.DEBUG) and (now - self._last_log_time >= 1.0):
                         self._last_log_time = now
                         pace_km, pace_mi = _calculate_pace_range(current_speed)
-                        log.debug("TX %s: speed=%.2f m/s | Cadence=%.1f SPM | Stride=%d | Pace/km: %s",
-                                  page_name, current_speed, current_cadence, 
+                        log.debug("TX %s: speed=%.2f m/s | Cadence=%.1f→%.1f SPM | Stride=%d | Pace/km: %s",
+                                  page_name, current_speed, target_cadence_for_log, 
                                   self._stride_count, pace_km)
                         
                 self._broadcast_counter += 1
@@ -208,10 +211,13 @@ class AntBroadcaster:
                 log.error(f"Broadcast error: {e}. Stopping thread.", exc_info=True)
                 self._running.set()
 
-            sleep_duration = 0.248 - (time.monotonic() - now)
+            # More precise timing for a true 4Hz broadcast rate
+            sleep_duration = 0.250 - (time.monotonic() - now)
             if sleep_duration > 0:
                 time.sleep(sleep_duration)
-        
+            elif sleep_duration < -0.01:
+                log.warning(f"Broadcast loop running slow: {-sleep_duration:.3f}s behind")
+
         log.info("ANT+ broadcasting thread finished.")
 
     def start(self, device_id: int, verbose: bool) -> bool:
@@ -283,6 +289,8 @@ class AntBroadcaster:
             self._broadcast_counter = 0
             self._total_distance = 0.0
             self._total_time = 0.0
+            self._stride_accumulator = 0.0
+            self._stride_count = 0
         
         log.info("ANT+ broadcaster stopped and resources released.")
 
@@ -299,4 +307,4 @@ class AntBroadcaster:
             # The next non-zero speed will then ramp up from 0.
             if self._speed_mps < 0.1:
                 self._current_cadence = 0.0
-                self._target_cadence = 0.0 # Also reset target to prevent ramping up
+                self._target_cadence = 0.0```
