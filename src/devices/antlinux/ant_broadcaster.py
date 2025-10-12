@@ -4,7 +4,7 @@
 # ANT+ SDM Broadcaster - Python Core
 #
 # Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
-# Contributor(s): bassai-sho
+# Contributor(s): bassai-sho, Claude (Anthropic), Gemini (Google)
 # Licensed under GPL-3.0 - see project repository for full license
 #
 # This script handles the low-level ANT+ communication using the `openant`
@@ -34,10 +34,9 @@ log = logging.getLogger("AntBroadcaster")
 
 def _calculate_pace_range(speed_mps: float) -> (str, str):
     """Calculates and formats the expected pace range in min/km and min/mi."""
-    if speed_mps < 0.2: # Corresponds to ~0.7 km/h, a reasonable lower limit
+    if speed_mps < 0.2:
         return "--:--", "--:--"
     
-    # --- Pace per Kilometer ---
     speed_kmh = speed_mps * 3.6
     pace_min_per_km_float = 60.0 / speed_kmh
     total_seconds_km = pace_min_per_km_float * 60
@@ -48,7 +47,6 @@ def _calculate_pace_range(speed_mps: float) -> (str, str):
         int(upper_bound_sec_km // 60), int(upper_bound_sec_km % 60)
     )
     
-    # --- Pace per Mile ---
     KM_TO_MILES = 1.60934
     speed_mph = speed_kmh / KM_TO_MILES
     pace_min_per_mi_float = 60.0 / speed_mph
@@ -71,7 +69,7 @@ def _reset_ant_dongle():
             return True
         log.info(f"Found ANT+ dongle for reset: {dongle.manufacturer} {dongle.product}")
         dongle.reset()
-        time.sleep(1) # Allow time for the device to re-initialize after reset
+        time.sleep(1)
         log.info("ANT+ dongle reset successfully.")
         return True
     except Exception as e:
@@ -82,6 +80,11 @@ class AntBroadcaster:
     """
     Manages an ANT+ Stride-based Speed and Distance Monitor (SDM) broadcast channel.
     This class is thread-safe and designed to be controlled from a parent application.
+    
+    PAYLOAD SOLUTION (Test #5):
+    - Broadcast ONLY Page 1 (speed/distance/stride count)
+    - Watch calculates cadence from stride count rate of change
+    - Result: Stable pace AND correct cadence
     """
     DEVICE_TYPE, TX_TYPE, PERIOD, FREQ = 124, 1, 8134, 57
     ANT_NETWORK_KEY = [0xB9, 0xA5, 0x21, 0xFB, 0xBD, 0x72, 0xC3, 0x45]
@@ -100,11 +103,11 @@ class AntBroadcaster:
         self._last_tick = 0.0
         self._last_log_time = 0.0
         self._last_broadcast_time = 0
-        self._page_toggle = False
+        self._broadcast_counter = 0
+        self._total_distance = 0.0
 
     def _broadcasting_loop(self):
         """The main loop that runs on a dedicated thread to send data at ~4Hz."""
-        import struct # Import locally to be thread-safe in embedded environments
         log.info("ANT+ broadcasting thread started.")
         self._last_tick = time.monotonic()
         
@@ -118,80 +121,69 @@ class AntBroadcaster:
                 current_speed = self._speed_mps
                 current_cadence = self._cadence_spm
 
-            # Calculate how many strides should have occurred in the last time slice (dt).
+            # Calculate distance and strides
+            self._total_distance += current_speed * dt
+            
+            # Calculate stride count based on cadence
+            # The watch will calculate cadence from the rate of change of stride count
             stride_rate_sps = (current_cadence / 2.0) / 60.0
             strides_this_tick = stride_rate_sps * dt
             self._stride_accumulator += strides_this_tick
-
-            # If the accumulator has passed a whole number, increment the stride count
-            # and subtract the whole number from the accumulator.
+            
             if self._stride_accumulator >= 1.0:
                 num_strides = int(self._stride_accumulator)
                 self._stride_count = (self._stride_count + num_strides) & 0xFF
                 self._stride_accumulator -= num_strides
 
+            # Fallback stride increment for very low speeds
             if current_speed > 0.1:
                 self._stride_count = (self._stride_count + 1) & 0xFF
             
-            # Calculate elapsed time in milliseconds
+            # Calculate time fields
             elapsed_ms = int(self._total_time * 1000)
-            
-            # Time fields matching Java implementation
             time_field_1 = ((elapsed_ms % 256000) // 5) & 0xFF
             time_field_2 = ((elapsed_ms % 256000) // 1000) & 0xFF
             
-            # Speed calculation
+            # Speed fields
             speed_int = int(current_speed)
             speed_frac = int(round((current_speed - speed_int) * 256.0)) & 0xFF
             
-            # Calculate delta time field (Byte 7 for Page 1)
+            # Delta time field
             delta_time_ms = elapsed_ms - self._last_broadcast_time
             self._last_broadcast_time = elapsed_ms
             delta_time_field = int(delta_time_ms * 0.03125) & 0xFF
             
+            # Distance field
+            distance_int = int(self._total_distance) % 256
+            
             try:
-                # Alternate between Page 1 (speed/distance) and Page 2 (cadence)
-                if self._page_toggle:
-                    # PAGE 2: Cadence page (corrected structure)
-                    # Based on ANT+ SDM spec, cadence uses integer + fractional bytes
-                    # Byte 0: Page Number (0x02)
-                    # Byte 1: Cadence (integer) - strides per minute
-                    # Byte 2: Cadence (fractional) - 1/256 strides per minute
-                    # Byte 3: Reserved (0xFF)
-                    # Byte 4: Speed (integer m/s)
-                    # Byte 5: Speed (fractional)
-                    # Byte 6: Stride Count
-                    # Byte 7: Latency (use 0x00)
-                    
-                    # Cadence in ANT+ SDM Page 2 is STRIDES per minute (not steps)
-                    cadence_strides_per_min = current_cadence / 2.0
-                    cadence_int = int(cadence_strides_per_min) & 0xFF
-                    cadence_frac = int((cadence_strides_per_min - cadence_int) * 256.0) & 0xFF
-                    # Garmin expects a non-standard Speed format [INT, FRAC]
-                    # but the standard Cadence format [FRAC, INT].
+                # Send manufacturer info for first 16 broadcasts
+                if self._broadcast_counter < 16:
                     packed_payload = struct.pack('<BBBBBBBB',
-                                                0x02,              # Byte 0: Page Number (Correct)
-                                                cadence_frac,      # Byte 1: Cadence FRACTIONAL (Corrected Order)
-                                                cadence_int,       # Byte 2: Cadence INTEGER (Corrected Order)
-                                                0xFF,              # Byte 3: Reserved - must be 0xFF (Corrected)
-                                                speed_int,         # Byte 4: Speed INTEGER (Garmin specific, keep as is)
-                                                speed_frac,        # Byte 5: Speed FRACTIONAL (Garmin specific, keep as is)
-                                                0xFF,              # Byte 6: Reserved - must be 0xFF (Corrected)
-                                                0xFF)              # Byte 7: Reserved - must be 0xFF (Corrected)
+                                                0x50, 0xFF, 0x01, 0x00, 0x01, 0x00, 0xFF, 0xFF)
+                    page_name = "Mfg Info"
                 else:
-                    # PAGE 1: Speed/Distance page (original implementation)
+                    # Send ONLY Page 1
+                    # The watch calculates cadence from stride count rate of change
+                    # Byte 0: Page ID (0x01)
+                    # Byte 1: Time fractional (increments every 5ms)
+                    # Byte 2: Time integer (seconds)
+                    # Byte 3: Distance (accumulated meters)
+                    # Byte 4: Speed integer (m/s)
+                    # Byte 5: Speed fractional (1/256 m/s)
+                    # Byte 6: Stride Count (wrapping counter)
+                    # Byte 7: Delta time since last broadcast
+                    
                     packed_payload = struct.pack('<BBBBBBBB', 
-                                                 0x01,              # Page 1: Speed/Distance
-                                                 time_field_1,      # (time % 256000) / 5
-                                                 time_field_2,      # (time % 256000) / 1000
-                                                 0x00,              # Reserved
-                                                 speed_int,         # Speed integer
-                                                 speed_frac,        # Speed fractional
-                                                 self._stride_count,# Stride count
-                                                 delta_time_field)  # deltaTime * 0.03125
-
-                # Toggle for next iteration
-                self._page_toggle = not self._page_toggle
+                                                0x01,
+                                                time_field_1,
+                                                time_field_2,
+                                                distance_int,
+                                                speed_int,
+                                                speed_frac,
+                                                self._stride_count,
+                                                delta_time_field)
+                    page_name = "Speed/Distance (Page 1)"
 
                 list_payload = list(packed_payload)
                 
@@ -201,22 +193,21 @@ class AntBroadcaster:
                     if log.isEnabledFor(logging.DEBUG) and (now - self._last_log_time >= 1.0):
                         self._last_log_time = now
                         pace_km, pace_mi = _calculate_pace_range(current_speed)
-                        page_name = "Page 2 (Cadence)" if self._page_toggle else "Page 1 (Speed)"
                         log.debug("TX %s: speed=%.2f m/s | Cadence=%d SPM | Stride=%d | Pace/km: %s",
                                   page_name, current_speed, int(current_cadence), 
                                   self._stride_count, pace_km)
                         
+                self._broadcast_counter += 1
+                
             except Exception as e:
                 log.error(f"Broadcast error: {e}. Stopping thread.", exc_info=True)
                 self._running.set()
 
-            
             sleep_duration = 0.248 - (time.monotonic() - now)
             if sleep_duration > 0:
                 time.sleep(sleep_duration)
         
         log.info("ANT+ broadcasting thread finished.")
-
 
     def start(self, device_id: int, verbose: bool) -> bool:
         if self._thread is not None and self._thread.is_alive():
@@ -238,7 +229,6 @@ class AntBroadcaster:
             
         try:
             if not _reset_ant_dongle():
-                # If reset fails, it's likely a fatal permission issue.
                 return False
             
             log.info("Attempting to initialize ANT+ Node...")
@@ -264,7 +254,7 @@ class AntBroadcaster:
 
     def stop(self):
         if self._running.is_set():
-            return # Already stopping/stopped
+            return
         
         log.info("Stopping ANT+ broadcaster...")
         self._running.set()
