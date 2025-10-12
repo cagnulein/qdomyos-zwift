@@ -81,7 +81,7 @@ class AntBroadcaster:
     Manages an ANT+ Stride-based Speed and Distance Monitor (SDM) broadcast channel.
     This class is thread-safe and designed to be controlled from a parent application.
     
-    PAYLOAD SOLUTION (Test #5):
+    SIMPLE SOLUTION (Test #5):
     - Broadcast ONLY Page 1 (speed/distance/stride count)
     - Watch calculates cadence from stride count rate of change
     - Result: Stable pace AND correct cadence
@@ -134,10 +134,6 @@ class AntBroadcaster:
                 num_strides = int(self._stride_accumulator)
                 self._stride_count = (self._stride_count + num_strides) & 0xFF
                 self._stride_accumulator -= num_strides
-
-            # Fallback stride increment for very low speeds
-            if current_speed > 0.1:
-                self._stride_count = (self._stride_count + 1) & 0xFF
             
             # Calculate time fields
             elapsed_ms = int(self._total_time * 1000)
@@ -163,7 +159,7 @@ class AntBroadcaster:
                                                 0x50, 0xFF, 0x01, 0x00, 0x01, 0x00, 0xFF, 0xFF)
                     page_name = "Mfg Info"
                 else:
-                    # Send ONLY Page 1
+                    # SIMPLE SOLUTION: Send ONLY Page 1
                     # The watch calculates cadence from stride count rate of change
                     # Byte 0: Page ID (0x01)
                     # Byte 1: Time fractional (increments every 5ms)
@@ -203,7 +199,7 @@ class AntBroadcaster:
                 log.error(f"Broadcast error: {e}. Stopping thread.", exc_info=True)
                 self._running.set()
 
-            sleep_duration = 0.248 - (time.monotonic() - now)
+            sleep_duration = 0.250 - (time.monotonic() - now)
             if sleep_duration > 0:
                 time.sleep(sleep_duration)
         
