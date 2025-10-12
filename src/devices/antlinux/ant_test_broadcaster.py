@@ -99,7 +99,6 @@ def reset_ant_dongle():
 def main():
     """Main test function."""
     ant_device_id = 54321
-    # Disable verbose logging from the broadcaster for a clean test UI
     ant_verbose = False
 
     if not reset_ant_dongle():
@@ -133,7 +132,6 @@ def main():
 
         for i, (stage_name, speed_kmh, duration) in enumerate(test_plan):
             
-            # --- Print Static Dashboard for the User ---
             expected_cadence = estimate_cadence(speed_kmh) if speed_kmh > 0.5 else 0
             pace_km_str, _ = calculate_and_format_pace_range(speed_kmh)
             
@@ -145,10 +143,11 @@ def main():
             print(f"  EXPECTED CADENCE: {expected_cadence} SPM")
             print("="*50)
             
-            # --- Run the Stage ---
             stage_start_time = time.monotonic()
             while True:
-                stage_elapsed = time.monotonic() - stage_start_time
+                loop_start_time = time.monotonic()
+                stage_elapsed = loop_start_time - stage_start_time
+                
                 if stage_elapsed >= duration:
                     break
 
@@ -156,12 +155,15 @@ def main():
                 
                 broadcaster.send_ant_data(speed_mps, expected_cadence)
                 
-                # Use a simple progress timer for clean, minimal output
                 progress_str = f"  Running... [ {int(stage_elapsed):>2}s / {duration}s ]"
                 print(f"{progress_str:<50}", end="\r")
                 sys.stdout.flush()
 
-                time.sleep(0.250)
+                # Self-correcting timer to ensure a precise 4Hz loop rate
+                work_duration = time.monotonic() - loop_start_time
+                sleep_duration = 0.250 - work_duration
+                if sleep_duration > 0:
+                    time.sleep(sleep_duration)
 
     except KeyboardInterrupt:
         print("\n\nUser interrupted test...")
