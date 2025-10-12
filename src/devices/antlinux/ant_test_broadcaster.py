@@ -18,9 +18,7 @@
 
 import time
 import sys
-import math
 from pathlib import Path
-import struct #
 
 # Ensure the ant_broadcaster module can be found in the same directory
 sys.path.append(str(Path(__file__).parent.absolute()))
@@ -36,16 +34,16 @@ from ant_broadcaster import AntBroadcaster
 
 def estimate_cadence(speed_kmh: float) -> int:
     """
-    Estimates a realistic running cadence (in Steps Per Minute) from speed.
-    This function mirrors the logic in the C++ AntWorker.
-    
-    NOTE: Returns SPM (Steps Per Minute), not strides per minute.
-    The broadcaster will convert SPM to stride rate internally.
+    Estimates a realistic running cadence and ensures it is an even number
+    to match the display behavior of Garmin watches.
     """
     if speed_kmh < 5.0:
-        return int(speed_kmh * 15.0 + 45.0)
-    cadence = int(speed_kmh * 5.0 + 110.0)
-    return min(cadence, 200)
+        cadence = int(speed_kmh * 15.0 + 45.0)
+    else:
+        cadence = int(speed_kmh * 5.0 + 110.0)
+    
+    # Round down to the nearest even number
+    return min(cadence, 200) & ~1
 
 def calculate_and_format_pace_range(speed_kmh: float) -> (str, str):
     """Calculates and formats the expected pace range in min/km and min/mi."""
@@ -99,16 +97,10 @@ def reset_ant_dongle():
         return False
 
 def main():
-    """
-    Main test function.
-    
-    NOTE: This test runs the broadcaster on the main thread, while the actual
-    C++ integration runs it on a dedicated worker thread. Thread-related
-    issues may not be detected by this test, but the startup and data flow
-    logic are designed to be as close as possible to the C++ implementation.
-    """
+    """Main test function."""
     ant_device_id = 54321
-    ant_verbose = True
+    # Disable verbose logging from the broadcaster for a clean test UI
+    ant_verbose = False
 
     if not reset_ant_dongle():
         sys.exit(1)
@@ -128,20 +120,32 @@ def main():
             return
 
         print("Broadcaster started successfully. Simulating a structured workout...")
+        print("Please check your watch and compare with the EXPECTED values below.")
 
         test_plan = [
-            ("Warm-up Walk", 5.0, 15),
+            ("Warm-up Walk", 5.0, 20),
             ("Jogging", 8.5, 30),
             ("Running", 12.0, 30),
             ("Jogging", 8.5, 20),
-            ("Cool-down Walk", 5.0, 15),
+            ("Cool-down Walk", 5.0, 20),
             ("Stopping", 0.0, 10),
         ]
 
-        total_elapsed_time = 0
         for i, (stage_name, speed_kmh, duration) in enumerate(test_plan):
-            print(f"\n==> STAGE {i+1}/{len(test_plan)}: {stage_name} at {speed_kmh:.1f} km/h for {duration}s...")
             
+            # --- Print Static Dashboard for the User ---
+            expected_cadence = estimate_cadence(speed_kmh) if speed_kmh > 0.5 else 0
+            pace_km_str, _ = calculate_and_format_pace_range(speed_kmh)
+            
+            print("\n" + "="*50)
+            print(f" STAGE {i+1}/{len(test_plan)}: {stage_name}")
+            print("-"*50)
+            print(f"  TARGET SPEED:   {speed_kmh:.1f} km/h")
+            print(f"  EXPECTED PACE:  {pace_km_str}")
+            print(f"  EXPECTED CADENCE: {expected_cadence} SPM")
+            print("="*50)
+            
+            # --- Run the Stage ---
             stage_start_time = time.monotonic()
             while True:
                 stage_elapsed = time.monotonic() - stage_start_time
@@ -149,36 +153,26 @@ def main():
                     break
 
                 speed_mps = speed_kmh / 3.6
-                estimated_cadence = estimate_cadence(speed_kmh) if speed_kmh > 0.5 else 0
-
-                broadcaster.send_ant_data(speed_mps, estimated_cadence)
-
-                pace_km_str, pace_mi_str = calculate_and_format_pace_range(speed_kmh)
-                stride_rate_per_min = estimated_cadence * 0.5
                 
-                output = (f"Time: {int(total_elapsed_time + stage_elapsed):>3}s | "
-                          f"Speed: {speed_kmh:5.2f} km/h | "
-                          f"Cadence: {estimated_cadence:>3} SPM | "
-                          f"Pace/km: {pace_km_str:<12}")
+                broadcaster.send_ant_data(speed_mps, expected_cadence)
                 
-                # Pad with spaces to clear the line completely, preventing leftover characters
-                print(f"{output:<100}", end="\r")
+                # Use a simple progress timer for clean, minimal output
+                progress_str = f"  Running... [ {int(stage_elapsed):>2}s / {duration}s ]"
+                print(f"{progress_str:<50}", end="\r")
                 sys.stdout.flush()
 
                 time.sleep(0.250)
-            
-            total_elapsed_time += duration
 
     except KeyboardInterrupt:
-        print("\nUser interrupted test...")
+        print("\n\nUser interrupted test...")
     except Exception as e:
-        print(f"\nTest failed with an unexpected exception: {e}")
+        print(f"\n\nTest failed with an unexpected exception: {e}")
     finally:
         try:
             broadcaster.stop()
             print("\n\nTest completed - broadcaster stopped cleanly.")
         except Exception as e:
-            print(f"\nWarning: An error occurred during broadcaster cleanup: {e}")
+            print(f"\n\nWarning: An error occurred during broadcaster cleanup: {e}")
 
 if __name__ == "__main__":
     main()
