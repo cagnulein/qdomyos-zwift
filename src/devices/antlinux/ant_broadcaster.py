@@ -4,7 +4,9 @@
 # ANT+ SDM Broadcaster - Python Core
 #
 # Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
-# Contributor(s): bassai-sho, Claude (Anthropic), Gemini (Google)
+# Contributor(s): bassai-sho
+# AI analysis tools (Claude, Gemini) were used to assist coding and debugging
+#
 # Licensed under GPL-3.0 - see project repository for full license
 #
 # This script handles the low-level ANT+ communication using the `openant`
@@ -81,10 +83,11 @@ class AntBroadcaster:
     Manages an ANT+ Stride-based Speed and Distance Monitor (SDM) broadcast channel.
     This class is thread-safe and designed to be controlled from a parent application.
     
-    SIMPLE SOLUTION (Test #5):
-    - Broadcast ONLY Page 1 (speed/distance/stride count)
-    - Watch calculates cadence from stride count rate of change
-    - Result: Stable pace AND correct cadence
+    PAYLOAD SOLUTION (Test #9):
+    - Broadcast Page 1 seven times, then Page 2 (with speed) once.
+    - Cadence is sent on Page 2.
+    - Cadence is ramped smoothly to prevent instability.
+    - Result: Stable pace AND correct cadence.
     """
     DEVICE_TYPE, TX_TYPE, PERIOD, FREQ = 124, 1, 8134, 57
     ANT_NETWORK_KEY = [0xB9, 0xA5, 0x21, 0xFB, 0xBD, 0x72, 0xC3, 0x45]
@@ -95,8 +98,9 @@ class AntBroadcaster:
         self._thread: Optional[threading.Thread] = None
         self._running = threading.Event()
         self._data_lock = threading.Lock()
+        
+        # State variables
         self._speed_mps = 0.0
-        self._cadence_spm = 0.0
         self._stride_accumulator = 0.0        
         self._total_time = 0.0
         self._stride_count = 0
@@ -105,6 +109,12 @@ class AntBroadcaster:
         self._last_broadcast_time = 0
         self._broadcast_counter = 0
         self._total_distance = 0.0
+        
+        # Cadence ramping variables
+        self._target_cadence = 0.0
+        self._current_cadence = 0.0
+        # Ramp step to achieve ~3 second ramp from 0 to 150 SPM
+        self._cadence_ramp_step = 12.5
 
     def _broadcasting_loop(self):
         """The main loop that runs on a dedicated thread to send data at ~4Hz."""
@@ -118,14 +128,18 @@ class AntBroadcaster:
             self._total_time += dt
 
             with self._data_lock:
+                # RAMPING: Smoothly move current cadence toward the target cadence
+                if self._target_cadence > self._current_cadence:
+                    self._current_cadence = min(self._target_cadence, self._current_cadence + self._cadence_ramp_step)
+                elif self._target_cadence < self._current_cadence:
+                    self._current_cadence = max(self._target_cadence, self._current_cadence - self._cadence_ramp_step)
+                
                 current_speed = self._speed_mps
-                current_cadence = self._cadence_spm
+                current_cadence = self._current_cadence
 
             # Calculate distance and strides
             self._total_distance += current_speed * dt
             
-            # Calculate stride count based on cadence
-            # The watch will calculate cadence from the rate of change of stride count
             stride_rate_sps = (current_cadence / 2.0) / 60.0
             strides_this_tick = stride_rate_sps * dt
             self._stride_accumulator += strides_this_tick
@@ -134,63 +148,58 @@ class AntBroadcaster:
                 num_strides = int(self._stride_accumulator)
                 self._stride_count = (self._stride_count + num_strides) & 0xFF
                 self._stride_accumulator -= num_strides
+
+            # Fallback stride increment for very low speeds to keep connection alive
+            if current_speed > 0.1 and strides_this_tick < 0.01:
+                self._stride_count = (self._stride_count + 1) & 0xFF
             
-            # Calculate time fields
+            # Calculate common data fields
             elapsed_ms = int(self._total_time * 1000)
-            time_field_1 = ((elapsed_ms % 256000) // 5) & 0xFF
-            time_field_2 = ((elapsed_ms % 256000) // 1000) & 0xFF
-            
-            # Speed fields
             speed_int = int(current_speed)
             speed_frac = int(round((current_speed - speed_int) * 256.0)) & 0xFF
-            
-            # Delta time field
-            delta_time_ms = elapsed_ms - self._last_broadcast_time
-            self._last_broadcast_time = elapsed_ms
-            delta_time_field = int(delta_time_ms * 0.03125) & 0xFF
-            
-            # Distance field
             distance_int = int(self._total_distance) % 256
             
             try:
-                # Send manufacturer info for first 16 broadcasts
+                # Send manufacturer info for first 16 broadcasts for pairing
                 if self._broadcast_counter < 16:
                     packed_payload = struct.pack('<BBBBBBBB',
                                                 0x50, 0xFF, 0x01, 0x00, 0x01, 0x00, 0xFF, 0xFF)
                     page_name = "Mfg Info"
                 else:
-                    # SIMPLE SOLUTION: Send ONLY Page 1
-                    # The watch calculates cadence from stride count rate of change
-                    # Byte 0: Page ID (0x01)
-                    # Byte 1: Time fractional (increments every 5ms)
-                    # Byte 2: Time integer (seconds)
-                    # Byte 3: Distance (accumulated meters)
-                    # Byte 4: Speed integer (m/s)
-                    # Byte 5: Speed fractional (1/256 m/s)
-                    # Byte 6: Stride Count (wrapping counter)
-                    # Byte 7: Delta time since last broadcast
-                    
-                    packed_payload = struct.pack('<BBBBBBBB', 
-                                                0x01,
-                                                time_field_1,
-                                                time_field_2,
-                                                distance_int,
-                                                speed_int,
-                                                speed_frac,
-                                                self._stride_count,
-                                                delta_time_field)
-                    page_name = "Speed/Distance (Page 1)"
+                    # --- 7:1 PAYLOAD SELECTION LOGIC ---
+                    if (self._broadcast_counter - 16) % 8 == 7:
+                        # Send Page 2 (Cadence & Speed)
+                        page_name = "Cadence/Speed (Page 2)"
+                        cadence_strides = current_cadence / 2.0
+                        cadence_int = int(cadence_strides)
+                        cadence_frac = int((cadence_strides - cadence_int) * 256.0)
+                        
+                        packed_payload = struct.pack('<BBBBBBBB', 
+                                                    0x02, self._stride_count, cadence_frac,
+                                                    cadence_int, speed_int, speed_frac,
+                                                    self._stride_count, 0x00)
+                    else:
+                        # Send Page 1 (Standard Speed/Distance)
+                        page_name = "Speed/Distance (Page 1)"
+                        time_field_1 = ((elapsed_ms % 256000) // 5) & 0xFF
+                        time_field_2 = ((elapsed_ms % 256000) // 1000) & 0xFF
+                        delta_time_ms = elapsed_ms - self._last_broadcast_time
+                        self._last_broadcast_time = elapsed_ms
+                        delta_time_field = int(delta_time_ms * 0.03125) & 0xFF
+                        
+                        packed_payload = struct.pack('<BBBBBBBB', 
+                                                    0x01, time_field_1, time_field_2,
+                                                    distance_int, speed_int, speed_frac,
+                                                    self._stride_count, delta_time_field)
 
-                list_payload = list(packed_payload)
-                
                 if self._ant_channel:
-                    self._ant_channel.send_broadcast_data(list_payload)
+                    self._ant_channel.send_broadcast_data(list(packed_payload))
 
                     if log.isEnabledFor(logging.DEBUG) and (now - self._last_log_time >= 1.0):
                         self._last_log_time = now
                         pace_km, pace_mi = _calculate_pace_range(current_speed)
-                        log.debug("TX %s: speed=%.2f m/s | Cadence=%d SPM | Stride=%d | Pace/km: %s",
-                                  page_name, current_speed, int(current_cadence), 
+                        log.debug("TX %s: speed=%.2f m/s | Cadence=%.1f SPM | Stride=%d | Pace/km: %s",
+                                  page_name, current_speed, current_cadence, 
                                   self._stride_count, pace_km)
                         
                 self._broadcast_counter += 1
@@ -199,7 +208,7 @@ class AntBroadcaster:
                 log.error(f"Broadcast error: {e}. Stopping thread.", exc_info=True)
                 self._running.set()
 
-            sleep_duration = 0.250 - (time.monotonic() - now)
+            sleep_duration = 0.248 - (time.monotonic() - now)
             if sleep_duration > 0:
                 time.sleep(sleep_duration)
         
@@ -266,9 +275,28 @@ class AntBroadcaster:
         self._ant_channel = None
         self._ant_node = None
         self._thread = None
+
+        # Reset state variables to ensure a clean start next time
+        with self._data_lock:
+            self._current_cadence = 0.0
+            self._target_cadence = 0.0
+            self._broadcast_counter = 0
+            self._total_distance = 0.0
+            self._total_time = 0.0
+        
         log.info("ANT+ broadcaster stopped and resources released.")
 
     def send_ant_data(self, speed_mps: float, cadence_spm: int):
+        """
+        Receives latest data from the treadmill application.
+        The _broadcasting_loop will apply ramping to these values.
+        """
         with self._data_lock:
             self._speed_mps = speed_mps
-            self._cadence_spm = cadence_spm
+            self._target_cadence = float(cadence_spm)
+
+            # If speed drops to zero, hard reset the current cadence.
+            # The next non-zero speed will then ramp up from 0.
+            if self._speed_mps < 0.1:
+                self._current_cadence = 0.0
+                self._target_cadence = 0.0 # Also reset target to prevent ramping up

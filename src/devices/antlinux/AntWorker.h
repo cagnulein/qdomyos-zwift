@@ -4,6 +4,7 @@
 //
 // Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
 // Contributor(s): bassai-sho
+// AI analysis tools (Claude, Gemini) were used to assist coding and debugging
 // Licensed under GPL-3.0 - see project repository for full license
 //
 // This file declares the AntWorker class, the QObject responsible for managing
