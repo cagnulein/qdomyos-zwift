@@ -307,4 +307,4 @@ class AntBroadcaster:
             # The next non-zero speed will then ramp up from 0.
             if self._speed_mps < 0.1:
                 self._current_cadence = 0.0
-                self._target_cadence = 0.0```
+                self._target_cadence = 0.0
