@@ -26,7 +26,7 @@ void ios_liveactivity::startLiveActivity(const char* deviceName, bool useMiles) 
     }
 }
 
-void ios_liveactivity::updateLiveActivity(double speed, double cadence, double power, int heartRate, double distance, double kcal) {
+void ios_liveactivity::updateLiveActivity(double speed, double cadence, double power, int heartRate, double distance, double kcal, bool useMiles) {
     if (@available(iOS 16.1, *)) {
         if (_liveActivityManager != nil) {
             [_liveActivityManager updateActivityWithSpeed:speed
@@ -34,7 +34,8 @@ void ios_liveactivity::updateLiveActivity(double speed, double cadence, double p
                                                     power:power
                                                 heartRate:heartRate
                                                  distance:distance
-                                                     kcal:kcal];
+                                                     kcal:kcal
+                                                 useMiles:useMiles];
         }
     }
 }
