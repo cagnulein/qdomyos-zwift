@@ -107,9 +107,8 @@ def main():
     issues may not be detected by this test, but the startup and data flow
     logic are designed to be as close as possible to the C++ implementation.
     """
-    # 1. Simulate the global variables used by the C++ integration
-    ant_device_id = 54321  # This should match the default in main.cpp
-    ant_verbose = True     # Enable verbose logging to match the C++ app's test flag
+    ant_device_id = 54321
+    ant_verbose = True
 
     if not reset_ant_dongle():
         sys.exit(1)
@@ -119,61 +118,65 @@ def main():
     broadcaster = AntBroadcaster()
 
     try:
-        # 2. Start the broadcaster using the simulated global variables
         print(f"Starting ANT+ broadcaster with device ID {ant_device_id}...")
         if not broadcaster.start(ant_device_id, ant_verbose):
-            print("\nERROR: Failed to start the broadcaster (simulating C++ failure mode).")
+            print("\nERROR: Failed to start the broadcaster.")
             print("Possible causes:")
-            print("- ANT+ dongle not connected or is in use by another application (e.g., Garmin Express).")
-            print("- Permission issues (this script should be run with sudo).")
-            print("- The 'openant' library is not correctly installed in the venv.")
+            print("- ANT+ dongle not connected or is in use by another application.")
+            print("- Permission issues (run with sudo).")
+            print("- 'openant' library not installed in the venv.")
             return
 
-        print("Broadcaster started successfully. Simulating C++ worker loop at 4Hz...")
-        
-        start_time = time.monotonic()
-        while True:
-            elapsed_time = time.monotonic() - start_time
-            if elapsed_time > 120:  # Run test for 2 minutes
-                break
+        print("Broadcaster started successfully. Simulating a structured workout...")
 
-            # Simulate a fluctuating treadmill speed
-            speed_kmh = 8.0 + 4.0 * math.sin(elapsed_time * 2 * math.pi / 60.0)
-            speed_mps = speed_kmh / 3.6
+        test_plan = [
+            ("Warm-up Walk", 5.0, 15),
+            ("Jogging", 8.5, 30),
+            ("Running", 12.0, 30),
+            ("Jogging", 8.5, 20),
+            ("Cool-down Walk", 5.0, 15),
+            ("Stopping", 0.0, 10),
+        ]
 
-            estimated_cadence = 0
-            if speed_kmh > 0.5:
-                estimated_cadence = estimate_cadence(speed_kmh)
-
-            # 3. This mirrors the C++ call from AntWorker::doWork()
-            broadcaster.send_ant_data(speed_mps, estimated_cadence)
-
-            pace_km_str, pace_mi_str = calculate_and_format_pace_range(speed_kmh)
+        total_elapsed_time = 0
+        for i, (stage_name, speed_kmh, duration) in enumerate(test_plan):
+            print(f"\n==> STAGE {i+1}/{len(test_plan)}: {stage_name} at {speed_kmh:.1f} km/h for {duration}s...")
             
-            # Show both the estimated cadence (SPM) and the resulting stride rate (strides/min)
-            # NOTE: Stride rate = cadence / 2 (since 2 steps = 1 stride)
-            stride_rate_per_min = estimated_cadence / 2.0
-            
-            output = (f"Time: {int(elapsed_time):>3}s | "
-                      f"Speed: {speed_kmh:5.2f} km/h | "
-                      f"Cadence: {estimated_cadence:>3} SPM | "
-                      f"Stride Rate: {stride_rate_per_min:5.1f} strides/min | "
-                      f"Pace/km: {pace_km_str:<12}")
-            print(output, end="\r")
-            sys.stdout.flush()
+            stage_start_time = time.monotonic()
+            while True:
+                stage_elapsed = time.monotonic() - stage_start_time
+                if stage_elapsed >= duration:
+                    break
 
-            # 4. Match the C++ timer frequency exactly
-            time.sleep(0.250)
+                speed_mps = speed_kmh / 3.6
+                estimated_cadence = estimate_cadence(speed_kmh) if speed_kmh > 0.5 else 0
+
+                broadcaster.send_ant_data(speed_mps, estimated_cadence)
+
+                pace_km_str, pace_mi_str = calculate_and_format_pace_range(speed_kmh)
+                stride_rate_per_min = estimated_cadence * 0.5
+                
+                output = (f"Time: {int(total_elapsed_time + stage_elapsed):>3}s | "
+                          f"Speed: {speed_kmh:5.2f} km/h | "
+                          f"Cadence: {estimated_cadence:>3} SPM | "
+                          f"Pace/km: {pace_km_str:<12}")
+                
+                # Pad with spaces to clear the line completely, preventing leftover characters
+                print(f"{output:<100}", end="\r")
+                sys.stdout.flush()
+
+                time.sleep(0.250)
+            
+            total_elapsed_time += duration
 
     except KeyboardInterrupt:
         print("\nUser interrupted test...")
     except Exception as e:
         print(f"\nTest failed with an unexpected exception: {e}")
-        print("This may indicate an integration issue that would also affect the C++ code.")
     finally:
         try:
             broadcaster.stop()
-            print("\nTest completed - broadcaster stopped cleanly.")
+            print("\n\nTest completed - broadcaster stopped cleanly.")
         except Exception as e:
             print(f"\nWarning: An error occurred during broadcaster cleanup: {e}")
 
