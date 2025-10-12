@@ -168,8 +168,6 @@ class AntBroadcaster:
             
             try:
                 # --- 7:1 PAYLOAD SELECTION LOGIC ---
-                # Manufacturer info broadcast has been removed for faster data startup.
-                # The 7:1 payload cycle now starts immediately.
                 if (self._broadcast_counter & 0x07) == 7:
                     # Send Page 2 (Cadence & Speed)
                     page_name = "Cadence/Speed (Page 2)"
@@ -201,8 +199,9 @@ class AntBroadcaster:
                     if log.isEnabledFor(logging.DEBUG) and (now - self._last_log_time >= 1.0):
                         self._last_log_time = now
                         pace_km, pace_mi = _calculate_pace_range(current_speed)
+                        # FIXED: Added missing 'current_cadence' argument to match the format string
                         log.debug("TX %s: speed=%.2f m/s | Cadence=%.1f→%.1f SPM | Stride=%d | Pace/km: %s",
-                                  page_name, current_speed, target_cadence_for_log, 
+                                  page_name, current_speed, current_cadence, target_cadence_for_log, 
                                   self._stride_count, pace_km)
                         
                 self._broadcast_counter += 1
