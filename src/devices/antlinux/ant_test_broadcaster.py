@@ -32,11 +32,20 @@ except ImportError:
 
 from ant_broadcaster import AntBroadcaster
 
+"""
+Improved Cadence Estimation Model
+Based on biomechanics research and walk-to-run transition studies
+
+Research-backed transition points:
+- Walk-to-run transition: 7.0-7.2 km/h at ~140 SPM
+- Casual walking: 90-110 SPM (3-5 km/h)
+- Brisk walking: 110-140 SPM (5-7 km/h)
+- Easy running: 160-170 SPM (7-10 km/h)
+- Moderate running: 170-180 SPM (10-14 km/h)
+- Fast running: 180-190 SPM (14+ km/h)
+"""
 def estimate_cadence(speed_kmh: float) -> int:
-    """
-    Estimates a realistic running cadence and ensures it is an even number
-    to match the display behavior of Garmin watches.
-    """
+
     if speed_kmh < 5.0:
         cadence = int(speed_kmh * 15.0 + 45.0)
     else:
@@ -44,6 +53,42 @@ def estimate_cadence(speed_kmh: float) -> int:
     
     # Round down to the nearest even number
     return min(cadence, 200) & ~1
+
+def estimate_cadence(speed_kmh: float) -> int:
+    """
+    Estimates realistic cadence in SPM based on biomechanics research.
+    Improved Cadence Estimation Model:
+    Based on biomechanics research and walk-to-run transition studies
+    Research-backed transition points:
+    - Walk-to-run transition: 7.0-7.2 km/h at ~140 SPM
+    - Casual walking: 90-110 SPM (3-5 km/h)
+    - Brisk walking: 110-140 SPM (5-7 km/h)
+    - Easy running: 160-170 SPM (7-10 km/h)
+    - Moderate running: 170-180 SPM (10-14 km/h)
+    - Fast running: 180-190 SPM (14+ km/h)  
+    """
+    if speed_kmh < 0.5:
+        return 0
+    
+    # WALKING ZONE (0.5 - 7.0 km/h)
+    elif speed_kmh < 7.0:
+        if speed_kmh < 3.0:
+            # Very slow walking: 0 → 90 SPM
+            cadence = speed_kmh * 30.0
+        else:
+            # Normal to brisk walking: 90 → 140 SPM
+            cadence = (speed_kmh - 3.0) * 12.5 + 90.0
+    
+    # RUNNING ZONE (7.0+ km/h)
+    else:
+        # Easy jog to fast run: 160 → 200 SPM
+        cadence = (speed_kmh - 7.0) * 4.0 + 160.0
+        cadence = min(cadence, 200.0)
+    
+    # Round to nearest even number (Garmin displays even values)
+    return int(cadence + 0.5) & ~1
+
+
 
 def calculate_and_format_pace_range(speed_kmh: float) -> (str, str):
     """Calculates and formats the expected pace range in min/km and min/mi."""

@@ -49,24 +49,35 @@ struct PythonLogger {
     void flush() {}
 };
 
-// Estimates a realistic running cadence (in Strides Per Minute) from speed.
-// This is based on a two-part linear model derived from common running biomechanics.
-// The goal is to approximate the behavior of a recreational runner.
+// Estimates a realistic running cadence (in Steps Per Minute) from speed,
+// based on biomechanics research.
+// Research-validated transition: ~7.0 km/h at ~140 SPM.
 int estimateCadence(double speed_kmh) {
-    // For walking paces (e.g., < 5 km/h), cadence has a steeper relationship with speed.
-    // This model targets ~120 SPM at a brisk 5 km/h walk.
-    if (speed_kmh < 5.0) {
-        return static_cast<int>(speed_kmh * 15.0 + 45.0);
+    if (speed_kmh < 0.5) {
+        return 0;
+    }
+
+    double cadence = 0.0;
+
+    // WALKING ZONE (0.5 - 7.0 km/h)
+    if (speed_kmh < 7.0) {
+        if (speed_kmh < 3.0) {
+            // Very slow walking: 0 -> 90 SPM
+            cadence = speed_kmh * 30.0;
+        } else {
+            // Normal to brisk walking: 90 -> 140 SPM
+            cadence = (speed_kmh - 3.0) * 12.5 + 90.0;
+        }
+    }
+    // RUNNING ZONE (7.0+ km/h)
+    else {
+        // Easy jog to fast run: 160 -> 200 SPM
+        cadence = (speed_kmh - 7.0) * 4.0 + 160.0;
+        cadence = std::min(cadence, 200.0);
     }
     
-    // For running paces, cadence increases more slowly than stride length.
-    // This model is based on anchor points of a 10 km/h jog at ~160 SPM
-    // and a 14 km/h tempo run at ~180 SPM (the often-cited ideal).
-    // Formula: cadence = (speed_kmh * 5) + 110
-    int cadence = static_cast<int>(speed_kmh * 5.0 + 110.0);
-    
-    // Cap the cadence at a reasonable maximum to avoid unrealistic values at high speeds.
-    return std::min(cadence, 200);
+    // Round to the nearest even number (to match Garmin watch display behavior)
+    return static_cast<int>(cadence + 0.5) & ~1;
 }
 
 // This helper function finds the site-packages directory of the user's venv,

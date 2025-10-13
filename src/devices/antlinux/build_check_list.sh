@@ -151,7 +151,7 @@ if [ "$CURRENT_SWAP_MB" -ge "$IDEAL_SWAP_MB" ]; then
   echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} Found ${CURRENT_SWAP_MB}MB of swap space (ideal)."
 elif [ "$CURRENT_SWAP_MB" -lt "$WARN_SWAP_MB" ]; then
   echo -e "${C_YELLOW}⚠ WARNING:${C_RESET} Found only ${CURRENT_SWAP_MB}MB of swap space. Compilation may fail on low-memory systems."
-  echo -e "  ${C_YELLOW}Suggestion:${C_RESET} On Raspberry Pi OS / Debian, edit '/etc/dphys-swapfile' to set 'CONF_SWAPSIZE=2048' and restart the service."
+  echo -e "${C_YELLOW}Suggestion:${C_RESET} increase swap space to 2048MB"
 else
   echo -e "${C_YELLOW}ℹ INFO:${C_RESET} Found ${CURRENT_SWAP_MB}MB of swap. 2048MB is recommended for best performance."
 fi

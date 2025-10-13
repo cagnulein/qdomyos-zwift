@@ -4,26 +4,33 @@ This guide will help you transform your Raspberry Pi running QDomyos-Zwift (QZ) 
 
 ## Prerequisites
 
-This guide assumes you are comfortable using Linux and already have a working QDomyos-Zwift source installation on a Raspberry Pi, if not then first follow these instructions https://github.com/cagnulein/qdomyos-zwift/blob/master/docs/10_Installation.md
+This guide assumes you are comfortable using Linux and already have a working QDomyos-Zwift source installation on a Raspberry Pi, if not then first read these instructions https://github.com/cagnulein/qdomyos-zwift/blob/master/docs/10_Installation.md
 
 This will not work with pre-built QZ packages, you need the source code to compile with ANT+ support.
 
 ### Tested Environment and compilation
 
 This guide has been tested using:
-- qdomyos-zwift running on Raspberry Pi Zero 2 W (Raspbian Bookworm)
-- Garmin ANT+ USB-m Dongle
+- qdomyos-zwift running on Raspberry Pi Zero 2 W (Raspbian bookworm & trixie)
+- Dongle: Garmin ANT+ USB-m (0fcf:1009) & Garmin ANT+ USB2 (0fcf:1008)
 - Garmin Forerunner 245 Watch
 - Proform 705 CST treadmill
 
-Please note a Raspberry Pi 4 (with 4GB or 8GB of RAM) or a Raspberry Pi 5 would be recommended to compile this project. The Pi Zero 2 W is a great device and capable of running the qdomyos-zwift binary. However, it's not designed for heavy software compilation.
+#### Important Note on Compilation Hardware
+
+The recommended methods for building the software are:
+1.  **Compile directly on a more powerful Raspberry Pi** (4 or 5).
+2.  **Cross-compile** from a more powerful Linux desktop or virtual machine.
+
+While the Pi Zero 2 W is an excellent device for *running* the final `qdomyos-zwift` application, its limited 512MB of RAM is **insufficient for the C++ compilation process**. Attempting to compile on a Pi Zero 2 W will liekly fail with either out-of-memory errors or system freezing, even with workarounds like increased swap space.
 
 ### ANT+ Requirements
 
 To add ANT+ support, you will need an ANT+ USB dongle. Common models include:
-- Garmin ANT+ USB2 (0fcf:1008)
-- Garmin ANT+ USB-m (0fcf:1009)
-- Wahoo ANT+ USB (11fd:0001)
+- Garmin ANT+ USB2 (0fcf:1008) **Tested**
+- Garmin ANT+ USB-m (0fcf:1009) **Tested**
+- Generic ANTUSB2 Stick (0x0fcf, 0x1004)
+- Suunto/Wahoo ANT+ USB (11fd:0001)
 
 A compatible device like a Garmin fitness watch or other similar ANT+ device.
 
@@ -33,7 +40,7 @@ Consider if you need backing up your system before proceeding.
 
 ## Installation
 
-### Step 1 - Install System Dependencies
+### Step 1 - Install System Dependencies (Only if starting fresh, else skip to Step 2)
 
 Ensure your QZ source is in `$HOME/qdomyos-zwift/`
 
@@ -57,29 +64,15 @@ git submodule update --init src/qmdnsengine/
 git submodule update --init tst/googletest/
 ```
 
-```bash
-# From the QZ directory, pull the latest changes from the repository
-cd $HOME/qdomyos-zwift
-git pull
-```
+### Step 2 - Create Python Virtual Environment
 
-```bash
-# Move into the QZ source subdirectory
-cd $HOME/qdomyos-zwift/src
-
-# Ensure the file qdomyos-zwift.pro includes the ANT+ module.
-grep -q "include(devices/antlinux/antlinux.pri)" qdomyos-zwift.pro || echo -e 'include(devices/antlinux/antlinux.pri)' >> qdomyos-zwift.pro
-```
+This isolates the required Python libraries from system packages, which is mandatory on modern Linux distributions (Debian Bookworm+).
 
 ```bash
 # Update package lists and install essential libraries for ANT+ support
 sudo apt-get update
 sudo apt-get install -y libusb-1.0-0-dev libudev-dev python3-pip python3-venv
 ```
-
-### Step 2 - Create Python Virtual Environment
-
-This isolates the required Python libraries from system packages, which is mandatory on modern Linux distributions (Debian Bookworm+).
 
 ```bash
 # Create a Python virtual environment in your home directory
@@ -103,6 +96,16 @@ This step creates a "bridge" file that tells the QZ build system where to find y
 ```bash
 # Navigate to the QDomyos-Zwift source subdirectory
 cd $HOME/qdomyos-zwift/src
+```
+
+```bash
+# Pull the latest changes from the repository
+git pull
+```
+
+```bash
+# Ensure the file qdomyos-zwift.pro includes the ANT+ module.
+grep -q "include(devices/antlinux/antlinux.pri)" qdomyos-zwift.pro || echo -e 'include(devices/antlinux/antlinux.pri)' >> qdomyos-zwift.pro
 ```
 
 ```bash
@@ -175,7 +178,7 @@ Press `Ctrl+C` once to stop the test. If this test fails, the full build will no
 Clean any previous build artifacts and run qmake to generate the Makefile with ANT+ support.
 
 ```bash
-# Return to the QZ source directory
+# Return to the QZ source subdirectory
 cd $HOME/qdomyos-zwift/src/
 ```
 
@@ -264,13 +267,14 @@ sudo systemctl start qz
 sudo systemctl status qz
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 | Symptom / Error Message | Solution |
 | --- | --- |
 | **`qmake` fails with `Unknown module(s)`** | A required Qt development package is missing. Re-run the `apt-get install` command in **Step 1**. |
 | **`make` fails with `Python.h: No such file or directory`** | The Python development headers are missing. Re-run the `apt-get install "python${PYVER}-dev"` command in **Step 3**. |
-| **Out of memory during compilation** | Increase swap space. Edit `/etc/dphys-swapfile` and set `CONF_SWAPSIZE=2048`, then restart the service. |
+| **`g++: fatal error: Killed signal terminated program cc1plus`** | **Cause:** This is an Out-of-Memory error. It is expected and unavoidable when trying to compile this project on a Raspberry Pi Zero 2 W with 512MB of RAM. <br><br> **Solution:** Compile the software on a more powerful machine. Workarounds like increasing swap or reducing parallel jobs (`make -j1`) are **not effective** and will most likely still fail. The only reliable solution is to use one of the following for the `make` step: <br> - A Raspberry Pi 4 (4GB+ model) <br> - A Raspberry Pi 5 <br> - A Linux desktop/VM (cross-compilation) |
+| **`./qdomyos-zwift: error while loading shared libraries: libpython3.XX.so.1.0: cannot open shared object file`** | **Cause:** The application was compiled against a different version of Python (e.g., 3.11) than what is installed on your target device (e.g., 3.13). The executable has a hard requirement for the specific `libpython` version it was built with. <br><br> **Solution:** <br> 1. **(Best)** Re-compile the application on a build host that has the *exact same Python version* as your target device. <br> 2. **(Alternative)** Install the required Python version on the target device. For example, if the error mentions `libpython3.11.so`, you must install it: <br> ```sudo apt-get install python3.11 ``` |
 | **`ant_test_broadcaster.py` hangs or fails** | 1. Ensure you ran the script with `sudo`. <br> 2. Verify you have rebooted after **Step 4**. <br> 3. Unplug and replug the ANT+ dongle. |
-| **Watch connects, but pace is always --:--** | The application is not processing treadmill data. This means the model-specific flag is not set. You must edit the **root user's** config file (`sudo nano /root/.config/Roberto\ Viola/qDomyos-Zwift.conf`) and set the correct flag (e.g., `proform_treadmill_705_cst=true`). |
+| **Watch connects, but pace is always --:--** | The application is not processing treadmill data. This could mean the model-specific flag is not set. Edit the **root user's** config file (`sudo nano /root/.config/Roberto\ Viola/qDomyos-Zwift.conf`) and set the correct model flag (e.g., `proform_treadmill_705_cst=true`). |
 | **`systemctl stop qz` command hangs** | The `KillSignal=SIGINT` line is missing from your `qz.service` file. This is essential for graceful shutdown. |
