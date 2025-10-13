@@ -75,6 +75,14 @@ void deerruntreadmill::writeCharacteristic(const QLowEnergyCharacteristic charac
     }
 }
 
+void deerruntreadmill::waitForAPacket() {
+    QEventLoop loop;
+    QTimer timeout;
+    connect(this, &deerruntreadmill::packetReceived, &loop, &QEventLoop::quit);
+    timeout.singleShot(3000, &loop, SLOT(quit()));
+    loop.exec();
+}
+
 void deerruntreadmill::writeUnlockCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log) {
     QEventLoop loop;
     QTimer timeout;
@@ -418,13 +426,25 @@ void deerruntreadmill::btinit(bool startTape) {
         writeCharacteristic(gattWriteCharacteristic, startData, sizeof(startData), QStringLiteral("pitpat start"), false, true);
     } else if (superun_ba04) {
         // Superun BA04 treadmill initialization sequence
-        uint8_t initData1[] = {0x4d, 0x00, 0x01, 0x05, 0x6a, 0x05, 0xfd, 0xf8, 0x43};
+        // Wait for initial packet from treadmill before sending init
+        emit debug(QStringLiteral("BA04: waiting for initial packet..."));
+        waitForAPacket();
+
+        // Init 1: pollCounter = 0
+        uint8_t initData1[] = {0x4d, 0x00, 0x00, 0x05, 0x6a, 0x05, 0xfd, 0xf8, 0x43};
+        initData1[2] = 0;  // pollCounter = 0
         writeCharacteristic(gattWriteCharacteristic, initData1, sizeof(initData1), QStringLiteral("BA04 init 1"), false, true);
 
-        uint8_t initData2[] = {0x4d, 0x00, 0x02, 0x17, 0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x03, 0xe8, 0x05, 0x00, 0x50, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0xb5, 0x7c, 0x7c, 0x43};
+        uint8_t initData2[] = {0x4d, 0x00, 0x00, 0x05, 0x6a, 0x05, 0xfd, 0xf8, 0x43};
+        initData1[2] = 1;  // pollCounter = 0
         writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("BA04 init 2"), false, true);
 
-        // Start pollCounter from 3 since init used 1 and 2
+        // Init 2: pollCounter = 1
+        uint8_t initData3[] = {0x4d, 0x00, 0x01, 0x17, 0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x03, 0xe8, 0x05, 0x00, 0x50, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0xb5, 0x7c, 0x7c, 0x43};
+        initData3[2] = 2;  // pollCounter = 1
+        writeCharacteristic(gattWriteCharacteristic, initData3, sizeof(initData3), QStringLiteral("BA04 init 3"), false, true);
+
+        // Start pollCounter from 2 after init
         pollCounter = 3;
     }
     initDone = true;
