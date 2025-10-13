@@ -770,7 +770,19 @@ int main(int argc, char *argv[]) {
             QtAndroid::requestPermissionsSync(QStringList({"android.permission.POST_NOTIFICATIONS"}));
         if (resultHash["android.permission.POST_NOTIFICATIONS"] == QtAndroid::PermissionResult::Denied)
             qDebug() << "POST_NOTIFICATIONS denied!";
-    }    
+    }
+
+    // Create /sdcard/.wolfDev/keepme directory if it doesn't exist
+    QDir wolfDevDir("/sdcard/.wolfDev/keepme");
+    if (!wolfDevDir.exists()) {
+        if (wolfDevDir.mkpath(".")) {
+            qDebug() << "Created directory: /sdcard/.wolfDev/keepme";
+        } else {
+            qDebug() << "Failed to create directory: /sdcard/.wolfDev/keepme";
+        }
+    } else {
+        qDebug() << "Directory already exists: /sdcard/.wolfDev/keepme";
+    }
 #endif
 
     /* test virtual echelon
