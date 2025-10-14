@@ -1,46 +1,58 @@
 # ANT+ Virtual Footpod Broadcaster for Linux (Raspberry Pi)
 
-This guide will help you transform your Raspberry Pi running QDomyos-Zwift (QZ) into an ANT+ bridge that broadcasts treadmill data as a virtual footpod, enabling Garmin watches and other ANT+ devices to display real-time pace and distance.
+This guide will help you configure your Raspberry Pi running QDomyos-Zwift (QZ) into an ANT+ bridge that broadcasts treadmill data as a virtual footpod, enabling Garmin watches and other ANT+ devices to display real-time data.
+
+## What You'll Achieve
+- Broadcast treadmill pace, distance, and estimated cadence in real-time
+- Pair your Garmin watch or other ANT+ device as a Foot Pod
+- Log accurate run data directly to your fitness ecosystem
 
 ## Prerequisites
 
-This guide assumes you are comfortable using Linux and already have a working QDomyos-Zwift source installation on a Raspberry Pi, if not then first read these instructions https://github.com/cagnulein/qdomyos-zwift/blob/master/docs/10_Installation.md
+This feature requires the QZ source code and cannot be used with pre-built QZ packages.
 
-This will not work with pre-built QZ packages, you need the source code to compile with ANT+ support.
+### Quick Prerequisites Check
+Before you begin, please verify the following:
 
-### Tested Environment and compilation
+- Raspberry Pi 4/5 OR desktop Linux for compilation
+- ANT+ USB dongle (Garmin or compatible)
+- Garmin watch or compatible ANT+ device
+- Existing, working QDomyos-Zwift source installation on a Raspberry Pi
+- Familiarity with running terminal commands, editing text files, and basic Linux file system navigation
 
+This guide assumes you are comfortable using Linux and already have a working QDomyos-Zwift source installation on a Raspberry Pi. If not, first read these instructions: https://github.com/cagnulein/qdomyos-zwift/blob/master/docs/10_Installation.md
+
+### Verified Hardware & Software
 This guide has been tested using:
-- qdomyos-zwift running on Raspberry Pi Zero 2 W (Raspbian bookworm & trixie)
-- Dongle: Garmin ANT+ USB-m (0fcf:1009) & Garmin ANT+ USB2 (0fcf:1008)
-- Garmin Forerunner 245 Watch
-- Proform 705 CST treadmill
+- qdomyos-zwift cross-compiled on a Linux environment
+- qdomyos-zwift binary running on Raspberry Pi Zero 2 W (Raspberry Pi OS Bookworm & Trixie) 
+- Dongles: Garmin ANT+ USB-m (0fcf:1009) & Garmin ANT+ USB2 (0fcf:1008) 
+- Watch: Garmin Forerunner 245 Watch 
+- Treadmill: Proform 705 CST treadmill 
 
-#### Important Note on Compilation Hardware
+### Compilation Hardware
 
 The recommended methods for building the software are:
-1.  **Compile directly on a more powerful Raspberry Pi** (4 or 5).
-2.  **Cross-compile** from a more powerful Linux desktop or virtual machine.
+- Compile directly on a more powerful Raspberry Pi (4 or 5)
+- Cross-compile from a more powerful Linux desktop or virtual machine (this guide does not cover cross-compilation steps)
 
-While the Pi Zero 2 W is an excellent device for *running* the final `qdomyos-zwift` application, its limited 512MB of RAM is **insufficient for the C++ compilation process**. Attempting to compile on a Pi Zero 2 W will liekly fail with either out-of-memory errors or system freezing, even with workarounds like increased swap space.
+While the Pi Zero 2 W is an excellent device for running the final qdomyos-zwift application, its limited 512MB of RAM is insufficient for the C++ compilation process. Attempting to compile on a Pi Zero 2 W will likely fail with out-of-memory errors or system freezing. Workarounds like increasing swap space or swappiness are not effective.
 
 ### ANT+ Requirements
 
-To add ANT+ support, you will need an ANT+ USB dongle. Common models include:
-- Garmin ANT+ USB2 (0fcf:1008) **Tested**
-- Garmin ANT+ USB-m (0fcf:1009) **Tested**
-- Generic ANTUSB2 Stick (0x0fcf, 0x1004)
-- Suunto/Wahoo ANT+ USB (11fd:0001)
-
-A compatible device like a Garmin fitness watch or other similar ANT+ device.
+You will need an ANT+ USB dongle, such as the tested Garmin ANT+ USB2 (0fcf:1008) or Garmin ANT+ USB-m (0fcf:1009). A compatible fitness device like a Garmin watch is also necessary.
 
 ### Backup Recommendation
 
-Consider if you need backing up your system before proceeding.
+Consider backing up your system before proceeding.
 
 ## Installation
 
-### Step 1 - Install System Dependencies (Only if starting fresh, else skip to Step 2)
+This guide assumes your QZ source code is located at `$HOME/qdomyos-zwift/`
+
+### Step 1 - Install System Dependencies
+
+(Note: Skip this step if you already have a working QZ source installation)
 
 Ensure your QZ source is in `$HOME/qdomyos-zwift/`
 
@@ -66,7 +78,7 @@ git submodule update --init tst/googletest/
 
 ### Step 2 - Create Python Virtual Environment
 
-This isolates the required Python libraries from system packages, which is mandatory on modern Linux distributions (Debian Bookworm+).
+This environment isolates the required Python libraries, which is recommended for modern Linux distributions (Debian Bookworm+) to avoid conflicts with system packages.
 
 ```bash
 # Update package lists and install essential libraries for ANT+ support
@@ -91,7 +103,7 @@ $HOME/ant_venv/bin/python3 -m pip install pybind11 pyusb openant
 
 ### Step 3 - Configure Build Environment
 
-This step creates a "bridge" file that tells the QZ build system where to find your Python environment.
+This step prepares the QZ source code and links it to your new Python environment.
 
 ```bash
 # Navigate to the QDomyos-Zwift source subdirectory
@@ -104,8 +116,8 @@ git pull
 ```
 
 ```bash
-# Ensure the file qdomyos-zwift.pro includes the ANT+ module.
-grep -q "include(devices/antlinux/antlinux.pri)" qdomyos-zwift.pro || echo -e 'include(devices/antlinux/antlinux.pri)' >> qdomyos-zwift.pro
+# This command checks if ANT+ linux support is already enabled in qdomyos-zwift.pro and adds it if missing
+grep -q "antlinux.pri" qdomyos-zwift.pro || echo 'include(devices/antlinux/antlinux.pri)' >> qdomyos-zwift.pro
 ```
 
 ```bash
@@ -122,7 +134,7 @@ sudo apt-get install -y "python${PYVER}-dev"
 
 ### Step 4 - Configure USB Permissions
 
-These rules allow non-root users (and the application when running as root) to reliably access the ANT+ USB dongle.
+These rules enable non-root access to the ANT+ USB dongle.
 
 ```bash
 # Create a udev rule file to automatically set correct permissions for ANT+ USB dongles
@@ -143,13 +155,13 @@ sudo usermod -aG plugdev $USER
 ```
 
 ```bash
-# reboot system to use settings
+# Reboot system to apply settings
 sudo reboot
 ```
 
 ### Step 5 - Verify Setup
 
-After rebooting, run the included diagnostic script to verify that your entire environment is correctly configured before you attempt to build.
+After rebooting, run the included diagnostic script to check the environment.
 
 ```bash
 # Run the automated checklist
@@ -160,22 +172,31 @@ If the checklist reports any critical failures, resolve them before proceeding.
 
 ### Step 6 - Test ANT+ Broadcasting
 
-This standalone test validates that your Python environment and hardware are working correctly, independent of the main QZ application.
+This standalone test validates that your Python environment and hardware are working correctly before the full QZ build.
 
 ```bash
 # Run the ANT+ test script with sudo privileges
 sudo $HOME/ant_venv/bin/python3 $HOME/qdomyos-zwift/src/devices/antlinux/ant_test_broadcaster.py
 ```
 
-You should see output simulating a run with speed and pace data. While the test is running, pair your ANT+ device:
-*   **Garmin watches:** Menu > Sensors & Accessories > Add New > Foot Pod
-*   The watch should find the footpod. Start a "Treadmill" or "Run Indoor" activity, and pace data should appear.
+**What to expect:**
 
-Press `Ctrl+C` once to stop the test. If this test fails, the full build will not work.
+The test script simulates a running session and should connect to your watch within 10-15 seconds. You'll see output showing speed and pace data being broadcast.
+
+**Pairing your device:**
+
+1. On Garmin watches: Navigate to Menu > Sensors & Accessories > Add New > Foot Pod
+2. Your watch should detect and pair with the virtual footpod within 5-10 seconds
+3. Start a "Treadmill" or "Run Indoor" activity to see pace and cadence data
+4. To view cadence: Customize the data screens in your activity profile settings by adding a Cadence field
+
+**If successful:** Your watch will display stable pace (e.g., 5:35 min/km) and cadence (e.g., 150 SPM) values.
+
+Press `Ctrl+C` once to stop the test. If this test fails, the full QZ build is unlikely to work correctly.
 
 ### Step 7 - Build QZ with ANT+ Support
 
-Clean any previous build artifacts and run qmake to generate the Makefile with ANT+ support.
+Run qmake to generate the Makefile with ANT+ support.
 
 ```bash
 # Return to the QZ source subdirectory
@@ -191,9 +212,9 @@ During the `qmake` step, look for this message to confirm ANT+ support is detect
 
 `Project MESSAGE: >>> ANT+ ENABLED for build <<<`
 
-If this message is missing, return to the verification steps.
+If this message is missing, return to Step 5 to run the diagnostic script and resolve any failures before continuing.
 
-Build the application.
+Build the application:
 
 ```bash
 # Compile QDomyos-Zwift with ANT+ footpod support
@@ -216,6 +237,7 @@ Optional parameters:
 ```bash
 sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-device 12345
 ```
+
 `-ant-verbose`: Enable detailed DEBUG level logging from the internal Python ANT+ script. The default logging level is INFO. This verbose mode will log every ANT+ payload being sent. Use this only when debugging, as it can generate very large log files.
 
 ```bash
@@ -231,7 +253,7 @@ To have QZ start automatically with ANT+ support, modify your systemd service fi
 sudo nano /lib/systemd/system/qz.service
 ```
 
-Ensure the `[Service]` section looks like this. The key changes are running as `root`, replace 'pi' with your actual username if different and adding the ANT+ command-line flag.
+Ensure the `[Service]` section looks like this. The key changes are running as `root`, replacing 'pi' with your actual username if different, and adding the ANT+ command-line flag.
 
 ```ini
 [Unit]
@@ -243,13 +265,13 @@ After=multi-user.target
 User=root
 Group=plugdev
 
-# Replace 'pi' with username used for virtual python environment 
+# Replace 'pi' with username used for virtual Python environment 
 Environment="QZ_USER=pi"
 
-# Set working directory where log file is to be written to
+# Set working directory where log file will be written
 WorkingDirectory=/home/pi/qdomyos-zwift/src
 
-# The QZ command to execute, amend path location and flags as needed
+# The QZ command to execute, amend the path location and flags as needed
 ExecStart=/home/pi/qdomyos-zwift/src/qdomyos-zwift -no-gui -log -ant-footpod
 
 # Ensure graceful shutdown on stop
@@ -267,14 +289,62 @@ sudo systemctl start qz
 sudo systemctl status qz
 ```
 
-### Troubleshooting
+## Success Indicators
+How to know everything is working correctly:
 
-| Symptom / Error Message | Solution |
+✓ qmake shows the "ANT+ ENABLED" message  
+✓ The standalone test script (Step 6) connects to your watch within 10 seconds  
+✓ Your watch displays a stable pace (e.g., 5:35 min/km) and cadence (e.g., 150 SPM)  
+✓ The full QZ application (Step 8) successfully pairs and broadcasts data from your treadmill  
+
+## Troubleshooting
+
+| Issue | Solution |
 | --- | --- |
-| **`qmake` fails with `Unknown module(s)`** | A required Qt development package is missing. Re-run the `apt-get install` command in **Step 1**. |
-| **`make` fails with `Python.h: No such file or directory`** | The Python development headers are missing. Re-run the `apt-get install "python${PYVER}-dev"` command in **Step 3**. |
-| **`g++: fatal error: Killed signal terminated program cc1plus`** | **Cause:** This is an Out-of-Memory error. It is expected and unavoidable when trying to compile this project on a Raspberry Pi Zero 2 W with 512MB of RAM. <br><br> **Solution:** Compile the software on a more powerful machine. Workarounds like increasing swap or reducing parallel jobs (`make -j1`) are **not effective** and will most likely still fail. The only reliable solution is to use one of the following for the `make` step: <br> - A Raspberry Pi 4 (4GB+ model) <br> - A Raspberry Pi 5 <br> - A Linux desktop/VM (cross-compilation) |
-| **`./qdomyos-zwift: error while loading shared libraries: libpython3.XX.so.1.0: cannot open shared object file`** | **Cause:** The application was compiled against a different version of Python (e.g., 3.11) than what is installed on your target device (e.g., 3.13). The executable has a hard requirement for the specific `libpython` version it was built with. <br><br> **Solution:** <br> 1. **(Best)** Re-compile the application on a build host that has the *exact same Python version* as your target device. <br> 2. **(Alternative)** Install the required Python version on the target device. For example, if the error mentions `libpython3.11.so`, you must install it: <br> ```sudo apt-get install python3.11 ``` |
-| **`ant_test_broadcaster.py` hangs or fails** | 1. Ensure you ran the script with `sudo`. <br> 2. Verify you have rebooted after **Step 4**. <br> 3. Unplug and replug the ANT+ dongle. |
-| **Watch connects, but pace is always --:--** | The application is not processing treadmill data. This could mean the model-specific flag is not set. Edit the **root user's** config file (`sudo nano /root/.config/Roberto\ Viola/qDomyos-Zwift.conf`) and set the correct model flag (e.g., `proform_treadmill_705_cst=true`). |
-| **`systemctl stop qz` command hangs** | The `KillSignal=SIGINT` line is missing from your `qz.service` file. This is essential for graceful shutdown. |
+| `qmake` fails with "Unknown module(s)" | Re-run the apt-get install command from Step 1. |
+| `make` fails with "Python.h: No such file or directory" | Install Python development headers as shown in Step 3. |
+| `g++: fatal error: Killed signal terminated program cc1plus` | Out-of-memory error on Pi Zero 2 W. Compile on Raspberry Pi 4/5 or Linux desktop instead. Increasing swap space is not effective. |
+| `error while loading shared libraries: libpython3.XX.so.1.0` | Python version mismatch. Best solution: Re-compile on a machine with the same Python version. Alternative: Install the required Python version: `sudo apt-get install python3.11` |
+| `ant_test_broadcaster.py` hangs or fails | Run with sudo, reboot after Step 4, or unplug/replug the ANT+ dongle. |
+| Watch connects but pace shows --:-- | Treadmill model flag not set. Edit root config: `sudo nano /root/.config/Roberto\ Viola/qDomyos-Zwift.conf` and add your model flag (e.g., `proform_treadmill_705_cst=true`). |
+| Test script works but watch doesn't connect | Unplug/replug dongle, verify Step 4 completion with reboot, check device ID (default 54321), ensure QZ runs as root (Step 9), check log for errors. |
+| `systemctl stop qz` hangs | Add `KillSignal=SIGINT` to the [Service] section in qz.service file. |
+
+## Technical Notes
+
+For developers and curious users, the following explains the technical implementation details behind the ANT+ integration.
+
+### ANT+ SDM Protocol Implementation
+
+The ANT+ Stride-based Speed and Distance Monitor (SDM) protocol defines how footpod devices communicate with receiving displays like Garmin watches. This implementation broadcasts treadmill data using the ANT+ SDM device profile specification.
+
+Through extensive testing with a Garmin Forerunner 245 watch, 16 different payload combinations were systematically evaluated. Each configuration was measured for pace stability (no flickering), cadence accuracy (correct steps-per-minute), and cadence responsiveness (how quickly values updated during 180 to 120 SPM transitions).
+
+### Optimal Broadcast Strategy
+
+The validated solution broadcasts Page 1 seven times consecutively, followed by Page 2 once. Page 1 contains speed, distance, stride count, and timing data. Page 2 contains cadence (in strides per minute) and speed fields.
+
+The key discovery was that including speed in both page types eliminates pace flickering. While Page 2 primarily transmits cadence, maintaining speed data in both pages prevents the watch from showing intermittent no-pace indicators. The 7:1 ratio balances frequent speed updates with responsive cadence display.
+
+The implementation uses 4 Hz broadcast rate (250ms intervals) with self-correcting timing. Cadence ramping provides gradual transitions at 12.5 steps per minute per cycle, creating smooth 3-second acceleration from stationary to 150 SPM that mimics realistic treadmill behavior. Stride calculation uses floating-point precision (strides = steps ÷ 2) for accuracy even at low cadences.
+
+### Estimated Cadence Model
+
+The cadence estimation is based on biomechanics research showing that people naturally transition from walking to running at approximately 7.2-7.4 km/h. This transition speed is consistent across individuals regardless of training status and represents the point where running becomes more energetically efficient than walking.
+
+The implementation uses 7.0 km/h as the transition threshold with a two-zone model. Below 7.0 km/h, cadence progresses from 90 SPM (casual walk at 3 km/h) to 140 SPM (brisk walk). At 7.0 km/h and above, cadence ranges from 160 SPM (easy jog) to 200 SPM (fast run), capped at 200 SPM maximum.
+
+This research-based transition point helps Garmin watches correctly classify activities. A 6.0 km/h brisk walk logs as a Walk segment with cadence around 128 SPM, while an 8.5 km/h jog logs as a Run segment with cadence around 166 SPM, matching real-world biomechanics for accurate activity summaries.
+
+### References
+
+[ANT+ Device Profiles - SDM Specification](https://www.thisisant.com/developer/ant-plus/device-profiles)<br>
+[Preferred transition speed between walking and running](https://pubmed.ncbi.nlm.nih.gov/16286854/)<br>
+[Biomechanics of Gait Transition](https://scholarworks.boisestate.edu/cgi/viewcontent.cgi?article=1178&context=td)<br>
+[Energetics of Walk-Run Transition](https://www.sciencedirect.com/science/article/abs/pii/S0167945723000635)<br>
+
+## Credits & Acknowledgments
+
+* **Main Project:** https://github.com/cagnulein/qdomyos-zwift
+* **ANT+ Linux footpod contributor:** [bassai-sho](https://github.com/bassai-sho)
+* **Development Note:** AI assistance tools (Claude, Gemini) were used to assist with coding, debugging, and documentation refinement
