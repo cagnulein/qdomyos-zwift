@@ -1467,10 +1467,14 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 }
 
 void ftmsbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+    static bool connectedAndDiscoveredOk = false;
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     initRequest = true;
-    emit connectedAndDiscovered();
+    if(!connectedAndDiscoveredOk) {
+        connectedAndDiscoveredOk = true;
+        emit connectedAndDiscovered();
+    }    
 }
 
 void ftmsbike::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {

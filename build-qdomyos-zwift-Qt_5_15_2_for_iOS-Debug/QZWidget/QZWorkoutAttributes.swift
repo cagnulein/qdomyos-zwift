@@ -18,14 +18,16 @@ public struct QZWorkoutAttributes: ActivityAttributes {
         public var heartRate: Int
         public var distance: Double
         public var kcal: Double
+        public var useMiles: Bool
 
-        public init(speed: Double, cadence: Double, power: Double, heartRate: Int, distance: Double, kcal: Double) {
+        public init(speed: Double, cadence: Double, power: Double, heartRate: Int, distance: Double, kcal: Double, useMiles: Bool) {
             self.speed = speed
             self.cadence = cadence
             self.power = power
             self.heartRate = heartRate
             self.distance = distance
             self.kcal = kcal
+            self.useMiles = useMiles
         }
     }
 
