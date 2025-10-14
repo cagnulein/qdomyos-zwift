@@ -1531,7 +1531,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("S77")) && !sole_inclination) ||       // FMTS
                         (b.name().toUpper().startsWith(QStringLiteral("F89")) && !sole_inclination) ||       // FMTS
                         (b.name().toUpper().startsWith(QStringLiteral("F80")) && !sole_inclination) ||       // FMTS
-                        (b.name().toUpper().startsWith(QStringLiteral("ANPLUS-")))                           // FTMS
+                        (b.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) ||                        // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TM XP_"))                              // FTMS
                         ) &&
                        !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);

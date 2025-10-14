@@ -22,11 +22,15 @@ void elliptical::update_metrics(bool watt_calc, const double watts) {
             WeightLoss = metric::calculateWeightLoss(KCal.value());
             WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
         } else if (m_watt.value() > 0) {
-            m_watt = 0;
+            if (watt_calc) {
+                m_watt = 0;
+            }
             WattKg = 0;
         }
     } else if (m_watt.value() > 0) {
-        m_watt = 0;
+        if (watt_calc) {
+            m_watt = 0;
+        }
         WattKg = 0;
     }
 

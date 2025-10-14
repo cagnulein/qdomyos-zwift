@@ -332,7 +332,8 @@ void bluetoothdevice::update_hr_from_external() {
     double kcal = calories().value();
     if(kcal < 0)
         kcal = 0;
-    h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(), deviceType(), odometer() * 1000.0, totalCalories().value());
+    bool useMiles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(), deviceType(), odometer() * 1000.0, totalCalories().value(), useMiles);
     #endif
     #endif    
 }

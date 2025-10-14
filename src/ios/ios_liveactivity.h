@@ -3,8 +3,8 @@
 
 class ios_liveactivity {
 public:
-    static void startLiveActivity(const char* deviceName);
-    static void updateLiveActivity(double speed, double cadence, double power, int heartRate, double distance, double kcal);
+    static void startLiveActivity(const char* deviceName, bool useMiles);
+    static void updateLiveActivity(double speed, double cadence, double power, int heartRate, double distance, double kcal, bool useMiles);
     static void endLiveActivity();
     static bool isLiveActivityRunning();
 };
