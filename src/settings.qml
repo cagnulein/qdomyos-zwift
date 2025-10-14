@@ -9718,7 +9718,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("QZ can open an external browser in order to auth Strava to QZ. Default: disabled.")
+                        text: qsTr("QZ can open an external browser to authorize Strava. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
