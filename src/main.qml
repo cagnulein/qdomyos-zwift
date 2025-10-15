@@ -824,6 +824,14 @@ ApplicationWindow {
                         drawer.close()
                     }
                 }
+                ItemDelegate {
+                    text: qsTr("Workout Editor")
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("WorkoutEditor.qml")
+                        drawer.close()
+                    }
+                }
                 /*
                 ItemDelegate {
                     text: qsTr("What's On Zwift™")

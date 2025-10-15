@@ -22,6 +22,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QDirIterator>
+#include <QFile>
 #include <QFileInfo>
 #include <QGeoCoordinate>
 #include <QHttpMultiPart>
@@ -40,6 +41,7 @@
 #include <QStandardPaths>
 #include <QTime>
 #include <QUrlQuery>
+#include <QRegularExpression>
 #include <chrono>
 
 homeform *homeform::m_singleton = 0;
@@ -7482,6 +7484,22 @@ void homeform::trainprogram_open_other_folder(const QUrl &fileName) {
 void homeform::gpx_open_other_folder(const QUrl &fileName) {
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
     copyAndroidContentsURI(fileName, "gpx");
+}
+
+bool homeform::startTrainingProgramFromFile(const QString &filePath) {
+    if (filePath.isEmpty()) {
+        return false;
+    }
+    QUrl url(filePath);
+    if (!url.isValid() || (!url.isLocalFile() && url.scheme().isEmpty())) {
+        url = QUrl::fromLocalFile(filePath);
+    }
+    QString localPath = QQmlFile::urlToLocalFileOrQrc(url);
+    if (localPath.isEmpty() || !QFile::exists(localPath)) {
+        return false;
+    }
+    trainprogram_open_clicked(QUrl::fromLocalFile(localPath));
+    return true;
 }
 
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
