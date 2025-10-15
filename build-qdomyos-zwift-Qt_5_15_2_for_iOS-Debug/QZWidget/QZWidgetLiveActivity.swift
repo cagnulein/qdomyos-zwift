@@ -153,7 +153,8 @@ struct QZWidgetLiveActivity_Previews: PreviewProvider {
         power: 200,
         heartRate: 145,
         distance: 12500,  // meters (will be displayed as 12.50 km or 7.77 mi)
-        kcal: 320
+        kcal: 320,
+        useMiles: false
     )
 
     static var previews: some View {
