@@ -264,15 +264,26 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
             deltaT = LastCrankEventTimeRead + 65535 - oldLastCrankEventTime;
         }
 
+        // Calculate crank revs delta with wraparound handling
+        int32_t crankDelta = CrankRevsRead - oldCrankRevs;
+        if (crankDelta < 0) {
+            crankDelta = CrankRevsRead + 65536 - oldCrankRevs;
+        }
+
         // Tacx Neo flywheel spins up when freewheeling in a low virtual gear (Issue #2157)
         if(m_watt.value() == 0) {
             Cadence = 0;
-        } else if (CrankRevsRead != oldCrankRevs && deltaT) {
-            double cadence = (((double)CrankRevsRead - (double)oldCrankRevs) / (double)deltaT) * 1024.0 * 60.0;
+        } else if (crankDelta > 0 && deltaT > 0) {
+            double cadence = ((double)crankDelta / (double)deltaT) * 1024.0 * 60.0;
             if (cadence >= 0 && cadence < 255) {
                 Cadence = cadence;
+                lastGoodCadence = now;
+            } else {
+                emit debug(QStringLiteral("Invalid cadence calculated: ") + QString::number(cadence) +
+                          QStringLiteral(" CrankRevs: ") + QString::number(CrankRevsRead) +
+                          QStringLiteral(" oldCrankRevs: ") + QString::number(oldCrankRevs) +
+                          QStringLiteral(" deltaT: ") + QString::number(deltaT));
             }
-            lastGoodCadence = now;
         } else if (lastGoodCadence.msecsTo(now) > 2000) {
             Cadence = 0;
         }
