@@ -158,7 +158,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 #endif
 
     stravaAuthWebVisible = false;
-    stravaWebVisibleChanged(stravaAuthWebVisible);
+    emit stravaWebVisibleChanged(stravaAuthWebVisible);
 
     QString innerId = QStringLiteral("inner");
     QString sKey = QStringLiteral("template_") + innerId + QStringLiteral("_" TEMPLATE_PRIVATE_WEBSERVER_ID "_");
@@ -1168,8 +1168,24 @@ QString homeform::getWritableAppDir() {
     QSettings settings;
     bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
     if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
-        path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
-        QDir().mkdir(path);
+        // Qt6 changed QStandardPaths::DocumentsLocation to return app-private directory
+        // Use Android's Environment.getExternalStoragePublicDirectory(DIRECTORY_DOCUMENTS) to get the public Documents folder
+        QJniObject mediaDir = QJniObject::callStaticObjectMethod(
+            "android/os/Environment",
+            "getExternalStoragePublicDirectory",
+            "(Ljava/lang/String;)Ljava/io/File;",
+            QJniObject::getStaticObjectField("android/os/Environment", "DIRECTORY_DOCUMENTS", "Ljava/lang/String;").object()
+        );
+
+        if (mediaDir.isValid()) {
+            QJniObject mediaPath = mediaDir.callObjectMethod("getAbsolutePath", "()Ljava/lang/String;");
+            path = mediaPath.toString() + "/QZ/";
+        } else {
+            // Fallback to hardcoded path if JNI call fails
+            path = "/storage/emulated/0/Documents/QZ/";
+        }
+
+        QDir().mkpath(path);  // Use mkpath to create all intermediate directories
         // Create .nomedia file to prevent gallery indexing
         QFile nomediaFile(path + ".nomedia");
         if (!nomediaFile.exists()) {
@@ -8141,7 +8157,7 @@ void homeform::writeFileCompleted() {
 void homeform::onStravaGranted() {
 
     stravaAuthWebVisible = false;
-    stravaWebVisibleChanged(stravaAuthWebVisible);
+    emit stravaWebVisibleChanged(stravaAuthWebVisible);
     QSettings settings;
     settings.setValue(QZSettings::strava_accesstoken, strava->token());
     settings.setValue(QZSettings::strava_refreshtoken, strava->refreshToken());
@@ -8168,7 +8184,7 @@ void homeform::onStravaAuthorizeWithBrowser(const QUrl &url) {
         QDesktopServices::openUrl(url);
     else {
         stravaAuthWebVisible = true;
-        stravaWebVisibleChanged(stravaAuthWebVisible);
+        emit stravaWebVisibleChanged(stravaAuthWebVisible);
     }
 }
 
