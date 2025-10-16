@@ -88,6 +88,10 @@ class bike : public bluetoothdevice {
     void gearFailedDown(); // Signal when gear down hits min
 
   protected:
+    int32_t adjustRequestPowerWithSensorDelta(int32_t requestPower,
+                                              bool powerSensorEnabled,
+                                              double ergFilterUpper,
+                                              double ergFilterLower);
     metric RequestedResistance;
     metric RequestedPelotonResistance;
     metric RequestedCadence;

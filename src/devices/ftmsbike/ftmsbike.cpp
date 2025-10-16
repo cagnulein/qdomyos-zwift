@@ -1434,18 +1434,33 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
             // handling watt gain and offset for erg mode
+            double erg_filter_upper =
+                settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+            double erg_filter_lower =
+                settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
             double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
             double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
 
-            if (watt_gain != 1.0 || watt_offset != 0) {
-                uint16_t powerRequested = (((uint8_t)b.at(1)) + (b.at(2) << 8));
-                qDebug() << "applying watt_gain/watt_offset from" << powerRequested;
-                powerRequested = ((powerRequested / watt_gain) - watt_offset);
-                qDebug() << "to" << powerRequested;
+            int32_t powerRequested = ((uint8_t)b.at(1)) + (((uint8_t)b.at(2)) << 8);
 
-                b[1] = powerRequested & 0xFF;
-                b[2] = powerRequested >> 8;
+            if (watt_gain != 1.0 || watt_offset != 0) {
+                qDebug() << "applying watt_gain/watt_offset from" << powerRequested;
+                powerRequested = static_cast<int32_t>((powerRequested / watt_gain) - watt_offset);
+                qDebug() << "to" << powerRequested;
             }
+
+            powerRequested = adjustRequestPowerWithSensorDelta(powerRequested, power_sensor, erg_filter_upper, erg_filter_lower);
+
+            if (powerRequested < 0) {
+                powerRequested = 0;
+            } else if (powerRequested > 0xFFFF) {
+                powerRequested = 0xFFFF;
+            }
+
+            requestPower = powerRequested;
+
+            b[1] = static_cast<char>(powerRequested & 0xFF);
+            b[2] = static_cast<char>((powerRequested >> 8) & 0xFF);
         }
         // gears on erg mode is quite useless and it's confusing
         /* else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {

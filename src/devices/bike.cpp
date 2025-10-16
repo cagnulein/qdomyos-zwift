@@ -77,12 +77,7 @@ void bike::changePower(int32_t power) {
     qDebug() << QStringLiteral("changePower: original power with offset applied: ") + QString::number(power) + QStringLiteral(" (offset: ") + QString::number(bike_power_offset) + QStringLiteral(")");
 
     requestPower = power; // used by some bikes that have ERG mode builtin
-    
-    if(power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0 && fabs(requestPower - m_watt.average5s()) < qMax(erg_filter_upper, erg_filter_lower)) {
-        qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s() << "watt" << m_watt.average5s() << "req" << requestPower;
-        // the concept here is to trying to add or decrease the delta from the power sensor
-        requestPower += (requestPower - m_watt.average5s());
-    }
+    requestPower = adjustRequestPowerWithSensorDelta(requestPower, power_sensor, erg_filter_upper, erg_filter_lower);
         
     bool force_resistance =
         settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
@@ -98,6 +93,29 @@ void bike::changePower(int32_t power) {
         resistance_t r = (resistance_t)resistanceFromPowerRequest(power);
         changeResistance(r); // resistance start from 1
     }
+}
+
+int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
+                                                bool powerSensorEnabled,
+                                                double ergFilterUpper,
+                                                double ergFilterLower) {
+    if (!powerSensorEnabled || !ergModeSupported) {
+        return requestPower;
+    }
+
+    if (m_rawWatt.value() <= 0 || m_watt.value() <= 0) {
+        return requestPower;
+    }
+
+    if (fabs(requestPower - m_watt.average5s()) >= qMax(ergFilterUpper, ergFilterLower)) {
+        return requestPower;
+    }
+
+    qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s() << "watt" << m_watt.average5s()
+             << "req" << requestPower;
+
+    const double delta = requestPower - m_watt.average5s();
+    return requestPower + static_cast<int32_t>(delta);
 }
 
 double bike::gears() {
