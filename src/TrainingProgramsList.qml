@@ -1,11 +1,11 @@
-import QtQuick 2.7
-import Qt.labs.folderlistmodel 2.15
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.15
-import QtQuick.Controls.Material 2.0
-import QtQuick.Dialogs 1.0
-import QtCharts 2.2
-import Qt.labs.settings 1.0
+import QtQuick
+import Qt.labs.folderlistmodel
+import QtQuick.Layouts
+import QtQuick.Controls
+import QtQuick.Controls.Material
+import QtQuick.Dialogs
+import QtCharts
+import Qt.labs.settings
 
 ColumnLayout {
     signal trainprogram_open_clicked(url name)

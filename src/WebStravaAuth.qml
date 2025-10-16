@@ -1,12 +1,11 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Controls.Material 2.12
-import QtQuick.Dialogs 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Material
 import QtQuick.Effects
-import Qt.labs.settings 1.0
-import QtMultimedia 5.15
-import QtQuick.Layouts 1.3
-import QtWebView 1.1
+import Qt.labs.settings
+import QtMultimedia
+import QtQuick.Layouts
+import QtWebView
 
 Item {
     anchors.fill: parent
