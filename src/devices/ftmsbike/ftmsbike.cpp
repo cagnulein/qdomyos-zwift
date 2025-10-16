@@ -1557,6 +1557,8 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("ICSE found");
             ICSE = true;
             secondsToResetTimer = 15;
+            autoResistanceEnable = false;  // Disable auto resistance for ICSE bikes
+            qDebug() << QStringLiteral("ICSE: autoResistance disabled by default");
         } else if ((bluetoothDevice.name().toUpper().startsWith("DOMYOS"))) {
             qDebug() << QStringLiteral("DOMYOS found");
             resistance_lvl_mode = true;
