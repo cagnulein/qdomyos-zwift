@@ -590,6 +590,41 @@ void kettlerracersbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         return;
     }
 
+    // Handle gear shift commands from bike controls (638a1010-7bde-3e25-ffc5-9de9b2a0197a)
+    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1010-7bde-3e25-ffc5-9de9b2a0197a"))) {
+        if (newValue.length() >= 6) {
+            // Pattern: 00 00 00 00 XX YY
+            uint8_t byte4 = (uint8_t)newValue.at(4);  // Position 4: left gear control
+            uint8_t byte5 = (uint8_t)newValue.at(5);  // Position 5: right gear control
+
+            // Left gear button: single gear shift
+            if (byte5 == 0xff && byte4 == 0x00) {
+                // Left up: 00 00 00 00 00 ff
+                emit debug(QStringLiteral("Gear command: LEFT UP (single)"));
+                gearUp();
+            } else if (byte5 == 0x01 && byte4 == 0x00) {
+                // Left down: 00 00 00 00 00 01
+                emit debug(QStringLiteral("Gear command: LEFT DOWN (single)"));
+                gearDown();
+            }
+            // Right gear button: multiple gear shift (3 gears at once)
+            else if (byte4 == 0xff && byte5 == 0x00) {
+                // Right up: 00 00 00 00 ff 00
+                emit debug(QStringLiteral("Gear command: RIGHT UP (multiple)"));
+                for (int i = 0; i < 3; ++i) {
+                    gearUp();
+                }
+            } else if (byte4 == 0x01 && byte5 == 0x00) {
+                // Right down: 00 00 00 00 01 00
+                emit debug(QStringLiteral("Gear command: RIGHT DOWN (multiple)"));
+                for (int i = 0; i < 3; ++i) {
+                    gearDown();
+                }
+            }
+        }
+        return;
+    }
+
     if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("00002a5b-0000-1000-8000-00805f9b34fb"))) {
         // CSC measurement characteristic
         cscPacketReceived(newValue);
