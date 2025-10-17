@@ -52,6 +52,7 @@ class deerruntreadmill : public treadmill {
     void waitForAPacket();
     void startDiscover();
     uint8_t calculateXOR(uint8_t arr[], size_t size);
+    uint8_t calculatePitPatChecksum(uint8_t arr[], size_t size);
     bool noConsole = false;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;

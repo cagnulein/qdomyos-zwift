@@ -130,6 +130,30 @@ uint8_t deerruntreadmill::calculateXOR(uint8_t arr[], size_t size) {
     return result;
 }
 
+uint8_t deerruntreadmill::calculatePitPatChecksum(uint8_t arr[], size_t size) {
+    uint8_t result = 0;
+
+    if (size < 5) {
+        qDebug() << QStringLiteral("array too small for PitPat checksum");
+        return 0;
+    }
+
+    // For PitPat protocol:
+    // 1. XOR from byte 5 to byte (size - 3) for long messages (>= 7 bytes)
+    //    or from byte 2 to byte (size - 3) for short messages (< 7 bytes)
+    // 2. XOR the result with byte 1
+    size_t startIdx = (size < 7) ? 2 : 5;
+
+    for (size_t i = startIdx; i <= size - 3; i++) {
+        result ^= arr[i];
+    }
+
+    // XOR with byte 1 (command byte)
+    result ^= arr[1];
+
+    return result;
+}
+
 
 void deerruntreadmill::forceSpeed(double requestSpeed) {
     QSettings settings;
@@ -137,13 +161,13 @@ void deerruntreadmill::forceSpeed(double requestSpeed) {
     if (pitpat) {
         // PitPat speed template
         // Pattern: 6a 17 00 00 00 00 [speed_high] [speed_low] 01 00 8a 00 04 00 00 00 00 00 12 2e 0c [checksum] 43
-        // Speed encoding: speed value * 100 (e.g., 19.0 km/h = 1900 = 0x076c)
+        // Speed encoding: speed value * 1000 (e.g., 2.0 km/h = 2000 = 0x07d0)
         uint8_t writeSpeed[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x07, 0x6c, 0x01, 0x00, 0x8a, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x2e, 0x0c, 0xc3, 0x43};
 
         uint16_t speed = (uint16_t)(requestSpeed * 1000.0);
         writeSpeed[6] = (speed >> 8) & 0xFF;  // High byte
         writeSpeed[7] = speed & 0xFF;          // Low byte
-        writeSpeed[21] = calculateXOR(writeSpeed, sizeof(writeSpeed));  // Checksum at byte 21
+        writeSpeed[21] = calculatePitPatChecksum(writeSpeed, sizeof(writeSpeed));  // Checksum at byte 21
 
         writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
                             QStringLiteral("forceSpeed PitPat speed=") + QString::number(requestSpeed), false, true);
