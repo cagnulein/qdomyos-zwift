@@ -134,7 +134,20 @@ uint8_t deerruntreadmill::calculateXOR(uint8_t arr[], size_t size) {
 void deerruntreadmill::forceSpeed(double requestSpeed) {
     QSettings settings;
 
-    if (superun_ba04) {
+    if (pitpat) {
+        // PitPat speed template
+        // Pattern: 6a 17 00 00 00 00 [speed_high] [speed_low] 01 00 8a 00 04 00 00 00 00 00 12 2e 0c [checksum] 43
+        // Speed encoding: speed value * 100 (e.g., 19.0 km/h = 1900 = 0x076c)
+        uint8_t writeSpeed[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x07, 0x6c, 0x01, 0x00, 0x8a, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x2e, 0x0c, 0xc3, 0x43};
+
+        uint16_t speed = (uint16_t)(requestSpeed * 100.0);
+        writeSpeed[6] = (speed >> 8) & 0xFF;  // High byte
+        writeSpeed[7] = speed & 0xFF;          // Low byte
+        writeSpeed[21] = calculateXOR(writeSpeed, sizeof(writeSpeed));  // Checksum at byte 21
+
+        writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
+                            QStringLiteral("forceSpeed PitPat speed=") + QString::number(requestSpeed), false, true);
+    } else if (superun_ba04) {
         // Superun BA04 speed template
         uint8_t writeSpeed[] = {0x4d, 0x00, 0x14, 0x17, 0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x04, 0x4c, 0x01, 0x00, 0x50, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0xb5, 0x7c, 0xdb, 0x43};
 
