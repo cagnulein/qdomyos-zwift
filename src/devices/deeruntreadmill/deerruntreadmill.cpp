@@ -140,7 +140,7 @@ void deerruntreadmill::forceSpeed(double requestSpeed) {
         // Speed encoding: speed value * 100 (e.g., 19.0 km/h = 1900 = 0x076c)
         uint8_t writeSpeed[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x07, 0x6c, 0x01, 0x00, 0x8a, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x2e, 0x0c, 0xc3, 0x43};
 
-        uint16_t speed = (uint16_t)(requestSpeed * 100.0);
+        uint16_t speed = (uint16_t)(requestSpeed * 1000.0);
         writeSpeed[6] = (speed >> 8) & 0xFF;  // High byte
         writeSpeed[7] = speed & 0xFF;          // Low byte
         writeSpeed[21] = calculateXOR(writeSpeed, sizeof(writeSpeed));  // Checksum at byte 21
