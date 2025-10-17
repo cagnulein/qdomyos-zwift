@@ -719,6 +719,13 @@ ApplicationWindow {
 
     Drawer {
         id: drawer
+        function logDrawerEvent(label, phase) {
+            var focusItem = Qt.application.activeFocusItem;
+            var focusName = focusItem && focusItem.objectName ? focusItem.objectName : focusItem;
+            console.log("[Drawer]", label, phase,
+                        "scrollFocus=", drawerScrollView.focus,
+                        "activeFocus=", focusName);
+        }
         width: window.width * 0.66
         height: window.height
         topPadding: getTopPadding()
@@ -727,30 +734,62 @@ ApplicationWindow {
         rightPadding: getRightPadding()
 
         ScrollView {
+            id: drawerScrollView
             contentWidth: -1
-            focus: true
+            focus: false
+            focusPolicy: Qt.NoFocus
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.fill: parent
+            onFocusChanged: drawer.logDrawerEvent("ScrollView", focus ? "focus-gained" : "focus-lost")
 
             Column {
                 anchors.fill: parent
 
                 ItemDelegate {
+                    objectName: "drawer-profile"
                     text: qsTr("Profile: ") + settings.profile_name
                     width: parent.width
-                    onClicked: {
+                    property bool _tapHandlerActive: false
+                    onActiveFocusChanged: drawer.logDrawerEvent(text, activeFocus ? "delegate-focus-gained" : "delegate-focus-lost")
+                    onPressed: drawer.logDrawerEvent(text, "pressed")
+                    onReleased: drawer.logDrawerEvent(text, "released")
+                    onCanceled: drawer.logDrawerEvent(text, "canceled")
+                    function triggerAction(source) {
+                        drawer.logDrawerEvent(text, source)
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;
                         stackView.push("profiles.qml")
                         stackView.currentItem.profile_open_clicked.connect(profile_open_clicked)
                         drawer.close()
                     }
+                    TapHandler {
+                        id: profileTapHandler
+                        acceptedButtons: Qt.LeftButton
+                        grabPermissions: PointerHandler.TakeOverForbidden
+                        onTapped: {
+                            parent._tapHandlerActive = true
+                            parent.triggerAction("tap-handler")
+                            parent._tapHandlerActive = false
+                        }
+                    }
+                    onClicked: {
+                        if (_tapHandlerActive)
+                            return;
+                        triggerAction("clicked")
+                    }
                 }
 
                 ItemDelegate {
+                    objectName: "drawer-settings"
                     text: qsTr("Settings")
                     width: parent.width
-                    onClicked: {
+                    property bool _tapHandlerActive: false
+                    onActiveFocusChanged: drawer.logDrawerEvent(text, activeFocus ? "delegate-focus-gained" : "delegate-focus-lost")
+                    onPressed: drawer.logDrawerEvent(text, "pressed")
+                    onReleased: drawer.logDrawerEvent(text, "released")
+                    onCanceled: drawer.logDrawerEvent(text, "canceled")
+                    function triggerAction(source) {
+                        drawer.logDrawerEvent(text, source)
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;
                         stackView.push("settings.qml")
@@ -759,15 +798,52 @@ ApplicationWindow {
                          });
                         drawer.close()
                     }
+                    TapHandler {
+                        id: settingsTapHandler
+                        acceptedButtons: Qt.LeftButton
+                        grabPermissions: PointerHandler.TakeOverForbidden
+                        onTapped: {
+                            parent._tapHandlerActive = true
+                            parent.triggerAction("tap-handler")
+                            parent._tapHandlerActive = false
+                        }
+                    }
+                    onClicked: {
+                        if (_tapHandlerActive)
+                            return;
+                        triggerAction("clicked")
+                    }
                 }
 
             ItemDelegate {
+                objectName: "drawer-workouts"
                 text: qsTr("Workouts History")
                 width: parent.width
-                onClicked: {
+                property bool _tapHandlerActive: false
+                onActiveFocusChanged: drawer.logDrawerEvent(text, activeFocus ? "delegate-focus-gained" : "delegate-focus-lost")
+                onPressed: drawer.logDrawerEvent(text, "pressed")
+                onReleased: drawer.logDrawerEvent(text, "released")
+                onCanceled: drawer.logDrawerEvent(text, "canceled")
+                function triggerAction(source) {
+                    drawer.logDrawerEvent(text, source)
                     stackView.push("WorkoutsHistory.qml")
                     stackView.currentItem.fitfile_preview_clicked.connect(fitfile_preview_clicked)
                     drawer.close()
+                }
+                TapHandler {
+                    id: workoutsTapHandler
+                    acceptedButtons: Qt.LeftButton
+                    grabPermissions: PointerHandler.TakeOverForbidden
+                    onTapped: {
+                        parent._tapHandlerActive = true
+                        parent.triggerAction("tap-handler")
+                        parent._tapHandlerActive = false
+                    }
+                }
+                onClicked: {
+                    if (_tapHandlerActive)
+                        return;
+                    triggerAction("clicked")
                 }
             }
                 ItemDelegate {
