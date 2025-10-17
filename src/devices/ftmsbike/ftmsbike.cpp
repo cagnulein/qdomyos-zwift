@@ -354,8 +354,9 @@ void ftmsbike::update() {
             ((double)settings.value(QZSettings::gear_cog_size, QZSettings::default_gear_cog_size).toDouble());
             
             double current_ratio = ((double)g.crankset / (double)g.rearCog);
-            
-            uint32_t gear_value = static_cast<uint32_t>(10000.0 * (current_ratio/original_ratio) * (42.0/14.0));
+
+            // Scale gear ratio based on users chainring:cog ratio (original_ratio) relative to default Zwift 42 teet front, 14 rear.
+            uint32_t gear_value = static_cast<uint32_t>(10000.0 * 10000 * current_ratio * ( original_ratio / (42.0/14.0)));
             
             qDebug() << "zwift hub gear current ratio" << current_ratio << g.crankset << g.rearCog << "gear_value" << gear_value << "original_ratio" << original_ratio;
  
