@@ -603,6 +603,11 @@ jobs:
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
+      - name: Patch QtBluetoothLE executeReadJob
+        run: |
+          # Fix Qt's executeReadJob bug - just copy pre-patched JAR
+          echo "Using pre-patched QtAndroidBluetooth.jar from qt-patches (no compilation needed)"
+
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
@@ -1634,6 +1639,11 @@ jobs:
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
+      - name: Patch QtBluetoothLE executeReadJob
+        run: |
+          # Fix Qt's executeReadJob bug - just copy pre-patched JAR
+          echo "Using pre-patched QtAndroidBluetooth.jar from qt-patches (no compilation needed)"
+
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
@@ -1739,6 +1749,11 @@ jobs:
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
+      - name: Patch QtBluetoothLE executeReadJob
+        run: |
+          # Fix Qt's executeReadJob bug - just copy pre-patched JAR
+          echo "Using pre-patched QtAndroidBluetooth.jar from qt-patches (no compilation needed)"
+
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
@@ -1841,6 +1856,11 @@ jobs:
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+
+      - name: Patch QtBluetoothLE executeReadJob
+        run: |
+          # Fix Qt's executeReadJob bug - just copy pre-patched JAR
+          echo "Using pre-patched QtAndroidBluetooth.jar from qt-patches (no compilation needed)"
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
