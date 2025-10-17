@@ -3,6 +3,7 @@
 #include "qdebugfixup.h"
 #include "homeform.h"
 #include <QSettings>
+#include <algorithm>
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
 
@@ -100,22 +101,55 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
                                                 double ergFilterUpper,
                                                 double ergFilterLower) {
     if (!powerSensorEnabled || !ergModeSupported) {
+        m_powerErrorIntegral = 0;
+        m_lastPowerErrorValid = false;
         return requestPower;
     }
 
     if (m_rawWatt.value() <= 0 || m_watt.value() <= 0) {
+        m_powerErrorIntegral = 0;
+        m_lastPowerErrorValid = false;
         return requestPower;
     }
 
-    if (fabs(requestPower - m_watt.average5s()) >= qMax(ergFilterUpper, ergFilterLower)) {
+    const double rawMeasured = m_rawWatt.value();
+    double measured = rawMeasured > 0 ? rawMeasured : m_watt.value();
+
+    if (measured <= 0) {
+        m_powerErrorIntegral = 0;
+        m_lastPowerErrorValid = false;
         return requestPower;
     }
 
-    qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s() << "watt" << m_watt.average5s()
-             << "req" << requestPower;
+    const double allowedDelta = qMax(ergFilterUpper, ergFilterLower);
+    const double error = static_cast<double>(requestPower) - measured;
 
-    const double delta = requestPower - m_watt.average5s();
-    return requestPower + static_cast<int32_t>(delta);
+    if (fabs(error) > allowedDelta) {
+        m_powerErrorIntegral = 0;
+        m_lastPowerErrorValid = false;
+        return requestPower;
+    }
+
+    if (!m_lastPowerErrorValid || (error > 0 && m_lastPowerError < 0) || (error < 0 && m_lastPowerError > 0)) {
+        m_powerErrorIntegral = 0;
+    }
+
+    m_lastPowerError = error;
+    m_lastPowerErrorValid = true;
+
+    m_powerErrorIntegral += error;
+
+    static constexpr double kIntegralClamp = 30.0;
+    static constexpr double kIntegralGain = 0.15;
+
+    m_powerErrorIntegral = std::clamp(m_powerErrorIntegral, -kIntegralClamp, kIntegralClamp);
+
+    const double correction = error + (m_powerErrorIntegral * kIntegralGain);
+
+    qDebug() << "applying delta watt to power request raw" << rawMeasured << "measured" << measured << "req"
+             << requestPower << "error" << error << "integral" << m_powerErrorIntegral << "corr" << correction;
+
+    return requestPower + static_cast<int32_t>(correction);
 }
 
 double bike::gears() {
