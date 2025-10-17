@@ -14,9 +14,10 @@
 using namespace std::chrono_literals;
 #if defined(Q_OS_ANDROID)
 #include "scanrecordresult.h"
-#include <QAndroidJniEnvironment>
+#include <QJniEnvironment>
+#include <QJniObject>
 #include <QMetaObject>
-#include <QtAndroid>
+#include <QCoreApplication>
 #endif
 
 static m3ibike *m_instance = 0;
@@ -430,9 +431,10 @@ void m3ibike::initScan() {
 #if defined(Q_OS_ANDROID)
         if (!qt_search) {
         if (!bluetoothScanner.isValid()) {
-            QAndroidJniObject bluetoothManager = QtAndroid::androidActivity().callObjectMethod(
+            QJniObject activity = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity", "()Landroid/app/Activity;");
+            QJniObject bluetoothManager = activity.callObjectMethod(
                 "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",
-                QAndroidJniObject::fromString("bluetooth").object<jstring>());
+                QJniObject::fromString("bluetooth").object<jstring>());
             bluetoothAdapter =
                 bluetoothManager.callObjectMethod("getAdapter", "()Landroid/bluetooth/BluetoothAdapter;");
             if (!bluetoothAdapter.isValid()) {
@@ -448,21 +450,21 @@ void m3ibike::initScan() {
             JNINativeMethod methods[]{{"newScanResult", "(Lorg/cagnulen/qdomyoszwift/ScanRecordResult;)V",
                                        reinterpret_cast<void *>(m3ibike::newAndroidScanResult)},
                                       {"scanError", "(I)V", reinterpret_cast<void *>(m3ibike::newAndroidScanError)}};
-            QAndroidJniObject javaClass("org/cagnulen/qdomyoszwift/NativeScanCallback");
+            QJniObject javaClass("org/cagnulen/qdomyoszwift/NativeScanCallback");
             qDebug() << " nscc = " << javaClass.isValid();
-            QAndroidJniEnvironment env;
+            QJniEnvironment env;
             jclass objectClass = env->GetObjectClass(javaClass.object<jobject>());
             qDebug() << "oc = " << objectClass;
             jint res = env->RegisterNatives(objectClass, methods, sizeof(methods) / sizeof(methods[0]));
             qDebug() << "reg natives = " << res;
             env->DeleteLocalRef(objectClass);
             qDebug() << "Del object class";
-            listOfFilters = QAndroidJniObject("java/util/ArrayList");
+            listOfFilters = QJniObject("java/util/ArrayList");
             qDebug() << "lof " << listOfFilters.isValid();
-            QAndroidJniObject filterBuilder("android/bluetooth/le/ScanFilter$Builder");
+            QJniObject filterBuilder("android/bluetooth/le/ScanFilter$Builder");
             qDebug() << "fib " << filterBuilder.isValid() << " add = " << bluetoothDevice.address().toString();
-            QAndroidJniObject nameString = QAndroidJniObject::fromString(bluetoothDevice.address().toString());
-            QAndroidJniObject filterBuilder2 = filterBuilder.callObjectMethod(
+            QJniObject nameString = QJniObject::fromString(bluetoothDevice.address().toString());
+            QJniObject filterBuilder2 = filterBuilder.callObjectMethod(
                 "setDeviceAddress", "(Ljava/lang/String;)Landroid/bluetooth/le/ScanFilter$Builder;",
                 nameString.object<jstring>());
             qDebug() << "fib3 " << filterBuilder2.isValid();
@@ -470,7 +472,7 @@ void m3ibike::initScan() {
             qDebug() << "fo = " << filterObject0.isValid();
             jboolean added = listOfFilters.callMethod<jboolean>("add", "(Ljava/lang/Object;)Z", filterObject0.object());
             qDebug() << "ad0 = " << added << " sz = " << listOfFilters.callMethod<jint>("size");
-            QAndroidJniObject settingsBuilder("android/bluetooth/le/ScanSettings$Builder");
+            QJniObject settingsBuilder("android/bluetooth/le/ScanSettings$Builder");
             qDebug() << "sb0 = " << settingsBuilder.isValid();
             settingsBuilder = settingsBuilder.callObjectMethod(
                 "setScanMode", "(I)Landroid/bluetooth/le/ScanSettings$Builder;", 2); // SCAN_MODE_LOW_LATENCY
@@ -489,7 +491,7 @@ void m3ibike::initScan() {
             qDebug() << "sb5 = " << settingsBuilder.isValid();
             settingsObject = settingsBuilder.callObjectMethod("build", "()Landroid/bluetooth/le/ScanSettings;");
             qDebug() << "so = " << settingsObject.isValid();
-            scanCallback = QAndroidJniObject("org/cagnulen/qdomyoszwift/NativeScanCallback");
+            scanCallback = QJniObject("org/cagnulen/qdomyoszwift/NativeScanCallback");
             qDebug() << "sca = " << scanCallback.isValid();
         }
     } else
@@ -513,14 +515,20 @@ void m3ibike::initScan() {
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
 void m3ibike::deviceUpdatedPriv(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields) {
-    emit debug(QStringLiteral("deviceUpdated ") + device.name() + " " + updateFields);
+    qDebug() << QStringLiteral("deviceUpdated ") << device.name() << " " << updateFields;
 }
 
 void m3ibike::deviceDiscoveredPriv(const QBluetoothDeviceInfo &device) {
     if (SAME_BLUETOOTH_DEVICE(device, bluetoothDevice)) {
         emit debug(QStringLiteral("NEW ADV ") + bluetoothDevice.name());
-        QHash<quint16, QByteArray> datas = device.manufacturerData();
-        QHashIterator<quint16, QByteArray> i(datas);
+        QMultiHash<quint16, QByteArray> datas = device.manufacturerData();
+        QHash<quint16, QByteArray> uniqueDatas;
+        for (auto it = datas.begin(); it != datas.end(); ++it) {
+            if (!uniqueDatas.contains(it.key())) {
+                uniqueDatas[it.key()] = it.value();
+            }
+        }
+        QHashIterator<quint16, QByteArray> i(uniqueDatas);
         while (i.hasNext()) {
             i.next();
             processAdvertising(i.value());
@@ -589,12 +597,14 @@ bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
         QSettings settings;
         keiser_m3i_out_t k3;
         int id = settings.value(QZSettings::m3i_bike_id, QZSettings::default_m3i_bike_id).toInt();
-        QHash<quint16, QByteArray> datas = device.manufacturerData();
-        QHashIterator<quint16, QByteArray> i(datas);
-        while (i.hasNext()) {
-            i.next();
-            if (parse_data(i.value(), &k3) && (!valid_id(id) || k3.system_id == id)) {
-                return true;
+        QMultiHash<quint16, QByteArray> datas = device.manufacturerData();
+        QHash<quint16, QByteArray> uniqueDatas;
+        for (auto it = datas.begin(); it != datas.end(); ++it) {
+            if (!uniqueDatas.contains(it.key())) {
+                uniqueDatas[it.key()] = it.value();
+                if (parse_data(it.value(), &k3) && (!valid_id(id) || k3.system_id == id)) {
+                    return true;
+                }
             }
         }
 #else

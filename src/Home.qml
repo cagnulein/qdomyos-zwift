@@ -1,11 +1,10 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
-import QtGraphicalEffects 1.12
 import QtQuick.Window 2.12
 import Qt.labs.settings 1.0
 import Qt.labs.platform 1.1
-import QtMultimedia 5.15
+import QtMultimedia
 
 HomeForm {
     objectName: "home"
@@ -151,7 +150,7 @@ HomeForm {
             stackView.push("ChartsEndWorkout.qml")
     }
 
-    start.onClicked: { start_clicked(); }
+    start.onClicked: { console.log("start clicked"); start_clicked(); }
     stop.onClicked: {
         if (rootItem.confirmStopEnabled()) {
             stopConfirmationDialog.open();
@@ -177,7 +176,7 @@ HomeForm {
         id: gridView
         objectName: "gridview"
         onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
-        Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
+        //Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
         Screen.onPrimaryOrientationChanged:{
             if(OS_VERSION === "Android")
                 gridView.leftMargin = (Screen.width % cellWidth) / 2;
@@ -227,7 +226,7 @@ HomeForm {
                 color: settings.theme_tile_background_color
                 id: rect
             }
-
+/*
             DropShadow {
                 visible: settings.theme_tile_shadow_enabled
                 anchors.fill: rect
@@ -238,7 +237,7 @@ HomeForm {
                 samples: 16
                 color: settings.theme_tile_shadow_color
                 source: rect
-            }
+            }*/
 
             Timer {
                 id: toggleIconTimer
@@ -438,17 +437,17 @@ HomeForm {
                 autoPlay: false
                 playbackRate: rootItem.videoRate
 
-                onError: {
+                source: videoPlaybackHalf/*
+                errorOccurred: {
                     if (videoPlaybackHalf.NoError !== error) {
                         console.log("[qmlvideo] VideoItem.onError error " + error + " errorString " + errorString)
                     }
-                }
+                }*/
             }
 
             VideoOutput {
                 id: videoPlayer
                 anchors.fill: parent
-                source: videoPlaybackHalf
             }
         }
     }
