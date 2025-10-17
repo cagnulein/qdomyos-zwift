@@ -49,8 +49,10 @@ class deerruntreadmill : public treadmill {
     void writeCharacteristic(const QLowEnergyCharacteristic characteristic, uint8_t *data, uint8_t data_len,
                              const QString &info, bool disable_log = false, bool wait_for_response = false);
     void writeUnlockCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false);
+    void waitForAPacket();
     void startDiscover();
     uint8_t calculateXOR(uint8_t arr[], size_t size);
+    uint8_t calculatePitPatChecksum(uint8_t arr[], size_t size);
     bool noConsole = false;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
@@ -70,8 +72,9 @@ class deerruntreadmill : public treadmill {
     
     QLowEnergyService *unlock_service = nullptr;
     QLowEnergyCharacteristic unlock_characteristic;
-    
+
     bool pitpat = false;
+    bool superun_ba04 = false;
 
     bool initDone = false;
     bool initRequest = false;
