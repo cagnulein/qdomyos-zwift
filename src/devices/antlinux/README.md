@@ -312,36 +312,32 @@ How to know everything is working correctly:
 
 ## Technical Notes
 
-For developers and curious users, the following explains the technical implementation details behind the ANT+ integration.
-
 ### ANT+ SDM Protocol Implementation
 
-The ANT+ Stride-based Speed and Distance Monitor (SDM) protocol defines how footpod devices communicate with receiving displays like Garmin watches. This implementation broadcasts treadmill data using the ANT+ SDM device profile specification.
+The ANT+ Stride-based Speed and Distance Monitor (SDM) protocol defines how footpod devices communicate with receiving displays like Garmin watches [1]. This implementation broadcasts treadmill data using the ANT+ SDM device profile specification. Testing with a Garmin Forerunner 245 watch evaluated 16 different payload combinations to measure pace stability (no flickering), cadence accuracy (correct steps-per-minute), and how quickly the watch updated when cadence changed rapidly.
 
-Through extensive testing with a Garmin Forerunner 245 watch, 16 different payload combinations were systematically evaluated. Each configuration was measured for pace stability (no flickering), cadence accuracy (correct steps-per-minute), and cadence responsiveness (how quickly values updated during 180 to 120 SPM transitions).
+### Broadcast Strategy
 
-### Optimal Broadcast Strategy
+The solution broadcasts Page 1 seven times consecutively, followed by Page 2 once. Page 1 contains speed, distance, stride count, and timing data. Page 2 contains cadence (in strides per minute) and speed fields. Testing showed that including speed in both page types prevents the watch from displaying no-pace values. While Page 2 primarily carries cadence data, sending speed in both pages keeps the display stable. This 7:1 ratio balances frequent speed updates with responsive cadence display.
 
-The validated solution broadcasts Page 1 seven times consecutively, followed by Page 2 once. Page 1 contains speed, distance, stride count, and timing data. Page 2 contains cadence (in strides per minute) and speed fields.
-
-The key discovery was that including speed in both page types eliminates pace flickering. While Page 2 primarily transmits cadence, maintaining speed data in both pages prevents the watch from showing intermittent no-pace indicators. The 7:1 ratio balances frequent speed updates with responsive cadence display.
-
-The implementation uses 4 Hz broadcast rate (250ms intervals) with self-correcting timing. Cadence ramping provides gradual transitions at 12.5 steps per minute per cycle, creating smooth 3-second acceleration from stationary to 150 SPM that mimics realistic treadmill behavior. Stride calculation uses floating-point precision (strides = steps ÷ 2) for accuracy even at low cadences.
+The system broadcasts at 4 Hz (250ms intervals) with self-correcting timing. Cadence increases gradually at 12.5 steps per minute per cycle, creating a smooth acceleration from 0 to 150 SPM over about 3 seconds, mimicking realistic treadmill behavior. Stride calculation uses floating-point precision for accuracy at all speeds.
 
 ### Estimated Cadence Model
 
-The cadence estimation is based on biomechanics research showing that people naturally transition from walking to running at approximately 7.2-7.4 km/h. This transition speed is consistent across individuals regardless of training status and represents the point where running becomes more energetically efficient than walking.
+Research on how people naturally transition from walking to running shows this switch typically occurs around 7.2 km/h [2]. At this speed, running becomes more energy-efficient than fast walking. This transition point is consistent across most people, regardless of fitness level [3]. The model uses 7.0 km/h as the threshold. This slightly lower value was chosen because it provides smoother data transitions on Garmin watches and accounts for natural variation between individuals in body size and fitness.
 
-The implementation uses 7.0 km/h as the transition threshold with a two-zone model. Below 7.0 km/h, cadence progresses from 90 SPM (casual walk at 3 km/h) to 140 SPM (brisk walk). At 7.0 km/h and above, cadence ranges from 160 SPM (easy jog) to 200 SPM (fast run), capped at 200 SPM maximum.
+The cadence model works in two zones:
+* Below 7.0 km/h (walking zone): Cadence ranges from 90 steps per minute for slow walking to 140 steps per minute for brisk walking.
+* At or above 7.0 km/h (running zone): Cadence ranges from 160 steps per minute for easy jogging to 200 steps per minute for fast running.
 
-This research-based transition point helps Garmin watches correctly classify activities. A 6.0 km/h brisk walk logs as a Walk segment with cadence around 128 SPM, while an 8.5 km/h jog logs as a Run segment with cadence around 166 SPM, matching real-world biomechanics for accurate activity summaries.
+This approach ensures your activities are classified correctly. A brisk walk at 6.0 km/h displays as a Walk segment with cadence around 128 steps per minute. A jog at 8.5 km/h displays as a Run segment with cadence around 166 steps per minute. This matches how people actually move and creates accurate activity logs [4].
 
 ### References
 
-[ANT+ Device Profiles - SDM Specification](https://www.thisisant.com/developer/ant-plus/device-profiles)<br>
-[Preferred transition speed between walking and running](https://pubmed.ncbi.nlm.nih.gov/16286854/)<br>
-[Biomechanics of Gait Transition](https://scholarworks.boisestate.edu/cgi/viewcontent.cgi?article=1178&context=td)<br>
-[Energetics of Walk-Run Transition](https://www.sciencedirect.com/science/article/abs/pii/S0167945723000635)<br>
+[1] ANT+ Device Profiles - SDM Specification: https://www.thisisant.com/developer/ant-plus/device-profiles  
+[2] Preferred transition speed between walking and running: https://pubmed.ncbi.nlm.nih.gov/16286854/  
+[3] Biomechanics of Gait Transition: https://scholarworks.boisestate.edu/cgi/viewcontent.cgi?article=1178&context=td  
+[4] Energetics of Walk-Run Transition: https://www.sciencedirect.com/science/article/abs/pii/S0167945723000635
 
 ## Credits & Acknowledgments
 
