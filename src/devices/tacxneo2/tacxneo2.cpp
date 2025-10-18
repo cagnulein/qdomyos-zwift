@@ -720,9 +720,12 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         update_hr_from_external();
     }
 
-    if (Cadence.value() > 0) {
-        CrankRevs++;
-        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+
+    if (characteristic.uuid() != QBluetoothUuid((quint16)0xFFF4) && characteristic.uuid() != QBluetoothUuid(QStringLiteral("6e40fec2-b5a3-f393-e0a9-e50e24dcca9e"))) {
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
     }
 
 #ifdef Q_OS_IOS

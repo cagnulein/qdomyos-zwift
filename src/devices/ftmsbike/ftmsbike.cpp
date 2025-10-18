@@ -282,8 +282,6 @@ void ftmsbike::update() {
 
     if (initRequest) {
         zwiftPlayInit();
-        if(ICSE)
-            requestResistance = 1;  // to force the engine to send every second a target inclination
 
         // when we are emulating the zwift protocol, zwift doesn't senf the start simulation frames, so we have to send them
         if(settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool())
@@ -340,8 +338,7 @@ void ftmsbike::update() {
                     forceResistance(rR);
                 }
             }
-            if(!ICSE)
-                requestResistance = -1;
+            requestResistance = -1;
         }
         
         if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
@@ -1560,6 +1557,8 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("ICSE found");
             ICSE = true;
             secondsToResetTimer = 15;
+            autoResistanceEnable = false;  // Disable auto resistance for ICSE bikes
+            qDebug() << QStringLiteral("ICSE: autoResistance disabled by default");
         } else if ((bluetoothDevice.name().toUpper().startsWith("DOMYOS"))) {
             qDebug() << QStringLiteral("DOMYOS found");
             resistance_lvl_mode = true;
