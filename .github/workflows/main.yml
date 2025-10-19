@@ -1381,7 +1381,7 @@ jobs:
       - name: Archive Raspberry Pi 64bit binary
         uses: actions/upload-artifact@v4
         with:
-          name: raspberry-pi-binary
+          name: raspberry-pi-binary-64bit
           path: src/qdomyos-zwift-64bit        
 
 raspberry-pi-build-64bit-ant:
@@ -1422,37 +1422,27 @@ raspberry-pi-build-64bit-ant:
             bash -c "
             set -ex &&
             apt-get update && 
-            # 1. Install all dependencies, including Python dev headers.
-            #    'python3-dev' provides the headers for the system's default Python (3.9 on Bullseye).
-            apt-get install -y build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql python3-dev python3-venv python3-pip libusb-1.0-0-dev &&
+            apt-get install -y build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql python3-dev python3-venv python3-pip libusb-1.0-0-dev libudev-dev &&
             
-            # 2. Set up the Python virtual environment for ANT+.
             echo '--- Setting up Python virtual environment for ANT+ ---' &&
-            python3 -m venv /github/workspace/ant_venv &&
-            /github/workspace/ant_venv/bin/pip install openant pyusb pybind11 &&
+            python3 -m venv /tmp/ant_venv &&
+            /tmp/ant_venv/bin/pip install --upgrade pip &&
+            /tmp/ant_venv/bin/pip install openant pyusb pybind11 &&
             
-            # --- START of Step 4 from README ---
             echo '--- Applying ANT+ project configuration ---' &&
-            
-            # 3. Ensure the .pro file includes the antlinux.pri file. This is a safety check.
-            grep -q "antlinux.pri" /github/workspace/qdomyos-zwift.pro || echo 'include(devices/antlinux/antlinux.pri)' >> /github/workspace/qdomyos-zwift.pro &&
-            
-            # 4. Create the .ant_venv_path bridge file for qmake to find the venv.
-            #    This is the crucial step that makes the build system enable the feature.
-            echo '/github/workspace/ant_venv/bin/python3' > /github/workspace/src/.ant_venv_path &&
+            grep -q 'antlinux.pri' /github/workspace/qdomyos-zwift.pro || echo 'include(devices/antlinux/antlinux.pri)' >> /github/workspace/qdomyos-zwift.pro &&
+            echo '/tmp/ant_venv/bin/python3' > /github/workspace/src/.ant_venv_path &&
             echo 'ANT+ bridge file created:' && cat /github/workspace/src/.ant_venv_path &&
-            # --- END of Step 4 from README ---
-
-            # The rest of the build process continues as before.
+            
             echo '--- Starting qmake build with ANT+ enabled ---' &&
             export QT_SELECT=qt5 &&
-            export PATH=/usr/lib/qt5/bin:$PATH &&
+            export PATH=/usr/lib/qt5/bin:\$PATH &&
             cd /github/workspace &&
             sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
             find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
             find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
             qmake &&
-            make -j$(nproc)
+            make -j\$(nproc)
             "
 
       - name: Rename binary for ANT+ version
@@ -1461,7 +1451,7 @@ raspberry-pi-build-64bit-ant:
       - name: Archive Raspberry Pi 64bit ANT+ binary
         uses: actions/upload-artifact@v4
         with:
-          name: raspberry-pi-binary
+          name: raspberry-pi-binary-64bit-ant
           path: src/qdomyos-zwift-64bit-ant
 
   window-msvc2022-build:
@@ -2015,7 +2005,9 @@ raspberry-pi-build-64bit-ant:
             - **nordictrack-bike-android-trial**: Nordictrack Bike build for iFIT2 Tablets
             - **peloton-bike-plus-android-trial**: Peloton Bike Plus build with Grupetto backend
             - **peloton-bike-android-trial**: Peloton Bike build with Grupetto backend
-            - **raspberry-pi-binaries**: Raspberry Pi builds (32-bit, 64-bit, and 64-bit with ANT+)
+            - **raspberry-pi-binary**: 32-bit build for Raspberry Pi
+            - **raspberry-pi-binary-64bit**: 64-bit build for Raspberry Pi 4/5 and Pi Zero 2 W
+            - **raspberry-pi-binary-64bit-ant**: 64-bit build with ANT+ Footpod support
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
           files: |
@@ -2031,4 +2023,6 @@ raspberry-pi-build-64bit-ant:
             nordictrack-bike-android-trial/android-debug-nordictrack-bike.apk
             peloton-bike-plus-android-trial/android-debug-peloton-bike-plus.apk
             peloton-bike-android-trial/android-debug-peloton-bike.apk
-            raspberry-pi-binary/*
+            raspberry-pi-binary/qdomyos-zwift-32bit
+            raspberry-pi-binary-64bit/qdomyos-zwift-64bit
+            raspberry-pi-binary-64bit-ant/qdomyos-zwift-64bit-ant
