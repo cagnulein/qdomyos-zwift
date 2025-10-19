@@ -1416,19 +1416,10 @@ jobs:
           cd ..
 
       # Step 1: Install system dependencies inside ARM64 container
-      - name: Install system dependencies
+      - name: Install dependencies in Docker
         uses: docker://ubuntu:22.04
         with:
-          args: /bin/bash -c "apt-get update && apt-get install -y \
-            build-essential git cmake qtbase5-dev qtchooser qt5-qmake \
-            qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev \
-            libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev \
-            libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev \
-            qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev \
-            qml-module-qtquick-controls2 qtquickcontrols2-5-dev \
-            libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql \
-            libsqlite3-dev python3-dev python3-venv python3-pip \
-            libusb-1.0-0-dev libudev-dev"
+          args: apt-get update && apt-get install -y build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql libsqlite3-dev python3-dev python3-venv python3-pip libusb-1.0-0-dev libudev-dev
 
       # Step 2: Setup Python venv & ANT+ packages
       - name: Setup Python venv and ANT+ packages
