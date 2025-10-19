@@ -1422,20 +1422,28 @@ raspberry-pi-build-64bit-ant:
             bash -c "
             set -ex &&
             apt-get update && 
-            # Install all original dependencies PLUS the new ones for Python/ANT+
+            # 1. Install all dependencies, including Python dev headers.
+            #    'python3-dev' provides the headers for the system's default Python (3.9 on Bullseye).
             apt-get install -y build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql python3-dev python3-venv python3-pip libusb-1.0-0-dev &&
             
-            # Set up the Python virtual environment for ANT+
+            # 2. Set up the Python virtual environment for ANT+.
             echo '--- Setting up Python virtual environment for ANT+ ---' &&
             python3 -m venv /github/workspace/ant_venv &&
             /github/workspace/ant_venv/bin/pip install openant pyusb pybind11 &&
             
-            # Create the .ant_venv_path file that qmake uses to enable the feature
-            echo '--- Creating .ant_venv_path for qmake ---' &&
+            # --- START of Step 4 from README ---
+            echo '--- Applying ANT+ project configuration ---' &&
+            
+            # 3. Ensure the .pro file includes the antlinux.pri file. This is a safety check.
+            grep -q "antlinux.pri" /github/workspace/qdomyos-zwift.pro || echo 'include(devices/antlinux/antlinux.pri)' >> /github/workspace/qdomyos-zwift.pro &&
+            
+            # 4. Create the .ant_venv_path bridge file for qmake to find the venv.
+            #    This is the crucial step that makes the build system enable the feature.
             echo '/github/workspace/ant_venv/bin/python3' > /github/workspace/src/.ant_venv_path &&
+            echo 'ANT+ bridge file created:' && cat /github/workspace/src/.ant_venv_path &&
+            # --- END of Step 4 from README ---
 
-            # The rest of the build process is the same.
-            # qmake will now automatically detect the .ant_venv_path file and enable ANT+
+            # The rest of the build process continues as before.
             echo '--- Starting qmake build with ANT+ enabled ---' &&
             export QT_SELECT=qt5 &&
             export PATH=/usr/lib/qt5/bin:$PATH &&
@@ -1443,7 +1451,6 @@ raspberry-pi-build-64bit-ant:
             sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
             find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
             find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
-            cat qdomyos-zwift.pro &&
             qmake &&
             make -j$(nproc)
             "
