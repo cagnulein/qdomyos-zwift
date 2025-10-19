@@ -1381,8 +1381,81 @@ jobs:
       - name: Archive Raspberry Pi 64bit binary
         uses: actions/upload-artifact@v4
         with:
-          name: raspberry-pi-binary-64bit
+          name: raspberry-pi-binary
           path: src/qdomyos-zwift-64bit        
+
+raspberry-pi-build-64bit-ant:
+    runs-on: ubuntu-22.04
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          image: tonistiigi/binfmt:master
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          version: v0.19.3
+
+      - name: Secrets
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          echo "#define LICENSE" >> secret.h
+          cd ..
+
+      - name: Build for Raspberry Pi 64-bit with ANT+ Support
+        uses: docker://arm64v8/debian:bullseye-20241016
+        with:
+          args: >
+            bash -c "
+            set -ex &&
+            apt-get update && 
+            # Install all original dependencies PLUS the new ones for Python/ANT+
+            apt-get install -y build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql python3-dev python3-venv python3-pip libusb-1.0-0-dev &&
+            
+            # Set up the Python virtual environment for ANT+
+            echo '--- Setting up Python virtual environment for ANT+ ---' &&
+            python3 -m venv /github/workspace/ant_venv &&
+            /github/workspace/ant_venv/bin/pip install openant pyusb pybind11 &&
+            
+            # Create the .ant_venv_path file that qmake uses to enable the feature
+            echo '--- Creating .ant_venv_path for qmake ---' &&
+            echo '/github/workspace/ant_venv/bin/python3' > /github/workspace/src/.ant_venv_path &&
+
+            # The rest of the build process is the same.
+            # qmake will now automatically detect the .ant_venv_path file and enable ANT+
+            echo '--- Starting qmake build with ANT+ enabled ---' &&
+            export QT_SELECT=qt5 &&
+            export PATH=/usr/lib/qt5/bin:$PATH &&
+            cd /github/workspace &&
+            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
+            cat qdomyos-zwift.pro &&
+            qmake &&
+            make -j$(nproc)
+            "
+
+      - name: Rename binary for ANT+ version
+        run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit-ant
+
+      - name: Archive Raspberry Pi 64bit ANT+ binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberry-pi-binary
+          path: src/qdomyos-zwift-64bit-ant
 
   window-msvc2022-build:
     runs-on: windows-latest
@@ -1895,7 +1968,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit]
+    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-build-64bit-ant]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -1935,7 +2008,7 @@ jobs:
             - **nordictrack-bike-android-trial**: Nordictrack Bike build for iFIT2 Tablets
             - **peloton-bike-plus-android-trial**: Peloton Bike Plus build with Grupetto backend
             - **peloton-bike-android-trial**: Peloton Bike build with Grupetto backend
-            - **raspberry-pi-binary**: Raspberry Pi build
+            - **raspberry-pi-binaries**: Raspberry Pi builds (32-bit, 64-bit, and 64-bit with ANT+)
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
           files: |
@@ -1951,5 +2024,4 @@ jobs:
             nordictrack-bike-android-trial/android-debug-nordictrack-bike.apk
             peloton-bike-plus-android-trial/android-debug-peloton-bike-plus.apk
             peloton-bike-android-trial/android-debug-peloton-bike.apk
-            raspberry-pi-binary/qdomyos-zwift-32bit
-            raspberry-pi-binary/qdomyos-zwift-64bit
+            raspberry-pi-binary/*
