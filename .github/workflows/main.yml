@@ -1461,7 +1461,14 @@ jobs:
             export QT_SELECT=qt5 && export PATH=/usr/lib/qt5/bin:\$PATH && \
             qmake && make -j\$(nproc)"
 
-      - name: Rename binar
+      - name: Rename binary for ANT+ version
+        run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit-ant
+
+      - name: Archive Raspberry Pi 64bit ANT+ binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberry-pi-binary-64bit-ant
+          path: src/qdomyos-zwift-64bit-ant
 
   window-msvc2022-build:
     runs-on: windows-latest
