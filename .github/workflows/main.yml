@@ -1384,7 +1384,7 @@ jobs:
           name: raspberry-pi-binary-64bit
           path: src/qdomyos-zwift-64bit        
 
-raspberry-pi-build-64bit-ant:
+  raspberry-pi-build-64bit-ant:
     runs-on: ubuntu-22.04
     
     steps:
