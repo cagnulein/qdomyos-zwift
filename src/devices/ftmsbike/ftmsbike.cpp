@@ -853,10 +853,13 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 oldCrankRevs = CrankRevs;
 
                 if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                    Speed = Cadence.value() * settings
-                                                  .value(QZSettings::cadence_sensor_speed_ratio,
-                                                         QZSettings::default_cadence_sensor_speed_ratio)
-                                                  .toDouble();
+                  double original_ratio = ((double)settings.value(QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size).toDouble()) /
+                  ((double)settings.value(QZSettings::gear_cog_size, QZSettings::default_gear_cog_size).toDouble());
+                  Speed = Cadence.value() * 
+                       settings.value(QZSettings::gear_circumference,
+                                                         QZSettings::default_gear_circumference).toDouble() *
+                      current_ratio * (42.0/14.0) / original_ratio / 
+                      60.0 / 1000.0 * 3.6 ; // Last to scale cadence per second, circumference from mm to m, and m/s -> km/h
                 } else {
                     Speed = metric::calculateSpeedFromPower(
                         watts(), Inclination.value(), Speed.value(),
