@@ -1417,7 +1417,7 @@ jobs:
 
       # Step 1: Install system dependencies inside ARM64 container
       - name: Install system dependencies
-        uses: docker://arm64v8/ubuntu:22.04
+        uses: docker://ubuntu:22.04
         with:
           args: /bin/bash -c "apt-get update && apt-get install -y \
             build-essential git cmake qtbase5-dev qtchooser qt5-qmake \
@@ -1431,7 +1431,7 @@ jobs:
 
       # Step 2: Setup Python venv & ANT+ packages
       - name: Setup Python venv and ANT+ packages
-        uses: docker://arm64v8/ubuntu:22.04
+        uses: docker://ubuntu:22.04
         with:
           args: /bin/bash -c "python3 -m venv /tmp/ant_venv && \
             /tmp/ant_venv/bin/pip install --upgrade pip && \
@@ -1455,7 +1455,7 @@ jobs:
 
       # Step 5: Build project
       - name: Build QZ with ANT+ (ARM64)
-        uses: docker://arm64v8/ubuntu:22.04
+        uses: docker://ubuntu:22.04
         with:
           args: /bin/bash -c "cd /github/workspace && \
             export QT_SELECT=qt5 && export PATH=/usr/lib/qt5/bin:\$PATH && \
