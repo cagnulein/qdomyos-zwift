@@ -1397,7 +1397,7 @@ jobs:
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
         with:
-          image: tonistiiji/binfmt:master
+          image: tonistiigi/binfmt:master
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
