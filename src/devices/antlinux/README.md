@@ -22,9 +22,8 @@ Before you begin, please verify the following:
 
 This guide assumes you are comfortable using Linux and already have a working QDomyos-Zwift source installation on a Raspberry Pi. If not, first read these instructions: https://github.com/cagnulein/qdomyos-zwift/blob/master/docs/10_Installation.md
 
-### Verified Hardware & Software
+## Verified Hardware & Software
 This guide has been tested using:
-- qdomyos-zwift cross-compiled on a Linux environment
 - qdomyos-zwift binary running on Raspberry Pi Zero 2 W (Raspberry Pi OS Bookworm & Trixie) 
 - Dongles: Garmin ANT+ USB-m (0fcf:1009) & Garmin ANT+ USB2 (0fcf:1008) 
 - Watch: Garmin Forerunner 245 Watch 
@@ -32,17 +31,19 @@ This guide has been tested using:
 
 ### Compilation Hardware
 
-The recommended methods for building the software are:
-- Compile directly on a more powerful Raspberry Pi (4 or 5)
-- Cross-compile from a more powerful Linux desktop or virtual machine (this guide does not cover cross-compilation steps)
+Compile the application on a Raspberry Pi 4 or 5. These models have sufficient RAM and processing power for C++ compilation. Compiling directly on a Pi Zero 2 W is not recommended due to insufficient RAM (512MB) - this will likely result in out-of-memory errors or system freezing.
 
-While the Pi Zero 2 W is an excellent device for running the final qdomyos-zwift application, its limited 512MB of RAM is insufficient for the C++ compilation process. Attempting to compile on a Pi Zero 2 W will likely fail with out-of-memory errors or system freezing. Workarounds like increasing swap space or swappiness are not effective.
+If you are compiling on a Pi 4/5 to run on a different Pi (such as Pi Zero 2 W):
+- On the build machine: Follow all steps (Steps 1-9)
+- On the target machine: Follow all steps with the exception of Step 7 (Build QZ with ANT+ Support) - simply use the binary you compiled on the build machine
 
-### ANT+ Requirements
+**Important:** Ensure both machines have the same Python version. If they differ, you will experience library loading errors when running the application (see troubleshooting: "error while loading shared libraries: libpython3.XX.so.1.0").
+
+## ANT+ Requirements
 
 You will need an ANT+ USB dongle, such as the tested Garmin ANT+ USB2 (0fcf:1008) or Garmin ANT+ USB-m (0fcf:1009). A compatible fitness device like a Garmin watch is also necessary.
 
-### Backup Recommendation
+## Backup Recommendation
 
 Consider backing up your system before proceeding.
 
@@ -181,18 +182,24 @@ sudo $HOME/ant_venv/bin/python3 $HOME/qdomyos-zwift/src/devices/antlinux/ant_tes
 
 **What to expect:**
 
-The test script simulates a running session and should connect to your watch within 10-15 seconds. You'll see output showing speed and pace data being broadcast.
+The test script simulates a running session and should connect to your watch within 5-10 seconds. You'll see output showing speed and pace data being broadcast.
 
 **Pairing your device:**
 
 1. On Garmin watches: Navigate to Menu > Sensors & Accessories > Add New > Foot Pod
 2. Your watch should detect and pair with the virtual footpod within 5-10 seconds
 3. Start a "Treadmill" or "Run Indoor" activity to see pace and cadence data
-4. To view cadence: Customize the data screens in your activity profile settings by adding a Cadence field
+4. To view cadence on your watch: Go to Settings > Activities & Apps > select your activity (e.g., Treadmill Run) > Data Screens > customize the screen and add Cadence as a field
 
 **If successful:** Your watch will display stable pace (e.g., 5:35 min/km) and cadence (e.g., 150 SPM) values.
 
 Press `Ctrl+C` once to stop the test. If this test fails, the full QZ build is unlikely to work correctly.
+
+**Understanding the cadence values:**
+
+The system automatically switches between walking and running cadence at 7.0 km/h. Biomechanics research shows this transition typically occurs around 7.2-7.4 km/h, where running becomes more energy-efficient than fast walking. The model uses 7.0 km/h as a compromise value that provides smoother data on Garmin watches while accounting for individual variation. Below 7.0 km/h you'll see walking cadence (90-140 steps per minute). At or above 7.0 km/h you'll see running cadence (160-200 steps per minute). For example, a 6.0 km/h walk shows around 128 SPM, while an 8.5 km/h jog shows around 166 SPM.
+
+For more information on the walk-run transition, see the "Further reading" section at the end of this guide.
 
 ### Step 7 - Build QZ with ANT+ Support
 
@@ -310,37 +317,15 @@ How to know everything is working correctly:
 | Test script works but watch doesn't connect | Unplug/replug dongle, verify Step 4 completion with reboot, check device ID (default 54321), ensure QZ runs as root (Step 9), check log for errors. |
 | `systemctl stop qz` hangs | Add `KillSignal=SIGINT` to the [Service] section in qz.service file. |
 
-## Technical Notes
-
-### ANT+ SDM Protocol Implementation
-
-The ANT+ Stride-based Speed and Distance Monitor (SDM) protocol defines how footpod devices communicate with receiving displays like Garmin watches [1]. This implementation broadcasts treadmill data using the ANT+ SDM device profile specification. Testing with a Garmin Forerunner 245 watch evaluated 16 different payload combinations to measure pace stability (no flickering), cadence accuracy (correct steps-per-minute), and how quickly the watch updated when cadence changed rapidly.
-
-### Broadcast Strategy
-
-The solution broadcasts Page 1 seven times consecutively, followed by Page 2 once. Page 1 contains speed, distance, stride count, and timing data. Page 2 contains cadence (in strides per minute) and speed fields. Testing showed that including speed in both page types prevents the watch from displaying no-pace values. While Page 2 primarily carries cadence data, sending speed in both pages keeps the display stable. This 7:1 ratio balances frequent speed updates with responsive cadence display.
-
-The system broadcasts at 4 Hz (250ms intervals) with self-correcting timing. Cadence increases gradually at 12.5 steps per minute per cycle, creating a smooth acceleration from 0 to 150 SPM over about 3 seconds, mimicking realistic treadmill behavior. Stride calculation uses floating-point precision for accuracy at all speeds.
-
-### Estimated Cadence Model
-
-Research on how people naturally transition from walking to running shows this switch typically occurs around 7.2 km/h [2]. At this speed, running becomes more energy-efficient than fast walking. This transition point is consistent across most people, regardless of fitness level [3]. The model uses 7.0 km/h as the threshold. This slightly lower value was chosen because it provides smoother data transitions on Garmin watches and accounts for natural variation between individuals in body size and fitness.
-
-The cadence model works in two zones:
-* Below 7.0 km/h (walking zone): Cadence ranges from 90 steps per minute for slow walking to 140 steps per minute for brisk walking.
-* At or above 7.0 km/h (running zone): Cadence ranges from 160 steps per minute for easy jogging to 200 steps per minute for fast running.
-
-This approach ensures your activities are classified correctly. A brisk walk at 6.0 km/h displays as a Walk segment with cadence around 128 steps per minute. A jog at 8.5 km/h displays as a Run segment with cadence around 166 steps per minute. This matches how people actually move and creates accurate activity logs [4].
-
-### References
-
-[1] ANT+ Device Profiles - SDM Specification: https://www.thisisant.com/developer/ant-plus/device-profiles  
-[2] Preferred transition speed between walking and running: https://pubmed.ncbi.nlm.nih.gov/16286854/  
-[3] Biomechanics of Gait Transition: https://scholarworks.boisestate.edu/cgi/viewcontent.cgi?article=1178&context=td  
-[4] Energetics of Walk-Run Transition: https://www.sciencedirect.com/science/article/abs/pii/S0167945723000635
+---
 
 ## Credits & Acknowledgments
 
-* **Main Project:** https://github.com/cagnulein/qdomyos-zwift
-* **ANT+ Linux footpod contributor:** [bassai-sho](https://github.com/bassai-sho)
-* **Development Note:** AI assistance tools (Claude, Gemini) were used to assist with coding, debugging, and documentation refinement
+- Main project: https://github.com/cagnulein/qdomyos-zwift
+- ANT+ Linux footpod implementation: bassai-sho
+- Documentation assisted by Claude and Gemini
+
+**Further reading:**
+
+[Preferred transition speed between walking and running](https://pubmed.ncbi.nlm.nih.gov/16286854/)  
+[Biomechanics of Gait Transition](https://scholarworks.boisestate.edu/cgi/viewcontent.cgi?article=1178&context=td)
