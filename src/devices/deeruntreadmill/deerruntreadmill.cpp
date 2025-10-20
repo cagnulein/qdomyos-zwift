@@ -276,8 +276,8 @@ void deerruntreadmill::update() {
                 }
 
                 if (pitpat) {
-                    uint8_t startData[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x81, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x93, 0x43};
-                    writeCharacteristic(gattWriteCharacteristic, startData, sizeof(startData), QStringLiteral("pitpat start"), false, true);
+                    uint8_t initData2[] = {0x6a, 0x05, 0xd7, 0xd2, 0x43};
+                    writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("pitpat init 2"), false, true);
                 } else {
                     // should be:
                     // 0x49 = inited
@@ -302,8 +302,8 @@ void deerruntreadmill::update() {
                 emit debug(QStringLiteral("stopping... ") + paused);
 
                 if (pitpat) {
-                    uint8_t stop[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x98, 0x43};
-                    writeCharacteristic(gattWriteCharacteristic, stop, sizeof(stop), QStringLiteral("pitpat stop"), false, true);
+                    uint8_t initData2[] = {0x6a, 0x05, 0xd7, 0xd2, 0x43};
+                    writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("pitpat init 2"), false, true);
                 } else {
                     uint8_t stop[] = {0x4d, 0x00, 0x48, 0x17, 0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x50, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x85, 0x11, 0xd6, 0x43};
                     stop[2] = pollCounter;
