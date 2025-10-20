@@ -10,7 +10,10 @@ static uint8_t random_value_uint8 = 0;
 
 metric::metric() {}
 
-void metric::setType(_metric_type t) { m_type = t; }
+void metric::setType(_metric_type t, BLUETOOTH_TYPE bt) {
+    m_type = t;
+    m_bluetooth_type = bt;
+}
 
 void metric::setValue(double v, bool applyGainAndOffset) {
     QSettings settings;
@@ -18,7 +21,8 @@ void metric::setValue(double v, bool applyGainAndOffset) {
     if (applyGainAndOffset) {
         if (m_type == METRIC_WATT) {
             if (v > 0) {
-                if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= 2.00) {
+                double maxGain = (m_bluetooth_type == ROWING) ? 5.00 : 2.00;
+                if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= maxGain) {
                     if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() != 1.0) {
                         qDebug() << QStringLiteral("watt value was ") << v
                                  << QStringLiteral("but it will be transformed to")
@@ -118,7 +122,8 @@ double metric::valueRaw() {
 
     if (m_type == METRIC_WATT) {
         if (v > 0) {
-            if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= 2.00) {
+            double maxGain = (m_bluetooth_type == ROWING) ? 5.00 : 2.00;
+            if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= maxGain) {
                 v /= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
             }
             if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {

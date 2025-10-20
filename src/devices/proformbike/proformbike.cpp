@@ -17,7 +17,7 @@ using namespace std::chrono_literals;
 
 proformbike::proformbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                          double bikeResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -1201,7 +1201,7 @@ void proformbike::update() {
                    requestResistance == -1) {
             // this bike sends the frame noOpData7 only when it needs to change the resistance
             counterPoll = 0;
-        } else if (counterPoll == 5 && (nordictrack_gx_2_7 || proform_cycle_trainer_300_ci || proform_hybrid_trainer_PFEL03815 || proform_bike_sb || proform_bike_325_csx || proform_xbike || proform_csx210)) {
+        } else if (counterPoll == 5 && (nordictrack_gx_2_7 || proform_cycle_trainer_300_ci || proform_hybrid_trainer_PFEL03815 || proform_bike_sb || proform_bike_325_csx || proform_xbike)) {
             counterPoll = 0;
         }
 

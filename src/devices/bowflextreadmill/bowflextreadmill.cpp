@@ -23,7 +23,7 @@ bowflextreadmill::bowflextreadmill(uint32_t pollDeviceTime, bool noConsole, bool
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
 
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;

@@ -161,6 +161,9 @@ class ftmsbike : public bike {
     bool MAGNUS = false;
     bool MRK_S26C = false;
     bool HAMMER = false;
+    bool YPBM = false;
+
+    uint8_t secondsToResetTimer = 5;
 
     int16_t T2_lastGear = 0;
 

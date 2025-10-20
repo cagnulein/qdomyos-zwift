@@ -1207,8 +1207,10 @@ import Qt.labs.platform 1.1
             property bool toorxtreadmill_discovery_completed: false
             property bool taurua_ic90: false
             property bool proform_csx210: false
+            property bool confirm_stop_workout: false
+            property bool proform_rower_750r: false
             property double gears_max: 999.0
-            property double gears_min: -999.0
+            property double gears_min: -999.0            
         }
 
 
@@ -3355,7 +3357,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the bluetooth name of your bike.")
+                        text: qsTr("If you have a generic FTMS bike and the tiles don't appear on the main QZ screen, select here the bluetooth name of your bike.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9067,6 +9069,25 @@ import Qt.labs.platform 1.1
                                 Layout.fillWidth: true
                                 onClicked: { settings.proform_rower_sport_rl = checked; window.settings_restart_to_apply = true; }
                             }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Proform Rower 750R")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.proform_rower_750r
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    settings.proform_rower_750r = checked;
+                                    if (checked) {
+                                        settings.proform_rower_sport_rl = false;
+                                    }
+                                    window.settings_restart_to_apply = true;
+                                }
+                            }
                             RowLayout {
                                 spacing: 10
                                 Label {
@@ -9430,6 +9451,33 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
+                    IndicatorOnlySwitch {
+                        text: qsTr("Confirm Stop Workout")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.confirm_stop_workout
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.confirm_stop_workout = checked
+                    }
+
+                    Label {
+                        text: qsTr("Shows a confirmation popup before stopping the workout from the UI.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -9744,7 +9792,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("QZ can open a external browser in order to auth strava to QZ. Default: disabled.")
+                        text: qsTr("QZ can open an external browser in order to auth strava to QZ. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -10807,7 +10855,7 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can't get the inclination from the treadmill. Enabling this and QZ will add a inclination gain to the power read from the Stryd. Default: disabled.")
+                                text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can't get the inclination from the treadmill. Enabling this and QZ will add an inclination gain to the power read from the Stryd. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2

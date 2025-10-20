@@ -18,7 +18,7 @@ var pedometer = CMPedometer()
 @objc public class healthkit:NSObject {
     let w = watchAppStart()
     let SwiftDebug = swiftDebug()
-        
+
     @objc public func request()
     {
         SwiftDebug.qtDebug("swift debug test")
@@ -31,10 +31,10 @@ var pedometer = CMPedometer()
             Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateHeartRate), userInfo: nil, repeats: true)
         }
         Server.server?.start()
-	
+
         LocalNotificationHelper.requestPermission()
         WatchKitConnection.shared.startSession()
-        
+
         if CMPedometer.isStepCountingAvailable() {
             pedometer.startUpdates(from: Date()) { pedometerData, error in
                 guard let pedometerData = pedometerData, error == nil else { return }
@@ -42,7 +42,6 @@ var pedometer = CMPedometer()
             }
         }
 
-        
         //w.startWatchApp()
     }
     
@@ -187,7 +186,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
-        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+        // Called as part of the transition from the background to the active state. Here you can undo many of the changes made on entering the background.
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {

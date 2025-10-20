@@ -1914,6 +1914,8 @@ class QZSettings {
 
     static const QString proform_rower_sport_rl;
     static constexpr bool default_proform_rower_sport_rl = false;
+    static const QString proform_rower_750r;
+    static constexpr bool default_proform_rower_750r = false;
 
     static const QString strava_date_prefix;
     static constexpr bool default_strava_date_prefix = false;
@@ -2692,6 +2694,12 @@ class QZSettings {
      */
     static const QString calories_from_hr;
     static constexpr bool default_calories_from_hr = false;
+
+    /**
+     * @brief Show a confirmation dialog before stopping a workout from the UI.
+     */
+    static const QString confirm_stop_workout;
+    static constexpr bool default_confirm_stop_workout = false;
 
     /**
      * @brief User height in centimeters for BMR calculation
