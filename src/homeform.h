@@ -418,6 +418,13 @@ class homeform : public QObject {
 #endif
     }
 
+    Q_INVOKABLE void launchIFitApp() {
+#ifdef Q_OS_ANDROID
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/AppLauncher", "launchIFitApp",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#endif
+    }
+
     homeform(QQmlApplicationEngine *engine, bluetooth *bl);
     ~homeform();
     int topBarHeight() { return m_topBarHeight; }

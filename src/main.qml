@@ -869,6 +869,16 @@ ApplicationWindow {
                     }
                 }
                 ItemDelegate {
+                    id: launch_ifit
+                    text: qsTr("Launch iFit App")
+                    width: parent.width
+                    visible: OS_VERSION === "Android" ? true : false
+                    onClicked: {
+                        rootItem.launchIFitApp();
+                        drawer.close()
+                    }
+                }
+                ItemDelegate {
                     text: qsTr("Credits")
                     width: parent.width
                     onClicked: {
