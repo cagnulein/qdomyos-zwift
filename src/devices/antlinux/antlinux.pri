@@ -64,6 +64,15 @@ linux-g++:!android|linux-clang:!android {
             PRE_TARGETDEPS += $$generate_header.target
 
             # --- Source and Header Definitions ---
+            # --- NEW: Take exclusive control of the source files ---
+            # First, REMOVE the files from SOURCES in case they were added by a generic rule
+            # in the main .pro file. This prevents "multiple definition" errors.
+            SOURCES -= $$PWD/AntManager.cpp
+            SOURCES -= $$PWD/AntWorker.cpp
+            HEADERS -= $$PWD/AntManager.h
+            HEADERS -= $$PWD/AntWorker.h
+
+            # Now, ADD them back under the control of this .pri file.
             SOURCES += $$PWD/AntManager.cpp $$PWD/AntWorker.cpp
             HEADERS += $$PWD/AntManager.h $$PWD/AntWorker.h
 
