@@ -300,13 +300,11 @@ void deerruntreadmill::update() {
                 emit tapeStarted();
             } else if (requestStop != -1) {
                 emit debug(QStringLiteral("stopping... ") + paused);
-                /*if (lastState == PAUSED) {
-                    uint8_t pause[] = {0x05, 0x00, 0x00, 0x00, 0x00, 0x2a, 0x07};
 
-                    writeCharacteristic(gattWriteCharacteristic, pause, sizeof(pause), QStringLiteral("pause"), false,
-                                        true);
-
-                } else*/ {
+                if (pitpat) {
+                    uint8_t stop[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x98, 0x43};
+                    writeCharacteristic(gattWriteCharacteristic, stop, sizeof(stop), QStringLiteral("pitpat stop"), false, true);
+                } else {
                     uint8_t stop[] = {0x4d, 0x00, 0x48, 0x17, 0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x50, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x85, 0x11, 0xd6, 0x43};
                     stop[2] = pollCounter;
 
