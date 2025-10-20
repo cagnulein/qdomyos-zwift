@@ -1,6 +1,7 @@
 #include "homeform.h"
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
+#include "ios/ios_liveactivity.h"
 #endif
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
@@ -1337,6 +1338,11 @@ void homeform::aboutToQuit() {
     if (floating_open)
         floatingOpen();
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
+#endif
+
+#ifdef Q_OS_IOS
+    // End iOS Live Activity
+    ios_liveactivity::endLiveActivity();
 #endif
 
     QSettings settings;
@@ -4978,6 +4984,8 @@ void homeform::Stop() {
     if(h && !h->appleWatchAppInstalled())
         h->stopWorkout();
 #endif
+    // End iOS Live Activity when workout stops
+    ios_liveactivity::endLiveActivity();
 #endif
 
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
