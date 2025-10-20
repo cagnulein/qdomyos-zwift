@@ -631,8 +631,7 @@ void kettlerracersbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1002-7bde-3e25-ffc5-9de9b2a0197a"))) {
         // Kettler RPM characteristic
         kettlerPacketReceived(newValue);
-    } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a100e-7bde-3e25-ffc5-9de9b2a0197a")) ||
-               characteristic.uuid() == QBluetoothUuid(QBluetoothUuid::CyclingPowerMeasurement)) {
+    } else if (characteristic.uuid() == QBluetoothUuid(QBluetoothUuid::CyclingPowerMeasurement)) {
         powerPacketReceived(newValue);
     }
 
