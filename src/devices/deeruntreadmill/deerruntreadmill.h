@@ -41,6 +41,7 @@ class deerruntreadmill : public treadmill {
                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
     double minStepInclination() override;
+    double minStepSpeed() override { return 0.1; }
 
   private:
     void forceSpeed(double requestSpeed);
