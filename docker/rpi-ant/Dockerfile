@@ -83,4 +83,4 @@ RUN cd src && qmake qdomyos-zwift.pro && make -j$(nproc)
 FROM debian:bookworm-slim
 
 # Copy the compiled binary from the builder stage
-COPY --from=builder /app/src/qdomyos-zwift /qdomyos-zwift-64bit-antls -alrt
+COPY --from=builder /app/src/qdomyos-zwift /qdomyos-zwift-64bit-ant
