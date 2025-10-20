@@ -100,20 +100,32 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
                                                 bool powerSensorEnabled,
                                                 double ergFilterUpper,
                                                 double ergFilterLower) {
-    if (!powerSensorEnabled || !ergModeSupported) {
+    if (!powerSensorEnabled) {
+        qDebug() << "adjustRequestPowerWithSensorDelta: power sensor not enabled, skipping PI controller";
+        m_powerErrorIntegral = 0;
+        m_lastPowerErrorValid = false;
+        return requestPower;
+    }
+
+    if (!ergModeSupported) {
+        qDebug() << "adjustRequestPowerWithSensorDelta: erg mode not supported, skipping PI controller";
         m_powerErrorIntegral = 0;
         m_lastPowerErrorValid = false;
         return requestPower;
     }
 
     if (m_rawWatt.value() <= 0 || m_watt.value() <= 0) {
+        qDebug() << "adjustRequestPowerWithSensorDelta: invalid power readings (rawWatt:" << m_rawWatt.value()
+                 << "watt:" << m_watt.value() << "), skipping PI controller";
         m_powerErrorIntegral = 0;
         m_lastPowerErrorValid = false;
         return requestPower;
     }
 
     const double rawMeasured = m_rawWatt.value();
-    double measured = rawMeasured > 0 ? rawMeasured : m_watt.value();
+    // When power sensor is enabled, always use m_watt (external power meter reading)
+    // not m_rawWatt (bike's internal estimation)
+    double measured = m_watt.value();
 
     if (measured <= 0) {
         m_powerErrorIntegral = 0;
@@ -124,13 +136,21 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
     const double allowedDelta = qMax(ergFilterUpper, ergFilterLower);
     const double error = static_cast<double>(requestPower) - measured;
 
-    if (fabs(error) > allowedDelta) {
+    qDebug() << "adjustRequestPowerWithSensorDelta: rawWatt:" << rawMeasured << "measured(from sensor):" << measured
+             << "req:" << requestPower << "error:" << error << "filter:" << allowedDelta;
+
+    // Apply PI correction only if error is OUTSIDE the dead zone (error > filter)
+    // If error <= filter, we're already close enough to target, no correction needed
+    if (fabs(error) <= allowedDelta) {
+        qDebug() << "adjustRequestPowerWithSensorDelta: error" << error << "within dead zone (±" << allowedDelta
+                 << "W), no correction needed";
         m_powerErrorIntegral = 0;
         m_lastPowerErrorValid = false;
         return requestPower;
     }
 
     if (!m_lastPowerErrorValid || (error > 0 && m_lastPowerError < 0) || (error < 0 && m_lastPowerError > 0)) {
+        qDebug() << "adjustRequestPowerWithSensorDelta: resetting integral (error sign changed or first run)";
         m_powerErrorIntegral = 0;
     }
 
@@ -142,14 +162,22 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
     static constexpr double kIntegralClamp = 30.0;
     static constexpr double kIntegralGain = 0.15;
 
+    const double integralBeforeClamp = m_powerErrorIntegral;
     m_powerErrorIntegral = std::clamp(m_powerErrorIntegral, -kIntegralClamp, kIntegralClamp);
 
-    const double correction = error + (m_powerErrorIntegral * kIntegralGain);
+    const double proportional = error;
+    const double integral = m_powerErrorIntegral * kIntegralGain;
+    const double correction = proportional + integral;
+    const int32_t adjustedPower = requestPower + static_cast<int32_t>(correction);
 
-    qDebug() << "applying delta watt to power request raw" << rawMeasured << "measured" << measured << "req"
-             << requestPower << "error" << error << "integral" << m_powerErrorIntegral << "corr" << correction;
+    qDebug() << "adjustRequestPowerWithSensorDelta: PI controller active";
+    qDebug() << "  P (error):" << proportional << "W";
+    qDebug() << "  I (integral):" << m_powerErrorIntegral << (integralBeforeClamp != m_powerErrorIntegral ? "(clamped)" : "")
+             << "* gain:" << kIntegralGain << "=" << integral << "W";
+    qDebug() << "  Total correction:" << correction << "W";
+    qDebug() << "  Output: req" << requestPower << "+ corr" << correction << "=" << adjustedPower << "W";
 
-    return requestPower + static_cast<int32_t>(correction);
+    return adjustedPower;
 }
 
 double bike::gears() {
