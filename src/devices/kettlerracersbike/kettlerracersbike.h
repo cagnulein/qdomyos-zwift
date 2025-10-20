@@ -91,6 +91,7 @@ class kettlerracersbike : public bike {
     bool notificationsSubscribed = false;
     bool kettlerServiceReady = false;
     bool connectedAndDiscoveredEmitted = false;
+    bool firstCadenceSent = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
