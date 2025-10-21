@@ -77,8 +77,8 @@ RUN echo 'include(devices/antlinux/antlinux.pri)' >> src/qdomyos-zwift.pro && \
 RUN cd src && qmake qdomyos-zwift.pro && make -j$(nproc)
 
 # --- Stage 2: The Final Artifact ---
-# Use a minimal but valid base image to avoid issues with `docker create`.
-FROM ubuntu:22.04-minimal
+# Use a valid, non-empty base image to solve the "no command specified" error.
+FROM ubuntu:22.04
 
 # Copy the compiled binary from the builder stage
 COPY --from=builder /app/src/qdomyos-zwift /qdomyos-zwift-x86-64-ant
