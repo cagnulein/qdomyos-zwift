@@ -13,7 +13,7 @@ FROM ubuntu:22.04 AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install all necessary build dependencies.
-# This list is now corrected to match the successful CI job's requirements.
+# This list is now corrected to include all required Qt5 development modules.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     git \
@@ -36,6 +36,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libqt5charts5 \
     libqt5networkauth5-dev \
     libqt5websockets5-dev \
+    qtmultimedia5-dev \
+    qtlocation5-dev \
+    libqt5texttospeech5-dev \
     libxcb-randr0-dev \
     libxcb-xtest0-dev \
     libxcb-xinerama0-dev \
@@ -63,7 +66,6 @@ COPY . .
 # Initialize git submodules
 RUN git submodule update --init --recursive
 
-# --- THE FIX IS HERE ---
 # Instead of compiling qthttpserver, we copy the pre-built headers,
 # exactly like the original linux-x86-build CI job.
 RUN cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
@@ -73,7 +75,6 @@ RUN echo 'include(devices/antlinux/antlinux.pri)' >> src/qdomyos-zwift.pro && \
     echo '/opt/ant_venv/bin/python3' > src/.ant_venv_path
 
 # Run qmake and compile the main project
-# We no longer need to build qthttpserver first.
 RUN cd src && qmake qdomyos-zwift.pro && make -j$(nproc)
 
 # --- Stage 2: The Final Artifact ---
