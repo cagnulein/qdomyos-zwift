@@ -596,22 +596,34 @@ bool treadmill::followPowerBySpeed() {
             .toBool();
     double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     static double lastInclination = 0;
+    static double lastSpeedWhenTargetSet = -1;
 
     if (treadmill_follow_wattage) {
 
+        // Check if speed was changed externally (from treadmill)
+        if (targetWatts != -1 && lastSpeedWhenTargetSet != -1 &&
+            fabs(currentSpeed().value() - lastSpeedWhenTargetSet) > 0.5) {
+            qDebug() << "External speed change detected - resetting power following mode"
+                     << "current:" << currentSpeed().value() << "expected:" << lastSpeedWhenTargetSet;
+            targetWatts = -1;
+            lastSpeedWhenTargetSet = -1;
+        }
+
         if (currentInclination().value() != lastInclination && wattsMetric().value() != 0) {
-            
+
             // If not following power mode, calculate new target from current values
             if (targetWatts == -1) {
                 targetWatts = wattsCalc(w, currentSpeed().value(), lastInclination);
-                qDebug() << "Starting power following mode with target watts:" << targetWatts;
+                lastSpeedWhenTargetSet = currentSpeed().value();
+                qDebug() << "Starting power following mode with target watts:" << targetWatts
+                         << "speed:" << lastSpeedWhenTargetSet;
             }
-            
+
             // Find speed to maintain targetWatts with current inclination
             double newspeed = 0;
             double bestSpeed = 0.1;
             double bestDifference = fabs(wattsCalc(w, bestSpeed, currentInclination().value()) - targetWatts);
-            
+
             for (int speed = 1; speed <= 300; speed++) {
                 double s = ((double)speed) / 10.0;
                 double thisDifference = fabs(wattsCalc(w, s, currentInclination().value()) - targetWatts);
@@ -620,14 +632,15 @@ bool treadmill::followPowerBySpeed() {
                     bestSpeed = s;
                 }
             }
-            
+
             newspeed = bestSpeed;
+            lastSpeedWhenTargetSet = newspeed; // Update tracked speed after change
             qDebug() << "Following power: changing speed to" << newspeed << "to maintain" << targetWatts << "watts (inclination changed" << currentInclination().value() << lastInclination << ")";
-            
+
             callingFromFollowPower = true;  // Set flag before calling
             changeSpeedAndInclination(newspeed, currentInclination().value());
             callingFromFollowPower = false; // Reset flag after calling
-            
+
             r = true;
         }
     }

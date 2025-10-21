@@ -686,6 +686,7 @@ const QString QZSettings::default_ftms_treadmill = QStringLiteral("Disabled");
 const QString QZSettings::ant_speed_offset = QStringLiteral("ant_speed_offset");
 const QString QZSettings::ant_speed_gain = QStringLiteral("ant_speed_gain");
 const QString QZSettings::proform_rower_sport_rl = QStringLiteral("proform_rower_sport_rl");
+const QString QZSettings::proform_rower_750r = QStringLiteral("proform_rower_750r");
 const QString QZSettings::strava_date_prefix = QStringLiteral("strava_date_prefix");
 const QString QZSettings::race_mode = QStringLiteral("race_mode");
 const QString QZSettings::proform_pro_1000_treadmill = QStringLiteral("proform_pro_1000_treadmill");
@@ -1567,6 +1568,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ant_speed_offset, QZSettings::default_ant_speed_offset},
     {QZSettings::ant_speed_gain, QZSettings::default_ant_speed_gain},
     {QZSettings::proform_rower_sport_rl, QZSettings::default_proform_rower_sport_rl},
+    {QZSettings::proform_rower_750r, QZSettings::default_proform_rower_750r},
     {QZSettings::strava_date_prefix, QZSettings::default_strava_date_prefix},
     {QZSettings::race_mode, QZSettings::default_race_mode},
     {QZSettings::proform_pro_1000_treadmill, QZSettings::default_proform_pro_1000_treadmill},
