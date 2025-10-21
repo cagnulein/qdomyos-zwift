@@ -289,6 +289,8 @@ const QString QZSettings::default_power_sensor_name = QStringLiteral("Disabled")
 const QString QZSettings::power_sensor_as_bike = QStringLiteral("power_sensor_as_bike");
 const QString QZSettings::power_sensor_as_treadmill = QStringLiteral("power_sensor_as_treadmill");
 const QString QZSettings::powr_sensor_running_cadence_double = QStringLiteral("powr_sensor_running_cadence_double");
+const QString QZSettings::power_sensor_pi_kp = QStringLiteral("power_sensor_pi_kp");
+const QString QZSettings::power_sensor_pi_ki = QStringLiteral("power_sensor_pi_ki");
 const QString QZSettings::elite_rizer_name = QStringLiteral("elite_rizer_name");
 const QString QZSettings::default_elite_rizer_name = QStringLiteral("Disabled");
 const QString QZSettings::elite_sterzo_smart_name = QStringLiteral("elite_sterzo_smart_name");
@@ -987,7 +989,7 @@ const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 
 
-const uint32_t allSettingsCount = 809;
+const uint32_t allSettingsCount = 811;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1234,6 +1236,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike},
     {QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill},
     {QZSettings::powr_sensor_running_cadence_double, QZSettings::default_powr_sensor_running_cadence_double},
+    {QZSettings::power_sensor_pi_kp, QZSettings::default_power_sensor_pi_kp},
+    {QZSettings::power_sensor_pi_ki, QZSettings::default_power_sensor_pi_ki},
     {QZSettings::elite_rizer_name, QZSettings::default_elite_rizer_name},
     {QZSettings::elite_sterzo_smart_name, QZSettings::default_elite_sterzo_smart_name},
     {QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name},
