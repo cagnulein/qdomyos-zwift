@@ -282,8 +282,6 @@ void ftmsbike::update() {
 
     if (initRequest) {
         zwiftPlayInit();
-        if(ICSE)
-            requestResistance = 1;  // to force the engine to send every second a target inclination
 
         // when we are emulating the zwift protocol, zwift doesn't senf the start simulation frames, so we have to send them
         if(settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool())
@@ -340,8 +338,7 @@ void ftmsbike::update() {
                     forceResistance(rR);
                 }
             }
-            if(!ICSE)
-                requestResistance = -1;
+            requestResistance = -1;
         }
         
         if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
@@ -543,7 +540,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         };
 
         // clean time in case for a long period we don't receive values
-        if(lastRefreshCharacteristicChanged2AD2.secsTo(now) > 5) {
+        if(lastRefreshCharacteristicChanged2AD2.secsTo(now) > secondsToResetTimer) {
             qDebug() << "clearing lastRefreshCharacteristicChanged2AD2" << lastRefreshCharacteristicChanged2AD2 << now;
             lastRefreshCharacteristicChanged2AD2 = now;
         }
@@ -1467,10 +1464,14 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 }
 
 void ftmsbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+    static bool connectedAndDiscoveredOk = false;
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     initRequest = true;
-    emit connectedAndDiscovered();
+    if(!connectedAndDiscoveredOk) {
+        connectedAndDiscoveredOk = true;
+        emit connectedAndDiscovered();
+    }    
 }
 
 void ftmsbike::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -1555,6 +1556,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("ICSE") && bluetoothDevice.name().length() == 4)) {
             qDebug() << QStringLiteral("ICSE found");
             ICSE = true;
+            secondsToResetTimer = 15;
+            autoResistanceEnable = false;  // Disable auto resistance for ICSE bikes
+            qDebug() << QStringLiteral("ICSE: autoResistance disabled by default");
         } else if ((bluetoothDevice.name().toUpper().startsWith("DOMYOS"))) {
             qDebug() << QStringLiteral("DOMYOS found");
             resistance_lvl_mode = true;
