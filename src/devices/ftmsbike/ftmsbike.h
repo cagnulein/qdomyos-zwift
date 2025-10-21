@@ -162,6 +162,7 @@ class ftmsbike : public bike {
     bool MRK_S26C = false;
     bool HAMMER = false;
     bool YPBM = false;
+    bool AVANTI = false;
 
     uint8_t secondsToResetTimer = 5;
 

@@ -346,7 +346,10 @@ void ftmsbike::update() {
             ftmsCharacteristicChanged(QLowEnergyCharacteristic(), lastPacketFromFTMS);
         }
 
-        if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
+        if(gears_zwift_ratio && AVANTI && lastGearValue != gears()) {
+            qDebug() << "setting wheel diameter for Avanti gear change" << gears();
+            setWheelDiameter(wheelCircumference::gearsToWheelDiameter(gears()));
+        } else if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
             QSettings settings;
             wheelCircumference::GearTable table;
             wheelCircumference::GearTable::GearInfo g = table.getGear((int)gears());
@@ -400,13 +403,14 @@ void ftmsbike::update() {
 
         // Power request routing logic:
         // 1. No virtualBike: route directly to bike
-        // 2. VirtualBike not connected to FTMS: route directly to bike  
+        // 2. VirtualBike not connected to FTMS: route directly to bike
         // 3. ZwiftPlay with gear ratio: route directly to bike
-        // 4. ErgMode supported + power sensor: use delta power system (bypass FTMS routing)
+        // 4. Gears Zwift Ratio with Avanti: route directly to bike
+        // 5. ErgMode supported + power sensor: use delta power system (bypass FTMS routing)
         bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                                 .toString()
                                 .startsWith(QStringLiteral("Disabled"));
-        if (requestPower != -1 && (!virtualBike || !virtualBike->ftmsDeviceConnected() || (zwiftPlayService != nullptr && gears_zwift_ratio) || (ergModeSupported && power_sensor))) {
+        if (requestPower != -1 && (!virtualBike || !virtualBike->ftmsDeviceConnected() || (zwiftPlayService != nullptr && gears_zwift_ratio) || (gears_zwift_ratio && AVANTI) || (ergModeSupported && power_sensor))) {
             qDebug() << QStringLiteral("writing power") << requestPower;
             init();
             forcePower(requestPower);
@@ -1360,7 +1364,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
         // handling gears
-        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && (zwiftPlayService == nullptr || !gears_zwift_ratio)) {
+        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && (zwiftPlayService == nullptr || !gears_zwift_ratio || (gears_zwift_ratio && AVANTI))) {
             double min_inclination = settings.value(QZSettings::min_inclination, QZSettings::default_min_inclination).toDouble();
             double offset =
                 settings.value(QZSettings::zwift_inclination_offset, QZSettings::default_zwift_inclination_offset).toDouble();
@@ -1426,7 +1430,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 #endif
             writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
             return;
-        } else if(b.at(0) == FTMS_SET_TARGET_POWER && ((zwiftPlayService != nullptr && gears_zwift_ratio) || !ergModeSupported)) {
+        } else if(b.at(0) == FTMS_SET_TARGET_POWER && (((zwiftPlayService != nullptr && gears_zwift_ratio) && !(gears_zwift_ratio && AVANTI)) || !ergModeSupported)) {
             qDebug() << "discarding";
             return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
@@ -1657,6 +1661,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
             ergModeSupported = false;
             max_resistance = 32;
+        } else if(device.name().toUpper().startsWith("AVANTI")) {
+            qDebug() << QStringLiteral("AVANTI found");
+            AVANTI = true;
         }
 
 
