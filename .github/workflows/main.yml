@@ -451,6 +451,53 @@ jobs:
           name: test_results_xml
           path: tst/test-results/**/*.xml               
 
+  linux-x86-build-ant:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create Secrets File
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          echo "#define LICENSE" >> secret.h
+          cd ..
+
+      - name: Build and Extract x86-64 Binary
+        run: |
+          IMAGE_TAG="qdomyos-zwift-x86-builder:latest"
+          
+          # Build the native linux/amd64 image using its dedicated Dockerfile.
+          # No --platform flag is needed as we are building for the runner's native architecture.
+          docker buildx build -t $IMAGE_TAG --load . -f docker/linux-ant/Dockerfile
+          
+          echo "Build complete. Extracting binary..."
+          
+          docker create --name qz-container $IMAGE_TAG
+          docker cp qz-container:/qdomyos-zwift-x86-64-ant ./src/qdomyos-zwift-x86-64-ant
+          docker rm qz-container
+
+      - name: Archive Linux x86-64 ANT+ binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-binary-x86-64-ant
+          path: src/qdomyos-zwift-x86-64-ant
+
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
 #        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
@@ -1954,7 +2001,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-build-64bit-ant]
+    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-build-64bit-ant, linux-x86-build-ant]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -1997,6 +2044,7 @@ jobs:
             - **raspberry-pi-binary**: 32-bit build for Raspberry Pi
             - **raspberry-pi-binary-64bit**: 64-bit build for Raspberry Pi 4/5 and Pi Zero 2 W
             - **raspberry-pi-binary-64bit-ant**: 64-bit build with ANT+ Footpod support
+            - **linux-binary-x86-64-ant**: 64-bit build with ANT+ Footpod support for Desktop Linux (Ubuntu/Debian)
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
           files: |
@@ -2015,3 +2063,4 @@ jobs:
             raspberry-pi-binary/qdomyos-zwift-32bit
             raspberry-pi-binary-64bit/qdomyos-zwift-64bit
             raspberry-pi-binary-64bit-ant/qdomyos-zwift-64bit-ant
+            linux-binary-x86-64-ant/qdomyos-zwift-x86-64-ant
