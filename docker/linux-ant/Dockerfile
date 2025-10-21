@@ -13,7 +13,6 @@ FROM ubuntu:22.04 AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install all necessary build dependencies.
-# This list is now corrected to include all required Qt5 development modules.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     git \
@@ -78,8 +77,8 @@ RUN echo 'include(devices/antlinux/antlinux.pri)' >> src/qdomyos-zwift.pro && \
 RUN cd src && qmake qdomyos-zwift.pro && make -j$(nproc)
 
 # --- Stage 2: The Final Artifact ---
-# Use a minimal image for the final stage
-FROM scratch
+# Use a minimal but valid base image to avoid issues with `docker create`.
+FROM ubuntu:22.04-minimal
 
 # Copy the compiled binary from the builder stage
 COPY --from=builder /app/src/qdomyos-zwift /qdomyos-zwift-x86-64-ant
