@@ -238,7 +238,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         return;
     }
 
-    if (bike_type == TOORX_SRX_500 && newValue.length() < 21) {
+    if (bike_type == TOORX_SRX_500 && newValue.length() < 19) {
         emit debug(QStringLiteral("ignoring short packet ") + QString::number(newValue.length()));
         return;
     }
