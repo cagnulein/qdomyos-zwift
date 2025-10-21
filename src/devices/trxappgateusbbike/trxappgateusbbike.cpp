@@ -238,6 +238,11 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         return;
     }
 
+    if (bike_type == TOORX_SRX_500 && newValue.length() < 19) {
+        emit debug(QStringLiteral("ignoring short packet ") + QString::number(newValue.length()));
+        return;
+    }
+
     double cadence = GetCadenceFromPacket(newValue);
     double speed = 0.0;
     double resistance = 0.0;
