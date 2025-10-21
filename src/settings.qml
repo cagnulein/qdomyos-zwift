@@ -7239,28 +7239,28 @@ import Qt.labs.platform 1.1
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: qsTr("Max. Speed:")
+                            text: qsTr("Max. Speed:") + "(" + (settings.miles_unit?"mph":"km/h") + ")"
                             Layout.fillWidth: true
                         }
                         TextField {
                             id: treadmillSpeedMaxTextField
-                            text: settings.treadmill_speed_max
+                            text: (settings.miles_unit?settings.treadmill_speed_max * 0.621371:settings.treadmill_speed_max).toFixed(1)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.treadmill_speed_max = text
+                            onAccepted: settings.treadmill_speed_max = (settings.miles_unit?text * 1.60934:text)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_speed_max = treadmillSpeedMaxTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.treadmill_speed_max = (settings.miles_unit?treadmillSpeedMaxTextField.text * 1.60934:treadmillSpeedMaxTextField.text); toast.show("Setting saved!"); }
                         }
                     }
 
                     Label {
-                        text: qsTr("This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100")
+                        text: qsTr("This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
