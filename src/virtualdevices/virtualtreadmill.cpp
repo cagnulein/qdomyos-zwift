@@ -589,7 +589,7 @@ void virtualtreadmill::treadmillProvider() {
         // Check for requested speed from FTMS and apply it
         double requestedSpeed = h->virtualtreadmill_getRequestedSpeed();
         if (requestedSpeed > 0 && requestedSpeed != treadMill->currentSpeed().value()) {
-            if (treadMill->deviceType() == bluetoothdevice::TREADMILL) {
+            if (treadMill->deviceType() == TREADMILL) {
                 ((treadmill *)treadMill)->changeSpeed(requestedSpeed);
                 qDebug() << "virtualtreadmill: Applied requested speed from FTMS:" << requestedSpeed;
             }

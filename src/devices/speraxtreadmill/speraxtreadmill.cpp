@@ -16,7 +16,7 @@ using namespace std::chrono_literals;
 
 speraxtreadmill::speraxtreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
                                    double forceInitInclination) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;
@@ -739,7 +739,7 @@ void speraxtreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
 double speraxtreadmill::GetSpeedFromPacket(const QByteArray &packet) {
 
-    uint8_t convertedData = (uint8_t)packet.at(17);
+    uint8_t convertedData = (uint8_t)packet.at(17 + (packet.length() - 24));
     double data = ((double)(convertedData) / 10.0);
     return data;
 }

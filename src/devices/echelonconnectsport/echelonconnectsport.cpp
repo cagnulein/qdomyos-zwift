@@ -23,7 +23,7 @@ echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartSer
 #ifdef Q_OS_IOS
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -149,6 +149,11 @@ void echelonconnectsport::update() {
                  gattNotify2Characteristic.isValid())) &&
                initDone) {
         update_metrics(true, watts());
+
+        // Continuous ERG mode support - recalculate resistance as cadence changes when using power zone tiles
+        if (RequestedPower.value() > 0) {
+            changePower(RequestedPower.value());
+        }
 
                // sending poll every 2 seconds
         if (sec1Update++ >= (2000 / refresh->interval())) {

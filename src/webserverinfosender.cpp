@@ -334,12 +334,10 @@ void WebServerInfoSender::onNewWebSocketConnection() {
         connect(pSocket, &QWebSocket::textMessageReceived, this, &WebServerInfoSender::processFetcherRequest);
         connect(pSocket, &QWebSocket::binaryMessageReceived, this, &WebServerInfoSender::processFetcherRawRequest);
     } else {
-        connect(pSocket, &QWebSocket::textMessageReceived, this, &WebServerInfoSender::processTextMessage);
-        connect(pSocket, &QWebSocket::binaryMessageReceived, this, &WebServerInfoSender::processBinaryMessage);
+        connect(pSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(processTextMessage(QString)));
+        connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processBinaryMessage(QByteArray)));
         sendToClients << QPointer<QWebSocket>(pSocket);
     }
-
-    connect(pSocket, &QWebSocket::disconnected, this, &WebServerInfoSender::socketDisconnected);
 
     // Store the WebSocket connection
     clients << QPointer<QWebSocket>(pSocket);

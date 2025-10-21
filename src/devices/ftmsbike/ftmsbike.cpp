@@ -27,7 +27,7 @@ using namespace std::chrono_literals;
 ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
     QSettings settings;
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -131,7 +131,7 @@ void ftmsbike::init() {
     if (initDone)
         return;
 
-    if(ICSE) {
+    if(ICSE || HAMMER) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
         write[0] = {FTMS_RESET};
@@ -255,7 +255,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if(SL010)
             Resistance = requestResistance;
         
-        if(JFBK5_0 || DIRETO_XR) {
+        if(JFBK5_0 || DIRETO_XR || YPBM) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -285,8 +285,6 @@ void ftmsbike::update() {
 
     if (initRequest) {
         zwiftPlayInit();
-        if(ICSE)
-            requestResistance = 1;  // to force the engine to send every second a target inclination
 
         // when we are emulating the zwift protocol, zwift doesn't senf the start simulation frames, so we have to send them
         if(settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool())
@@ -343,8 +341,7 @@ void ftmsbike::update() {
                     forceResistance(rR);
                 }
             }
-            if(!ICSE)
-                requestResistance = -1;
+            requestResistance = -1;
         }
         
         if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
@@ -546,7 +543,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         };
 
         // clean time in case for a long period we don't receive values
-        if(lastRefreshCharacteristicChanged2AD2.secsTo(now) > 5) {
+        if(lastRefreshCharacteristicChanged2AD2.secsTo(now) > secondsToResetTimer) {
             qDebug() << "clearing lastRefreshCharacteristicChanged2AD2" << lastRefreshCharacteristicChanged2AD2 << now;
             lastRefreshCharacteristicChanged2AD2 = now;
         }
@@ -1435,6 +1432,20 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && ((zwiftPlayService != nullptr && gears_zwift_ratio) || !ergModeSupported)) {
             qDebug() << "discarding";
             return;
+        } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
+            // handling watt gain and offset for erg mode
+            double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+            double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+
+            if (watt_gain != 1.0 || watt_offset != 0) {
+                uint16_t powerRequested = (((uint8_t)b.at(1)) + (b.at(2) << 8));
+                qDebug() << "applying watt_gain/watt_offset from" << powerRequested;
+                powerRequested = ((powerRequested / watt_gain) - watt_offset);
+                qDebug() << "to" << powerRequested;
+
+                b[1] = powerRequested & 0xFF;
+                b[2] = powerRequested >> 8;
+            }
         }
         // gears on erg mode is quite useless and it's confusing
         /* else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
@@ -1456,10 +1467,14 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 }
 
 void ftmsbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+    static bool connectedAndDiscoveredOk = false;
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     initRequest = true;
-    emit connectedAndDiscovered();
+    if(!connectedAndDiscoveredOk) {
+        connectedAndDiscoveredOk = true;
+        emit connectedAndDiscovered();
+    }    
 }
 
 void ftmsbike::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -1544,6 +1559,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("ICSE") && bluetoothDevice.name().length() == 4)) {
             qDebug() << QStringLiteral("ICSE found");
             ICSE = true;
+            secondsToResetTimer = 15;
+            autoResistanceEnable = false;  // Disable auto resistance for ICSE bikes
+            qDebug() << QStringLiteral("ICSE: autoResistance disabled by default");
         } else if ((bluetoothDevice.name().toUpper().startsWith("DOMYOS"))) {
             qDebug() << QStringLiteral("DOMYOS found");
             resistance_lvl_mode = true;
@@ -1633,8 +1651,18 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("MRK-S26C-")) {
             qDebug() << QStringLiteral("MRK-S26C found");
             MRK_S26C = true;
+        } else if(device.name().toUpper().startsWith("HAMMER")) {
+            qDebug() << QStringLiteral("HAMMER found");
+            HAMMER = true;
+        } else if(device.name().toUpper().startsWith("YPBM") && device.name().length() == 10) {
+            qDebug() << QStringLiteral("YPBM found");
+            YPBM = true;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 32;
         }
-        
+
+
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
             resistance_lvl_mode = true;
         }
