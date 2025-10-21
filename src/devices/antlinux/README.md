@@ -9,258 +9,286 @@ This guide will help you configure your Raspberry Pi running QDomyos-Zwift (QZ) 
 
 ## Prerequisites
 
-This feature requires the QZ source code and cannot be used with pre-built QZ packages.
-
 ### Quick Prerequisites Check
-Before you begin, please verify the following:
 
-- Raspberry Pi 4/5 OR desktop Linux for compilation
-- ANT+ USB dongle (Garmin or compatible)
+**All users need:**
+- ANT+ USB dongle (Garmin USB2 0fcf:1008 or USB-m 0fcf:1009 recommended)
 - Garmin watch or compatible ANT+ device
-- Existing, working QDomyos-Zwift source installation on a Raspberry Pi
-- Familiarity with running terminal commands, editing text files, and basic Linux file system navigation
+- Raspberry Pi running OS based on Debian Bookworm
+- Familiarity with terminal commands, editing text files, and basic Linux navigation
 
-This guide assumes you are comfortable using Linux and already have a working QDomyos-Zwift source installation on a Raspberry Pi. If not, first read these instructions: https://github.com/cagnulein/qdomyos-zwift/blob/master/docs/10_Installation.md
+**Method 1 (Pre-compiled Binary):**
+- Raspberry Pi Zero 2 W or newer (any model)
+- No existing QDomyos-Zwift installation needed
 
-## Verified Hardware & Software
-This guide has been tested using:
-- qdomyos-zwift binary running on Raspberry Pi Zero 2 W (Raspberry Pi OS Bookworm & Trixie) 
-- Dongles: Garmin ANT+ USB-m (0fcf:1009) & Garmin ANT+ USB2 (0fcf:1008) 
-- Watch: Garmin Forerunner 245 Watch 
-- Treadmill: Proform 705 CST treadmill 
+**Method 2 (Compile from Source):**
+- Raspberry Pi 4/5 OR desktop Linux for compilation
+- Requires QZ source code: https://github.com/cagnulein/qdomyos-zwift/blob/master/docs/10_Installation.md
 
-### Compilation Hardware
+### Tested Configuration
+- Hardware: Raspberry Pi Zero 2 W (Raspberry Pi OS Bookworm)
+- Treadmill: Proform 705 CST
+- Watch: Garmin Forerunner 245
 
-Compile the application on a Raspberry Pi 4 or 5. These models have sufficient RAM and processing power for C++ compilation. Compiling directly on a Pi Zero 2 W is not recommended due to insufficient RAM (512MB) - this will likely result in out-of-memory errors or system freezing.
-
-If you are compiling on a Pi 4/5 to run on a different Pi (such as Pi Zero 2 W):
-- On the build machine: Follow all steps (Steps 1-9)
-- On the target machine: Follow all steps with the exception of Step 7 (Build QZ with ANT+ Support) - simply use the binary you compiled on the build machine
-
-**Important:** Ensure both machines have the same Python version. If they differ, you will experience library loading errors when running the application (see troubleshooting: "error while loading shared libraries: libpython3.XX.so.1.0").
-
-## ANT+ Requirements
-
-You will need an ANT+ USB dongle, such as the tested Garmin ANT+ USB2 (0fcf:1008) or Garmin ANT+ USB-m (0fcf:1009). A compatible fitness device like a Garmin watch is also necessary.
-
-## Backup Recommendation
+### Backup Recommendation
 
 Consider backing up your system before proceeding.
 
-## Installation
+---
 
-This guide assumes your QZ source code is located at `$HOME/qdomyos-zwift/`
+## Installation Overview
 
-### Step 1 - Install System Dependencies
+The installation process consists of three parts:
 
-(Note: Skip this step if you already have a working QZ source installation)
+**Part A: System Setup** - One-time configuration (runtime dependencies, Python environment, USB permissions)
 
-Ensure your QZ source is in `$HOME/qdomyos-zwift/`
+**Part B: Choose Your Method** - Download pre-compiled binary OR compile from source
 
-Start by updating your system and installing the required packages:
+**Part C: Testing and Automation** - Run the application and configure automatic startup
+
+---
+
+## Part A: System Setup (Required for All Users)
+
+Complete these steps regardless of your chosen method. These prepare your Raspberry Pi with the necessary runtime environment.
+
+### Step A1: Install System Dependencies
 
 ```bash
-# These are the steps from the main guide and included here for reference. Only follow if starting from scratch.
 sudo apt-get update
-sudo apt-get upgrade
+sudo apt-get install -y \
+	libqt5bluetooth5 \
+	libqt5charts5 \
+	libqt5multimedia5 \
+	libqt5networkauth5 \
+	libqt5positioning5 \
+	libqt5sql5 \
+	libqt5texttospeech5 \
+	libqt5websockets5 \
+	libqt5xml5 \
+	libusb-1.0-0 \
+	python3.11 \
+	python3.11-venv \
+	python3-pip
+```
 
-sudo apt-get install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtbase5-private-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 qtlocation5-dev qtquickcontrols2-5-dev libqt5texttospeech5-dev libqt5texttospeech5 g++ make qtbase5-dev libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
+### Step A2: Create Python Virtual Environment
 
+The QZ application looks for an environment named `ant_venv` in your home directory. **This is mandatory even for the pre-compiled binary.**
+
+```bash
+# Create the virtual environment
+python3.11 -m venv ~/ant_venv
+
+# Install required Python libraries (do not use sudo)
+~/ant_venv/bin/pip install --upgrade pip
+~/ant_venv/bin/pip install openant pyusb pybind11
+```
+
+### Step A3: Configure USB Permissions
+
+```bash
+# Create udev rule for ANT+ dongles
+sudo tee /etc/udev/rules.d/99-ant-usb.rules > /dev/null << 'EOF'
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0fcf", ATTRS{idProduct}=="100?", MODE="0666", GROUP="plugdev"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="11fd", ATTRS{idProduct}=="0001", MODE="0666", GROUP="plugdev"
+EOF
+
+# Apply permissions
+sudo udevadm control --reload-rules && sudo udevadm trigger
+sudo usermod -aG plugdev $USER
+
+# Reboot to apply changes
+sudo reboot
+```
+
+After the reboot, proceed to Part B.
+
+---
+
+## Part B: Choose Your Installation Method
+
+### Method 1: Download Pre-Compiled Binary (Recommended)
+
+Fastest method - skip compilation entirely.
+
+#### Step B1.1: Download from GitHub Actions
+
+1. Navigate to the **[Actions tab](https://github.com/cagnulein/qdomyos-zwift/actions)**
+2. Find the latest successful workflow run on `master` branch (green checkmark)
+3. Scroll to **"Artifacts"** section
+4. Download **`raspberry-pi-binary-64bit-ant`**
+
+#### Step B1.2: Install Binary
+
+1. Unzip the downloaded file to find `qdomyos-zwift-64bit-ant`
+2. Transfer to your Raspberry Pi's home directory (`/home/pi/`)
+3. Rename and make executable:
+
+```bash
+cd /home/pi/
+mv qdomyos-zwift-64bit-ant qdomyos-zwift
+chmod +x qdomyos-zwift
+```
+
+Proceed to **Part C: Testing and Automation**.
+
+---
+
+### Method 2: Compile from Source (Advanced)
+
+For developers or users needing custom modifications.
+
+#### Compilation Hardware Requirements
+
+Use Raspberry Pi 4 or 5 for compilation. Pi Zero 2 W has insufficient RAM (512MB) and will cause out-of-memory errors.
+
+**Cross-compilation setup:**
+- Build machine: Follow all Method 2 steps
+- Target machine: Follow Part A, transfer binary, then Part C
+- **Critical:** Both machines must have the same Python version (see troubleshooting)
+
+#### Step B2.1: Install Development Dependencies
+
+```bash
+sudo apt-get install -y \
+	git g++ make \
+	qtbase5-dev qtbase5-private-dev \
+	qtconnectivity5-dev qtpositioning5-dev \
+	libqt5charts5-dev libqt5networkauth5-dev \
+	libqt5websockets5-dev qtmultimedia5-dev \
+	libqt5multimediawidgets5 libqt5multimedia5-plugins \
+	qtlocation5-dev qtquickcontrols2-5-dev \
+	libqt5texttospeech5-dev libqt5sql5-mysql \
+	libqt5sql5-psql libusb-1.0-0-dev \
+	libudev-dev qt5-assistant
+
+# Install Python development headers
+PYVER=$(~/ant_venv/bin/python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+sudo apt-get install -y "python${PYVER}-dev"
+```
+
+#### Step B2.2: Clone Repository
+
+```bash
+cd $HOME
 git clone https://github.com/cagnulein/qdomyos-zwift.git
+cd qdomyos-zwift
 
-# Move into the QZ directory
-cd $HOME/qdomyos-zwift
-
-# Update the submodules
+# Update submodules
 git submodule update --init src/smtpclient/
 git submodule update --init src/qmdnsengine/
 git submodule update --init tst/googletest/
 ```
 
-### Step 2 - Create Python Virtual Environment
-
-This environment isolates the required Python libraries, which is recommended for modern Linux distributions (Debian Bookworm+) to avoid conflicts with system packages.
+#### Step B2.3: Configure Build
 
 ```bash
-# Update package lists and install essential libraries for ANT+ support
-sudo apt-get update
-sudo apt-get install -y libusb-1.0-0-dev libudev-dev python3-pip python3-venv
-```
-
-```bash
-# Create a Python virtual environment in your home directory
-python3 -m venv $HOME/ant_venv
-```
-
-```bash
-# Upgrade pip to the latest version within the virtual environment
-$HOME/ant_venv/bin/python3 -m pip install --upgrade pip
-```
-
-```bash
-# Install the required Python packages for ANT+ communication
-$HOME/ant_venv/bin/python3 -m pip install pybind11 pyusb openant
-```
-
-### Step 3 - Configure Build Environment
-
-This step prepares the QZ source code and links it to your new Python environment.
-
-```bash
-# Navigate to the QDomyos-Zwift source subdirectory
 cd $HOME/qdomyos-zwift/src
-```
-
-```bash
-# Pull the latest changes from the repository
 git pull
-```
 
-```bash
-# This command checks if ANT+ linux support is already enabled in qdomyos-zwift.pro and adds it if missing
+# Enable ANT+ support
 grep -q "antlinux.pri" qdomyos-zwift.pro || echo 'include(devices/antlinux/antlinux.pri)' >> qdomyos-zwift.pro
-```
 
-```bash
-# Store the Python executable path for the qmake build system to reference
+# Link Python environment
 echo "$HOME/ant_venv/bin/python3" > .ant_venv_path
 ```
 
-Install Python development headers for your specific Python version:
-```bash
-# Detect the Python version from your venv and install the matching development headers
-PYVER=$($HOME/ant_venv/bin/python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
-sudo apt-get install -y "python${PYVER}-dev"
-```
-
-### Step 4 - Configure USB Permissions
-
-These rules enable non-root access to the ANT+ USB dongle.
+#### Step B2.4: Verify Setup (Optional)
 
 ```bash
-# Create a udev rule file to automatically set correct permissions for ANT+ USB dongles
-sudo tee /etc/udev/rules.d/99-ant-usb.rules > /dev/null << 'EOF'
-SUBSYSTEM=="usb", ATTRS{idVendor}=="0fcf", ATTRS{idProduct}=="100?", MODE="0666", GROUP="plugdev"
-SUBSYSTEM=="usb", ATTRS{idVendor}=="11fd", ATTRS{idProduct}=="0001", MODE="0666", GROUP="plugdev"
-EOF
-```
-
-```bash
-# Reload udev rules and trigger re-evaluation for all connected devices
-sudo udevadm control --reload-rules && sudo udevadm trigger
-```
-
-```bash
-# Add your user to the plugdev group for direct USB device access
-sudo usermod -aG plugdev $USER
-```
-
-```bash
-# Reboot system to apply settings
-sudo reboot
-```
-
-### Step 5 - Verify Setup
-
-After rebooting, run the included diagnostic script to check the environment.
-
-```bash
-# Run the automated checklist
 sudo bash $HOME/qdomyos-zwift/src/devices/antlinux/build_check_list.sh
 ```
 
-If the checklist reports any critical failures, resolve them before proceeding.
+Resolve any critical failures before proceeding.
 
-### Step 6 - Test ANT+ Broadcasting
+#### Step B2.5: Test ANT+ Broadcasting (Optional)
 
-This standalone test validates that your Python environment and hardware are working correctly before the full QZ build.
+Validates Python environment and hardware before full build:
+
+See *Step C1* for Pairing Your Device
 
 ```bash
-# Run the ANT+ test script with sudo privileges
 sudo $HOME/ant_venv/bin/python3 $HOME/qdomyos-zwift/src/devices/antlinux/ant_test_broadcaster.py
 ```
 
-**What to expect:**
+**Expected behavior:**
+- Watch connects within 5-10 seconds
+- Displays stable pace (e.g., 5:35 min/km) and cadence (e.g., 150 SPM)
+- Press `Ctrl+C` to stop
 
-The test script simulates a running session and should connect to your watch within 5-10 seconds. You'll see output showing speed and pace data being broadcast.
+If this fails, the full build is unlikely to work.
 
-**Pairing your device:**
-
-1. On Garmin watches: Navigate to Menu > Sensors & Accessories > Add New > Foot Pod
-2. Your watch should detect and pair with the virtual footpod within 5-10 seconds
-3. Start a "Treadmill" or "Run Indoor" activity to see pace and cadence data
-4. To view cadence on your watch: Go to Settings > Activities & Apps > select your activity (e.g., Treadmill Run) > Data Screens > customize the screen and add Cadence as a field
-
-**If successful:** Your watch will display stable pace (e.g., 5:35 min/km) and cadence (e.g., 150 SPM) values.
-
-Press `Ctrl+C` once to stop the test. If this test fails, the full QZ build is unlikely to work correctly.
-
-**Understanding the cadence values:**
-
-The system automatically switches between walking and running cadence at 7.0 km/h. Biomechanics research shows this transition typically occurs around 7.2-7.4 km/h, where running becomes more energy-efficient than fast walking. The model uses 7.0 km/h as a compromise value that provides smoother data on Garmin watches while accounting for individual variation. Below 7.0 km/h you'll see walking cadence (90-140 steps per minute). At or above 7.0 km/h you'll see running cadence (160-200 steps per minute). For example, a 6.0 km/h walk shows around 128 SPM, while an 8.5 km/h jog shows around 166 SPM.
-
-For more information on the walk-run transition, see the "Further reading" section at the end of this guide.
-
-### Step 7 - Build QZ with ANT+ Support
-
-Run qmake to generate the Makefile with ANT+ support.
+#### Step B2.6: Build Application
 
 ```bash
-# Return to the QZ source subdirectory
 cd $HOME/qdomyos-zwift/src/
-```
-
-```bash
-# Generate a new Makefile
 qmake qdomyos-zwift.pro
 ```
 
-During the `qmake` step, look for this message to confirm ANT+ support is detected:
-
+**Verify ANT+ is enabled** - look for this message:
 `Project MESSAGE: >>> ANT+ ENABLED for build <<<`
 
-If this message is missing, return to Step 5 to run the diagnostic script and resolve any failures before continuing.
-
-Build the application:
+If missing, return to Step B2.4.
 
 ```bash
-# Compile QDomyos-Zwift with ANT+ footpod support
 make
 ```
 
-### Step 8 - Test QZ with ANT+
+Binary will be at `$HOME/qdomyos-zwift/src/qdomyos-zwift`.
 
-After successfully building, test QZ with ANT+ broadcasting:
+Proceed to **Part C: Testing and Automation**.
+
+---
+
+## Part C: Testing and Automation (Required for All Users)
+
+### Step C1: Pairing Your Device
+
+**On Garmin watches:**
+1. Menu > Sensors & Accessories > Add New > Foot Pod
+2. Watch detects and pairs within 5-10 seconds
+3. Start "Treadmill" or "Run Indoor" activity
+4. Add Cadence field: Settings > Activities & Apps > [Activity] > Data Screens > customize
+
+**Cadence behavior:**
+The system switches between walking and running cadence at 7.0 km/h (based on biomechanics research showing the walk-run transition occurs around 7.2-7.4 km/h):
+- Below 7.0 km/h: Walking cadence (90-140 SPM)
+- At/above 7.0 km/h: Running cadence (160-200 SPM)
+- Example: 6.0 km/h walk ≈ 128 SPM, 8.5 km/h jog ≈ 166 SPM
+
+See "Further reading" section for research details.
+
+### Step C2: Test the Application
+
+Connect your ANT+ dongle and start your treadmill:
 
 ```bash
-# Run QZ in no-GUI mode with ANT+ footpod broadcasting enabled
+cd /home/pi/
 sudo ./qdomyos-zwift -no-gui -ant-footpod
 ```
 
-Optional parameters:
+*Note: If you compiled from source (Method 2), the binary is in `$HOME/qdomyos-zwift/src/`*
 
-`-ant-device <id>`: Use a custom ANT+ device ID. This is useful if you have multiple devices or are experiencing conflicts. The ID can be any number from 1 to 65535.
+Your watch should now pair as a Foot Pod (see Step C1).
+
+**Optional parameters:**
 
 ```bash
+# Custom device ID (useful for conflicts)
 sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-device 12345
-```
 
-`-ant-verbose`: Enable detailed DEBUG level logging from the internal Python ANT+ script. The default logging level is INFO. This verbose mode will log every ANT+ payload being sent. Use this only when debugging, as it can generate very large log files.
-
-```bash
+# Verbose logging (generates large logs - debug only)
 sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-verbose
 ```
 
-### Step 9 - Configure Automatic Startup (systemd)
-
-To have QZ start automatically with ANT+ support, modify your systemd service file.
+### Step C3: Configure Automatic Startup (Optional)
 
 ```bash
-# Edit the QZ systemd service file
 sudo nano /lib/systemd/system/qz.service
 ```
 
-Ensure the `[Service]` section looks like this. The key changes are running as `root`, replacing 'pi' with your actual username if different, and adding the ANT+ command-line flag.
+Configuration:
 
 ```ini
 [Unit]
@@ -268,54 +296,51 @@ Description=qdomyos-zwift service
 After=multi-user.target
 
 [Service]
-# Run as root to handle Bluetooth permissions and allow QSettings to work correctly
 User=root
 Group=plugdev
-
-# Replace 'pi' with username used for virtual Python environment 
 Environment="QZ_USER=pi"
-
-# Set working directory where log file will be written
-WorkingDirectory=/home/pi/qdomyos-zwift/src
-
-# The QZ command to execute, amend the path location and flags as needed
-ExecStart=/home/pi/qdomyos-zwift/src/qdomyos-zwift -no-gui -log -ant-footpod
-
-# Ensure graceful shutdown on stop
+WorkingDirectory=/home/pi
+ExecStart=/home/pi/qdomyos-zwift -no-gui -log -ant-footpod
 KillSignal=SIGINT
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-Apply the changes:
+*Note: If compiled from source, update `WorkingDirectory` to `/home/pi/qdomyos-zwift/src` and `ExecStart` to `/home/pi/qdomyos-zwift/src/qdomyos-zwift`*
+
+Apply changes:
+
 ```bash
-# Reload systemd configuration and start the QZ service
 sudo systemctl daemon-reload
+sudo systemctl enable qz
 sudo systemctl start qz
 sudo systemctl status qz
 ```
 
-## Success Indicators
-How to know everything is working correctly:
+---
 
-✓ qmake shows the "ANT+ ENABLED" message  
-✓ The standalone test script (Step 6) connects to your watch within 10 seconds  
-✓ Your watch displays a stable pace (e.g., 5:35 min/km) and cadence (e.g., 150 SPM)  
-✓ The full QZ application (Step 8) successfully pairs and broadcasts data from your treadmill  
+## Success Indicators
+
+✓ (Method 2 only) `qmake` shows "ANT+ ENABLED" message  
+✓ (Method 2 only) Test script connects to watch within 10 seconds  
+✓ Watch displays stable pace and cadence  
+✓ QZ broadcasts data from your treadmill  
+
+---
 
 ## Troubleshooting
 
 | Issue | Solution |
 | --- | --- |
-| `qmake` fails with "Unknown module(s)" | Re-run the apt-get install command from Step 1. |
-| `make` fails with "Python.h: No such file or directory" | Install Python development headers as shown in Step 3. |
-| `g++: fatal error: Killed signal terminated program cc1plus` | Out-of-memory error on Pi Zero 2 W. Compile on Raspberry Pi 4/5 or Linux desktop instead. Increasing swap space is not effective. |
-| `error while loading shared libraries: libpython3.XX.so.1.0` | Python version mismatch. Best solution: Re-compile on a machine with the same Python version. Alternative: Install the required Python version: `sudo apt-get install python3.11` |
-| `ant_test_broadcaster.py` hangs or fails | Run with sudo, reboot after Step 4, or unplug/replug the ANT+ dongle. |
-| Watch connects but pace shows --:-- | Treadmill model flag not set. Edit root config: `sudo nano /root/.config/Roberto\ Viola/qDomyos-Zwift.conf` and add your model flag (e.g., `proform_treadmill_705_cst=true`). |
-| Test script works but watch doesn't connect | Unplug/replug dongle, verify Step 4 completion with reboot, check device ID (default 54321), ensure QZ runs as root (Step 9), check log for errors. |
-| `systemctl stop qz` hangs | Add `KillSignal=SIGINT` to the [Service] section in qz.service file. |
+| `qmake` fails with "Unknown module(s)" | Re-run apt-get install from Step B2.1 |
+| `make` fails with "Python.h: No such file" | Install Python dev headers (Step B2.1) |
+| `g++: fatal error: Killed signal terminated` | Out of memory on Pi Zero 2 W - compile on Pi 4/5 instead |
+| `error while loading shared libraries: libpython3.XX.so.1.0` | Python version mismatch - recompile on matching version OR `sudo apt-get install python3.11` |
+| Test script hangs/fails | Run with sudo, reboot after Step A3, or unplug/replug dongle |
+| Watch connects but pace shows --:-- | Treadmill model not set: `sudo nano /root/.config/Roberto\ Viola/qDomyos-Zwift.conf` add your model flag (e.g., `proform_treadmill_705_cst=true`) |
+| App works but watch won't connect | Unplug/replug dongle, verify Step A3 + reboot, check device ID (default 54321), ensure running as root, check logs |
+| `systemctl stop qz` hangs | Add `KillSignal=SIGINT` to [Service] section in qz.service |
 
 ---
 
