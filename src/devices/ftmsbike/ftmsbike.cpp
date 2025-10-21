@@ -328,7 +328,7 @@ void ftmsbike::update() {
 
             if (rR != currentResistance().value() || lastGearValue != gears()) {
                 bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
-                qDebug() << QStringLiteral("writing resistance ") << requestResistance << ergModeNotSupported << requestPower << resistance_lvl_mode;
+                qDebug() << QStringLiteral("writing resistance ") << requestResistance << ergModeNotSupported << requestPower << resistance_lvl_mode << rR << gears() << gearMultiplier;
                 // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
                 // FTMS bike. This condition handles the peloton requests
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike || resistance_lvl_mode || ergModeNotSupported) &&
@@ -355,7 +355,7 @@ void ftmsbike::update() {
             
             double current_ratio = ((double)g.crankset / (double)g.rearCog);
             
-            uint32_t gear_value = static_cast<uint32_t>(10000.0 * (current_ratio/original_ratio) * (42.0/14.0));
+            uint32_t gear_value = static_cast<uint32_t>(10000.0 * current_ratio);
             
             qDebug() << "zwift hub gear current ratio" << current_ratio << g.crankset << g.rearCog << "gear_value" << gear_value << "original_ratio" << original_ratio;
  
