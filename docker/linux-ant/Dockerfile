@@ -34,6 +34,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libqt5charts5 \
     libqt5networkauth5-dev \
     libqt5websockets5-dev \
+    libqt5websockets5-private-dev \
     libxcb-randr0-dev \
     libxcb-xtest0-dev \
     libxcb-xinerama0-dev \
