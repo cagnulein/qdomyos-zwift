@@ -1209,6 +1209,8 @@ import Qt.labs.platform 1.1
             property bool proform_csx210: false
             property bool confirm_stop_workout: false
             property bool proform_rower_750r: false
+            property real power_sensor_pi_kp: 0.4
+            property real power_sensor_pi_ki: 0.08
         }
 
 
@@ -10830,6 +10832,82 @@ import Qt.labs.platform 1.1
 
                             Label {
                                 text: qsTr("Leave on Disabled or select from list of found Bluetooth devices.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("PI Controller Kp (Proportional Gain):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: powerSensorPiKpTextField
+                                    text: settings.power_sensor_pi_kp
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: {
+                                        settings.power_sensor_pi_kp = parseFloat(powerSensorPiKpTextField.text);
+                                        toast.show("Setting saved!");
+                                    }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Proportional gain for power ERG mode PI controller. Lower values = smoother but slower response. Higher values = faster but more oscillation. Default: 0.4")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("PI Controller Ki (Integral Gain):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: powerSensorPiKiTextField
+                                    text: settings.power_sensor_pi_ki
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: {
+                                        settings.power_sensor_pi_ki = parseFloat(powerSensorPiKiTextField.text);
+                                        toast.show("Setting saved!");
+                                    }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Integral gain for power ERG mode PI controller. Compensates for steady-state error. Lower values = less aggressive correction. Default: 0.08")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2

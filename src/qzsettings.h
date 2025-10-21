@@ -883,6 +883,12 @@ class QZSettings {
     static const QString powr_sensor_running_cadence_double;
     static constexpr bool default_powr_sensor_running_cadence_double = false;
 
+    static const QString power_sensor_pi_kp;
+    static constexpr double default_power_sensor_pi_kp = 0.4;
+
+    static const QString power_sensor_pi_ki;
+    static constexpr double default_power_sensor_pi_ki = 0.08;
+
     static const QString elite_rizer_name;
     static const QString default_elite_rizer_name;
 

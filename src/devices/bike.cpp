@@ -2,6 +2,7 @@
 #include "devices/bike.h"
 #include "qdebugfixup.h"
 #include "homeform.h"
+#include "qzsettings.h"
 #include <QSettings>
 #include <algorithm>
 
@@ -122,6 +123,11 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
         return requestPower;
     }
 
+    // Load configurable PI gains from settings
+    QSettings settings;
+    const double kProportionalGain = settings.value(QZSettings::power_sensor_pi_kp, QZSettings::default_power_sensor_pi_kp).toDouble();
+    const double kIntegralGain = settings.value(QZSettings::power_sensor_pi_ki, QZSettings::default_power_sensor_pi_ki).toDouble();
+
     const double rawMeasured = m_rawWatt.value();
     // When power sensor is enabled, always use m_watt (external power meter reading)
     // not m_rawWatt (bike's internal estimation)
@@ -137,18 +143,10 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
     const double error = static_cast<double>(requestPower) - measured;
 
     qDebug() << "adjustRequestPowerWithSensorDelta: rawWatt:" << rawMeasured << "measured(from sensor):" << measured
-             << "req:" << requestPower << "error:" << error << "filter:" << allowedDelta;
+             << "req:" << requestPower << "error:" << error << "filter:" << allowedDelta
+             << "Kp:" << kProportionalGain << "Ki:" << kIntegralGain;
 
-    // Apply PI correction only if error is OUTSIDE the dead zone (error > filter)
-    // If error <= filter, we're already close enough to target, no correction needed
-    if (fabs(error) <= allowedDelta) {
-        qDebug() << "adjustRequestPowerWithSensorDelta: error" << error << "within dead zone (±" << allowedDelta
-                 << "W), no correction needed";
-        m_powerErrorIntegral = 0;
-        m_lastPowerErrorValid = false;
-        return requestPower;
-    }
-
+    // Reset integral if error changes sign (crossed target)
     if (!m_lastPowerErrorValid || (error > 0 && m_lastPowerError < 0) || (error < 0 && m_lastPowerError > 0)) {
         qDebug() << "adjustRequestPowerWithSensorDelta: resetting integral (error sign changed or first run)";
         m_powerErrorIntegral = 0;
@@ -157,23 +155,32 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
     m_lastPowerError = error;
     m_lastPowerErrorValid = true;
 
-    m_powerErrorIntegral += error;
+    // Inside dead zone: decay integral gradually instead of resetting
+    // This prevents sudden jumps when entering/exiting the dead zone
+    if (fabs(error) <= allowedDelta) {
+        // Decay integral by 50% when inside dead zone
+        m_powerErrorIntegral *= 0.5;
+        qDebug() << "adjustRequestPowerWithSensorDelta: within dead zone, decaying integral to:" << m_powerErrorIntegral;
+    } else {
+        // Outside dead zone: accumulate integral normally
+        m_powerErrorIntegral += error;
+    }
 
-    static constexpr double kIntegralClamp = 30.0;
-    static constexpr double kIntegralGain = 0.15;
-
+    // Clamp integral to prevent windup
+    static constexpr double kIntegralClamp = 50.0;
     const double integralBeforeClamp = m_powerErrorIntegral;
     m_powerErrorIntegral = std::clamp(m_powerErrorIntegral, -kIntegralClamp, kIntegralClamp);
 
-    const double proportional = error;
+    // Calculate PI correction
+    const double proportional = error * kProportionalGain;
     const double integral = m_powerErrorIntegral * kIntegralGain;
     const double correction = proportional + integral;
     const int32_t adjustedPower = requestPower + static_cast<int32_t>(correction);
 
     qDebug() << "adjustRequestPowerWithSensorDelta: PI controller active";
-    qDebug() << "  P (error):" << proportional << "W";
-    qDebug() << "  I (integral):" << m_powerErrorIntegral << (integralBeforeClamp != m_powerErrorIntegral ? "(clamped)" : "")
-             << "* gain:" << kIntegralGain << "=" << integral << "W";
+    qDebug() << "  P (error * Kp):" << error << "*" << kProportionalGain << "=" << proportional << "W";
+    qDebug() << "  I (integral * Ki):" << m_powerErrorIntegral << (integralBeforeClamp != m_powerErrorIntegral ? "(clamped)" : "")
+             << "*" << kIntegralGain << "=" << integral << "W";
     qDebug() << "  Total correction:" << correction << "W";
     qDebug() << "  Output: req" << requestPower << "+ corr" << correction << "=" << adjustedPower << "W";
 
