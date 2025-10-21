@@ -1757,6 +1757,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("ZYCLE ZPRO")) ||
                         (b.name().toUpper().startsWith("SM720I")) ||
                         (b.name().toUpper().startsWith("H9115 LYON")) ||
+                        (b.name().toUpper().startsWith("AVANTI")) ||
                         (b.name().toUpper().startsWith("T300P_")) ||
                         (b.name().toUpper().startsWith("T200_")) ||
                         (b.name().toUpper().startsWith("BZ9110 ")) ||
@@ -1867,7 +1868,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("ELITETRAINER")) ||
                         (b.name().toUpper().startsWith("TOUR 600")) ||
                         (b.name().toUpper().startsWith("SMART+ #")) ||
-                        (b.name().toUpper().startsWith("AVANTI")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("QD")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith(QStringLiteral("RM")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith(QStringLiteral("DR")) && b.name().length() == 2) ||
