@@ -225,7 +225,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     emit packetReceived();
 
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+    qDebug() << newValue.toHex(' ') << bike_type;
 
     lastPacket = newValue;
     if ((newValue.length() != 21 && (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08 &&
@@ -235,6 +235,11 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
                                      bike_type == PASYOU || bike_type == HAMMER_SPEED_BIKE_S)) ||
         (newValue.length() != 20 && newValue.length() != 21 &&
          (bike_type == TUNTURI || bike_type == TYPE::TUNTURI_2))) {
+        return;
+    }
+
+    if (bike_type == TOORX_SRX_500 && newValue.length() < 19) {
+        qDebug() << QStringLiteral("ignoring short packet ") << newValue.length();
         return;
     }
 
