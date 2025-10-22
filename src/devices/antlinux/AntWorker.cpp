@@ -20,6 +20,7 @@
 #include <QDir>
 #include <QProcess>
 #include <QStandardPaths>
+#include <cstdlib> // For setenv
 #include <chrono>
 #include <cmath>
 #include <string>
@@ -44,7 +45,7 @@ extern int ant_device_id;
 struct PythonLogger {
     void write(const std::string &message) {
         QString q_message = QString::fromStdString(message).trimmed();
-        if (!q_message.isEmpty()) { qInfo().noquote() << "[PYTHON]" << q_message; }
+        if (!q_message.isEmpty()) { qInfo().noquote() << "[ANT+]" << q_message; }
     }
     void flush() {}
 };
@@ -63,23 +64,9 @@ int estimateCadence(double speed_kmh) {
     return static_cast<int>(cadence + 0.5) & ~1;
 }
 
-// Helper to run a QProcess and check if a Python executable has the required libraries.
-bool checkPythonForLibs(const QString& pythonExecutable) {
-    QProcess process;
-    // This command is the ultimate test: can this Python interpreter import the needed libraries?
-    process.start(pythonExecutable, QStringList() << "-c" << "import openant, usb, pybind11");
-    process.waitForFinished(5000); // 5-second timeout
-
-    if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0) {
-        return true;
-    }
-    return false;
-}
-
-// NEW: This function intelligently searches for a working Python environment.
-// It prioritizes a local venv, then falls back to the system-wide/user-site install.
-bool findWorkingPython() {
-    // --- Step 1: Prioritize the `ant_venv` virtual environment ---
+// This helper function finds the site-packages directory of the user's venv.
+// It is the definitive method for locating the required Python libraries.
+QString getVenvSitePackages() {
     QByteArray sudoUser = qgetenv("SUDO_USER");
     QByteArray qzUser = qgetenv("QZ_USER");
     QString homePath;
@@ -91,57 +78,50 @@ bool findWorkingPython() {
     } else {
         homePath = QDir::homePath();
     }
-
+    
     QString venvPythonPath = homePath + "/ant_venv/bin/python";
-    if (QFile::exists(venvPythonPath)) {
-        qInfo() << "[ANT+] Found potential virtual environment at:" << venvPythonPath;
-        if (checkPythonForLibs(venvPythonPath)) {
-            qInfo() << "[ANT+] SUCCESS: Virtual environment has all required libraries. Using this environment.";
-            // We don't need to return the path, because pybind11 will find it if we set the program name.
-            // However, pybind11 doesn't have an easy way to start a *specific* interpreter by path.
-            // The simplest way is just to let the default interpreter find the packages, which our checks now guarantee.
-            // For a venv, the user should be running QZ from an activated shell, which this check confirms.
-            return true;
+    if (!QFile::exists(venvPythonPath)) {
+        qCritical() << "[ANT+] CRITICAL: Virtual environment not found at the expected path:" << venvPythonPath;
+        qCritical() << "[ANT+] GUIDANCE: Please create the virtual environment as per the README instructions.";
+        return QString();
+    }
+
+    qInfo() << "[ANT+] Found virtual environment. Querying for its site-packages directory...";
+    QProcess process;
+    // This Python command is the most reliable way to get the site-packages path
+    process.start(venvPythonPath, QStringList() << "-c" << "import site; print(site.getsitepackages()[0])");
+    process.waitForFinished(3000);
+
+    if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0) {
+        QString sitePackages = QString::fromUtf8(process.readAllStandardOutput()).trimmed();
+        if (!sitePackages.isEmpty()) {
+            qInfo() << "[ANT+] Found venv site-packages at:" << sitePackages;
+            return sitePackages;
         }
-        qWarning() << "[ANT+] Virtual environment found, but it's missing required libraries (openant, pyusb, pybind11).";
     }
-
-    // --- Step 2: Fallback to the system's default `python3` ---
-    qInfo() << "[ANT+] No valid virtual environment found. Checking system/user Python install...";
-    if (checkPythonForLibs("python3")) {
-        qInfo() << "[ANT+] SUCCESS: System/user Python has all required libraries. Using this environment.";
-        return true;
-    }
-
-    // --- Step 3: If both fail, provide comprehensive guidance ---
-    qCritical() << "[ANT+] CRITICAL: Could not find a working Python environment.";
-    qCritical() << "[ANT+] No required libraries (openant, pyusb, pybind11) found in the `~/ant_venv` virtual environment OR in the system/user path.";
-    qCritical() << "[ANT+] GUIDANCE: Please use ONE of the following methods to install the libraries:";
-    qCritical() << "[ANT+]   1. (RECOMMENDED) Use a virtual environment:";
-    qCritical() << "[ANT+]      python3.11 -m venv ~/ant_venv";
-    qCritical() << "[ANT+]      ~/ant_venv/bin/pip install openant pyusb pybind11";
-    qCritical() << "[ANT+]   2. (For Bookworm/PEP 668) Install to user directory:";
-    qCritical() << "[ANT+]      pip3 install --user openant pyusb pybind11";
-    qCritical() << "[ANT+]   3. (Legacy) Install system-wide:";
-    qCritical() << "[ANT+]      sudo pip3 install openant pyusb pybind11";
-
-    return false;
+    
+    qCritical() << "[ANT+] Failed to determine venv site-packages path.";
+    return QString();
 }
 
 bool AntWorker::initializePython() {
     try {
-        // 1. Find a working Python environment. This new function does all the heavy lifting.
-        if (!findWorkingPython()) {
-            qCritical() << "[ANT+] Aborting initialization due to missing Python environment.";
+        // Step 1: Initialize the embedded interpreter. It starts with default system paths.
+        m_pyGuard = std::make_unique<py::scoped_interpreter>();
+
+        // Step 2: Find the correct site-packages path for the user's venv.
+        QString sitePackagesPath = getVenvSitePackages();
+        if (sitePackagesPath.isEmpty()) {
+            qCritical() << "[ANT+] Cannot proceed without a valid site-packages path.";
             return false;
         }
 
-        // 2. Initialize the embedded interpreter. It will automatically use the correct
-        //    environment (system or activated venv) that `findWorkingPython` just validated.
-        m_pyGuard = std::make_unique<py::scoped_interpreter>();
-
-        // 3. Set up the C++ logging redirector.
+        // Step 3: Explicitly add the venv's site-packages to the embedded interpreter's path.
         py::module_ sys = py::module_::import("sys");
+        sys.attr("path").attr("append")(sitePackagesPath.toStdString());
+        qInfo() << "[ANT+] Successfully added venv site-packages to the embedded Python interpreter's path.";
+
+        // Step 4: Set up the C++ logging redirector.
         py::module_ main_module = py::module_::import("__main__");
         py::class_<PythonLogger>(main_module, "PythonLogger")
             .def(py::init<>())
@@ -151,7 +131,7 @@ bool AntWorker::initializePython() {
         sys.attr("stdout") = std::make_shared<PythonLogger>();
         sys.attr("stderr") = std::make_shared<PythonLogger>();
         
-        // 4. Execute the embedded script and create an instance of the AntBroadcaster class.
+        // Step 5: Execute the embedded script and create an instance of the AntBroadcaster class.
         py::exec(ant_footpod_script, main_module.attr("__dict__"));
         m_pyBroadcaster = std::make_unique<py::object>(main_module.attr("AntBroadcaster")());
 
@@ -173,12 +153,20 @@ AntWorker::~AntWorker() {
 void AntWorker::start() {
     qInfo() << "[ANT+] Worker process started on thread" << QThread::currentThread();
     if (!initializePython()) {
-        emit finished(); // Fail gracefully if Python init fails
+        emit finished();
         return;
     }
 
-    if (!m_pyBroadcaster->attr("start")(ant_device_id, ant_verbose).cast<bool>()) {
-        qCritical() << "[ANT+] Failed to start broadcasting.";
+    try {
+        py::gil_scoped_acquire gil;
+        if (!m_pyBroadcaster->attr("start")(ant_device_id, ant_verbose).cast<bool>()) {
+            qCritical() << "[ANT+] Python broadcaster's start() method returned false (check Python logs for a specific error).";
+            emit finished();
+            return;
+        }
+    } catch (const py::error_already_set& e) {
+        qCritical() << "[ANT+] FAILED TO START BROADCASTING. An exception occurred in the Python script:";
+        qCritical().noquote() << e.what();
         emit finished();
         return;
     }
@@ -188,12 +176,12 @@ void AntWorker::start() {
 
     m_timer = new QTimer(this);
     connect(m_timer, &QTimer::timeout, this, &AntWorker::doWork);
-    m_timer->start(250); // Start the 4Hz timer
+    m_timer->start(250);
 }
 
 void AntWorker::stop() {
     if (m_stopRequested.exchange(true)) {
-        return; // Already stopping
+        return;
     }
     qInfo() << "[ANT+] AntWorker::stop() called on thread" << QThread::currentThread();
     
@@ -203,7 +191,6 @@ void AntWorker::stop() {
         m_timer = nullptr;
     }
 
-    // Clean up Python resources on worker thread
     shutdownPython();
     
     qInfo() << "[ANT+] Worker cleanup complete, emitting finished signal";
@@ -233,7 +220,7 @@ void AntWorker::doWork() {
         m_pyBroadcaster->attr("send_ant_data")(speed_kmh / 3.6, estimated_cadence);
     } catch (const py::error_already_set& e) {
         qCritical() << "[ANT+] Python exception in doWork:" << e.what();
-        stop(); // Stop broadcasting on error
+        stop();
     }
 }
 

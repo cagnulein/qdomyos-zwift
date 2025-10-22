@@ -62,26 +62,72 @@ def _calculate_pace_range(speed_mps: float) -> (str, str):
     return km_range_str, mi_range_str
 
 def _reset_ant_dongle():
-    """Finds and resets the first available ANT+ USB dongle to ensure a clean state."""
+    """
+    Finds and robustly attempts to reset the first available ANT+ USB dongle.
+    Includes deep logging and multiple reset strategies to diagnose failures.
+    """
     SUPPORTED_DONGLES = [
-        (0x0fcf, 0x1009),  # Garmin USB-m Stick (Modern)
-        (0x0fcf, 0x1008),  # Garmin USB2 Stick (Older)
-        (0x0fcf, 0x1004),  # Dynastream/Generic ANTUSB2 Stick (Cycplus, Anself, etc.)
+        (0x0fcf, 0x1009),  # Garmin USB-m Stick
+        (0x0fcf, 0x1008),  # Garmin USB2 Stick
         (0x11fd, 0x0001)   # Suunto ANT+ Dongle
     ]
+    
+    log.info("--- Starting ANT+ Dongle Reset Sequence ---")
+    
     try:
+        # Step 1: Find the device
+        log.info("Searching for supported ANT+ dongles...")
         dongle = next((usb.core.find(idVendor=v, idProduct=p) for v, p in SUPPORTED_DONGLES if usb.core.find(idVendor=v, idProduct=p)), None)
+        
         if dongle is None:
-            log.warning("No ANT+ dongle found to reset. Proceeding with initialization.")
+            log.info("No ANT+ dongle found to reset. This is normal if the device is not plugged in. Proceeding...")
             return True
-        log.info(f"Found ANT+ dongle for reset: {dongle.manufacturer} {dongle.product}")
-        dongle.reset()
-        time.sleep(1)
-        log.info("ANT+ dongle reset successfully.")
+
+        log.info(f"Found dongle: {dongle.manufacturer} {dongle.product} on Bus {dongle.bus} Device {dongle.address}")
+
+        # Step 2: Try to detach the kernel driver (a common fix for access issues)
+        kernel_driver_active = False
+        try:
+            if dongle.is_kernel_driver_active(0):
+                log.info("Kernel driver is active. Attempting to detach it...")
+                kernel_driver_active = True
+                dongle.detach_kernel_driver(0)
+                log.info("Kernel driver detached successfully.")
+            else:
+                log.info("No kernel driver is active on the device.")
+        except usb.core.USBError as e:
+            log.warning(f"Could not detach kernel driver: {e}. This might be a permissions issue, but we will continue.")
+        
+        # Step 3: Attempt the reset
+        log.info("Attempting a standard USB device reset...")
+        try:
+            dongle.reset()
+            log.info("USB device reset command sent successfully.")
+        except usb.core.USBError as e:
+            # This is a critical failure point. Log it with detail and fall back.
+            log.error(f"CRITICAL FAILURE during dongle.reset(): {e}")
+            log.error("This is the likely root cause of the startup failure.")
+            log.error("Falling back to allow OpenAnt to attempt its own initialization.")
+            return True # Fallback to allow startup to continue
+
+        # Step 4: Re-attach kernel driver if we detached it
+        if kernel_driver_active:
+            log.info("Attempting to re-attach kernel driver...")
+            try:
+                dongle.attach_kernel_driver(0)
+                log.info("Kernel driver re-attached.")
+            except usb.core.USBError as e:
+                log.warning(f"Could not re-attach kernel driver: {e}. The OS will likely handle this.")
+
+        # Step 5: Finalize the USB device object
+        usb.util.dispose_resources(dongle)
+        log.info("USB resources disposed. Reset sequence complete.")
         return True
+
     except Exception as e:
-        log.error(f"Error during ANT+ dongle reset: {e}. This may be a permissions issue.")
-        return False
+        log.error(f"An unexpected error occurred during the reset sequence: {e}", exc_info=True)
+        log.warning("Due to the error, we will fall back and let OpenAnt attempt initialization.")
+        return True # Fallback to allow startup to continue
 
 class AntBroadcaster:
     """
@@ -238,11 +284,13 @@ class AntBroadcaster:
             return False
             
         try:
-            if not _reset_ant_dongle():
-                return False
+            # This call now performs the robust reset and will always return true
+            _reset_ant_dongle()
             
             log.info("Attempting to initialize ANT+ Node...")
             self._ant_node = Node()
+            # If the above line fails, the exception will be caught.
+            # This is now the most likely point of failure if the reset issue was critical.
             log.info("ANT+ Node initialized.")
             
             self._ant_node.set_network_key(0x00, self.ANT_NETWORK_KEY)
@@ -258,6 +306,7 @@ class AntBroadcaster:
             log.info(f"ANT+ broadcaster started successfully with Device ID {device_id}")
             return True
         except Exception as e:
+            # If the fallback from the reset wasn't enough, this will catch the final error from Node()
             log.error(f"Failed to find or initialize ANT+ device: {e}", exc_info=verbose)
             self.stop()
             return False
