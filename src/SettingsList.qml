@@ -1,34 +1,26 @@
-import QtQuick 2.7
+import QtQuick 2.15
 import Qt.labs.folderlistmodel 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import QtQuick.Dialogs 1.0
+import QtQuick.Dialogs
 
 ColumnLayout {
     signal loadSettings(url name)
-    Loader {
-        id: fileDialogLoader
-        active: false
-        sourceComponent: Component {
-            FileDialog {
-                title: "Please choose a file"
-                folder: shortcuts.home
-                visible: true
-                onAccepted: {
-                    console.log("You chose: " + fileUrl)
-                    loadSettings(fileUrl)
-                    close()
-                    // Destroy and recreate the dialog for next use
-                    fileDialogLoader.active = false
-                }
-                onRejected: {
-                    console.log("Canceled")
-                    close()
-                    // Destroy the dialog
-                    fileDialogLoader.active = false
-                }
-            }
+    FileDialog {
+        id: fileDialogSettings
+        title: "Please choose a file"
+        // Changed from folder to currentFolder for Qt6 compatibility
+        currentFolder: StandardPaths.standardLocations(StandardPaths.HomeLocation)[0]
+        onAccepted: {
+            console.log("You chose: " + fileDialogSettings.selectedFile)
+            // Changed from fileUrl to selectedFile for Qt6 compatibility
+            loadSettings(fileDialogSettings.selectedFile)
+            fileDialogSettings.close()
+        }
+        onRejected: {
+            console.log("Canceled")
+            fileDialogSettings.close()
         }
     }
 

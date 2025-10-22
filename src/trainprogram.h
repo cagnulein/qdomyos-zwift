@@ -15,10 +15,6 @@
 #include "zwift-api/PlayerStateWrapper.h"
 #include "zwift-api/zwift_client_auth.h"
 
-#ifdef Q_CC_MSVC
-#include "zwift-api/zwift_messages.pb.h"
-#endif
-
 class trainrow {
   public:
     QTime duration = QTime(0, 0, 0, 0);

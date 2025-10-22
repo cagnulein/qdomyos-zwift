@@ -4,7 +4,7 @@
 #include <QMetaType>
 #include <QString>
 #if defined(Q_OS_ANDROID)
-#include <QAndroidJniObject>
+#include <QJniObject>
 #endif
 
 class ScanRecordResult {

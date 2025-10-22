@@ -9,17 +9,18 @@
 #ifdef Q_OS_ANDROID
 #include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
-#include <QAndroidJniObject>
+#include <QJniObject>
 #elif defined(Q_OS_WINDOWS)
 #include "windows_zwift_incline_paddleocr_thread.h"
 #include "windows_zwift_workout_paddleocr_thread.h"
 #endif
-#ifdef Q_CC_MSVC
-#include "zwift-api/zwift_messages.pb.h"
-#endif
 #include "localipaddress.h"
 
 using namespace std::chrono_literals;
+
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS) && defined(PROTOBUF)
+#include "zwift-api/zwift_messages.pb.h"
+#endif
 
 trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *description, QString *tags,
                            bool videoAvailable) {
@@ -658,48 +659,39 @@ void trainprogram::scheduler() {
                         zwift_counter = 0;
                         QByteArray bb = zwift_world->playerStatus(zwift_player_id);
                         qDebug() << " ZWIFT API PROTOBUF << " + bb.toHex(' ');
+                        float alt = 0;
+                        float distance = 0;
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
                         h->zwift_api_decodemessage_player(bb.data(), bb.length());
-                        float alt = h->zwift_api_getaltitude();
-                        float distance = h->zwift_api_getdistance();
-#else
-                        float alt = 0;
-                        float distance = 0;
+                        alt = h->zwift_api_getaltitude();
+                        distance = h->zwift_api_getdistance();
 #endif
 #elif defined(Q_OS_ANDROID)
-                        QAndroidJniEnvironment env;
+                        QJniEnvironment env;
                         jbyteArray d = env->NewByteArray(bb.length());
                         jbyte *b = env->GetByteArrayElements(d, 0);
                         for (int i = 0; i < bb.length(); i++)
                             b[i] = bb[i];
                         env->SetByteArrayRegion(d, 0, bb.length(), b);
 
-                        QAndroidJniObject::callStaticMethod<void>(
+                        QJniObject::callStaticMethod<void>(
                             "org/cagnulen/qdomyoszwift/ZwiftAPI", "zwift_api_decodemessage_player", "([B)V", d);
                         env->DeleteLocalRef(d);
 
-                        float alt = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
-                        float distance = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
-#elif defined Q_CC_MSVC
+                        alt = QJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
+                        distance = QJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
+#elif defined(PROTOBUF)
                         PlayerState state;
-                        float alt = 0;
-                        float distance = 0;
                         if (state.ParseFromArray(bb.constData(), bb.size())) {
-                            // Parsing riuscito, ora puoi accedere ai dati in `state`
                             alt = state.altitude();
                             distance = state.distance();
                         } else {
-                            // Errore durante il parsing
                             qDebug() << "Error parsing PlayerState";
                         }
-#else
-                        float alt = 0;
-                        float distance = 0;
 #endif
                         static float old_distance = 0;
                         static float old_alt = 0;
-                        
                         qDebug() << "zwift api incline1" << old_distance << old_alt << distance << alt;
 
                         if(old_distance > 0) {
@@ -754,18 +746,18 @@ void trainprogram::scheduler() {
 
 #ifdef Q_OS_ANDROID
             {
-                QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                QJniObject text = QJniObject::callStaticObjectMethod<jstring>(
                     "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
                 QString t = text.toString();
-                QAndroidJniObject textExtended = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                QJniObject textExtended = QJniObject::callStaticObjectMethod<jstring>(
                     "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastTextExtended");
                 // 2272 1027
-                jint w = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                jint w = QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
                                                                    "getImageWidth", "()I");
-                jint h = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                jint h = QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
                                                                    "getImageHeight", "()I");
                 QString tExtended = textExtended.toString();
-                QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                QJniObject packageNameJava = QJniObject::callStaticObjectMethod<jstring>(
                     "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
                 QString packageName = packageNameJava.toString();
                 if (packageName.contains("com.zwift.zwiftgame")) {
@@ -840,10 +832,10 @@ void trainprogram::scheduler() {
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr).toBool()) {
-        QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+        QJniObject text = QJniObject::callStaticObjectMethod<jstring>(
             "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
         QString t = text.toString();
-        QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
+        QJniObject packageNameJava = QJniObject::callStaticObjectMethod<jstring>(
             "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
         QString packageName = packageNameJava.toString();
         if (packageName.contains("com.onepeloton.callisto")) {
@@ -1423,7 +1415,7 @@ bool trainprogram::hasTargetPower(const QString &filename) {
     
     while (!reader.atEnd()) {
         reader.readNext();
-        if (reader.isStartElement() && reader.name() == "row") {
+        if (reader.isStartElement() && reader.name() == QStringLiteral("row")) {
             QXmlStreamAttributes attributes = reader.attributes();
             if (attributes.hasAttribute("power")) {
                 QString powerStr = attributes.value("power").toString();
@@ -1481,7 +1473,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
         stream.readNext();
 
         // Handle repeat tag start
-        if (stream.isStartElement() && stream.name() == "repeat") {
+        if (stream.isStartElement() && stream.name() == QStringLiteral("repeat")) {
             insideRepeat = true;
             repeatRows.clear();
             QXmlStreamAttributes attrs = stream.attributes();
@@ -1492,7 +1484,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
         }
 
         // Handle repeat tag end
-        if (stream.isEndElement() && stream.name() == "repeat") {
+        if (stream.isEndElement() && stream.name() == QStringLiteral("repeat")) {
             insideRepeat = false;
             for (int i = 0; i < repeatTimes; i++) {
                 list.append(repeatRows);
