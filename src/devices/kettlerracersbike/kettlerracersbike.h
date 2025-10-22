@@ -23,6 +23,7 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
+#include <QElapsedTimer>
 #include <QObject>
 #include <QString>
 
@@ -51,6 +52,9 @@ class kettlerracersbike : public bike {
     void forceInclination(double inclination);
     uint16_t watts() override;
     double bikeResistanceToPeloton(double resistance);
+    void sendSCommand(quint16 commandId, const QByteArray &payload = QByteArray());
+    void handleSCommandNotification(const QByteArray &data);
+    void parseSCommandFrame(const QByteArray &frame);
 
     QTimer *refresh;
 
@@ -61,6 +65,7 @@ class kettlerracersbike : public bike {
     QLowEnergyCharacteristic gattWriteCharKettlerId;
     QLowEnergyCharacteristic gattKeyReadCharKettlerId;   // 638a1104
     QLowEnergyCharacteristic gattKeyWriteCharKettlerId;  // 638a1105
+    QLowEnergyCharacteristic gattSCommandChar;           // S-command bridge
     QLowEnergyService *gattPowerService = nullptr;
     QLowEnergyService *gattKettlerService = nullptr;
     QLowEnergyService *gattCSCService = nullptr;
@@ -70,6 +75,9 @@ class kettlerracersbike : public bike {
     QDateTime lastRefreshCharacteristicChanged2A5B = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChangedKettler = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
+    QDateTime lastActualPowerUpdate;
+    QElapsedTimer sCommandPollTimer;
+    QByteArray sCommandBuffer;
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
 
@@ -92,6 +100,7 @@ class kettlerracersbike : public bike {
     bool kettlerServiceReady = false;
     bool connectedAndDiscoveredEmitted = false;
     bool firstCadenceSent = false;
+    bool pendingSCommandResponse = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -120,7 +129,7 @@ class kettlerracersbike : public bike {
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
 
-    void powerPacketReceived(const QByteArray &b);
+    void powerPacketReceived(const QByteArray &b, bool isActualMeasurement);
     void cscPacketReceived(const QByteArray &b);
     void kettlerPacketReceived(const QByteArray &b);
 };

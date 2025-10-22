@@ -9,6 +9,7 @@
 #include <QElapsedTimer>
 #include <QThread>
 #include <math.h>
+#include <array>
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
@@ -20,6 +21,100 @@
 #include <chrono>
 
 using namespace std::chrono_literals;
+
+namespace {
+constexpr quint8 kSCommandStart = 0x02;
+constexpr quint8 kSCommandStop = 0x03;
+constexpr quint8 kSCommandEscape = 0x10;
+constexpr quint8 kSCommandChannelRequest = 0x01;
+constexpr quint8 kSCommandChannelResponse = 0x03;
+constexpr quint16 kSCommandCurrentPowerId = 0x000B;
+
+const std::array<uint16_t, 256> &scommandCrcTable() {
+    static const std::array<uint16_t, 256> table = []() {
+        std::array<uint16_t, 256> t{};
+        for (int i = 0; i < 256; ++i) {
+            uint32_t j = static_cast<uint32_t>(i);
+            uint32_t crc = 0;
+            for (int bit = 0; bit < 8; ++bit) {
+                if (((crc ^ j) & 0x01U) != 0U) {
+                    crc = (crc >> 1U) ^ 0x8428U;
+                } else {
+                    crc >>= 1U;
+                }
+                j >>= 1U;
+            }
+            t[i] = static_cast<uint16_t>(crc);
+        }
+        return t;
+    }();
+    return table;
+}
+
+uint16_t scommandCrcUpdate(uint16_t crc, uint8_t data) {
+    uint8_t index = static_cast<uint8_t>((crc ^ data) & 0xFFU);
+    return scommandCrcTable()[index] ^ (crc >> 8U);
+}
+
+uint16_t scommandComputeCrc(const QByteArray &data) {
+    uint16_t crc = 0;
+    for (char byte : data) {
+        crc = scommandCrcUpdate(crc, static_cast<uint8_t>(byte));
+    }
+    return crc;
+}
+
+QByteArray scommandEscape(const QByteArray &data) {
+    QByteArray escaped;
+    escaped.reserve(data.size() * 2);
+    for (char byte : data) {
+        const uint8_t value = static_cast<uint8_t>(byte);
+        if (value == kSCommandEscape || value == kSCommandStart || value == kSCommandStop) {
+            escaped.append(static_cast<char>(kSCommandEscape));
+            escaped.append(static_cast<char>(value ^ 0x20U));
+        } else {
+            escaped.append(byte);
+        }
+    }
+    return escaped;
+}
+
+QByteArray scommandUnescape(const QByteArray &data) {
+    QByteArray unescaped;
+    unescaped.reserve(data.size());
+    for (int idx = 0; idx < data.size(); ++idx) {
+        uint8_t value = static_cast<uint8_t>(data.at(idx));
+        if (value == kSCommandEscape && idx + 1 < data.size()) {
+            ++idx;
+            value = static_cast<uint8_t>(data.at(idx)) ^ 0x20U;
+        }
+        unescaped.append(static_cast<char>(value));
+    }
+    return unescaped;
+}
+
+QByteArray buildSCommandFrame(quint16 commandId, quint8 channel, const QByteArray &payload) {
+    QByteArray body;
+    body.reserve(5 + payload.size());
+    body.append(static_cast<char>((commandId >> 8) & 0xFF));
+    body.append(static_cast<char>(commandId & 0xFF));
+    body.append(static_cast<char>(channel));
+    body.append(static_cast<char>((payload.size() >> 8) & 0xFF));
+    body.append(static_cast<char>(payload.size() & 0xFF));
+    body.append(payload);
+
+    const uint16_t crc = scommandComputeCrc(body);
+
+    QByteArray frame;
+    frame.reserve(1 + body.size() * 2 + 3);
+    frame.append(static_cast<char>(kSCommandStart));
+    frame.append(scommandEscape(body));
+    frame.append(static_cast<char>(kSCommandStop));
+    frame.append(static_cast<char>((crc >> 8) & 0xFF));
+    frame.append(static_cast<char>(crc & 0xFF));
+    return frame;
+}
+} // namespace
 
 kettlerracersbike::kettlerracersbike(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT);
@@ -69,6 +164,123 @@ void kettlerracersbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
     }
 
     loop.exec();
+}
+
+void kettlerracersbike::sendSCommand(quint16 commandId, const QByteArray &payload) {
+    if (!gattKettlerService) {
+        return;
+    }
+
+    QLowEnergyCharacteristic targetChar = gattSCommandChar.isValid() ? gattSCommandChar : gattKeyWriteCharKettlerId;
+    if (!targetChar.isValid()) {
+        return;
+    }
+
+    const auto properties = targetChar.properties();
+    if (!(properties.testFlag(QLowEnergyCharacteristic::Write) ||
+          properties.testFlag(QLowEnergyCharacteristic::WriteNoResponse))) {
+        return;
+    }
+
+    QByteArray frame = buildSCommandFrame(commandId, kSCommandChannelRequest, payload);
+    pendingSCommandResponse = true;
+    gattKettlerService->writeCharacteristic(targetChar, frame);
+    emit debug(QStringLiteral(" >> ") + frame.toHex(' ') + QStringLiteral(" // SCommand ") +
+               QString::number(commandId));
+}
+
+void kettlerracersbike::handleSCommandNotification(const QByteArray &data) {
+    if (data.isEmpty()) {
+        return;
+    }
+    sCommandBuffer.append(data);
+
+    bool processed = false;
+    while (true) {
+        int startIndex = sCommandBuffer.indexOf(static_cast<char>(kSCommandStart));
+        if (startIndex < 0) {
+            sCommandBuffer.clear();
+            break;
+        }
+        if (startIndex > 0) {
+            sCommandBuffer.remove(0, startIndex);
+        }
+        if (sCommandBuffer.size() < 5) {
+            break;
+        }
+        int stopIndex = sCommandBuffer.indexOf(static_cast<char>(kSCommandStop), 1);
+        if (stopIndex < 0) {
+            break;
+        }
+        if (stopIndex + 2 >= sCommandBuffer.size()) {
+            // CRC bytes not yet available
+            if (sCommandBuffer.size() > 512) {
+                sCommandBuffer.clear();
+            }
+            break;
+        }
+        QByteArray frame = sCommandBuffer.mid(0, stopIndex + 3);
+        sCommandBuffer.remove(0, stopIndex + 3);
+        parseSCommandFrame(frame);
+        processed = true;
+    }
+
+    if (!processed && sCommandBuffer.size() > 512) {
+        sCommandBuffer.clear();
+    }
+}
+
+void kettlerracersbike::parseSCommandFrame(const QByteArray &frame) {
+    if (frame.size() < 6 || frame.at(0) != static_cast<char>(kSCommandStart)) {
+        return;
+    }
+    const int stopIndex = frame.indexOf(static_cast<char>(kSCommandStop));
+    if (stopIndex < 0 || stopIndex + 2 >= frame.size()) {
+        return;
+    }
+
+    const quint16 crcReceived = (static_cast<uint8_t>(frame.at(stopIndex + 1)) << 8) |
+                                static_cast<uint8_t>(frame.at(stopIndex + 2));
+    const QByteArray escapedBody = frame.mid(1, stopIndex - 1);
+    const QByteArray body = scommandUnescape(escapedBody);
+    if (body.size() < 5) {
+        return;
+    }
+
+    const quint16 crcComputed = scommandComputeCrc(body);
+    if (crcReceived != crcComputed) {
+        emit debug(QStringLiteral("Kettler :: SCommand CRC mismatch"));
+        return;
+    }
+
+    const quint16 commandId = (static_cast<uint8_t>(body.at(0)) << 8) | static_cast<uint8_t>(body.at(1));
+    const quint8 channel = static_cast<uint8_t>(body.at(2));
+    const quint16 payloadLength =
+        (static_cast<uint8_t>(body.at(3)) << 8) | static_cast<uint8_t>(body.at(4));
+
+    if (body.size() < 5 + payloadLength) {
+        return;
+    }
+
+    const QByteArray payload = body.mid(5, payloadLength);
+
+    if (commandId == kSCommandCurrentPowerId && channel == kSCommandChannelResponse && payload.size() >= 2) {
+        quint16 watts = (static_cast<uint8_t>(payload.at(0)) << 8) | static_cast<uint8_t>(payload.at(1));
+        int bounded = qBound(0, static_cast<int>(watts), 2000);
+        watts = static_cast<quint16>(bounded);
+        pendingSCommandResponse = false;
+        const QDateTime now = QDateTime::currentDateTime();
+        lastActualPowerUpdate = now;
+        powerSensor(watts);
+        lastRefreshCharacteristicChangedPower = now;
+        qDebug() << QStringLiteral("SCommand power: ") << watts;
+    } else {
+        emit debug(QStringLiteral("SCommand frame id %1 channel %2 payload %3")
+                       .arg(commandId)
+                       .arg(channel)
+                       .arg(QString(payload.toHex(' '))));
+        pendingSCommandResponse = false;
+    }
 }
 
 void kettlerracersbike::changePower(int32_t power) {
@@ -256,6 +468,9 @@ void kettlerracersbike::characteristicWritten(const QLowEnergyCharacteristic &ch
     if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1105-7bde-3e25-ffc5-9de9b2a0197a"))) {
         emit debug(QStringLiteral("Kettler :: Handshake write confirmed"));
         handshakeDone = true;
+        sCommandBuffer.clear();
+        pendingSCommandResponse = false;
+        sCommandPollTimer.restart();
 
         // After handshake is complete, discover additional services first,
         // then enable notifications to avoid CCC writes before discovery completes.
@@ -432,6 +647,7 @@ void kettlerracersbike::subscribeKettlerNotifications()
     }
 
     QBluetoothUuid rpmUuid(QStringLiteral("638a1002-7bde-3e25-ffc5-9de9b2a0197a"));
+    QBluetoothUuid actualPowerUuid(QStringLiteral("638a1003-7bde-3e25-ffc5-9de9b2a0197a"));
     QBluetoothUuid powerUuid(QStringLiteral("638a100e-7bde-3e25-ffc5-9de9b2a0197a"));
     QBluetoothUuid char1Uuid(QStringLiteral("638a100c-7bde-3e25-ffc5-9de9b2a0197a"));
     QBluetoothUuid char2Uuid(QStringLiteral("638a1010-7bde-3e25-ffc5-9de9b2a0197a"));
@@ -447,10 +663,21 @@ void kettlerracersbike::subscribeKettlerNotifications()
         }
     };
 
-    subscribeDescriptor(gattKettlerService->characteristic(rpmUuid), QStringLiteral("Kettler RPM"));
-    subscribeDescriptor(gattKettlerService->characteristic(powerUuid), QStringLiteral("Kettler power"));
-    subscribeDescriptor(gattKettlerService->characteristic(char1Uuid), QStringLiteral("Kettler char1"));
-    subscribeDescriptor(gattKettlerService->characteristic(char2Uuid), QStringLiteral("Kettler char2"));
+    const QLowEnergyCharacteristic rpmChar = gattKettlerService->characteristic(rpmUuid);
+    const QLowEnergyCharacteristic actualPowerChar = gattKettlerService->characteristic(actualPowerUuid);
+    const QLowEnergyCharacteristic powerChar = gattKettlerService->characteristic(powerUuid);
+    const QLowEnergyCharacteristic char1 = gattKettlerService->characteristic(char1Uuid);
+    const QLowEnergyCharacteristic char2 = gattKettlerService->characteristic(char2Uuid);
+
+    if (char1.isValid()) {
+        gattSCommandChar = char1;
+    }
+
+    subscribeDescriptor(rpmChar, QStringLiteral("Kettler RPM"));
+    subscribeDescriptor(actualPowerChar, QStringLiteral("Kettler actual power"));
+    subscribeDescriptor(powerChar, QStringLiteral("Kettler power"));
+    subscribeDescriptor(char1, QStringLiteral("Kettler char1"));
+    subscribeDescriptor(char2, QStringLiteral("Kettler char2"));
 
     // Also subscribe to CSC service if available
     if (gattCSCService) {
@@ -517,6 +744,18 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
         } else {
             qDebug() << QStringLiteral("gattKeyWriteCharKettlerId valid, properties:") << gattKeyWriteCharKettlerId.properties();
         }
+
+        QBluetoothUuid _gattSCommandId(QStringLiteral("638a100c-7bde-3e25-ffc5-9de9b2a0197a"));
+        gattSCommandChar = gattKettlerService->characteristic(_gattSCommandId);
+        if (!gattSCommandChar.isValid()) {
+            emit debug(QStringLiteral("gattSCommandChar invalid"));
+        } else {
+            emit debug(QStringLiteral("gattSCommandChar properties: %1").arg(gattSCommandChar.properties()));
+        }
+
+        sCommandBuffer.clear();
+        pendingSCommandResponse = false;
+        sCommandPollTimer.invalidate();
 
         // Request handshake seed FIRST before any other operations
         // CSC service discovery and virtual bike creation will happen AFTER handshake
@@ -631,9 +870,17 @@ void kettlerracersbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1002-7bde-3e25-ffc5-9de9b2a0197a"))) {
         // Kettler RPM characteristic
         kettlerPacketReceived(newValue);
-    } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a100e-7bde-3e25-ffc5-9de9b2a0197a")) ||
-               characteristic.uuid() == QBluetoothUuid(QBluetoothUuid::CyclingPowerMeasurement)) {
-        powerPacketReceived(newValue);
+    } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1003-7bde-3e25-ffc5-9de9b2a0197a"))) {
+        // Actual power characteristic
+        powerPacketReceived(newValue, true);
+    } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a100e-7bde-3e25-ffc5-9de9b2a0197a"))) {
+        // Target power characteristic
+        powerPacketReceived(newValue, false);
+    } else if (characteristic.uuid() == QBluetoothUuid(QBluetoothUuid::CyclingPowerMeasurement)) {
+        powerPacketReceived(newValue, true);
+    } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a100c-7bde-3e25-ffc5-9de9b2a0197a"))) {
+        handleSCommandNotification(newValue);
+        kettlerPacketReceived(newValue);
     }
 
     QSettings settings;
@@ -743,7 +990,7 @@ void kettlerracersbike::kettlerPacketReceived(const QByteArray &packet)
     Q_UNUSED(packet);
 }
 
-void kettlerracersbike::powerPacketReceived(const QByteArray &packet) {
+void kettlerracersbike::powerPacketReceived(const QByteArray &packet, bool isActualMeasurement) {
     if (packet.size() < 2) {
         return;
     }
@@ -762,9 +1009,25 @@ void kettlerracersbike::powerPacketReceived(const QByteArray &packet) {
     }
 
     wattsValue = qBound(0, wattsValue, 2000);
+
+    const QDateTime now = QDateTime::currentDateTime();
+
+    if (isActualMeasurement) {
+        lastActualPowerUpdate = now;
+    } else {
+        RequestedPower = wattsValue;
+        // If we have a recent actual sample, avoid overwriting it with the target echo.
+        if (lastActualPowerUpdate.isValid() && lastActualPowerUpdate.msecsTo(now) < 1500) {
+            lastRefreshCharacteristicChangedPower = now;
+            return;
+        }
+    }
+
     powerSensor(static_cast<uint16_t>(wattsValue));
-    qDebug() << QStringLiteral("Current Watt: ") << m_watt.value();
-    lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
+    qDebug() << (isActualMeasurement ? QStringLiteral("Actual Watt: ")
+                                     : QStringLiteral("Target Watt fallback: "))
+             << m_watt.value();
+    lastRefreshCharacteristicChangedPower = now;
 }
 
 void kettlerracersbike::update() {
@@ -796,6 +1059,23 @@ void kettlerracersbike::update() {
 
     if (!handshakeDone) {
         return;
+    }
+
+    if (gattSCommandChar.isValid()) {
+        if (!sCommandPollTimer.isValid()) {
+            sCommandPollTimer.start();
+        }
+        const qint64 elapsed = sCommandPollTimer.elapsed();
+        if (!pendingSCommandResponse) {
+            if (elapsed >= 500) {
+                sendSCommand(kSCommandCurrentPowerId);
+                sCommandPollTimer.restart();
+            }
+        } else if (elapsed >= 1500) {
+            // Timeout waiting for response
+            pendingSCommandResponse = false;
+            sCommandPollTimer.restart();
+        }
     }
 
     if (initRequest) {
