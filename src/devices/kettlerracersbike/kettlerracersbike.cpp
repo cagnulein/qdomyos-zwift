@@ -633,8 +633,7 @@ void kettlerracersbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         kettlerPacketReceived(newValue);
     } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a100e-7bde-3e25-ffc5-9de9b2a0197a")) ||
                characteristic.uuid() == QBluetoothUuid(QBluetoothUuid::CyclingPowerMeasurement)) {
-        //powerPacketReceived(newValue);
-        qDebug() << QStringLiteral("Power packet received (ignored): ") << newValue.toHex(' ');
+        powerPacketReceived(newValue);
     }
 
     QSettings settings;
@@ -741,23 +740,7 @@ void kettlerracersbike::cscPacketReceived(const QByteArray &packet) {
 
 void kettlerracersbike::kettlerPacketReceived(const QByteArray &packet)
 {
-    if (packet.size() < 2) {
-        return;
-    }
-
-    // Read power value as 16-bit little-endian (in deciWatts, need to divide by 10)
-    uint16_t powerDeciWatts = static_cast<uint16_t>(static_cast<quint8>(packet.at(0)) |
-                                                     (static_cast<quint8>(packet.at(1)) << 8));
-
-    // Convert deciWatts to Watts
-    double powerWatts = powerDeciWatts / 10.0;
-
-    // Only update if cadence is not zero (user is pedaling)
-    uint16_t wattsValue = static_cast<uint16_t>(qRound(powerWatts));
-    wattsValue = qBound(0, wattsValue, 2000);
-    powerSensor(wattsValue);
-    qDebug() << QStringLiteral("Kettler power from 638a1002: ") << wattsValue << "W (raw:" << powerDeciWatts << "dW)";
-    lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
+    Q_UNUSED(packet);
 }
 
 void kettlerracersbike::powerPacketReceived(const QByteArray &packet) {
