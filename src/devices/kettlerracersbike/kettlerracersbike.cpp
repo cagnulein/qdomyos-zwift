@@ -754,6 +754,7 @@ void kettlerracersbike::kettlerPacketReceived(const QByteArray &packet)
 
     // Only update if cadence is not zero (user is pedaling)
     uint16_t wattsValue = static_cast<uint16_t>(qRound(powerWatts));
+    wattsValue = qBound(0, wattsValue, 2000);
     powerSensor(wattsValue);
     qDebug() << QStringLiteral("Kettler power from 638a1002: ") << wattsValue << "W (raw:" << powerDeciWatts << "dW)";
     lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
