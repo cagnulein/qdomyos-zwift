@@ -250,7 +250,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           let PowerFeaturePermissions: CBAttributePermissions = [.readable]
           self.PowerFeatureCharacteristic = CBMutableCharacteristic(type: PowerFeatureCharacteristicUUID,
                                                                  properties: PowerFeatureProperties,
-                                                                                   value: Data (bytes: [0x00, 0x00, 0x00, 0x08]),
+                                                                                   value: Data (bytes: [0x08, 0x00, 0x00, 0x00]),
                                                                                    permissions: PowerFeaturePermissions)
 
         let PowerSensorLocationProperties: CBCharacteristicProperties = [.read]
