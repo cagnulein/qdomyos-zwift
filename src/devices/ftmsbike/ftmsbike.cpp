@@ -92,7 +92,7 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
         return false;
     }
     
-    if(zwiftPlayService && gears_zwift_ratio) {
+    if(zwiftPlayService && gears_zwift_ratio && !AVANTI) {
         qDebug() << QStringLiteral("zwiftPlayService is present!");
         return false;
     }
