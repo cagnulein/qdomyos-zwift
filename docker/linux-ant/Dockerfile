@@ -6,8 +6,7 @@
 # =============================================================================
 
 # --- Stage 1: The Builder ---
-# Use Ubuntu 22.04 LTS for maximum compatibility with Qt5 development packages.
-FROM ubuntu:22.04 AS builder
+FROM debian:bookworm AS builder
 
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -46,10 +45,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libqt5sql5-sqlite \
     libqt5sql5-mysql \
     libqt5sql5-psql \
-    # ANT+ specific dependencies
-    python3-dev \
-    python3-venv \
-    python3-pip \
+    # --- Start of Pinned Python Version ---
+    python3=3.11.2-1+b1 \
+    python3-dev=3.11.2-1+b1 \
+    python3-venv=3.11.2-1+b1 \
+    # --- End of Pinned Python Version ---
     libusb-1.0-0-dev \
     libudev-dev
 
@@ -78,7 +78,7 @@ RUN cd src && qmake qdomyos-zwift.pro && make -j$(nproc)
 
 # --- Stage 2: The Final Artifact ---
 # Use a valid, non-empty base image to solve the "no command specified" error.
-FROM ubuntu:22.04
+FROM debian:bookworm
 
 # Copy the compiled binary from the builder stage
 COPY --from=builder /app/src/qdomyos-zwift /qdomyos-zwift-x86-64-ant

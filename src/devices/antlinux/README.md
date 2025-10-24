@@ -35,7 +35,7 @@ Consider backing up your system before proceeding.
 
 This guide covers installation using **pre-compiled binaries** from GitHub Actions. This is the recommended method for most users.
 
-**Advanced users:** If you need to compile from source (for development or custom modifications), see the [Compilation Guide](COMPILE.md).
+**For developers or advanced users:** If you need to compile from source (for development or custom modifications), see the [Compilation Guide](COMPILE.md).
 
 ---
 
@@ -75,9 +75,9 @@ sudo apt-get install -y \
 
 ### 1.2 Create Python Virtual Environment
 
-The QZ application looks for an environment named `ant_venv` in your home directory. **This is mandatory** due to the application's design and modern Linux package policies (PEP 668).
+The QZ application looks for an environment named `ant_venv` in your home directory. This is required due to the application's design and modern Linux package policies (PEP 668).
 
-**Important:** You must use Python 3.11 as the pre-compiled binaries are built with this version.
+**Note:** The pre-compiled binaries are built with Python 3.11, so it's recommended to use this version for compatibility.
 
 ```bash
 # Create the virtual environment
@@ -105,7 +105,20 @@ sudo usermod -aG plugdev $USER
 sudo reboot
 ```
 
-After the reboot, proceed to Step 2.
+### 1.4 Verify Setup (Optional)
+
+After rebooting, you can run a diagnostic script to verify your environment:
+
+```bash
+# Download and run the runtime verification script
+curl -o ~/runtime_check.sh https://raw.githubusercontent.com/cagnulein/qdomyos-zwift/master/src/devices/antlinux/runtime_check.sh
+chmod +x ~/runtime_check.sh
+sudo ~/runtime_check.sh
+```
+
+This will check your Python environment, USB permissions, and system services. If it finds any issues, it will provide guidance on how to resolve them.
+
+Proceed to Step 2.
 
 ---
 
@@ -124,7 +137,7 @@ After the reboot, proceed to Step 2.
 
 1. Unzip the downloaded file
 2. Transfer the extracted binary to your home directory
-3. Rename and make executable:
+3. Rename to a standard location and make executable:
 
 **For Raspberry Pi:**
 ```bash
@@ -140,6 +153,8 @@ mv qdomyos-zwift-x86-64-ant qdomyos-zwift
 chmod +x qdomyos-zwift
 ```
 
+**Note:** Using the name `qdomyos-zwift` in your home directory keeps the setup simple and consistent.
+
 ---
 
 ## Step 3: Run and Automate
@@ -150,7 +165,7 @@ Before running the application, understand how to pair your device:
 
 **On Garmin watches:**
 1. Menu > Sensors & Accessories > Add New > Foot Pod
-2. Watch detects and pairs within 5-10 seconds
+2. Watch detects and pairs within a few seconds
 3. Start "Treadmill" or "Run Indoor" activity
 4. Add Cadence field: Settings > Activities & Apps > [Activity] > Data Screens > customize
 
@@ -243,6 +258,10 @@ sudo systemctl status qz
 - Main project: https://github.com/cagnulein/qdomyos-zwift
 - ANT+ Linux footpod implementation: bassai-sho
 - Documentation assisted by Claude and Gemini
+
+**For Developers and Testers:**
+
+If you're interested in testing the pre-compiled binaries or contributing to quality assurance, see our [Test Plan](TEST_PLAN.md) which covers validation procedures for both Raspberry Pi and Desktop Linux platforms.
 
 **Further reading:**
 
