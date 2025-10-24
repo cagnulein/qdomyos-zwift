@@ -48,6 +48,17 @@
 
 #include "handleurl.h"
 
+#ifdef ANT_LINUX_ENABLED
+#include <thread>
+#include <chrono>
+#include <atomic>
+#include "bluetoothdevicetype.h" 
+#include "devices/antlinux/AntManager.h"
+bool ant_footpod_enabled = false;
+bool ant_verbose = false;
+int ant_device_id = 54321;
+#endif
+
 bool logs = true;
 bool noWriteResistance = false;
 bool noHeartService = true;
@@ -167,6 +178,13 @@ void displayHelp() {
     printf("\nOther options:\n");
     printf("  -test-resistance              Enable resistance testing\n");
     printf("  -fit-file-saved-on-quit       Save FIT file on application quit\n");
+
+#ifdef ANT_LINUX_ENABLED
+    printf("\nANT+ Footpod Broadcaster options (Linux only):\n");
+    printf("  -ant-footpod                  Enable ANT+ footpod broadcasting\n");
+    printf("  -ant-device <id>              Set ANT+ device ID (1-65535, default: 54321)\n");
+    printf("  -ant-verbose                  Enable verbose logging for the Python ANT+ module\n");
+#endif
 
     exit(0);
 }
@@ -368,6 +386,23 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-power-sensor-as-treadmill")) {
             power_sensor_as_treadmill = true;
         }
+
+#ifdef ANT_LINUX_ENABLED
+        if (!qstrcmp(argv[i], "-ant-footpod")) {
+            ant_footpod_enabled = true;
+        }
+        if (!qstrcmp(argv[i], "-ant-verbose")) {
+            ant_verbose = true;
+        }
+        if (!qstrcmp(argv[i], "-ant-device")) {
+            if (i + 1 < argc) {
+                int id = atoi(argv[++i]);
+                if (id > 0 && id < 65536) {
+                    ant_device_id = id;
+                }
+            }
+        }
+#endif
     }
 
     if (nogui) {
@@ -781,6 +816,42 @@ int main(int argc, char *argv[]) {
     bluetooth bl(logs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance,
                  bikeResistanceOffset,
                  bikeResistanceGain); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
+    
+    #ifdef ANT_LINUX_ENABLED
+    if (ant_footpod_enabled) {
+        qInfo() << "[main] ANT+ feature enabled. Arming startup trigger...";
+
+        QObject::connect(&bl, &bluetooth::bluetoothDeviceConnected, [&](bluetoothdevice *dev) {
+            if (dev && dev->deviceType() == TREADMILL) {
+                
+                qInfo() << "[main] Treadmill object created. Starting 10-second timer to allow for device initialization...";
+
+                // Use a single-shot timer to start the ANT+ manager after a safe delay.
+                // This is non-blocking and allows the main thread to be occupied by btinit().
+                QTimer::singleShot(10000, [dev]() {
+                    // Check if the device is still connected after the delay.
+                    if (dev && dev->connected()) {
+                        qInfo() << "[main] Initialization delay complete. Starting ANT+ Manager.";
+                        
+                        // Use invokeMethod for a clean, queued call to the singleton.
+                        QMetaObject::invokeMethod(&AntManager::instance(), [dev](){
+                            AntManager::instance().startForDevice(dev);
+                        }, Qt::QueuedConnection);
+                    } else {
+                        qWarning() << "[main] Device disconnected during initialization delay - ANT+ not started.";
+                    }
+                });
+            }
+        });
+
+        // The graceful shutdown connection remains essential.
+        // Note the correction from app.data() to app.get() for QScopedPointer.
+        QObject::connect(app.get(), &QCoreApplication::aboutToQuit, &AntManager::instance(), [&]() {
+            qInfo() << "[main] Application shutting down. Stopping ANT+ Manager.";
+            AntManager::instance().stopForDevice(nullptr);
+        });
+    }
+    #endif
 
     QString mqtt_host = settings.value(QZSettings::mqtt_host, QZSettings::default_mqtt_host).toString();
     int mqtt_port = settings.value(QZSettings::mqtt_port, QZSettings::default_mqtt_port).toInt();
