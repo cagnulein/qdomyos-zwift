@@ -1,0 +1,54 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.settings.hdmi";
+option java_outer_classname = "HdmiSoundServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum AqProfile {
+  AQ_PROFILE_DIALOG = 0;
+  AQ_PROFILE_MUSIC = 1;
+  AQ_PROFILE_MOVIE = 2;
+  AQ_PROFILE_CUSTOM = 3;
+}
+
+enum AqLevel {
+  AQ_LEVEL_LOWEST = 0;
+  AQ_LEVEL_LOW = 1;
+  AQ_LEVEL_MEDIUM = 2;
+  AQ_LEVEL_HIGH = 3;
+  AQ_LEVEL_HIGHEST = 4;
+  AQ_LEVEL_NOT_SET = 5;
+}
+
+message AqProfileMessage {
+  AqProfile profile = 1;
+}
+
+message AqLevelsMessage {
+  optional AqLevel bassLevel = 1;
+  optional AqLevel trebleLevel = 2;
+  optional AqLevel surroundLevel = 3;
+  optional AqLevel dialogLevel = 4;
+}
+
+message HdmiSoundStateMessage {
+  AqProfile profile = 1;
+  bool muted = 2;
+  AqLevel bassLevel = 3;
+  AqLevel trebleLevel = 4;
+  AqLevel surroundLevel = 5;
+  AqLevel dialogLevel = 6;
+}
+
+service HdmiSoundService {
+  rpc IsEnabled(Empty) returns (AvailabilityResponse) {}
+  rpc IsEnabledFlow(Empty) returns (stream AvailabilityResponse) {}
+  rpc SetMute(BooleanRequest) returns (Empty) {}
+  rpc SetAqProfile(AqProfileMessage) returns (Empty) {}
+  rpc SetAqLevels(AqLevelsMessage) returns (Empty) {}
+  rpc GetHdmiSoundState(Empty) returns (HdmiSoundStateMessage) {}
+  rpc HdmiSoundStateChanged(Empty) returns (stream HdmiSoundStateMessage) {}
+}
+
