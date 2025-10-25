@@ -712,6 +712,7 @@ const QString QZSettings::norditrack_s25_treadmill = QStringLiteral("norditrack_
 const QString QZSettings::proform_8_5_treadmill = QStringLiteral("proform_8_5_treadmill");
 const QString QZSettings::treadmill_incline_min = QStringLiteral("treadmill_incline_min");
 const QString QZSettings::treadmill_incline_max = QStringLiteral("treadmill_incline_max");
+const QString QZSettings::treadmill_speed_max = QStringLiteral("treadmill_speed_max");
 const QString QZSettings::proform_2000_treadmill = QStringLiteral("proform_2000_treadmill");
 const QString QZSettings::android_documents_folder = QStringLiteral("android_documents_folder");
 const QString QZSettings::zwift_api_autoinclination = QStringLiteral("zwift_api_autoinclination");
@@ -987,7 +988,7 @@ const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 
 
-const uint32_t allSettingsCount = 809;
+const uint32_t allSettingsCount = 810;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1590,6 +1591,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_8_5_treadmill, QZSettings::default_proform_8_5_treadmill},
     {QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min},
     {QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max},
+    {QZSettings::treadmill_speed_max, QZSettings::default_treadmill_speed_max},
     {QZSettings::proform_2000_treadmill, QZSettings::default_proform_2000_treadmill},
     {QZSettings::android_documents_folder, QZSettings::default_android_documents_folder},
     {QZSettings::zwift_api_autoinclination, QZSettings::default_zwift_api_autoinclination},
