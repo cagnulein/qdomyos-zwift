@@ -1013,7 +1013,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(domyosRower);
             } else if ((b.name().startsWith(QStringLiteral("Domyos-Bike")) && (!deviceHasService(b, QBluetoothUuid((quint16)0x1826)) || settings.value(QZSettings::domyosbike_notfmts, QZSettings::default_domyosbike_notfmts).toBool())) &&
-                       !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosBike && filter) {
+                       !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosBike && ftms_bike.contains(QZSettings::default_ftms_bike) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 domyosBike = new domyosbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset,
