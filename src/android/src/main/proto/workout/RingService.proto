@@ -1,0 +1,20 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "workout/data/RingState.proto";
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "RingServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message RingStateMessage{
+    RingState ringState = 1;
+}
+
+service RingService {
+  rpc GetConnectionState(Empty) returns (BooleanResponse) {}
+  rpc ConnectionStateSubscription(Empty) returns (stream BooleanResponse) {}
+
+  rpc GetRingState(Empty) returns (RingStateMessage) {}
+  rpc RingStateSubscription(Empty) returns (stream RingStateMessage) {}
+}

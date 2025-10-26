@@ -1,0 +1,32 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "DistanceServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message DistanceMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  double lastDistanceKm = 3;
+  double remainingDistanceKm = 4;
+}
+
+message DistanceMetricList {
+  repeated DistanceMetric metrics = 1;
+}
+
+service DistanceService {
+  // check whether Distance is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+
+  // get the current Distance relative to the current workout
+  rpc GetDistance(Empty) returns (DistanceMetric) {}
+
+  // subscribe to Distance updates relative to the current workout
+  rpc DistanceSubscription(Empty) returns (stream DistanceMetric) {}
+
+  // gets a list of all of the Distance changes for the given workout ID
+  rpc GetDistanceHistory(WorkoutID) returns (DistanceMetricList) {}
+}
