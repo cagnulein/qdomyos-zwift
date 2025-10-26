@@ -359,9 +359,8 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8, distance: Double, totalKcal: Double) {
         SwiftDebug.qtDebug("WorkoutTracking: GET DATA: \(Date())")
         
-        if(workoutInProgress == false && power > 0) {
-            startWorkOut(deviceType: UInt16(deviceType))
-        } else if(workoutInProgress == false && power == 0) {
+        if(workoutInProgress == false) {
+            SwiftDebug.qtDebug("WorkoutTracking: workout not in progress")
             return;
         }
 

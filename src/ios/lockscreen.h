@@ -31,7 +31,7 @@ class lockscreen {
     double virtualbike_getCurrentCRR();
     double virtualbike_getCurrentCW();
     double virtualbike_getPowerRequested();
-    bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears, unsigned short currentCalories, unsigned int Distance);
+    bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears, unsigned short currentCalories, unsigned int Distance, unsigned char deviceType);
     int virtualbike_getLastFTMSMessage(unsigned char *message);
 
     // virtualrower
@@ -41,7 +41,7 @@ class lockscreen {
                                  unsigned short currentCadence, unsigned short currentWatt,
                                  unsigned short CrankRevolutions, unsigned short LastCrankEventTime,
                                  unsigned short StrokesCount, unsigned int Distance, unsigned short KCal,
-                                 unsigned short Pace);
+                                 unsigned short Pace, unsigned char deviceType);
     int virtualrower_getLastFTMSMessage(unsigned char *message);
 
     // virtualtreadmill
@@ -54,7 +54,7 @@ class lockscreen {
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
                                      unsigned short currentInclination, unsigned long long currentDistance, unsigned short currentCalories, 
-                                     qint32 currentSteps, unsigned short elapsedSeconds);
+                                     qint32 currentSteps, unsigned short elapsedSeconds, unsigned char deviceType);
 
     // volume
     double getVolume();
