@@ -433,7 +433,10 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         else
 #endif
         {
-            if (Flags.heartRate && !disable_hr_frommachinery && lastPacket.length() > index) {
+            if (SCH_411_510E && lastPacket.length() > 23) {
+                Heart = ((double)(((uint8_t)lastPacket.at(23))));
+                emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+            } else if (Flags.heartRate && !disable_hr_frommachinery && lastPacket.length() > index) {
                 Heart = ((double)(((uint8_t)lastPacket.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
@@ -827,7 +830,8 @@ bool ypooelliptical::connected() {
 }
 
 uint16_t ypooelliptical::watts() {
-    if (currentCadence().value() == 0) {
+    // SCH_411_510E doesn't have cadence
+    if (currentCadence().value() == 0 && !SCH_411_510E) {
         return 0;
     }
 
