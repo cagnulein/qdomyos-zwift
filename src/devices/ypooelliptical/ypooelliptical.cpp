@@ -18,7 +18,7 @@ using namespace std::chrono_literals;
 
 ypooelliptical::ypooelliptical(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                double bikeResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -79,11 +79,11 @@ void ypooelliptical::forceInclination(double inclination) {
 
 void ypooelliptical::forceResistance(resistance_t requestResistance) {
 
-    if(E35 || SCH_590E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS) {
+    if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS) {
         uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
         write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
         writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write),
-                            QStringLiteral("forceResistance ") + QString::number(requestResistance));        
+                            QStringLiteral("forceResistance ") + QString::number(requestResistance));
     } else {
         uint8_t write[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
 
@@ -108,7 +108,7 @@ void ypooelliptical::update() {
 
     if (initRequest) {
         initRequest = false;
-        if(E35 || SCH_590E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS) {
+        if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write), "requestControl", false, true);
         } else {
@@ -250,7 +250,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE) && !iconsole_elliptical) {
 
-        if(E35 == false && SCH_590E == false && KETTLER == false && CARDIOPOWER_EEGO == false && MYELLIPTICAL == false && SKANDIKA == false && DOMYOS == false && FEIER == false && MX_AS == false && FTMS == false) {
+        if(E35 == false && SCH_590E == false && SCH_411_510E == false && KETTLER == false && CARDIOPOWER_EEGO == false && MYELLIPTICAL == false && SKANDIKA == false && DOMYOS == false && FEIER == false && MX_AS == false && FTMS == false) {
             if (newvalue.length() == 18) {
                 qDebug() << QStringLiteral("let's wait for the next piece of frame");
                 lastPacket = newvalue;
@@ -270,7 +270,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         index += 3;
 
         if (!Flags.moreData) {
-            if(E35 || SCH_590E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS) {
+            if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS) {
                 Speed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                 (uint16_t)((uint8_t)lastPacket.at(index)))) /
                         100.0;
@@ -282,17 +282,17 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         // this particular device, seems to send the actual speed here
         if (Flags.avgSpeed) {
             // double avgSpeed;
-            if(!E35 && !SCH_590E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !FTMS) {
+            if(!E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !FTMS) {
                 Speed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)lastPacket.at(index)))) /
                     100.0;
                 emit debug(QStringLiteral("Current Average Speed: ") + QString::number(Speed.value()));
             }
-            index += 2;            
+            index += 2;
         }
 
         if (Flags.totDistance) {
-            if(!E35 && !SCH_590E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !FTMS) {
+            if(!E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !FTMS) {
                 Distance = ((double)((((uint32_t)((uint8_t)lastPacket.at(index + 2)) << 16) |
                                   (uint32_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                  (uint32_t)((uint8_t)lastPacket.at(index)))) /
@@ -314,7 +314,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
                 double divisor = 1.0;
-                if(E35 || SCH_590E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)
+                if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)
                     divisor = 2.0;
                 Cadence = (((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)lastPacket.at(index))))) / divisor;
@@ -382,7 +382,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                     .startsWith(QStringLiteral("Disabled"))) {
                 double divisor = 100.0; // i added this because this device seems to send it multiplied by 100
 
-                if(E35 || SCH_590E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)
+                if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)
                     divisor = 1.0;
 
                 m_watt = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
@@ -396,7 +396,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
         }
 
-        if (Flags.avgPower && lastPacket.length() > index + 1 && !E35 && !SCH_590E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !FTMS) { // E35 has a bug about this
+        if (Flags.avgPower && lastPacket.length() > index + 1 && !E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !FTMS) { // E35 has a bug about this
             double avgPower;
             avgPower = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                  (uint16_t)((uint8_t)lastPacket.at(index))));
@@ -433,7 +433,10 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         else
 #endif
         {
-            if (Flags.heartRate && !disable_hr_frommachinery && lastPacket.length() > index) {
+            if (SCH_411_510E && lastPacket.length() > 23) {
+                Heart = ((double)(((uint8_t)lastPacket.at(23))));
+                emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+            } else if (Flags.heartRate && !disable_hr_frommachinery && lastPacket.length() > index) {
                 Heart = ((double)(((uint8_t)lastPacket.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
@@ -541,9 +544,9 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
             qDebug() << "skipping service" << s->serviceUuid();
             continue;
         }
-        else if(s->serviceUuid() != _gattFTMSService && (SCH_590E || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)) {
+        else if(s->serviceUuid() != _gattFTMSService && (SCH_590E || SCH_411_510E || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)) {
             qDebug() << "skipping service" << s->serviceUuid();
-            continue;            
+            continue;
         }
 
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
@@ -750,6 +753,9 @@ void ypooelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if(device.name().toUpper().startsWith(QStringLiteral("SCH_590E"))) {
             SCH_590E = true;
             qDebug() << "SCH_590E workaround ON!";
+        } else if(device.name().toUpper().startsWith(QStringLiteral("SCH411/510E"))) {
+            SCH_411_510E = true;
+            qDebug() << "SCH_411_510E workaround ON!";
         } else if(device.name().toUpper().startsWith(QStringLiteral("E35"))) {
             E35 = true;
             qDebug() << "E35 workaround ON!";
@@ -824,7 +830,8 @@ bool ypooelliptical::connected() {
 }
 
 uint16_t ypooelliptical::watts() {
-    if (currentCadence().value() == 0) {
+    // SCH_411_510E doesn't have cadence
+    if (currentCadence().value() == 0 && !SCH_411_510E) {
         return 0;
     }
 

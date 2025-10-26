@@ -17,7 +17,7 @@
 using namespace std::chrono_literals;
 
 bkoolbike::bkoolbike(bool noWriteResistance, bool noHeartService) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
@@ -49,7 +49,12 @@ void bkoolbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    gattCustomService->writeCharacteristic(gattWriteCharCustomId, *writeBuffer);
+    if (gattWriteCharCustomId.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCustomService->writeCharacteristic(gattWriteCharCustomId, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCustomService->writeCharacteristic(gattWriteCharCustomId, *writeBuffer);
+    }    
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
@@ -115,13 +120,27 @@ void bkoolbike::update() {
         uint8_t init1[] = {0x30, 0x25, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
         uint8_t init2[] = {0x32, 0x25, 0xff, 0xff, 0xff, 0x1e, 0x7f, 0x00};
         uint8_t init3[] = {0x33, 0x25, 0xff, 0xff, 0xff, 0x20, 0x4e, 0x00};
-        uint8_t init4[] = {0x37, 0x4c, 0x1d, 0xff, 0x80, 0x0c, 0x46, 0x21};
-        uint8_t init5[] = {0x37, 0xee, 0x16, 0xff, 0x80, 0x0c, 0x46, 0x21};
         writeCharacteristic(init1, sizeof(init1), QStringLiteral("init1"), false, false);
         writeCharacteristic(init2, sizeof(init2), QStringLiteral("init2"), false, false);
         writeCharacteristic(init3, sizeof(init3), QStringLiteral("init3"), false, false);
-        writeCharacteristic(init4, sizeof(init4), QStringLiteral("init4"), false, true);
-        writeCharacteristic(init5, sizeof(init5), QStringLiteral("init5"), false, true);
+
+        if (bkool_fitness_bike) {
+            // BKOOLFITNESSBIKE specific init packets
+            uint8_t init4[] = {0x37, 0x4c, 0x1d, 0xff, 0x80, 0x0c, 0x46, 0x21};
+            uint8_t init5[] = {0x37, 0xc8, 0x19, 0xff, 0xe0, 0x0a, 0x46, 0x21};
+            uint8_t init6[] = {0x37, 0xc8, 0x19, 0xff, 0xe0, 0x0a, 0x46, 0x21};
+            uint8_t init7[] = {0x32, 0x25, 0xff, 0xff, 0xff, 0x25, 0x7f, 0x00};
+            writeCharacteristic(init4, sizeof(init4), QStringLiteral("init4"), false, true);
+            writeCharacteristic(init5, sizeof(init5), QStringLiteral("init5"), false, true);
+            writeCharacteristic(init6, sizeof(init6), QStringLiteral("init6"), false, true);
+            writeCharacteristic(init7, sizeof(init7), QStringLiteral("init7"), false, false);
+        } else {
+            // BKOOLSMARTPRO init packets
+            uint8_t init4[] = {0x37, 0x4c, 0x1d, 0xff, 0x80, 0x0c, 0x46, 0x21};
+            uint8_t init5[] = {0x37, 0xee, 0x16, 0xff, 0x80, 0x0c, 0x46, 0x21};
+            writeCharacteristic(init4, sizeof(init4), QStringLiteral("init4"), false, true);
+            writeCharacteristic(init5, sizeof(init5), QStringLiteral("init5"), false, true);
+        }
 
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -135,6 +154,12 @@ void bkoolbike::update() {
         if (sec1Update++ == (500 / refresh->interval())) {
             sec1Update = 0;
             // updateDisplay(elapsed);
+        }
+
+        // Send poll command for BKOOLFITNESSBIKE
+        if (bkool_fitness_bike) {
+            uint8_t poll[] = {0x37, 0xc8, 0x19, 0xff, 0xe0, 0x0a, 0x46, 0x21};
+            writeCharacteristic(poll, sizeof(poll), QStringLiteral("poll"), false, false);
         }
 
         if (requestResistance != -1) {
@@ -676,6 +701,12 @@ void bkoolbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        // Check if this is BKOOLFITNESSBIKE model
+        if (device.name().toUpper().startsWith(QStringLiteral("BKOOLFITNESSBIKE"))) {
+            bkool_fitness_bike = true;
+            emit debug(QStringLiteral("BKOOLFITNESSBIKE model detected"));
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &bkoolbike::serviceDiscovered);

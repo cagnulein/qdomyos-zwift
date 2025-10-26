@@ -70,6 +70,8 @@ class bkoolbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool bkool_fitness_bike = false;
+    uint16_t pollCounter = 0;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;

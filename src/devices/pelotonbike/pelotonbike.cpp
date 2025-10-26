@@ -21,7 +21,7 @@ using namespace std::chrono_literals;
 
 pelotonbike::pelotonbike(bool noWriteResistance, bool noHeartService) {
     QSettings settings;
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;

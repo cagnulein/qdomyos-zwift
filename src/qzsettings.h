@@ -1914,6 +1914,8 @@ class QZSettings {
 
     static const QString proform_rower_sport_rl;
     static constexpr bool default_proform_rower_sport_rl = false;
+    static const QString proform_rower_750r;
+    static constexpr bool default_proform_rower_750r = false;
 
     static const QString strava_date_prefix;
     static constexpr bool default_strava_date_prefix = false;
@@ -2041,6 +2043,9 @@ class QZSettings {
     static const QString zwift_play;
     static constexpr bool default_zwift_play = false;
 
+    static const QString zwift_play_vibration;
+    static constexpr bool default_zwift_play_vibration = true;
+
     static const QString nordictrack_treadmill_x14i;
     static constexpr bool default_nordictrack_treadmill_x14i = false;
 
@@ -2117,6 +2122,9 @@ class QZSettings {
 
     static const QString toorx_bike_srx_500;
     static constexpr bool default_toorx_bike_srx_500 = false;
+
+    static const QString toorxtreadmill_discovery_completed;
+    static constexpr bool default_toorxtreadmill_discovery_completed = false;
 
     static const QString atletica_lightspeed_treadmill;
     static constexpr bool default_atletica_lightspeed_treadmill = false;
@@ -2670,6 +2678,12 @@ class QZSettings {
     static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
 
     /**
+     * @brief Chart display mode: 0 = both charts, 1 = heart rate only, 2 = power only
+     */
+    static const QString chart_display_mode;
+    static constexpr int default_chart_display_mode = 0;
+
+   /**
      * @brief Calculate only active calories (exclude basal metabolic rate)
      */
     static const QString calories_active_only;
@@ -2682,10 +2696,22 @@ class QZSettings {
     static constexpr bool default_calories_from_hr = false;
 
     /**
+     * @brief Show a confirmation dialog before stopping a workout from the UI.
+     */
+    static const QString confirm_stop_workout;
+    static constexpr bool default_confirm_stop_workout = false;
+
+    /**
      * @brief User height in centimeters for BMR calculation
      */
     static const QString height;
     static constexpr double default_height = 175.0;
+
+    static const QString taurua_ic90;
+    static constexpr bool default_taurua_ic90 = false;
+
+    static const QString proform_csx210;
+    static constexpr bool default_proform_csx210 = false;
 
     /**
      * @brief Track if Grupetto legal disclaimer has been shown to user

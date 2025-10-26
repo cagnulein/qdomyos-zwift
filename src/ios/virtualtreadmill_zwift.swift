@@ -332,7 +332,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   func calculateHeartRate() -> Data {
     //self.delegate?.BLEPeripheralManagerDidSendValue(self.heartRate)
     var heartRateBPM: [UInt8] = [0, self.heartRate, 0, 0, 0, 0, 0, 0]
-    let heartRateData = Data(bytes: &heartRateBPM, count: MemoryLayout.size(ofValue: heartRateBPM))
+    let heartRateData = Data(bytes: &heartRateBPM, count: heartRateBPM.count)
     return heartRateData
   }
     
