@@ -116,8 +116,9 @@ jobs:
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
       - name: Build qthttpserver
+        shell: msys2 {0}
         run: |
-            cd src\qthttpserver 
+            cd src/qthttpserver
             qmake
             make -j8
             make install
