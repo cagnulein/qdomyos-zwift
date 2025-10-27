@@ -8,8 +8,12 @@
 #include <QSettings>
 #include <QElapsedTimer>
 #include <QThread>
+#include <QDebug>
 #include <math.h>
 #include <array>
+#include "qzsettings.h"
+#include <cmath>
+#include <algorithm>
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
@@ -284,6 +288,12 @@ void kettlerracersbike::parseSCommandFrame(const QByteArray &frame) {
 }
 
 void kettlerracersbike::changePower(int32_t power) {
+    qDebug() << "kettlerracersbike::changePower" << power << "fromSlope" << slopePowerChangeInProgress
+             << "slopeEnabled" << slopeControlEnabled;
+    if (!slopePowerChangeInProgress) {
+        slopeControlEnabled = false;
+        qDebug() << "Slope control disabled due to external changePower";
+    }
     RequestedPower = power;
 
     if (power < 0)
@@ -297,20 +307,116 @@ void kettlerracersbike::changePower(int32_t power) {
 }
 
 void kettlerracersbike::forceInclination(double inclination) {
-    // Store inclination for SIM mode
+    qDebug() << "kettlerracersbike::forceInclination" << inclination;
     Inclination = inclination;
+    slopeControlEnabled = true;
+    updateSlopeTargetPower();
+}
 
-    // For grade mode, we need to send the grade value
-    // Based on test logs, grade values are sent to the same characteristic as power
-    // TODO: Analyze test logs to determine exact grade format
-    // For now, using simple format similar to power
-    int16_t gradeValue = (int16_t)(inclination * 100); // Convert percentage to integer format
+void kettlerracersbike::changeInclination(double grade, double percentage) {
+    qDebug() << "kettlerracersbike::changeInclination" << grade << percentage;
+    bike::changeInclination(grade, percentage);
+    Inclination = grade;
+    currentSlopePercent = grade;
+    slopeControlEnabled = true;
+    updateSlopeTargetPower(true);
+}
 
-    uint8_t gradeData[2];
-    gradeData[0] = (uint8_t)(gradeValue & 0xFF);
-    gradeData[1] = (uint8_t)((gradeValue >> 8) & 0xFF);
+double kettlerracersbike::computeSlopeTargetPower(double gradePercent, double speedKmh) const {
+    QSettings settings;
+    const double riderWeight = settings.value(QZSettings::weight, QZSettings::default_weight).toDouble();
+    const double bikeWeight = settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toDouble();
+    const double rollingCoeff = settings.value(QZSettings::rolling_resistance, QZSettings::default_rolling_resistance).toDouble();
 
-    writeCharacteristic(gradeData, sizeof(gradeData), QStringLiteral("forceInclination ") + QString::number(inclination) + "%", false, false);
+    double totalMass = riderWeight + bikeWeight;
+    if (!std::isfinite(totalMass) || totalMass < 1.0) {
+        totalMass = 75.0 + 10.0; // fallback to reasonable defaults
+    }
+
+    double speed = speedKmh / 3.6; // convert to m/s
+    if (!std::isfinite(speed) || speed < 0.0) {
+        speed = 0.0;
+    }
+
+    const double slope = gradePercent / 100.0;
+    const double denom = std::sqrt(1.0 + slope * slope);
+    const double sinTheta = (denom > 0.0) ? (slope / denom) : 0.0;
+    const double cosTheta = (denom > 0.0) ? (1.0 / denom) : 1.0;
+
+    const double g = 9.80665;
+    double powerGravity = totalMass * g * speed * sinTheta;
+    double powerRolling = totalMass * g * rollingCoeff * speed * cosTheta;
+
+    const double airDensity = 1.204; // kg/m^3
+    const double dragCoefficient = 0.4; // Cd
+    const double frontalArea = 1.0;     // m^2
+    double cda = dragCoefficient * frontalArea;
+    double powerAerodynamic = 0.5 * airDensity * cda * std::pow(std::max(0.0, speed), 3);
+
+    double totalPower = powerGravity + powerRolling + powerAerodynamic;
+    if (!std::isfinite(totalPower)) {
+        totalPower = 0.0;
+    }
+    if (totalPower < 0.0) {
+        totalPower = 0.0;
+    }
+    qDebug() << "computeSlopeTargetPower" << "grade%" << gradePercent << "speedKmh" << speedKmh
+             << "powerGravity" << powerGravity << "powerRolling" << powerRolling << "powerAero" << powerAerodynamic
+             << "total" << totalPower;
+    return totalPower;
+}
+
+void kettlerracersbike::updateSlopeTargetPower(bool force) {
+    qDebug() << "updateSlopeTargetPower called" << "force" << force << "autoRes" << autoResistance()
+             << "handshake" << handshakeDone << "slopeEnabled" << slopeControlEnabled
+             << "currentGrade" << currentSlopePercent;
+    if (!autoResistance()) {
+        qDebug() << "updateSlopeTargetPower skipped: auto resistance disabled";
+        return;
+    }
+    if (!handshakeDone || !gattKettlerService || !gattWriteCharKettlerId.isValid()) {
+        qDebug() << "updateSlopeTargetPower skipped: GATT not ready";
+        return;
+    }
+    if (!slopeControlEnabled && !force) {
+        qDebug() << "updateSlopeTargetPower skipped: slope control inactive";
+        return;
+    }
+
+    double grade = currentSlopePercent;
+
+    double speedKmh = Speed.value();
+    if (!std::isfinite(speedKmh) || speedKmh < 0.0) {
+        speedKmh = 0.0;
+    }
+    if (speedKmh < 0.5) {
+        double cadence = Cadence.value();
+        if (std::isfinite(cadence) && cadence > 0.0) {
+            speedKmh = std::max(0.5, cadence * 0.3); // approximate 90rpm -> 27 km/h
+        }
+    }
+
+    double targetPower = computeSlopeTargetPower(grade, speedKmh);
+    int powerValue = static_cast<int>(std::round(targetPower));
+    powerValue = qBound(0, powerValue, 2000);
+
+    if (!force) {
+        if (!slopePowerTimer.isValid()) {
+            slopePowerTimer.start();
+        }
+        if (slopePowerTimer.elapsed() < 500 && lastSlopeTargetPower >= 0 &&
+            std::abs(powerValue - lastSlopeTargetPower) < 3) {
+            qDebug() << "updateSlopeTargetPower skipped: within hysteresis" << powerValue << lastSlopeTargetPower;
+            return;
+        }
+    }
+
+    lastSlopeTargetPower = powerValue;
+    slopePowerTimer.restart();
+    slopePowerChangeInProgress = true;
+    qDebug() << "updateSlopeTargetPower -> changePower" << powerValue;
+    changePower(powerValue);
+    slopePowerChangeInProgress = false;
 }
 
 uint16_t kettlerracersbike::watts() {
@@ -482,6 +588,8 @@ void kettlerracersbike::characteristicWritten(const QLowEnergyCharacteristic &ch
             emit debug(QStringLiteral("Discovering Cycling Power (0x1818) service details after handshake..."));
             gattPowerService->discoverDetails();
         }
+
+        updateSlopeTargetPower(true);
 
         // Create virtual bike interface after handshake
         if (!firstStateChanged && !this->hasVirtualDevice()
@@ -756,6 +864,11 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
         sCommandBuffer.clear();
         pendingSCommandResponse = false;
         sCommandPollTimer.invalidate();
+        slopePowerTimer.invalidate();
+        lastSlopeTargetPower = -1;
+        slopePowerChangeInProgress = false;
+        slopeControlEnabled = false;
+        currentSlopePercent = 0.0;
 
         // Request handshake seed FIRST before any other operations
         // CSC service discovery and virtual bike creation will happen AFTER handshake
@@ -983,6 +1096,8 @@ void kettlerracersbike::cscPacketReceived(const QByteArray &packet) {
         qDebug() << QStringLiteral("Current CrankRevsRead: ") << CrankRevsRead;
         qDebug() << QStringLiteral("Last CrankEventTime: ") << crankEventTime;
     }
+
+    updateSlopeTargetPower();
 }
 
 void kettlerracersbike::kettlerPacketReceived(const QByteArray &packet)

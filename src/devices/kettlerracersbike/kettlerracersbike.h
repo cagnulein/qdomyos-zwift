@@ -52,6 +52,9 @@ class kettlerracersbike : public bike {
     void forceInclination(double inclination);
     uint16_t watts() override;
     double bikeResistanceToPeloton(double resistance);
+    void changeInclination(double grade, double percentage) override;
+    double computeSlopeTargetPower(double gradePercent, double speedKmh) const;
+    void updateSlopeTargetPower(bool force = false);
     void sendSCommand(quint16 commandId, const QByteArray &payload = QByteArray());
     void handleSCommandNotification(const QByteArray &data);
     void parseSCommandFrame(const QByteArray &frame);
@@ -101,6 +104,11 @@ class kettlerracersbike : public bike {
     bool connectedAndDiscoveredEmitted = false;
     bool firstCadenceSent = false;
     bool pendingSCommandResponse = false;
+    bool slopeControlEnabled = false;
+    QElapsedTimer slopePowerTimer;
+    int lastSlopeTargetPower = -1;
+    double currentSlopePercent = 0.0;
+    bool slopePowerChangeInProgress = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
