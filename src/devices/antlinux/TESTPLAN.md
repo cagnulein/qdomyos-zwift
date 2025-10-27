@@ -1,365 +1,589 @@
-# **ANT+ Pre-Compiled Binary Validation Test Plan**
+# ANT+ Pre-compiled Binary Test Plan
 
-## 1. Overview
+## Overview
 
-This plan verifies the **pre-compiled `qdomyos-zwift` binary** across both x86_64 and ARM64 platforms.
-It ensures that environment setup, dependency management, ANT+ communication (including Garmin pairing), and systemd service operation all work correctly, both in GUI and headless (`-no-gui -ant-footpod`) modes.
+This document provides comprehensive testing procedures for the QDomyos-Zwift ANT+ Virtual Footpod pre-compiled binaries. It's designed for developers and "KICKR RUN".
 
----
+**Related Documentation:**
+- [Main Installation Guide (README.md)](README.md) - For standard users installing the application
+- [Compilation Guide (COMPILE.md)](COMPILE.md) - For building from source
 
-## 2. Objective
+## Objective
 
-Validate that the binary:
+Validate that the pre-compiled binaries for Raspberry Pi (ARM64) and Desktop Linux (x86-64) work correctly on fresh installations and handle missing dependencies gracefully with clear error messages.
 
-1. Runs successfully across supported Python versions.
-2. Handles dependency and permission errors gracefully.
-3. Correctly communicates with ANT+ devices (Garmin watch / footpod).
-4. Operates in both **GUI** and **headless modes**.
-5. Functions under `systemd` for unattended start-up.
+## Test Environment Setup
 
----
+### Test Environment 1: Raspberry Pi
+- **Hardware:** Raspberry Pi Zero 2 W, 3, 4, or 5
+- **OS:** Fresh Raspberry Pi OS Bookworm installation (minimal or desktop)
+- **Initial State:** No additional packages installed beyond base OS
 
-## 3. Scope
+### Test Environment 2: Desktop Linux
+- **Hardware:** x86-64 PC/Laptop
+- **OS:** Fresh Ubuntu 24.04 LTS installation (or Debian Bookworm)
+- **Initial State:** No additional packages installed beyond base OS
 
-**In scope:**
-
-* `pyenv`-based Python installation and switching.
-* Clean baseline re-creation.
-* GUI + headless operation.
-* Fake treadmill simulation.
-* Garmin ANT+ pairing.
-* Systemd service verification.
-
-**Out of scope:**
-
-* UI layout testing.
-* Non-Ubuntu distributions.
+### Required Test Hardware
+- **ANT+ USB dongle:** Garmin USB2 (0fcf:1008) or USB-m (0fcf:1009)
+- **Garmin watch:** For pairing tests
+- **Treadmill:** One of the following options:
+  - Bluetooth-enabled treadmill compatible with QDomyos-Zwift (see [compatibility list](https://github.com/cagnulein/qdomyos-zwift#compatible-devices))
+  - **Virtual treadmill setup** (see below)
 
 ---
 
-## 4. Test Preparation
+## Virtual Treadmill Setup for Testing
 
-### 4.1 Why Use `pyenv`
+If you don't have easy access to a compatible physical treadmill, use QDomyos-Zwift's virtual fake treadmill feature.
 
-All platforms (x86 + ARM) will use **`pyenv`** for Python management because it:
-
-* Allows deterministic installation of required Python 3.11.x.
-* Avoids OS package conflicts.
-* Enables seamless version switching during tests.
-* Provides identical behavior on both architectures.
-
----
-
-### 4.2 Clean Baseline Preparation
-
-Remove all Python versions and cached environments:
+### Create Configuration File
 
 ```bash
-sudo apt remove --purge -y python3 python3.* python-is-python3
-sudo rm -rf ~/.pyenv ~/.local/lib/python* /usr/local/lib/python* /usr/lib/python*
-sudo apt autoremove -y
-sudo apt clean
-hash -r
-sudo reboot
-```
-
----
-
-### 4.3 Install Prerequisites
-
-```bash
-sudo apt update && sudo apt install -y \
-  git curl build-essential libssl-dev zlib1g-dev \
-  libbz2-dev libreadline-dev libsqlite3-dev wget llvm \
-  libncurses5-dev libncursesw5-dev xz-utils tk-dev
-```
-
----
-
-### 4.4 Install `pyenv` and Required Python Versions
-
-```bash
-curl https://pyenv.run | bash
-```
-
-Add to shell profile:
-
-```bash
-echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
-echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-Install Python versions for testing:
-
-```bash
-pyenv install 3.10.14
-pyenv install 3.11.9
-pyenv install 3.12.6
-pyenv global 3.11.9
-```
-
-Verify:
-
-```bash
-pyenv versions
-```
-
----
-
-### 4.5 Download and Prepare Binary Package
-
-```bash
-mkdir ~/qdomyos-test && cd ~/qdomyos-test
-wget <binary_package_url> -O qdomyos-bundle.tar.gz
-tar -xvzf qdomyos-bundle.tar.gz
-cd qdomyos-zwift
-chmod +x qdomyos-zwift
-```
-
----
-
-### 4.6 Setting Up a Fake Treadmill
-
-If no physical treadmill is available, simulate one:
-
-```bash
-# Run once to create the initial profile
-sudo ./qdomyos-zwift
-# Stop the program after it starts
-Ctrl+C
-```
-
-Then edit the config (root-owned):
-
-```bash
-sudo nano /root/.config/Roberto\ Viola/qDomyos-Zwift.conf
-```
-
-Enable simulation:
-
-```ini
+sudo mkdir -p "/root/.config/Roberto Viola"
+sudo tee "/root/.config/Roberto Viola/qDomyos-Zwift.conf" > /dev/null << 'EOF'
 [General]
 fakedevice_treadmill=true
+treadmill_force_speed=true
 virtual_device_bluetooth=true
+virtualtreadmill=true
+EOF
 ```
 
-Save and exit.
+### Method 1: GUI Control (Desktop)
 
----
-
-### 4.7 Prepare Runtime Check Script
-
-Ensure executable:
+For devices with desktop environment:
 
 ```bash
-chmod +x ./runtime_check.sh
+sudo ./qdomyos-zwift -ant-footpod
 ```
 
----
+Use GUI speed controls to adjust speed during testing.
 
-## 5. Test Execution
+### Method 2: Headless Control (Second qz as Remote)
 
-Each test starts from a prepared environment with the binary unpacked and Python 3.11.9 active.
-
----
-
-### TC1 – Baseline Verification (Missing Dependencies)
-
-**Purpose:** Confirm correct error handling with incomplete setup.
-
-```bash
-pyenv global 3.11.9
-rm -rf venv
-./runtime_check.sh
-```
-
-**Expected:** Script reports missing Python modules; no crash.
-
----
-
-### TC2 – Dependency Installation
-
-```bash
-python -m venv venv
-source venv/bin/activate
-pip install pyqt5 pyqt5-tools hidapi ant
-./runtime_check.sh
-```
-
-**Expected:** All dependency checks pass ✅
-
----
-
-### TC3 – Launch in GUI Mode
-
-```bash
-sudo ./qdomyos-zwift
-```
-
-**Expected:**
-
-* GUI opens with no errors.
-* Treadmill (fake or real) visible in device list.
-* ANT+ dongle activity light flashes.
-* Garmin watch can pair.
-
----
-
-### TC4 – Launch in Headless Mode (No GUI, ANT+ Enabled)
+For headless devices (Pi Zero 2 W, servers):
 
 ```bash
 sudo ./qdomyos-zwift -no-gui -ant-footpod
 ```
 
-**Purpose:** Validate headless operation and ANT+ footpod broadcast.
-**Expected:**
+**Second QZ GUI settings:**
+- This can be QZ running on Mobile or Desktop
+- Use wizard to connect to the Fake Treadmill "KICKR RUN"
+- Set Horizon Treadmill Force FTMS to Enabled
 
-* Log output confirms “ANT+ footpod initialized”.
-* Garmin watch pairs and displays speed/cadence.
-* Continuous console output shows telemetry.
+**Connect:** Open QZ app → connect to "KICKR RUN" → use GUI speed controls
 
----
+### Pair Garmin Watch
 
-### TC5 – Switch Python Versions
+1. Watch: Menu > Sensors & Accessories > Add New > Foot Pod
+2. Start "Treadmill" or "Run Indoor" activity
+3. Adjust speed (GUI or Android)
+4. Verify pace/cadence updates on watch
 
-Sequentially test compatibility:
-
-```bash
-pyenv global 3.10.14
-./runtime_check.sh
-sudo ./qdomyos-zwift -no-gui -ant-footpod
-
-pyenv global 3.12.6
-./runtime_check.sh
-sudo ./qdomyos-zwift -no-gui -ant-footpod
-
-pyenv global 3.11.9
-./runtime_check.sh
-sudo ./qdomyos-zwift -no-gui -ant-footpod
-```
-
-**Expected:**
-
-* Only 3.11.9 fully functional.
-* Other versions show version mismatch but no crash.
+**Success indicators:**
+- Console shows: `[ANT+] Relaying FTMS speed request (X.Xkm/h) to faketreadmill.`
+- Watch displays stable pace and cadence (no flickering or `--:--`)
 
 ---
 
-### TC6 – USB Permission Validation
+## Pre-Test Setup: Establishing Baseline Environment
 
-```bash
-sudo usermod -aG plugdev $USER
-sudo reboot
-```
+**Important Notice for Testers and Developers:**
 
-After reboot:
+This section is is for developers, QA testers, and contributors who need to repeatedly test the installation process from a clean baseline state.
 
-```bash
-./runtime_check.sh
-sudo ./qdomyos-zwift -no-gui -ant-footpod
-```
+**Before proceeding with cleanup:**
 
-**Expected:** No `/dev/ttyUSB*` permission errors.
-
----
-
-### TC7 – Systemd Service Verification
-
-Create and enable:
-
-```bash
-sudo cp qdomyos-zwift.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable qdomyos-zwift
-sudo systemctl start qdomyos-zwift
-```
-
-**Expected:**
-
-* Service runs in headless mode automatically.
-* `systemctl status qdomyos-zwift` → `active (running)`.
-* ANT+ pairing persists.
-
----
-
-### TC8 – Binary Architecture Compatibility
-
-Attempt to run a binary from the opposite architecture:
-
-```bash
-sudo ./qdomyos-zwift -no-gui -ant-footpod
-```
-
-**Expected:**
-
-* Immediate “Exec format error”.
-* Runtime script logs “Architecture mismatch”.
-
----
-
-## 6. ANT+ Functional Verification
-
-### 6.1 Garmin Watch Pairing
-
-1. Set Garmin watch to **Indoor Run** or **Footpod Mode**.
-
-2. Run application in headless mode:
-
+1. **Backup your configuration files** if they contain important settings:
    ```bash
-   sudo ./qdomyos-zwift -no-gui -ant-footpod
+   # Backup root's QZ config (if it exists)
+   sudo cp -r "/root/.config/Roberto Viola" "/root/.config/Roberto Viola.backup" 2>/dev/null
+   
+   # Backup user's QZ config (if it exists)
+   cp -r "$HOME/.config/Roberto Viola" "$HOME/.config/Roberto Viola.backup" 2>/dev/null
    ```
 
-3. Confirm pairing via:
+2. **Take note of your treadmill model settings** - you may need to reconfigure these after testing
 
-   * Watch shows treadmill metrics.
-   * Console logs show “ANT+ footpod connected”.
+3. **Consider creating a system snapshot** if your platform supports it (e.g., SD card backup for Raspberry Pi)
 
-**Pass Criteria:** Bidirectional data visible both on watch and in console output.
-
----
-
-## 7. Success Criteria
-
-Test suite passes when:
-
-* Runtime script reports all green.
-* `qdomyos-zwift` runs cleanly under Python 3.11.9.
-* Garmin pairing succeeds in both GUI and headless modes.
-* Fake treadmill telemetry transmits correctly.
-* Systemd service starts automatically.
-* No permission or version errors remain.
-
----
-
-## 8. Acceptance Checklist
-
-| Item                                            | Status |
-| ----------------------------------------------- | ------ |
-| Clean environment set up via pyenv              | ☐      |
-| Python 3.11.9 verified                          | ☐      |
-| Dependencies installed                          | ☐      |
-| Fake treadmill configured                       | ☐      |
-| ANT+ pairing verified                           | ☐      |
-| Headless `-no-gui -ant-footpod` mode functional | ☐      |
-| Systemd service running                         | ☐      |
-| Cross-version tests complete                    | ☐      |
-
----
-
-## Appendix A – Reference Commands
+### Remove Existing Installation
 
 ```bash
-# Switch Python version
-pyenv global <version>
+# Stop and disable any running service
+sudo systemctl stop qz 2>/dev/null
+sudo systemctl disable qz 2>/dev/null
+sudo rm -f /etc/systemd/system/qz.service
+sudo systemctl daemon-reload
 
-# Verify Python version
-python --version
+# Remove the binary
+rm -f ~/qdomyos-zwift
 
-# Reset to system default
-pyenv global system
+# Remove Python virtual environment
+rm -rf ~/ant_venv
 
-# Run headless ANT+ mode
-sudo ./qdomyos-zwift -no-gui -ant-footpod
+# Remove runtime check script
+rm -f ~/runtime_check.sh
 ```
+
+### Remove System Dependencies (Optional - for complete baseline)
+
+**Warning:** Only remove these if they're not needed by other applications on your system.
+
+```bash
+# Remove Qt5 libraries
+sudo apt-get remove -y \
+	libqt5bluetooth5 \
+	libqt5charts5 \
+	libqt5multimedia5 \
+	libqt5networkauth5 \
+	libqt5positioning5 \
+	libqt5sql5 \
+	libqt5texttospeech5 \
+	libqt5websockets5 \
+	libqt5xml5
+
+# Remove Python 3.11 (only if not needed by other software)
+sudo apt-get remove -y python3.11 python3.11-venv
+
+# Remove USB utilities
+sudo apt-get remove -y libusb-1.0-0 usbutils
+
+# Clean up
+sudo apt-get autoremove -y
+```
+
+### Remove USB Permissions Configuration
+
+```bash
+# Remove udev rule
+sudo rm -f /etc/udev/rules.d/99-ant-usb.rules
+sudo udevadm control --reload-rules && sudo udevadm trigger
+
+# Remove user from plugdev group (replace $USER with actual username if needed)
+sudo gpasswd -d $USER plugdev
+```
+
+### Remove Root Configuration File
+
+```bash
+# Backup first (if you haven't already)
+sudo cp -r "/root/.config/Roberto Viola" "/root/.config/Roberto Viola.backup" 2>/dev/null
+
+# Remove QZ configuration
+sudo rm -rf "/root/.config/Roberto Viola"
+```
+
+**Note:** To restore from backup after testing:
+```bash
+sudo cp -r "/root/.config/Roberto Viola.backup" "/root/.config/Roberto Viola" 2>/dev/null
+```
+
+### Verification
+
+After cleanup, verify baseline state:
+
+```bash
+# Check binary is gone
+ls ~/qdomyos-zwift 2>/dev/null && echo "Binary still present" || echo "Binary removed ✓"
+
+# Check venv is gone
+ls ~/ant_venv 2>/dev/null && echo "Venv still present" || echo "Venv removed ✓"
+
+# Check Python 3.11
+command -v python3.11 >/dev/null 2>&1 && echo "Python 3.11 present" || echo "Python 3.11 removed ✓"
+
+# Check udev rule
+[ -f /etc/udev/rules.d/99-ant-usb.rules ] && echo "Udev rule still present" || echo "Udev rule removed ✓"
+
+# Check group membership
+groups | grep -q plugdev && echo "Still in plugdev group" || echo "Removed from plugdev ✓"
+```
+
+You're now ready to begin testing from a clean baseline.
+
+---
+
+## Test Preparation
+
+Before starting the test cases, download the runtime check script once:
+
+```bash
+curl -o ~/runtime_check.sh https://raw.githubusercontent.com/cagnulein/qdomyos-zwift/master/src/devices/antlinux/runtime_check.sh
+chmod +x ~/runtime_check.sh
+```
+
+This script will be used throughout testing to validate the system state.
+
+---
+
+## Test Cases
+
+### TC1: Fresh System - Missing All Dependencies
+
+**Purpose:** Verify the application exits gracefully when Qt5 libraries are missing and provides clear error messages.
+
+**Initial Setup:**
+- Fresh OS installation
+- No Python 3.11, no Qt5 libraries, no virtual environment
+
+**Test Steps:**
+1. Run runtime check: `sudo ~/runtime_check.sh`
+   - **Expected:** Fails on Python 3.11, venv, Qt5 libraries, USB permissions, ANT+ dongle, Bluetooth
+   - **Verify:** Provides installation commands for each failed check
+   - **Verify:** Links to README sections are present and accurate
+2. Download appropriate binary from GitHub Actions
+3. Transfer to device home directory as `~/qdomyos-zwift`
+4. Make executable: `chmod +x ~/qdomyos-zwift`
+5. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
+
+**Expected Results:**
+- Runtime check clearly identifies all missing components
+- Application fails to start immediately
+- Error message: "error while loading shared libraries: libQt5Bluetooth.so.5" (or similar Qt5 library)
+- Application exits without crash
+- No log file created (application can't start)
+
+**Pass Criteria:**
+- Runtime check identifies all issues correctly
+- Application error message names the specific missing library
+- No segmentation faults or unhandled exceptions
+
+**Cleanup for Next Test:**
+- None needed (nothing was installed)
+
+---
+
+### TC2: Python 3.11 Installed - Missing Qt5 Libraries
+
+**Purpose:** Verify error handling when Python environment exists but Qt5 libraries are missing.
+
+**Setup Steps:**
+1. Starting from TC1 state
+2. Install only Python 3.11: `sudo apt-get install python3.11 python3.11-venv python3-pip`
+3. Create venv: `python3.11 -m venv ~/ant_venv`
+4. Install Python packages: `~/ant_venv/bin/pip install --upgrade pip && ~/ant_venv/bin/pip install openant pyusb pybind11`
+
+**Test Steps:**
+1. Run runtime check: `sudo ~/runtime_check.sh`
+   - **Expected:** Passes Python 3.11 and venv checks
+   - **Expected:** Fails on Qt5 libraries, USB permissions, ANT+ dongle, Bluetooth
+   - **Verify:** Provides correct apt-get command for Qt5 libraries
+2. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
+
+**Expected Results:**
+- Runtime check correctly identifies Python is OK but Qt5 is missing
+- Application fails to start immediately
+- Error message indicates missing Qt5 libraries
+- Application exits without crash
+
+**Pass Criteria:**
+- Runtime check passes Python/venv, fails Qt5
+- Clear indication of which Qt5 libraries are missing
+- No crash or hanging
+
+**Cleanup for Next Test:**
+- Keep Python 3.11 and venv installed
+- Proceed to TC3
+
+---
+
+### TC3: All Dependencies Installed - Missing Virtual Environment
+
+**Purpose:** Verify application behavior when system dependencies exist but the required venv is missing.
+
+**Setup Steps:**
+1. Starting from TC2 state
+2. Install all system dependencies: 
+   ```bash
+   sudo apt-get install -y libqt5bluetooth5 libqt5charts5 libqt5multimedia5 \
+   libqt5networkauth5 libqt5positioning5 libqt5sql5 libqt5texttospeech5 \
+   libqt5websockets5 libqt5xml5 libusb-1.0-0 usbutils
+   ```
+3. Remove the venv: `rm -rf ~/ant_venv`
+
+**Test Steps:**
+1. Run runtime check: `sudo ~/runtime_check.sh`
+   - **Expected:** Passes Python 3.11 and Qt5 checks
+   - **Expected:** Fails on venv (not found at ~/ant_venv), USB permissions, ANT+ dongle, Bluetooth
+   - **Verify:** Provides venv creation commands
+2. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
+
+**Expected Results:**
+- Runtime check identifies missing venv at expected location
+- Application starts (Qt5 libraries are present)
+- ANT+ feature fails to initialize
+- Error mentions the expected path: `~/ant_venv`
+
+**Pass Criteria:**
+- Runtime check accurately identifies missing venv
+- Clear error message about missing venv
+- Application doesn't crash
+
+**Cleanup for Next Test:**
+- Recreate venv: `python3.11 -m venv ~/ant_venv`
+- Proceed to TC4
+
+---
+
+### TC4: Virtual Environment Exists - Missing Python Packages
+
+**Purpose:** Verify error handling when venv exists but required Python packages are not installed.
+
+**Setup Steps:**
+1. Starting from TC3 state (venv recreated but empty)
+2. Do NOT install Python packages
+
+**Test Steps:**
+1. Run runtime check: `sudo ~/runtime_check.sh`
+   - **Expected:** Passes Python 3.11, Qt5, and venv existence checks
+   - **Expected:** Fails on Python packages (identifies specific missing packages), USB permissions, ANT+ dongle, Bluetooth
+   - **Verify:** Provides correct pip install command
+2. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
+
+**Expected Results:**
+- Runtime check identifies specific missing packages (openant, pyusb, pybind11)
+- Application starts
+- ANT+ feature attempts to initialize but fails
+- Python error: "ModuleNotFoundError: No module named 'openant'" or similar
+- Application handles the error gracefully
+
+**Pass Criteria:**
+- Runtime check identifies all missing packages
+- Specific missing Python package named in application error
+- No crash or segmentation fault
+
+**Cleanup for Next Test:**
+- Install packages: `~/ant_venv/bin/pip install openant pyusb pybind11`
+- Proceed to TC5
+
+---
+
+### TC5: All Dependencies Present - Missing USB Permissions
+
+**Purpose:** Verify behavior when all software is installed but USB permissions aren't configured.
+
+**Setup Steps:**
+1. Starting from TC4 state (all dependencies installed)
+2. Skip USB permissions configuration (no udev rules)
+3. Ensure user is NOT in plugdev group
+4. Connect ANT+ dongle
+
+**Test Steps:**
+1. Run runtime check: `sudo ~/runtime_check.sh`
+   - **Expected:** Passes Python, Qt5, venv, and packages checks
+   - **Expected:** Fails/warns on USB permissions (no udev rule, not in plugdev), ANT+ dongle permissions, Bluetooth
+   - **Verify:** Provides udev rule creation commands
+2. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
+
+**Expected Results:**
+- Runtime check identifies USB permission issues
+- Application starts successfully
+- Since running with `sudo`, USB access may work despite missing udev rules
+- Application remains stable
+
+**Pass Criteria:**
+- Runtime check identifies USB permission configuration gaps
+- Application doesn't crash
+- Any USB-related errors are logged clearly
+
+**Cleanup for Next Test:**
+- Configure USB permissions as per README Step 1.3
+- Add user to plugdev group: `sudo usermod -aG plugdev $USER`
+- Create udev rules and reboot
+- Proceed to TC6
+
+---
+
+### TC6: Complete Setup - Wrong Python Version
+
+**Purpose:** Verify error handling when wrong Python version is used for the venv.
+
+**Setup Steps:**
+1. Starting from fresh system or TC5 state
+2. Install Python 3.9 or 3.10 (if available): `sudo apt-get install python3.9 python3.9-venv`
+3. Install all system dependencies (Qt5 libraries)
+4. Create venv with wrong Python version: `python3.9 -m venv ~/ant_venv`
+5. Install packages: `~/ant_venv/bin/pip install openant pyusb pybind11`
+
+**Test Steps:**
+1. Run runtime check: `sudo ~/runtime_check.sh`
+   - **Expected:** Fails on Python 3.11 (wrong version detected)
+   - **Verify:** Suggests installing Python 3.11
+2. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
+
+**Expected Results:**
+- Runtime check identifies Python version issue
+- Application fails to start
+- Error message: "error while loading shared libraries: libpython3.11.so.1.0"
+- Clear indication that Python 3.11 is required
+
+**Pass Criteria:**
+- Runtime check identifies Python version mismatch
+- Error clearly mentions Python 3.11
+- No crash or hanging
+
+**Cleanup for Next Test:**
+- Remove wrong venv: `rm -rf ~/ant_venv`
+- Install Python 3.11: `sudo apt-get install python3.11 python3.11-venv`
+- Recreate venv: `python3.11 -m venv ~/ant_venv`
+- Install packages: `~/ant_venv/bin/pip install openant pyusb pybind11`
+- Proceed to TC7
+
+---
+
+### TC7: Complete Correct Setup - Success Case
+
+**Purpose:** Verify full functionality when all prerequisites are correctly configured.
+
+**Setup Steps:**
+1. Complete all README steps exactly (Steps 1.1, 1.2, 1.3 including reboot)
+2. Connect ANT+ dongle
+3. Have Garmin watch ready for pairing
+4. Set up virtual treadmill configuration (see Virtual Treadmill Setup section)
+
+**Test Steps:**
+1. Run runtime check: `sudo ~/runtime_check.sh`
+   - **Expected:** All 6 checks pass (✓ green)
+   - **Expected:** Final message: "All checks passed! Your runtime environment is ready for ANT+."
+   - **Verify:** Links to next steps in README
+2. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod` (or without `-no-gui` if using GUI control)
+3. Wait for initialization messages
+4. On Garmin watch: Menu > Sensors & Accessories > Add New > Foot Pod
+5. Wait for pairing
+6. Control speed via GUI or Android app
+7. Observe watch display for 5+ minutes
+8. Vary speed to test cadence switching (below/above 7.0 km/h)
+
+**Expected Results:**
+- Runtime check shows all green checkmarks
+- Application starts successfully without errors
+- Console/log shows: "ANT+ Footpod broadcaster initialized" or similar
+- Watch detects and pairs within a few seconds
+- Watch displays pace data that matches commanded speed
+- Watch displays cadence data (90-140 SPM walking, 160-200 SPM running)
+- Cadence switches appropriately at ~7.0 km/h threshold
+- No errors or warnings in logs
+- Application runs stably for 5+ minutes
+
+**Pass Criteria:**
+- Runtime check passes all 6 checks
+- Clean startup with no errors
+- Watch pairs successfully
+- Pace data is accurate and updates smoothly
+- Cadence data displays correctly
+- Application runs stably without crashes
+
+**Cleanup for Next Test:**
+- Leave system in this working state
+- Proceed to TC8
+
+---
+
+### TC8: Systemd Service Configuration
+
+**Purpose:** Verify the application runs correctly as a systemd service and starts automatically on boot.
+
+**Setup Steps:**
+1. Starting from TC7 state (successful manual run)
+2. Configure systemd service as per README Step 3.3
+3. Ensure username is correctly replaced in service file
+
+**Test Steps:**
+1. Run final runtime check: `sudo ~/runtime_check.sh`
+   - **Expected:** All checks pass
+2. Create service file: `sudo nano /etc/systemd/system/qz.service`
+3. Add configuration with correct paths and username
+4. Run:
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl enable qz
+   sudo systemctl start qz
+   ```
+5. Check status: `sudo systemctl status qz`
+6. Verify watch can pair
+7. Reboot system: `sudo reboot`
+8. After boot, check status: `sudo systemctl status qz`
+9. Verify watch can still pair and receive data
+10. Test graceful shutdown: `sudo systemctl stop qz`
+
+**Expected Results:**
+- Runtime check confirms system is ready
+- Service starts successfully
+- Status shows "active (running)"
+- Watch can pair and receive data
+- Service starts automatically after reboot
+- Service stops gracefully within 5 seconds
+
+**Pass Criteria:**
+- Service runs without errors
+- Automatic startup works reliably
+- Watch functionality identical to manual run
+- Clean shutdown without hanging
+
+**Cleanup for Next Test:**
+- Leave service configured
+- Proceed to TC9
+
+---
+
+### TC9: Wrong Architecture Binary
+
+**Purpose:** Verify clear error message when user downloads wrong architecture binary.
+
+**Setup Steps:**
+1. On Raspberry Pi: download x86-64 binary
+2. OR on Desktop Linux: download ARM64 binary
+3. Transfer wrong binary to `~/qdomyos-zwift`
+4. Make executable: `chmod +x ~/qdomyos-zwift`
+
+**Test Steps:**
+1. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
+
+**Expected Results:**
+- Immediate error message: "cannot execute binary file: Exec format error"
+- Clear indication of architecture mismatch
+- No system instability
+
+**Pass Criteria:**
+- Immediate, clear error about binary format
+- System remains stable
+
+**Cleanup:**
+- Remove wrong binary
+- Download correct architecture binary
+
+---
+
+## Acceptance Checklist
+
+Before releasing a new binary build, verify:
+
+- [ ] TC1-TC6 (error cases) produce clear, helpful error messages
+- [ ] Runtime check integrated in TC1-TC8 provides accurate diagnostics
+- [ ] Runtime check suggestions are actionable with working commands
+- [ ] Runtime check completes in under 10 seconds in all states
+- [ ] Runtime check README links are accurate and working
+- [ ] All 6 runtime checks must pass for success
+- [ ] TC7 (success case) works on both Raspberry Pi and Desktop Linux
+- [ ] TC7 runs stably for 5+ minutes with accurate data
+- [ ] TC7 runtime check shows all 6 green passes
+- [ ] TC8 (systemd) starts reliably on boot on both platforms
+- [ ] TC8 stops gracefully without hanging
+- [ ] TC9 (wrong architecture) fails with clear architecture error
+- [ ] All error messages reviewed for clarity and helpfulness
+- [ ] Documentation matches actual application behavior
+- [ ] No crashes, hangs, or segfaults observed in any test case
+- [ ] Log files contain useful diagnostic information (when logging enabled)
+- [ ] Both ARM64 and x86-64 binaries tested on appropriate hardware
+- [ ] Virtual treadmill testing (GUI and headless control) validated
+
+---
+
+## Quick Reference
+
+**Documentation:**
+- [Installation Guide (README.md)](README.md)
+- [Compilation Guide (COMPILE.md)](COMPILE.md)

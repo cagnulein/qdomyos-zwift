@@ -73,8 +73,14 @@ RUN cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser
 RUN echo 'include(devices/antlinux/antlinux.pri)' >> src/qdomyos-zwift.pro && \
     echo '/opt/ant_venv/bin/python3' > src/.ant_venv_path
 
-# Run qmake and compile the main project
-RUN cd src && qmake qdomyos-zwift.pro && make -j$(nproc)
+# --- OPTIMIZED BUILD STEP ---
+# 1. Run qmake with explicit release and path-mapping flags.
+# 2. Run make to compile the application.
+# 3. Run strip on the final binary to remove debug symbols and reduce size.
+RUN cd src && \
+    qmake "CONFIG+=release" "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro && \
+    make -j$(nproc) && \
+    strip qdomyos-zwift
 
 # --- Stage 2: The Final Artifact ---
 # Use a valid, non-empty base image to solve the "no command specified" error.

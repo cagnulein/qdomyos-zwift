@@ -196,4 +196,10 @@ Follow **Step 3.3** in the [main README](README.md#33-configure-automatic-startu
 
 ---
 
+**For Developers and Testers:**
+
+If you're interested in testing the pre-compiled binaries or contributing to quality assurance, see our [Test Plan](TEST_PLAN.md) which covers validation procedures for both Raspberry Pi and Desktop Linux platforms.
+
+---
+
 **Return to [main README](README.md)** for additional information and credits.

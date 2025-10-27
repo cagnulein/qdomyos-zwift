@@ -31,15 +31,22 @@ echo
 # ---
 # CHECK 1: Python 3.11 Installation
 # ---
-echo -e "${C_YELLOW}[1/7] Checking for Python 3.11...${C_RESET}"
+echo -e "${C_YELLOW}[1/6] Checking for Python 3.11...${C_RESET}"
 if command -v python3.11 >/dev/null 2>&1; then
   PYTHON_VERSION=$(python3.11 --version)
   echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} Found $PYTHON_VERSION"
 else
   echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} Python 3.11 is not installed."
-  echo -e "  ${C_BLUE}How to fix:${C_RESET} Install Python 3.11 by running:"
-  echo -e "  ${C_YELLOW}sudo apt-get install python3.11 python3.11-venv${C_RESET}"
-  echo -e "  ${C_BLUE}More details:${C_RESET} See Step 1.1 in ${README_URL}#11-install-system-dependencies"
+  echo -e "  ${C_BLUE}How to fix:${C_RESET} Install Python 3.11 using pyenv:"
+  echo -e "  ${C_YELLOW}# Install pyenv prerequisites${C_RESET}"
+  echo -e "  ${C_YELLOW}sudo apt-get install -y git curl build-essential libssl-dev zlib1g-dev \\${C_RESET}"
+  echo -e "  ${C_YELLOW}  libbz2-dev libreadline-dev libsqlite3-dev wget llvm \\${C_RESET}"
+  echo -e "  ${C_YELLOW}  libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev${C_RESET}"
+  echo -e "  ${C_YELLOW}# Install pyenv${C_RESET}"
+  echo -e "  ${C_YELLOW}curl https://pyenv.run | bash${C_RESET}"
+  echo -e "  ${C_YELLOW}# Configure shell and install Python 3.11${C_RESET}"
+  echo -e "  ${C_YELLOW}# See detailed instructions in README${C_RESET}"
+  echo -e "  ${C_BLUE}More details:${C_RESET} See ${README_URL}#installing-python-311-if-not-available-in-your-distribution"
   ALL_CHECKS_PASSED=false
 fi
 echo
@@ -47,7 +54,7 @@ echo
 # ---
 # CHECK 2: Virtual Environment
 # ---
-echo -e "${C_YELLOW}[2/7] Checking for Python virtual environment...${C_RESET}"
+echo -e "${C_YELLOW}[2/6] Checking for Python virtual environment...${C_RESET}"
 VENV_PATH="$HOME/ant_venv"
 if [ -d "$VENV_PATH" ]; then
   echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} Found virtual environment at $VENV_PATH"
@@ -86,7 +93,7 @@ echo
 # ---
 # CHECK 3: Qt5 Libraries
 # ---
-echo -e "${C_YELLOW}[3/7] Checking for Qt5 libraries...${C_RESET}"
+echo -e "${C_YELLOW}[3/6] Checking for Qt5 libraries...${C_RESET}"
 MISSING_LIBS=()
 QT_LIBS=("libQt5Bluetooth.so.5" "libQt5Charts.so.5" "libQt5Multimedia.so.5" "libQt5NetworkAuth.so.5" "libQt5Positioning.so.5")
 for lib in "${QT_LIBS[@]}"; do
@@ -112,7 +119,7 @@ echo
 # CHECK 4: USB Permissions (udev rule)
 # ---
 UDEV_RULE_FILE="/etc/udev/rules.d/99-ant-usb.rules"
-echo -e "${C_YELLOW}[4/7] Checking udev rule and group membership...${C_RESET}"
+echo -e "${C_YELLOW}[4/6] Checking udev rule and group membership...${C_RESET}"
 
 # Determine which user to check
 if [ -n "$SUDO_USER" ]; then
@@ -134,6 +141,8 @@ else
   echo -e "  ${C_YELLOW}SUBSYSTEM==\"usb\", ATTRS{idVendor}==\"0fcf\", ATTRS{idProduct}==\"100?\", MODE=\"0666\", GROUP=\"plugdev\"${C_RESET}"
   echo -e "  ${C_YELLOW}SUBSYSTEM==\"usb\", ATTRS{idVendor}==\"11fd\", ATTRS{idProduct}==\"0001\", MODE=\"0666\", GROUP=\"plugdev\"${C_RESET}"
   echo -e "  ${C_YELLOW}EOF${C_RESET}"
+  echo -e "  Then reload rules:"
+  echo -e "  ${C_YELLOW}sudo udevadm control --reload-rules && sudo udevadm trigger${C_RESET}"
   echo -e "  ${C_BLUE}More details:${C_RESET} See Step 1.3 in ${README_URL}#13-configure-usb-permissions"
 fi
 
@@ -156,10 +165,12 @@ echo
 # ---
 # CHECK 5: ANT+ Hardware Detection
 # ---
-echo -e "${C_YELLOW}[5/7] Checking for connected ANT+ USB dongle...${C_RESET}"
+echo -e "${C_YELLOW}[5/6] Checking for connected ANT+ USB dongle...${C_RESET}"
 if ! command -v lsusb >/dev/null 2>&1; then
-  echo -e "${C_YELLOW}ℹ INFO:${C_RESET} 'lsusb' command not found. Skipping hardware detection."
-  echo -e "  To install: ${C_YELLOW}sudo apt-get install usbutils${C_RESET}"
+  echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} 'lsusb' command not found."
+  echo -e "  ${C_BLUE}How to fix:${C_RESET} Install usbutils:"
+  echo -e "  ${C_YELLOW}sudo apt-get install usbutils${C_RESET}"
+  ALL_CHECKS_PASSED=false
 else
   ANT_DEVICE_INFO=$(lsusb | grep -E --color=never '0fcf:1009|0fcf:1008|11fd:0001')
   if [ -n "$ANT_DEVICE_INFO" ]; then
@@ -176,18 +187,21 @@ else
       if [[ "$PERMS" == *"$USER_TO_CHECK"* || "$PERMS" == *"plugdev"* ]]; then
         echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} Device permissions look correct."
       else
-        echo -e "${C_YELLOW}⚠ NEEDS ATTENTION:${C_RESET} Device permissions may need adjustment."
+        echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} Device permissions are incorrect."
         echo -e "  Current permissions: $PERMS"
-        echo -e "  ${C_BLUE}How to fix:${C_RESET} Try reloading the udev rules:"
+        echo -e "  ${C_BLUE}How to fix:${C_RESET} Reload the udev rules:"
         echo -e "  ${C_YELLOW}sudo udevadm control --reload-rules && sudo udevadm trigger${C_RESET}"
-        echo -e "  Or unplug and replug your ANT+ dongle."
-        echo -e "  If you just set up udev rules, a reboot may be needed."
+        echo -e "  Then unplug and replug your ANT+ dongle."
+        echo -e "  If this doesn't work, try rebooting your system."
+        ALL_CHECKS_PASSED=false
       fi
     fi
   else
-    echo -e "${C_YELLOW}ℹ INFO:${C_RESET} No ANT+ USB dongle detected."
-    echo -e "  Please connect your ANT+ dongle (Garmin USB2 0fcf:1008 or USB-m 0fcf:1009)."
+    echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} No ANT+ USB dongle detected."
+    echo -e "  ${C_BLUE}How to fix:${C_RESET} Please connect your ANT+ dongle."
+    echo -e "  Compatible dongles: Garmin USB2 (0fcf:1008) or USB-m (0fcf:1009)"
     echo -e "  If already connected, check if it's properly seated in the USB port."
+    ALL_CHECKS_PASSED=false
   fi
 fi
 echo
@@ -195,40 +209,17 @@ echo
 # ---
 # CHECK 6: Bluetooth Service
 # ---
-echo -e "${C_YELLOW}[6/7] Checking for Bluetooth service...${C_RESET}"
+echo -e "${C_YELLOW}[6/6] Checking for Bluetooth service...${C_RESET}"
 if systemctl is-active --quiet bluetooth 2>/dev/null; then
   echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} The 'bluetooth' service is active."
 else
-  echo -e "${C_YELLOW}⚠ NEEDS ATTENTION:${C_RESET} The 'bluetooth' service is not running."
-  echo -e "  The application may not work properly for treadmill communication."
+  echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} The 'bluetooth' service is not running."
   echo -e "  ${C_BLUE}How to fix:${C_RESET} Start and enable the bluetooth service:"
   echo -e "  ${C_YELLOW}sudo systemctl start bluetooth${C_RESET}"
   echo -e "  ${C_YELLOW}sudo systemctl enable bluetooth${C_RESET}"
-fi
-echo
-
-# ---
-# CHECK 7: QZ Configuration File
-# ---
-echo -e "${C_YELLOW}[7/7] Checking for QZ configuration file...${C_RESET}"
-ROOT_CONFIG_FILE="/root/.config/Roberto Viola/qDomyos-Zwift.conf"
-if [ "$EUID" -ne 0 ]; then
-    echo -e "${C_YELLOW}ℹ INFO:${C_RESET} Not running as root, so cannot check root's configuration file."
-    echo -e "  This is normal - the application creates this file on its first run with sudo."
-    echo -e "  Remember to run the application with 'sudo' to access hardware."
-else
-    if [ -f "$ROOT_CONFIG_FILE" ]; then
-        echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} Found root's config file at:"
-        echo -e "  $ROOT_CONFIG_FILE"
-        echo -e "  Make sure it contains your treadmill model settings."
-        echo -e "  For example: ${C_YELLOW}proform_treadmill_705_cst=true${C_RESET}"
-    else
-        echo -e "${C_YELLOW}ℹ INFO:${C_RESET} Root's config file not yet created (normal for first-time setup)."
-        echo -e "  The application will create a default file at:"
-        echo -e "  $ROOT_CONFIG_FILE"
-        echo -e "  After the first run, you'll need to edit it with 'sudo' to enable your specific treadmill model."
-        echo -e "  ${C_BLUE}More details:${C_RESET} See Troubleshooting in ${README_URL}#troubleshooting"
-    fi
+  echo -e "  Then verify it's running:"
+  echo -e "  ${C_YELLOW}sudo systemctl status bluetooth${C_RESET}"
+  ALL_CHECKS_PASSED=false
 fi
 echo
 
@@ -237,12 +228,13 @@ echo
 # ---
 echo -e "${C_BLUE}--- Diagnostic Complete ---${C_RESET}"
 if [ "$ALL_CHECKS_PASSED" = true ]; then
-  echo -e "${C_GREEN}✓ All checks passed! Your runtime environment is ready.${C_RESET}"
+  echo -e "${C_GREEN}✓ All checks passed! Your runtime environment is ready for ANT+.${C_RESET}"
   echo -e "  You can now proceed to Step 2 to download and install the binary."
   echo -e "  ${C_BLUE}Next steps:${C_RESET} ${README_URL}#step-2-download-and-install-binary"
 else
-  echo -e "${C_YELLOW}⚠ Some issues were found that need your attention.${C_RESET}"
-  echo -e "  Please review the suggestions above and follow the 'How to fix' instructions."
-  echo -e "  After making the changes, you can run this script again to verify."
+  echo -e "${C_RED}✗ One or more checks failed. Your environment is NOT ready for ANT+.${C_RESET}"
+  echo -e "  Please review the issues above and follow the 'How to fix' instructions."
+  echo -e "  All checks must pass for the ANT+ feature to work correctly."
+  echo -e "  After making the changes, run this script again to verify."
   echo -e "  ${C_BLUE}Full guide:${C_RESET} ${README_URL}"
 fi

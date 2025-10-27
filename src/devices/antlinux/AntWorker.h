@@ -9,48 +9,76 @@
 //
 // This file declares the AntWorker class, the QObject responsible for managing
 // the pybind11-based interaction with the embedded Python ANT+ broadcaster.
+// Optimized for low-CPU devices (Raspberry Pi, etc.)
 // -----------------------------------------------------------------------------
 
 #ifdef ANT_LINUX_ENABLED
-#ifndef ANTWORKER_H
-#define ANTWORKER_H
+#pragma once
+
+#include "devices/bluetoothdevice.h"
 #include <QObject>
-#include <QElapsedTimer>
 #include <QTimer>
+#include <QElapsedTimer>
 #include <atomic>
 #include <memory>
-#include "devices/bluetoothdevice.h"
 
-namespace pybind11 { class object; class scoped_interpreter; }
+#ifdef slots
+    #undef slots
+    #include <pybind11/embed.h>
+    #define slots Q_SLOTS
+#else
+    #include <pybind11/embed.h>
+#endif
 
-class AntWorker : public QObject {
+namespace py = pybind11;
+
+class AntWorker : public QObject
+{
     Q_OBJECT
+
 public:
     explicit AntWorker(bluetoothdevice* device, QObject *parent = nullptr);
-    ~AntWorker();
+    ~AntWorker() override;
 
-public slots:
+public Q_SLOTS:
     void start();
     void stop();
+    void doWork();
 
-signals:
+Q_SIGNALS:
     void finished();
-
-private slots:
-    void doWork(); // <-- The new slot for the timer
 
 private:
     bool initializePython();
-    void shutdownPython();
 
+    // Core members
     bluetoothdevice* m_device;
+    QTimer* m_timer = nullptr;
     std::atomic<bool> m_stopRequested{false};
-    
-    std::unique_ptr<pybind11::scoped_interpreter> m_pyGuard;
-    std::unique_ptr<pybind11::object> m_pyBroadcaster;
 
+    // --- Python Integration Members ---
+    std::unique_ptr<py::scoped_interpreter> m_pyGuard;
+    std::unique_ptr<py::object> m_pyBroadcaster;
+    py::object m_pyOriginalStdout;
+    py::object m_pyOriginalStderr;
+    py::object m_pyLogger;
+
+    // --- Performance Optimization Members ---
+    bool m_isVirtualDevice = false;
     QElapsedTimer m_connectionTimer;
-    QTimer* m_timer = nullptr; // <-- The timer for broadcasting
+
+    // Cached Python objects for performance
+    py::object m_pySendFunc;
+    py::object m_pyGcModule;
+    py::object m_pySysModule;
+
+    // Rate-limiting for Python calls
+    QElapsedTimer m_sendRateTimer;
+    int m_sendIntervalMs;
+
+    // Cached state to avoid redundant calculations
+    double m_lastSpeedKmh;
+    int m_lastEstimatedCadence;
 };
-#endif // ANTWORKER_H
+
 #endif // ANT_LINUX_ENABLED

@@ -57,6 +57,10 @@
 bool ant_footpod_enabled = false;
 bool ant_verbose = false;
 int ant_device_id = 54321;
+
+// This flag ensures we only ever initialize the AntManager once,
+// even if bluetoothDeviceConnected is emitted multiple times.
+std::atomic<bool> antManagerStarted(false);
 #endif
 
 bool logs = true;
@@ -822,30 +826,41 @@ int main(int argc, char *argv[]) {
         qInfo() << "[main] ANT+ feature enabled. Arming startup trigger...";
 
         QObject::connect(&bl, &bluetooth::bluetoothDeviceConnected, [&](bluetoothdevice *dev) {
+            // Use a flag to ensure this logic only ever runs once, preventing duplicate starts.
+            static std::atomic<bool> antManagerStarted(false);
+            if (antManagerStarted.exchange(true)) {
+                return; // If the flag was already true, do nothing.
+            }
+
             if (dev && dev->deviceType() == TREADMILL) {
                 
-                qInfo() << "[main] Treadmill object created. Starting 10-second timer to allow for device initialization...";
+                // --- START OF FINAL FIX ---
+                // Determine the correct startup delay based on the device type.
+                int startupDelayMs = 10000; // Default 10s delay for real hardware.
 
-                // Use a single-shot timer to start the ANT+ manager after a safe delay.
-                // This is non-blocking and allows the main thread to be occupied by btinit().
-                QTimer::singleShot(10000, [dev]() {
-                    // Check if the device is still connected after the delay.
+                if (dev->metaObject()->className() == QString("faketreadmill")) {
+                    // For the faketreadmill, a short 2s delay is sufficient and improves test speed.
+                    startupDelayMs = 2000;
+                    // A fake device has no blocking hardware handshake (`btinit`).
+                    qInfo() << "[main] Fake treadmill detected. Using a 2-second startup delay for ANT+.";
+                } else {
+                    // A real treadmill has a long-running, blocking `btinit()` function (~8s) that
+                    // competes for USB resources. We must use a delayed timer to start the ANT+
+                    // manager *after* this blocking call is guaranteed to have finished.
+                    qInfo() << "[main] Real treadmill detected. Using a 10-second startup delay for ANT+.";
+                }
+
+                QTimer::singleShot(startupDelayMs, [dev]() {
                     if (dev && dev->connected()) {
                         qInfo() << "[main] Initialization delay complete. Starting ANT+ Manager.";
-                        
-                        // Use invokeMethod for a clean, queued call to the singleton.
-                        QMetaObject::invokeMethod(&AntManager::instance(), [dev](){
-                            AntManager::instance().startForDevice(dev);
-                        }, Qt::QueuedConnection);
+                        AntManager::instance().startForDevice(dev);
                     } else {
                         qWarning() << "[main] Device disconnected during initialization delay - ANT+ not started.";
                     }
                 });
-            }
+              }
         });
 
-        // The graceful shutdown connection remains essential.
-        // Note the correction from app.data() to app.get() for QScopedPointer.
         QObject::connect(app.get(), &QCoreApplication::aboutToQuit, &AntManager::instance(), [&]() {
             qInfo() << "[main] Application shutting down. Stopping ANT+ Manager.";
             AntManager::instance().stopForDevice(nullptr);

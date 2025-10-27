@@ -1478,7 +1478,7 @@ jobs:
           docker create --name qz-container $IMAGE_TAG
           
           # Copy the final compiled binary from the container to the runner's workspace
-          docker cp qz-container:/qdomyos-zwift-64bit-ant ./src/qdomyos-zwift-64bit-ant
+          docker cp qz-container:/qdomyos-zwift-arm64-ant ./src/qdomyos-zwift-arm64-ant
           
           # Clean up by removing the temporary container
           docker rm qz-container
@@ -1488,7 +1488,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: raspberry-pi-binary-64bit-ant
-          path: src/qdomyos-zwift-64bit-ant
+          path: src/qdomyos-zwift-arm64-ant
 
   window-msvc2022-build:
     runs-on: windows-latest

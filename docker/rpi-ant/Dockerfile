@@ -75,12 +75,18 @@ RUN echo 'include(devices/antlinux/antlinux.pri)' >> src/qdomyos-zwift.pro && \
     find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + && \
     find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} +
 
-# Run qmake and compile the project
-RUN cd src && qmake qdomyos-zwift.pro && make -j$(nproc)
+# --- OPTIMIZED BUILD STEP ---
+# 1. Run qmake with explicit release and path-mapping flags.
+# 2. Run make to compile the application.
+# 3. Run strip on the final binary to remove debug symbols and reduce size.
+RUN cd src && \
+    qmake "CONFIG+=release" "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro && \
+    make -j$(nproc) && \
+    strip qdomyos-zwift
 
 # --- Stage 2: The Final Artifact ---
 # Use a minimal but valid base image to avoid issues with `docker create`.
 FROM debian:bookworm-slim
 
 # Copy the compiled binary from the builder stage
-COPY --from=builder /app/src/qdomyos-zwift /qdomyos-zwift-64bit-ant
+COPY --from=builder /app/src/qdomyos-zwift /qdomyos-zwift-arm64-ant

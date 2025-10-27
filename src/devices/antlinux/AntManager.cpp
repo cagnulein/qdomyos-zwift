@@ -27,16 +27,9 @@ AntManager& AntManager::instance() {
 
 AntManager::AntManager(QObject* parent) : QObject(parent) {}
 
+// Destructor is now minimal. All cleanup is explicitly handled in stopForDevice.
 AntManager::~AntManager() {
-    // Safety net in case stopForDevice wasn't called
-    if (m_workerThread && m_workerThread->isRunning()) {
-        qWarning() << "[ANT+] Destructor cleanup - worker thread still running";
-        m_workerThread->quit();
-        if (!m_workerThread->wait(1000)) {
-            m_workerThread->terminate();
-            m_workerThread->wait(500);
-        }
-    }
+    qInfo() << "[ANT+] AntManager destroyed.";
 }
 
 void AntManager::startForDevice(bluetoothdevice* device) {
@@ -48,12 +41,18 @@ void AntManager::startForDevice(bluetoothdevice* device) {
     qInfo() << "[ANT+] Manager: Received start command. Initializing worker thread...";
     m_currentDevice = device;
     
-    // The device is already fully discovered, so we can start the worker immediately.
     m_workerThread = new QThread(this);
     m_workerThread->setObjectName("AntWorkerThread");
     m_worker = new AntWorker(m_currentDevice);
     m_worker->moveToThread(m_workerThread);
     
+    // This is the correct, thread-safe way to set the thread's priority.
+    // It runs in the new thread's context right after it starts.
+    connect(m_workerThread, &QThread::started, [this]() {
+        qInfo() << "[ANT+] AntWorkerThread has started. Setting to high priority.";
+        m_workerThread->setPriority(QThread::TimeCriticalPriority);
+    });
+
     connect(m_workerThread, &QThread::started, m_worker, &AntWorker::start);
     connect(m_worker, &AntWorker::finished, m_workerThread, &QThread::quit);
     connect(m_workerThread, &QThread::finished, this, &AntManager::onWorkerFinished);
@@ -67,33 +66,39 @@ void AntManager::startForDevice(bluetoothdevice* device) {
 }
 
 void AntManager::stopForDevice(bluetoothdevice* device) {
-    if (!m_workerThread || !m_workerThread->isRunning() || (device && device != m_currentDevice && device != nullptr)) {
+    // Check if there is anything to stop.
+    if (!m_workerThread || !m_workerThread->isRunning()) {
+        return;
+    }
+
+    // If called for a specific device, ensure it's the one we are managing.
+    if (device && device != m_currentDevice) {
         return;
     }
 
     qInfo() << "[ANT+] Manager: Stopping ANT+ worker thread...";
 
-    // 1. Signal the worker to begin cleanup
+    // 1. Signal the worker (in its own thread) to stop its timers and Python script.
     QMetaObject::invokeMethod(m_worker, "stop", Qt::QueuedConnection);
 
-    // 2. Tell the thread's event loop to exit
+    // 2. Tell the thread's event loop to exit once the worker's tasks are done.
     m_workerThread->quit();
 
-    // 3. CRITICAL: Block and wait for thread to actually finish
-    if (!m_workerThread->wait(2000)) {
-        qWarning() << "[ANT+] Worker thread did not stop gracefully within 2 seconds. Terminating.";
+    // 3. Block this (main) thread and wait for the worker thread to completely finish.
+    // This is the most critical step to prevent race conditions.
+    if (!m_workerThread->wait(3000)) { // Use a generous 3-second timeout
+        qWarning() << "[ANT+] Worker thread did not stop gracefully. Terminating.";
         m_workerThread->terminate();
-        // Give terminate a moment to work
-        if (!m_workerThread->wait(500)) {
-            qCritical() << "[ANT+] Failed to terminate worker thread";
-        }
+        m_workerThread->wait(500);
     } else {
         qInfo() << "[ANT+] Worker thread stopped cleanly.";
     }
 }
 
 void AntManager::onWorkerFinished() {
+    // This slot is now called after the thread's event loop has finished.
     qInfo() << "[ANT+] Worker thread has finished. Cleaning up manager resources.";
+    
     if (m_currentDevice) {
         disconnect(m_currentDevice, nullptr, this, nullptr);
     }

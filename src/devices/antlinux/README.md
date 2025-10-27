@@ -230,6 +230,27 @@ sudo systemctl start qz
 sudo systemctl status qz
 ```
 
+### 3.4 Configuration File for Headless Systems (Optional)
+
+When running headless with `-no-gui`, QZ creates a default configuration file at `/root/.config/Roberto Viola/qDomyos-Zwift.conf` on first run. However, this is unlikely to work with your setup. The best way to configure for your specific treadmill and to set other options is as follows:
+
+1. **On a system with GUI** (can be a different device):
+   - Install and run QZ with GUI: `sudo ./qdomyos-zwift`
+   - Configure all your desired settings through the GUI interface
+   - The settings are saved to `/root/.config/Roberto Viola/qDomyos-Zwift.conf`
+
+2. **Copy to your headless system:**
+   ```bash
+   # On the GUI system, copy the config file
+   sudo cp "/root/.config/Roberto Viola/qDomyos-Zwift.conf" ~/qz-config.conf
+   
+   # Transfer to your headless system, then:
+   sudo mkdir -p "/root/.config/Roberto Viola"
+   sudo cp ~/qz-config.conf "/root/.config/Roberto Viola/qDomyos-Zwift.conf"
+   ```
+
+This ensures your headless system has the exact configuration you set up through the GUI, including treadmill model settings, Bluetooth options, and any other preferences.
+
 ---
 
 ## Success Indicators
@@ -258,10 +279,6 @@ sudo systemctl status qz
 - Main project: https://github.com/cagnulein/qdomyos-zwift
 - ANT+ Linux footpod implementation: bassai-sho
 - Documentation assisted by Claude and Gemini
-
-**For Developers and Testers:**
-
-If you're interested in testing the pre-compiled binaries or contributing to quality assurance, see our [Test Plan](TEST_PLAN.md) which covers validation procedures for both Raspberry Pi and Desktop Linux platforms.
 
 **Further reading:**
 

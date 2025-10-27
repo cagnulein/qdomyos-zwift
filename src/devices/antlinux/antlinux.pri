@@ -48,6 +48,14 @@ linux-g++:!android|linux-clang:!android {
             message(">>> ANT+ ENABLED for build <<<")
             message("Python version: $$PYVER, pybind11 include path: $$PYBIND11_INC")
 
+            # --- OPTIMIZATION 1: Disable qDebug() in release builds ---
+            # This significantly improves performance by compiling out all debug logging statements.
+            # This scope is active when qmake is run with "CONFIG+=release".
+            release {
+                message("Release build: Disabling qDebug() output for performance.")
+                DEFINES += QT_NO_DEBUG_OUTPUT
+            }
+            
             # ccache optimization
             CCACHE_PATH = $$system(which ccache 2>/dev/null)
             !isEmpty(CCACHE_PATH) {
