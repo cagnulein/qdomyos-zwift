@@ -158,26 +158,30 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             var infoToShare: Set<HKSampleType> = []
             
             if #available(watchOSApplicationExtension 10.0, *) {
-                infoToShare = Set([
-                    HKSampleType.quantityType(forIdentifier: .stepCount)!,
-                    HKSampleType.quantityType(forIdentifier: .heartRate)!,
-                    HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
-                    HKSampleType.quantityType(forIdentifier: .distanceWalkingRunning)!,
-                    HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,
-                    HKSampleType.quantityType(forIdentifier: .basalEnergyBurned)!,
-                    HKSampleType.quantityType(forIdentifier: .cyclingPower)!,
-                    HKSampleType.quantityType(forIdentifier: .cyclingSpeed)!,
-                    HKSampleType.quantityType(forIdentifier: .cyclingCadence)!,
-                    HKSampleType.quantityType(forIdentifier: .runningPower)!,
-                    HKSampleType.quantityType(forIdentifier: .runningSpeed)!,
-                    HKSampleType.quantityType(forIdentifier: .runningStrideLength)!,
-                    HKSampleType.quantityType(forIdentifier: .runningVerticalOscillation)!,
-                    HKSampleType.quantityType(forIdentifier: .walkingSpeed)!,
-                    HKSampleType.quantityType(forIdentifier: .walkingStepLength)!,
-                    HKSampleType.quantityType(forIdentifier: .distanceRowing)!,
-                    HKSampleType.quantityType(forIdentifier: .rowingSpeed)!,
-                    HKSampleType.workoutType()
-                    ])
+                if #available(iOS 18.0, *) {
+                    infoToShare = Set([
+                        HKSampleType.quantityType(forIdentifier: .stepCount)!,
+                        HKSampleType.quantityType(forIdentifier: .heartRate)!,
+                        HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
+                        HKSampleType.quantityType(forIdentifier: .distanceWalkingRunning)!,
+                        HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,
+                        HKSampleType.quantityType(forIdentifier: .basalEnergyBurned)!,
+                        HKSampleType.quantityType(forIdentifier: .cyclingPower)!,
+                        HKSampleType.quantityType(forIdentifier: .cyclingSpeed)!,
+                        HKSampleType.quantityType(forIdentifier: .cyclingCadence)!,
+                        HKSampleType.quantityType(forIdentifier: .runningPower)!,
+                        HKSampleType.quantityType(forIdentifier: .runningSpeed)!,
+                        HKSampleType.quantityType(forIdentifier: .runningStrideLength)!,
+                        HKSampleType.quantityType(forIdentifier: .runningVerticalOscillation)!,
+                        HKSampleType.quantityType(forIdentifier: .walkingSpeed)!,
+                        HKSampleType.quantityType(forIdentifier: .walkingStepLength)!,
+                        HKSampleType.quantityType(forIdentifier: .distanceRowing)!,
+                        HKSampleType.quantityType(forIdentifier: .rowingSpeed)!,
+                        HKSampleType.workoutType()
+                        ])
+                } else {
+                    // Fallback on earlier versions
+                }
             } else {
                 // Fallback on earlier versions
                 infoToShare = Set([
@@ -592,33 +596,41 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     return
                 }
                 
-                if let rowingSpeedType = HKQuantityType.quantityType(forIdentifier: .rowingSpeed) {
-                    let speedQuantity = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
-                                                   doubleValue: Speed * 0.277778)
-                    let speedSample = HKQuantitySample(type: rowingSpeedType,
-                                                       quantity: speedQuantity,
-                                                       start: WorkoutTracking.lastDateMetric,
-                                                       end: Date())
-                    WorkoutTracking.workoutBuilder.add([speedSample]) { (success, error) in
-                        if let error = error {
-                            SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                if #available(iOS 18.0, *) {
+                    if let rowingSpeedType = HKQuantityType.quantityType(forIdentifier: .rowingSpeed) {
+                        let speedQuantity = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
+                                                       doubleValue: Speed * 0.277778)
+                        let speedSample = HKQuantitySample(type: rowingSpeedType,
+                                                           quantity: speedQuantity,
+                                                           start: WorkoutTracking.lastDateMetric,
+                                                           end: Date())
+                        WorkoutTracking.workoutBuilder.add([speedSample]) { (success, error) in
+                            if let error = error {
+                                SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                            }
                         }
                     }
+                } else {
+                    // Fallback on earlier versions
                 }
                 
                 let distanceDelta = max(0, distance - previousDistance)
-                if distanceDelta > 0,
-                   let distanceType = HKQuantityType.quantityType(forIdentifier: .distanceRowing) {
-                    let distanceQuantity = HKQuantity(unit: HKUnit.meter(), doubleValue: distanceDelta)
-                    let distanceSample = HKQuantitySample(type: distanceType,
-                                                          quantity: distanceQuantity,
-                                                          start: WorkoutTracking.lastDateMetric,
-                                                          end: Date())
-                    WorkoutTracking.workoutBuilder.add([distanceSample]) { (success, error) in
-                        if let error = error {
-                            SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                if #available(iOS 18.0, *) {
+                    if distanceDelta > 0,
+                       let distanceType = HKQuantityType.quantityType(forIdentifier: .distanceRowing) {
+                        let distanceQuantity = HKQuantity(unit: HKUnit.meter(), doubleValue: distanceDelta)
+                        let distanceSample = HKQuantitySample(type: distanceType,
+                                                              quantity: distanceQuantity,
+                                                              start: WorkoutTracking.lastDateMetric,
+                                                              end: Date())
+                        WorkoutTracking.workoutBuilder.add([distanceSample]) { (success, error) in
+                            if let error = error {
+                                SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                            }
                         }
                     }
+                } else {
+                    // Fallback on earlier versions
                 }
             } else {
                 // Fallback on earlier versions
