@@ -887,7 +887,7 @@ class QZSettings {
     static constexpr double default_power_sensor_pi_kp = 0.4;
 
     static const QString power_sensor_pi_ki;
-    static constexpr double default_power_sensor_pi_ki = 0.08;
+    static constexpr double default_power_sensor_pi_ki = 0.12;
 
     static const QString elite_rizer_name;
     static const QString default_elite_rizer_name;

@@ -139,16 +139,32 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
         return requestPower;
     }
 
+    // ==================== LOW-PASS FILTER ====================
+    // Smooth sensor readings to reduce spikes and oscillations
+    // This prevents sudden power jumps from causing control instability
+    static double filteredMeasured = 0;
+    const double filterAlpha = 0.3;  // 30% new, 70% old
+
+    if (filteredMeasured <= 0) {
+        filteredMeasured = measured;  // First reading
+    } else {
+        filteredMeasured = filteredMeasured * (1.0 - filterAlpha) + measured * filterAlpha;
+    }
+
+    // Use filtered value for error calculation
     const double allowedDelta = qMax(ergFilterUpper, ergFilterLower);
-    const double error = static_cast<double>(requestPower) - measured;
+    const double error = static_cast<double>(requestPower) - filteredMeasured;
 
     qDebug() << "adjustRequestPowerWithSensorDelta: rawWatt:" << rawMeasured << "measured(from sensor):" << measured
+             << "filtered:" << filteredMeasured
              << "req:" << requestPower << "error:" << error << "filter:" << allowedDelta
              << "Kp:" << kProportionalGain << "Ki:" << kIntegralGain;
 
-    // Reset integral if error changes sign (crossed target)
-    if (!m_lastPowerErrorValid || (error > 0 && m_lastPowerError < 0) || (error < 0 && m_lastPowerError > 0)) {
-        qDebug() << "adjustRequestPowerWithSensorDelta: resetting integral (error sign changed or first run)";
+    // Reset integral ONLY on first run
+    // DO NOT reset when error changes sign - this causes oscillations!
+    // The integral clamp already prevents windup
+    if (!m_lastPowerErrorValid) {
+        qDebug() << "adjustRequestPowerWithSensorDelta: first run, initializing integral";
         m_powerErrorIntegral = 0;
     }
 
@@ -167,14 +183,34 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
     }
 
     // Clamp integral to prevent windup
-    static constexpr double kIntegralClamp = 50.0;
+    // Increased to 150 to allow better steady-state error compensation
+    static constexpr double kIntegralClamp = 150.0;
     const double integralBeforeClamp = m_powerErrorIntegral;
     m_powerErrorIntegral = std::clamp(m_powerErrorIntegral, -kIntegralClamp, kIntegralClamp);
 
     // Calculate PI correction
     const double proportional = error * kProportionalGain;
     const double integral = m_powerErrorIntegral * kIntegralGain;
-    const double correction = proportional + integral;
+    double correction = proportional + integral;
+
+    // ==================== RATE LIMITING ====================
+    // Limit how fast the correction can change to prevent sudden resistance jumps
+    // This ensures smooth transitions and prevents oscillations during target changes
+    static double lastCorrection = 0;
+    const double maxCorrectionChange = 10.0;  // Max ±10W per cycle (~1 second)
+
+    if (lastCorrection != 0) {  // Skip first cycle
+        double correctionChange = correction - lastCorrection;
+        if (correctionChange > maxCorrectionChange) {
+            correction = lastCorrection + maxCorrectionChange;
+            qDebug() << "adjustRequestPowerWithSensorDelta: rate limiting correction (increase)";
+        } else if (correctionChange < -maxCorrectionChange) {
+            correction = lastCorrection - maxCorrectionChange;
+            qDebug() << "adjustRequestPowerWithSensorDelta: rate limiting correction (decrease)";
+        }
+    }
+    lastCorrection = correction;
+
     const int32_t adjustedPower = requestPower + static_cast<int32_t>(correction);
 
     qDebug() << "adjustRequestPowerWithSensorDelta: PI controller active";
