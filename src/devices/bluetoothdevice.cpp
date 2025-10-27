@@ -180,10 +180,12 @@ metric bluetoothdevice::elevationGain() { return elevationAcc; }
 void bluetoothdevice::heartRate(uint8_t heart) {
     Heart.setValue(heart);
 #ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
     // Write heart rate from Bluetooth to Apple Health during workout
     lockscreen h;
     if(heart > 0)
         h.setHeartRate(heart);
+#endif
 #endif
 }
 void bluetoothdevice::coreBodyTemperature(double coreBodyTemperature) { CoreBodyTemperature.setValue(coreBodyTemperature); }
