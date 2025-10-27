@@ -254,7 +254,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if(SL010)
             Resistance = requestResistance;
         
-        if(JFBK5_0 || DIRETO_XR || YPBM) {
+        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
