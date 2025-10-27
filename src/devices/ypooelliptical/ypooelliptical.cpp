@@ -323,6 +323,9 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
             index += 2;
             index += 2;
+        } else if(SCH_411_510E && lastPacket.length() > 14) {
+            Cadence = lastPacket.at(14);
+            emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         }
 
         if (Flags.strideCount) {
@@ -830,8 +833,7 @@ bool ypooelliptical::connected() {
 }
 
 uint16_t ypooelliptical::watts() {
-    // SCH_411_510E doesn't have cadence
-    if (currentCadence().value() == 0 && !SCH_411_510E) {
+    if (currentCadence().value() == 0) {
         return 0;
     }
 
