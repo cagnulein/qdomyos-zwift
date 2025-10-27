@@ -1013,7 +1013,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(domyosRower);
             } else if ((b.name().startsWith(QStringLiteral("Domyos-Bike")) && (!deviceHasService(b, QBluetoothUuid((quint16)0x1826)) || settings.value(QZSettings::domyosbike_notfmts, QZSettings::default_domyosbike_notfmts).toBool())) &&
-                       !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosBike && filter) {
+                       !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosBike && ftms_bike.contains(QZSettings::default_ftms_bike) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 domyosBike = new domyosbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset,
@@ -1083,6 +1083,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(domyosElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("YPOO-U3-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SCH_590E")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("SCH411/510E")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("FEIER-EM-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MX-AS ")) ||
@@ -1880,6 +1881,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("RM")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith(QStringLiteral("DR")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith(QStringLiteral("DFC")) && b.name().length() == 3) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("THINK A")) && b.name().length() == 18) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ASSIOMA")) &&
                          powerSensorName.startsWith(QStringLiteral("Disabled")))) &&
                        !stagesBike && !ftmsBike && filter) {
