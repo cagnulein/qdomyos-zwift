@@ -214,7 +214,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     qDebug() << characteristic.uuid() << QStringLiteral("<<") << newvalue.toHex(' ');
 
     if (characteristic.uuid() == QBluetoothUuid::HeartRate && newvalue.length() > 1) {
-        Heart = (uint8_t)newvalue[1];
+        heartRate((uint8_t)newvalue[1]);
         emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         return;
     }
@@ -434,10 +434,10 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
         {
             if (SCH_411_510E && lastPacket.length() > 23) {
-                Heart = ((double)(((uint8_t)lastPacket.at(23))));
+                heartRate((uint8_t)lastPacket.at(23));
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else if (Flags.heartRate && !disable_hr_frommachinery && lastPacket.length() > index) {
-                Heart = ((double)(((uint8_t)lastPacket.at(index))));
+                heartRate((uint8_t)lastPacket.at(index));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else {

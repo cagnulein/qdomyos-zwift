@@ -177,7 +177,15 @@ bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
 }
 bool bluetoothdevice::connected() { return false; }
 metric bluetoothdevice::elevationGain() { return elevationAcc; }
-void bluetoothdevice::heartRate(uint8_t heart) { Heart.setValue(heart); }
+void bluetoothdevice::heartRate(uint8_t heart) {
+    Heart.setValue(heart);
+#ifdef Q_OS_IOS
+    // Write heart rate from Bluetooth to Apple Health during workout
+    lockscreen h;
+    if(heart > 0)
+        h.setHeartRate(heart);
+#endif
+}
 void bluetoothdevice::coreBodyTemperature(double coreBodyTemperature) { CoreBodyTemperature.setValue(coreBodyTemperature); }
 void bluetoothdevice::skinTemperature(double skinTemperature) { SkinTemperature.setValue(skinTemperature); }
 void bluetoothdevice::heatStrainIndex(double heatStrainIndex) { HeatStrainIndex.setValue(heatStrainIndex); }

@@ -173,6 +173,12 @@ void lockscreen::setSpeed(double speed)
 {
     [h setSpeedWithSpeed:speed];
 }
+void lockscreen::setHeartRate(unsigned char heartRate)
+{
+    if(h != nil) {
+        [h setHeartRateWithHeartRate:heartRate];
+    }
+}
 
 
 void lockscreen::virtualbike_ios()

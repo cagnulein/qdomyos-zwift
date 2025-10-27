@@ -42,12 +42,13 @@ protocol WorkoutTrackingProtocol {
     private var heartRateQueryAnchor: HKQueryAnchor?
     private let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
     private let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)
+    private var isUsingBluetoothHR: Bool = false
 
     weak var delegate: WorkoutTrackingDelegate?
 
     override init() {
         super.init()
-    }        
+    }
 }
 
 @available(iOS 17.0, *)
@@ -210,6 +211,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         SwiftDebug.qtDebug("WorkoutTracking: Start workout")
         setSport(Int(deviceType))
         configWorkout()
+        // Always start HealthKit HR query (will be stopped if Bluetooth HR arrives)
         startHeartRateStreamingQuery()
         workoutBuilder.beginCollection(withStart: Date()) { (success, error) in
             SwiftDebug.qtDebug(success.description)
@@ -223,6 +225,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         SwiftDebug.qtDebug("WorkoutTracking: Stop workout")
 
         stopHeartRateStreamingQuery()
+
+        // Reset Bluetooth HR flag
+        isUsingBluetoothHR = false
 
         guard let workoutBuilder = self.workoutBuilder,
               let startDate = workoutBuilder.startDate else {
@@ -502,8 +507,55 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         }*/
         
         // TODO HANDLE WALKING, ROWING AND ELLIPTICAL
-        
+
         WorkoutTracking.lastDateMetric = Date()
+    }
+
+    @objc func setBluetoothHeartRate(heartRate: Double) {
+        // Verify workout is in progress
+        if !workoutInProgress {
+            SwiftDebug.qtDebug("WorkoutTracking: Cannot write HR - workout not in progress")
+            return
+        }
+
+        // Verify we have a valid heart rate value
+        if heartRate <= 0 || heartRate > 250 {
+            SwiftDebug.qtDebug("WorkoutTracking: Invalid HR value: \(heartRate)")
+            return
+        }
+
+        // Mark that we're using Bluetooth HR (priority over HealthKit)
+        if !isUsingBluetoothHR {
+            SwiftDebug.qtDebug("WorkoutTracking: Switching to Bluetooth HR source")
+            // Stop HealthKit HR query if it was running
+            stopHeartRateStreamingQuery()
+            isUsingBluetoothHR = true
+        }
+
+        // Get HR quantity type
+        guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
+            SwiftDebug.qtDebug("WorkoutTracking: Heart rate type unavailable")
+            return
+        }
+
+        // Create heart rate quantity
+        let heartRateQuantity = HKQuantity(unit: heartRateUnit, doubleValue: heartRate)
+
+        // Create heart rate sample with current timestamp
+        let now = Date()
+        let heartRateSample = HKQuantitySample(type: heartRateType,
+                                               quantity: heartRateQuantity,
+                                               start: now,
+                                               end: now)
+
+        // Add sample to workout builder
+        workoutBuilder.add([heartRateSample]) { (success, error) in
+            if let error = error {
+                SwiftDebug.qtDebug("WorkoutTracking HR: " + error.localizedDescription)
+            } else {
+                SwiftDebug.qtDebug("WorkoutTracking: HR written to HealthKit: \(heartRate) BPM")
+            }
+        }
     }
 }
 
