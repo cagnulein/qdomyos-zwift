@@ -2002,7 +2002,7 @@ jobs:
     if: github.event_name == 'schedule'
     needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-build-64bit-ant, linux-x86-build-ant]
     steps:
-      - name: Checkout codek
+      - name: Checkout code
         uses: actions/checkout@v2
         
       - name: Get current date
