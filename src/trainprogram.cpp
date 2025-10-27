@@ -936,21 +936,29 @@ void trainprogram::scheduler() {
                 emit changeRequestedPelotonResistance(rows.at(0).requested_peloton_resistance);
             }
 
-            if (rows.at(0).inclination != -200 && (bluetoothManager->device()->deviceType() == BIKE || 
+            if (rows.at(0).inclination != -200 && (bluetoothManager->device()->deviceType() == BIKE ||
             (bluetoothManager->device()->deviceType() == ELLIPTICAL && !((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware()))) {
                 // this should be converted in a signal as all the other signals...
-                double bikeResistanceOffset =
-                    settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
-                        .toInt();
-                double bikeResistanceGain =
-                    settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
-                        .toDouble();
 
                 double inc = rows.at(0).inclination;
-                bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
-                                                             bikeResistanceOffset + 1); // resistance start from 1)
-                if (bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
-                    bluetoothManager->device()->setInclination(inc);
+
+                // Only convert inclination to resistance for bikes WITHOUT hardware inclination support
+                // Ellipticals only enter here if they don't have hardware inclination (checked in outer condition)
+                if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableByHardware()) ||
+                    (bluetoothManager->device()->deviceType() == ELLIPTICAL)) {
+                    double bikeResistanceOffset =
+                        settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                            .toInt();
+                    double bikeResistanceGain =
+                        settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                            .toDouble();
+
+                    bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
+                                                                 bikeResistanceOffset + 1); // resistance start from 1
+                    if (bluetoothManager->device()->deviceType() == BIKE)
+                        bluetoothManager->device()->setInclination(inc);
+                }
+
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
                 emit changeInclination(inc, inc);
                 emit changeNextInclination300Meters(inclinationNext300Meters());
@@ -1118,24 +1126,32 @@ void trainprogram::scheduler() {
                     }
 
                     if (rows.at(currentStep).inclination != -200 &&
-                        (bluetoothManager->device()->deviceType() == BIKE || 
+                        (bluetoothManager->device()->deviceType() == BIKE ||
                         (bluetoothManager->device()->deviceType() == ELLIPTICAL && !((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware()))) {
                         // this should be converted in a signal as all the other signals...
-                        double bikeResistanceOffset =
-                            settings
-                                .value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
-                                .toInt();
-                        double bikeResistanceGain =
-                            settings
-                                .value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
-                                .toDouble();
 
                         double inc = rows.at(currentStep).inclination;
-                        bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
-                                                                     bikeResistanceOffset +
-                                                                     1); // resistance start from 1)
-                        if (bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
-                            bluetoothManager->device()->setInclination(inc);
+
+                        // Only convert inclination to resistance for bikes WITHOUT hardware inclination support
+                        // Ellipticals only enter here if they don't have hardware inclination (checked in outer condition)
+                        if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableByHardware()) ||
+                            (bluetoothManager->device()->deviceType() == ELLIPTICAL)) {
+                            double bikeResistanceOffset =
+                                settings
+                                    .value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                                    .toInt();
+                            double bikeResistanceGain =
+                                settings
+                                    .value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                                    .toDouble();
+
+                            bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
+                                                                         bikeResistanceOffset +
+                                                                         1); // resistance start from 1
+                            if (bluetoothManager->device()->deviceType() == BIKE)
+                                bluetoothManager->device()->setInclination(inc);
+                        }
+
                         qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
                         emit changeInclination(inc, inc);
                         emit changeNextInclination300Meters(inclinationNext300Meters());
@@ -1193,18 +1209,19 @@ void trainprogram::scheduler() {
                 if ((videoAvailable) && (bluetoothManager->device()->deviceType() == BIKE)) {
                     inc = weightedInclination(currentStep);
                 }
-                double bikeResistanceOffset =
-                    settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
-                        .toInt();
-                double bikeResistanceGain =
-                    settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
-                        .toDouble();
 
-                if (bluetoothManager->device()->deviceType() == BIKE) {
+                // Only convert inclination to resistance for bikes WITHOUT hardware inclination support
+                if (bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableByHardware()) {
+                    double bikeResistanceOffset =
+                        settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                            .toInt();
+                    double bikeResistanceGain =
+                        settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                            .toDouble();
+
                     bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
-                                                                 bikeResistanceOffset + 1); // resistance start from 1)
-                    if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
-                        bluetoothManager->device()->setInclination(inc);
+                                                                 bikeResistanceOffset + 1); // resistance start from 1
+                    bluetoothManager->device()->setInclination(inc);
                 }
                 qDebug() << QStringLiteral("trainprogram change inclination due to gps") + QString::number(inc);
                 emit changeInclination(inc, inc);
