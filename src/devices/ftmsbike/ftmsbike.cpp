@@ -251,6 +251,12 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         writeCharacteristic(write, sizeof(write),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance));
     } else {
+
+        if(requestResistance < 0) {
+            qDebug() << "Negative resistance detected:" << requestResistance << "using fallback value 1";
+            requestResistance = 1;
+        }
+
         if(SL010)
             Resistance = requestResistance;
         
