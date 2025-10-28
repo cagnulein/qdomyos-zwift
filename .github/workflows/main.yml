@@ -483,7 +483,7 @@ jobs:
           
           # Build the native linux/amd64 image using its dedicated Dockerfile.
           # No --platform flag is needed as we are building for the runner's native architecture.
-          docker buildx build -t $IMAGE_TAG --load . -f docker/linux-ant/Dockerfile
+          docker buildx build --no-cache -t $IMAGE_TAG --load . -f docker/linux-ant/Dockerfile
           
           echo "Build complete. Extracting binary..."
           
@@ -1469,7 +1469,8 @@ jobs:
           
           # Build the multi-platform image using the specified Dockerfile.
           # The '--load' flag makes the final image available to the runner's local Docker daemon.
-          docker buildx build --platform linux/arm64 -t $IMAGE_TAG --load . -f docker/rpi-ant/Dockerfile
+          # The '--no-cache' flag prevents older artifacts from being used
+          docker buildx build --no-cache --platform linux/arm64 -t $IMAGE_TAG --load . -f docker/rpi-ant/Dockerfile
           
           echo "Build complete. Extracting binary from the image..."
           

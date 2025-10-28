@@ -192,9 +192,9 @@ class AntBroadcaster:
             sleep_duration = 0.250 - (time.monotonic() - now)
             if sleep_duration > 0:
                 time.sleep(sleep_duration)
-            elif sleep_duration < -1.0: 
-                if log.isEnabledFor(logging.INFO):
-                    log.warning("Broadcast thread is running critically slow: %.3fs behind schedule", -sleep_duration)
+            elif sleep_duration < -0.25: 
+                if log.isEnabledFor(logging.DEBUG):
+                    log.info("Broadcast thread is running: %.3fs behind schedule", -sleep_duration)
 
         log.info("ANT+ broadcasting thread finished.")
 
