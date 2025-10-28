@@ -389,7 +389,7 @@ void kettlerracersbike::updateSlopeTargetPower(bool force) {
     if (!std::isfinite(speedKmh) || speedKmh < 0.0) {
         speedKmh = 0.0;
     }
-    if (speedKmh < 0.5) {
+    if (speedKmh < 5) {
         double cadence = Cadence.value();
         if (std::isfinite(cadence) && cadence > 0.0) {
             speedKmh = std::max(0.5, cadence * 0.3); // approximate 90rpm -> 27 km/h
