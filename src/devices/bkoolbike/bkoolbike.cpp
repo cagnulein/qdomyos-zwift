@@ -157,10 +157,11 @@ void bkoolbike::update() {
         }
 
         // Send poll command for BKOOLFITNESSBIKE
+        /*
         if (bkool_fitness_bike) {
             uint8_t poll[] = {0x37, 0xc8, 0x19, 0xff, 0xe0, 0x0a, 0x46, 0x21};
             writeCharacteristic(poll, sizeof(poll), QStringLiteral("poll"), false, false);
-        }
+        }*/
 
         if (requestResistance != -1) {
             if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
@@ -171,16 +172,23 @@ void bkoolbike::update() {
                     requestInclination = requestResistance / 10.0;
                 }
                 // forceResistance(requestResistance);;
-            }
-            lastGearValue = gears();
+            }            
             requestResistance = -1;
         }
+
+        if(lastGearValue != gears() && requestInclination == -100) {
+            // if only gears changed, we need to update the inclination to match the gears
+            requestInclination = lastRawRequestedInclinationValue;
+        }
+
         if (requestInclination != -100) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
             forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
             requestInclination = -100;
         }
+
+        lastGearValue = gears();
 
         if (requestPower != -1) {
             changePower(requestPower);
