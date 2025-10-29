@@ -496,7 +496,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                                  (uint16_t)((uint8_t)newvalue.at(index)))) / 100.0;
             } else {
                 Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),
-                                                       fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                                                       fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), 0/*this->speedLimit()*/);
             }
             emit debug(QStringLiteral("Current Speed (2AD2): ") + QString::number(Speed.value()));
             index += 2;
@@ -548,7 +548,6 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (Flags2AD2.resistanceLvl) {
             Resistance = ((double)(((uint16_t)((uint8_t)newvalue.at(index + 1)) << 8) |
                                   (uint16_t)((uint8_t)newvalue.at(index))));
-            emit resistanceRead(Resistance.value());
             emit debug(QStringLiteral("Current Resistance (2AD2): ") + QString::number(Resistance.value()));
             index += 2;
         } else {
@@ -569,7 +568,6 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                                       settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
                                      settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
                 Resistance = m_pelotonResistance;
-                emit resistanceRead(Resistance.value());
             }
         }
 
