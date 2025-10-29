@@ -19,6 +19,7 @@ SOURCES += \
         Devices/deviceindex.cpp \
         Devices/devicenamepatterngroup.cpp \
         Devices/devicetestdataindex.cpp \
+        Devices/kettlerracersbiketests.cpp \
         Erg/ergtabletestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
         Tools/testsettings.cpp \
