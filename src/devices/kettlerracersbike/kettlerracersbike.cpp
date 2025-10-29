@@ -309,6 +309,7 @@ void kettlerracersbike::changePower(int32_t power) {
 void kettlerracersbike::forceInclination(double inclination) {
     qDebug() << "kettlerracersbike::forceInclination" << inclination;
     Inclination = inclination;
+    currentSlopePercent = grade;
     slopeControlEnabled = true;
     updateSlopeTargetPower();
 }
@@ -1217,6 +1218,8 @@ void kettlerracersbike::update() {
             emit debug(QStringLiteral("applying gear change to inclination: ") + QString::number(lastRawRequestedInclinationValue) +
                       QStringLiteral(" + ") + QString::number(gears() / 2.0));
             forceInclination(lastRawRequestedInclinationValue + (gears() / 2.0));
+        } else if(lastGearValue != gears() && lastRawRequestedInclinationValue == -100 && requestInclination == -100) {
+            forceInclination((gears() / 2.0)); // Apply gears offset to inclination (scaled by 0.5)
         }
 
         lastGearValue = gears();
