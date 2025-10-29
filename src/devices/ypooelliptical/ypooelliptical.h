@@ -63,6 +63,7 @@ class ypooelliptical : public elliptical {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
