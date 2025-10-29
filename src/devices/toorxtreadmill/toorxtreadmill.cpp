@@ -130,6 +130,12 @@ void toorxtreadmill::update() {
 
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                // the treadmill send the speed in miles for some models
+                double miles = 1;
+                if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
+                    miles = 1.60934;                
+
+                requestSpeed = requestSpeed / miles;
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 char speed[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
                 speed[3] = (uint8_t)(requestSpeed);
