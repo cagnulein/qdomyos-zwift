@@ -437,6 +437,10 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         //! [Start Advertising]
         leController = QLowEnergyController::createPeripheral();
         Q_ASSERT(leController);
+        QObject::connect(
+            leController,
+            &QLowEnergyController::errorOccurred, this,
+            &virtualbike::error);
 
         if (service_changed)
             serviceChanged = leController->addService(serviceDataChanged);
@@ -519,10 +523,6 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
     //! [Provide Heartbeat]
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualbike::reconnect);
-    QObject::connect(
-        leController,
-        &QLowEnergyController::errorOccurred, this,
-        &virtualbike::error);
 }
 
 // zwift play emulator protobuf

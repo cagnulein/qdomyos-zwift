@@ -713,16 +713,16 @@ int main(int argc, char *argv[]) {
                       settings.value(QZSettings::app_opening, QZSettings::default_app_opening).toInt() + 1);
 
 #if defined(Q_OS_ANDROID)
-    // Qt6 Bluetooth permission handling
+    // Qt6 Bluetooth permission handling - need both Access and Advertise for virtual devices
     QBluetoothPermission bluetoothPermission;
-    bluetoothPermission.setCommunicationModes(QBluetoothPermission::Access);
+    bluetoothPermission.setCommunicationModes(QBluetoothPermission::Access | QBluetoothPermission::Advertise);
 
     switch (qApp->checkPermission(bluetoothPermission)) {
     case Qt::PermissionStatus::Undetermined:
         qDebug() << "Bluetooth permission undetermined, requesting...";
         qApp->requestPermission(bluetoothPermission, [](const QPermission &permission) {
             if (permission.status() == Qt::PermissionStatus::Granted) {
-                qDebug() << "Bluetooth permission granted";
+                qDebug() << "Bluetooth permission granted (Access + Advertise)";
             } else {
                 qDebug() << "Bluetooth permission denied";
             }
@@ -732,7 +732,7 @@ int main(int argc, char *argv[]) {
         qDebug() << "Bluetooth permission denied";
         break;
     case Qt::PermissionStatus::Granted:
-        qDebug() << "Bluetooth permission already granted";
+        qDebug() << "Bluetooth permission already granted (Access + Advertise)";
         break;
     }
 
