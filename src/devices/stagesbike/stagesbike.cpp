@@ -78,7 +78,7 @@ void stagesbike::update() {
         Resistance = 0;
         emit resistanceRead(Resistance.value());
         initRequest = false;
-        if(eliteService != nullptr) {
+        if(eliteService != nullptr && !DR) {
             uint8_t init1[] = {0x01, 0xad};
             writeCharacteristic(eliteService, eliteWriteCharacteristic, init1, sizeof(init1), "init", false, false);
             QThread::sleep(2);
@@ -628,6 +628,10 @@ void stagesbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        if (bluetoothDevice.name().toUpper().contains("DR")) {
+            qDebug() << QStringLiteral("DR found");
+            DR = true;
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &stagesbike::serviceDiscovered);

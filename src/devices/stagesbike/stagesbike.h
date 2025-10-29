@@ -78,6 +78,7 @@ class stagesbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool noVirtualDevice = false;
+    bool DR = false;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
