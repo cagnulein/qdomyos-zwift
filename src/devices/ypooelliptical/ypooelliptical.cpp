@@ -382,22 +382,23 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (Flags.instantPower) {
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
-                    .startsWith(QStringLiteral("Disabled"))) {
+                    .startsWith(QStringLiteral("Disabled")) && !SCH_411_510E) {
                 double divisor = 100.0; // i added this because this device seems to send it multiplied by 100
 
-                if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)
+                if(E35 || SCH_590E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)
                     divisor = 1.0;
 
                 m_watt = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)lastPacket.at(index)))) /
                          divisor;
             }
-            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+            
             index += 2;
-        } else if(DOMYOS) {
+        } else if(DOMYOS || SCH_411_510E) {
             m_watt = elliptical::watts();
-            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
         }
+
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
         if (Flags.avgPower && lastPacket.length() > index + 1 && !E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !FTMS) { // E35 has a bug about this
             double avgPower;
