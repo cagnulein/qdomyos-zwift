@@ -309,7 +309,7 @@ void kettlerracersbike::changePower(int32_t power) {
 void kettlerracersbike::forceInclination(double inclination) {
     qDebug() << "kettlerracersbike::forceInclination" << inclination;
     Inclination = inclination;
-    currentSlopePercent = grade;
+    currentSlopePercent = inclination;
     slopeControlEnabled = true;
     updateSlopeTargetPower();
 }
