@@ -29,7 +29,7 @@ ColumnLayout {
     Timer {
         id: chartJscheckStartFromWeb
         interval: 200; running: true; repeat: true
-        onTriggered: {if(rootItem.startRequested) {rootItem.startRequested = false; rootItem.stopRequested = false; stackView.pop(); }}
+        onTriggered: {if(rootItem.startRequested) {rootItem.startRequested = false; rootItem.stopRequested = false; if (typeof window !== 'undefined' && window.goBack) { window.goBack(); } }}
     }
 
     Button {

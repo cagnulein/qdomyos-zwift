@@ -174,7 +174,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("I'm fine, thanks.")
                         onClicked: {
-                                stackView.pop();
+                                if (typeof window !== 'undefined' && window.goBack) { window.goBack(); }
                         }
                     }
                 }
@@ -1011,7 +1011,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Close")
                         onClicked: {
-                            stackView.pop();
+                            if (typeof window !== 'undefined' && window.goBack) { window.goBack(); }
                         }
                     }
                 }

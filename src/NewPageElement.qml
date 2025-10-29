@@ -50,7 +50,7 @@ ColumnLayout {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
             onClicked: {
-                stackView.push(accordionContent)
+                if (typeof window !== 'undefined' && window.pushWithFocus) { window.pushWithFocus(accordionContent); }
             }
         }
     }

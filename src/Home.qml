@@ -136,7 +136,9 @@ HomeForm {
         interval: 200; running: true; repeat: false
         onTriggered: {
             if(rootItem.firstRun()) {
-                stackView.push("Wizard.qml")
+                if (typeof window !== 'undefined' && window.pushWithFocus) {
+                    window.pushWithFocus("Wizard.qml")
+                }
             }
         }
     }
@@ -144,10 +146,12 @@ HomeForm {
     function inner_stop() {
         stop_clicked();
         rootItem.save_screenshot();
-        if(CHARTJS)
-            stackView.push("ChartJsTest.qml")
-        else
-            stackView.push("ChartsEndWorkout.qml")
+        if (typeof window !== 'undefined' && window.pushWithFocus) {
+            if(CHARTJS)
+                window.pushWithFocus("ChartJsTest.qml")
+            else
+                window.pushWithFocus("ChartsEndWorkout.qml")
+        }
     }
 
     start.onClicked: { console.log("start clicked"); start_clicked(); }

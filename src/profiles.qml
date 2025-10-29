@@ -78,7 +78,10 @@ ColumnLayout {
         text: "Profile saved correctly!"
         buttons: (MessageDialog.Ok)
         onAccepted: {
-            stackView.pop();
+            // Use custom goBack() from main window
+            if (typeof window !== 'undefined' && window.goBack) {
+                window.goBack();
+            }
         }
     }
 

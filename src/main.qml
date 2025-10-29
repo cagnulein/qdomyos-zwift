@@ -49,8 +49,68 @@ ApplicationWindow {
     
     function getRightPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 
+        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                AndroidStatusBar.rightInset : 0;
+    }
+
+    // FIX: Custom navigation with clear() + push() to fix TextField focus issue
+    // This solves the bug where having items in the stack interferes with TextField focus
+    // when the keyboard appears. Uses custom history for back navigation.
+    function pushWithFocus(itemUrl) {
+        console.log("pushWithFocus called with:", itemUrl)
+
+        // Save current page to history (if there's a current page)
+        if (stackView.currentItem && stackView.depth > 0) {
+            // Store the URL in history
+            var currentUrl = stackView.currentItem.objectName || "Home.qml"
+            console.log("Saving to history:", currentUrl)
+            navigationHistory.push(currentUrl)
+            console.log("History depth:", navigationHistory.length)
+        }
+
+        // CRITICAL: Clear the stack to prevent focus interference
+        console.log("Clearing stack before push")
+        stackView.clear()
+
+        // Push the new page
+        console.log("Pushing:", itemUrl)
+        var pushedItem = stackView.push(itemUrl)
+
+        if (pushedItem) {
+            // Store URL as objectName for history tracking
+            pushedItem.objectName = itemUrl
+            console.log("Push successful, forcing focus")
+            pushedItem.forceActiveFocus()
+        } else {
+            console.log("ERROR: Push failed")
+        }
+
+        return pushedItem
+    }
+
+    // FIX: Custom back navigation using history
+    function goBack() {
+        console.log("goBack called, history depth:", navigationHistory.length)
+
+        if (navigationHistory.length === 0) {
+            console.log("No history, exiting app or staying on current page")
+            return false
+        }
+
+        // Pop from history
+        var previousUrl = navigationHistory.pop()
+        console.log("Going back to:", previousUrl, "remaining history:", navigationHistory.length)
+
+        // Clear and push previous page
+        stackView.clear()
+        var item = stackView.push(previousUrl)
+
+        if (item) {
+            item.objectName = previousUrl
+            item.forceActiveFocus()
+        }
+
+        return true
     }
 
     signal gpx_open_clicked(url name)
@@ -85,6 +145,11 @@ ApplicationWindow {
     property bool lockTiles: false
     property bool settings_restart_to_apply: false
 
+    // FIX: Navigation history for custom back navigation
+    // Stores URLs of previously visited pages to enable back functionality
+    // while using clear() + push() to fix TextField focus issue
+    property var navigationHistory: []
+
     Settings {
         id: settings
         property string profile_name: "default"        
@@ -103,7 +168,7 @@ ApplicationWindow {
       id: googleMapUI
       source:"GoogleMap.qml";
       active: false
-      onLoaded: { console.log("googleMapUI loaded"); stackView.push(googleMapUI.item); }
+      onLoaded: { console.log("googleMapUI loaded"); pushWithFocus(googleMapUI.item); }
     }
 
     // here in order to cache everything for the SwagBagView
@@ -171,10 +236,21 @@ ApplicationWindow {
         }
     }*/
 
-    Keys.onBackPressed: {
+    Keys.onBackPressed: (event) => {
+        console.log("Back button pressed")
+
+        // First, try custom navigation history
+        if (goBack()) {
+            console.log("Navigated back using history")
+            event.accepted = true
+            return
+        }
+
+        // No history - handle app exit (Android double-tap)
         if(OS_VERSION === "Android") {
             toast.show("Pressed it quickly to close the app!")
             timer.pressBack();
+            event.accepted = true
         }
     }
     Timer{
@@ -234,7 +310,7 @@ ApplicationWindow {
            onYesClicked: {
                settings.peloton_username = "username"
                settings.peloton_password = "password"
-               stackView.push("WebPelotonAuth.qml")
+               pushWithFocus("WebPelotonAuth.qml")
                peloton_connect_clicked()
            }
            onNoClicked: this.visible = false
@@ -264,7 +340,7 @@ ApplicationWindow {
          modal: true
          focus: true
          palette.text: "white"
-         onClosed: stackView.push("Classifica.qml");
+         onClosed: pushWithFocus("Classifica.qml");
          closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
          enter: Transition
          {
@@ -296,11 +372,11 @@ ApplicationWindow {
          palette.text: "white"
          closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
          onClosed: {
-             stackView.push("WebEngineTest.qml")
+             pushWithFocus("WebEngineTest.qml")
              drawer.close()
              stackView.currentItem.trainprogram_zwo_loaded.connect(trainprogram_zwo_loaded)
              stackView.currentItem.trainprogram_zwo_loaded.connect(function(s) {
-                 stackView.pop();
+                 goBack();
               });
          }
 
@@ -517,20 +593,24 @@ ApplicationWindow {
         ToolButton {
             id: toolButton
             icon.source: "icons/icons/icon.png"
-            text: stackView.depth > 1 ? "◄" : "◄"
+            text: navigationHistory.length > 0 ? "◄" : "◄"
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
-                if (stackView.depth > 1) {
+                // FIX: Use custom navigation history instead of stackView.depth
+                if (navigationHistory.length > 0) {
+                    console.log("Back button clicked, calling goBack()")
+
                     if(window.settings_restart_to_apply === true) {
                         window.settings_restart_to_apply = false;
                         popupRestartApp.visible = true;
                     }
 
-                    stackView.pop()
+                    goBack()
                     toolButtonLoadSettings.visible = false;
                     toolButtonSaveSettings.visible = false;
                     rootItem.sortTiles()
                 } else {
+                    console.log("Back button clicked, opening drawer (no history)")
                     drawer.open()
                 }
             }
@@ -618,13 +698,11 @@ ApplicationWindow {
             id: toolButtonLoadSettings
             icon.source: "icons/icons/tray-arrow-up.png"
             onClicked: {
-                stackView.push("SettingsList.qml")
+                pushWithFocus("SettingsList.qml")
                 stackView.currentItem.loadSettings.connect(loadSettings)
                 stackView.currentItem.loadSettings.connect(function(url) {
-                    stackView.pop();
-                    if (stackView.depth > 1) {
-                        stackView.pop()
-                    }
+                    // Go back to previous page before opening popup
+                    goBack();
                     popupLoadSettings.open();
                  });
                 drawer.close()
@@ -647,7 +725,7 @@ ApplicationWindow {
         /*ToolButton {
             id: toolClassifica
             icon.source: "icons/icons/chart.png"
-            onClicked: {  if(settings.classifica_enable) stackView.push("Classifica.qml"); else popupClassificaHelper.open(); }
+            onClicked: {  if(settings.classifica_enable) pushWithFocus("Classifica.qml"); else popupClassificaHelper.open(); }
             anchors.right: toolButtonAutoResistance.left
         }*/
 
@@ -656,7 +734,7 @@ ApplicationWindow {
                 if(rootItem.currentCoordinateValid) {
                     console.log("coordinate is valid for map");
                     if(googleMapUI.status === Loader.Ready)
-                        stackView.push(googleMapUI.item);
+                        pushWithFocus(googleMapUI.item);
                     else
                         googleMapUI.active = true;
 
@@ -758,7 +836,7 @@ ApplicationWindow {
                         drawer.logDrawerEvent(text, source)
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;
-                        stackView.push("profiles.qml")
+                        pushWithFocus("profiles.qml")
                         stackView.currentItem.profile_open_clicked.connect(profile_open_clicked)
                         drawer.close()
                     }
@@ -792,7 +870,7 @@ ApplicationWindow {
                         drawer.logDrawerEvent(text, source)
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;
-                        stackView.push("settings.qml")
+                        pushWithFocus("settings.qml")
                         stackView.currentItem.peloton_connect_clicked.connect(function() {
                             peloton_connect_clicked()
                          });
@@ -826,7 +904,7 @@ ApplicationWindow {
                 onCanceled: drawer.logDrawerEvent(text, "canceled")
                 function triggerAction(source) {
                     drawer.logDrawerEvent(text, source)
-                    stackView.push("WorkoutsHistory.qml")
+                    pushWithFocus("WorkoutsHistory.qml")
                     stackView.currentItem.fitfile_preview_clicked.connect(fitfile_preview_clicked)
                     drawer.close()
                 }
@@ -850,7 +928,7 @@ ApplicationWindow {
                     text: qsTr("Swag Bag")
                     width: parent.width
                     onClicked: {
-                        stackView.push("SwagBagView.qml")
+                        pushWithFocus("SwagBagView.qml")
                         drawer.close()
                     }
                 }
@@ -861,9 +939,9 @@ ApplicationWindow {
                     onClicked: {
                         console.log(CHARTJS)
                         if(CHARTJS)
-                            stackView.push("ChartJsTest.qml")
+                            pushWithFocus("ChartJsTest.qml")
                         else
-                            stackView.push("ChartsEndWorkout.qml")
+                            pushWithFocus("ChartsEndWorkout.qml")
                         drawer.close()
                     }
                 }
@@ -877,7 +955,7 @@ ApplicationWindow {
                         stackView.currentItem.trainprogram_open_other_folder.connect(gpx_open_other_folder)
                         stackView.currentItem.trainprogram_preview.connect(gpxpreview_open_clicked)
                         stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
-                            stackView.pop();
+                            goBack();
                             popup.open();
                          });
                         drawer.close()
@@ -893,7 +971,7 @@ ApplicationWindow {
                         stackView.currentItem.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
                         stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
                         stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
-                            stackView.pop();
+                            goBack();
                             popup.open();
                          });
                         drawer.close()
@@ -933,7 +1011,7 @@ ApplicationWindow {
                     text: qsTr("Wizard")
                     width: parent.width
                     onClicked: {
-                        stackView.push("Wizard.qml")
+                        pushWithFocus("Wizard.qml")
                         drawer.close()
                     }
                 }
@@ -959,7 +1037,7 @@ ApplicationWindow {
                     text: qsTr("Credits")
                     width: parent.width
                     onClicked: {
-                        stackView.push("Credits.qml")
+                        pushWithFocus("Credits.qml")
                         drawer.close()
                     }
                 }
@@ -990,7 +1068,7 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
-                        stackView.push("WebStravaAuth.qml")
+                        pushWithFocus("WebStravaAuth.qml")
                         strava_connect_clicked()
                         drawer.close()
                     }
@@ -1007,9 +1085,9 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
-                        stackView.push("WebPelotonAuth.qml")
+                        pushWithFocus("WebPelotonAuth.qml")
                         stackView.currentItem.goBack.connect(function() {
-                            stackView.pop();
+                            goBack();
                         })
                         peloton_connect_clicked()
                         drawer.close()
@@ -1043,6 +1121,15 @@ ApplicationWindow {
         anchors.rightMargin: getRightPadding()
         anchors.leftMargin: getLeftPadding()
         focus: true
+
+        // Set objectName for initialItem to track in history
+        Component.onCompleted: {
+            if (currentItem) {
+                currentItem.objectName = "Home.qml"
+                console.log("StackView initialized with Home.qml")
+            }
+        }
+
         Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
         Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
         Keys.onPressed: (event)=> {

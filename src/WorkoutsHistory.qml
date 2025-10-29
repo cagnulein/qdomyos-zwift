@@ -407,7 +407,7 @@ Page {
                     workoutHistoryPage.fitfile_preview_clicked(fileUrl)
 
                     // Push the ChartJsTest view
-                    stackView.push("PreviewChart.qml")
+                    if (typeof window !== 'undefined' && window.pushWithFocus) { window.pushWithFocus("PreviewChart.qml"); }
                 }
             }
         }

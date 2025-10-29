@@ -5220,7 +5220,10 @@ import Qt.labs.platform 1.1
                         }
                         Layout.fillWidth: true
                         onClicked: {
-                            stackView.push("WebPelotonAuth.qml")
+                            // Use custom pushWithFocus() from main window
+                            if (typeof window !== 'undefined' && window.pushWithFocus) {
+                                window.pushWithFocus("WebPelotonAuth.qml")
+                            }
                             peloton_connect_clicked()
                         }
                     }
