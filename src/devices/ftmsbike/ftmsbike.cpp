@@ -257,7 +257,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             requestResistance = 1;
         }
 
-        if(SL010)
+        if(SL010 || SPORT01)
             Resistance = requestResistance;
         
         if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK) {
@@ -1694,6 +1694,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
             ergModeSupported = false;
             max_resistance = 10;
+            Resistance = 1; // Initialize resistance to 1 for SPORT01
         }
 
 
