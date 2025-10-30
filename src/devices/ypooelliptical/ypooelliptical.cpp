@@ -379,7 +379,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             }
         }
 
-        if (Flags.instantPower) {
+        if (Flags.instantPower && !SCH_411_510E) {
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled")) && !SCH_411_510E) {
