@@ -2,7 +2,9 @@
 #include "devices/bike.h"
 #include "qdebugfixup.h"
 #include "homeform.h"
+#include "qzsettings.h"
 #include <QSettings>
+#include <algorithm>
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
 
@@ -77,12 +79,7 @@ void bike::changePower(int32_t power) {
     qDebug() << QStringLiteral("changePower: original power with offset applied: ") + QString::number(power) + QStringLiteral(" (offset: ") + QString::number(bike_power_offset) + QStringLiteral(")");
 
     requestPower = power; // used by some bikes that have ERG mode builtin
-    
-    if(power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0 && fabs(requestPower - m_watt.average5s()) < qMax(erg_filter_upper, erg_filter_lower)) {
-        qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s() << "watt" << m_watt.average5s() << "req" << requestPower;
-        // the concept here is to trying to add or decrease the delta from the power sensor
-        requestPower += (requestPower - m_watt.average5s());
-    }
+    requestPower = adjustRequestPowerWithSensorDelta(requestPower, power_sensor, erg_filter_upper, erg_filter_lower);
         
     bool force_resistance =
         settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
@@ -98,6 +95,132 @@ void bike::changePower(int32_t power) {
         resistance_t r = (resistance_t)resistanceFromPowerRequest(power);
         changeResistance(r); // resistance start from 1
     }
+}
+
+int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
+                                                bool powerSensorEnabled,
+                                                double ergFilterUpper,
+                                                double ergFilterLower) {
+    if (!powerSensorEnabled) {
+        qDebug() << "adjustRequestPowerWithSensorDelta: power sensor not enabled, skipping PI controller";
+        m_powerErrorIntegral = 0;
+        m_lastPowerErrorValid = false;
+        return requestPower;
+    }
+
+    if (!ergModeSupported) {
+        qDebug() << "adjustRequestPowerWithSensorDelta: erg mode not supported, skipping PI controller";
+        m_powerErrorIntegral = 0;
+        m_lastPowerErrorValid = false;
+        return requestPower;
+    }
+
+    if (m_rawWatt.value() <= 0 || m_watt.value() <= 0) {
+        qDebug() << "adjustRequestPowerWithSensorDelta: invalid power readings (rawWatt:" << m_rawWatt.value()
+                 << "watt:" << m_watt.value() << "), skipping PI controller";
+        m_powerErrorIntegral = 0;
+        m_lastPowerErrorValid = false;
+        return requestPower;
+    }
+
+    // Load configurable PI gains from settings
+    QSettings settings;
+    const double kProportionalGain = settings.value(QZSettings::power_sensor_pi_kp, QZSettings::default_power_sensor_pi_kp).toDouble();
+    const double kIntegralGain = settings.value(QZSettings::power_sensor_pi_ki, QZSettings::default_power_sensor_pi_ki).toDouble();
+
+    const double rawMeasured = m_rawWatt.value();
+    // When power sensor is enabled, always use m_watt (external power meter reading)
+    // not m_rawWatt (bike's internal estimation)
+    double measured = m_watt.value();
+
+    if (measured <= 0) {
+        m_powerErrorIntegral = 0;
+        m_lastPowerErrorValid = false;
+        return requestPower;
+    }
+
+    // ==================== LOW-PASS FILTER ====================
+    // Smooth sensor readings to reduce spikes and oscillations
+    // This prevents sudden power jumps from causing control instability
+    static double filteredMeasured = 0;
+    const double filterAlpha = 0.3;  // 30% new, 70% old
+
+    if (filteredMeasured <= 0) {
+        filteredMeasured = measured;  // First reading
+    } else {
+        filteredMeasured = filteredMeasured * (1.0 - filterAlpha) + measured * filterAlpha;
+    }
+
+    // Use filtered value for error calculation
+    const double allowedDelta = qMax(ergFilterUpper, ergFilterLower);
+    const double error = static_cast<double>(requestPower) - filteredMeasured;
+
+    qDebug() << "adjustRequestPowerWithSensorDelta: rawWatt:" << rawMeasured << "measured(from sensor):" << measured
+             << "filtered:" << filteredMeasured
+             << "req:" << requestPower << "error:" << error << "filter:" << allowedDelta
+             << "Kp:" << kProportionalGain << "Ki:" << kIntegralGain;
+
+    // Reset integral ONLY on first run
+    // DO NOT reset when error changes sign - this causes oscillations!
+    // The integral clamp already prevents windup
+    if (!m_lastPowerErrorValid) {
+        qDebug() << "adjustRequestPowerWithSensorDelta: first run, initializing integral";
+        m_powerErrorIntegral = 0;
+    }
+
+    m_lastPowerError = error;
+    m_lastPowerErrorValid = true;
+
+    // Inside dead zone: decay integral gradually instead of resetting
+    // This prevents sudden jumps when entering/exiting the dead zone
+    if (fabs(error) <= allowedDelta) {
+        // Decay integral by 50% when inside dead zone
+        m_powerErrorIntegral *= 0.5;
+        qDebug() << "adjustRequestPowerWithSensorDelta: within dead zone, decaying integral to:" << m_powerErrorIntegral;
+    } else {
+        // Outside dead zone: accumulate integral normally
+        m_powerErrorIntegral += error;
+    }
+
+    // Clamp integral to prevent windup
+    // Increased to 150 to allow better steady-state error compensation
+    static constexpr double kIntegralClamp = 300.0;
+    const double integralBeforeClamp = m_powerErrorIntegral;
+    m_powerErrorIntegral = std::clamp(m_powerErrorIntegral, -kIntegralClamp, kIntegralClamp);
+
+    // Calculate PI correction
+    const double proportional = error * kProportionalGain;
+    const double integral = m_powerErrorIntegral * kIntegralGain;
+    double correction = proportional + integral;
+
+    // ==================== RATE LIMITING ====================
+    // Limit how fast the correction can change to prevent sudden resistance jumps
+    // This ensures smooth transitions and prevents oscillations during target changes
+    static double lastCorrection = 0;
+    const double maxCorrectionChange = 10.0;  // Max ±10W per cycle (~1 second)
+
+    if (lastCorrection != 0) {  // Skip first cycle
+        double correctionChange = correction - lastCorrection;
+        if (correctionChange > maxCorrectionChange) {
+            correction = lastCorrection + maxCorrectionChange;
+            qDebug() << "adjustRequestPowerWithSensorDelta: rate limiting correction (increase)";
+        } else if (correctionChange < -maxCorrectionChange) {
+            correction = lastCorrection - maxCorrectionChange;
+            qDebug() << "adjustRequestPowerWithSensorDelta: rate limiting correction (decrease)";
+        }
+    }
+    lastCorrection = correction;
+
+    const int32_t adjustedPower = requestPower + static_cast<int32_t>(correction);
+
+    qDebug() << "adjustRequestPowerWithSensorDelta: PI controller active";
+    qDebug() << "  P (error * Kp):" << error << "*" << kProportionalGain << "=" << proportional << "W";
+    qDebug() << "  I (integral * Ki):" << m_powerErrorIntegral << (integralBeforeClamp != m_powerErrorIntegral ? "(clamped)" : "")
+             << "*" << kIntegralGain << "=" << integral << "W";
+    qDebug() << "  Total correction:" << correction << "W";
+    qDebug() << "  Output: req" << requestPower << "+ corr" << correction << "=" << adjustedPower << "W";
+
+    return adjustedPower;
 }
 
 double bike::gears() {
