@@ -1488,7 +1488,13 @@ void homeform::trainProgramSignals() {
 }
 
 void homeform::onToastRequested(QString message) {
+    QSettings settings;
     setToastRequested(message);
+
+    // Use TTS if enabled
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+        m_speech.say(message);
+    }
 }
 
 QStringList homeform::tile_order() {

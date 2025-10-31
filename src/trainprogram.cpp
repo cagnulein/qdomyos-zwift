@@ -1257,6 +1257,33 @@ void trainprogram::scheduler() {
                 emit changeTimestamp(lastCurrentStepTime, QTime(0, 0, 0).addSecs(ticks));
             }
         }
+
+        // Check for text events that should be displayed at this time
+        if (currentStep < rows.length() && !rows.at(currentStep).textEvents.isEmpty()) {
+            // Calculate elapsed time in current step
+            uint32_t elapsedInCurrentStep = 0;
+            if (rows.at(currentStep).started.isValid()) {
+                elapsedInCurrentStep = rows.at(currentStep).started.secsTo(QDateTime::currentDateTime());
+            }
+
+            // Check each text event
+            foreach (const trainrow::TextEvent &evt, rows.at(currentStep).textEvents) {
+                // Create unique key for this event
+                QString eventKey = QString("%1:%2").arg(currentStep).arg(evt.timeoffset);
+
+                // Check if this event should be shown now and hasn't been shown yet
+                if (elapsedInCurrentStep >= evt.timeoffset && !shownTextEvents.contains(eventKey)) {
+                    qDebug() << "Showing text event at step" << currentStep << "offset" << evt.timeoffset << ":" << evt.message;
+
+                    // Emit toast request
+                    emit toastRequest(evt.message);
+
+                    // Mark as shown
+                    shownTextEvents.insert(eventKey);
+                }
+            }
+        }
+
         sameIteration++;
     } while (distanceEvaluation);
 }
@@ -1319,7 +1346,8 @@ void trainprogram::restart() {
     ticks = 0;
     offset = 0;
     currentStep = 0;
-    currentTimerJitter = 0;    
+    currentTimerJitter = 0;
+    shownTextEvents.clear();  // Reset shown text events when restarting
     started = true;
 }
 
