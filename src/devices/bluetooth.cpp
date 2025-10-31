@@ -1244,6 +1244,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(soleElliptical);
             } else if (b.name().startsWith(QStringLiteral("Domyos")) &&
                        !b.name().startsWith(QStringLiteral("DomyosBr")) &&
+					    !b.name().toUpper().startsWith(QStringLiteral("DOMYOS-BIKE-")) &&
                        !b.name().toUpper().startsWith(QStringLiteral("DOMYOS-BIKING-")) && !domyos && !domyosElliptical && b.name().compare(ftms_treadmill, Qt::CaseInsensitive) &&
                        !domyosBike && !domyosRower && !ftmsBike && !horizonTreadmill &&
                        (!deviceHasService(b, QBluetoothUuid((quint16)0x1826)) || settings.value(QZSettings::domyostreadmill_notfmts, QZSettings::default_domyostreadmill_notfmts).toBool()) &&
