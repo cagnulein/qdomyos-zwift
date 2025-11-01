@@ -533,6 +533,7 @@ class homeform : public QObject {
     Q_INVOKABLE static QString getWritableAppDir();
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
+    Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
 
     double wattMaxChart() {
         QSettings settings;
