@@ -549,7 +549,6 @@ void virtualtreadmill::treadmillProvider() {
     //        (uint16_t)((treadmill *)treadMill)->wattsMetric().value(),
     //        inclination * 10, (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0))) {
     //    h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
-    //    lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
 
     uint16_t swiftSpeed = normalizeSpeed;
     uint16_t swiftCadence = (uint16_t)(((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier);
@@ -581,6 +580,8 @@ void virtualtreadmill::treadmillProvider() {
             static_cast<uint8_t>(treadMill->deviceType())
             )) {
         h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
+                
+        lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
 
         if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
             writeP2AD9->changeSlope(h->virtualtreadmill_getCurrentSlope(), 0, 0);
