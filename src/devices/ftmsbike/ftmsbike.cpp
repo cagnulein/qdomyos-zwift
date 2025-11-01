@@ -577,6 +577,13 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                        100.0;
             index += 2;
             emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
+            // Use average speed if instant speed is not available (moreData flag set)
+            if (Flags.moreData) {
+                if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                    Speed = avgSpeed;
+                    emit debug(QStringLiteral("Current Speed (from average): ") + QString::number(Speed.value()));
+                }
+            }
         }
 
         if (Flags.instantCadence) {
