@@ -598,6 +598,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                          2.0;
             index += 2;
             emit debug(QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence));
+            // Use average cadence if instant cadence is not available
+            if (!Flags.instantCadence) {
+                if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                        .toString()
+                        .startsWith(QStringLiteral("Disabled"))) {
+                    Cadence = avgCadence;
+                    emit debug(QStringLiteral("Current Cadence (from average): ") + QString::number(Cadence.value()));
+                }
+            }
         }
 
         if (Flags.totDistance) {
@@ -721,6 +730,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                                  (uint16_t)((uint8_t)newValue.at(index))));
             index += 2;
             emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
+            // Use average power if instant power is zero or not available
+            if ((!Flags.instantPower || m_watt.value() == 0) && avgPower > 0) {
+                if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                        .toString()
+                        .startsWith(QStringLiteral("Disabled"))) {
+                    m_watt = avgPower;
+                    emit debug(QStringLiteral("Current Watt (from average): ") + QString::number(m_watt.value()));
+                }
+            }
         }
 
         if (Flags.expEnergy && newValue.length() > index + 1) {
