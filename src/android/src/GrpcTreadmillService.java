@@ -53,6 +53,10 @@ import com.ifit.glassos.settings.FanStateServiceGrpc;
 import com.ifit.glassos.workout.WorkoutServiceGrpc;
 import com.ifit.glassos.workout.WorkoutResult;
 import com.ifit.glassos.workout.StartWorkoutResponse;
+import com.ifit.glassos.workout.StrokesMetric;
+import com.ifit.glassos.workout.StrokesServiceGrpc;
+import com.ifit.glassos.workout.PaceMetric;
+import com.ifit.glassos.workout.PaceServiceGrpc;
 
 import org.cagnulen.qdomyoszwift.QLog;
 
@@ -83,6 +87,8 @@ public class GrpcTreadmillService {
     private RpmServiceGrpc.RpmServiceBlockingStub rpmStub;
     private FanStateServiceGrpc.FanStateServiceBlockingStub fanStub;
     private WorkoutServiceGrpc.WorkoutServiceBlockingStub workoutStub;
+    private StrokesServiceGrpc.StrokesServiceBlockingStub strokesStub;
+    private PaceServiceGrpc.PaceServiceBlockingStub paceStub;
 
     // Control flags and current values
     private volatile boolean isUpdating = false;
@@ -93,6 +99,10 @@ public class GrpcTreadmillService {
     private volatile double currentCadence = 0.0;
     private volatile double currentRpm = 0.0;
     private volatile int currentFanSpeed = 0;
+    private volatile double currentStrokesCount = 0.0;
+    private volatile double currentStrokesLength = 0.0;
+    private volatile int currentPaceSeconds = 0;
+    private volatile int currentLast500mPaceSeconds = 0;
 
     // Context for accessing assets
     private Context context;
@@ -106,6 +116,8 @@ public class GrpcTreadmillService {
         void onCadenceUpdated(double cadence);
         void onRpmUpdated(double rpm);
         void onFanSpeedUpdated(int fanSpeed);
+        void onStrokesUpdated(double strokesCount, double strokesLength);
+        void onPaceUpdated(int paceSeconds, int last500mPaceSeconds);
         void onError(String metric, String error);
     }
 
@@ -395,6 +407,8 @@ public class GrpcTreadmillService {
         rpmStub = RpmServiceGrpc.newBlockingStub(channel);
         fanStub = FanStateServiceGrpc.newBlockingStub(channel);
         workoutStub = WorkoutServiceGrpc.newBlockingStub(channel);
+        strokesStub = StrokesServiceGrpc.newBlockingStub(channel);
+        paceStub = PaceServiceGrpc.newBlockingStub(channel);
 
         QLog.i(TAG, "gRPC connection initialized with client certificates");
     }
@@ -644,6 +658,62 @@ public class GrpcTreadmillService {
                 }
             }
 
+            // Fetch strokes (for rowers)
+            try {
+                long strokesStartTime = System.currentTimeMillis();
+                StrokesServiceGrpc.StrokesServiceBlockingStub strokesStubWithHeaders = strokesStub.withInterceptors(
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
+                );
+                long strokesInterceptorTime = System.currentTimeMillis();
+                QLog.d(TAG, "Strokes interceptor setup took: " + (strokesInterceptorTime - strokesStartTime) + "ms");
+
+                StrokesMetric strokesResponse = strokesStubWithHeaders.getStrokes(request);
+                long strokesCallTime = System.currentTimeMillis();
+                QLog.d(TAG, "Strokes gRPC call took: " + (strokesCallTime - strokesInterceptorTime) + "ms");
+
+                currentStrokesCount = strokesResponse.getStrokesCount();
+                currentStrokesLength = strokesResponse.getStrokesLength();
+
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onStrokesUpdated(currentStrokesCount, currentStrokesLength));
+                }
+                long strokesEndTime = System.currentTimeMillis();
+                QLog.d(TAG, "Strokes total processing took: " + (strokesEndTime - strokesStartTime) + "ms");
+            } catch (Exception e) {
+                QLog.w(TAG, "Failed to fetch strokes", e);
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onError("strokes", "Error"));
+                }
+            }
+
+            // Fetch pace (for rowers)
+            try {
+                long paceStartTime = System.currentTimeMillis();
+                PaceServiceGrpc.PaceServiceBlockingStub paceStubWithHeaders = paceStub.withInterceptors(
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
+                );
+                long paceInterceptorTime = System.currentTimeMillis();
+                QLog.d(TAG, "Pace interceptor setup took: " + (paceInterceptorTime - paceStartTime) + "ms");
+
+                PaceMetric paceResponse = paceStubWithHeaders.getPace(request);
+                long paceCallTime = System.currentTimeMillis();
+                QLog.d(TAG, "Pace gRPC call took: " + (paceCallTime - paceInterceptorTime) + "ms");
+
+                currentPaceSeconds = paceResponse.getCurrentPaceSeconds();
+                currentLast500mPaceSeconds = paceResponse.getLast500mPaceSeconds();
+
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onPaceUpdated(currentPaceSeconds, currentLast500mPaceSeconds));
+                }
+                long paceEndTime = System.currentTimeMillis();
+                QLog.d(TAG, "Pace total processing took: " + (paceEndTime - paceStartTime) + "ms");
+            } catch (Exception e) {
+                QLog.w(TAG, "Failed to fetch pace", e);
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onError("pace", "Error"));
+                }
+            }
+
             // Fetch fan speed
             /*
             try {
@@ -810,7 +880,35 @@ public class GrpcTreadmillService {
         }
         return 0.0;
     }
-    
+
+    public static double getCurrentStrokesCount() {
+        if (instance != null) {
+            return instance.currentStrokesCount;
+        }
+        return 0.0;
+    }
+
+    public static double getCurrentStrokesLength() {
+        if (instance != null) {
+            return instance.currentStrokesLength;
+        }
+        return 0.0;
+    }
+
+    public static int getCurrentPaceSeconds() {
+        if (instance != null) {
+            return instance.currentPaceSeconds;
+        }
+        return 0;
+    }
+
+    public static int getCurrentLast500mPaceSeconds() {
+        if (instance != null) {
+            return instance.currentLast500mPaceSeconds;
+        }
+        return 0;
+    }
+
     public static void adjustSpeed(double delta) {
         if (instance != null) {
             instance.adjustSpeedInstance(delta);

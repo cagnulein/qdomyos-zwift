@@ -1,6 +1,7 @@
 syntax = "proto3";
 package com.ifit.glassos;
 import "util/Util.proto";
+import "workout/WorkoutResult.proto";
 option java_package = "com.ifit.glassos.workout";
 option java_outer_classname = "StrokesServiceProto";
 option java_multiple_files = true;
@@ -10,6 +11,11 @@ message StrokesMetric {
   string workoutID = 1;
   int32 timeSeconds = 2;
   int32 lastStrokes = 3;
+  double strokesCount = 4;      // Total strokes count
+  double strokesLength = 5;     // Current strokes length
+  double avgStrokesLength = 6;  // Average strokes length
+  double maxStrokesLength = 7;  // Maximum strokes length
+  double minStrokesLength = 8;  // Minimum strokes length
 }
 
 message StrokesMetricList {

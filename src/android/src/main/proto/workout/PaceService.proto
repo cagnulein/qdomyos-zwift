@@ -1,0 +1,36 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "workout/WorkoutResult.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "PaceServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message PaceMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  int32 currentPaceSeconds = 3;   // Current pace in seconds per 500m
+  int32 averagePaceSeconds = 4;   // Average pace in seconds per 500m
+  int32 maxPaceSeconds = 5;       // Maximum (best) pace in seconds per 500m
+  int32 minPaceSeconds = 6;       // Minimum (worst) pace in seconds per 500m
+  int32 last500mPaceSeconds = 7;  // Pace for last 500m in seconds
+}
+
+message PaceMetricList {
+  repeated PaceMetric metrics = 1;
+}
+
+service PaceService {
+  // check whether Pace is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+
+  // get the current Pace relative to the current workout
+  rpc GetPace(Empty) returns (PaceMetric) {}
+
+  // subscribe to Pace updates relative to the current workout
+  rpc PaceSubscription(Empty) returns (stream PaceMetric) {}
+
+  // gets a list of all of the Pace changes for the given workout ID
+  rpc GetPaceHistory(WorkoutID) returns (PaceMetricList) {}
+}
