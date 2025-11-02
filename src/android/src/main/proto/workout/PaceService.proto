@@ -14,7 +14,7 @@ message PaceMetric {
   int32 averagePaceSeconds = 4;   // Average pace in seconds per 500m
   int32 maxPaceSeconds = 5;       // Maximum (best) pace in seconds per 500m
   int32 minPaceSeconds = 6;       // Minimum (worst) pace in seconds per 500m
-  int32 last500mPaceSeconds = 7;  // Pace for last 500m in seconds
+  int32 lastPaceSeconds = 7;      // Pace for last 500m in seconds
 }
 
 message PaceMetricList {

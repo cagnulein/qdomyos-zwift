@@ -700,7 +700,7 @@ public class GrpcTreadmillService {
                 QLog.d(TAG, "Pace gRPC call took: " + (paceCallTime - paceInterceptorTime) + "ms");
 
                 currentPaceSeconds = paceResponse.getCurrentPaceSeconds();
-                currentLast500mPaceSeconds = paceResponse.getLast500mPaceSeconds();
+                currentLast500mPaceSeconds = paceResponse.getLastPaceSeconds();
 
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onPaceUpdated(currentPaceSeconds, currentLast500mPaceSeconds));
