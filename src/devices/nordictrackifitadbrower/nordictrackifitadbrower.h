@@ -103,6 +103,27 @@ class nordictrackifitadbrower : public rower {
 
     QString ip;
 
+    // gRPC support
+    bool grpcInitialized = false;
+    void initializeGrpcService();
+    void startGrpcMetricsUpdates();
+    void stopGrpcMetricsUpdates();
+
+    // gRPC metric getters
+    double getGrpcSpeed();
+    double getGrpcResistance();
+    double getGrpcWatts();
+    double getGrpcCadence();
+    double getGrpcStrokesCount();
+    double getGrpcStrokesLength();
+    int getGrpcPaceSeconds();
+    int getGrpcLast500mPaceSeconds();
+    int getGrpcFanSpeed();
+
+    // gRPC control setters
+    void setGrpcResistance(double resistance);
+    void setGrpcFanSpeed(int fanSpeed);
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

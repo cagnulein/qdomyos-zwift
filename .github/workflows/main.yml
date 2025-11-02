@@ -21,7 +21,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   window-build:
-    runs-on: windows-2022
+    runs-on: windows-latest
     strategy:
       matrix:
         config:
@@ -117,7 +117,7 @@ jobs:
 
       - name: Build qthttpserver
         run: |
-            cd src\qthttpserver
+            cd src\qthttpserver 
             qmake
             make -j8
             make install
