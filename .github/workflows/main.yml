@@ -1584,6 +1584,9 @@ jobs:
           - name: bike
             setting_key: tdf_10_ip
             setting_value: localhost
+          - name: rower
+            setting_key: proform_rower_ip
+            setting_value: localhost
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -1933,6 +1936,7 @@ jobs:
             - **fdroid-android-trial**: Android build
             - **nordictrack-treadmill-android-trial**: Nordictrack Treadmill build for iFIT2 Tablets
             - **nordictrack-bike-android-trial**: Nordictrack Bike build for iFIT2 Tablets
+            - **nordictrack-rower-android-trial**: Nordictrack Rower build for iFIT2 Tablets
             - **peloton-bike-plus-android-trial**: Peloton Bike Plus build with Grupetto backend
             - **peloton-bike-android-trial**: Peloton Bike build with Grupetto backend
             - **raspberry-pi-binary**: Raspberry Pi build
@@ -1949,6 +1953,7 @@ jobs:
             fdroid-android-trial/android-debug.apk
             nordictrack-treadmill-android-trial/android-debug-nordictrack-treadmill.apk
             nordictrack-bike-android-trial/android-debug-nordictrack-bike.apk
+            nordictrack-rower-android-trial/android-debug-nordictrack-rower.apk
             peloton-bike-plus-android-trial/android-debug-peloton-bike-plus.apk
             peloton-bike-android-trial/android-debug-peloton-bike.apk
             raspberry-pi-binary/qdomyos-zwift-32bit
