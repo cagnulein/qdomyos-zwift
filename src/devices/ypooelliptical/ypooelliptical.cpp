@@ -393,17 +393,17 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (Flags.instantPower) {
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
-                    .startsWith(QStringLiteral("Disabled")) && !SCH_411_510E) {
+                    .startsWith(QStringLiteral("Disabled"))) {
                 double divisor = 100.0; // i added this because this device seems to send it multiplied by 100
 
-                if(E35 || SCH_590E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)
+                if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)
                     divisor = 1.0;
 
                 m_watt = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)lastPacket.at(index)))) /
                          divisor;
             }
-            
+
             index += 2;
         } else if(DOMYOS) {
             m_watt = elliptical::watts();
