@@ -88,10 +88,10 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
         if (!echelon && !ifit) {
             if (!heart_only) {
-                if (!cadence && !power) {
+                if (!cadence && !power && !garmin_bluetooth_compatibility) {
                     services << ((QBluetoothUuid::ServiceClassUuid)0x1826);
                 } // FitnessMachineServiceUuid
-                else if (power) {
+                else if (power || garmin_bluetooth_compatibility) {
 
                     services << (QBluetoothUuid::ServiceClassUuid::CyclingPower);
                 } else {
@@ -99,7 +99,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                 }
             }
             if (!this->noHeartService || heart_only) {
-                services << QBluetoothUuid::HeartRate;
+                if (!garmin_bluetooth_compatibility) {
+                    services << QBluetoothUuid::HeartRate;
+                }
             }
         } else if (ifit) {
             services << (QBluetoothUuid(QStringLiteral("00001533-1412-efde-1523-785feabcd123")));
@@ -121,7 +123,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
         if (!echelon && !ifit) {
             if (!heart_only) {
-                if (!cadence && !power) {
+                if (!cadence && !power && !garmin_bluetooth_compatibility) {
 
                     serviceDataFIT.setType(QLowEnergyServiceData::ServiceTypePrimary);
                     QLowEnergyCharacteristicData charDataFIT;
@@ -247,9 +249,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                         serviceDataWattAtomBike.setType(QLowEnergyServiceData::ServiceTypePrimary);
                         serviceDataWattAtomBike.setUuid(QBluetoothUuid(QStringLiteral("b4cc1223-bc02-4cae-adb9-1217ad2860d1")));
                         serviceDataWattAtomBike.addCharacteristic(charData);
-                        serviceDataWattAtomBike.addCharacteristic(charData2);                                           
+                        serviceDataWattAtomBike.addCharacteristic(charData2);
                     }
-                } else if (power) {
+                } else if (power || garmin_bluetooth_compatibility) {
 
                     QLowEnergyCharacteristicData charData;
                     charData.setUuid(QBluetoothUuid::CharacteristicType::CyclingPowerFeature);
@@ -1328,6 +1330,7 @@ void virtualbike::bikeProvider() {
         settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+    bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
 
     double normalizeWattage = Bike->wattsMetric().value();
     if (normalizeWattage < 0)
@@ -1410,7 +1413,7 @@ void virtualbike::bikeProvider() {
 
     if (!echelon && !ifit) {
         if (!heart_only) {
-            if (!cadence && !power) {
+            if (!cadence && !power && !garmin_bluetooth_compatibility) {
                 value.clear();
                 if (notif2AD2->notify(value) == CN_OK) {
                     if (!serviceFIT) {
@@ -1453,7 +1456,7 @@ void virtualbike::bikeProvider() {
                         writeCharacteristic(serviceWattAtomBike, characteristic1, value);
                     }
                 }
-            } else if (power) {
+            } else if (power || garmin_bluetooth_compatibility) {
                 value.clear();
                 if (notif2A63->notify(value) == CN_OK) {
 

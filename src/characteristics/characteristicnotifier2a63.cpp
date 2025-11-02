@@ -1,13 +1,21 @@
 #include "characteristicnotifier2a63.h"
+#include <QSettings>
+#include <QDateTime>
+#include "qzsettings.h"
 
 CharacteristicNotifier2A63::CharacteristicNotifier2A63(bluetoothdevice *Bike, QObject *parent)
-    : CharacteristicNotifier(0x2a63, parent), Bike(Bike) {}
+    : CharacteristicNotifier(0x2a63, parent), Bike(Bike) {
+    garmin_lastRevolution = QDateTime::currentMSecsSinceEpoch();
+}
 
 int CharacteristicNotifier2A63::notify(QByteArray &value) {
     double normalizeWattage = Bike->wattsMetric().value();
     if (normalizeWattage < 0)
         normalizeWattage = 0;
-    
+
+    QSettings settings;
+    bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
+
     if (Bike->deviceType() == BIKE) {
         /*
          // set measurement
@@ -42,29 +50,55 @@ int CharacteristicNotifier2A63::notify(QByteArray &value) {
          #else
            lastWheelK = lastCrankK * 1;  // 1/1024 s granularity
          #endif
-         
+
          */
-        
-      uint32_t wheelCount = (uint32_t)Bike->currentCrankRevolutions() * 3;
-      uint16_t lastWheelK = Bike->lastCrankEventTime() * 2;
-        
-      value.append((char)0x30); // crank data present and wheel for apple watch
-      value.append((char)0x00);
-      value.append((char)(((uint16_t)normalizeWattage) & 0xFF));                     // watt
-      value.append((char)(((uint16_t)normalizeWattage) >> 8) & 0xFF);                // watt
-        
-        value.append((char)(((uint32_t)wheelCount) & 0xFF));      // revs count
-        value.append((char)(((uint32_t)wheelCount) >> 8) & 0xFF); // revs count
-        value.append((char)(((uint32_t)wheelCount) >> 16) & 0xFF); // revs count
-        value.append((char)(((uint32_t)wheelCount) >> 24) & 0xFF); // revs count
-        value.append((char)(lastWheelK & 0xff));                       // eventtime
-        value.append((char)(lastWheelK >> 8) & 0xFF);                  // eventtime
-        
-      value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) & 0xFF));      // revs count
-      value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) >> 8) & 0xFF); // revs count
-      value.append((char)(Bike->lastCrankEventTime() & 0xff));                       // eventtime
-      value.append((char)(Bike->lastCrankEventTime() >> 8) & 0xFF);                  // eventtime
-      return CN_OK;
+
+        if (garmin_bluetooth_compatibility) {
+            // Garmin-compatible format (flag 0x20 - crank revolutions only)
+            // Update revolutions and timestamp based on cadence
+            qint64 millis = QDateTime::currentMSecsSinceEpoch();
+            uint16_t currentCadence = (uint16_t)Bike->currentCadence().value();
+
+            if (currentCadence != 0 && (millis >= garmin_lastRevolution + (60000 / (currentCadence / 2)))) {
+                garmin_revolutions = garmin_revolutions + 1;
+                qint64 newT = ((60000 / (currentCadence / 2) * 1024) / 1000);
+                newT = newT + garmin_timestamp;
+                newT = newT % 65536;
+                garmin_timestamp = (uint16_t)newT;
+                garmin_lastRevolution = millis;
+            }
+
+            value.append((char)0x20); // crank revolutions present
+            value.append((char)0x00);
+            value.append((char)(((uint16_t)normalizeWattage) & 0xFF));                // watt
+            value.append((char)(((uint16_t)normalizeWattage) >> 8) & 0xFF);           // watt
+            value.append((char)(garmin_revolutions & 0xFF));                          // crank revs
+            value.append((char)((garmin_revolutions >> 8) & 0xFF));                   // crank revs
+            value.append((char)(garmin_timestamp & 0xFF));                            // timestamp
+            value.append((char)((garmin_timestamp >> 8) & 0xFF));                     // timestamp
+        } else {
+            // Standard format (flag 0x30 - crank and wheel for Apple Watch)
+            uint32_t wheelCount = (uint32_t)Bike->currentCrankRevolutions() * 3;
+            uint16_t lastWheelK = Bike->lastCrankEventTime() * 2;
+
+            value.append((char)0x30); // crank data present and wheel for apple watch
+            value.append((char)0x00);
+            value.append((char)(((uint16_t)normalizeWattage) & 0xFF));                     // watt
+            value.append((char)(((uint16_t)normalizeWattage) >> 8) & 0xFF);                // watt
+
+            value.append((char)(((uint32_t)wheelCount) & 0xFF));      // revs count
+            value.append((char)(((uint32_t)wheelCount) >> 8) & 0xFF); // revs count
+            value.append((char)(((uint32_t)wheelCount) >> 16) & 0xFF); // revs count
+            value.append((char)(((uint32_t)wheelCount) >> 24) & 0xFF); // revs count
+            value.append((char)(lastWheelK & 0xff));                       // eventtime
+            value.append((char)(lastWheelK >> 8) & 0xFF);                  // eventtime
+
+            value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) & 0xFF));      // revs count
+            value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) >> 8) & 0xFF); // revs count
+            value.append((char)(Bike->lastCrankEventTime() & 0xff));                       // eventtime
+            value.append((char)(Bike->lastCrankEventTime() >> 8) & 0xFF);                  // eventtime
+        }
+        return CN_OK;
     } else
         return CN_INVALID;
 }
