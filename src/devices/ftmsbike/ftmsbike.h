@@ -138,6 +138,7 @@ class ftmsbike : public bike {
     bool DOMYOS = false;
     bool _3G_Cardio_RB = false;
     bool SCH_190U = false;
+    bool SCH_290R = false;
     bool D2RIDE = false;
     bool WATTBIKE = false;
     bool VFSPINBIKE = false;
