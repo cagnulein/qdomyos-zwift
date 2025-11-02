@@ -323,9 +323,20 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
             index += 2;
             index += 2;
-        } else if(SCH_411_510E && lastPacket.length() > 14) {
-            Cadence = lastPacket.at(14);
-            emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        } else if (SCH_411_510E) {
+            // SCH_411_510E doesn't send stepCount, calculate cadence from speed
+            // Using cadence_sensor_speed_ratio: Cadence = Speed / ratio
+            // Recommended ratio: 0.068 (= Speed/Cadence = 2.12/31), user adjustable
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                double cadence_speed_ratio = settings.value(QZSettings::cadence_sensor_speed_ratio,
+                                                            QZSettings::default_cadence_sensor_speed_ratio).toDouble();
+                if (cadence_speed_ratio > 0) {
+                    Cadence = Speed.value() / cadence_speed_ratio;
+                }
+                emit debug(QStringLiteral("Current Cadence (from speed): ") + QString::number(Cadence.value()));
+            }
         }
 
         if (Flags.strideCount) {
@@ -379,7 +390,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             }
         }
 
-        if (Flags.instantPower && !SCH_411_510E) {
+        if (Flags.instantPower) {
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled")) && !SCH_411_510E) {
@@ -394,7 +405,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             }
             
             index += 2;
-        } else if(DOMYOS || SCH_411_510E) {
+        } else if(DOMYOS) {
             m_watt = elliptical::watts();
         }
 
