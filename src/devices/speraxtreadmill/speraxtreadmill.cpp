@@ -739,7 +739,7 @@ void speraxtreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
 double speraxtreadmill::GetSpeedFromPacket(const QByteArray &packet) {
 
-    uint8_t convertedData = (uint8_t)packet.at(17);
+    uint8_t convertedData = (uint8_t)packet.at(17 + (packet.length() - 24));
     double data = ((double)(convertedData) / 10.0);
     return data;
 }
