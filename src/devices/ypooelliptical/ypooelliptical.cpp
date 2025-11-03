@@ -341,15 +341,18 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
                 // Calculate cadence only if stride count has changed
                 if (currentStrideCount != lastStrideCount) {
-                    if (lastStrideCount > 0 && currentStrideCount > lastStrideCount) {
-                        double stridesDiff = currentStrideCount - lastStrideCount;
+                    if (lastStrideCount > 0) {
+                        // Handle overflow: uint16_t subtraction automatically wraps correctly
+                        uint16_t stridesDiff = currentStrideCount - lastStrideCount;
                         double timeInMinutes = lastStrideCountChanged.msecsTo(now) / 60000.0;
 
-                        if (timeInMinutes > 0) {
+                        // Sanity check: reject unrealistic values (e.g., > 300 strides in one sample)
+                        if (timeInMinutes > 0 && stridesDiff < 1000) {
                             // strides per minute, then divide by 2 to get RPM
                             double stridesPerMinute = stridesDiff / timeInMinutes;
                             Cadence = stridesPerMinute / 2.0;
-                            emit debug(QStringLiteral("Current Cadence (from strideCount): ") + QString::number(Cadence.value()));
+                            emit debug(QStringLiteral("Current Cadence (from strideCount): ") + QString::number(Cadence.value()) +
+                                      QStringLiteral(" (diff: ") + QString::number(stridesDiff) + QStringLiteral(")"));
                         }
                     }
 
