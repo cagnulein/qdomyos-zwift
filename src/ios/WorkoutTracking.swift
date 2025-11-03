@@ -276,19 +276,19 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         let quantityMiles = HKQuantity(unit: unitDistance,
                                   doubleValue: miles)
         
-        if(WorkoutTracking.sport == 2) {
-            
+        if(WorkoutTracking.sport == 2 || WorkoutTracking.sport == 4) {
+
             guard let quantityTypeDistance = HKQuantityType.quantityType(
                     forIdentifier: .distanceCycling) else {
               return
             }
-            
-            
+
+
             let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
                                                           quantity: quantityMiles,
                                                           start: startDate,
                                                           end: Date())
-            
+
             workoutBuilder.add([sampleDistance]) {(success, error) in
                 if let error = error {
                     SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
@@ -542,12 +542,12 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 if(WorkoutTracking.lastDateMetric.distance(to: Date()) < 1) {
                     return
                 }
-                
+
                 let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
-                                                  doubleValue: Speed * 0.277778)
-                
-                if let runningSpeedType = HKQuantityType.quantityType(forIdentifier: .runningSpeed) {
-                    let speedSample = HKQuantitySample(type: runningSpeedType,
+                                                  doubleValue: (Speed / 3.6))
+
+                if let cyclingSpeedType = HKQuantityType.quantityType(forIdentifier: .cyclingSpeed) {
+                    let speedSample = HKQuantitySample(type: cyclingSpeedType,
                                                        quantity: speedPerInterval,
                                                        start: WorkoutTracking.lastDateMetric,
                                                        end: Date())
@@ -557,7 +557,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         }
                     }
                 }
-                
+
                 if power > 0,
                    let runningPowerType = HKQuantityType.quantityType(forIdentifier: .runningPower) {
                     let powerQuantity = HKQuantity(unit: HKUnit.watt(), doubleValue: power)
@@ -586,7 +586,22 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         }
                     }
                 }
-                
+
+                let distanceDelta = max(0, distance - previousDistance)
+                if distanceDelta > 0,
+                   let distanceType = HKQuantityType.quantityType(forIdentifier: .distanceCycling) {
+                    let distanceQuantity = HKQuantity(unit: HKUnit.meter(), doubleValue: distanceDelta)
+                    let distanceSample = HKQuantitySample(type: distanceType,
+                                                          quantity: distanceQuantity,
+                                                          start: WorkoutTracking.lastDateMetric,
+                                                          end: Date())
+                    WorkoutTracking.workoutBuilder.add([distanceSample]) { (success, error) in
+                        if let error = error {
+                            SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                        }
+                    }
+                }
+
             } else {
                 // Fallback on earlier versions
             }
