@@ -71,6 +71,7 @@ class ypooelliptical : public elliptical {
     double bikeResistanceGain = 1.0;
     const uint8_t max_resistance = 72; // 24;
     const uint8_t default_resistance = 6;
+    metric instantCadence;
 
     bool initDone = false;
     bool initRequest = false;
