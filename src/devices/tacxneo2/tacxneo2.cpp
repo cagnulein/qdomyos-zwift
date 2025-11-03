@@ -264,18 +264,32 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         int16_t deltaT = LastCrankEventTimeRead - oldLastCrankEventTime;
         if (deltaT < 0) {
-            deltaT = LastCrankEventTimeRead + 65535 - oldLastCrankEventTime;
+            deltaT = LastCrankEventTimeRead + 65536 - oldLastCrankEventTime;
         }
 
         // Tacx Neo flywheel spins up when freewheeling in a low virtual gear (Issue #2157)
         if(m_watt.value() == 0) {
             Cadence = 0;
         } else if (CrankRevsRead != oldCrankRevs && deltaT) {
-            double cadence = (((double)CrankRevsRead - (double)oldCrankRevs) / (double)deltaT) * 1024.0 * 60.0;
-            if (cadence >= 0 && cadence < 255) {
-                Cadence = cadence;
+            // Calculate crank revolution delta, handling potential rollover
+            int32_t crankDelta = (int32_t)CrankRevsRead - (int32_t)oldCrankRevs;
+
+            // Detect invalid data: if crank revs decreased significantly (not a simple rollover)
+            if (crankDelta < 0 && crankDelta > -100) {
+                // Assume 16-bit rollover for crank revs
+                crankDelta += 65536;
+            } else if (crankDelta < -100) {
+                // Invalid data - large negative jump, skip this update
+                qDebug() << "Invalid crank data detected (CSC): crankDelta =" << crankDelta << "deltaT =" << deltaT;
+                // Keep last good cadence, will timeout after 2s
+            } else if (crankDelta > 0 && deltaT > 0) {
+                // Valid positive change
+                double cadence = (crankDelta / (double)deltaT) * 1024.0 * 60.0;
+                if (cadence >= 0 && cadence < 255) {
+                    Cadence = cadence;
+                }
+                lastGoodCadence = now;
             }
-            lastGoodCadence = now;
         } else if (lastGoodCadence.msecsTo(now) > 2000) {
             Cadence = 0;
         }
@@ -420,22 +434,37 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
                 int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
                 if (deltaT < 0) {
-                    deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
+                    // Handle rollover - use 65536 for proper wraparound calculation
+                    deltaT = LastCrankEventTime + 65536 - oldLastCrankEventTime;
                 }
 
                 if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                         .toString()
                         .startsWith(QStringLiteral("Disabled"))) {
                     if (CrankRevs != oldCrankRevs && deltaT) {
-                        double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
-                        if (!crank_rev_present)
-                            cadence =
-                                cadence /
-                                2; // I really don't like this, there is no relationship between wheel rev and crank rev
-                        if (cadence >= 0) {
-                            Cadence = cadence;
+                        // Calculate crank revolution delta, handling potential rollover
+                        int32_t crankDelta = CrankRevs - oldCrankRevs;
+
+                        // Detect invalid data: if crank revs decreased significantly (not a simple rollover)
+                        // or if deltaT is still unreasonably small after rollover correction
+                        if (crankDelta < 0 && crankDelta > -100) {
+                            // Assume 16-bit rollover for crank revs
+                            crankDelta += 65536;
+                        } else if (crankDelta < -100) {
+                            // Invalid data - large negative jump, skip this update
+                            qDebug() << "Invalid crank data detected: crankDelta =" << crankDelta << "deltaT =" << deltaT;
+                        } else if (crankDelta > 0 && deltaT > 0) {
+                            // Valid positive change
+                            double cadence = (crankDelta / (double)deltaT) * time_division * 60;
+                            if (!crank_rev_present)
+                                cadence =
+                                    cadence /
+                                    2; // I really don't like this, there is no relationship between wheel rev and crank rev
+                            if (cadence >= 0 && cadence < 255) {
+                                Cadence = cadence;
+                            }
+                            lastGoodCadence = now;
                         }
-                        lastGoodCadence = now;
                     } else if (lastGoodCadence.msecsTo(now) > 2000) {
                         Cadence = 0;
                     }

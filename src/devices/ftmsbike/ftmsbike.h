@@ -138,6 +138,7 @@ class ftmsbike : public bike {
     bool DOMYOS = false;
     bool _3G_Cardio_RB = false;
     bool SCH_190U = false;
+    bool SCH_290R = false;
     bool D2RIDE = false;
     bool WATTBIKE = false;
     bool VFSPINBIKE = false;
@@ -162,6 +163,8 @@ class ftmsbike : public bike {
     bool MRK_S26C = false;
     bool HAMMER = false;
     bool YPBM = false;
+    bool SPORT01 = false;
+    bool FS_YK = false;
 
     uint8_t secondsToResetTimer = 5;
 

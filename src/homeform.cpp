@@ -1357,8 +1357,10 @@ void homeform::aboutToQuit() {
 #endif
 
 #ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
     // End iOS Live Activity
     ios_liveactivity::endLiveActivity();
+#endif
 #endif
 
     QSettings settings;
@@ -5003,9 +5005,9 @@ void homeform::Stop() {
 #ifndef IO_UNDER_QT
     if(h && !h->appleWatchAppInstalled())
         h->stopWorkout();
-#endif
     // End iOS Live Activity when workout stops
     ios_liveactivity::endLiveActivity();
+#endif
 #endif
 
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
