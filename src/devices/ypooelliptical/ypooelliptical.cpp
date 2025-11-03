@@ -323,23 +323,42 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
             index += 2;
             index += 2;
-        } else if (SCH_411_510E) {
-            // SCH_411_510E doesn't send stepCount, calculate cadence from speed
-            // Using cadence_sensor_speed_ratio: Cadence = Speed / ratio
-            // Recommended ratio: 0.068 (= Speed/Cadence = 2.12/31), user adjustable
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled"))) {
-                double cadence_speed_ratio = settings.value(QZSettings::cadence_sensor_speed_ratio,
-                                                            QZSettings::default_cadence_sensor_speed_ratio).toDouble();
-                if (cadence_speed_ratio > 0) {
-                    Cadence = Speed.value() / cadence_speed_ratio;
-                }
-                emit debug(QStringLiteral("Current Cadence (from speed): ") + QString::number(Cadence.value()));
-            }
         }
 
         if (Flags.strideCount) {
+            // Read current stride count (cumulative total)
+            uint16_t currentStrideCount = ((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                          (uint16_t)((uint8_t)lastPacket.at(index));
+
+            // Store total stride count in StepCount metric
+            StepCount = currentStrideCount;
+            emit debug(QStringLiteral("Current StepCount (from strideCount): ") + QString::number(StepCount.value()));
+
+            // Calculate cadence from stride count difference if no external cadence sensor
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+
+                // Calculate cadence only if stride count has changed
+                if (currentStrideCount != lastStrideCount) {
+                    if (lastStrideCount > 0 && currentStrideCount > lastStrideCount) {
+                        double stridesDiff = currentStrideCount - lastStrideCount;
+                        double timeInMinutes = lastStrideCountChanged.msecsTo(now) / 60000.0;
+
+                        if (timeInMinutes > 0) {
+                            // strides per minute, then divide by 2 to get RPM
+                            double stridesPerMinute = stridesDiff / timeInMinutes;
+                            Cadence = stridesPerMinute / 2.0;
+                            emit debug(QStringLiteral("Current Cadence (from strideCount): ") + QString::number(Cadence.value()));
+                        }
+                    }
+
+                    // Update last stride count and timestamp only when value changes
+                    lastStrideCount = currentStrideCount;
+                    lastStrideCountChanged = now;
+                }
+            }
+
             index += 2;
         }
 
