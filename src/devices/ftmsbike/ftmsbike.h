@@ -164,6 +164,7 @@ class ftmsbike : public bike {
     bool HAMMER = false;
     bool YPBM = false;
     bool SPORT01 = false;
+    bool FS_YK = false;
 
     uint8_t secondsToResetTimer = 5;
 
