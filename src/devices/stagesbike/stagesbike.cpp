@@ -81,13 +81,14 @@ void stagesbike::update() {
         Resistance = 0;
         emit resistanceRead(Resistance.value());
         initRequest = false;
-        if(eliteService != nullptr) {
+        // due to Cadence and Wattage no responding the right way in Zwift (using a Elite Drivo 2) #3767
+        /*if(eliteService != nullptr) {
             uint8_t init1[] = {0x01, 0xad};
             writeCharacteristic(eliteService, eliteWriteCharacteristic, init1, sizeof(init1), "init", false, false);
             QThread::sleep(2);
             uint8_t init2[] = {0x45, 0x0a};
             writeCharacteristic(eliteService, eliteWriteCharacteristic2, init2, sizeof(init2), "init", false, false);
-        }
+        }*/
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
