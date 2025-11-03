@@ -49,7 +49,7 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
         peripheralManager.CurrentWatt = currentWatt
         peripheralManager.CurrentInclination = currentInclination
         peripheralManager.CurrentDistance = currentDistance
-	peripheralManager.ElapsedTimeSeconds = elapsedTimeSeconds
+        peripheralManager.ElapsedTimeSeconds = elapsedTimeSeconds
         return peripheralManager.connected;
     }
 }
@@ -258,6 +258,8 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                      self.CurrentSlope = (Double)((Int16)(requests.first!.value![3]) + high);
                 
                 self.lastCurrentSlope = UInt64(Date().timeIntervalSince1970)
+              
+              SwiftDebug.qtDebug("virtualtreadmill_zwift: new requested slope \(self.CurrentSlope)")
           }
           else if(requests.first!.value?.first == 0x03)
           {
@@ -265,6 +267,8 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
               self.CurrentSlope = ((Double)((Int16)(requests.first!.value![1]) + high)) * 10.0;
                 
               self.lastCurrentSlope = UInt64(Date().timeIntervalSince1970)
+              
+              SwiftDebug.qtDebug("virtualtreadmill_zwift: new requested slope \(self.CurrentSlope)")
           }
             else if(requests.first!.value?.first == 0x05)
           {
@@ -332,7 +336,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   func calculateHeartRate() -> Data {
     //self.delegate?.BLEPeripheralManagerDidSendValue(self.heartRate)
     var heartRateBPM: [UInt8] = [0, self.heartRate, 0, 0, 0, 0, 0, 0]
-    let heartRateData = Data(bytes: &heartRateBPM, count: MemoryLayout.size(ofValue: heartRateBPM))
+    let heartRateData = Data(bytes: &heartRateBPM, count: heartRateBPM.count)
     return heartRateData
   }
     
@@ -355,7 +359,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                                       (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
                                       (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
                                       self.heartRate,
-				      (UInt8)(self.ElapsedTimeSeconds & 0xFF), (UInt8)((self.ElapsedTimeSeconds >> 8) & 0xFF)]
+                      (UInt8)(self.ElapsedTimeSeconds & 0xFF), (UInt8)((self.ElapsedTimeSeconds >> 8) & 0xFF)]
       let treadmillDataData = Data(bytes: &treadmillData, count: treadmillData.count)
       return treadmillDataData
     }
@@ -424,3 +428,4 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   }
   
 } /// class-end
+

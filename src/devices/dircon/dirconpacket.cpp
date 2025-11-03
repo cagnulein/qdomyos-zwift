@@ -96,11 +96,11 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
             } else
                 return DPKT_PARSE_ERROR - rembuf;
         } else if (this->Identifier == DPKT_MSGID_ENABLE_CHARACTERISTIC_NOTIFICATIONS) {
-            if (this->Length == 16 || this->Length == 17) {
+            if (this->Length >= 16) {
                 quint16 uuid = ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8;
                 uuid |= ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0)) & 0x00FF;
                 this->uuid = uuid;
-                if (this->Length == 17) {
+                if (this->Length >= 17) {
                     this->isRequest = true;
                     this->additional_data = buf.mid(DPKT_MESSAGE_HEADER_LENGTH + 16, 1);
                 }
@@ -115,6 +115,12 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
                 this->additional_data =
                     buf.mid(DPKT_MESSAGE_HEADER_LENGTH + 16, rembuf - (DPKT_MESSAGE_HEADER_LENGTH + 16));
                 return rembuf;
+            } else
+                return DPKT_PARSE_ERROR - rembuf;
+        } else if (this->Identifier == DPKT_MSGID_UNKNOWN_0x07) {
+            if (this->Length == 0) {
+                this->isRequest = this->checkIsRequest(last_seq_number);
+                return DPKT_MESSAGE_HEADER_LENGTH;
             } else
                 return DPKT_PARSE_ERROR - rembuf;
         } else
@@ -182,6 +188,10 @@ QByteArray DirconPacket::encode(int last_seq_number) {
                 }
             }
         }
+    } else if (this->Identifier == DPKT_MSGID_UNKNOWN_0x07) {
+        // Unknown message 0x07 - always respond with empty payload
+        this->Length = 0;
+        byteout.append(2, 0);
     } else if (this->Identifier == DPKT_MSGID_DISCOVER_CHARACTERISTICS && !this->isRequest) {
         this->Length = 16 + this->uuids.size() * 17;
         byteout.append((char)(this->Length >> 8)).append((char)(this->Length));

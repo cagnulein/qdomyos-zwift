@@ -318,6 +318,7 @@ const QString QZSettings::virtual_device_echelon = QStringLiteral("virtual_devic
 const QString QZSettings::virtual_device_ifit = QStringLiteral("virtual_device_ifit");
 const QString QZSettings::virtual_device_rower = QStringLiteral("virtual_device_rower");
 const QString QZSettings::virtual_device_force_bike = QStringLiteral("virtual_device_force_bike");
+const QString QZSettings::virtual_device_force_treadmill = QStringLiteral("virtual_device_force_treadmill");
 const QString QZSettings::volume_change_gears = QStringLiteral("volume_change_gears");
 const QString QZSettings::applewatch_fakedevice = QStringLiteral("applewatch_fakedevice");
 const QString QZSettings::zwift_erg_resistance_down = QStringLiteral("zwift_erg_resistance_down");
@@ -989,7 +990,7 @@ const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 
 
-const uint32_t allSettingsCount = 811;
+const uint32_t allSettingsCount = 812;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1261,6 +1262,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit},
     {QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower},
     {QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike},
+    {QZSettings::virtual_device_force_treadmill, QZSettings::default_virtual_device_force_treadmill},
     {QZSettings::volume_change_gears, QZSettings::default_volume_change_gears},
     {QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice},
     {QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down},
