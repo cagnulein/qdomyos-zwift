@@ -184,7 +184,7 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
 
     // Clamp integral to prevent windup
     // Increased to 150 to allow better steady-state error compensation
-    static constexpr double kIntegralClamp = 300.0;
+    static constexpr double kIntegralClamp = 3000.0;
     const double integralBeforeClamp = m_powerErrorIntegral;
     m_powerErrorIntegral = std::clamp(m_powerErrorIntegral, -kIntegralClamp, kIntegralClamp);
 
