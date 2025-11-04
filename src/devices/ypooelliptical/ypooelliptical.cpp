@@ -323,12 +323,47 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
             index += 2;
             index += 2;
-        } else if(SCH_411_510E && lastPacket.length() > 14) {
-            Cadence = lastPacket.at(14);
-            emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         }
 
         if (Flags.strideCount) {
+            // Read current stride count (cumulative total)
+            uint16_t currentStrideCount = ((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                          (uint16_t)((uint8_t)lastPacket.at(index));
+
+            // Store total stride count in StepCount metric
+            StepCount = currentStrideCount;
+            emit debug(QStringLiteral("Current StepCount (from strideCount): ") + QString::number(StepCount.value()));
+
+            // Calculate cadence from stride count difference if no external cadence sensor
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+
+                // Calculate cadence only if stride count has changed
+                if (currentStrideCount != lastStrideCount) {
+                    if (lastStrideCount > 0) {
+                        // Handle overflow: uint16_t subtraction automatically wraps correctly
+                        uint16_t stridesDiff = currentStrideCount - lastStrideCount;
+                        double timeInMinutes = lastStrideCountChanged.msecsTo(now) / 60000.0;
+
+                        // Sanity check: reject unrealistic values (e.g., > 300 strides in one sample)
+                        if (timeInMinutes > 0 && stridesDiff < 1000) {
+                            // strides per minute, then divide by 2 to get RPM
+                            double stridesPerMinute = stridesDiff / timeInMinutes;
+                            instantCadence = stridesPerMinute / 2.0;
+                            if(instantCadence.average5s() < 200) // sanity check
+                                Cadence = instantCadence.average5s();
+                            emit debug(QStringLiteral("Current Cadence (from strideCount): ") + QString::number(Cadence.value()) +
+                                      QStringLiteral(" (diff: ") + QString::number(stridesDiff) + QStringLiteral(")"));
+                        }
+                    }
+
+                    // Update last stride count and timestamp only when value changes
+                    lastStrideCount = currentStrideCount;
+                    lastStrideCountChanged = now;
+                }
+            }
+
             index += 2;
         }
 
@@ -379,22 +414,22 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             }
         }
 
-        if (Flags.instantPower && !SCH_411_510E) {
+        if (Flags.instantPower) {
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
-                    .startsWith(QStringLiteral("Disabled")) && !SCH_411_510E) {
+                    .startsWith(QStringLiteral("Disabled"))) {
                 double divisor = 100.0; // i added this because this device seems to send it multiplied by 100
 
-                if(E35 || SCH_590E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)
+                if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)
                     divisor = 1.0;
 
                 m_watt = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)lastPacket.at(index)))) /
                          divisor;
             }
-            
+
             index += 2;
-        } else if(DOMYOS || SCH_411_510E) {
+        } else if(DOMYOS) {
             m_watt = elliptical::watts();
         }
 

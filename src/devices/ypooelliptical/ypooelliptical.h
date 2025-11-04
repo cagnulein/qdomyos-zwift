@@ -64,11 +64,14 @@ class ypooelliptical : public elliptical {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
+    QDateTime lastStrideCountChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
+    uint16_t lastStrideCount = 0;
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     const uint8_t max_resistance = 72; // 24;
     const uint8_t default_resistance = 6;
+    metric instantCadence;
 
     bool initDone = false;
     bool initRequest = false;

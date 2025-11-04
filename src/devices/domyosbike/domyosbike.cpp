@@ -619,6 +619,8 @@ void domyosbike::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
     qDebug() << QStringLiteral("domyosbike::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                     m_control->errorString();
+
+    m_control->disconnectFromDevice();
 }
 
 void domyosbike::error(QLowEnergyController::Error err) {

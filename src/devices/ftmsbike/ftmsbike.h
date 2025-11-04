@@ -81,6 +81,7 @@ class ftmsbike : public bike {
 
     // true because or the bike supports it by hardware or because QZ is emulating this in this module
     bool ergModeSupportedAvailableBySoftware() override { return true; }
+    bool inclinationAvailableBySoftware() override { return !resistance_lvl_mode; }
 
   private:
     bool writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -94,6 +95,7 @@ class ftmsbike : public bike {
     void init();
     void forceResistance(resistance_t requestResistance);
     void forcePower(int16_t requestPower);
+    void forceInclination(double requestInclination);
     uint16_t wattsFromResistance(double resistance);
 
     QTimer *refresh;
@@ -138,6 +140,7 @@ class ftmsbike : public bike {
     bool DOMYOS = false;
     bool _3G_Cardio_RB = false;
     bool SCH_190U = false;
+    bool SCH_290R = false;
     bool D2RIDE = false;
     bool WATTBIKE = false;
     bool VFSPINBIKE = false;
@@ -163,6 +166,7 @@ class ftmsbike : public bike {
     bool HAMMER = false;
     bool YPBM = false;
     bool SPORT01 = false;
+    bool FS_YK = false;
 
     uint8_t secondsToResetTimer = 5;
 
