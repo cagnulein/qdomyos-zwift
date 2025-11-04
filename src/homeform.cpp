@@ -9074,7 +9074,17 @@ extern "C" {
                 deviceType == ROWING || 
                 deviceType == ELLIPTICAL) {
                 
-                homeform::singleton()->bluetoothManager->device()->changeResistance(resistance);
+                bike* b = dynamic_cast<bike*>(homeform::singleton()->bluetoothManager->device());
+                if (b) {
+                    resistance_t maxRes = b->maxResistance();
+                    resistance_t scaledResistance = (resistance_t)((resistance / 100.0) * maxRes);
+                    if (scaledResistance < 1) scaledResistance = 1;
+                    if (scaledResistance > maxRes) scaledResistance = maxRes;
+
+                    qDebug() << "Native: ANT+ Max resistance:" << maxRes << "Scaled resistance:" << scaledResistance;
+
+                    b->changeResistance(scaledResistance);
+                }
                 qDebug() << "Applied ANT+ resistance change:" << resistance;
             } else {
                 qDebug() << "Device type does not support resistance change";

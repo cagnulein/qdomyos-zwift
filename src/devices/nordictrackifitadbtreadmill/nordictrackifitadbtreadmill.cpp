@@ -298,6 +298,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             bool nordictrack_treadmill_x14i = settings.value(QZSettings::nordictrack_treadmill_x14i, QZSettings::nordictrack_treadmill_x14i).toBool();
             bool proform_treadmill_carbon_t7 = settings.value(QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7).toBool();
             bool nordictrack_treadmill_1750_adb = settings.value(QZSettings::nordictrack_treadmill_1750_adb, QZSettings::default_nordictrack_treadmill_1750_adb).toBool();
+            bool proform_trainer_9_0 = settings.value(QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0).toBool();
 
             if (requestSpeed != -1) {
                 int x1 = 1845;
@@ -321,6 +322,11 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                     x1 = 1206;
                     y1Speed = (int) (603 - (34.0 * ((Speed.value() * 0.621371) - 0.5)));
                     y2 = 603 - (int)(((requestSpeed * 0.621371) - 0.5) * 34.0);
+                } else if(proform_trainer_9_0) {
+                    x1 = 950;
+                    // 1.0 km/h is x:950 y:390, 18 km/h is x:950 y:238
+                    y1Speed = (int) (390 - (8.941 * (Speed.value() - 1)));
+                    y2 = y1Speed - (int)((requestSpeed - Speed.value()) * 8.941);
                 }
 
                 lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Speed) + " " +
@@ -367,6 +373,11 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                     x1 = 75;
                     y1Inclination = (int) (603 - (21.72222222 * (currentInclination().value() + 3.0)));
                     y2 = 603 - (int)((requestInclination + 3.0) * 21.72222222);
+                } else if(proform_trainer_9_0) {
+                    x1 = 75;
+                    // 0% is x:75 y:390, 10% is x:75 y:238
+                    y1Inclination = (int) (390 - (15.2 * currentInclination().value()));
+                    y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 15.2);
                 }
 
                 lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Inclination) + " " +

@@ -81,8 +81,7 @@ void stagesbike::update() {
         Resistance = 0;
         emit resistanceRead(Resistance.value());
         initRequest = false;
-        // due to Cadence and Wattage no responding the right way in Zwift (using a Elite Drivo 2) #3767
-        if(eliteService != nullptr) {
+        if(eliteService != nullptr && !DR) {
             uint8_t init1[] = {0x01, 0xad};
             writeCharacteristic(eliteService, eliteWriteCharacteristic, init1, sizeof(init1), "init", false, false);
             QThread::sleep(2);
@@ -110,9 +109,16 @@ void stagesbike::update() {
             qDebug() << QStringLiteral("writing inclination ") << requestInclination << lastRawRequestedInclinationValue << gears();
 
             if(eliteService != nullptr) {
-                QByteArray a = setSimulationMode(
-                    lastRawRequestedInclinationValue + gears(), 0.005, 0.5, 0.0, 1.0); // since this bike doesn't have the concept of resistance,
-                                                                                       // i'm using the gears in the inclination
+                QByteArray a;
+                if(DR) {
+                    // For DR devices, use setBrakeLevel with inclination value (converted from percentage)
+                    double inclinationValue = lastRawRequestedResistanceValue + gears();
+                    a = setBrakeLevel(inclinationValue / 100.0);
+                } else {
+                    a = setSimulationMode(
+                        lastRawRequestedInclinationValue + gears(), 0.005, 0.5, 0.0, 1.0); // since this bike doesn't have the concept of resistance,
+                                                                                           // i'm using the gears in the inclination
+                }
                 uint8_t b[20];
                 memcpy(b, a.constData(), a.length());
                 writeCharacteristic(eliteService, eliteWriteCharacteristic, b, a.length(), "forceInclination", false, false);
@@ -632,6 +638,12 @@ void stagesbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        // Check if it's a DR device
+        if(device.name().toUpper().contains("DR")) {
+            DR = true;
+            emit debug(QStringLiteral("DR device detected"));
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &stagesbike::serviceDiscovered);

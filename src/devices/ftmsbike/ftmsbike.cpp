@@ -660,18 +660,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             double cr = 97.62165482;
 
             if (Cadence.value() && m_watt.value()) {
-                if(YS_G1MPLUS) {
-                    m_pelotonResistance = Resistance.value();  // 1:1 ratio
-                } else {
-                    m_pelotonResistance =
-                        (((sqrt(pow(br, 2.0) - 4.0 * ar *
-                                                   (cr - (m_watt.value() * 132.0 /
-                                                          (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
-                           br) /
-                          (2.0 * ar)) *
-                         settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-                            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-                }
+                m_pelotonResistance =
+                    (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                                (cr - (m_watt.value() * 132.0 /
+                                                        (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                        br) /
+                        (2.0 * ar)) *
+                        settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                        settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+                        
                 if (!resistance_received && !DU30_bike && !SL010) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());

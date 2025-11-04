@@ -950,7 +950,7 @@ void trainprogram::scheduler() {
 
                 // Only convert inclination to resistance for bikes WITHOUT hardware inclination support
                 // Ellipticals only enter here if they don't have hardware inclination (checked in outer condition)
-                if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableByHardware()) ||
+                if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) ||
                     (bluetoothManager->device()->deviceType() == ELLIPTICAL)) {
                     double bikeResistanceOffset =
                         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
@@ -1140,7 +1140,7 @@ void trainprogram::scheduler() {
 
                         // Only convert inclination to resistance for bikes WITHOUT hardware inclination support
                         // Ellipticals only enter here if they don't have hardware inclination (checked in outer condition)
-                        if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableByHardware()) ||
+                        if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) ||
                             (bluetoothManager->device()->deviceType() == ELLIPTICAL)) {
                             double bikeResistanceOffset =
                                 settings
@@ -1217,7 +1217,7 @@ void trainprogram::scheduler() {
                 }
 
                 // Only convert inclination to resistance for bikes WITHOUT hardware inclination support
-                if (bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableByHardware()) {
+                if (bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) {
                     double bikeResistanceOffset =
                         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
                             .toInt();
