@@ -81,6 +81,7 @@ class ftmsbike : public bike {
 
     // true because or the bike supports it by hardware or because QZ is emulating this in this module
     bool ergModeSupportedAvailableBySoftware() override { return true; }
+    bool inclinationAvailableBySoftware() override { return !resistance_lvl_mode; }
 
   private:
     bool writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
