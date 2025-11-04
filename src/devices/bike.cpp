@@ -5,6 +5,7 @@
 #include "qzsettings.h"
 #include <QSettings>
 #include <algorithm>
+#include <cmath>
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
 
@@ -139,88 +140,52 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
         return requestPower;
     }
 
-    // ==================== LOW-PASS FILTER ====================
-    // Smooth sensor readings to reduce spikes and oscillations
-    // This prevents sudden power jumps from causing control instability
-    static double filteredMeasured = 0;
-    const double filterAlpha = 0.3;  // 30% new, 70% old
+    const double targetPower = static_cast<double>(requestPower);
+    const double trainerPower = rawMeasured;
+    const double sensorPower = measured;
 
-    if (filteredMeasured <= 0) {
-        filteredMeasured = measured;  // First reading
-    } else {
-        filteredMeasured = filteredMeasured * (1.0 - filterAlpha) + measured * filterAlpha;
-    }
+    // Feed-forward: compensate for the steady offset between trainer and external sensor
+    const double trainerSensorDelta = trainerPower - sensorPower;
+    const double feedForwardCommand = targetPower + trainerSensorDelta;
 
-    // Use filtered value for error calculation
+    // Error based on what the rider is really producing
+    const double error = targetPower - sensorPower;
     const double allowedDelta = qMax(ergFilterUpper, ergFilterLower);
-    const double error = static_cast<double>(requestPower) - filteredMeasured;
 
-    qDebug() << "adjustRequestPowerWithSensorDelta: rawWatt:" << rawMeasured << "measured(from sensor):" << measured
-             << "filtered:" << filteredMeasured
-             << "req:" << requestPower << "error:" << error << "filter:" << allowedDelta
-             << "Kp:" << kProportionalGain << "Ki:" << kIntegralGain;
+    qDebug() << "adjustRequestPowerWithSensorDelta: rawWatt:" << trainerPower << "sensor:" << sensorPower
+             << "target:" << targetPower << "delta(trainer-sensor):" << trainerSensorDelta
+             << "feedForward:" << feedForwardCommand << "error:" << error
+             << "deadZone:" << allowedDelta << "Kp:" << kProportionalGain << "Ki:" << kIntegralGain;
 
-    // Reset integral ONLY on first run
-    // DO NOT reset when error changes sign - this causes oscillations!
-    // The integral clamp already prevents windup
-    if (!m_lastPowerErrorValid) {
-        qDebug() << "adjustRequestPowerWithSensorDelta: first run, initializing integral";
-        m_powerErrorIntegral = 0;
+    // Leaky integral to avoid wind-up while keeping long-term bias correction
+    constexpr double kIntegralLeak = 0.7;
+    constexpr double kIntegralClamp = 80.0;
+
+    if (std::fabs(error) <= allowedDelta) {
+        m_powerErrorIntegral *= kIntegralLeak;
+    } else {
+        m_powerErrorIntegral = m_powerErrorIntegral * kIntegralLeak + error;
+    }
+    m_powerErrorIntegral = std::clamp(m_powerErrorIntegral, -kIntegralClamp, kIntegralClamp);
+
+    const double proportional = error * kProportionalGain;
+    const double integral = m_powerErrorIntegral * kIntegralGain;
+    double adjustedPower = feedForwardCommand + proportional + integral;
+
+    if (adjustedPower < 0) {
+        adjustedPower = 0;
     }
 
     m_lastPowerError = error;
     m_lastPowerErrorValid = true;
 
-    // Inside dead zone: decay integral gradually instead of resetting
-    // This prevents sudden jumps when entering/exiting the dead zone
-    if (fabs(error) <= allowedDelta) {
-        // Decay integral by 50% when inside dead zone
-        m_powerErrorIntegral *= 0.5;
-        qDebug() << "adjustRequestPowerWithSensorDelta: within dead zone, decaying integral to:" << m_powerErrorIntegral;
-    } else {
-        // Outside dead zone: accumulate integral normally
-        m_powerErrorIntegral += error;
-    }
+    qDebug() << "adjustRequestPowerWithSensorDelta: feed-forward PI active";
+    qDebug() << "  Feed-forward command:" << feedForwardCommand << "W";
+    qDebug() << "  P (error * Kp):" << proportional << "W";
+    qDebug() << "  I (integral * Ki):" << integral << "W";
+    qDebug() << "  Output command:" << adjustedPower << "W (target +" << adjustedPower - targetPower << "W)";
 
-    // Clamp integral to prevent windup
-    // Increased to 150 to allow better steady-state error compensation
-    static constexpr double kIntegralClamp = 300.0;
-    const double integralBeforeClamp = m_powerErrorIntegral;
-    m_powerErrorIntegral = std::clamp(m_powerErrorIntegral, -kIntegralClamp, kIntegralClamp);
-
-    // Calculate PI correction
-    const double proportional = error * kProportionalGain;
-    const double integral = m_powerErrorIntegral * kIntegralGain;
-    double correction = proportional + integral;
-
-    // ==================== RATE LIMITING ====================
-    // Limit how fast the correction can change to prevent sudden resistance jumps
-    // This ensures smooth transitions and prevents oscillations during target changes
-    static double lastCorrection = 0;
-    const double maxCorrectionChange = 10.0;  // Max ±10W per cycle (~1 second)
-
-    if (lastCorrection != 0) {  // Skip first cycle
-        double correctionChange = correction - lastCorrection;
-        if (correctionChange > maxCorrectionChange) {
-            correction = lastCorrection + maxCorrectionChange;
-            qDebug() << "adjustRequestPowerWithSensorDelta: rate limiting correction (increase)";
-        } else if (correctionChange < -maxCorrectionChange) {
-            correction = lastCorrection - maxCorrectionChange;
-            qDebug() << "adjustRequestPowerWithSensorDelta: rate limiting correction (decrease)";
-        }
-    }
-    lastCorrection = correction;
-
-    const int32_t adjustedPower = requestPower + static_cast<int32_t>(correction);
-
-    qDebug() << "adjustRequestPowerWithSensorDelta: PI controller active";
-    qDebug() << "  P (error * Kp):" << error << "*" << kProportionalGain << "=" << proportional << "W";
-    qDebug() << "  I (integral * Ki):" << m_powerErrorIntegral << (integralBeforeClamp != m_powerErrorIntegral ? "(clamped)" : "")
-             << "*" << kIntegralGain << "=" << integral << "W";
-    qDebug() << "  Total correction:" << correction << "W";
-    qDebug() << "  Output: req" << requestPower << "+ corr" << correction << "=" << adjustedPower << "W";
-
-    return adjustedPower;
+    return static_cast<int32_t>(std::lround(adjustedPower));
 }
 
 double bike::gears() {
