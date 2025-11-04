@@ -985,6 +985,11 @@ class QZSettings {
      */
     static const QString virtual_device_force_bike;
     static constexpr bool default_virtual_device_force_bike = false;
+    /**
+     *@brief Used to force a rower device to be presented to client apps as a treadmill.
+     */
+    static const QString virtual_device_force_treadmill;
+    static constexpr bool default_virtual_device_force_treadmill = false;
 
     static const QString volume_change_gears;
     static constexpr bool default_volume_change_gears = false;

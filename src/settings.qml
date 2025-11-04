@@ -1209,8 +1209,9 @@ import Qt.labs.platform 1.1
             property bool proform_csx210: false
             property bool confirm_stop_workout: false
             property bool proform_rower_750r: false
+            property bool virtual_device_force_treadmill: false
             property real power_sensor_pi_kp: 0.4
-            property real power_sensor_pi_ki: 0.08
+            property real power_sensor_pi_ki: 0.08            
         }
 
 
@@ -2645,7 +2646,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 Watts or more than 110 Watts. Default is 10.")
+                        text: qsTr("In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -3285,7 +3286,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("If you have a generic FTMS bike and the tiles don't appear on the main QZ screen, select here the bluetooth name of your bike.")
+                        text: qsTr("If you have a generic FTMS bike and the tiles don't appear on the main QZ screen, select here the Bluetooth name of your bike.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -3392,7 +3393,7 @@ import Qt.labs.platform 1.1
                                 }
                             }
                             Label {
-                                text: qsTr("Since this bike doesn't send resistance over bluetooth, QZ is calculating it using cadence and wattage. The result could be a little 'jumpy' and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.")
+                                text: qsTr("Since this bike doesn't send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little 'jumpy' and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -4117,7 +4118,7 @@ import Qt.labs.platform 1.1
 
                             IndicatorOnlySwitch {
                                 id: proformTdfJonseedWattdelegate
-                                text: qsTr("TDF CBC Jonseed Watt table")
+                                text: qsTr("TDF CBC Jonseed watt table")
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -4631,7 +4632,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Use this to connect to your bike using ANT+ instead bluetooth. Default: Disabled")
+                        text: qsTr("Use this to connect to your bike using ANT+ instead of Bluetooth. Default: Disabled")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5294,7 +5295,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Difficulty level for peloton treadmill classes. 1 is easy 10 is hard.")
+                        text: qsTr("Difficulty level for Peloton treadmill classes. 1 is easy 10 is hard.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5332,7 +5333,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Difficulty level for peloton treadmill walking classes. 1 is easy 10 is hard.")
+                        text: qsTr("Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5370,7 +5371,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Difficulty level for peloton rower classes. 1 is easy 10 is hard.")
+                        text: qsTr("Difficulty level for Peloton rower classes. 1 is easy 10 is hard.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5522,7 +5523,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton Resistance of 30 and you enter 5, QZ will display 35.)")
+                        text: qsTr("Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5820,7 +5821,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the peloton workout screen and will adjust the peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.")
+                        text: qsTr("Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5847,7 +5848,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("This setting enables the AI (Artificial Intelligence) on the QZ Companion AI app that will read the peloton workout screen and will adjust the peloton offset in order to stay in sync in realtime with your Peloton workout.")
+                        text: qsTr("This setting enables the AI (Artificial Intelligence) on the QZ Companion AI app that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -6012,7 +6013,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. Default: disabled.")
+                        text: qsTr("This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure Zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -6039,7 +6040,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("This setting shows the actual gear from qz to Zwift. Negative values are not displayed on zwift and it could have also limitation to higher gain value. Default: disabled.")
+                        text: qsTr("This setting shows the actual gear from QZ to Zwift. Negative values are not displayed on Zwift and it could have also limitation to higher gain value. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -7313,7 +7314,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the bluetooth name of your bike.")
+                        text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the Bluetooth name of your bike.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -7946,7 +7947,7 @@ import Qt.labs.platform 1.1
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("Remap 5km/h button:")
+                                    text: qsTr("Remap 5 km/h button:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -7969,7 +7970,7 @@ import Qt.labs.platform 1.1
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("Remap 10km/h button:")
+                                    text: qsTr("Remap 10 km/h button:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -7992,7 +7993,7 @@ import Qt.labs.platform 1.1
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("Remap 16km/h button:")
+                                    text: qsTr("Remap 16 km/h button:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -8015,7 +8016,7 @@ import Qt.labs.platform 1.1
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("Remap 22km/h button:")
+                                    text: qsTr("Remap 22 km/h button:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -8608,7 +8609,7 @@ import Qt.labs.platform 1.1
                     }
 
                     IndicatorOnlySwitch {
-                        text: qsTr("BH SPADA Wattage")
+                        text: qsTr("BH SPADA wattage")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -9720,7 +9721,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("QZ can open an external browser in order to auth strava to QZ. Default: disabled.")
+                        text: qsTr("QZ can open an external browser to authorize Strava. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9733,7 +9734,7 @@ import Qt.labs.platform 1.1
                     }
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Use garmin device in the FIT file")
+                        text: qsTr("Use Garmin device in the FIT file")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -9963,7 +9964,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Append the Date to the Strava Activity as a prefix only for non-peloton workout")
+                        text: qsTr("Append the Date to the Strava Activity as a prefix only for non-Peloton workout")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -10279,7 +10280,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("By default QZ sends to the virtual bluetooth/dircon bridge the current inclination of the treadmill. Enabling this, it will send instead the one wihtout considering inclination gain or offset. Default: False.")
+                        text: qsTr("By default QZ sends to the virtual Bluetooth/DIRCON bridge the current inclination of the treadmill. Enabling this, it will send instead the one wihtout considering inclination gain or offset. Default: False.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -10293,7 +10294,7 @@ import Qt.labs.platform 1.1
 
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Disable Wattage from Machinery")
+                        text: qsTr("Disable wattage from machinery")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -10729,7 +10730,7 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.")
+                                text: qsTr("If you have a Bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -10756,7 +10757,7 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("If you have a bluetooth treadmill and also a Runn device connected to QZ and you want to use the inclination from the RUNN instead of the inclination of the treadmill, enable this. Default: disabled.")
+                                text: qsTr("If you have a Bluetooth treadmill and also a Runn device connected to QZ and you want to use the inclination from the RUNN instead of the inclination of the treadmill, enable this. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -10783,7 +10784,7 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can't get the inclination from the treadmill. Enabling this and QZ will add an inclination gain to the power read from the Stryd. Default: disabled.")
+                                text: qsTr("If you have a Bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can't get the inclination from the treadmill. Enabling this and QZ will add an inclination gain to the power read from the Stryd. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -12054,7 +12055,7 @@ import Qt.labs.platform 1.1
 
                     IndicatorOnlySwitch {
                         id: bluetooth30mHangsDelegate
-                        text: qsTr("Bluetooth hangs after 30m")
+                        text: qsTr("Bluetooth hangs after 30 m")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -12220,6 +12221,34 @@ import Qt.labs.platform 1.1
                                     }
 
                                     IndicatorOnlySwitch {
+                                        id: virtualDeviceForceTreadmillDelegate
+                                        text: qsTr("Force Virtual Treadmill")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_force_treadmill
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: { settings.virtual_device_force_treadmill = checked; window.settings_restart_to_apply = true; }
+                                    }
+
+                                    Label {
+                                        text: qsTr("When enabled, forces QZ to impersonate a virtual treadmill regardless of the original device type. This allows any device (bike, rower, elliptical, etc.) to appear as a treadmill to third party apps. Default is off.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
+                                    IndicatorOnlySwitch {
                                         id: virtualBikeForceResistanceDelegate
                                         text: qsTr("Zwift Force Resistance")
                                         spacing: 0
@@ -12292,7 +12321,7 @@ import Qt.labs.platform 1.1
                                     }
 
                                     Label {
-                                        text: qsTr("Enables a virtual bluetooth bridge to the iFit App. This setting requires that at least one device be Android. For example, this setting does NOT work with QZ on iOS and iFit to iOS, but DOES work with QZ on iOS and iFit to Android. On Android remember to rename your device into I_EL into the android settings and reboot your device.")
+                                        text: qsTr("Enables a virtual Bluetooth bridge to the iFit App. This setting requires that at least one device be Android. For example, this setting does NOT work with QZ on iOS and iFit to iOS, but DOES work with QZ on iOS and iFit to Android. On Android remember to rename your device into I_EL into the android settings and reboot your device.")
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: Qt.application.font.pixelSize - 2
