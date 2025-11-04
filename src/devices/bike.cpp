@@ -469,6 +469,8 @@ uint8_t bike::metrics_override_heartrate() {
 
 bool bike::inclinationAvailableByHardware() { return false; }
 
+bool bike::inclinationAvailableBySoftware() { return false; }
+
 uint16_t bike::wattFromHR(bool useSpeedAndCadence) {
     QSettings settings;
     double watt = 0;

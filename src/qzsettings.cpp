@@ -845,6 +845,7 @@ const QString QZSettings::fit_file_garmin_device_training_effect = QStringLitera
 const QString QZSettings::fit_file_garmin_device_training_effect_device = QStringLiteral("fit_file_garmin_device_training_effect_device");
 const QString QZSettings::proform_treadmill_705_cst_V80_44 = QStringLiteral("proform_treadmill_705_cst_V80_44");
 const QString QZSettings::nordictrack_treadmill_1750_adb = QStringLiteral("nordictrack_treadmill_1750_adb");
+const QString QZSettings::proform_trainer_9_0 = QStringLiteral("proform_trainer_9_0");
 
 const QString QZSettings::tile_preset_powerzone_1_enabled = QStringLiteral("tile_preset_powerzone_1_enabled");
 const QString QZSettings::tile_preset_powerzone_1_order = QStringLiteral("tile_preset_powerzone_1_order");
@@ -990,7 +991,7 @@ const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 
 
-const uint32_t allSettingsCount = 812;
+const uint32_t allSettingsCount = 813;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1707,7 +1708,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::fit_file_garmin_device_training_effect_device, QZSettings::default_fit_file_garmin_device_training_effect_device},
     {QZSettings::proform_treadmill_705_cst_V80_44, QZSettings::default_proform_treadmill_705_cst_V80_44},
     {QZSettings::nordictrack_treadmill_1750_adb, QZSettings::default_nordictrack_treadmill_1750_adb},
-    
+    {QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0},
+
     {QZSettings::tile_preset_powerzone_1_enabled, QZSettings::default_tile_preset_powerzone_1_enabled},
     {QZSettings::tile_preset_powerzone_1_order, QZSettings::default_tile_preset_powerzone_1_order},
     {QZSettings::tile_preset_powerzone_1_value, QZSettings::default_tile_preset_powerzone_1_value},
