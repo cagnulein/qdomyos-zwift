@@ -351,7 +351,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                             // strides per minute, then divide by 2 to get RPM
                             double stridesPerMinute = stridesDiff / timeInMinutes;
                             instantCadence = stridesPerMinute / 2.0;
-                            Cadence = instantCadence.average5s();
+                            if(instantCadence.average5s() < 200) // sanity check
+                                Cadence = instantCadence.average5s();
                             emit debug(QStringLiteral("Current Cadence (from strideCount): ") + QString::number(Cadence.value()) +
                                       QStringLiteral(" (diff: ") + QString::number(stridesDiff) + QStringLiteral(")"));
                         }

@@ -1210,8 +1210,9 @@ import Qt.labs.platform 1.1
             property bool confirm_stop_workout: false
             property bool proform_rower_750r: false
             property bool virtual_device_force_treadmill: false
+            property bool proform_trainer_9_0: false            
             property real power_sensor_pi_kp: 0.4
-            property real power_sensor_pi_ki: 0.08            
+            property real power_sensor_pi_ki: 0.08                        
         }
 
 
@@ -7411,6 +7412,7 @@ import Qt.labs.platform 1.1
                                     "Nordictrack Ultra LE",
                                     "Proform Carbon TLS",
                                     "Proform 995i",
+                                    "Proform Trainer 9.0 (PFTL69921-INT.4)",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -7479,7 +7481,8 @@ import Qt.labs.platform 1.1
                                                     settings.nordictrack_elite_800 ? 49 :
                                                     settings.nordictrack_treadmill_ultra_le ? 50 :
                                                     settings.proform_treadmill_carbon_tls ? 51 :
-                                                    settings.proform_treadmill_995i ? 52 : 0;
+                                                    settings.proform_treadmill_995i ? 52 :
+                                                    settings.proform_trainer_9_0 ? 53 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -7546,6 +7549,7 @@ import Qt.labs.platform 1.1
                                     settings.nordictrack_treadmill_ultra_le = false;
                                     settings.proform_treadmill_carbon_tls = false;
                                     settings.proform_treadmill_995i = false;
+                                    settings.proform_trainer_9_0 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -7601,6 +7605,7 @@ import Qt.labs.platform 1.1
                                         case 50: settings.nordictrack_treadmill_ultra_le = true; break;
                                         case 51: settings.proform_treadmill_carbon_tls = true; break;
                                         case 52: settings.proform_treadmill_995i = true; break;
+                                        case 53: settings.proform_trainer_9_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
