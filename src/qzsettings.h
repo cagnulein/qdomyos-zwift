@@ -1669,6 +1669,9 @@ class QZSettings {
     static const QString toorx_ftms_treadmill;
     static constexpr bool default_toorx_ftms_treadmill = false;
 
+    static const QString iconcept_ftms_treadmill_inclination_table;
+    static constexpr bool default_iconcept_ftms_treadmill_inclination_table = false;
+
     static const QString nordictrack_t65s_83_treadmill;
     static constexpr bool default_nordictrack_t65s_83_treadmill = false;
 

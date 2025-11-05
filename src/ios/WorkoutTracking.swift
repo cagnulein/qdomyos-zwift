@@ -574,8 +574,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
 
                 if cadence > 0,
                    let cyclingCadenceType = HKQuantityType.quantityType(forIdentifier: .cyclingCadence) {
+                    // For ellipticals, divide cadence by 2 to match QZ display (steps per minute vs revolutions per minute)
                     let cadenceQuantity = HKQuantity(unit: HKUnit.count().unitDivided(by: HKUnit.second()),
-                                                     doubleValue: cadence / 60.0)
+                                                     doubleValue: (cadence / 2.0) / 60.0)
                     let cadenceSample = HKQuantitySample(type: cyclingCadenceType,
                                                          quantity: cadenceQuantity,
                                                          start: WorkoutTracking.lastDateMetric,

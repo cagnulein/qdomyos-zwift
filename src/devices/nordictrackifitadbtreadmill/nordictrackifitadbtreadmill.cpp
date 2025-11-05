@@ -133,6 +133,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->proform_trainer_9_0 = settings.value(QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0).toBool();
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbtreadmill::update);
     connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &nordictrackifitadbtreadmill::stopLogcatAdbThread);
@@ -543,13 +544,89 @@ void nordictrackifitadbtreadmill::update() {
 
         // btinit();
 
+        QSettings settings;
+        bool nordictrack_ifit_adb_remote =
+            settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
+                .toBool();
+        bool proform_trainer_9_0 = settings.value(QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0).toBool();
+
+        if (nordictrack_ifit_adb_remote && proform_trainer_9_0) {
+            lastCommand = "input tap 610 350";
+            qDebug() << " >> " + lastCommand;
+#ifdef Q_OS_ANDROID
+            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                      "(Ljava/lang/String;)V", command.object<jstring>());
+#elif defined(Q_OS_WIN)
+            if (logcatAdbThread)
+                logcatAdbThread->runCommand("shell " + lastCommand);
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+            h->adb_sendcommand(lastCommand.toStdString().c_str());
+#endif
+#endif
+        }
+
         requestStart = -1;
         emit tapeStarted();
     }
     if (requestStop != -1) {
         emit debug(QStringLiteral("stopping..."));
+
+        QSettings settings;
+        bool nordictrack_ifit_adb_remote =
+            settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
+                .toBool();
+        bool proform_trainer_9_0 = settings.value(QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0).toBool();
+
+        if (nordictrack_ifit_adb_remote && proform_trainer_9_0) {
+            lastCommand = "input tap 420 350";
+            qDebug() << " >> " + lastCommand;
+#ifdef Q_OS_ANDROID
+            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                      "(Ljava/lang/String;)V", command.object<jstring>());
+#elif defined(Q_OS_WIN)
+            if (logcatAdbThread)
+                logcatAdbThread->runCommand("shell " + lastCommand);
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+            h->adb_sendcommand(lastCommand.toStdString().c_str());
+#endif
+#endif
+        }
+
         // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
         requestStop = -1;
+    }
+    if (requestPause != -1) {
+        emit debug(QStringLiteral("pausing..."));
+
+        QSettings settings;
+        bool nordictrack_ifit_adb_remote =
+            settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
+                .toBool();
+        bool proform_trainer_9_0 = settings.value(QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0).toBool();
+
+        if (nordictrack_ifit_adb_remote && proform_trainer_9_0) {
+            // Double tap for pause
+            lastCommand = "input tap 512 350 && sleep 1 && input tap 512 350";
+            qDebug() << " >> " + lastCommand;
+#ifdef Q_OS_ANDROID
+            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                      "(Ljava/lang/String;)V", command.object<jstring>());
+#elif defined(Q_OS_WIN)
+            if (logcatAdbThread)
+                logcatAdbThread->runCommand("shell " + lastCommand);
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+            h->adb_sendcommand(lastCommand.toStdString().c_str());
+#endif
+#endif
+        }
+
+        requestPause = -1;
     }
 }
 
@@ -561,6 +638,14 @@ void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, doubl
 }
 
 bool nordictrackifitadbtreadmill::connected() { return true; }
+
+bool nordictrackifitadbtreadmill::canStartStop() {
+    QSettings settings;
+    bool nordictrack_ifit_adb_remote =
+        settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
+            .toBool();
+    return nordictrack_ifit_adb_remote && proform_trainer_9_0;
+}
 
 void nordictrackifitadbtreadmill::stopLogcatAdbThread() {
     qDebug() << "stopLogcatAdbThread()";

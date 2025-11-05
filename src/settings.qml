@@ -1211,6 +1211,7 @@ import Qt.labs.platform 1.1
             property bool proform_rower_750r: false
             property bool virtual_device_force_treadmill: false
             property bool proform_trainer_9_0: false            
+            property bool iconcept_ftms_treadmill_inclination_table: false
             property real power_sensor_pi_kp: 0.4
             property real power_sensor_pi_ki: 0.08                        
         }
@@ -8557,8 +8558,8 @@ import Qt.labs.platform 1.1
                                 onClicked: { settings.horizon_treadmill_force_ftms = checked; window.settings_restart_to_apply = true; }
                             }
                         }
-                    }                
-                }             
+                    }
+                }
             }
 
             AccordionElement {
@@ -8786,6 +8787,21 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.toorx_ftms_treadmill = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: iconceptFTMSTreadmillInclinationTableDelegate
+                        text: qsTr("IConcept FTMS Treadmill")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.iconcept_ftms_treadmill_inclination_table
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.iconcept_ftms_treadmill_inclination_table = checked; window.settings_restart_to_apply = true; }
                     }
 
                     IndicatorOnlySwitch {
