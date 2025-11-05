@@ -106,6 +106,7 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
         qDebug() << "adjustRequestPowerWithSensorDelta: power sensor not enabled, skipping PI controller";
         m_powerErrorIntegral = 0;
         m_lastPowerErrorValid = false;
+        m_feedForwardInitialized = false;
         return requestPower;
     }
 
@@ -113,73 +114,87 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
         qDebug() << "adjustRequestPowerWithSensorDelta: erg mode not supported, skipping PI controller";
         m_powerErrorIntegral = 0;
         m_lastPowerErrorValid = false;
+        m_feedForwardInitialized = false;
         return requestPower;
     }
 
-    if (m_rawWatt.value() <= 0 || m_watt.value() <= 0) {
-        qDebug() << "adjustRequestPowerWithSensorDelta: invalid power readings (rawWatt:" << m_rawWatt.value()
-                 << "watt:" << m_watt.value() << "), skipping PI controller";
+    const double trainerPower = m_rawWatt.value();
+    if (trainerPower <= 0) {
+        qDebug() << "adjustRequestPowerWithSensorDelta: invalid trainer reading (rawWatt:" << trainerPower
+                 << "), skipping PI controller";
         m_powerErrorIntegral = 0;
         m_lastPowerErrorValid = false;
-        return requestPower;
-    }
-
-    // Load configurable PI gains from settings
-    QSettings settings;
-    const double kProportionalGain = settings.value(QZSettings::power_sensor_pi_kp, QZSettings::default_power_sensor_pi_kp).toDouble();
-    const double kIntegralGain = settings.value(QZSettings::power_sensor_pi_ki, QZSettings::default_power_sensor_pi_ki).toDouble();
-
-    const double rawMeasured = m_rawWatt.value();
-    // When power sensor is enabled, always use m_watt (external power meter reading)
-    // not m_rawWatt (bike's internal estimation)
-    double measured = m_watt.value();
-
-    if (measured <= 0) {
-        m_powerErrorIntegral = 0;
-        m_lastPowerErrorValid = false;
+        m_feedForwardInitialized = false;
         return requestPower;
     }
 
     const double targetPower = static_cast<double>(requestPower);
-    const double trainerPower = rawMeasured;
-    const double sensorPower = measured;
+    const double sensorPower = m_watt.value();
+    const bool sensorValid = sensorPower > 0.0;
 
-    // Feed-forward: compensate for the steady offset between trainer and external sensor
-    const double trainerSensorDelta = trainerPower - sensorPower;
-    const double feedForwardCommand = targetPower + trainerSensorDelta;
-
-    // Error based on what the rider is really producing
-    const double error = targetPower - sensorPower;
-    const double allowedDelta = qMax(ergFilterUpper, ergFilterLower);
-
-    qDebug() << "adjustRequestPowerWithSensorDelta: rawWatt:" << trainerPower << "sensor:" << sensorPower
-             << "target:" << targetPower << "delta(trainer-sensor):" << trainerSensorDelta
-             << "feedForward:" << feedForwardCommand << "error:" << error
-             << "deadZone:" << allowedDelta << "Kp:" << kProportionalGain << "Ki:" << kIntegralGain;
-
-    // Leaky integral to avoid wind-up while keeping long-term bias correction
+    constexpr double kOffsetSmoothing = 0.2;
+    constexpr double kOffsetStepLimit = 10.0;
+    constexpr double kOffsetClamp = 150.0;
     constexpr double kIntegralLeak = 0.7;
     constexpr double kIntegralClamp = 80.0;
 
-    if (std::fabs(error) <= allowedDelta) {
+    if (!sensorValid) {
+        const double fallbackCommand = std::max(0.0, targetPower + m_feedForwardOffset);
+        m_powerErrorIntegral *= kIntegralLeak;
+        qDebug() << "adjustRequestPowerWithSensorDelta: sensor power unavailable, using cached offset" << m_feedForwardOffset
+                 << "=> command" << fallbackCommand;
+        return static_cast<int32_t>(std::lround(fallbackCommand));
+    }
+
+    if (!std::isfinite(m_feedForwardOffset)) {
+        m_feedForwardOffset = 0.0;
+        m_feedForwardInitialized = false;
+    }
+
+    const double trainerSensorDelta = trainerPower - sensorPower;
+    if (!m_feedForwardInitialized) {
+        m_feedForwardOffset = trainerSensorDelta;
+        m_feedForwardInitialized = true;
+    } else {
+        const double blendedOffset = (1.0 - kOffsetSmoothing) * m_feedForwardOffset + kOffsetSmoothing * trainerSensorDelta;
+        double step = blendedOffset - m_feedForwardOffset;
+        if (step > kOffsetStepLimit) {
+            step = kOffsetStepLimit;
+        } else if (step < -kOffsetStepLimit) {
+            step = -kOffsetStepLimit;
+        }
+        m_feedForwardOffset = std::clamp(m_feedForwardOffset + step, -kOffsetClamp, kOffsetClamp);
+    }
+
+    const double feedForwardCommand = targetPower + m_feedForwardOffset;
+    const double sensorError = targetPower - sensorPower;
+    const double allowedDelta = qMax(ergFilterUpper, ergFilterLower);
+
+    QSettings settings;
+    const double kProportionalGain = settings.value(QZSettings::power_sensor_pi_kp, QZSettings::default_power_sensor_pi_kp).toDouble();
+    const double kIntegralGain = settings.value(QZSettings::power_sensor_pi_ki, QZSettings::default_power_sensor_pi_ki).toDouble();
+
+    if (std::fabs(sensorError) <= allowedDelta) {
         m_powerErrorIntegral *= kIntegralLeak;
     } else {
-        m_powerErrorIntegral = m_powerErrorIntegral * kIntegralLeak + error;
+        m_powerErrorIntegral = m_powerErrorIntegral * kIntegralLeak + sensorError;
     }
     m_powerErrorIntegral = std::clamp(m_powerErrorIntegral, -kIntegralClamp, kIntegralClamp);
 
-    const double proportional = error * kProportionalGain;
+    const double proportional = sensorError * kProportionalGain;
     const double integral = m_powerErrorIntegral * kIntegralGain;
-    double adjustedPower = feedForwardCommand + proportional + integral;
 
+    double adjustedPower = feedForwardCommand + proportional + integral;
     if (adjustedPower < 0) {
         adjustedPower = 0;
     }
 
-    m_lastPowerError = error;
+    m_lastPowerError = sensorError;
     m_lastPowerErrorValid = true;
 
     qDebug() << "adjustRequestPowerWithSensorDelta: feed-forward PI active";
+    qDebug() << "  Target:" << targetPower << "Sensor:" << sensorPower;
+    qDebug() << "  Offset (trainer-sensor, smoothed):" << trainerSensorDelta << "->" << m_feedForwardOffset;
     qDebug() << "  Feed-forward command:" << feedForwardCommand << "W";
     qDebug() << "  P (error * Kp):" << proportional << "W";
     qDebug() << "  I (integral * Ki):" << integral << "W";

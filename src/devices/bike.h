@@ -119,6 +119,8 @@ class bike : public bluetoothdevice {
     double m_powerErrorIntegral = 0.0;
     double m_lastPowerError = 0.0;
     bool m_lastPowerErrorValid = false;
+    double m_feedForwardOffset = 0.0;
+    bool m_feedForwardInitialized = false;
 };
 
 #endif // BIKE_H
