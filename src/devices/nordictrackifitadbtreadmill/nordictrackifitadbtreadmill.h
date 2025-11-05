@@ -62,7 +62,7 @@ class nordictrackifitadbtreadmill : public treadmill {
   public:
     nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
-    bool canStartStop() override { return false; }
+    bool canStartStop() override;
     double minStepSpeed() override { return 0.1; }
 
   private:
@@ -86,6 +86,7 @@ class nordictrackifitadbtreadmill : public treadmill {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool proform_trainer_9_0 = false;
 
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
