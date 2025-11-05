@@ -1,6 +1,7 @@
 #include "devices/ftmsrower/ftmsrower.h"
 #include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -19,7 +20,7 @@
 using namespace std::chrono_literals;
 
 ftmsrower::ftmsrower(bool noWriteResistance, bool noHeartService) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -62,12 +63,11 @@ void ftmsrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
 
 void ftmsrower::forceResistance(resistance_t requestResistance) {
 
-    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-
-    write[3] = ((uint16_t)requestResistance * 100) & 0xFF;
-    write[4] = ((uint16_t)requestResistance * 100) >> 8;
-
+    uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
+    write[1] = ((uint8_t)(requestResistance * 10));
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+    if(NORDLYS)
+        Resistance = requestResistance; // Nordlys does not report back the resistance so we set it here
 }
 
 void ftmsrower::update() {
@@ -209,6 +209,22 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
                       QStringLiteral(" RowState: ") + QString::number(pm5RowState));
         }
     }
+    else if (charUuid == QStringLiteral("{ce060035-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060035 - Stroke data including drive length (stroke length)
+        if (newValue.length() >= 7) {
+            // Extract drive length (stroke length) from byte 6 - 0.01 meters LSB, max 2.55m
+            uint8_t driveLengthRaw = (uint8_t)newValue.at(6);
+            if (driveLengthRaw > 0) {
+                // Convert from 0.01m units to meters
+                double strokeLengthMeters = driveLengthRaw * 0.01;
+                StrokesLength = strokeLengthMeters;
+            }
+            
+            emit debug(QStringLiteral("PM5 CE060035 RAW: ") + newValue.toHex(' ') +
+                      QStringLiteral(" Stroke Length: ") + QString::number(StrokesLength.value()) +
+                      QStringLiteral("m RowState: ") + QString::number(pm5RowState));
+        }
+    }
     
     // Update calories based on power if available
     if (m_watt.value() > 0) {
@@ -261,6 +277,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     if (PM5 && (characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060031-43e5-11e4-916c-0800200c9a66")) ||
                 characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060032-43e5-11e4-916c-0800200c9a66")) ||
                 characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060033-43e5-11e4-916c-0800200c9a66")) ||
+                characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060035-43e5-11e4-916c-0800200c9a66")) ||
                 characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060036-43e5-11e4-916c-0800200c9a66")))) {
         
         parseConcept2Data(characteristic, newValue);
@@ -604,6 +621,8 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         bool virtual_device_rower =
             settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
+        bool virtual_device_force_treadmill =
+            settings.value(QZSettings::virtual_device_force_treadmill, QZSettings::default_virtual_device_force_treadmill).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence =
@@ -621,7 +640,13 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         {
             if (virtual_device_enabled) {
-                if (!virtual_device_rower) {
+                if (virtual_device_force_treadmill) {
+                    emit debug(QStringLiteral("creating virtual treadmill interface..."));
+
+                    auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    connect(virtualTreadmill, &virtualtreadmill::debug, this, &ftmsrower::debug);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
+                } else if (!virtual_device_rower) {
                     emit debug(QStringLiteral("creating virtual bike interface..."));
 
                     auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
@@ -760,6 +785,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("NORDLYS"))) {
+            NORDLYS = true;
+            qDebug() << "NORDLYS found!";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

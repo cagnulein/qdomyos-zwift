@@ -305,14 +305,14 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         let flags:UInt8 = 0x02
       //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
         var cadence: [UInt8] = [flags, (UInt8)(crankRevolutions & 0xFF), (UInt8)((crankRevolutions >> 8) & 0xFF),  (UInt8)(lastCrankEventTime & 0xFF), (UInt8)((lastCrankEventTime >> 8) & 0xFF)]
-      let cadenceData = Data(bytes: &cadence, count: MemoryLayout.size(ofValue: cadence))
+      let cadenceData = Data(bytes: &cadence, count: cadence.count)
       return cadenceData
     }
     
   func calculateHeartRate() -> Data {
     //self.delegate?.BLEPeripheralManagerDidSendValue(self.heartRate)
     var heartRateBPM: [UInt8] = [0, self.heartRate, 0, 0, 0, 0, 0, 0]
-    let heartRateData = Data(bytes: &heartRateBPM, count: MemoryLayout.size(ofValue: heartRateBPM))
+    let heartRateData = Data(bytes: &heartRateBPM, count: heartRateBPM.count)
     return heartRateData
   }
     

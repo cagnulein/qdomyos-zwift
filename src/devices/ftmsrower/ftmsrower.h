@@ -70,6 +70,7 @@ class ftmsrower : public rower {
     bool WHIPR = false;
     bool KINGSMITH = false;
     bool PM5 = false;
+    bool NORDLYS = false;
 
     bool WATER_ROWER = false;
     bool DFIT_L_R = false;

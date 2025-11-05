@@ -70,6 +70,11 @@ void bike::changePower(int32_t power) {
         settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
     double erg_filter_lower =
         settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+    
+    // Apply bike power offset
+    int bike_power_offset = settings.value(QZSettings::bike_power_offset, QZSettings::default_bike_power_offset).toInt();
+    power += bike_power_offset;
+    qDebug() << QStringLiteral("changePower: original power with offset applied: ") + QString::number(power) + QStringLiteral(" (offset: ") + QString::number(bike_power_offset) + QStringLiteral(")");
 
     requestPower = power; // used by some bikes that have ERG mode builtin
     
@@ -206,7 +211,7 @@ resistance_t bike::resistanceFromPowerRequest(uint16_t power) { return power / 1
 void bike::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void bike::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 
-bluetoothdevice::BLUETOOTH_TYPE bike::deviceType() { return bluetoothdevice::BIKE; }
+BLUETOOTH_TYPE bike::deviceType() { return BIKE; }
 
 void bike::clearStats() {
 
@@ -375,6 +380,8 @@ uint8_t bike::metrics_override_heartrate() {
 }
 
 bool bike::inclinationAvailableByHardware() { return false; }
+
+bool bike::inclinationAvailableBySoftware() { return false; }
 
 uint16_t bike::wattFromHR(bool useSpeedAndCadence) {
     QSettings settings;

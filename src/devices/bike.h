@@ -31,7 +31,7 @@ class bike : public bluetoothdevice {
     virtual resistance_t resistanceFromPowerRequest(uint16_t power);
     virtual uint16_t powerFromResistanceRequest(resistance_t requestResistance);
     virtual bool ergManagedBySS2K() { return false; }
-    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
+    BLUETOOTH_TYPE deviceType() override;
     metric pelotonResistance();
     void clearStats() override;
     void setLap() override;
@@ -51,6 +51,7 @@ class bike : public bluetoothdevice {
      */
     metric currentSteeringAngle() { return m_steeringAngle; }
     virtual bool inclinationAvailableByHardware();
+    virtual bool inclinationAvailableBySoftware();
     bool ergModeSupportedAvailableByHardware() { return ergModeSupported; }
     virtual bool ergModeSupportedAvailableBySoftware() { return ergModeSupported; }
 

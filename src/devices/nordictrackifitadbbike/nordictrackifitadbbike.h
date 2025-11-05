@@ -70,6 +70,7 @@ class nordictrackifitadbbike : public bike {
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool inclinationAvailableByHardware() override;
+    bool inclinationAvailableBySoftware() override { return true; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     bool ifitCompatible() override;
     void changePower(int32_t power) override;
@@ -108,6 +109,7 @@ class nordictrackifitadbbike : public bike {
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastInclinationChanged = QDateTime::currentDateTime();
     QDateTime lastGrpcInclinationChanged = QDateTime::currentDateTime();
+    QDateTime lastResistanceChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
 

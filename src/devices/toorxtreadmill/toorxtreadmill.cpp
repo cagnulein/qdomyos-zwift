@@ -9,7 +9,7 @@
 using namespace std::chrono_literals;
 
 toorxtreadmill::toorxtreadmill() {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     initDone = false;
@@ -33,9 +33,16 @@ void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(discoveryAgent, &QBluetoothServiceDiscoveryAgent::serviceDiscovered, this,
                 &toorxtreadmill::serviceDiscovered);
 
-        // Start a discovery
-        qDebug() << QStringLiteral("toorxtreadmill::deviceDiscovered");
-        discoveryAgent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
+        // Start a discovery - use FullDiscovery only if not done before
+        QSettings settings;
+        bool discoveryCompleted = settings.value(QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed).toBool();
+        qDebug() << QStringLiteral("toorxtreadmill::deviceDiscovered - discoveryCompleted:") << discoveryCompleted;
+        
+        if (discoveryCompleted) {
+            discoveryAgent->start(QBluetoothServiceDiscoveryAgent::MinimalDiscovery);
+        } else {
+            discoveryAgent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
+        }
         return;
     }
 }
@@ -382,6 +389,14 @@ void toorxtreadmill::rfCommConnected() {
     qDebug() << QStringLiteral(" init1 write");
     socket->write((char *)init2, sizeof(init2));
     qDebug() << QStringLiteral(" init2 write");
+    
+    // Mark discovery as completed for future connections
+    QSettings settings;
+    if (!settings.value(QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed).toBool()) {
+        settings.setValue(QZSettings::toorxtreadmill_discovery_completed, true);
+        qDebug() << QStringLiteral("toorxtreadmill discovery marked as completed");
+    }
+    
     initDone = true;
     // requestStart = 1;
     emit connectedAndDiscovered();
@@ -426,8 +441,8 @@ uint16_t toorxtreadmill::GetCaloriesFromPacket(const QByteArray &packet) {
     return convertedData;
 }
 
-uint16_t toorxtreadmill::GetDistanceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(9) << 8) | packet.at(10);
+double toorxtreadmill::GetDistanceFromPacket(const QByteArray &packet) {
+    double convertedData = (double)((packet.at(9) << 8) | packet.at(10)) / 100.0;
     return convertedData;
 }
 

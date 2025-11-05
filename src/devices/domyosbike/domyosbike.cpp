@@ -3,6 +3,8 @@
 #include "keepawakehelper.h"
 #endif
 #include "virtualdevices/virtualbike.h"
+#include "homeform.h"
+#include "qzsettings.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -15,7 +17,7 @@ using namespace std::chrono_literals;
 
 domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testResistance, int8_t bikeResistanceOffset,
                        double bikeResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
 
@@ -593,6 +595,22 @@ void domyosbike::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+
+    if(!gattCommunicationChannelService) {
+        // Main service not found, check if FTMS service is available
+        QBluetoothUuid ftmsServiceId((quint16)0x1826);
+        QLowEnergyService *ftmsService = m_control->createServiceObject(ftmsServiceId);
+        if(ftmsService) {
+            QSettings settings;
+            settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
+            qDebug() << "forcing FTMS bike since it has FTMS service but not the main domyos service";
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("FTMS bike found, restart the app to apply the change");
+            delete ftmsService;
+        }
+        return;
+    }
+
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &domyosbike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
@@ -601,6 +619,8 @@ void domyosbike::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
     qDebug() << QStringLiteral("domyosbike::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                     m_control->errorString();
+
+    m_control->disconnectFromDevice();
 }
 
 void domyosbike::error(QLowEnergyController::Error err) {

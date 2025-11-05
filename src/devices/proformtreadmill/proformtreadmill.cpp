@@ -17,7 +17,7 @@
 using namespace std::chrono_literals;
 
 proformtreadmill::proformtreadmill(bool noWriteResistance, bool noHeartService) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -3148,7 +3148,18 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             return;
         }
     }
-	
+
+    // Ignore packets with all zeros in data bytes (no useful information)
+    // This fixes the issue where speed oscillates between actual value and 0
+    if (proform_treadmill_sport_70 && newValue.length() == 20 &&
+        newValue.at(0) == 0x00 && newValue.at(1) == 0x12 && newValue.at(2) == 0x01 && newValue.at(3) == 0x04 &&
+        newValue.at(5) == 0x1c &&
+        newValue.at(10) == 0x00 && newValue.at(11) == 0x00 && newValue.at(12) == 0x00 && newValue.at(13) == 0x00 &&
+        newValue.at(14) == 0x00 && newValue.at(15) == 0x00 && newValue.at(16) == 0x00 && newValue.at(17) == 0x00 &&
+        newValue.at(18) == 0x00 && newValue.at(19) == 0x00) {
+        return;
+    }
+
     if (newValue.length() != 20 || newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
         newValue.at(3) != 0x04 ||
 

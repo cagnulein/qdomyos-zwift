@@ -15,7 +15,7 @@ using namespace std::chrono_literals;
 
 kingsmithr2treadmill::kingsmithr2treadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService,
                                            double forceInitSpeed, double forceInitInclination) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;
@@ -448,7 +448,7 @@ void kingsmithr2treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteCharacteristicId((quint16)0xFED7);
     QBluetoothUuid _gattNotifyCharacteristicId((quint16)0xFED8);
 
-    if (KS_NACH_X21C || KS_NGCH_G1C_2) {
+    if (KS_NACH_X21C || KS_NGCH_G1C_2 || KS_HDSY_X21C_2) {
         _gattWriteCharacteristicId = QBluetoothUuid(QStringLiteral("0002FED7-0000-1000-8000-00805f9b34fb"));
         _gattNotifyCharacteristicId = QBluetoothUuid(QStringLiteral("0002FED8-0000-1000-8000-00805f9b34fb"));
     } else if (KS_NGCH_G1C || KS_NACH_MXG || KS_NACH_X21C_2) {
@@ -517,6 +517,12 @@ void kingsmithr2treadmill::serviceScanDone(void) {
         qDebug() << "KS_NACH_X21C default service id not found";
         _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00011234-0000-1000-8000-00805f9b34fb"));
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    } else if(gattCommunicationChannelService == nullptr && KS_HDSY_X21C) {
+        KS_HDSY_X21C_2 = true;
+        KS_HDSY_X21C = false;
+        qDebug() << "KS_HDSY_X21C default service id not found";
+        _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00021234-0000-1000-8000-00805f9b34fb"));
+        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     } else if(gattCommunicationChannelService == nullptr && KS_NGCH_G1C) {
         KS_NGCH_G1C_2 = true;
         KS_NGCH_G1C = false;
@@ -550,6 +556,9 @@ void kingsmithr2treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
         if (device.name().toUpper().startsWith(QStringLiteral("KS-NACH-X21C"))) {
             qDebug() << "KS-NACH-X21C workaround!";
             KS_NACH_X21C = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("KS-HDSY-X21C"))) {
+            qDebug() << "KS-HDSY-X21C workaround!";
+            KS_HDSY_X21C = true;
         } else if (device.name().toUpper().startsWith(QStringLiteral("KS-NGCH-G1C"))) {
             qDebug() << "KS-NGCH-G1C workaround!";
             KS_NGCH_G1C = true;

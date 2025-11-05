@@ -10,7 +10,10 @@ static uint8_t random_value_uint8 = 0;
 
 metric::metric() {}
 
-void metric::setType(_metric_type t) { m_type = t; }
+void metric::setType(_metric_type t, BLUETOOTH_TYPE bt) {
+    m_type = t;
+    m_bluetooth_type = bt;
+}
 
 void metric::setValue(double v, bool applyGainAndOffset) {
     QSettings settings;
@@ -18,7 +21,8 @@ void metric::setValue(double v, bool applyGainAndOffset) {
     if (applyGainAndOffset) {
         if (m_type == METRIC_WATT) {
             if (v > 0) {
-                if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= 2.00) {
+                double maxGain = (m_bluetooth_type == ROWING) ? 5.00 : 2.00;
+                if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= maxGain) {
                     if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() != 1.0) {
                         qDebug() << QStringLiteral("watt value was ") << v
                                  << QStringLiteral("but it will be transformed to")
@@ -118,7 +122,8 @@ double metric::valueRaw() {
 
     if (m_type == METRIC_WATT) {
         if (v > 0) {
-            if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= 2.00) {
+            double maxGain = (m_bluetooth_type == ROWING) ? 5.00 : 2.00;
+            if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= maxGain) {
                 v /= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
             }
             if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
@@ -422,4 +427,45 @@ Women:
     } else {
         return (T * ((0.6309 * H) + (0.1988 * W) + (0.2017 * A) - 55.0969) / 4.184);
     }
+}
+
+double metric::calculateBMR() {
+    // Calculate Basal Metabolic Rate using Mifflin-St Jeor equation
+    // BMR (kcal/day) for males: 10 * weight(kg) + 6.25 * height(cm) - 5 * age + 5
+    // BMR (kcal/day) for females: 10 * weight(kg) + 6.25 * height(cm) - 5 * age - 161
+    
+    QSettings settings;
+    QString sex = settings.value(QZSettings::sex, QZSettings::default_sex).toString();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    double age = settings.value(QZSettings::age, QZSettings::default_age).toDouble();
+    double height = settings.value(QZSettings::height, QZSettings::default_height).toDouble();
+    
+    // Full Mifflin-St Jeor equation with height
+    if (sex.toLower().contains("female")) {
+        return (10 * weight) + (6.25 * height) - (5 * age) - 161;
+    } else {
+        return (10 * weight) + (6.25 * height) - (5 * age) + 5;
+    }
+}
+
+double metric::calculateActiveKCal(double totalKCal, double elapsed) {
+    QSettings settings;
+    bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
+    
+    if (!activeOnly) {
+        return totalKCal; // Return total calories if active-only mode is disabled
+    }
+    
+    // Calculate BMR in calories per second
+    double bmrPerDay = calculateBMR();
+    double bmrPerSecond = bmrPerDay / (24.0 * 60.0 * 60.0); // Convert from calories/day to calories/second
+    
+    // Calculate BMR calories for the elapsed time
+    double bmrForElapsed = bmrPerSecond * elapsed;
+    
+    // Active calories = Total calories - BMR calories for the elapsed time
+    double activeKCal = totalKCal - bmrForElapsed;
+    
+    // Ensure we don't return negative calories
+    return activeKCal > 0 ? activeKCal : 0;
 }

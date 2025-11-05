@@ -78,6 +78,8 @@ class trxappgateusbelliptical : public elliptical {
     typedef enum TYPE {
         ELLIPTICAL_GENERIC = 0,
         DCT2000I = 1,
+        JTX_FITNESS = 2,
+        TAURUS_FX99 = 3,
     } TYPE;
     TYPE elliptical_type = ELLIPTICAL_GENERIC;
 

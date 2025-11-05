@@ -299,8 +299,8 @@ void TemplateInfoSenderBuilder::onSetResistance(const QJsonValue &msgContent, Te
     outObj[QStringLiteral("value")] = QJsonValue(QJsonValue::Null);
     if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains(QStringLiteral("value")) &&
         (resVal = msgContent[QStringLiteral("value")]).isDouble()) {
-        bluetoothdevice::BLUETOOTH_TYPE tp = device->deviceType();
-        if (tp == bluetoothdevice::BIKE || tp == bluetoothdevice::ROWING) {
+        BLUETOOTH_TYPE tp = device->deviceType();
+        if (tp == BIKE || tp == ROWING) {
             int res;
             if ((res = resVal.toInt()) >= 0 && res < std::numeric_limits<resistance_t>::max()) {
                 ((bike *)device)->changeResistance((resistance_t)res);
@@ -342,7 +342,7 @@ void TemplateInfoSenderBuilder::onSetPower(const QJsonValue &msgContent, Templat
     outObj[QStringLiteral("value")] = QJsonValue(QJsonValue::Null);
     if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains(QStringLiteral("value")) &&
         (resVal = msgContent[QStringLiteral("value")]).isDouble() &&
-        (device->deviceType() == bluetoothdevice::BIKE || device->deviceType() == bluetoothdevice::ROWING)) {
+        (device->deviceType() == BIKE || device->deviceType() == ROWING)) {
         int val;
         if ((val = resVal.toInt()) > 0) {
             ((bike *)device)->changePower((uint32_t)val);
@@ -362,7 +362,7 @@ void TemplateInfoSenderBuilder::onSetCadence(const QJsonValue &msgContent, Templ
     outObj[QStringLiteral("value")] = QJsonValue(QJsonValue::Null);
     if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains(QStringLiteral("value")) &&
         (resVal = msgContent[QStringLiteral("value")]).isDouble() &&
-        (device->deviceType() == bluetoothdevice::BIKE || device->deviceType() == bluetoothdevice::ROWING)) {
+        (device->deviceType() == BIKE || device->deviceType() == ROWING)) {
         int val;
         if ((val = resVal.toInt()) > 0) {
             ((bike *)device)->changeCadence((uint16_t)val);
@@ -383,7 +383,7 @@ void TemplateInfoSenderBuilder::onSetSpeed(const QJsonValue &msgContent, Templat
     outObj[QStringLiteral("value")] = QJsonValue(QJsonValue::Null);
     if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains(QStringLiteral("value")) &&
         (resVal = msgContent[QStringLiteral("value")]).isDouble() &&
-        device->deviceType() == bluetoothdevice::TREADMILL && (vald = resVal.toDouble()) >= 0) {
+        device->deviceType() == TREADMILL && (vald = resVal.toDouble()) >= 0) {
         ((treadmill *)device)->changeSpeed(vald);
         outObj[QStringLiteral("value")] = vald;
     }
@@ -466,7 +466,7 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
         }
     } else {
         QList<trainrow> lst = trainprogram::loadXML(homeform::getWritableAppDir() + QStringLiteral("training/") +
-                                                        fileXml + QStringLiteral(".xml"), (device ? device->deviceType() : bluetoothdevice::BIKE ));
+                                                        fileXml + QStringLiteral(".xml"), (device ? device->deviceType() : BIKE ));
         for (auto &row : lst) {
             QJsonObject item;
             TRAINPROGRAM_FIELD_TO_STRING();
@@ -962,11 +962,11 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                 sett.setProperty(key, settLJ);
             }
         }
-        obj.setProperty(QStringLiteral("BIKE_TYPE"), (int)bluetoothdevice::BIKE);
-        obj.setProperty(QStringLiteral("ELLIPTICAL_TYPE"), (int)bluetoothdevice::ELLIPTICAL);
-        obj.setProperty(QStringLiteral("ROWING_TYPE"), (int)bluetoothdevice::ROWING);
-        obj.setProperty(QStringLiteral("TREADMILL_TYPE"), (int)bluetoothdevice::TREADMILL);
-        obj.setProperty(QStringLiteral("UNKNOWN_TYPE"), (int)bluetoothdevice::UNKNOWN);
+        obj.setProperty(QStringLiteral("BIKE_TYPE"), (int)BIKE);
+        obj.setProperty(QStringLiteral("ELLIPTICAL_TYPE"), (int)ELLIPTICAL);
+        obj.setProperty(QStringLiteral("ROWING_TYPE"), (int)ROWING);
+        obj.setProperty(QStringLiteral("TREADMILL_TYPE"), (int)TREADMILL);
+        obj.setProperty(QStringLiteral("UNKNOWN_TYPE"), (int)UNKNOWN);
     }
     if (!device) {
         obj.setProperty(QStringLiteral("deviceId"), QJSValue());
@@ -975,7 +975,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         QTime elLap = device->lapElapsedTime();
         QString name;
         QString nickName;
-        bluetoothdevice::BLUETOOTH_TYPE tp = device->deviceType();
+        BLUETOOTH_TYPE tp = device->deviceType();
 
         metric dep;
 #ifdef Q_OS_IOS
@@ -1074,7 +1074,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                     .isEmpty()
                 ? QString(QStringLiteral("N/A"))
                 : nickName);
-        if (tp == bluetoothdevice::BIKE) {
+        if (tp == BIKE) {
             obj.setProperty(QStringLiteral("gears"), ((bike *)device)->gears());
             obj.setProperty(QStringLiteral("target_resistance"), ((bike *)device)->lastRequestedResistance().value());
             obj.setProperty(QStringLiteral("target_peloton_resistance"),
@@ -1113,7 +1113,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("inclination"),
                             (dep = ((bike *)device)->currentInclination()).value());
             obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
-        } else if (tp == bluetoothdevice::ROWING) {
+        } else if (tp == ROWING) {
             obj.setProperty(QStringLiteral("gears"), ((rower *)device)->gears());
             el = ((rower *)device)->lastRequestedPace();
             obj.setProperty(QStringLiteral("target_speed"), ((rower *)device)->lastRequestedSpeed().value());
@@ -1139,7 +1139,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("cranktime"), ((rower *)device)->lastCrankEventTime());
             obj.setProperty(QStringLiteral("strokescount"), ((rower *)device)->currentStrokesCount().value());
             obj.setProperty(QStringLiteral("strokeslength"), ((rower *)device)->currentStrokesLength().value());
-        } else if (tp == bluetoothdevice::TREADMILL) {
+        } else if (tp == TREADMILL) {
             obj.setProperty(QStringLiteral("target_speed"), ((treadmill *)device)->lastRequestedSpeed().value());
             el = ((treadmill *)device)->lastRequestedPace();
             obj.setProperty(QStringLiteral("target_pace_s"), el.second());
@@ -1162,7 +1162,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                             (dep = ((treadmill *)device)->currentGroundContact()).value());
             obj.setProperty(QStringLiteral("verticaloscillation"),
                             (dep = ((treadmill *)device)->currentVerticalOscillation()).value());
-        } else if (tp == bluetoothdevice::ELLIPTICAL) {
+        } else if (tp == ELLIPTICAL) {
             obj.setProperty(QStringLiteral("resistance"), (dep = ((elliptical *)device)->currentResistance()).value());
             obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
             obj.setProperty(QStringLiteral("cadence"), (dep = ((elliptical *)device)->currentCadence()).value());
@@ -1294,6 +1294,8 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *sessio
             item[QStringLiteral("groundcontact")] = s.groundContactMS;
             item[QStringLiteral("verticaloscillation")] = s.verticalOscillationMM;
         } else if (sport == FIT_SUB_SPORT_ELLIPTICAL) {
+            item[QStringLiteral("cadence")] = s.cadence;
+            item[QStringLiteral("resistance")] = s.resistance;
             item[QStringLiteral("inclination")] = s.inclination;
         }
         

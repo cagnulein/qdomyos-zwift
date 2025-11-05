@@ -22,6 +22,7 @@
 #include <QQmlApplicationEngine>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QList>
 #ifdef CHARTJS
 #include <QtWebView/QtWebView>
 #endif
@@ -604,6 +605,13 @@ int main(int argc, char *argv[]) {
     }
 #endif
     
+    // Register custom meta types used in queued invocations
+    qRegisterMetaType<SessionLine>("SessionLine");
+    qRegisterMetaType<QList<SessionLine>>("QList<SessionLine>");
+    qRegisterMetaType<BLUETOOTH_TYPE>("BLUETOOTH_TYPE");
+    qRegisterMetaType<uint32_t>("uint32_t");
+    qRegisterMetaType<FIT_SPORT>("FIT_SPORT");
+
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
@@ -628,7 +636,7 @@ int main(int argc, char *argv[]) {
         l.append(SessionLine(i%20,i%10,i,i%300,i%10,i%180,i%6,i%120,i,i, d));
     }
     QString path = homeform::getWritableAppDir();
-    qfit::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", l, bluetoothdevice::BIKE);
+    qfit::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", l, BIKE);
     return 0;
 #endif
 
