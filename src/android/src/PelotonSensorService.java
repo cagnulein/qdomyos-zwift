@@ -203,12 +203,17 @@ public class PelotonSensorService {
     }
     
     private float calculateSpeedFromPower(float power) {
-        // Simple power-to-speed conversion based on typical bike physics
-        // This is a basic approximation and can be refined
-        if (power <= 0) return 0.0f;
+        if (power < 0.1f) {
+            return 0.0f;
+        }
         
-        // Approximate formula: speed (km/h) ≈ cbrt(power * 3.6)
-        return (float) (Math.cbrt(power * 3.6));
+        // Use exact formula from Grupetto Peloton.kt
+        double pwrSqrt = Math.sqrt(power);
+        if (power < 26f) {
+            return (float)(0.057f - (0.172f * pwrSqrt) + (0.759f * Math.pow(pwrSqrt, 2)) - (0.079f * Math.pow(pwrSqrt, 3)));
+        } else {
+            return (float)(-1.635f + (2.325f * pwrSqrt) - (0.064f * Math.pow(pwrSqrt, 2)) + (0.001f * Math.pow(pwrSqrt, 3)));
+        }
     }
     
     private void shutdownInstance() {
