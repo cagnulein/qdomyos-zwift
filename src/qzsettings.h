@@ -2693,6 +2693,8 @@ class QZSettings {
      */
     static const QString grupetto_disclaimer_shown;
     static constexpr bool default_grupetto_disclaimer_shown = false;
+    
+    /**
      * @brief Chart display mode: 0 = both charts, 1 = heart rate only, 2 = power only
      */
     static const QString chart_display_mode;
