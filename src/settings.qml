@@ -8556,8 +8556,8 @@ import Qt.labs.platform 1.1
                                 onClicked: { settings.horizon_treadmill_force_ftms = checked; window.settings_restart_to_apply = true; }
                             }
                         }
-                    }                
-                }             
+                    }
+                }
             }
 
             AccordionElement {
