@@ -580,7 +580,7 @@ void nordictrackifitadbtreadmill::update() {
         bool proform_trainer_9_0 = settings.value(QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0).toBool();
 
         if (nordictrack_ifit_adb_remote && proform_trainer_9_0) {
-            lastCommand = "input tap 420 350";
+            lastCommand = "input tap 420 350 && sleep 1 && input tap 420 350";
             qDebug() << " >> " + lastCommand;
 #ifdef Q_OS_ANDROID
             QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
