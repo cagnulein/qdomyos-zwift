@@ -102,11 +102,19 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
                                                 bool powerSensorEnabled,
                                                 double ergFilterUpper,
                                                 double ergFilterLower) {
+    constexpr double kOffsetSmoothing = 0.2;
+    constexpr double kOffsetStepLimit = 10.0;
+    constexpr double kOffsetClamp = 60.0;
+    constexpr double kIntegralLeak = 0.7;
+    constexpr double kIntegralClamp = 80.0;
+    constexpr double kCommandRateLimit = 15.0;
+
     if (!powerSensorEnabled) {
         qDebug() << "adjustRequestPowerWithSensorDelta: power sensor not enabled, skipping PI controller";
         m_powerErrorIntegral = 0;
         m_lastPowerErrorValid = false;
         m_feedForwardInitialized = false;
+        m_lastPowerCommand = static_cast<double>(requestPower);
         return requestPower;
     }
 
@@ -115,6 +123,7 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
         m_powerErrorIntegral = 0;
         m_lastPowerErrorValid = false;
         m_feedForwardInitialized = false;
+        m_lastPowerCommand = static_cast<double>(requestPower);
         return requestPower;
     }
 
@@ -125,6 +134,7 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
         m_powerErrorIntegral = 0;
         m_lastPowerErrorValid = false;
         m_feedForwardInitialized = false;
+        m_lastPowerCommand = static_cast<double>(requestPower);
         return requestPower;
     }
 
@@ -132,18 +142,22 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
     const double sensorPower = m_watt.value();
     const bool sensorValid = sensorPower > 0.0;
 
-    constexpr double kOffsetSmoothing = 0.2;
-    constexpr double kOffsetStepLimit = 10.0;
-    constexpr double kOffsetClamp = 150.0;
-    constexpr double kIntegralLeak = 0.7;
-    constexpr double kIntegralClamp = 80.0;
-
     if (!sensorValid) {
-        const double fallbackCommand = std::max(0.0, targetPower + m_feedForwardOffset);
+        const double fallback = std::max(0.0, targetPower + m_feedForwardOffset);
         m_powerErrorIntegral *= kIntegralLeak;
+        double limited = fallback;
+        if (m_lastPowerCommand > 0.0) {
+            const double delta = fallback - m_lastPowerCommand;
+            if (delta > kCommandRateLimit) {
+                limited = m_lastPowerCommand + kCommandRateLimit;
+            } else if (delta < -kCommandRateLimit) {
+                limited = m_lastPowerCommand - kCommandRateLimit;
+            }
+        }
+        m_lastPowerCommand = limited;
         qDebug() << "adjustRequestPowerWithSensorDelta: sensor power unavailable, using cached offset" << m_feedForwardOffset
-                 << "=> command" << fallbackCommand;
-        return static_cast<int32_t>(std::lround(fallbackCommand));
+                 << "=> command" << limited;
+        return static_cast<int32_t>(std::lround(limited));
     }
 
     if (!std::isfinite(m_feedForwardOffset)) {
@@ -153,7 +167,7 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
 
     const double trainerSensorDelta = trainerPower - sensorPower;
     if (!m_feedForwardInitialized) {
-        m_feedForwardOffset = trainerSensorDelta;
+        m_feedForwardOffset = std::clamp(trainerSensorDelta, -kOffsetClamp, kOffsetClamp);
         m_feedForwardInitialized = true;
     } else {
         const double blendedOffset = (1.0 - kOffsetSmoothing) * m_feedForwardOffset + kOffsetSmoothing * trainerSensorDelta;
@@ -181,23 +195,30 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
     }
     m_powerErrorIntegral = std::clamp(m_powerErrorIntegral, -kIntegralClamp, kIntegralClamp);
 
-    const double proportional = sensorError * kProportionalGain;
-    const double integral = m_powerErrorIntegral * kIntegralGain;
-
-    double adjustedPower = feedForwardCommand + proportional + integral;
+    double adjustedPower = feedForwardCommand + sensorError * kProportionalGain + m_powerErrorIntegral * kIntegralGain;
     if (adjustedPower < 0) {
         adjustedPower = 0;
     }
 
+    if (m_lastPowerCommand > 0.0) {
+        const double delta = adjustedPower - m_lastPowerCommand;
+        if (delta > kCommandRateLimit) {
+            adjustedPower = m_lastPowerCommand + kCommandRateLimit;
+        } else if (delta < -kCommandRateLimit) {
+            adjustedPower = m_lastPowerCommand - kCommandRateLimit;
+        }
+    }
+
     m_lastPowerError = sensorError;
     m_lastPowerErrorValid = true;
+    m_lastPowerCommand = adjustedPower;
 
     qDebug() << "adjustRequestPowerWithSensorDelta: feed-forward PI active";
     qDebug() << "  Target:" << targetPower << "Sensor:" << sensorPower;
     qDebug() << "  Offset (trainer-sensor, smoothed):" << trainerSensorDelta << "->" << m_feedForwardOffset;
     qDebug() << "  Feed-forward command:" << feedForwardCommand << "W";
-    qDebug() << "  P (error * Kp):" << proportional << "W";
-    qDebug() << "  I (integral * Ki):" << integral << "W";
+    qDebug() << "  P (error * Kp):" << sensorError * kProportionalGain << "W";
+    qDebug() << "  I (integral * Ki):" << m_powerErrorIntegral * kIntegralGain << "W";
     qDebug() << "  Output command:" << adjustedPower << "W (target +" << adjustedPower - targetPower << "W)";
 
     return static_cast<int32_t>(std::lround(adjustedPower));
@@ -342,6 +363,12 @@ void bike::clearStats() {
     for(int i=0; i<maxHeartZone(); i++) {
         hrZonesSeconds[i].clear(false);
     }    
+    m_feedForwardOffset = 0.0;
+    m_feedForwardInitialized = false;
+    m_lastPowerCommand = 0.0;
+    m_powerErrorIntegral = 0.0;
+    m_lastPowerError = 0.0;
+    m_lastPowerErrorValid = false;
 }
 
 void bike::setPaused(bool p) {
