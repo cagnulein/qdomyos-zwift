@@ -201,16 +201,53 @@ button.small {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    align-items: stretch;
 }
 
 .field label {
     font-size: 0.75rem;
     color: var(--muted-color);
+    align-self: flex-start;
+    text-align: left;
 }
 
-.field input,
-.field select {
+.field-label {
+    font-size: 0.75rem;
+    color: var(--muted-color);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    align-self: flex-start;
+    text-align: left;
+    width: auto;
+}
+
+.field-label input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.field.disabled .field-with-buttons,
+.field.disabled input:not([type="checkbox"]),
+.field.disabled select {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.field input[type="text"],
+.field input[type="number"],
+.field select,
+.field .field-with-buttons {
     width: 100%;
+    align-self: stretch;
+}
+
+.field input[type="checkbox"] {
+    width: auto;
+    align-self: flex-start;
 }
 
 .field-with-buttons {

@@ -14,13 +14,13 @@
     const FIELD_DEFS = [
         { key: 'name', label: 'Label', type: 'text', group: 'basic', devices: 'all' },
         { key: 'duration', label: 'Duration', type: 'duration', group: 'basic', devices: 'all' },
-        { key: 'speed', label: 'Speed', type: 'number', unitKey: 'speed', step: 0.1, min: 0, group: 'basic', devices: ['treadmill'] },
-        { key: 'inclination', label: 'Incline', type: 'number', unitSuffix: '%', step: 0.5, min: -10, max: 30, group: 'basic', devices: ['treadmill', 'elliptical'] },
-        { key: 'resistance', label: 'Resistance', type: 'number', step: 1, min: 0, max: 100, group: 'basic', devices: ['bike', 'elliptical'] },
-        { key: 'cadence', label: 'Cadence', type: 'number', unitSuffix: 'rpm', min: 0, max: 240, group: 'basic', devices: ['bike', 'elliptical', 'rower'] },
-        { key: 'power', label: 'Power', type: 'number', unitSuffix: 'W', min: 0, max: 2000, group: 'basic', devices: ['bike', 'rower'] },
-        { key: 'forcespeed', label: 'Force Speed', type: 'bool', group: 'basic', devices: ['treadmill'] },
-        { key: 'fanspeed', label: 'Fan', type: 'number', min: 0, max: 8, group: 'advanced', devices: 'all' },
+        { key: 'speed', label: 'Speed', type: 'number', unitKey: 'speed', step: 0.1, min: 0, group: 'basic', devices: ['treadmill'], defaultValue: () => state.miles ? 6.0 : 9.5 },
+        { key: 'inclination', label: 'Incline', type: 'number', unitSuffix: '%', step: 0.5, min: -10, max: 30, group: 'basic', devices: ['treadmill', 'elliptical'], defaultValue: 1.0 },
+        { key: 'resistance', label: 'Resistance', type: 'number', step: 1, min: 0, max: 100, group: 'basic', devices: ['bike', 'elliptical'], defaultValue: 20 },
+        { key: 'cadence', label: 'Cadence', type: 'number', unitSuffix: 'rpm', min: 0, max: 240, group: 'basic', devices: ['bike', 'elliptical', 'rower'], defaultValue: 80 },
+        { key: 'power', label: 'Power', type: 'number', unitSuffix: 'W', min: 0, max: 2000, group: 'basic', devices: ['bike', 'rower'], defaultValue: 150 },
+        { key: 'forcespeed', label: 'Force Speed', type: 'bool', group: 'basic', devices: ['treadmill'], linkedTo: 'speed' },
+        { key: 'fanspeed', label: 'Fan', type: 'number', min: 0, max: 8, group: 'advanced', devices: 'all', defaultValue: 0 },
         { key: 'requested_peloton_resistance', label: 'Peloton Res.', type: 'number', min: -1, max: 100, group: 'advanced', devices: ['bike'] },
         { key: 'loopTimeHR', label: 'HR Loop (s)', type: 'number', min: 1, max: 60, group: 'advanced', devices: 'all' },
         { key: 'zoneHR', label: 'HR Zone', type: 'number', min: -1, max: 5, group: 'advanced', devices: 'all' },
@@ -148,10 +148,19 @@
     }
 
     function bootstrap() {
+        // Always start with one interval
+        if (!state.intervals.length) {
+            state.intervals.push(createInterval(1));
+        }
+        // Render immediately to show the initial interval
+        renderIntervals();
+        updateChart();
+        updateStatus();
+        updateControls();
+
+        // Then fetch environment and programs in background
         Promise.allSettled([fetchEnvironment(), refreshProgramList()]).then(() => {
-            if (!state.intervals.length) {
-                addInterval();
-            }
+            // Re-render after fetching environment (in case device changed)
             renderIntervals();
             updateChart();
             updateStatus();
@@ -262,6 +271,11 @@
                 } else {
                     out[def.key] = row[def.key];
                 }
+                // Mark field as enabled if it has a value
+                out['__enabled_' + def.key] = true;
+            } else {
+                // Field not present in saved workout, mark as disabled
+                out['__enabled_' + def.key] = false;
             }
         });
         out.__selected = false;
@@ -320,24 +334,43 @@
             name: `Interval ${count}`,
             duration: '00:05:00'
         };
+
+        // Initialize all fields as disabled by default
+        FIELD_DEFS.forEach(def => {
+            if (def.key !== 'name' && def.key !== 'duration') {
+                base['__enabled_' + def.key] = false;
+            }
+        });
+
         switch (state.device) {
         case 'bike':
             base.resistance = 20;
+            base.__enabled_resistance = true;
             base.cadence = 80;
+            base.__enabled_cadence = true;
             base.power = 180;
+            base.__enabled_power = false; // disabled by default, user chooses resistance OR power
             break;
         case 'elliptical':
             base.resistance = 12;
+            base.__enabled_resistance = true;
             base.inclination = 5;
+            base.__enabled_inclination = true;
             base.cadence = 60;
+            base.__enabled_cadence = true;
             break;
         case 'rower':
             base.power = 180;
+            base.__enabled_power = true;
             base.cadence = 28;
+            base.__enabled_cadence = true;
             break;
         default:
+            // treadmill
             base.speed = state.miles ? 6.0 : 9.5;
+            base.__enabled_speed = true;
             base.inclination = 1.0;
+            base.__enabled_inclination = true;
             break;
         }
         base.__selected = false;
@@ -400,13 +433,64 @@
                 if (!shouldRenderField(field)) {
                     return;
                 }
+                // Skip linked fields entirely from UI rendering
+                if (field.linkedTo) {
+                    return;
+                }
                 const value = row[field.key];
+                const isEnabled = row['__enabled_' + field.key] !== false; // enabled by default
                 const fieldWrap = document.createElement('div');
                 fieldWrap.className = 'field';
+                if (!isEnabled) {
+                    fieldWrap.classList.add('disabled');
+                }
 
-                const label = document.createElement('label');
-                label.textContent = resolveFieldLabel(field);
-                fieldWrap.appendChild(label);
+                // Create label with enable/disable checkbox (except for name, duration, and linked fields)
+                const labelWrap = document.createElement('label');
+                labelWrap.className = 'field-label';
+
+                if (field.key !== 'name' && field.key !== 'duration' && !field.linkedTo) {
+                    const enableCheckbox = document.createElement('input');
+                    enableCheckbox.type = 'checkbox';
+                    enableCheckbox.checked = isEnabled;
+                    enableCheckbox.dataset.index = index;
+                    enableCheckbox.dataset.key = field.key;
+                    enableCheckbox.addEventListener('change', (e) => {
+                        const checked = e.target.checked;
+                        row['__enabled_' + field.key] = checked;
+                        if (checked) {
+                            fieldWrap.classList.remove('disabled');
+                            // Set default value if field is empty
+                            if (row[field.key] === undefined || row[field.key] === null || row[field.key] === '') {
+                                const defaultVal = typeof field.defaultValue === 'function' ? field.defaultValue() : field.defaultValue;
+                                if (defaultVal !== undefined) {
+                                    row[field.key] = defaultVal;
+                                }
+                            }
+                            // Handle linked fields (like forcespeed)
+                            if (field.key === 'speed') {
+                                row['__enabled_forcespeed'] = true;
+                                row['forcespeed'] = false; // default to false
+                            }
+                        } else {
+                            fieldWrap.classList.add('disabled');
+                            // Disable linked fields
+                            if (field.key === 'speed') {
+                                row['__enabled_forcespeed'] = false;
+                            }
+                        }
+                        // Re-render to update the UI
+                        renderIntervals();
+                        updateChart();
+                        updateStatus();
+                    });
+                    labelWrap.appendChild(enableCheckbox);
+                }
+
+                const labelText = document.createElement('span');
+                labelText.textContent = resolveFieldLabel(field);
+                labelWrap.appendChild(labelText);
+                fieldWrap.appendChild(labelWrap);
 
                 if (field.type === 'bool') {
                     const checkbox = document.createElement('input');
@@ -474,6 +558,7 @@
     }
 
     function shouldRenderField(field) {
+        // Linked fields are shown conditionally in the render loop
         if (field.group === 'advanced' && !state.showAdvanced) {
             return false;
         }
@@ -682,6 +767,24 @@
                 if (field.key === 'name' || field.key === 'duration') {
                     return;
                 }
+
+                // Handle linked fields: include them if their parent field is enabled
+                if (field.linkedTo) {
+                    const parentEnabled = interval['__enabled_' + field.linkedTo] !== false;
+                    if (parentEnabled) {
+                        const value = interval[field.key];
+                        if (value !== undefined && value !== null && value !== '') {
+                            row[field.key] = field.type === 'number' ? Number(value) : value;
+                        }
+                    }
+                    return;
+                }
+
+                // Skip disabled fields
+                const isEnabled = interval['__enabled_' + field.key] !== false;
+                if (!isEnabled) {
+                    return;
+                }
                 const value = interval[field.key];
                 if (value !== undefined && value !== null && value !== '') {
                     row[field.key] = field.type === 'number' ? Number(value) : value;
@@ -728,8 +831,19 @@
             const end = cursor + duration;
             const intervalCopy = Object.assign({}, interval);
             delete intervalCopy.__selected;
+            // Remove all __enabled_ properties from the copy
+            Object.keys(intervalCopy).forEach(key => {
+                if (key.startsWith('__enabled_')) {
+                    delete intervalCopy[key];
+                }
+            });
             rows.push(Object.assign({ start, durationSeconds: duration }, intervalCopy));
             series.forEach(serie => {
+                // Skip disabled fields in the chart
+                const isEnabled = interval['__enabled_' + serie.key] !== false;
+                if (!isEnabled) {
+                    return;
+                }
                 const value = interval[serie.key];
                 if (value !== undefined && value !== null && value !== '') {
                     serie.points.push({ x: start, y: Number(value) });
