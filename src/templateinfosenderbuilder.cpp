@@ -1408,6 +1408,8 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *sessio
             item[QStringLiteral("groundcontact")] = s.groundContactMS;
             item[QStringLiteral("verticaloscillation")] = s.verticalOscillationMM;
         } else if (sport == FIT_SUB_SPORT_ELLIPTICAL) {
+            item[QStringLiteral("cadence")] = s.cadence;
+            item[QStringLiteral("resistance")] = s.resistance;
             item[QStringLiteral("inclination")] = s.inclination;
         }
         

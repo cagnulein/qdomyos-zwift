@@ -1,6 +1,7 @@
 #include "devices/ftmsrower/ftmsrower.h"
 #include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -359,12 +360,12 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     if (Flags.totDistance) {
-        Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+        /*Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                               (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                              (uint32_t)((uint8_t)newValue.at(index)))) /
-                   1000.0;
+                   1000.0;*/
         index += 3;
-    } else {
+    }/* else */{
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
@@ -620,6 +621,8 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         bool virtual_device_rower =
             settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
+        bool virtual_device_force_treadmill =
+            settings.value(QZSettings::virtual_device_force_treadmill, QZSettings::default_virtual_device_force_treadmill).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence =
@@ -637,7 +640,13 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         {
             if (virtual_device_enabled) {
-                if (!virtual_device_rower) {
+                if (virtual_device_force_treadmill) {
+                    emit debug(QStringLiteral("creating virtual treadmill interface..."));
+
+                    auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    connect(virtualTreadmill, &virtualtreadmill::debug, this, &ftmsrower::debug);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
+                } else if (!virtual_device_rower) {
                     emit debug(QStringLiteral("creating virtual bike interface..."));
 
                     auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);

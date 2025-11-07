@@ -1438,11 +1438,21 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     if (!target_metrics_data_list.isEmpty()) {
         QJsonArray target_metrics = target_metrics_data_list["target_metrics"].toArray();
         if (!target_metrics.isEmpty()) {
-            QJsonObject first_metric = target_metrics[0].toObject();
-            QJsonObject offsets = first_metric["offsets"].toObject();
-            if (!offsets.isEmpty()) {
-                first_target_metrics_start_offset = offsets["start"].toInt();
-                qDebug() << "First target metrics start offset:" << first_target_metrics_start_offset;
+            // Find the minimum start offset instead of assuming first element is chronologically first
+            int min_start_offset = INT_MAX;
+            for (const QJsonValue &metric : target_metrics) {
+                QJsonObject metric_obj = metric.toObject();
+                QJsonObject offsets = metric_obj["offsets"].toObject();
+                if (!offsets.isEmpty()) {
+                    int start = offsets["start"].toInt();
+                    if (start < min_start_offset) {
+                        min_start_offset = start;
+                    }
+                }
+            }
+            if (min_start_offset != INT_MAX) {
+                first_target_metrics_start_offset = min_start_offset;
+                qDebug() << "First target metrics start offset (minimum found):" << first_target_metrics_start_offset;
             }
         }
     }
