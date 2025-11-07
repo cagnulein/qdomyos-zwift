@@ -108,7 +108,7 @@ void heartratebelt::stateChanged(QLowEnergyService::ServiceState state) {
             connect(gattBatteryService, &QLowEnergyService::characteristicChanged, this,
                     &heartratebelt::characteristicChanged);
             connect(gattBatteryService,
-                    static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                    &QLowEnergyService::errorOccurred,
                     this, &heartratebelt::errorService);
 
             // Enable notifications for battery level
@@ -118,7 +118,7 @@ void heartratebelt::stateChanged(QLowEnergyService::ServiceState state) {
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
                     gattBatteryService->writeDescriptor(
-                        c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                        c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
                 }
             }
             return;
@@ -178,8 +178,8 @@ void heartratebelt::serviceScanDone(void) {
                     &heartratebelt::stateChanged);
             gattCommunicationChannelService->discoverDetails();
         }
-        else if (s == QBluetoothUuid::BatteryService) {
-            QBluetoothUuid _gattBatteryServiceId(QBluetoothUuid::BatteryService);
+        else if (s == QBluetoothUuid::ServiceClassUuid::BatteryService) {
+            QBluetoothUuid _gattBatteryServiceId(QBluetoothUuid::ServiceClassUuid::BatteryService);
             gattBatteryService = m_control->createServiceObject(_gattBatteryServiceId);
             connect(gattBatteryService, &QLowEnergyService::stateChanged, this,
                     &heartratebelt::stateChanged);
