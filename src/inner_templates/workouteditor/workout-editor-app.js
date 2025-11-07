@@ -1,7 +1,7 @@
 (function () {
     const state = {
         miles: false,
-        device: 'treadmill',
+        device: 'bike',
         intervals: [],
         programs: [],
         showAdvanced: false,
@@ -19,8 +19,8 @@
         { key: 'resistance', label: 'Resistance', type: 'number', step: 1, min: 0, max: 100, group: 'basic', devices: ['bike', 'elliptical'] },
         { key: 'cadence', label: 'Cadence', type: 'number', unitSuffix: 'rpm', min: 0, max: 240, group: 'basic', devices: ['bike', 'elliptical', 'rower'] },
         { key: 'power', label: 'Power', type: 'number', unitSuffix: 'W', min: 0, max: 2000, group: 'basic', devices: ['bike', 'rower'] },
+        { key: 'forcespeed', label: 'Force Speed', type: 'bool', group: 'basic', devices: ['treadmill'] },
         { key: 'fanspeed', label: 'Fan', type: 'number', min: 0, max: 8, group: 'advanced', devices: 'all' },
-        { key: 'forcespeed', label: 'Force Speed', type: 'bool', group: 'advanced', devices: ['treadmill'] },
         { key: 'requested_peloton_resistance', label: 'Peloton Res.', type: 'number', min: -1, max: 100, group: 'advanced', devices: ['bike'] },
         { key: 'loopTimeHR', label: 'HR Loop (s)', type: 'number', min: 1, max: 60, group: 'advanced', devices: 'all' },
         { key: 'zoneHR', label: 'HR Zone', type: 'number', min: -1, max: 5, group: 'advanced', devices: 'all' },
@@ -418,6 +418,9 @@
                     checkbox.addEventListener('change', handleFieldChange);
                     fieldWrap.appendChild(checkbox);
                 } else {
+                    const inputWrapper = document.createElement('div');
+                    inputWrapper.className = 'field-with-buttons';
+
                     const input = document.createElement('input');
                     input.dataset.index = index;
                     input.dataset.key = field.key;
@@ -437,7 +440,28 @@
                         input.value = value !== undefined ? value : '';
                     }
                     input.addEventListener(field.type === 'duration' ? 'change' : 'input', handleFieldChange);
-                    fieldWrap.appendChild(input);
+
+                    // Add +/- buttons for duration and number fields
+                    if (field.type === 'duration' || field.type === 'number') {
+                        const decreaseBtn = document.createElement('button');
+                        decreaseBtn.textContent = '-';
+                        decreaseBtn.type = 'button';
+                        decreaseBtn.title = 'Decrease';
+                        decreaseBtn.addEventListener('click', () => handleIncrement(input, field, -1));
+
+                        const increaseBtn = document.createElement('button');
+                        increaseBtn.textContent = '+';
+                        increaseBtn.type = 'button';
+                        increaseBtn.title = 'Increase';
+                        increaseBtn.addEventListener('click', () => handleIncrement(input, field, 1));
+
+                        inputWrapper.appendChild(decreaseBtn);
+                        inputWrapper.appendChild(input);
+                        inputWrapper.appendChild(increaseBtn);
+                        fieldWrap.appendChild(inputWrapper);
+                    } else {
+                        fieldWrap.appendChild(input);
+                    }
                 }
 
                 grid.appendChild(fieldWrap);
@@ -508,6 +532,50 @@
                 label.textContent = state.intervals[index][key] || `Interval ${index + 1}`;
             }
         }
+        updateChart();
+        updateStatus();
+    }
+
+    function handleIncrement(input, field, direction) {
+        const index = Number(input.dataset.index);
+        const key = input.dataset.key;
+        const type = input.dataset.type;
+
+        if (Number.isNaN(index) || !state.intervals[index]) {
+            return;
+        }
+
+        if (type === 'duration') {
+            // Increment/decrement duration by 5 seconds
+            const currentSeconds = parseDuration(input.value || '00:05:00');
+            const newSeconds = Math.max(0, currentSeconds + (direction * 5));
+            const normalized = formatDuration(newSeconds);
+            state.intervals[index][key] = normalized;
+            input.value = normalized;
+        } else if (type === 'number') {
+            // Increment/decrement number by step or 1
+            const step = field.step !== undefined ? field.step : 1;
+            const currentValue = input.value !== '' ? Number(input.value) : 0;
+            let newValue = currentValue + (direction * step);
+
+            // Apply min/max constraints
+            if (field.min !== undefined) {
+                newValue = Math.max(field.min, newValue);
+            }
+            if (field.max !== undefined) {
+                newValue = Math.min(field.max, newValue);
+            }
+
+            // Round to proper decimal places based on step
+            if (step < 1) {
+                const decimals = step.toString().split('.')[1]?.length || 1;
+                newValue = Number(newValue.toFixed(decimals));
+            }
+
+            state.intervals[index][key] = newValue;
+            input.value = newValue;
+        }
+
         updateChart();
         updateStatus();
     }
