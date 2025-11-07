@@ -360,12 +360,12 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     if (Flags.totDistance) {
-        Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+        /*Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                               (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                              (uint32_t)((uint8_t)newValue.at(index)))) /
-                   1000.0;
+                   1000.0;*/
         index += 3;
-    } else {
+    }/* else */{
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
