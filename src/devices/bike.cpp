@@ -104,10 +104,24 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
                                                 double ergFilterLower) {
     constexpr double kOffsetSmoothing = 0.2;
     constexpr double kOffsetStepLimit = 10.0;
-    constexpr double kOffsetClamp = 60.0;
+    constexpr double kOffsetStepLimitFast = 30.0;
+    constexpr double kOffsetClamp = 45.0;
     constexpr double kIntegralLeak = 0.7;
     constexpr double kIntegralClamp = 80.0;
-    constexpr double kCommandRateLimit = 15.0;
+    constexpr double kCommandRateLimitUp = 15.0;
+    constexpr double kCommandRateLimitDown = 25.0;
+
+    auto applyRateLimit = [&](double desired) {
+        if (m_lastPowerCommand > 0.0) {
+            const double delta = desired - m_lastPowerCommand;
+            if (delta > kCommandRateLimitUp) {
+                desired = m_lastPowerCommand + kCommandRateLimitUp;
+            } else if (delta < -kCommandRateLimitDown) {
+                desired = m_lastPowerCommand - kCommandRateLimitDown;
+            }
+        }
+        return desired;
+    };
 
     if (!powerSensorEnabled) {
         qDebug() << "adjustRequestPowerWithSensorDelta: power sensor not enabled, skipping PI controller";
@@ -145,15 +159,7 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
     if (!sensorValid) {
         const double fallback = std::max(0.0, targetPower + m_feedForwardOffset);
         m_powerErrorIntegral *= kIntegralLeak;
-        double limited = fallback;
-        if (m_lastPowerCommand > 0.0) {
-            const double delta = fallback - m_lastPowerCommand;
-            if (delta > kCommandRateLimit) {
-                limited = m_lastPowerCommand + kCommandRateLimit;
-            } else if (delta < -kCommandRateLimit) {
-                limited = m_lastPowerCommand - kCommandRateLimit;
-            }
-        }
+        const double limited = applyRateLimit(fallback);
         m_lastPowerCommand = limited;
         qDebug() << "adjustRequestPowerWithSensorDelta: sensor power unavailable, using cached offset" << m_feedForwardOffset
                  << "=> command" << limited;
@@ -171,11 +177,14 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
         m_feedForwardInitialized = true;
     } else {
         const double blendedOffset = (1.0 - kOffsetSmoothing) * m_feedForwardOffset + kOffsetSmoothing * trainerSensorDelta;
+        const bool signFlip = (m_feedForwardOffset * trainerSensorDelta) < 0.0;
+        const double deltaGap = std::fabs(trainerSensorDelta - m_feedForwardOffset);
+        const double stepLimit = (signFlip || deltaGap > 15.0) ? kOffsetStepLimitFast : kOffsetStepLimit;
         double step = blendedOffset - m_feedForwardOffset;
-        if (step > kOffsetStepLimit) {
-            step = kOffsetStepLimit;
-        } else if (step < -kOffsetStepLimit) {
-            step = -kOffsetStepLimit;
+        if (step > stepLimit) {
+            step = stepLimit;
+        } else if (step < -stepLimit) {
+            step = -stepLimit;
         }
         m_feedForwardOffset = std::clamp(m_feedForwardOffset + step, -kOffsetClamp, kOffsetClamp);
     }
@@ -183,6 +192,9 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
     const double feedForwardCommand = targetPower + m_feedForwardOffset;
     const double sensorError = targetPower - sensorPower;
     const double allowedDelta = qMax(ergFilterUpper, ergFilterLower);
+    if (std::fabs(m_feedForwardOffset) >= (kOffsetClamp - 1.0) && sensorError * m_feedForwardOffset > 0) {
+        m_powerErrorIntegral *= 0.4;
+    }
 
     QSettings settings;
     const double kProportionalGain = settings.value(QZSettings::power_sensor_pi_kp, QZSettings::default_power_sensor_pi_kp).toDouble();
@@ -200,14 +212,7 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
         adjustedPower = 0;
     }
 
-    if (m_lastPowerCommand > 0.0) {
-        const double delta = adjustedPower - m_lastPowerCommand;
-        if (delta > kCommandRateLimit) {
-            adjustedPower = m_lastPowerCommand + kCommandRateLimit;
-        } else if (delta < -kCommandRateLimit) {
-            adjustedPower = m_lastPowerCommand - kCommandRateLimit;
-        }
-    }
+    adjustedPower = applyRateLimit(adjustedPower);
 
     m_lastPowerError = sensorError;
     m_lastPowerErrorValid = true;
