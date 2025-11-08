@@ -643,6 +643,21 @@ jobs:
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
 
+      - name: Check APK permissions (fail if EXACT_ALARM found)
+        run: |
+          echo "Checking APK permissions..."
+          APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
+          PERMISSIONS=$(aapt dump permissions "$APK_PATH")
+          echo "$PERMISSIONS"
+
+          if echo "$PERMISSIONS" | grep -i "EXACT_ALARM"; then
+            echo "❌ ERROR: Found prohibited EXACT_ALARM permission!"
+            echo "$PERMISSIONS" | grep -i "EXACT_ALARM"
+            exit 1
+          else
+            echo "✅ OK: No EXACT_ALARM permissions found"
+          fi
+
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
         with:
@@ -763,9 +778,7 @@ jobs:
             
             # Additional permissions for newer Android versions (12+)
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.POST_NOTIFICATIONS || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.SCHEDULE_EXACT_ALARM || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.USE_EXACT_ALARM || true
-            
+
             # Enable all app ops permissions  
             adb shell appops set org.cagnulen.qdomyoszwift MANAGE_EXTERNAL_STORAGE allow || true
             adb shell appops set org.cagnulen.qdomyoszwift SYSTEM_ALERT_WINDOW allow || true

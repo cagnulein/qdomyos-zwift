@@ -34,10 +34,16 @@ dependencies {
 		
     if(amazon == "1") {
         // amazon app store
-        implementation 'com.google.mlkit:text-recognition:16.0.0-beta6'
+        implementation('com.google.mlkit:text-recognition:16.0.0-beta6') {
+            exclude group: 'com.google.android.datatransport'
+            exclude group: 'com.google.firebase'
+        }
     } else {
         // google play store
-        implementation 'com.google.android.gms:play-services-mlkit-text-recognition:18.0.2'
+        implementation('com.google.android.gms:play-services-mlkit-text-recognition:18.0.2') {
+            exclude group: 'com.google.android.datatransport'
+            exclude group: 'com.google.firebase'
+        }
     }
 
     implementation 'com.google.android.play:core:1.8.2'
