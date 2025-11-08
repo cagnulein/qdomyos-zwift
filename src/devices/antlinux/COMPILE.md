@@ -1,41 +1,30 @@
 # Compiling QDomyos-Zwift with ANT+ Support
 
-This guide is for advanced users who need to compile QDomyos-Zwift from source. Most users will find the [pre-compiled binary installation method](README.md) more straightforward.
+This guide is for advanced users who need to compile QDomyos-Zwift from source. Most users should use the [pre-compiled binaries](README.md).
 
-**Return to the main installation guide:** [README.md](README.md)
+**Return to main guide:** [README.md](README.md)
 
 ## When to Compile from Source
 
-- You need custom modifications to the code
-- You're developing new features
-- You're running an unsupported Linux distribution
-- The pre-compiled binaries don't work on your system
+- Custom code modifications
+- Feature development
+- Unsupported Linux distribution
+- Pre-compiled binaries don't work
 
 ## Prerequisites
 
-Before starting, complete **Step 1: System Preparation** from the [main README](README.md) first. This includes:
-- Installing system dependencies
-- Creating the Python virtual environment (you can use any Python 3 version for compilation)
-- Configuring USB permissions
+Complete **Step 1: System Preparation** from the [main README](README.md) first:
+- System dependencies installed
+- Python 3.11 virtual environment created
+- USB permissions configured
 
-**Note on Python versions:** Unlike the pre-compiled binary which requires Python 3.11, when compiling from source you can use any Python 3 version. Just ensure the Python version matches between your build machine and target machine if cross-compiling.
+**Important:** For compilation, both build and target machines must use Python 3.11 to ensure binary compatibility.
 
-## Compilation Hardware Requirements
-
-**Raspberry Pi:** We recommend using Pi 4 or 5 for compilation. Pi Zero 2 W has limited RAM (512MB) which may cause out-of-memory errors during compilation.
-
-**Desktop Linux:** Any modern x86-64 system with adequate RAM (4GB+ recommended).
-
-### Cross-Compilation Setup
-
-If compiling on one machine to run on another (e.g., compile on Pi 4, run on Pi Zero 2 W):
-- **Build machine:** Follow all steps in this guide
-- **Target machine:** Complete Step 1 from the main README, then transfer the compiled binary
-- **Recommendation:** Ensure both machines have matching Python versions to avoid library compatibility issues
+**Hardware requirements:** Raspberry Pi 4/5 or desktop Linux with 4GB+ RAM recommended. Pi Zero 2 W (512MB RAM) may encounter out-of-memory errors.
 
 ---
 
-## Step 1: Install Development Dependencies
+## Step 1: Install Build Tools
 
 ```bash
 sudo apt-get install -y \
@@ -49,22 +38,88 @@ sudo apt-get install -y \
 	libqt5texttospeech5-dev libqt5sql5-mysql \
 	libqt5sql5-psql libusb-1.0-0-dev \
 	libudev-dev qt5-assistant
-
-# Install Python development headers matching your venv Python version
-PYVER=$(~/ant_venv/bin/python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
-sudo apt-get install -y "python${PYVER}-dev"
 ```
 
 ---
 
-## Step 2: Clone Repository
+## Step 2: Ensure Python 3.11
+
+### Check Python 3.11 Availability
 
 ```bash
-cd $HOME
+python3.11 --version
+```
+
+If Python 3.11 is not available (some distributions may only provide older or newer Python versions), install it using pyenv:
+
+### Install Python 3.11 via pyenv
+
+```bash
+# Install pyenv dependencies
+sudo apt-get install -y \
+	git \
+	curl \
+	build-essential \
+	libssl-dev \
+	zlib1g-dev \
+	libbz2-dev \
+	libreadline-dev \
+	libsqlite3-dev \
+	wget \
+	llvm \
+	libncurses5-dev \
+	libncursesw5-dev \
+	xz-utils \
+	tk-dev \
+	libffi-dev \
+	liblzma-dev
+
+# Install pyenv
+curl https://pyenv.run | bash
+
+# Add pyenv to shell (append to ~/.bashrc)
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+
+# Reload shell configuration
+source ~/.bashrc
+
+# Install Python 3.11
+pyenv install 3.11.9
+pyenv global 3.11.9
+
+# Verify installation
+python --version  # Should show Python 3.11.9
+```
+
+### Install Python 3.11 Development Headers
+
+```bash
+# If Python 3.11 is from system packages
+sudo apt-get install -y python3.11-dev
+
+# If Python 3.11 is from pyenv, dev headers are already included
+```
+
+### Create Virtual Environment
+
+If not already created from README Step 1.2:
+
+```bash
+python3.11 -m venv ~/ant_venv
+~/ant_venv/bin/pip install --upgrade pip
+~/ant_venv/bin/pip install openant pyusb pybind11
+```
+
+---
+
+## Step 3: Clone Repository
+
+```bash
+cd ~
 git clone https://github.com/cagnulein/qdomyos-zwift.git
 cd qdomyos-zwift
-
-# Update submodules
 git submodule update --init src/smtpclient/
 git submodule update --init src/qmdnsengine/
 git submodule update --init tst/googletest/
@@ -72,10 +127,10 @@ git submodule update --init tst/googletest/
 
 ---
 
-## Step 3: Configure Build
+## Step 4: Configure for ANT+
 
 ```bash
-cd $HOME/qdomyos-zwift/src
+cd ~/qdomyos-zwift/src
 
 # Enable ANT+ support
 grep -q "antlinux.pri" qdomyos-zwift.pro || echo 'include(devices/antlinux/antlinux.pri)' >> qdomyos-zwift.pro
@@ -86,120 +141,128 @@ echo "$HOME/ant_venv/bin/python3" > .ant_venv_path
 
 ---
 
-## Step 4: Verify Setup (Optional but Recommended)
-
-Run the diagnostic script to check your environment:
+## Step 5: Verify Setup (Optional)
 
 ```bash
-sudo bash $HOME/qdomyos-zwift/src/devices/antlinux/build_check_list.sh
+sudo bash ~/qdomyos-zwift/src/devices/antlinux/build_check_list.sh
 ```
 
-Review the output and address any issues flagged as critical failures before proceeding.
+Address any critical failures before proceeding.
 
 ---
 
-## Step 5: Test ANT+ Broadcasting (Optional but Recommended)
+## Step 6: Test ANT+ Broadcasting (Optional)
 
-This validates your Python environment and hardware before the full build:
+Validates Python environment and hardware before full build:
 
 ```bash
-sudo $HOME/ant_venv/bin/python3 $HOME/qdomyos-zwift/src/devices/antlinux/ant_test_broadcaster.py
+sudo ~/ant_venv/bin/python3 ~/qdomyos-zwift/src/devices/antlinux/ant_test_broadcaster.py
 ```
 
-**Expected behavior:**
-- Watch connects within 5-10 seconds
-- Displays stable pace (e.g., 5:35 min/km) and cadence (e.g., 150 SPM)
-- Press `Ctrl+C` to stop
+**Expected:** Watch connects in 5-10 seconds, displays stable pace/cadence. Press `Ctrl+C` to stop.
 
-For watch pairing instructions, see **Step 3.1: Pairing Your Device** in the [main README](README.md#31-pairing-your-device).
-
-**If this test doesn't work**, it's worth troubleshooting before proceeding with the full build.
+See [main README pairing instructions](README.md#31-pairing-your-device) if needed.
 
 ---
 
-## Step 6: Build Application
+## Step 7: Build
 
 ```bash
-cd $HOME/qdomyos-zwift/src/
+cd ~/qdomyos-zwift/src/
 qmake qdomyos-zwift.pro
 ```
 
-**Verify ANT+ is enabled** - look for this message:
-```
-Project MESSAGE: >>> ANT+ ENABLED for build <<<
-```
+Verify output shows: `Project MESSAGE: >>> ANT+ ENABLED for build <<<`
 
-If this message is missing, return to Step 4 to diagnose the issue.
+If missing, return to Step 5.
 
 ```bash
 make
 ```
 
-The compilation will take several minutes. The binary will be at `$HOME/qdomyos-zwift/src/qdomyos-zwift`.
+Binary location: `~/qdomyos-zwift/src/qdomyos-zwift`
 
 ---
 
-## Step 7: Test and Configure
+## Step 8: Test
 
-### 7.1 Copy Binary to Standard Location
-
-To keep the configuration consistent with the main README, copy your compiled binary to your home directory:
+### Copy to Standard Location
 
 ```bash
-cp $HOME/qdomyos-zwift/src/qdomyos-zwift ~/qdomyos-zwift
+cp ~/qdomyos-zwift/src/qdomyos-zwift ~/qdomyos-zwift
 ```
 
-### 7.2 Test the Application
-
-Connect your ANT+ dongle and start your treadmill:
+### Run Application
 
 ```bash
 cd ~
 sudo ./qdomyos-zwift -no-gui -ant-footpod
 
-# Optional: Custom device ID (useful for conflicts, 1-65535)
-sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-device 12345
-
-# Optional: Verbose logging (generates large logs - debug only)
-sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-verbose
+# Optional flags:
+# -ant-device 12345    # Custom device ID (1-65535)
+# -ant-verbose         # Debug logging (large logs)
 ```
 
-Your watch should pair as a Foot Pod. See the [main README pairing instructions](README.md#31-pairing-your-device) for details.
+Your watch should pair as a Foot Pod. See [main README pairing instructions](README.md#31-pairing-your-device) for details.
 
-### 7.3 Configure Automatic Startup (Optional)
+---
 
-Follow **Step 3.3** in the [main README](README.md#33-configure-automatic-startup-optional) to set up the systemd service. Since you've copied the binary to `~/qdomyos-zwift`, the configuration is identical to the pre-compiled binary setup.
+## Step 9: Systemd Service (Optional)
+
+Follow [Step 3.3 in main README](README.md#33-configure-automatic-startup-optional) to set up the systemd service.
+
+---
+
+## Cross-Compilation Notes
+
+When compiling on one machine for another (e.g., compile on Pi 4, run on Pi Zero 2 W):
+
+1. **Build machine:** Follow all steps in this guide with Python 3.11
+2. **Target machine:** Complete Step 1 from main README with Python 3.11
+3. **Critical:** Both machines must use Python 3.11 (system package or pyenv)
+4. Transfer compiled binary to target machine: `~/qdomyos-zwift`
+
+**Verify Python version match:**
+```bash
+# On both machines, check Python version
+~/ant_venv/bin/python3 --version
+```
+
+Both should show `Python 3.11.x`.
 
 ---
 
 ## Success Indicators
 
-✓ `qmake` shows "ANT+ ENABLED" message  
-✓ Test script (Step 5) connects to watch within 10 seconds  
-✓ Watch displays stable pace and cadence  
-✓ QZ broadcasts data from your treadmill  
+✓ `qmake` shows "ANT+ ENABLED"  
+✓ Test script connects to watch in <10 seconds  
+✓ Watch displays stable pace/cadence  
+✓ Treadmill data broadcasts via ANT+
 
 ---
 
 ## Troubleshooting
 
-**Compilation-specific issues:**
+### Build Issues
 
 | Issue | Solution |
-| --- | --- |
-| `qmake` fails with "Unknown module(s)" | Re-run apt-get install from Step 1 |
-| `make` fails with "Python.h: No such file" | Install Python dev headers (Step 1) |
-| `g++: fatal error: Killed signal terminated` | Out of memory - compile on system with more RAM (Pi 4/5 or desktop) |
-| Python version mismatch errors | Ensure build and target machines have matching Python versions, or recompile on target machine |
+|-------|----------|
+| `qmake` fails "Unknown module" | Re-run Step 1 apt-get install |
+| `make` fails "Python.h missing" | Install python3.11-dev or use pyenv (includes headers) |
+| Build killed/out of memory | Use system with more RAM |
+| Python version mismatch | Ensure both build/target use Python 3.11 |
+| `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 not on target system - install via apt or pyenv |
 
-**For all other issues**, see the [main README troubleshooting section](README.md#troubleshooting).
+### pyenv Issues
+
+| Issue | Solution |
+|-------|----------|
+| `pyenv: command not found` | Reload shell: `source ~/.bashrc` |
+| pyenv build fails | Install all dependencies from Step 2, check disk space |
+| Python 3.11.9 not found | Use different version: `pyenv install 3.11.7` |
+
+See [main README troubleshooting](README.md#troubleshooting) for additional issues.
 
 ---
 
-**For Developers and Testers:**
-
-If you're interested in testing the pre-compiled binaries or contributing to quality assurance, see our [Test Plan](TEST_PLAN.md) which covers validation procedures for both Raspberry Pi and Desktop Linux platforms.
-
----
-
-**Return to [main README](README.md)** for additional information and credits.
+**Return to [main README](README.md)**

@@ -33,7 +33,7 @@ Consider backing up your system before proceeding.
 
 ## Installation Methods
 
-This guide covers installation using **pre-compiled binaries** from GitHub Actions. This is the recommended method for most users.
+This guide covers installation using **pre-compiled binaries** from GitHub Releases. This is the recommended method for most users.
 
 **For developers or advanced users:** If you need to compile from source (for development or custom modifications), see the [Compilation Guide](COMPILE.md).
 
@@ -68,16 +68,67 @@ sudo apt-get install -y \
 	libqt5websockets5 \
 	libqt5xml5 \
 	libusb-1.0-0 \
-	python3.11 \
-	python3.11-venv \
+	bluez \
 	python3-pip
 ```
 
-### 1.2 Create Python Virtual Environment
+### 1.2 Install Python 3.11
 
-The QZ application looks for an environment named `ant_venv` in your home directory. This is required due to the application's design and modern Linux package policies (PEP 668).
+The pre-compiled binaries require Python 3.11. Check if it's available:
 
-**Note:** The pre-compiled binaries are built with Python 3.11, so it's recommended to use this version for compatibility.
+```bash
+python3.11 --version
+```
+
+**If Python 3.11 is available:**
+```bash
+sudo apt-get install -y python3.11 python3.11-venv
+```
+
+**If Python 3.11 is not available** (some distributions may only provide older or newer Python versions), install via pyenv:
+
+```bash
+# Install pyenv dependencies
+sudo apt-get install -y \
+	git \
+	curl \
+	build-essential \
+	libssl-dev \
+	zlib1g-dev \
+	libbz2-dev \
+	libreadline-dev \
+	libsqlite3-dev \
+	wget \
+	llvm \
+	libncurses5-dev \
+	libncursesw5-dev \
+	xz-utils \
+	tk-dev \
+	libffi-dev \
+	liblzma-dev
+
+# Install pyenv
+curl https://pyenv.run | bash
+
+# Add pyenv to shell
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+
+# Reload shell
+source ~/.bashrc
+
+# Install Python 3.11
+pyenv install 3.11.9
+pyenv global 3.11.9
+
+# Verify
+python --version  # Should show Python 3.11.9
+```
+
+### 1.3 Create Python Virtual Environment
+
+The QZ application looks for an environment named `ant_venv` in your home directory.
 
 ```bash
 # Create the virtual environment
@@ -88,7 +139,7 @@ python3.11 -m venv ~/ant_venv
 ~/ant_venv/bin/pip install openant pyusb pybind11
 ```
 
-### 1.3 Configure USB Permissions
+### 1.4 Configure USB Permissions
 
 ```bash
 # Create udev rule for ANT+ dongles
@@ -105,9 +156,9 @@ sudo usermod -aG plugdev $USER
 sudo reboot
 ```
 
-### 1.4 Verify Setup (Optional)
+### 1.5 Verify Setup (Optional)
 
-After rebooting, you can run a diagnostic script to verify your environment:
+After rebooting, run a diagnostic script to verify your environment:
 
 ```bash
 # Download and run the runtime verification script
@@ -118,31 +169,26 @@ sudo ~/runtime_check.sh
 
 This will check your Python environment, USB permissions, and system services. If it finds any issues, it will provide guidance on how to resolve them.
 
-Proceed to Step 2.
-
 ---
 
 ## Step 2: Download and Install Binary
 
-### 2.1 Download from GitHub Actions
+### 2.1 Download from GitHub Releases
 
-1. Navigate to the **[Actions tab](https://github.com/cagnulein/qdomyos-zwift/actions)**
-2. Find the latest successful workflow run on `master` branch (green checkmark)
-3. Scroll to **"Artifacts"** section
-4. Download the correct artifact for your platform:
-   - **Raspberry Pi (ARM64):** `raspberry-pi-binary-64bit-ant`
-   - **Desktop Linux (x86-64):** `linux-binary-x86-64-ant`
+1. Navigate to the **[Releases page](https://github.com/cagnulein/qdomyos-zwift/releases)**
+2. Download the correct pre-compiled binary for your platform:
+   - **Raspberry Pi (ARM64):** `qdomyos-zwift-arm64-ant`
+   - **Desktop Linux (x86-64):** `qdomyos-zwift-x86-64-ant`
 
 ### 2.2 Install Binary
 
-1. Unzip the downloaded file
-2. Transfer the extracted binary to your home directory
-3. Rename to a standard location and make executable:
+1. Transfer the downloaded binary to your home directory
+2. Rename to a standard location and make executable:
 
 **For Raspberry Pi:**
 ```bash
 cd ~
-mv qdomyos-zwift-64bit-ant qdomyos-zwift
+mv qdomyos-zwift-arm64-ant qdomyos-zwift
 chmod +x qdomyos-zwift
 ```
 
@@ -152,8 +198,6 @@ cd ~
 mv qdomyos-zwift-x86-64-ant qdomyos-zwift
 chmod +x qdomyos-zwift
 ```
-
-**Note:** Using the name `qdomyos-zwift` in your home directory keeps the setup simple and consistent.
 
 ---
 
@@ -265,12 +309,27 @@ This ensures your headless system has the exact configuration you set up through
 
 | Issue | Solution |
 | --- | --- |
-| `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 not installed - run `sudo apt-get install python3.11` |
-| Test fails or watch won't connect | Run with sudo, reboot after Step 1.3, or unplug/replug dongle |
+| `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 not installed - install via apt or pyenv (Step 1.2) |
+| Test fails or watch won't connect | Run with sudo, reboot after Step 1.4, or unplug/replug dongle |
 | Watch connects but pace shows --:-- | Treadmill model not set: `sudo nano /root/.config/Roberto\ Viola/qDomyos-Zwift.conf` add your model flag (e.g., `proform_treadmill_705_cst=true`) |
-| App works but watch won't connect | Unplug/replug dongle, verify Step 1.3 + reboot, check device ID (default 54321), ensure running as root, check logs |
+| App works but watch won't connect | Unplug/replug dongle, verify Step 1.4 + reboot, check device ID (default 54321), ensure running as root, check logs |
 | `systemctl stop qz` hangs | Add `KillSignal=SIGINT` to [Service] section in qz.service |
-| Binary won't run: "cannot execute binary file" | Wrong architecture - ensure you downloaded the correct artifact for your platform |
+| Binary won't run: "cannot execute binary file" | Wrong architecture - ensure you downloaded the correct binary for your platform |
+| `pyenv: command not found` | Reload shell: `source ~/.bashrc` or start new terminal session |
+
+---
+
+## Credits & Acknowledgments
+
+| Issue | Solution |
+| --- | --- |
+| `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 not installed - install via apt or pyenv (Step 1.2) |
+| Test fails or watch won't connect | Run with sudo, reboot after Step 1.4, or unplug/replug dongle |
+| Watch connects but pace shows --:-- | Treadmill model not set: `sudo nano /root/.config/Roberto\ Viola/qDomyos-Zwift.conf` add your model flag (e.g., `proform_treadmill_705_cst=true`) |
+| App works but watch won't connect | Unplug/replug dongle, verify Step 1.4 + reboot, check device ID (default 54321), ensure running as root, check logs |
+| `systemctl stop qz` hangs | Add `KillSignal=SIGINT` to [Service] section in qz.service |
+| Binary won't run: "cannot execute binary file" | Wrong architecture - ensure you downloaded the correct binary for your platform |
+| `pyenv: command not found` | Reload shell: `source ~/.bashrc` or start new terminal session |
 
 ---
 

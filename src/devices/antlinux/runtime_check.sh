@@ -16,38 +16,93 @@
 C_GREEN="\033[0;32m"
 C_RED="\033[0;31m"
 C_YELLOW="\033[0;33m"
-C_BLUE="\033[0;34m"
+C_CYAN="\033[0;36m"
 C_RESET="\033[0m"
-
-# --- GitHub README URL for reference ---
-README_URL="https://github.com/cagnulein/qdomyos-zwift/blob/master/README.md"
 
 # --- Status tracking ---
 ALL_CHECKS_PASSED=true
 
-echo -e "${C_BLUE}--- QZ ANT+ Runtime Diagnostic ---${C_RESET}"
+# --- Check for sudo ---
+if [[ $EUID -ne 0 ]]; then
+   echo -e "${C_RED}ERROR: This script must be run with sudo.${C_RESET}" 
+   echo "Please run again as: sudo $0"
+   exit 1
+fi
+
+# --- Determine target user and home directory ---
+if [ -n "$SUDO_USER" ]; then
+    TARGET_USER="$SUDO_USER"
+    TARGET_HOME=$(eval echo "~$SUDO_USER")
+else
+    TARGET_USER="$USER"
+    TARGET_HOME="$HOME"
+fi
+
+echo -e "${C_CYAN}--- QZ ANT+ Runtime Diagnostic (running for user: $TARGET_USER) ---${C_RESET}"
 echo
 
 # ---
-# CHECK 1: Python 3.11 Installation
+# CHECK 1: Python 3.11 and Venv Module Installation
 # ---
-echo -e "${C_YELLOW}[1/6] Checking for Python 3.11...${C_RESET}"
-if command -v python3.11 >/dev/null 2>&1; then
-  PYTHON_VERSION=$(python3.11 --version)
+echo -e "${C_YELLOW}[1/6] Checking for Python 3.11 and venv module...${C_RESET}"
+PYTHON_OK=false
+VENV_PKG_OK=false
+PYTHON311_CMD=""
+
+# Priority 1: Check for pyenv installation for the target user
+if [ -d "$TARGET_HOME/.pyenv/versions/3.11.9/bin" ]; then
+    PYTHON311_CMD="$TARGET_HOME/.pyenv/versions/3.11.9/bin/python3.11"
+# Priority 2: Check the system path
+elif command -v python3.11 >/dev/null 2>&1; then
+    PYTHON311_CMD="python3.11"
+fi
+
+if [ -n "$PYTHON311_CMD" ]; then
+  PYTHON_VERSION=$($PYTHON311_CMD --version)
   echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} Found $PYTHON_VERSION"
+  PYTHON_OK=true
+  
+  # Check for venv module
+  if ! $PYTHON311_CMD -c "import ensurepip" >/dev/null 2>&1; then
+    echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} Python 3.11 is present, but the 'venv' module is missing."
+    echo -e "  ${C_CYAN}How to fix:${C_RESET} Install the corresponding venv package:"
+    echo -e "  ${C_YELLOW}sudo apt-get install python3.11-venv${C_RESET}"
+    ALL_CHECKS_PASSED=false
+  else
+    echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} Python 3.11 venv module is available."
+    VENV_PKG_OK=true
+  fi
 else
   echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} Python 3.11 is not installed."
-  echo -e "  ${C_BLUE}How to fix:${C_RESET} Install Python 3.11 using pyenv:"
-  echo -e "  ${C_YELLOW}# Install pyenv prerequisites${C_RESET}"
-  echo -e "  ${C_YELLOW}sudo apt-get install -y git curl build-essential libssl-dev zlib1g-dev \\${C_RESET}"
-  echo -e "  ${C_YELLOW}  libbz2-dev libreadline-dev libsqlite3-dev wget llvm \\${C_RESET}"
-  echo -e "  ${C_YELLOW}  libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev${C_RESET}"
-  echo -e "  ${C_YELLOW}# Install pyenv${C_RESET}"
-  echo -e "  ${C_YELLOW}curl https://pyenv.run | bash${C_RESET}"
-  echo -e "  ${C_YELLOW}# Configure shell and install Python 3.11${C_RESET}"
-  echo -e "  ${C_YELLOW}# See detailed instructions in README${C_RESET}"
-  echo -e "  ${C_BLUE}More details:${C_RESET} See ${README_URL}#installing-python-311-if-not-available-in-your-distribution"
   ALL_CHECKS_PASSED=false
+  
+  echo -e "  ${C_CYAN}How to fix:${C_RESET}"
+  if apt-cache show python3.11-venv >/dev/null 2>&1; then
+    echo -e "  Your system provides python3.11 via the package manager. This is the recommended method."
+    echo -e "  Run the following command to install:"
+    echo -e "  ${C_YELLOW}sudo apt-get install python3.11 python3.11-venv${C_RESET}"
+  else
+    echo -e "  Your system's package manager does not provide python3.11."
+    echo -e "  This can occur on older distributions (e.g., Ubuntu 20.04, Debian Bullseye)"
+    echo -e "  or newer distributions with only Python 3.12+ (e.g., Debian Trixie)."
+    echo -e "  You will need to install it using 'pyenv'."
+    echo
+    echo -e "  ${C_YELLOW}# Step 1: Install prerequisites (including git and curl for pyenv installer)${C_RESET}"
+    echo -e "  ${C_YELLOW}sudo apt-get install -y git curl build-essential libssl-dev zlib1g-dev libbz2-dev"
+    echo -e "    libreadline-dev libsqlite3-dev wget llvm libncurses5-dev"
+    echo -e "    libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev${C_RESET}"
+    echo
+    echo -e "  ${C_YELLOW}# Step 2: Install pyenv (as user '${TARGET_USER}')${C_RESET}"
+    echo -e "  ${C_YELLOW}curl https://pyenv.run | bash${C_RESET}"
+    echo
+    echo -e "  ${C_YELLOW}# Step 3: Configure shell and install Python 3.11${C_RESET}"
+    echo -e "  ${C_YELLOW}echo 'export PYENV_ROOT=\"\$HOME/.pyenv\"' >> ~/.bashrc${C_RESET}"
+    echo -e "  ${C_YELLOW}echo 'command -v pyenv >/dev/null || export PATH=\"\$PYENV_ROOT/bin:\$PATH\"' >> ~/.bashrc${C_RESET}"
+    echo -e "  ${C_YELLOW}echo 'eval \"\$(pyenv init -)\"' >> ~/.bashrc${C_RESET}"
+    echo -e "  ${C_YELLOW}source ~/.bashrc${C_RESET}"
+    echo -e "  ${C_YELLOW}pyenv install 3.11.9${C_RESET}"
+    echo -e "  ${C_YELLOW}pyenv global 3.11.9${C_RESET}"
+  fi
 fi
 echo
 
@@ -55,15 +110,16 @@ echo
 # CHECK 2: Virtual Environment
 # ---
 echo -e "${C_YELLOW}[2/6] Checking for Python virtual environment...${C_RESET}"
-VENV_PATH="$HOME/ant_venv"
+
+VENV_PATH="$TARGET_HOME/ant_venv"
+
 if [ -d "$VENV_PATH" ]; then
   echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} Found virtual environment at $VENV_PATH"
   
-  # Check for required packages
   if [ -x "$VENV_PATH/bin/python3" ]; then
     MISSING_PACKAGES=()
     for pkg in pybind11 usb.core openant; do
-      if ! "$VENV_PATH/bin/python3" -c "import $pkg" >/dev/null 2>&1; then
+      if ! sudo -u "$TARGET_USER" "$VENV_PATH/bin/python3" -c "import $pkg" >/dev/null 2>&1; then
         MISSING_PACKAGES+=("$pkg")
       fi
     done
@@ -72,20 +128,21 @@ if [ -d "$VENV_PATH" ]; then
       echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} All required Python packages are installed."
     else
       echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} Missing Python packages: ${MISSING_PACKAGES[*]}"
-      echo -e "  ${C_BLUE}How to fix:${C_RESET} Install the missing packages by running:"
-      echo -e "  ${C_YELLOW}~/ant_venv/bin/pip install openant pyusb pybind11${C_RESET}"
-      echo -e "  ${C_BLUE}More details:${C_RESET} See Step 1.2 in ${README_URL}#12-create-python-virtual-environment"
+      echo -e "  ${C_CYAN}How to fix:${C_RESET} Run the following commands as the user '${TARGET_USER}':"
+      echo -e "  ${C_YELLOW}$VENV_PATH/bin/pip install openant pyusb pybind11${C_RESET}"
       ALL_CHECKS_PASSED=false
     fi
   fi
 else
   echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} Virtual environment not found at $VENV_PATH"
-  echo -e "  ${C_BLUE}How to fix:${C_RESET} Create the virtual environment by running:"
-  echo -e "  ${C_YELLOW}python3.11 -m venv ~/ant_venv${C_RESET}"
-  echo -e "  Then install the required packages:"
-  echo -e "  ${C_YELLOW}~/ant_venv/bin/pip install --upgrade pip${C_RESET}"
-  echo -e "  ${C_YELLOW}~/ant_venv/bin/pip install openant pyusb pybind11${C_RESET}"
-  echo -e "  ${C_BLUE}More details:${C_RESET} See Step 1.2 in ${README_URL}#12-create-python-virtual-environment"
+  echo -e "  ${C_CYAN}How to fix:${C_RESET} Run the following commands as the user '${TARGET_USER}':"
+  if [ -n "$PYTHON311_CMD" ]; then
+    echo -e "  ${C_YELLOW}${PYTHON311_CMD} -m venv ${VENV_PATH}${C_RESET}"
+  else
+    echo -e "  ${C_YELLOW}python3.11 -m venv ${VENV_PATH}${C_RESET}"
+  fi
+  echo -e "  ${C_YELLOW}${VENV_PATH}/bin/pip install --upgrade pip${C_RESET}"
+  echo -e "  ${C_YELLOW}${VENV_PATH}/bin/pip install openant pyusb pybind11${C_RESET}"
   ALL_CHECKS_PASSED=false
 fi
 echo
@@ -106,11 +163,10 @@ if [ ${#MISSING_LIBS[@]} -eq 0 ]; then
   echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} All required Qt5 libraries are installed."
 else
   echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} Missing Qt5 libraries: ${MISSING_LIBS[*]}"
-  echo -e "  ${C_BLUE}How to fix:${C_RESET} Install the Qt5 libraries by running:"
-  echo -e "  ${C_YELLOW}sudo apt-get install libqt5bluetooth5 libqt5charts5 libqt5multimedia5 \\${C_RESET}"
-  echo -e "  ${C_YELLOW}  libqt5networkauth5 libqt5positioning5 libqt5sql5 libqt5texttospeech5 \\${C_RESET}"
-  echo -e "  ${C_YELLOW}  libqt5websockets5 libqt5xml5${C_RESET}"
-  echo -e "  ${C_BLUE}More details:${C_RESET} See Step 1.1 in ${README_URL}#11-install-system-dependencies"
+  echo -e "  ${C_CYAN}How to fix:${C_RESET} Install the Qt5 libraries by running:"
+  echo -e "  ${C_YELLOW}sudo apt-get install libqt5bluetooth5 libqt5charts5 libqt5multimedia5"
+  echo -e "    libqt5networkauth5 libqt5positioning5 libqt5sql5 libqt5texttospeech5"
+  echo -e "    libqt5websockets5 libqt5xml5${C_RESET}"
   ALL_CHECKS_PASSED=false
 fi
 echo
@@ -121,29 +177,25 @@ echo
 UDEV_RULE_FILE="/etc/udev/rules.d/99-ant-usb.rules"
 echo -e "${C_YELLOW}[4/6] Checking udev rule and group membership...${C_RESET}"
 
-# Determine which user to check
-if [ -n "$SUDO_USER" ]; then
-    USER_TO_CHECK="$SUDO_USER"
-else
-    USER_TO_CHECK="$USER"
-fi
+if [ -n "$SUDO_USER" ]; then USER_TO_CHECK="$SUDO_USER"; else USER_TO_CHECK="$USER"; fi
 
 UDEV_OK=false
 GROUP_OK=false
 
 if [ -f "$UDEV_RULE_FILE" ]; then
-  echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} udev rule file exists at $UDEV_RULE_FILE"
+  echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} udev rule file exists."
   UDEV_OK=true
 else
-  echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} udev rule file is missing: $UDEV_RULE_FILE"
-  echo -e "  ${C_BLUE}How to fix:${C_RESET} Create the udev rule by running:"
-  echo -e "  ${C_YELLOW}sudo tee /etc/udev/rules.d/99-ant-usb.rules > /dev/null << 'EOF'${C_RESET}"
-  echo -e "  ${C_YELLOW}SUBSYSTEM==\"usb\", ATTRS{idVendor}==\"0fcf\", ATTRS{idProduct}==\"100?\", MODE=\"0666\", GROUP=\"plugdev\"${C_RESET}"
-  echo -e "  ${C_YELLOW}SUBSYSTEM==\"usb\", ATTRS{idVendor}==\"11fd\", ATTRS{idProduct}==\"0001\", MODE=\"0666\", GROUP=\"plugdev\"${C_RESET}"
-  echo -e "  ${C_YELLOW}EOF${C_RESET}"
-  echo -e "  Then reload rules:"
-  echo -e "  ${C_YELLOW}sudo udevadm control --reload-rules && sudo udevadm trigger${C_RESET}"
-  echo -e "  ${C_BLUE}More details:${C_RESET} See Step 1.3 in ${README_URL}#13-configure-usb-permissions"
+  echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} udev rule file is missing."
+  echo -e "  ${C_CYAN}How to fix:${C_RESET} Copy and paste the entire block below to create the rule file:"
+  echo
+  cat << 'FIX_UDEV'
+  sudo tee /etc/udev/rules.d/99-ant-usb.rules > /dev/null << 'EOF'
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0fcf", ATTRS{idProduct}=="100?", MODE="0666", GROUP="plugdev"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="11fd", ATTRS{idProduct}=="0001", MODE="0666", GROUP="plugdev"
+EOF
+FIX_UDEV
+  echo
 fi
 
 if groups "$USER_TO_CHECK" | grep -q '\bplugdev\b'; then
@@ -151,14 +203,20 @@ if groups "$USER_TO_CHECK" | grep -q '\bplugdev\b'; then
   GROUP_OK=true
 else
   echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} User '$USER_TO_CHECK' is not in 'plugdev' group."
-  echo -e "  ${C_BLUE}How to fix:${C_RESET} Add your user to the plugdev group by running:"
+  echo -e "  ${C_CYAN}How to fix:${C_RESET} Add your user to the group:"
   echo -e "  ${C_YELLOW}sudo usermod -aG plugdev $USER_TO_CHECK${C_RESET}"
-  echo -e "  Then log out and back in, or reboot for the change to take effect."
-  echo -e "  ${C_BLUE}More details:${C_RESET} See Step 1.3 in ${README_URL}#13-configure-usb-permissions"
+  echo
+  echo -e "  ${C_YELLOW}IMPORTANT:${C_RESET} You must log out and log back in, or reboot, for this change to take effect."
 fi
 
 if [ "$UDEV_OK" = false ] || [ "$GROUP_OK" = false ]; then
-  ALL_CHECKS_PASSED=false
+    if [ "$UDEV_OK" = true ]; then
+        echo -e "  After fixing the group, reload the rules:"
+    else
+        echo -e "  After creating the file and adding the user to the group, reload the rules:"
+    fi
+    echo -e "  ${C_YELLOW}sudo udevadm control --reload-rules && sudo udevadm trigger${C_RESET}"
+    ALL_CHECKS_PASSED=false
 fi
 echo
 
@@ -168,39 +226,16 @@ echo
 echo -e "${C_YELLOW}[5/6] Checking for connected ANT+ USB dongle...${C_RESET}"
 if ! command -v lsusb >/dev/null 2>&1; then
   echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} 'lsusb' command not found."
-  echo -e "  ${C_BLUE}How to fix:${C_RESET} Install usbutils:"
-  echo -e "  ${C_YELLOW}sudo apt-get install usbutils${C_RESET}"
+  echo -e "  ${C_CYAN}How to fix:${C_RESET} Run: ${C_YELLOW}sudo apt-get install usbutils${C_RESET}"
   ALL_CHECKS_PASSED=false
 else
-  ANT_DEVICE_INFO=$(lsusb | grep -E --color=never '0fcf:1009|0fcf:1008|11fd:0001')
+  ANT_DEVICE_INFO=$(lsusb | grep -E --color=never '0fcf:1009|0fcf:1008|11fd:0001|0fcf:1004')
   if [ -n "$ANT_DEVICE_INFO" ]; then
     echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} Found ANT+ compatible USB dongle:"
     echo "  $ANT_DEVICE_INFO"
-    
-    # Check live permissions
-    BUS=$(echo "$ANT_DEVICE_INFO" | awk '{print $2}')
-    DEVICE=$(echo "$ANT_DEVICE_INFO" | awk '{print $4}' | sed 's/://')
-    DEVICE_PATH="/dev/bus/usb/$BUS/$DEVICE"
-    
-    if [ -e "$DEVICE_PATH" ]; then
-      PERMS=$(ls -l "$DEVICE_PATH")
-      if [[ "$PERMS" == *"$USER_TO_CHECK"* || "$PERMS" == *"plugdev"* ]]; then
-        echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} Device permissions look correct."
-      else
-        echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} Device permissions are incorrect."
-        echo -e "  Current permissions: $PERMS"
-        echo -e "  ${C_BLUE}How to fix:${C_RESET} Reload the udev rules:"
-        echo -e "  ${C_YELLOW}sudo udevadm control --reload-rules && sudo udevadm trigger${C_RESET}"
-        echo -e "  Then unplug and replug your ANT+ dongle."
-        echo -e "  If this doesn't work, try rebooting your system."
-        ALL_CHECKS_PASSED=false
-      fi
-    fi
   else
     echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} No ANT+ USB dongle detected."
-    echo -e "  ${C_BLUE}How to fix:${C_RESET} Please connect your ANT+ dongle."
-    echo -e "  Compatible dongles: Garmin USB2 (0fcf:1008) or USB-m (0fcf:1009)"
-    echo -e "  If already connected, check if it's properly seated in the USB port."
+    echo -e "  ${C_CYAN}How to fix:${C_RESET} Please connect your ANT+ dongle."
     ALL_CHECKS_PASSED=false
   fi
 fi
@@ -210,31 +245,51 @@ echo
 # CHECK 6: Bluetooth Service
 # ---
 echo -e "${C_YELLOW}[6/6] Checking for Bluetooth service...${C_RESET}"
-if systemctl is-active --quiet bluetooth 2>/dev/null; then
-  echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} The 'bluetooth' service is active."
+
+BT_SERVICE=""
+if systemctl list-unit-files | grep -q '^bluetooth\.service'; then
+    BT_SERVICE="bluetooth.service"
+elif systemctl list-unit-files | grep -q '^hciuart\.service'; then
+    BT_SERVICE="hciuart.service"
 else
-  echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} The 'bluetooth' service is not running."
-  echo -e "  ${C_BLUE}How to fix:${C_RESET} Start and enable the bluetooth service:"
-  echo -e "  ${C_YELLOW}sudo systemctl start bluetooth${C_RESET}"
-  echo -e "  ${C_YELLOW}sudo systemctl enable bluetooth${C_RESET}"
-  echo -e "  Then verify it's running:"
-  echo -e "  ${C_YELLOW}sudo systemctl status bluetooth${C_RESET}"
-  ALL_CHECKS_PASSED=false
+    echo -e "${C_RED}✗ CRITICAL ISSUE:${C_RESET} Could not find 'bluetooth.service' or 'hciuart.service'."
+    echo -e "  The core Bluetooth service is missing from your system."
+    echo -e "  ${C_CYAN}How to fix:${C_RESET} Install the BlueZ package:"
+    echo -e "  ${C_YELLOW}sudo apt-get install bluez${C_RESET}"
+    ALL_CHECKS_PASSED=false
+    BT_SERVICE="none"
+fi
+
+if [ "$BT_SERVICE" != "none" ]; then
+    if systemctl is-active --quiet "$BT_SERVICE"; then
+        echo -e "${C_GREEN}✓ SUCCESS:${C_RESET} The '$BT_SERVICE' is active."
+    else
+        echo -e "${C_RED}✗ ISSUE FOUND:${C_RESET} The Bluetooth service ('$BT_SERVICE') is not running."
+        echo -e "  ${C_CYAN}How to fix:${C_RESET} Start and enable the service:"
+        echo
+        echo -e "  ${C_YELLOW}# 1. Try to start and enable the service:${C_RESET}"
+        echo -e "  ${C_YELLOW}sudo systemctl start ${BT_SERVICE} && sudo systemctl enable ${BT_SERVICE}${C_RESET}"
+        echo
+        echo -e "  ${C_YELLOW}# 2. Wait a few seconds, then run this script again.${C_RESET}"
+        echo
+        echo -e "  ${C_YELLOW}# 3. If it still fails, check the service's status for errors:${C_RESET}"
+        echo -e "  ${C_YELLOW}sudo systemctl status ${BT_SERVICE}${C_RESET}"
+        echo
+        echo -e "  ${C_YELLOW}# 4. For more detailed logs, run:${C_RESET}"
+        echo -e "  ${C_YELLOW}journalctl -u ${BT_SERVICE} -n 20 --no-pager${C_RESET}"
+        ALL_CHECKS_PASSED=false
+    fi
 fi
 echo
 
 # ---
 # FINAL SUMMARY
 # ---
-echo -e "${C_BLUE}--- Diagnostic Complete ---${C_RESET}"
+echo -e "${C_CYAN}--- Diagnostic Complete ---${C_RESET}"
 if [ "$ALL_CHECKS_PASSED" = true ]; then
-  echo -e "${C_GREEN}✓ All checks passed! Your runtime environment is ready for ANT+.${C_RESET}"
-  echo -e "  You can now proceed to Step 2 to download and install the binary."
-  echo -e "  ${C_BLUE}Next steps:${C_RESET} ${README_URL}#step-2-download-and-install-binary"
+  echo -e "${C_GREEN}========================================================${C_RESET}"
+  echo -e "${C_GREEN}✓ All checks passed! Your system is ready for ANT+.${C_RESET}"
+  echo -e "${C_GREEN}========================================================${C_RESET}"
 else
-  echo -e "${C_RED}✗ One or more checks failed. Your environment is NOT ready for ANT+.${C_RESET}"
-  echo -e "  Please review the issues above and follow the 'How to fix' instructions."
-  echo -e "  All checks must pass for the ANT+ feature to work correctly."
-  echo -e "  After making the changes, run this script again to verify."
-  echo -e "  ${C_BLUE}Full guide:${C_RESET} ${README_URL}"
+  echo -e "${C_RED}✗ One or more checks failed. Please review the issues above and follow the 'How to fix' instructions.${C_RESET}"
 fi

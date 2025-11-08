@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides comprehensive testing procedures for the QDomyos-Zwift ANT+ Virtual Footpod pre-compiled binaries. It's designed for developers and "KICKR RUN".
+This document provides comprehensive testing procedures for the QDomyos-Zwift ANT+ Virtual Footpod pre-compiled binaries. It's designed for developers and testers.
 
 **Related Documentation:**
 - [Main Installation Guide (README.md)](README.md) - For standard users installing the application
@@ -27,195 +27,56 @@ Validate that the pre-compiled binaries for Raspberry Pi (ARM64) and Desktop Lin
 ### Required Test Hardware
 - **ANT+ USB dongle:** Garmin USB2 (0fcf:1008) or USB-m (0fcf:1009)
 - **Garmin watch:** For pairing tests
-- **Treadmill:** One of the following options:
-  - Bluetooth-enabled treadmill compatible with QDomyos-Zwift (see [compatibility list](https://github.com/cagnulein/qdomyos-zwift#compatible-devices))
-  - **Virtual treadmill setup** (see below)
-
----
-
-## Virtual Treadmill Setup for Testing
-
-If you don't have easy access to a compatible physical treadmill, use QDomyos-Zwift's virtual fake treadmill feature.
-
-### Create Configuration File
-
-```bash
-sudo mkdir -p "/root/.config/Roberto Viola"
-sudo tee "/root/.config/Roberto Viola/qDomyos-Zwift.conf" > /dev/null << 'EOF'
-[General]
-fakedevice_treadmill=true
-treadmill_force_speed=true
-virtual_device_bluetooth=true
-virtualtreadmill=true
-EOF
-```
-
-### Method 1: GUI Control (Desktop)
-
-For devices with desktop environment:
-
-```bash
-sudo ./qdomyos-zwift -ant-footpod
-```
-
-Use GUI speed controls to adjust speed during testing.
-
-### Method 2: Headless Control (Second qz as Remote)
-
-For headless devices (Pi Zero 2 W, servers):
-
-```bash
-sudo ./qdomyos-zwift -no-gui -ant-footpod
-```
-
-**Second QZ GUI settings:**
-- This can be QZ running on Mobile or Desktop
-- Use wizard to connect to the Fake Treadmill "KICKR RUN"
-- Set Horizon Treadmill Force FTMS to Enabled
-
-**Connect:** Open QZ app → connect to "KICKR RUN" → use GUI speed controls
-
-### Pair Garmin Watch
-
-1. Watch: Menu > Sensors & Accessories > Add New > Foot Pod
-2. Start "Treadmill" or "Run Indoor" activity
-3. Adjust speed (GUI or Android)
-4. Verify pace/cadence updates on watch
-
-**Success indicators:**
-- Console shows: `[ANT+] Relaying FTMS speed request (X.Xkm/h) to faketreadmill.`
-- Watch displays stable pace and cadence (no flickering or `--:--`)
+- **Treadmill:** Physical Bluetooth-enabled treadmill (see [compatibility list](https://github.com/cagnulein/qdomyos-zwift#compatible-devices)) OR virtual treadmill setup (see TC7)
 
 ---
 
 ## Pre-Test Setup: Establishing Baseline Environment
 
-**Important Notice for Testers and Developers:**
+**For Testers and Developers:**
 
-This section is is for developers, QA testers, and contributors who need to repeatedly test the installation process from a clean baseline state.
+Before each test iteration, reset your system to a clean baseline using the automated cleanup script.
 
-**Before proceeding with cleanup:**
-
-1. **Backup your configuration files** if they contain important settings:
-   ```bash
-   # Backup root's QZ config (if it exists)
-   sudo cp -r "/root/.config/Roberto Viola" "/root/.config/Roberto Viola.backup" 2>/dev/null
-   
-   # Backup user's QZ config (if it exists)
-   cp -r "$HOME/.config/Roberto Viola" "$HOME/.config/Roberto Viola.backup" 2>/dev/null
-   ```
-
-2. **Take note of your treadmill model settings** - you may need to reconfigure these after testing
-
-3. **Consider creating a system snapshot** if your platform supports it (e.g., SD card backup for Raspberry Pi)
-
-### Remove Existing Installation
+### Download and Run Cleanup Script
 
 ```bash
-# Stop and disable any running service
-sudo systemctl stop qz 2>/dev/null
-sudo systemctl disable qz 2>/dev/null
-sudo rm -f /etc/systemd/system/qz.service
-sudo systemctl daemon-reload
+# Download the cleanup script
+curl -o ~/testplan_cleanup.sh https://raw.githubusercontent.com/cagnulein/qdomyos-zwift/master/src/devices/antlinux/testplan_cleanup.sh
+chmod +x ~/testplan_cleanup.sh
 
-# Remove the binary
-rm -f ~/qdomyos-zwift
-
-# Remove Python virtual environment
-rm -rf ~/ant_venv
-
-# Remove runtime check script
-rm -f ~/runtime_check.sh
+# Run the cleanup script
+~/testplan_cleanup.sh
 ```
 
-### Remove System Dependencies (Optional - for complete baseline)
+**What the script does:**
+1. Stops and disables qz.service
+2. Removes binary and scripts
+3. Removes Python virtual environment
+4. Optionally removes pyenv installation
+5. Removes USB permissions and udev rules
+6. Removes user from plugdev group
+7. Backs up and removes root configuration
+8. Shows optional system package removal commands
 
-**Warning:** Only remove these if they're not needed by other applications on your system.
-
-```bash
-# Remove Qt5 libraries
-sudo apt-get remove -y \
-	libqt5bluetooth5 \
-	libqt5charts5 \
-	libqt5multimedia5 \
-	libqt5networkauth5 \
-	libqt5positioning5 \
-	libqt5sql5 \
-	libqt5texttospeech5 \
-	libqt5websockets5 \
-	libqt5xml5
-
-# Remove Python 3.11 (only if not needed by other software)
-sudo apt-get remove -y python3.11 python3.11-venv
-
-# Remove USB utilities
-sudo apt-get remove -y libusb-1.0-0 usbutils
-
-# Clean up
-sudo apt-get autoremove -y
-```
-
-### Remove USB Permissions Configuration
-
-```bash
-# Remove udev rule
-sudo rm -f /etc/udev/rules.d/99-ant-usb.rules
-sudo udevadm control --reload-rules && sudo udevadm trigger
-
-# Remove user from plugdev group (replace $USER with actual username if needed)
-sudo gpasswd -d $USER plugdev
-```
-
-### Remove Root Configuration File
-
-```bash
-# Backup first (if you haven't already)
-sudo cp -r "/root/.config/Roberto Viola" "/root/.config/Roberto Viola.backup" 2>/dev/null
-
-# Remove QZ configuration
-sudo rm -rf "/root/.config/Roberto Viola"
-```
-
-**Note:** To restore from backup after testing:
-```bash
-sudo cp -r "/root/.config/Roberto Viola.backup" "/root/.config/Roberto Viola" 2>/dev/null
-```
-
-### Verification
-
-After cleanup, verify baseline state:
-
-```bash
-# Check binary is gone
-ls ~/qdomyos-zwift 2>/dev/null && echo "Binary still present" || echo "Binary removed ✓"
-
-# Check venv is gone
-ls ~/ant_venv 2>/dev/null && echo "Venv still present" || echo "Venv removed ✓"
-
-# Check Python 3.11
-command -v python3.11 >/dev/null 2>&1 && echo "Python 3.11 present" || echo "Python 3.11 removed ✓"
-
-# Check udev rule
-[ -f /etc/udev/rules.d/99-ant-usb.rules ] && echo "Udev rule still present" || echo "Udev rule removed ✓"
-
-# Check group membership
-groups | grep -q plugdev && echo "Still in plugdev group" || echo "Removed from plugdev ✓"
-```
-
-You're now ready to begin testing from a clean baseline.
+**After cleanup:**
+- Log out and log back in (or reboot) for group changes to take effect
+- Run verification: `su - $USER` then check `groups | grep plugdev` (should be empty)
+- System is now ready for fresh test iteration
 
 ---
 
 ## Test Preparation
 
-Before starting the test cases, download the runtime check script once:
+Before starting test cases, download the runtime check script:
 
 ```bash
 curl -o ~/runtime_check.sh https://raw.githubusercontent.com/cagnulein/qdomyos-zwift/master/src/devices/antlinux/runtime_check.sh
 chmod +x ~/runtime_check.sh
 ```
 
-This script will be used throughout testing to validate the system state.
+**Note:** The runtime check script must be run with sudo: `sudo ~/runtime_check.sh`
+
+This script validates the system state throughout testing.
 
 ---
 
@@ -223,18 +84,24 @@ This script will be used throughout testing to validate the system state.
 
 ### TC1: Fresh System - Missing All Dependencies
 
-**Purpose:** Verify the application exits gracefully when Qt5 libraries are missing and provides clear error messages.
+**Purpose:** Verify the application exits gracefully when all dependencies are missing and provides clear error messages.
 
 **Initial Setup:**
 - Fresh OS installation
 - No Python 3.11, no Qt5 libraries, no virtual environment
+- Run cleanup script if needed to ensure baseline state
 
 **Test Steps:**
 1. Run runtime check: `sudo ~/runtime_check.sh`
-   - **Expected:** Fails on Python 3.11, venv, Qt5 libraries, USB permissions, ANT+ dongle, Bluetooth
+   - **Expected:** Fails on all 6 checks (Python 3.11, venv, Qt5, USB permissions, ANT+ dongle, Bluetooth)
    - **Verify:** Provides installation commands for each failed check
-   - **Verify:** Links to README sections are present and accurate
-2. Download appropriate binary from GitHub Actions
+   - **Verify:** Shows both apt-get and pyenv methods for Python 3.11 installation
+   - **Verify:** Script detects whether Python 3.11 is available via apt-get
+   - **Verify:** Notes that Python 3.11 may be unavailable on older (e.g., Ubuntu 20.04) or newer (e.g., Debian Trixie) distributions
+   - **Verify:** For Bluetooth check, shows `sudo apt-get install bluez` if service is missing
+2. Download appropriate binary from GitHub Releases:
+   - **Raspberry Pi:** `qdomyos-zwift-arm64-ant`
+   - **Desktop Linux:** `qdomyos-zwift-x86-64-ant`
 3. Transfer to device home directory as `~/qdomyos-zwift`
 4. Make executable: `chmod +x ~/qdomyos-zwift`
 5. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
@@ -248,6 +115,8 @@ This script will be used throughout testing to validate the system state.
 
 **Pass Criteria:**
 - Runtime check identifies all issues correctly
+- Runtime check shows appropriate Python 3.11 installation method based on distribution
+- Runtime check notes that Python 3.11 may be unavailable on older or newer distributions
 - Application error message names the specific missing library
 - No segmentation faults or unhandled exceptions
 
@@ -256,15 +125,37 @@ This script will be used throughout testing to validate the system state.
 
 ---
 
-### TC2: Python 3.11 Installed - Missing Qt5 Libraries
+### TC2: Python 3.11 via pyenv - Missing Qt5 Libraries
 
-**Purpose:** Verify error handling when Python environment exists but Qt5 libraries are missing.
+**Purpose:** Verify error handling when Python environment exists but Qt5 libraries are missing. Use pyenv to ensure consistent Python version testing across all distributions.
+
+**Note:** This test case uses pyenv regardless of whether Python 3.11 is available via system packages. This allows testing Python version management and ensures consistent test execution across distributions (older distributions with Python 3.9, current distributions with Python 3.11, or newer distributions with Python 3.12+).
 
 **Setup Steps:**
 1. Starting from TC1 state
-2. Install only Python 3.11: `sudo apt-get install python3.11 python3.11-venv python3-pip`
-3. Create venv: `python3.11 -m venv ~/ant_venv`
-4. Install Python packages: `~/ant_venv/bin/pip install --upgrade pip && ~/ant_venv/bin/pip install openant pyusb pybind11`
+2. Install pyenv and Python 3.11:
+   ```bash
+   # Install pyenv dependencies (including git and curl required by pyenv installer)
+   sudo apt-get install -y git curl build-essential libssl-dev zlib1g-dev libbz2-dev \
+     libreadline-dev libsqlite3-dev wget llvm libncurses5-dev \
+     libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev
+   
+   # Install pyenv
+   curl https://pyenv.run | bash
+   
+   # Add to shell
+   echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+   echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+   echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+   source ~/.bashrc
+   
+   # Install Python 3.11
+   pyenv install 3.11.9
+   pyenv global 3.11.9
+   ```
+3. Verify: `python --version` (should show Python 3.11.9)
+4. Create venv: `python3.11 -m venv ~/ant_venv`
+5. Install Python packages: `~/ant_venv/bin/pip install --upgrade pip && ~/ant_venv/bin/pip install openant pyusb pybind11`
 
 **Test Steps:**
 1. Run runtime check: `sudo ~/runtime_check.sh`
@@ -280,12 +171,12 @@ This script will be used throughout testing to validate the system state.
 - Application exits without crash
 
 **Pass Criteria:**
-- Runtime check passes Python/venv, fails Qt5
+- Runtime check passes Python/venv checks, fails Qt5
 - Clear indication of which Qt5 libraries are missing
 - No crash or hanging
 
 **Cleanup for Next Test:**
-- Keep Python 3.11 and venv installed
+- Keep Python 3.11 (pyenv) and venv installed
 - Proceed to TC3
 
 ---
@@ -300,7 +191,7 @@ This script will be used throughout testing to validate the system state.
    ```bash
    sudo apt-get install -y libqt5bluetooth5 libqt5charts5 libqt5multimedia5 \
    libqt5networkauth5 libqt5positioning5 libqt5sql5 libqt5texttospeech5 \
-   libqt5websockets5 libqt5xml5 libusb-1.0-0 usbutils
+   libqt5websockets5 libqt5xml5 libusb-1.0-0 usbutils bluez
    ```
 3. Remove the venv: `rm -rf ~/ant_venv`
 
@@ -374,8 +265,8 @@ This script will be used throughout testing to validate the system state.
 **Test Steps:**
 1. Run runtime check: `sudo ~/runtime_check.sh`
    - **Expected:** Passes Python, Qt5, venv, and packages checks
-   - **Expected:** Fails/warns on USB permissions (no udev rule, not in plugdev), ANT+ dongle permissions, Bluetooth
-   - **Verify:** Provides udev rule creation commands
+   - **Expected:** Fails/warns on USB permissions (no udev rule, not in plugdev), ANT+ dongle detection, Bluetooth
+   - **Verify:** Provides udev rule creation commands (complete heredoc block)
 2. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
 
 **Expected Results:**
@@ -386,49 +277,69 @@ This script will be used throughout testing to validate the system state.
 
 **Pass Criteria:**
 - Runtime check identifies USB permission configuration gaps
+- Runtime check provides complete, copy-pasteable udev rule block
 - Application doesn't crash
 - Any USB-related errors are logged clearly
 
 **Cleanup for Next Test:**
-- Configure USB permissions as per README Step 1.3
+- Configure USB permissions as per runtime check output
 - Add user to plugdev group: `sudo usermod -aG plugdev $USER`
 - Create udev rules and reboot
 - Proceed to TC6
 
 ---
 
-### TC6: Complete Setup - Wrong Python Version
+### TC6: Wrong Python Version via pyenv
 
-**Purpose:** Verify error handling when wrong Python version is used for the venv.
+**Purpose:** Verify error handling when venv is created with wrong Python version. Use pyenv to install and test with Python 3.10.
 
 **Setup Steps:**
-1. Starting from fresh system or TC5 state
-2. Install Python 3.9 or 3.10 (if available): `sudo apt-get install python3.9 python3.9-venv`
-3. Install all system dependencies (Qt5 libraries)
-4. Create venv with wrong Python version: `python3.9 -m venv ~/ant_venv`
+1. Starting from TC5 state
+2. Uninstall Python 3.11 and install Python 3.10 via pyenv:
+   ```bash
+   # Uninstall Python 3.11
+   pyenv uninstall 3.11.9
+   
+   # Install Python 3.10
+   pyenv install 3.10.14
+   pyenv global 3.10.14
+   
+   # Verify
+   python --version  # Should show Python 3.10.14
+   ```
+3. Remove existing venv: `rm -rf ~/ant_venv`
+4. Create venv with Python 3.10: `python3.10 -m venv ~/ant_venv`
 5. Install packages: `~/ant_venv/bin/pip install openant pyusb pybind11`
 
 **Test Steps:**
 1. Run runtime check: `sudo ~/runtime_check.sh`
-   - **Expected:** Fails on Python 3.11 (wrong version detected)
-   - **Verify:** Suggests installing Python 3.11
+   - **Expected:** Fails on Python 3.11 check
+   - **Expected:** Detects Python 3.10 is installed but 3.11 is required
+   - **Verify:** Shows pyenv installation commands for Python 3.11
 2. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
 
 **Expected Results:**
-- Runtime check identifies Python version issue
+- Runtime check identifies Python 3.11 is not installed
 - Application fails to start
-- Error message: "error while loading shared libraries: libpython3.11.so.1.0"
-- Clear indication that Python 3.11 is required
+- Error message: "error while loading shared libraries: libpython3.11.so.1.0: cannot open shared object file"
+- Clear indication that Python 3.11 specifically is required
 
 **Pass Criteria:**
-- Runtime check identifies Python version mismatch
-- Error clearly mentions Python 3.11
+- Runtime check correctly identifies Python 3.11 absence
+- Runtime check suggests pyenv installation method
+- Application error clearly mentions libpython3.11.so.1.0
 - No crash or hanging
 
 **Cleanup for Next Test:**
 - Remove wrong venv: `rm -rf ~/ant_venv`
-- Install Python 3.11: `sudo apt-get install python3.11 python3.11-venv`
-- Recreate venv: `python3.11 -m venv ~/ant_venv`
+- Reinstall Python 3.11 via pyenv:
+  ```bash
+  pyenv uninstall 3.10.14
+  pyenv install 3.11.9
+  pyenv global 3.11.9
+  python --version  # Verify Python 3.11.9
+  ```
+- Recreate venv with Python 3.11: `python3.11 -m venv ~/ant_venv`
 - Install packages: `~/ant_venv/bin/pip install openant pyusb pybind11`
 - Proceed to TC7
 
@@ -439,30 +350,78 @@ This script will be used throughout testing to validate the system state.
 **Purpose:** Verify full functionality when all prerequisites are correctly configured.
 
 **Setup Steps:**
-1. Complete all README steps exactly (Steps 1.1, 1.2, 1.3 including reboot)
+1. Complete all README steps exactly (Steps 1.1, 1.2, 1.3, 1.4 including reboot)
 2. Connect ANT+ dongle
 3. Have Garmin watch ready for pairing
-4. Set up virtual treadmill configuration (see Virtual Treadmill Setup section)
+4. Set up treadmill (physical or virtual - see below)
+
+#### Option A: Physical Treadmill
+
+Use a Bluetooth-enabled treadmill compatible with QDomyos-Zwift (see [compatibility list](https://github.com/cagnulein/qdomyos-zwift#compatible-devices)).
+
+#### Option B: Virtual Treadmill Setup
+
+If you don't have access to a compatible physical treadmill, use QDomyos-Zwift's built-in virtual/fake treadmill feature.
+
+**Device Roles:**
+
+| Device | Role | Runs | Purpose |
+|--------|------|------|---------|
+| **Test Device** | ANT+ broadcaster | `sudo ./qdomyos-zwift -no-gui -ant-footpod` | Creates fake treadmill, broadcasts ANT+ data |
+| **Remote Control Device** | Speed controller | QZ mobile/desktop app | Connects to "KICKR RUN", controls speed |
+| **Garmin Watch** | Data receiver | Fitness activity | Pairs as footpod, displays pace/cadence |
+
+**Configuration Steps:**
+
+1. **On Test Device** - Create configuration file:
+   ```bash
+   sudo mkdir -p "/root/.config/Roberto Viola"
+   sudo tee "/root/.config/Roberto Viola/qDomyos-Zwift.conf" > /dev/null << 'EOF'
+   [General]
+   fakedevice_treadmill=true
+   treadmill_force_speed=true
+   virtual_device_bluetooth=true
+   virtualtreadmill=true
+   EOF
+   ```
+
+2. **On Remote Control Device** - Download QDomyos-Zwift:
+   - **Android:** [QDomyos-Zwift on Google Play](https://play.google.com/store/apps/details?id=org.cagnulen.qdomyoszwift)
+   - **iOS:** [QDomyos-Zwift on App Store](https://apps.apple.com/app/qdomyos-zwift/id1543684991)
+   - **Desktop:** Use another Linux/Windows/Mac computer with QZ installed
 
 **Test Steps:**
 1. Run runtime check: `sudo ~/runtime_check.sh`
    - **Expected:** All 6 checks pass (✓ green)
    - **Expected:** Final message: "All checks passed! Your runtime environment is ready for ANT+."
-   - **Verify:** Links to next steps in README
-2. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod` (or without `-no-gui` if using GUI control)
-3. Wait for initialization messages
+
+2. **For Physical Treadmill:**
+   - Start test device: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
+   - Start your physical treadmill
+   
+3. **For Virtual Treadmill:**
+   - Start test device: `sudo ./qdomyos-zwift -no-gui -ant-footpod` (or without `-no-gui` if using GUI)
+   - On remote control device: Run setup wizard for a Treadmill
+   - Connect to "KICKR RUN" (test device's fake treadmill)
+   - Complete all wizard steps
+   - Open Settings → Enable **"Horizon Treadmill Force FTMS"**
+   - Save and return to main screen
+
 4. On Garmin watch: Menu > Sensors & Accessories > Add New > Foot Pod
 5. Wait for pairing
-6. Control speed via GUI or Android app
-7. Observe watch display for 5+ minutes
-8. Vary speed to test cadence switching (below/above 7.0 km/h)
+6. Start "Treadmill" or "Run Indoor" activity on watch
+7. Control treadmill speed (physical controls or remote device speed controls)
+8. Observe watch display for 5+ minutes
+9. Vary speed to test cadence switching (below/above 7.0 km/h)
 
 **Expected Results:**
 - Runtime check shows all green checkmarks
 - Application starts successfully without errors
-- Console/log shows: "ANT+ Footpod broadcaster initialized" or similar
+- Console shows: "ANT+ Footpod broadcaster initialized" or similar
+- **For Virtual Treadmill:** Remote device connects to "KICKR RUN", speed changes show relay messages in test device console
+- **For Physical Treadmill:** Application connects to treadmill via Bluetooth
 - Watch detects and pairs within a few seconds
-- Watch displays pace data that matches commanded speed
+- Watch displays pace data that matches treadmill speed
 - Watch displays cadence data (90-140 SPM walking, 160-200 SPM running)
 - Cadence switches appropriately at ~7.0 km/h threshold
 - No errors or warnings in logs
@@ -471,6 +430,7 @@ This script will be used throughout testing to validate the system state.
 **Pass Criteria:**
 - Runtime check passes all 6 checks
 - Clean startup with no errors
+- Treadmill connection successful (remote control for virtual, Bluetooth for physical)
 - Watch pairs successfully
 - Pace data is accurate and updates smoothly
 - Cadence data displays correctly
@@ -503,18 +463,23 @@ This script will be used throughout testing to validate the system state.
    sudo systemctl start qz
    ```
 5. Check status: `sudo systemctl status qz`
-6. Verify watch can pair
-7. Reboot system: `sudo reboot`
-8. After boot, check status: `sudo systemctl status qz`
-9. Verify watch can still pair and receive data
-10. Test graceful shutdown: `sudo systemctl stop qz`
+6. **For Virtual Treadmill:** Connect remote control device to "KICKR RUN"
+7. **For Physical Treadmill:** Start your physical treadmill
+8. Verify watch can pair
+9. Reboot system: `sudo reboot`
+10. After boot, check status: `sudo systemctl status qz`
+11. **For Virtual Treadmill:** Verify remote can reconnect
+12. Verify watch can still pair and receive data
+13. Test graceful shutdown: `sudo systemctl stop qz`
 
 **Expected Results:**
 - Runtime check confirms system is ready
 - Service starts successfully
 - Status shows "active (running)"
+- Treadmill connection works (remote control for virtual, Bluetooth for physical)
 - Watch can pair and receive data
 - Service starts automatically after reboot
+- Treadmill reconnects after reboot
 - Service stops gracefully within 5 seconds
 
 **Pass Criteria:**
@@ -523,38 +488,6 @@ This script will be used throughout testing to validate the system state.
 - Watch functionality identical to manual run
 - Clean shutdown without hanging
 
-**Cleanup for Next Test:**
-- Leave service configured
-- Proceed to TC9
-
----
-
-### TC9: Wrong Architecture Binary
-
-**Purpose:** Verify clear error message when user downloads wrong architecture binary.
-
-**Setup Steps:**
-1. On Raspberry Pi: download x86-64 binary
-2. OR on Desktop Linux: download ARM64 binary
-3. Transfer wrong binary to `~/qdomyos-zwift`
-4. Make executable: `chmod +x ~/qdomyos-zwift`
-
-**Test Steps:**
-1. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
-
-**Expected Results:**
-- Immediate error message: "cannot execute binary file: Exec format error"
-- Clear indication of architecture mismatch
-- No system instability
-
-**Pass Criteria:**
-- Immediate, clear error about binary format
-- System remains stable
-
-**Cleanup:**
-- Remove wrong binary
-- Download correct architecture binary
-
 ---
 
 ## Acceptance Checklist
@@ -562,23 +495,28 @@ This script will be used throughout testing to validate the system state.
 Before releasing a new binary build, verify:
 
 - [ ] TC1-TC6 (error cases) produce clear, helpful error messages
-- [ ] Runtime check integrated in TC1-TC8 provides accurate diagnostics
+- [ ] TC6 specifically validates wrong Python version handling (3.10 vs required 3.11)
+- [ ] Runtime check provides accurate diagnostics in all states
+- [ ] Runtime check detects distribution-specific Python 3.11 availability (older and newer distributions)
+- [ ] Runtime check shows appropriate installation method (apt-get vs pyenv)
+- [ ] Runtime check provides complete, copy-pasteable udev rule block
 - [ ] Runtime check suggestions are actionable with working commands
 - [ ] Runtime check completes in under 10 seconds in all states
-- [ ] Runtime check README links are accurate and working
-- [ ] All 6 runtime checks must pass for success
+- [ ] Runtime check must be run with sudo (script validates this)
+- [ ] All 6 runtime checks must pass for success in TC7
 - [ ] TC7 (success case) works on both Raspberry Pi and Desktop Linux
 - [ ] TC7 runs stably for 5+ minutes with accurate data
 - [ ] TC7 runtime check shows all 6 green passes
 - [ ] TC8 (systemd) starts reliably on boot on both platforms
 - [ ] TC8 stops gracefully without hanging
-- [ ] TC9 (wrong architecture) fails with clear architecture error
 - [ ] All error messages reviewed for clarity and helpfulness
 - [ ] Documentation matches actual application behavior
 - [ ] No crashes, hangs, or segfaults observed in any test case
 - [ ] Log files contain useful diagnostic information (when logging enabled)
 - [ ] Both ARM64 and x86-64 binaries tested on appropriate hardware
-- [ ] Virtual treadmill testing (GUI and headless control) validated
+- [ ] Virtual treadmill testing (remote control method) validated
+- [ ] Physical treadmill testing (if available) validated
+- [ ] Cleanup script (testplan_cleanup.sh) successfully resets system to baseline
 
 ---
 
@@ -587,3 +525,11 @@ Before releasing a new binary build, verify:
 **Documentation:**
 - [Installation Guide (README.md)](README.md)
 - [Compilation Guide (COMPILE.md)](COMPILE.md)
+
+**Scripts:**
+- **Runtime Check:** `sudo ~/runtime_check.sh` - Validates system state (must run as sudo)
+- **Cleanup:** `~/testplan_cleanup.sh` - Resets system to baseline
+
+**Treadmill Options for Testing:**
+- **Physical Treadmill:** Any Bluetooth-enabled treadmill from compatibility list
+- **Virtual Treadmill:** Uses fake "KICKR RUN" treadmill with remote control device
