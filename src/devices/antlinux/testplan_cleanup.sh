@@ -175,31 +175,50 @@ main() {
     info "Step 8: System package cleanup (optional)..."
     warn "Removing system packages may affect other applications."
     warn "Only remove these if you're sure they're not needed elsewhere."
-    prompt "Do you want to see the command to remove all system dependencies?"
+    prompt "Do you want to remove system dependencies now?"
     
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo
-        info "To remove system dependencies, run this command manually:"
-        echo
-        echo -e "${C_YELLOW}# Remove Qt5 libraries${C_RESET}"
-        echo -e "${C_YELLOW}sudo apt-get remove -y libqt5bluetooth5 libqt5charts5 libqt5multimedia5"
-        echo -e "  libqt5networkauth5 libqt5positioning5 libqt5sql5 libqt5texttospeech5"
-        echo -e "  libqt5websockets5 libqt5xml5${C_RESET}"
-        echo
-        echo -e "${C_YELLOW}# Remove Python 3.11 (only if not needed by other software)${C_RESET}"
-        echo -e "${C_YELLOW}sudo apt-get remove -y python3.11 python3.11-venv${C_RESET}"
-        echo
-        echo -e "${C_YELLOW}# Remove USB utilities${C_RESET}"
-        echo -e "${C_YELLOW}sudo apt-get remove -y libusb-1.0-0 usbutils${C_RESET}"
-        echo
-        echo -e "${C_YELLOW}# Remove pyenv build dependencies (if pyenv was used)${C_RESET}"
-        echo -e "${C_YELLOW}sudo apt-get remove -y build-essential libssl-dev zlib1g-dev libbz2-dev"
-        echo -e "  libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev"
-        echo -e "  libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev${C_RESET}"
-        echo
-        echo -e "${C_YELLOW}# Clean up unused packages${C_RESET}"
-        echo -e "${C_YELLOW}sudo apt-get autoremove -y${C_RESET}"
-        echo
+        info "Removing Qt5 libraries..."
+        if sudo apt-get remove -y libqt5bluetooth5 libqt5charts5 libqt5multimedia5 \
+            libqt5networkauth5 libqt5positioning5 libqt5sql5 libqt5texttospeech5 \
+            libqt5websockets5 libqt5xml5 2>/dev/null; then
+            success "Qt5 libraries removed."
+        else
+            warn "Some Qt5 libraries may not have been installed."
+        fi
+        
+        info "Removing Python 3.11 (if not needed by other software)..."
+        if sudo apt-get remove -y python3.11 python3.11-venv 2>/dev/null; then
+            success "Python 3.11 removed."
+        else
+            warn "Python 3.11 may not have been installed via apt."
+        fi
+        
+        info "Removing USB utilities..."
+        if sudo apt-get remove -y libusb-1.0-0 usbutils 2>/dev/null; then
+            success "USB utilities removed."
+        else
+            warn "Some USB utilities may not have been installed."
+        fi
+        
+        info "Removing pyenv build dependencies..."
+        if sudo apt-get remove -y build-essential libssl-dev zlib1g-dev libbz2-dev \
+            libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev \
+            libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev 2>/dev/null; then
+            success "Build dependencies removed."
+        else
+            warn "Some build dependencies may not have been installed."
+        fi
+        
+        info "Cleaning up unused packages..."
+        sudo apt-get autoremove -y
+        success "Package cleanup complete."
+    else
+        warn "Skipping system package removal."
+        echo "  If you want to remove packages later, you can run:"
+        echo -e "  ${C_YELLOW}sudo apt-get remove -y libqt5bluetooth5 libqt5charts5 libqt5multimedia5 \\"
+        echo -e "    libqt5networkauth5 libqt5positioning5 libqt5sql5 libqt5texttospeech5 \\"
+        echo -e "    libqt5websockets5 libqt5xml5 python3.11 python3.11-venv libusb-1.0-0 usbutils${C_RESET}"
     fi
 
     # --- Step 9: Verification Summary ---
