@@ -647,7 +647,12 @@ jobs:
         run: |
           echo "Checking APK permissions..."
           APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
-          PERMISSIONS=$(aapt dump permissions "$APK_PATH")
+
+          # Find aapt in Android SDK
+          AAPT=$(find $ANDROID_HOME/build-tools -name aapt | head -n 1)
+          echo "Using aapt: $AAPT"
+
+          PERMISSIONS=$($AAPT dump permissions "$APK_PATH")
           echo "$PERMISSIONS"
 
           if echo "$PERMISSIONS" | grep -i "EXACT_ALARM"; then
