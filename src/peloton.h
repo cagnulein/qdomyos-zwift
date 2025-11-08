@@ -25,10 +25,18 @@
 #include "filedownloader.h"
 #include "homefitnessbuddy.h"
 
+// Include secret.h if it exists
+#if __has_include("secret.h")
+#include "secret.h"
+#endif
+
+// Warn only if PELOTON_SECRET_KEY is not defined
+#ifndef PELOTON_SECRET_KEY
 #if defined(WIN32)
 #pragma message("DEFINE PELOTON_SECRET_KEY!!!")
 #else
 #warning "DEFINE PELOTON_SECRET_KEY!!!"
+#endif
 #endif
 
 #define PELOTON_CLIENT_ID_S STRINGIFY(PELOTON_SECRET_KEY)

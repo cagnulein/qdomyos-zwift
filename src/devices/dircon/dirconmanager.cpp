@@ -43,7 +43,7 @@ using namespace std::chrono_literals;
        DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                                              \
     OP(FITNESS_MACHINE_CYCLE, 0x2AD6, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x0A\x00\x96\x00\x0A\x00"),                     \
        DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                                              \
-    OP(FITNESS_MACHINE_CYCLE, 0x2AD9, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_2AD9, P1, P2, P3)     \
+    OP(FITNESS_MACHINE_CYCLE, 0x2AD9, DPKT_CHAR_PROP_FLAG_WRITE | DPKT_CHAR_PROP_FLAG_INDICATE, DM_BT("\x00"), DP_PROCESS_WRITE_2AD9, P1, P2, P3)     \
     OP(FITNESS_MACHINE_CYCLE, 0xE005, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_E005, P1, P2, P3)     \
     OP(FITNESS_MACHINE_CYCLE, 0x2AD2, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)    \
     OP(FITNESS_MACHINE_CYCLE, 0x2AD3, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x00\x01"), DP_PROCESS_WRITE_NULL, P1, P2, P3)  \
@@ -51,7 +51,7 @@ using namespace std::chrono_literals;
        DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                                              \
     OP(FITNESS_MACHINE_TREADMILL, 0x2AD6, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x0A\x00\x96\x00\x0A\x00"),                 \
        DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                                              \
-    OP(FITNESS_MACHINE_TREADMILL, 0x2AD9, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_2AD9T, P1, P2,    \
+    OP(FITNESS_MACHINE_TREADMILL, 0x2AD9, DPKT_CHAR_PROP_FLAG_WRITE | DPKT_CHAR_PROP_FLAG_INDICATE, DM_BT("\x00"), DP_PROCESS_WRITE_2AD9T, P1, P2,    \
        P3)                                                                                                             \
     OP(FITNESS_MACHINE_TREADMILL, 0x2ACD, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2,    \
        P3)                                                                                                             \

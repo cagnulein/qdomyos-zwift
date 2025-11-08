@@ -45,6 +45,7 @@ class bkoolbike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     void forceInclination(double inclination);
+    void forcePower(int32_t power);
     uint16_t watts() override;
     double bikeResistanceToPeloton(double resistance);
 

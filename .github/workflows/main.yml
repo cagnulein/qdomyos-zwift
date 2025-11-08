@@ -2043,7 +2043,7 @@ jobs:
             - **peloton-bike-plus-android-trial**: Peloton Bike Plus build with Grupetto backend
             - **peloton-bike-android-trial**: Peloton Bike build with Grupetto backend
             - **raspberry-pi-binary**: 32-bit build for Raspberry Pi
-            - **raspberry-pi-binary-64bit**: 64-bit build for Raspberry Pi 4/5 and Pi Zero 2 W
+            - **raspberry-pi-binary-64bit**: 64-bit build for Raspberry Pi
             - **raspberry-pi-binary-64bit-ant**: 64-bit build with ANT+ Footpod support
             - **linux-binary-x86-64-ant**: 64-bit build with ANT+ Footpod support for Desktop Linux (Ubuntu/Debian)
 

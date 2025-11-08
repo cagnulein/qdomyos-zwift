@@ -944,7 +944,7 @@ void trainprogram::scheduler() {
 
                 // Only convert inclination to resistance for bikes WITHOUT hardware inclination support
                 // Ellipticals only enter here if they don't have hardware inclination (checked in outer condition)
-                if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableByHardware()) ||
+                if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) ||
                     (bluetoothManager->device()->deviceType() == ELLIPTICAL)) {
                     double bikeResistanceOffset =
                         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
@@ -955,9 +955,10 @@ void trainprogram::scheduler() {
 
                     bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                                  bikeResistanceOffset + 1); // resistance start from 1
-                    if (bluetoothManager->device()->deviceType() == BIKE)
-                        bluetoothManager->device()->setInclination(inc);
                 }
+
+                if (bluetoothManager->device()->deviceType() == BIKE)
+                    bluetoothManager->device()->setInclination(inc);
 
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
                 emit changeInclination(inc, inc);
@@ -1134,7 +1135,7 @@ void trainprogram::scheduler() {
 
                         // Only convert inclination to resistance for bikes WITHOUT hardware inclination support
                         // Ellipticals only enter here if they don't have hardware inclination (checked in outer condition)
-                        if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableByHardware()) ||
+                        if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) ||
                             (bluetoothManager->device()->deviceType() == ELLIPTICAL)) {
                             double bikeResistanceOffset =
                                 settings
@@ -1147,10 +1148,11 @@ void trainprogram::scheduler() {
 
                             bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                                          bikeResistanceOffset +
-                                                                         1); // resistance start from 1
-                            if (bluetoothManager->device()->deviceType() == BIKE)
-                                bluetoothManager->device()->setInclination(inc);
+                                                                         1); // resistance start from 1                            
                         }
+
+                        if (bluetoothManager->device()->deviceType() == BIKE)
+                            bluetoothManager->device()->setInclination(inc);
 
                         qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
                         emit changeInclination(inc, inc);
@@ -1211,7 +1213,7 @@ void trainprogram::scheduler() {
                 }
 
                 // Only convert inclination to resistance for bikes WITHOUT hardware inclination support
-                if (bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableByHardware()) {
+                if (bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) {
                     double bikeResistanceOffset =
                         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
                             .toInt();
@@ -1221,8 +1223,12 @@ void trainprogram::scheduler() {
 
                     bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                                  bikeResistanceOffset + 1); // resistance start from 1
-                    bluetoothManager->device()->setInclination(inc);
+                    
                 }
+
+                if (bluetoothManager->device()->deviceType() == BIKE)
+                    bluetoothManager->device()->setInclination(inc);
+
                 qDebug() << QStringLiteral("trainprogram change inclination due to gps") + QString::number(inc);
                 emit changeInclination(inc, inc);
                 if (bluetoothManager->device()->deviceType() == TREADMILL)
@@ -1257,6 +1263,33 @@ void trainprogram::scheduler() {
                 emit changeTimestamp(lastCurrentStepTime, QTime(0, 0, 0).addSecs(ticks));
             }
         }
+
+        // Check for text events that should be displayed at this time
+        if (currentStep < rows.length() && !rows.at(currentStep).textEvents.isEmpty()) {
+            // Calculate elapsed time in current step
+            uint32_t elapsedInCurrentStep = 0;
+            if (rows.at(currentStep).started.isValid()) {
+                elapsedInCurrentStep = rows.at(currentStep).started.secsTo(QDateTime::currentDateTime());
+            }
+
+            // Check each text event
+            foreach (const trainrow::TextEvent &evt, rows.at(currentStep).textEvents) {
+                // Create unique key for this event
+                QString eventKey = QString("%1:%2").arg(currentStep).arg(evt.timeoffset);
+
+                // Check if this event should be shown now and hasn't been shown yet
+                if (elapsedInCurrentStep >= evt.timeoffset && !shownTextEvents.contains(eventKey)) {
+                    qDebug() << "Showing text event at step" << currentStep << "offset" << evt.timeoffset << ":" << evt.message;
+
+                    // Emit toast request
+                    emit toastRequest(evt.message);
+
+                    // Mark as shown
+                    shownTextEvents.insert(eventKey);
+                }
+            }
+        }
+
         sameIteration++;
     } while (distanceEvaluation);
 }
@@ -1319,7 +1352,8 @@ void trainprogram::restart() {
     ticks = 0;
     offset = 0;
     currentStep = 0;
-    currentTimerJitter = 0;    
+    currentTimerJitter = 0;
+    shownTextEvents.clear();  // Reset shown text events when restarting
     started = true;
 }
 

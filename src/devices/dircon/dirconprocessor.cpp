@@ -187,7 +187,7 @@ DirconPacket DirconProcessor::processPacket(DirconProcessorClient *client, const
                 foreach (cc, service->chars) {
                     if (cc->uuid == pkt.uuid) {
                         cfound = true;
-                        if (cc->type & DPKT_CHAR_PROP_FLAG_NOTIFY) {
+                        if (cc->type & (DPKT_CHAR_PROP_FLAG_NOTIFY | DPKT_CHAR_PROP_FLAG_INDICATE)) {
                             int idx;
                             char notif = pkt.additional_data.at(0);
                             out.uuid = pkt.uuid;
@@ -208,6 +208,9 @@ DirconPacket DirconProcessor::processPacket(DirconProcessorClient *client, const
             }
             if (!cfound)
                 out.ResponseCode = DPKT_RESPCODE_CHARACTERISTIC_NOT_FOUND;
+        } else if (pkt.Identifier == DPKT_MSGID_UNKNOWN_0x07) {
+            // Unknown message 0x07 - respond with success
+            out.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
         }
     }
     return out;
