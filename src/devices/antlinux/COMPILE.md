@@ -1,6 +1,6 @@
 # Compiling QDomyos-Zwift with ANT+ Support
 
-This guide is for advanced users who need to compile QDomyos-Zwift from source. For majority of users it is recommended to follow the simplier path [pre-compiled binaries](README.md).
+This guide is for advanced users who need to compile QDomyos-Zwift from source. For majority of users it is recommended to follow the simpler path using [pre-compiled binaries](README.md).
 
 **Return to main guide:** [README.md](README.md)
 
@@ -15,10 +15,10 @@ This guide is for advanced users who need to compile QDomyos-Zwift from source. 
 
 Complete **Step 1: System Preparation** from the [main README](README.md) first:
 - System dependencies installed
-- Python 3.11 virtual environment created
+- Python virtual environment created
 - USB permissions configured
 
-**Important:** For compilation, both build and target machines must use Python 3.11 to ensure binary compatibility.
+**Important:** When compiling from source, you can use any Python 3.x version. However, if cross-compiling (building on one machine to run on another), ensure both machines use the same Python version to avoid library compatibility issues.
 
 **Hardware requirements:** Raspberry Pi 4/5 or desktop Linux with 4GB+ RAM recommended. Pi Zero 2 W (512MB RAM) may encounter out-of-memory errors.
 
@@ -42,15 +42,17 @@ sudo apt-get install -y \
 
 ---
 
-## Step 2: Ensure Python 3.11
+## Step 2: Ensure Python 3.x
 
-### Check Python 3.11 Availability
+### Check Python Availability
 
 ```bash
-python3.11 --version
+python3 --version
 ```
 
-If Python 3.11 is not available (some distributions may only provide older or newer Python versions), install it using pyenv:
+You can use any Python 3.x version for compilation. Common versions include Python 3.8, 3.9, 3.10, 3.11, or 3.12.
+
+**Note:** If you need Python 3.11 specifically (e.g., to match the pre-compiled binary), or if you want a version not available in your system repositories, install it using pyenv:
 
 ### Install Python 3.11 via pyenv
 
@@ -97,13 +99,16 @@ pyenv global 3.11.9
 python --version  # Should show Python 3.11.9
 ```
 
-### Install Python 3.11 Development Headers
+### Install Python 3.x Development Headers
 
 ```bash
 # If Python 3.11 is from system packages
 sudo apt-get install -y python3.11-dev
 
-# If Python 3.11 is from pyenv, dev headers are already included
+# Or for other Python versions, use the appropriate package
+# Example: sudo apt-get install -y python3.10-dev
+
+# If Python is from pyenv, dev headers are already included
 ```
 
 ### Create Virtual Environment
@@ -111,7 +116,8 @@ sudo apt-get install -y python3.11-dev
 If not already created from README Step 1.2:
 
 ```bash
-python3.11 -m venv ~/ant_venv
+# Use whatever Python 3.x version you have available
+python3 -m venv ~/ant_venv
 ~/ant_venv/bin/pip install --upgrade pip
 ~/ant_venv/bin/pip install openant pyusb pybind11
 ```
@@ -221,9 +227,9 @@ Follow [Step 3.3 in main README](README.md#33-configure-automatic-startup-option
 
 When compiling on one machine for another (e.g., compile on Pi 4, run on Pi Zero 2 W):
 
-1. **Build machine:** Follow all steps in this guide with Python 3.11
-2. **Target machine:** Complete Step 1 from main README with Python 3.11
-3. **Critical:** Both machines must use Python 3.11 (system package or pyenv)
+1. **Build machine:** Follow all steps in this guide with your chosen Python 3.x version
+2. **Target machine:** Complete Step 1 from main README with the **same Python 3.x version**
+3. **Critical:** Both machines must use the same Python version (e.g., both 3.11, or both 3.10)
 4. Transfer compiled binary to target machine: `~/qdomyos-zwift`
 
 **Verify Python version match:**
@@ -232,7 +238,12 @@ When compiling on one machine for another (e.g., compile on Pi 4, run on Pi Zero
 ~/ant_venv/bin/python3 --version
 ```
 
-Both should show `Python 3.11.x`.
+Both should show the same Python version (e.g., `Python 3.10.12` on both).
+
+**Example scenarios:**
+- Build on Pi 4 with Python 3.11 → Target Pi Zero 2 W must have Python 3.11
+- Build on Ubuntu 24.04 with Python 3.12 → Target Ubuntu 24.04 must have Python 3.12
+- Build on Bookworm with Python 3.11 → Target Bookworm with Python 3.11
 
 ---
 
