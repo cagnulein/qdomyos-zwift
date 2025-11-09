@@ -29,15 +29,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-import com.google.mlkit.vision.common.InputImage;
-import com.google.mlkit.vision.text.Text;
-import com.google.mlkit.vision.text.TextRecognition;
-import com.google.mlkit.vision.text.TextRecognizer;
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 import android.media.ImageReader.OnImageAvailableListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 
 import android.graphics.Rect;
 import android.graphics.Point;
@@ -74,8 +66,6 @@ public class ScreenCaptureService extends Service {
 	 private static int mHeightImage;
     private int mRotation;
     private OrientationChangeCallback mOrientationChangeCallback;
-
-    private TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
 	 private static String lastText = "";
 	 private static String lastTextExtended = "";
@@ -155,59 +145,9 @@ public class ScreenCaptureService extends Service {
                           QLog.e(TAG, "captured image: " + IMAGES_PRODUCED);
 */
 
-                          InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
-                          /*InputImage inputImage = InputImage.fromByteBuffer(buffer,
-                                  mWidth + rowPadding / pixelStride, mHeight,
-                                  0,
-                                  InputImage.IMAGE_FORMAT_NV21 // or IMAGE_FORMAT_YV12
-                          );*/
-
-                          Task<Text> result =
-                          recognizer.process(inputImage)
-                          .addOnSuccessListener(new OnSuccessListener<Text>() {
-                                  @Override
-                                  public void onSuccess(Text result) {
-                                          // Task completed successfully
-
-                                          //QLog.e(TAG, "Image done!");
-
-                                          String resultText = result.getText();
-                                          lastText = resultText;
-                                          lastTextExtended = "";
-                                          for (Text.TextBlock block : result.getTextBlocks()) {
-                                                   String blockText = block.getText();
-                                                        Point[] blockCornerPoints = block.getCornerPoints();
-                                                        Rect blockFrame = block.getBoundingBox();
-                                                          lastTextExtended = lastTextExtended + blockText + "$$" + blockFrame.toString() + "§§";
-							  /*for (Text.Line line : block.getLines()) {
-                                                                 String lineText = line.getText();
-                                                                 Point[] lineCornerPoints = line.getCornerPoints();
-                                                                 Rect lineFrame = line.getBoundingBox();
-                                                                 for (Text.Element element : line.getElements()) {
-                                                                          String elementText = element.getText();
-                                                                          Point[] elementCornerPoints = element.getCornerPoints();
-                                                                          Rect elementFrame = element.getBoundingBox();
-                                                                          for (Text.Symbol symbol : element.getSymbols()) {
-                                                                                   String symbolText = symbol.getText();
-                                                                                        Point[] symbolCornerPoints = symbol.getCornerPoints();
-                                                                                        Rect symbolFrame = symbol.getBoundingBox();
-                                                                                        }
-                                                                 }
-																				}*/
-																	}
-                                     bitmap.recycle();
-                                     isRunning = false;
-                                          }
-                                  })
-                          .addOnFailureListener(
-                          new OnFailureListener() {
-                                  @Override
-                                  public void onFailure(Exception e) {
-                                          // Task failed with an exception
-                                          //QLog.e(TAG, "Image fail");
-                                          isRunning = false;
-                                          }
-                                  });
+                          // MLKit OCR functionality removed - service kept for compatibility
+                          bitmap.recycle();
+                          isRunning = false;
                           } else {
                             //QLog.e(TAG, "Image ignored");
                           }
