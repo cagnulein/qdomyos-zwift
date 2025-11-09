@@ -1,6 +1,6 @@
 # Compiling QDomyos-Zwift with ANT+ Support
 
-This guide is for advanced users who need to compile QDomyos-Zwift from source. Most users should use the [pre-compiled binaries](README.md).
+This guide is for advanced users who need to compile QDomyos-Zwift from source. For majority of users it is recommended to follow the simplier path [pre-compiled binaries](README.md).
 
 **Return to main guide:** [README.md](README.md)
 
