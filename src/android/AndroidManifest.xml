@@ -106,10 +106,6 @@
                                     android:name=".ScreenCaptureService"
                                     android:foregroundServiceType="mediaProjection" />
 
-                                <meta-data
-                                    android:name="com.google.mlkit.vision.DEPENDENCIES"
-                                    android:value="ocr" />
-
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
 
                                 <receiver android:name=".MediaButtonReceiver" android:exported="true" android:permission="android.permission.MODIFY_AUDIO_SETTINGS">
