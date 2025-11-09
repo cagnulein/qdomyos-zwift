@@ -89,6 +89,7 @@ sudo apt-get install -y python3.11 python3.11-venv
 
 ```bash
 # Install pyenv dependencies
+# Note: On Ubuntu 24.04+, use libncurses-dev instead of libncurses5-dev/libncursesw5-dev
 sudo apt-get install -y \
 	git \
 	curl \
@@ -106,6 +107,9 @@ sudo apt-get install -y \
 	tk-dev \
 	libffi-dev \
 	liblzma-dev
+
+# If the above fails with "package not found" for ncurses, try:
+# sudo apt-get install -y libncurses-dev (and remove libncurses5-dev libncursesw5-dev from above)
 
 # Install pyenv
 curl https://pyenv.run | bash
@@ -316,22 +320,6 @@ This ensures your headless system has the exact configuration you set up through
 | `systemctl stop qz` hangs | Add `KillSignal=SIGINT` to [Service] section in qz.service |
 | Binary won't run: "cannot execute binary file" | Wrong architecture - ensure you downloaded the correct binary for your platform |
 | `pyenv: command not found` | Reload shell: `source ~/.bashrc` or start new terminal session |
-
----
-
-## Credits & Acknowledgments
-
-| Issue | Solution |
-| --- | --- |
-| `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 not installed - install via apt or pyenv (Step 1.2) |
-| Test fails or watch won't connect | Run with sudo, reboot after Step 1.4, or unplug/replug dongle |
-| Watch connects but pace shows --:-- | Treadmill model not set: `sudo nano /root/.config/Roberto\ Viola/qDomyos-Zwift.conf` add your model flag (e.g., `proform_treadmill_705_cst=true`) |
-| App works but watch won't connect | Unplug/replug dongle, verify Step 1.4 + reboot, check device ID (default 54321), ensure running as root, check logs |
-| `systemctl stop qz` hangs | Add `KillSignal=SIGINT` to [Service] section in qz.service |
-| Binary won't run: "cannot execute binary file" | Wrong architecture - ensure you downloaded the correct binary for your platform |
-| `pyenv: command not found` | Reload shell: `source ~/.bashrc` or start new terminal session |
-
----
 
 ## Credits & Acknowledgments
 

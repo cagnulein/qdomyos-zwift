@@ -117,9 +117,18 @@ check_python() {
             fix="${fix}or newer distributions with only Python 3.12+ (e.g., Debian Trixie).\n\n"
             fix="${fix}Install Python 3.11 using pyenv:\n\n"
             fix="${fix}${C_YELLOW}# Step 1: Install prerequisites (git and curl required for pyenv)${C_RESET}\n"
+            
+            # Build intelligent package list for ncurses (different names on different distros)
+            local ncurses_pkg=""
+            if apt-cache show libncurses-dev >/dev/null 2>&1; then
+                ncurses_pkg="libncurses-dev"
+            else
+                ncurses_pkg="libncurses5-dev libncursesw5-dev"
+            fi
+            
             fix="${fix}${C_YELLOW}sudo apt-get install -y git curl build-essential libssl-dev zlib1g-dev \\\\\n"
-            fix="${fix}  libbz2-dev libreadline-dev libsqlite3-dev wget llvm libncurses5-dev \\\\\n"
-            fix="${fix}  libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev${C_RESET}\n\n"
+            fix="${fix}  libbz2-dev libreadline-dev libsqlite3-dev wget llvm ${ncurses_pkg} \\\\\n"
+            fix="${fix}  xz-utils tk-dev libffi-dev liblzma-dev${C_RESET}\n\n"
             fix="${fix}${C_YELLOW}# Step 2: Install pyenv (as user '${TARGET_USER}')${C_RESET}\n"
             fix="${fix}${C_YELLOW}curl https://pyenv.run | bash${C_RESET}\n\n"
             fix="${fix}${C_YELLOW}# Step 3: Configure shell${C_RESET}\n"
