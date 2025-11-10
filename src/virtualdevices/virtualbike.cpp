@@ -445,7 +445,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
         if (!echelon && !ifit) {
             if (!heart_only) {
-                if (!cadence && !power) {
+                if (!cadence && !power && !garmin_bluetooth_compatibility) {
 
                     serviceFIT = leController->addService(serviceDataFIT);
 
@@ -474,13 +474,13 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             serviceBattery = leController->addService(serviceDataBattery);
         }
 
-        if (!this->noHeartService || heart_only) {
+        if ((!this->noHeartService || heart_only) && !garmin_bluetooth_compatibility) {
             serviceHR = leController->addService(serviceDataHR);
         }
 
         if (!echelon && !ifit) {
             if (!heart_only) {
-                if (!cadence && !power) {
+                if (!cadence && !power && !garmin_bluetooth_compatibility) {
                     QObject::connect(serviceFIT, &QLowEnergyService::characteristicChanged, this,
                                      &virtualbike::characteristicChanged);
                     QObject::connect(serviceWattAtomBike, &QLowEnergyService::characteristicChanged, this,
@@ -1277,9 +1277,11 @@ void virtualbike::reconnect() {
         serviceChanged = leController->addService(serviceDataChanged);
     }
 
+    bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
+
     if (!echelon && !ifit) {
         if (!heart_only) {
-            if (!cadence && !power) {
+            if (!cadence && !power && !garmin_bluetooth_compatibility) {
 
                 serviceFIT = leController->addService(serviceDataFIT);
 
@@ -1307,7 +1309,7 @@ void virtualbike::reconnect() {
     if (battery)
         serviceBattery = leController->addService(serviceDataBattery);
 
-    if (!this->noHeartService || heart_only)
+    if ((!this->noHeartService || heart_only) && !garmin_bluetooth_compatibility)
         serviceHR = leController->addService(serviceDataHR);
 #endif
 
