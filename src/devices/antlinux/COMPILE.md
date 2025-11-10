@@ -58,7 +58,6 @@ You can use any Python 3.x version for compilation. Common versions include Pyth
 
 ```bash
 # Install pyenv dependencies
-# Note: On Ubuntu 24.04+, use libncurses-dev instead of libncurses5-dev/libncursesw5-dev
 sudo apt-get install -y \
 	git \
 	curl \
@@ -77,8 +76,8 @@ sudo apt-get install -y \
 	libffi-dev \
 	liblzma-dev
 
-# If the above fails with "package not found" for ncurses, try:
-# sudo apt-get install -y libncurses-dev (and remove libncurses5-dev libncursesw5-dev from above)
+# Note: On Ubuntu 24.04+, use libncurses-dev instead of libncurses5-dev/libncursesw5-dev
+# sudo apt-get install -y libncurses-dev
 
 # Install pyenv
 curl https://pyenv.run | bash
