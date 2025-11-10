@@ -1949,7 +1949,7 @@ jobs:
           path: src/qdomyos-zwift-x86-64-ant
 
   # Build the raspberry pi 64 bit variant with ant+ support
-    raspberry-pi-build-64bit-ant:
+  raspberry-pi-build-64bit-ant:
     runs-on: ubuntu-latest
 
     steps:
