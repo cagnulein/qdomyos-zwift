@@ -105,7 +105,7 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
     constexpr double kOffsetSmoothing = 0.2;
     constexpr double kOffsetStepLimit = 10.0;
     constexpr double kOffsetStepLimitFast = 30.0;
-    constexpr double kOffsetClamp = 45.0;
+    constexpr double kOffsetClamp = 35.0;
     constexpr double kIntegralLeak = 0.7;
     constexpr double kIntegralClamp = 80.0;
     constexpr double kCommandRateLimitUp = 15.0;
@@ -187,6 +187,9 @@ int32_t bike::adjustRequestPowerWithSensorDelta(int32_t requestPower,
             step = -stepLimit;
         }
         m_feedForwardOffset = std::clamp(m_feedForwardOffset + step, -kOffsetClamp, kOffsetClamp);
+        if (std::fabs(trainerSensorDelta) < 1.0 && std::fabs(m_feedForwardOffset) > 0.0) {
+            m_feedForwardOffset *= 0.5;
+        }
     }
 
     const double feedForwardCommand = targetPower + m_feedForwardOffset;
