@@ -176,6 +176,15 @@ class peloton : public QObject {
 
     int first_target_metrics_start_offset = 60;
 
+    // Helper function to determine if workout is walking-based
+    bool isWalkingWorkout() const {
+        // Check if it's a walking discipline or a walking bootcamp
+        return current_workout_type == "walking" ||
+               (current_workout_type == "circuit" &&
+                (current_workout_name.contains("Walk", Qt::CaseInsensitive) ||
+                 current_workout_name.contains("Walking", Qt::CaseInsensitive)));
+    }
+
   public slots:
     void peloton_connect_clicked();
     void onUserProfileChanged();
