@@ -1114,6 +1114,9 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
 
     if (log_request) {
         qDebug() << QStringLiteral("peloton::workout_onfinish") << workout;
+        if (isWalkingWorkout()) {
+            qDebug() << "Detected walking-based workout:" << current_workout_name << "Type:" << current_workout_type;
+        }
     } else {
         qDebug() << QStringLiteral("peloton::workout_onfinish");
     }
@@ -1701,15 +1704,15 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     if (metricName == "pace_intensity") {
                         pace_intensity_lower = metricObj["lower"].toInt();
                         pace_intensity_upper = metricObj["upper"].toInt();
-                        
-                        if (current_workout_type == "walking") {
+
+                        if (isWalkingWorkout()) {
                             speed_lower = walking_pace[pace_intensity_lower].levels[peloton_treadmill_walk_level].slow_pace;
                             speed_upper = walking_pace[pace_intensity_upper].levels[peloton_treadmill_walk_level].fast_pace;
                         } else {
                             speed_lower = treadmill_pace[pace_intensity_lower].levels[peloton_treadmill_level].slow_pace;
                             speed_upper = treadmill_pace[pace_intensity_upper].levels[peloton_treadmill_level].fast_pace;
                         }
-                        
+
                         miles = 1; // the pace intensity are always in km/h
                     }
                     else if (metricName == "speed") {
@@ -2085,7 +2088,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                         paceintensity_upper = oo[QStringLiteral("upper")].toInt();
                         paceintensity_avg = ((paceintensity_upper - paceintensity_lower) / 2.0) + paceintensity_lower;
                         if(paceintensity_lower < 7) {
-                            if (current_workout_type == "walking") {
+                            if (isWalkingWorkout()) {
                                 speed_lower = walking_pace[paceintensity_lower].levels[peloton_treadmill_walk_level].slow_pace;
                                 speed_upper = walking_pace[paceintensity_upper].levels[peloton_treadmill_walk_level].fast_pace;
                             } else {
