@@ -1347,12 +1347,12 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: {
                                 if (settings.miles_unit) {
-                                    var parts = text.match(/(\d+)'(\d+)"/);
+                                    var parts = text.match(/(\d+)[\s''\u2018\u2019]*(\d+)/);
                                     if (parts) {
                                         settings.height = parseInt(parts[1]) * 30.48 + parseInt(parts[2]) * 2.54;
                                     }
                                 } else {
-                                    settings.height = text;
+                                    settings.height = parseFloat(text);
                                 }
                             }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -1363,12 +1363,15 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 if (settings.miles_unit) {
-                                    var parts = heightTextField.text.match(/(\d+)'(\d+)"/);
+                                    var parts = heightTextField.text.match(/(\d+)[\s''\u2018\u2019]*(\d+)/);
                                     if (parts) {
                                         settings.height = parseInt(parts[1]) * 30.48 + parseInt(parts[2]) * 2.54;
+                                    } else {
+                                        toast.show("Invalid format! Use feet'inches (e.g., 6'2\")");
+                                        return;
                                     }
                                 } else {
-                                    settings.height = heightTextField.text;
+                                    settings.height = parseFloat(heightTextField.text);
                                 }
                                 toast.show("Setting saved!");
                             }
