@@ -581,27 +581,21 @@ jobs:
 #        with:
 #          ndk-version: r21d
 
-# waiting github.com/jurplel/install-qt-action/issues/63
-      - name: Install Qt Android
-        uses: jdpurcell/install-qt-action@v5
-        with:
-          version: '5.15.0'
-          host: 'linux'
-          target: 'android'
-          arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
-          dir: '${{ github.workspace }}/output/android/'
-          cache: 'true'
-          cache-key-prefix: 'install-qt-action-android'                    
+      - name: Install Qt Android (custom build with 16k page support)
+        run: |
+          mkdir -p ${{ github.workspace }}/Qt-5.15.0
+          cd ${{ github.workspace }}
+          wget -q https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.0/qt5.15.0-android-page16.zip
+          unzip -q qt5.15.0-android-page16.zip -d Qt-5.15.0
+          echo "${{ github.workspace }}/Qt-5.15.0/usr/local/Qt-5.15.0/bin" >> $GITHUB_PATH
+          echo "QT_ROOT=${{ github.workspace }}/Qt-5.15.0/usr/local/Qt-5.15.0" >> $GITHUB_ENV
+          echo "Qt5_DIR=${{ github.workspace }}/Qt-5.15.0/usr/local/Qt-5.15.0" >> $GITHUB_ENV
 
       - name: Install Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
           java-version: '11.0.23+9'
-          
-      - name: patching qt for bluetooth
-        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
@@ -640,7 +634,7 @@ jobs:
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
 
-      - name: Build APK (not usable for production due to unpatched QT library)
+      - name: Build APK (using Qt 5.15.0 with 16k page support)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
 
       - name: Archive apk binary
