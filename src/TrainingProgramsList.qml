@@ -223,7 +223,7 @@ ColumnLayout {
         ScrollView {
             anchors.top: parent.top
             ScrollBar.vertical.policy: ScrollBar.AlwaysOn
-            contentHeight: date.height + description.height + powerChart.height
+            contentHeight: date.height + description.height + 400 + 15
             Layout.preferredHeight: parent.height
             Layout.fillWidth: true
             Layout.minimumWidth: 100
@@ -237,9 +237,9 @@ ColumnLayout {
                 property real ftp: 200.0
             }
 
-            Row {
-                id: row
-                anchors.fill: parent
+            Column {
+                width: parent.width
+                spacing: 5
 
                 Text {
                     id: date
@@ -250,11 +250,9 @@ ColumnLayout {
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                    anchors.horizontalCenter: parent.horizontalCenter
                 }
 
                 Text {
-                    anchors.top: date.bottom
                     id: description
                     width: parent.width
                     text: rootItem.previewWorkoutTags
@@ -263,14 +261,11 @@ ColumnLayout {
                     color: "white"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                    anchors.horizontalCenter: parent.horizontalCenter
                 }
 
                 Item {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.top: description.bottom
-                    anchors.bottom: parent.bottom
+                    width: parent.width
+                    height: 400
 
                     ChartView {
                         id: powerChart
