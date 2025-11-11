@@ -2719,6 +2719,12 @@ class QZSettings {
     static constexpr bool default_proform_csx210 = false;
 
     /**
+     * @brief Enable X-2000 protocol for Skandika Wiri bike (true for X-2000, false for standard protocol)
+     */
+    static const QString skandika_wiri_x2000_protocol;
+    static constexpr bool default_skandika_wiri_x2000_protocol = true;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
