@@ -99,10 +99,8 @@ import QtWebView 1.1
                     id: filterField
                     onTextChanged: updateFilter()
                 }
-				 Button {
-				     anchors.left: mainRect.right
-					  anchors.leftMargin: 5
-					  text: "←"
+                Button {
+                    text: "←"
 					  onClicked: folderModel.folder = folderModel.parentFolder
 					}
             }
@@ -111,7 +109,6 @@ import QtWebView 1.1
                 Layout.fillWidth: true
                 Layout.minimumWidth: 50
                 Layout.preferredWidth: 100
-                Layout.maximumWidth: row.left
                 Layout.minimumHeight: 150
                 Layout.preferredHeight: parent.height
                 ScrollBar.vertical: ScrollBar {}
