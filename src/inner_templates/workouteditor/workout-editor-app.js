@@ -717,10 +717,24 @@
             state.lastSaved = payload.name;
             selectors.name.value = payload.name;
             announce(`Saved ${payload.name}`);
+
             return refreshProgramList().then(() => {
                 selectors.programSelect.value = payload.name;
                 if (startAfter) {
-                    return startProgram(payload.name);
+                    // Verify file exists before starting by trying to load it
+                    return sendMessage('loadtrainingprograms', payload.name, 'R_loadtrainingprograms').then(verifyContent => {
+                        if (verifyContent && verifyContent.list) {
+                            // File exists and is readable, now start the workout
+                            console.log('File verified, starting workout');
+                            return startProgram(payload.name);
+                        } else {
+                            announce('Workout file not ready, please try again', true);
+                            console.error('File verification failed before start');
+                        }
+                    }).catch(err => {
+                        console.error('Error verifying saved file before start:', err);
+                        announce('Unable to verify workout file', true);
+                    });
                 }
             });
         }).catch(err => {

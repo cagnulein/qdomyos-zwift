@@ -567,7 +567,36 @@ void TemplateInfoSenderBuilder::onWorkoutEditorStart(const QJsonValue &msgConten
 
     bool ok = false;
     if (homeform::singleton()) {
-        ok = homeform::singleton()->startTrainingProgramFromFile(fullPath);
+        // Check if file exists
+        if (QFile::exists(fullPath)) {
+            // Use the same approach as workoutmodel.cpp - create QUrl from local file
+            QUrl fileUrl = QUrl::fromLocalFile(fullPath);
+            homeform::singleton()->trainprogram_open_clicked(fileUrl);
+
+            // Automatically start the workout
+            // Check if device is currently paused
+            bluetoothdevice *dev = nullptr;
+            if (homeform::singleton()->bluetoothManager) {
+                dev = homeform::singleton()->bluetoothManager->device();
+            }
+
+            if (dev && !dev->isPaused()) {
+                // Device is running (not paused), need to pause first then start
+                qDebug() << "Device is running, calling Start() twice (pause then start)";
+                QMetaObject::invokeMethod(homeform::singleton(), "Start", Qt::QueuedConnection);
+                QThread::msleep(200); // Small delay between calls
+                QMetaObject::invokeMethod(homeform::singleton(), "Start", Qt::QueuedConnection);
+            } else {
+                // Device is paused or stopped, just start
+                qDebug() << "Device is paused/stopped, calling Start() once";
+                QMetaObject::invokeMethod(homeform::singleton(), "Start", Qt::QueuedConnection);
+            }
+
+            ok = true;
+        } else {
+            qDebug() << "Training program file not found:" << fullPath;
+            ok = false;
+        }
     }
 
     QJsonObject outObj;
