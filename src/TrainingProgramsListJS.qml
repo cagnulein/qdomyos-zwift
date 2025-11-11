@@ -275,7 +275,7 @@ ColumnLayout {
                     WebView {
                         id: previewWebView
                         anchors.fill: parent
-                        url: "qrc:/inner_templates/workoutpreview/preview.html"
+                        url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
 
                         function updateWorkout() {
                             if (!rootItem.preview_workout_points) return;
