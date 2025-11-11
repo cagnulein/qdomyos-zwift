@@ -814,7 +814,10 @@ ApplicationWindow {
                     text: qsTr("Open Train Program")
                     width: parent.width
                     onClicked: {
-                        stackView.push("TrainingProgramsList.qml")
+                        if(CHARTJS)
+                            stackView.push("TrainingProgramsListJS.qml")
+                        else
+                            stackView.push("TrainingProgramsList.qml")
                         stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
                         stackView.currentItem.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
                         stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
