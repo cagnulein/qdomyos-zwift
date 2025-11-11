@@ -507,7 +507,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             pars.setInterval(100, 100);
         }
 
-        leController->startAdvertising(pars, advertisingData, advertisingData);
+        leController->startAdvertising(pars, advertisingData);
 
         //! [Start Advertising]
     }
@@ -1315,7 +1315,7 @@ void virtualbike::reconnect() {
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
-    leController->startAdvertising(pars, advertisingData, advertisingData);
+    leController->startAdvertising(pars, advertisingData);
 }
 
 void virtualbike::bikeProvider() {
