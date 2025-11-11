@@ -6,11 +6,36 @@ import QtQuick.Controls.Material 2.0
 import QtQuick.Dialogs 1.0
 import QtCharts 2.2
 import Qt.labs.settings 1.0
+import Qt.labs.platform 1.1
 
 ColumnLayout {
     signal trainprogram_open_clicked(url name)
     signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
+    signal trainprogram_autostart_requested()
+
+    property url pendingWorkoutUrl: ""
+
+    // Auto-start confirmation dialog
+    MessageDialog {
+        id: autoStartDialog
+        text: "Start Workout?"
+        informativeText: "Do you want to automatically start this workout?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            // Load workout and auto-start
+            trainprogram_open_clicked(pendingWorkoutUrl)
+            trainprogram_autostart_requested()
+            this.visible = false
+        }
+        onNoClicked: {
+            // Just load workout without auto-start
+            trainprogram_open_clicked(pendingWorkoutUrl)
+            this.visible = false
+        }
+        visible: false
+    }
+
     Loader {
         id: fileDialogLoader
         active: false
@@ -146,8 +171,10 @@ ColumnLayout {
                                 if (index == list.currentIndex) {
                                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
 												if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
-                                        trainprogram_open_clicked(fileUrl);
-                                        popup.open()
+                                        // Show auto-start dialog
+                                        console.log('Showing autostart dialog for: ' + fileUrl);
+                                        pendingWorkoutUrl = fileUrl;
+                                        autoStartDialog.visible = true;
 												} else {
 												    folderModel.folder = fileURL
 												}

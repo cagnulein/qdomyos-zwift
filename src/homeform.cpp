@@ -600,6 +600,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(fitfile_preview_clicked(QUrl)), this, SLOT(fitfile_preview_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_zwo_loaded(QString)), this, SLOT(trainprogram_zwo_loaded(QString)));
+    QObject::connect(stack, SIGNAL(trainprogram_autostart_requested()), this, SLOT(trainprogram_autostart_requested()));
     QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)), this, SLOT(gpx_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
     QObject::connect(stack, SIGNAL(fit_save_clicked()), this, SLOT(fit_save_clicked()));
@@ -7563,6 +7564,25 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
         }
 
         trainProgramSignals();
+    }
+}
+
+void homeform::trainprogram_autostart_requested() {
+    qDebug() << QStringLiteral("trainprogram_autostart_requested");
+
+    bluetoothdevice *dev = nullptr;
+    if (bluetoothManager) {
+        dev = bluetoothManager->device();
+    }
+
+    if (dev && !dev->isPaused()) {
+        // Device is running, call Start() twice (pause then start)
+        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
+        QThread::msleep(200);
+        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
+    } else {
+        // Device is paused/stopped, call Start() once
+        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
     }
 }
 

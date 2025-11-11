@@ -63,6 +63,7 @@ ApplicationWindow {
     signal gpx_open_other_folder(url name)
     signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
+    signal trainprogram_autostart_requested()
     signal fitfile_preview(string s)
     signal gpx_save_clicked()
     signal fit_save_clicked()
@@ -817,9 +818,9 @@ ApplicationWindow {
                         stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
                         stackView.currentItem.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
                         stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
+                        stackView.currentItem.trainprogram_autostart_requested.connect(trainprogram_autostart_requested)
                         stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
                             stackView.pop();
-                            popup.open();
                          });
                         drawer.close()
                     }
