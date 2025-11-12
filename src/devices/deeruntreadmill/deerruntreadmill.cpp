@@ -301,6 +301,7 @@ void deerruntreadmill::update() {
                 emit debug(QStringLiteral("stopping... ") + QString::number(paused));
                 /*if (lastState == PAUSED) {
                     uint8_t pause[] = {0x05, 0x00, 0x00, 0x00, 0x00, 0x2a, 0x07};
+                }*/
 
                 if (pitpat) {
                     uint8_t stop[] = {
