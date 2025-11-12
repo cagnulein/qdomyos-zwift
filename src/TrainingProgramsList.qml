@@ -65,15 +65,15 @@ ColumnLayout {
         }
     }
 
-    RowLayout{
-        spacing: 2
+    SplitView {
         anchors.top: parent.top
         anchors.fill: parent
+        orientation: Qt.Horizontal
 
         ColumnLayout {
+            SplitView.preferredWidth: 300
+            SplitView.minimumWidth: 200
             spacing: 0
-            anchors.top: parent.top
-            anchors.fill: parent
 
             Row
             {
@@ -221,13 +221,10 @@ ColumnLayout {
         }
 
         ScrollView {
-            anchors.top: parent.top
+            SplitView.fillWidth: true
+            SplitView.minimumWidth: 300
             ScrollBar.vertical.policy: ScrollBar.AlwaysOn
-            contentHeight: date.height + description.height + 400 + 15
-            Layout.preferredHeight: parent.height
-            Layout.fillWidth: true
-            Layout.minimumWidth: 100
-            Layout.preferredWidth: 200
+            clip: true
 
             property alias powerSeries: powerSeries
             property alias powerChart: powerChart
@@ -237,13 +234,13 @@ ColumnLayout {
                 property real ftp: 200.0
             }
 
-            Column {
+            ColumnLayout {
                 width: parent.width
                 spacing: 5
 
                 Text {
                     id: date
-                    width: parent.width
+                    Layout.fillWidth: true
                     text: rootItem.previewWorkoutDescription
                     font.pixelSize: 14
                     color: "white"
@@ -254,7 +251,7 @@ ColumnLayout {
 
                 Text {
                     id: description
-                    width: parent.width
+                    Layout.fillWidth: true
                     text: rootItem.previewWorkoutTags
                     font.pixelSize: 10
                     wrapMode: Text.WordWrap
@@ -263,31 +260,28 @@ ColumnLayout {
                     verticalAlignment: Text.AlignVCenter
                 }
 
-                Item {
-                    width: parent.width
-                    height: 400
+                ChartView {
+                    id: powerChart
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.minimumHeight: 300
+                    objectName: "powerChart"
+                    antialiasing: true
+                    legend.visible: false
+                    title: "Power"
+                    titleFont.pixelSize: 20
 
-                    ChartView {
-                        id: powerChart
-                        objectName: "powerChart"
-                        antialiasing: true
-                        legend.visible: false
-                        height: 400
-                        width: parent.width
-                        title: "Power"
-                        titleFont.pixelSize: 20
-
-                        DateTimeAxis {
-                            id: valueAxisX
-                            tickCount: 7
-                            min: new Date(0)
-                            max: new Date(rootItem.preview_workout_points * 1000)
-                            format: "mm:ss"
-                            //labelsVisible: false
-                            gridVisible: false
-                            //lineVisible: false
-                            labelsFont.pixelSize: 10
-                        }
+                    DateTimeAxis {
+                        id: valueAxisX
+                        tickCount: 7
+                        min: new Date(0)
+                        max: new Date(rootItem.preview_workout_points * 1000)
+                        format: "mm:ss"
+                        //labelsVisible: false
+                        gridVisible: false
+                        //lineVisible: false
+                        labelsFont.pixelSize: 10
+                    }
 
                         ValueAxis {
                             id: valueAxisY

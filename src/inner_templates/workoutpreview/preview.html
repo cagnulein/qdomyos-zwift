@@ -86,6 +86,21 @@
                 });
             }
 
+            // Add inclination as secondary metric for treadmills
+            if (deviceType === 'treadmill' && workoutData.inclination && workoutData.inclination.length > 0) {
+                datasets.push({
+                    label: 'Inclination (%)',
+                    data: workoutData.inclination,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0,
+                    yAxisID: 'y1'
+                });
+            }
+
             // Create chart
             chart = new Chart(ctx, {
                 type: 'line',
@@ -161,19 +176,20 @@
                             }
                         },
                         y1: {
-                            beginAtZero: true,
+                            beginAtZero: deviceType !== 'treadmill',
                             position: 'right',
-                            display: deviceType === 'bike' && workoutData.cadence && workoutData.cadence.length > 0,
+                            display: (deviceType === 'bike' && workoutData.cadence && workoutData.cadence.length > 0) ||
+                                     (deviceType === 'treadmill' && workoutData.inclination && workoutData.inclination.length > 0),
                             title: {
                                 display: true,
-                                text: 'Cadence (RPM)',
-                                color: '#f59e0b'
+                                text: deviceType === 'treadmill' ? 'Inclination (%)' : 'Cadence (RPM)',
+                                color: deviceType === 'treadmill' ? '#10b981' : '#f59e0b'
                             },
                             grid: {
                                 drawOnChartArea: false
                             },
                             ticks: {
-                                color: '#f59e0b'
+                                color: deviceType === 'treadmill' ? '#10b981' : '#f59e0b'
                             }
                         }
                     }

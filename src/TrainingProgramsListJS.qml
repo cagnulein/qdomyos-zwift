@@ -65,15 +65,15 @@ ColumnLayout {
         }
     }
 
-    RowLayout{
-        spacing: 2
+    SplitView {
         anchors.top: parent.top
         anchors.fill: parent
+        orientation: Qt.Horizontal
 
         ColumnLayout {
+            SplitView.preferredWidth: 300
+            SplitView.minimumWidth: 200
             spacing: 0
-            anchors.top: parent.top
-            anchors.fill: parent
 
             Row
             {
@@ -222,32 +222,37 @@ ColumnLayout {
                     }
                 }
                 Component.onCompleted: {
-
+                    // Load preview of first item at startup
+                    if (list.count > 0) {
+                        list.currentIndex = 0;
+                        let fileUrl = folderModel.get(0, 'fileUrl') || folderModel.get(0, 'fileURL');
+                        if (fileUrl && !folderModel.isFolder(0)) {
+                            trainprogram_preview(fileUrl);
+                            updateWebViewTimer.restart();
+                        }
+                    }
                 }
             }
         }
 
         ScrollView {
-            anchors.top: parent.top
+            SplitView.fillWidth: true
+            SplitView.minimumWidth: 300
             ScrollBar.vertical.policy: ScrollBar.AlwaysOn
-            contentHeight: date.height + description.height + 400 + 15
-            Layout.preferredHeight: parent.height
-            Layout.fillWidth: true
-            Layout.minimumWidth: 100
-            Layout.preferredWidth: 200
+            clip: true
 
             Settings {
                 id: settings
                 property real ftp: 200.0
             }
 
-            Column {
+            ColumnLayout {
                 width: parent.width
                 spacing: 5
 
                 Text {
                     id: date
-                    width: parent.width
+                    Layout.fillWidth: true
                     text: rootItem.previewWorkoutDescription
                     font.pixelSize: 14
                     color: "white"
@@ -258,7 +263,7 @@ ColumnLayout {
 
                 Text {
                     id: description
-                    width: parent.width
+                    Layout.fillWidth: true
                     text: rootItem.previewWorkoutTags
                     font.pixelSize: 10
                     wrapMode: Text.WordWrap
@@ -267,65 +272,73 @@ ColumnLayout {
                     verticalAlignment: Text.AlignVCenter
                 }
 
-                Item {
-                    width: parent.width
-                    height: 400
+                // WebView with ChartJS
+                WebView {
+                    id: previewWebView
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.minimumHeight: 300
+                    url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
 
-                    // WebView with ChartJS
-                    WebView {
-                        id: previewWebView
-                        anchors.fill: parent
-                        url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
+                    function updateWorkout() {
+                        if (!rootItem.preview_workout_points) return;
 
-                        function updateWorkout() {
-                            if (!rootItem.preview_workout_points) return;
+                        // Build arrays for the workout data
+                        var watts = [];
+                        var speed = [];
+                        var inclination = [];
+                        var resistance = [];
+                        var cadence = [];
 
-                            // Build arrays for the workout data
-                            var watts = [];
-                            var speed = [];
-                            var inclination = [];
-                            var resistance = [];
-                            var cadence = [];
+                        var hasWatts = false;
+                        var hasSpeed = false;
+                        var hasInclination = false;
+                        var hasResistance = false;
+                        var hasCadence = false;
 
-                            for (var i = 0; i < rootItem.preview_workout_points; i++) {
-                                if (rootItem.preview_workout_watt && rootItem.preview_workout_watt[i] !== undefined) {
-                                    watts.push({ x: i, y: rootItem.preview_workout_watt[i] });
-                                }
-                                if (rootItem.preview_workout_speed && rootItem.preview_workout_speed[i] !== undefined) {
-                                    speed.push({ x: i, y: rootItem.preview_workout_speed[i] });
-                                }
-                                if (rootItem.preview_workout_inclination && rootItem.preview_workout_inclination[i] !== undefined) {
-                                    inclination.push({ x: i, y: rootItem.preview_workout_inclination[i] });
-                                }
-                                if (rootItem.preview_workout_resistance && rootItem.preview_workout_resistance[i] !== undefined) {
-                                    resistance.push({ x: i, y: rootItem.preview_workout_resistance[i] });
-                                }
-                                if (rootItem.preview_workout_cadence && rootItem.preview_workout_cadence[i] !== undefined) {
-                                    cadence.push({ x: i, y: rootItem.preview_workout_cadence[i] });
-                                }
+                        for (var i = 0; i < rootItem.preview_workout_points; i++) {
+                            if (rootItem.preview_workout_watt && rootItem.preview_workout_watt[i] !== undefined && rootItem.preview_workout_watt[i] > 0) {
+                                watts.push({ x: i, y: rootItem.preview_workout_watt[i] });
+                                hasWatts = true;
                             }
-
-                            // Determine device type based on available data
-                            var deviceType = 'bike';
-                            if (speed.length > 0 && watts.length === 0) {
-                                deviceType = 'treadmill';
-                            } else if (watts.length === 0 && resistance.length > 0) {
-                                deviceType = 'elliptical';
+                            if (rootItem.preview_workout_speed && rootItem.preview_workout_speed[i] !== undefined && rootItem.preview_workout_speed[i] > 0) {
+                                speed.push({ x: i, y: rootItem.preview_workout_speed[i] });
+                                hasSpeed = true;
                             }
-
-                            // Call JavaScript function in the WebView
-                            var data = {
-                                points: rootItem.preview_workout_points,
-                                watts: watts,
-                                speed: speed,
-                                inclination: inclination,
-                                resistance: resistance,
-                                cadence: cadence,
-                                deviceType: deviceType
-                            };
-
-                            runJavaScript("if(window.setWorkoutData) window.setWorkoutData(" + JSON.stringify(data) + ");");
+                            if (rootItem.preview_workout_inclination && rootItem.preview_workout_inclination[i] !== undefined && rootItem.preview_workout_inclination[i] > -200) {
+                                inclination.push({ x: i, y: rootItem.preview_workout_inclination[i] });
+                                hasInclination = true;
+                            }
+                            if (rootItem.preview_workout_resistance && rootItem.preview_workout_resistance[i] !== undefined && rootItem.preview_workout_resistance[i] >= 0) {
+                                resistance.push({ x: i, y: rootItem.preview_workout_resistance[i] });
+                                hasResistance = true;
+                            }
+                            if (rootItem.preview_workout_cadence && rootItem.preview_workout_cadence[i] !== undefined && rootItem.preview_workout_cadence[i] > 0) {
+                                cadence.push({ x: i, y: rootItem.preview_workout_cadence[i] });
+                                hasCadence = true;
+                            }
                         }
+
+                        // Determine device type based on available data
+                        var deviceType = 'bike';
+                        if (hasSpeed && !hasWatts) {
+                            deviceType = 'treadmill';
+                        } else if (!hasWatts && hasResistance) {
+                            deviceType = 'elliptical';
+                        }
+
+                        // Call JavaScript function in the WebView
+                        var data = {
+                            points: rootItem.preview_workout_points,
+                            watts: watts,
+                            speed: speed,
+                            inclination: inclination,
+                            resistance: resistance,
+                            cadence: cadence,
+                            deviceType: deviceType
+                        };
+
+                        runJavaScript("if(window.setWorkoutData) window.setWorkoutData(" + JSON.stringify(data) + ");");
                     }
                 }
             }
