@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Training Programs Browser</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1d2330;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .left-panel {
+            flex: 0 0 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .filter-row label {
+            color: white;
+            font-size: 14px;
+        }
+
+        .filter-row input {
+            flex: 1;
+            padding: 5px 10px;
+            border: 1px solid #444;
+            background: #2a2f3a;
+            color: white;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .filter-row button {
+            padding: 5px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .filter-row button:hover {
+            background: #45a049;
+        }
+
+        .file-list {
+            flex: 1;
+            background: #252a35;
+            border-radius: 8px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .file-item {
+            padding: 10px;
+            margin: 2px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #9ca3af;
+            font-size: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-item.folder {
+            color: #ff9800;
+        }
+
+        .file-item:hover {
+            background: #2a3142;
+        }
+
+        .file-item.selected {
+            background: #4CAF50;
+            color: #ffeb3b;
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        .workout-info {
+            text-align: center;
+        }
+
+        .workout-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .workout-tags {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 20px;
+        }
+
+        #chart-container {
+            width: 100%;
+            height: 400px;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .bottom-bar {
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 10px;
+            background: #252a35;
+        }
+
+        .bottom-bar button {
+            padding: 10px 30px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .bottom-bar button:hover {
+            background: #45a049;
+        }
+
+        /* Modal Dialog */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #2a2f3a;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            min-width: 400px;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .modal-text {
+            font-size: 14px;
+            margin-bottom: 25px;
+            color: #9ca3af;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-buttons button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .btn-yes {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-yes:hover {
+            background: #45a049;
+        }
+
+        .btn-no {
+            background: #666;
+            color: white;
+        }
+
+        .btn-no:hover {
+            background: #555;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1d2330;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4CAF50;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #45a049;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel: File Browser -->
+        <div class="left-panel">
+            <div class="filter-row">
+                <label>Filter:</label>
+                <input type="text" id="filterInput" placeholder="Search...">
+                <button id="backButton">←</button>
+            </div>
+            <div class="file-list" id="fileList">
+                <!-- Files will be populated here -->
+            </div>
+        </div>
+
+        <!-- Right Panel: Preview -->
+        <div class="right-panel">
+            <div class="workout-info">
+                <div class="workout-title" id="workoutTitle">Select a workout to preview</div>
+                <div class="workout-tags" id="workoutTags"></div>
+            </div>
+            <div id="chart-container">
+                <canvas id="workoutChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+        <button id="otherFoldersBtn">Other Folders</button>
+    </div>
+
+    <!-- Auto-start Modal Dialog -->
+    <div class="modal" id="autoStartModal">
+        <div class="modal-content">
+            <div class="modal-title">Start Workout?</div>
+            <div class="modal-text">Do you want to automatically start this workout?</div>
+            <div class="modal-buttons">
+                <button class="btn-yes" id="btnYes">Yes</button>
+                <button class="btn-no" id="btnNo">No</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentPath = '';
+        let fileList = [];
+        let selectedFile = null;
+        let selectedIndex = -1;
+        let chart = null;
+        let pendingWorkoutUrl = '';
+        let ws = null;
+
+        // Check if running in Qt WebView (offline mode)
+        window.QZ_OFFLINE = false;
+        if (typeof window.qt !== 'undefined' ||
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1') {
+            window.QZ_OFFLINE = true;
+        }
+
+        // WebSocket setup for Qt communication
+        function setupWebSocket() {
+            // Use location.host to automatically get the correct host and port
+            const host = (!location.host || location.host.length == 0) ? 'localhost:6666' : location.host;
+            const wsUrl = `ws://${host}/trainingbrowser-ws`;
+
+            console.log('Connecting to WebSocket:', wsUrl);
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = function() {
+                console.log('WebSocket connected');
+                loadTrainingFolder('');
+            };
+
+            ws.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleMessage(data);
+                } catch (e) {
+                    console.error('Error parsing message:', e);
+                }
+            };
+
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
+
+            ws.onclose = function() {
+                console.log('WebSocket closed');
+            };
+        }
+
+        // Send message to Qt backend
+        function sendMessage(type, data) {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                console.warn('WebSocket not ready');
+                return;
+            }
+
+            // QZ expects 'msg' and 'content' fields
+            const message = {
+                msg: type,
+                content: data || {}
+            };
+
+            console.log('Sending message:', message);
+            ws.send(JSON.stringify(message));
+        }
+
+        // Handle incoming messages from Qt
+        function handleMessage(data) {
+            console.log('Received message:', data);
+
+            // Handle both 'type' and 'msg' fields
+            const msgType = data.type || data.msg;
+
+            if (msgType === 'trainingfiles' || msgType === 'R_loadtrainingprograms') {
+                const content = data.content || data;
+                handleTrainingFiles(content.files || content, content.path);
+            } else if (msgType === 'workoutpreview' || msgType === 'R_trainprogram_preview') {
+                const content = data.content || data;
+                handleWorkoutPreview(content);
+            }
+        }
+
+        // Load training folder
+        function loadTrainingFolder(path) {
+            currentPath = path;
+            sendMessage('loadtrainingprograms', { path: path });
+        }
+
+        // Handle training files list
+        function handleTrainingFiles(files, path) {
+            fileList = files || [];
+            currentPath = path || '';
+            renderFileList();
+        }
+
+        // Render file list
+        function renderFileList() {
+            const container = document.getElementById('fileList');
+            const filter = document.getElementById('filterInput').value.toLowerCase();
+
+            container.innerHTML = '';
+
+            fileList.forEach((file, index) => {
+                // Apply filter
+                if (filter && !file.name.toLowerCase().includes(filter)) {
+                    return;
+                }
+
+                const div = document.createElement('div');
+                div.className = 'file-item' + (file.isFolder ? ' folder' : '');
+                if (index === selectedIndex) {
+                    div.classList.add('selected');
+                }
+
+                // Remove extension for files
+                const displayName = file.isFolder ? file.name : file.name.replace(/\.(xml|zwo)$/i, '');
+                div.textContent = displayName;
+                div.dataset.index = index;
+
+                div.addEventListener('click', function() {
+                    handleFileClick(index);
+                });
+
+                container.appendChild(div);
+            });
+        }
+
+        // Handle file click
+        function handleFileClick(index) {
+            const file = fileList[index];
+
+            if (index === selectedIndex) {
+                // Double click
+                if (file.isFolder) {
+                    // Navigate into folder
+                    loadTrainingFolder(file.path);
+                    selectedIndex = -1;
+                } else {
+                    // Load workout with auto-start dialog
+                    pendingWorkoutUrl = file.url;
+                    showAutoStartDialog();
+                }
+            } else {
+                // Single click - select and preview
+                selectedIndex = index;
+                renderFileList();
+
+                if (!file.isFolder) {
+                    // Load preview
+                    sendMessage('trainprogram_preview', { url: file.url });
+                }
+            }
+        }
+
+        // Handle workout preview
+        function handleWorkoutPreview(workout) {
+            if (!workout) return;
+
+            console.log('Preview workout data:', workout);
+
+            // Update title and tags
+            document.getElementById('workoutTitle').textContent = workout.description || 'Workout Preview';
+            document.getElementById('workoutTags').textContent = workout.tags || '';
+
+            // Convert arrays if needed (they might come as objects with x/y properties)
+            const workoutData = {
+                points: workout.points || 0,
+                watts: Array.isArray(workout.watts) ? workout.watts : [],
+                speed: Array.isArray(workout.speed) ? workout.speed : [],
+                inclination: Array.isArray(workout.inclination) ? workout.inclination : [],
+                resistance: Array.isArray(workout.resistance) ? workout.resistance : [],
+                cadence: Array.isArray(workout.cadence) ? workout.cadence : [],
+                deviceType: workout.deviceType || 'bike'
+            };
+
+            // Update chart
+            updateWorkoutChart(workoutData);
+        }
+
+        // Update chart
+        function updateWorkoutChart(workout) {
+            const ctx = document.getElementById('workoutChart').getContext('2d');
+
+            // Destroy existing chart
+            if (chart) {
+                chart.destroy();
+            }
+
+            if (!workout || !workout.points || workout.points.length === 0) {
+                return;
+            }
+
+            // Determine primary metric
+            const primaryMetric = getPrimaryMetric(workout);
+
+            if (!primaryMetric) return;
+
+            // Prepare datasets
+            const datasets = [{
+                label: primaryMetric.label,
+                data: primaryMetric.data,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.1,
+                pointRadius: 0,
+                yAxisID: 'y'
+            }];
+
+            // Add cadence as secondary metric for bikes
+            if (workout.deviceType === 'bike' && workout.cadence && workout.cadence.length > 0) {
+                datasets.push({
+                    label: 'Cadence (RPM)',
+                    data: workout.cadence,
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0,
+                    yAxisID: 'y1'
+                });
+            }
+
+            // Create chart
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: datasets.length > 1,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            enabled: true,
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Time (seconds)',
+                                color: '#666'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    const minutes = Math.floor(value / 60);
+                                    const seconds = Math.floor(value % 60);
+                                    return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                                },
+                                color: '#666'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: primaryMetric.label,
+                                color: '#3b82f6'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                color: '#3b82f6'
+                            }
+                        },
+                        y1: {
+                            beginAtZero: true,
+                            position: 'right',
+                            display: workout.deviceType === 'bike' && workout.cadence && workout.cadence.length > 0,
+                            title: {
+                                display: true,
+                                text: 'Cadence (RPM)',
+                                color: '#f59e0b'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            },
+                            ticks: {
+                                color: '#f59e0b'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Get primary metric based on device type
+        function getPrimaryMetric(workout) {
+            const { watts, speed, inclination, resistance, deviceType } = workout;
+
+            // For bikes: show watts
+            if (deviceType === 'bike' && watts && watts.length > 0) {
+                return { label: 'Power (W)', data: watts };
+            }
+
+            // For treadmills: show speed
+            if (deviceType === 'treadmill' && speed && speed.length > 0) {
+                return { label: 'Speed (km/h)', data: speed };
+            }
+
+            // For ellipticals/rowers: watts or resistance
+            if (deviceType === 'elliptical' || deviceType === 'rower') {
+                if (watts && watts.length > 0) {
+                    return { label: 'Power (W)', data: watts };
+                }
+                if (resistance && resistance.length > 0) {
+                    return { label: 'Resistance', data: resistance };
+                }
+            }
+
+            // Default: try watts, speed, resistance in order
+            if (watts && watts.length > 0) {
+                return { label: 'Power (W)', data: watts };
+            }
+            if (speed && speed.length > 0) {
+                return { label: 'Speed (km/h)', data: speed };
+            }
+            if (resistance && resistance.length > 0) {
+                return { label: 'Resistance', data: resistance };
+            }
+
+            return null;
+        }
+
+        // Show auto-start dialog
+        function showAutoStartDialog() {
+            document.getElementById('autoStartModal').classList.add('show');
+        }
+
+        // Hide auto-start dialog
+        function hideAutoStartDialog() {
+            document.getElementById('autoStartModal').classList.remove('show');
+        }
+
+        // Load workout
+        function loadWorkout(autoStart) {
+            sendMessage('trainprogram_open_clicked', { url: pendingWorkoutUrl });
+
+            if (autoStart) {
+                setTimeout(() => {
+                    sendMessage('trainprogram_autostart_requested', {});
+                }, 100);
+            }
+
+            hideAutoStartDialog();
+        }
+
+        // Event listeners
+        document.getElementById('filterInput').addEventListener('input', function() {
+            renderFileList();
+        });
+
+        document.getElementById('backButton').addEventListener('click', function() {
+            if (currentPath) {
+                // Go to parent folder
+                const parts = currentPath.split('/');
+                parts.pop();
+                const parentPath = parts.join('/');
+                loadTrainingFolder(parentPath);
+                selectedIndex = -1;
+            }
+        });
+
+        document.getElementById('otherFoldersBtn').addEventListener('click', function() {
+            sendMessage('trainprogram_open_other_folder', {});
+        });
+
+        document.getElementById('btnYes').addEventListener('click', function() {
+            loadWorkout(true);
+        });
+
+        document.getElementById('btnNo').addEventListener('click', function() {
+            loadWorkout(false);
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('autoStartModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideAutoStartDialog();
+            }
+        });
+
+        // Initialize
+        window.addEventListener('load', function() {
+            setupWebSocket();
+
+            // Initialize empty chart
+            updateWorkoutChart({
+                points: [],
+                watts: [],
+                speed: [],
+                resistance: [],
+                deviceType: 'bike'
+            });
+        });
+    </script>
+</body>
+</html>
