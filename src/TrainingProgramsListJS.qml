@@ -235,50 +235,46 @@ ColumnLayout {
             }
         }
 
-        ScrollView {
+        ColumnLayout {
             SplitView.fillWidth: true
             SplitView.minimumWidth: 300
-            ScrollBar.vertical.policy: ScrollBar.AlwaysOn
-            clip: true
+            spacing: 5
 
             Settings {
                 id: settings
                 property real ftp: 200.0
             }
 
-            ColumnLayout {
-                width: parent.width
-                spacing: 5
+            Text {
+                id: date
+                Layout.fillWidth: true
+                Layout.preferredHeight: contentHeight
+                text: rootItem.previewWorkoutDescription
+                font.pixelSize: 14
+                color: "white"
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
 
-                Text {
-                    id: date
-                    Layout.fillWidth: true
-                    text: rootItem.previewWorkoutDescription
-                    font.pixelSize: 14
-                    color: "white"
-                    wrapMode: Text.WordWrap
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
+            Text {
+                id: description
+                Layout.fillWidth: true
+                Layout.preferredHeight: contentHeight
+                text: rootItem.previewWorkoutTags
+                font.pixelSize: 10
+                wrapMode: Text.WordWrap
+                color: "white"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
 
-                Text {
-                    id: description
-                    Layout.fillWidth: true
-                    text: rootItem.previewWorkoutTags
-                    font.pixelSize: 10
-                    wrapMode: Text.WordWrap
-                    color: "white"
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-                // WebView with ChartJS
-                WebView {
-                    id: previewWebView
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    Layout.minimumHeight: 300
-                    url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
+            // WebView with ChartJS
+            WebView {
+                id: previewWebView
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
 
                     function updateWorkout() {
                         if (!rootItem.preview_workout_points) return;
@@ -340,7 +336,20 @@ ColumnLayout {
 
                         runJavaScript("if(window.setWorkoutData) window.setWorkoutData(" + JSON.stringify(data) + ");");
                     }
-                }
+            }
+        }
+
+        // SplitView handle customization for better touch
+        handle: Rectangle {
+            implicitWidth: 10
+            implicitHeight: 10
+            color: SplitHandle.pressed ? Material.accent : (SplitHandle.hovered ? Material.color(Material.Grey, Material.Shade400) : "transparent")
+
+            Rectangle {
+                anchors.centerIn: parent
+                width: 3
+                height: parent.height
+                color: Material.color(Material.Grey, Material.Shade600)
             }
         }
     }
