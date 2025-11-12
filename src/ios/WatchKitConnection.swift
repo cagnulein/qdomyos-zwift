@@ -109,6 +109,53 @@ extension WatchKitConnection: WCSessionDelegate {
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         print("activationDidCompleteWith")
         delegate?.didFinishedActiveSession()
+
+        // Sync tile settings to watch when session activates
+        syncTileSettingsToWatch()
+    }
+
+    /// Synchronize tile settings from iOS app to Apple Watch
+    func syncTileSettingsToWatch() {
+        guard let session = validSession else { return }
+
+        // Read tile settings from UserDefaults (QSettings)
+        let defaults = UserDefaults.standard
+        var tileSettings: [String: Any] = [:]
+
+        // List of all tile types to sync (matching settings-tiles.qml)
+        let tileNames = [
+            "speed", "inclination", "cadence", "elevation", "calories", "odometer",
+            "pace", "resistance", "watt", "avgwatt", "ftp", "heart", "fan",
+            "jouls", "elapsed", "lapelapsed", "moving_time", "peloton_offset",
+            "peloton_difficulty", "peloton_resistance", "datetime",
+            "target_resistance", "target_peloton_resistance", "target_cadence",
+            "target_power", "target_zone", "target_speed", "target_incline",
+            "strokes_count", "strokes_length", "watt_kg", "gears",
+            "remainingtimetrainprogramrow", "nextrowstrainprogram", "mets",
+            "targetmets", "steering_angle", "pid_hr", "ext_incline"
+        ]
+
+        // Read enabled and order settings for each tile
+        for tileName in tileNames {
+            let enabledKey = "tile_\(tileName)_enabled"
+            let orderKey = "tile_\(tileName)_order"
+
+            // Get values from UserDefaults
+            if defaults.object(forKey: enabledKey) != nil {
+                tileSettings[enabledKey] = defaults.bool(forKey: enabledKey)
+            }
+            if defaults.object(forKey: orderKey) != nil {
+                tileSettings[orderKey] = defaults.integer(forKey: orderKey)
+            }
+        }
+
+        // Send to watch using application context (persisted, works in background)
+        do {
+            try session.updateApplicationContext(tileSettings)
+            print("Tile settings synced to watch: \(tileSettings.count) settings")
+        } catch {
+            print("Error syncing tile settings to watch: \(error)")
+        }
     }
     
     func sessionDidBecomeInactive(_ session: WCSession) {
