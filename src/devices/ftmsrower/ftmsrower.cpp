@@ -360,12 +360,12 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     if (Flags.totDistance) {
-        Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+        /*Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                               (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                              (uint32_t)((uint8_t)newValue.at(index)))) /
-                   1000.0;
+                   1000.0;*/
         index += 3;
-    } else {
+    }/* else */{
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
@@ -381,8 +381,10 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
 
         if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R) {
-            Speed = (60.0 / instantPace) *
-                30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
+            if(instantPace == 0)
+                Speed = 0;
+            else
+                Speed = (60.0 / instantPace) * 30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
         }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }

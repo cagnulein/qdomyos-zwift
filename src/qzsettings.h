@@ -1663,6 +1663,9 @@ class QZSettings {
     static const QString toorx_ftms_treadmill;
     static constexpr bool default_toorx_ftms_treadmill = false;
 
+    static const QString iconcept_ftms_treadmill_inclination_table;
+    static constexpr bool default_iconcept_ftms_treadmill_inclination_table = false;
+
     static const QString nordictrack_t65s_83_treadmill;
     static constexpr bool default_nordictrack_t65s_83_treadmill = false;
 
@@ -2714,6 +2717,12 @@ class QZSettings {
 
     static const QString proform_csx210;
     static constexpr bool default_proform_csx210 = false;
+
+    /**
+     * @brief Enable X-2000 protocol for Skandika Wiri bike (true for X-2000, false for standard protocol)
+     */
+    static const QString skandika_wiri_x2000_protocol;
+    static constexpr bool default_skandika_wiri_x2000_protocol = true;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

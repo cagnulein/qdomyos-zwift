@@ -67,6 +67,14 @@ class trainrow {
     double longitude = NAN;
     double altitude = NAN;
     double azimuth = NAN;
+
+    // Text events with time offsets
+    struct TextEvent {
+        uint32_t timeoffset = 0;  // Time offset in seconds from the start of this row
+        QString message;
+    };
+    QList<TextEvent> textEvents;
+
     QString toString() const;
 };
 
@@ -184,6 +192,10 @@ private slots:
     int zwift_player_id = -1;
 #endif
     
+
+    // Track which text events have been shown for each row
+    QSet<QString> shownTextEvents;  // Format: "row_index:timeoffset"
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

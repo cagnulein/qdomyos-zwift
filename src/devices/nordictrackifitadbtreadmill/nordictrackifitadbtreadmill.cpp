@@ -134,6 +134,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->proform_trainer_9_0 = settings.value(QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0).toBool();
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbtreadmill::update);
     connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &nordictrackifitadbtreadmill::stopLogcatAdbThread);
@@ -324,9 +325,9 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                     y2 = 603 - (int)(((requestSpeed * 0.621371) - 0.5) * 34.0);
                 } else if(proform_trainer_9_0) {
                     x1 = 950;
-                    // 1.0 km/h is x:950 y:390, 18 km/h is x:950 y:238
-                    y1Speed = (int) (390 - (8.941 * (Speed.value() - 1)));
-                    y2 = y1Speed - (int)((requestSpeed - Speed.value()) * 8.941);
+                    // Use lookup table for precise coordinates
+                    y1Speed = proform_trainer_9_0_speed_lookuptable(Speed.value());
+                    y2 = proform_trainer_9_0_speed_lookuptable(requestSpeed);
                 }
 
                 lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Speed) + " " +
@@ -375,9 +376,9 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                     y2 = 603 - (int)((requestInclination + 3.0) * 21.72222222);
                 } else if(proform_trainer_9_0) {
                     x1 = 75;
-                    // 0% is x:75 y:390, 10% is x:75 y:238
-                    y1Inclination = (int) (390 - (15.2 * currentInclination().value()));
-                    y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 15.2);
+                    // Use lookup table for precise coordinates
+                    y1Inclination = proform_trainer_9_0_inclination_lookuptable(currentInclination().value());
+                    y2 = proform_trainer_9_0_inclination_lookuptable(requestInclination);
                 }
 
                 lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Inclination) + " " +
@@ -545,13 +546,89 @@ void nordictrackifitadbtreadmill::update() {
 
         // btinit();
 
+        QSettings settings;
+        bool nordictrack_ifit_adb_remote =
+            settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
+                .toBool();
+        bool proform_trainer_9_0 = settings.value(QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0).toBool();
+
+        if (nordictrack_ifit_adb_remote && proform_trainer_9_0) {
+            lastCommand = "input tap 610 350";
+            qDebug() << " >> " + lastCommand;
+#ifdef Q_OS_ANDROID
+            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                      "(Ljava/lang/String;)V", command.object<jstring>());
+#elif defined(Q_OS_WIN)
+            if (logcatAdbThread)
+                logcatAdbThread->runCommand("shell " + lastCommand);
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+            h->adb_sendcommand(lastCommand.toStdString().c_str());
+#endif
+#endif
+        }
+
         requestStart = -1;
         emit tapeStarted();
     }
     if (requestStop != -1) {
         emit debug(QStringLiteral("stopping..."));
+
+        QSettings settings;
+        bool nordictrack_ifit_adb_remote =
+            settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
+                .toBool();
+        bool proform_trainer_9_0 = settings.value(QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0).toBool();
+
+        if (nordictrack_ifit_adb_remote && proform_trainer_9_0) {
+            lastCommand = "input tap 420 350 && sleep 1 && input tap 420 350";
+            qDebug() << " >> " + lastCommand;
+#ifdef Q_OS_ANDROID
+            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                      "(Ljava/lang/String;)V", command.object<jstring>());
+#elif defined(Q_OS_WIN)
+            if (logcatAdbThread)
+                logcatAdbThread->runCommand("shell " + lastCommand);
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+            h->adb_sendcommand(lastCommand.toStdString().c_str());
+#endif
+#endif
+        }
+
         // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
         requestStop = -1;
+    }
+    if (requestPause != -1) {
+        emit debug(QStringLiteral("pausing..."));
+
+        QSettings settings;
+        bool nordictrack_ifit_adb_remote =
+            settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
+                .toBool();
+        bool proform_trainer_9_0 = settings.value(QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0).toBool();
+
+        if (nordictrack_ifit_adb_remote && proform_trainer_9_0) {
+            // Double tap for pause
+            lastCommand = "input tap 512 350 && sleep 1 && input tap 512 350";
+            qDebug() << " >> " + lastCommand;
+#ifdef Q_OS_ANDROID
+            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                      "(Ljava/lang/String;)V", command.object<jstring>());
+#elif defined(Q_OS_WIN)
+            if (logcatAdbThread)
+                logcatAdbThread->runCommand("shell " + lastCommand);
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+            h->adb_sendcommand(lastCommand.toStdString().c_str());
+#endif
+#endif
+        }
+
+        requestPause = -1;
     }
 }
 
@@ -563,6 +640,14 @@ void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, doubl
 }
 
 bool nordictrackifitadbtreadmill::connected() { return true; }
+
+bool nordictrackifitadbtreadmill::canStartStop() {
+    QSettings settings;
+    bool nordictrack_ifit_adb_remote =
+        settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
+            .toBool();
+    return nordictrack_ifit_adb_remote && proform_trainer_9_0;
+}
 
 void nordictrackifitadbtreadmill::stopLogcatAdbThread() {
     qDebug() << "stopLogcatAdbThread()";
@@ -682,5 +767,71 @@ int nordictrackifitadbtreadmill::x14i_inclination_lookuptable(double reqInclinat
     else if (reqInclination == 39) { y2 = 308; }
     else if (reqInclination == 39.5) { y2 = 302; }
     else if (reqInclination == 40) { y2 = 295; }
-    return y2;        
+    return y2;
+}
+
+int nordictrackifitadbtreadmill::proform_trainer_9_0_speed_lookuptable(double reqSpeed) {
+    int y2 = 0;
+    if (reqSpeed == 1.0) { y2 = 446; }
+    else if (reqSpeed == 1.5) { y2 = 438; }
+    else if (reqSpeed == 2.0) { y2 = 431; }
+    else if (reqSpeed == 2.5) { y2 = 423; }
+    else if (reqSpeed == 3.0) { y2 = 416; }
+    else if (reqSpeed == 3.5) { y2 = 408; }
+    else if (reqSpeed == 4.0) { y2 = 401; }
+    else if (reqSpeed == 4.5) { y2 = 393; }
+    else if (reqSpeed == 5.0) { y2 = 386; }
+    else if (reqSpeed == 5.5) { y2 = 378; }
+    else if (reqSpeed == 6.0) { y2 = 371; }
+    else if (reqSpeed == 6.5) { y2 = 363; }
+    else if (reqSpeed == 7.0) { y2 = 356; }
+    else if (reqSpeed == 7.5) { y2 = 348; }
+    else if (reqSpeed == 8.0) { y2 = 341; }
+    else if (reqSpeed == 8.5) { y2 = 333; }
+    else if (reqSpeed == 9.0) { y2 = 326; }
+    else if (reqSpeed == 9.5) { y2 = 318; }
+    else if (reqSpeed == 10.0) { y2 = 310; }
+    else if (reqSpeed == 10.5) { y2 = 303; }
+    else if (reqSpeed == 11.0) { y2 = 295; }
+    else if (reqSpeed == 11.5) { y2 = 288; }
+    else if (reqSpeed == 12.0) { y2 = 280; }
+    else if (reqSpeed == 12.5) { y2 = 273; }
+    else if (reqSpeed == 13.0) { y2 = 265; }
+    else if (reqSpeed == 13.5) { y2 = 258; }
+    else if (reqSpeed == 14.0) { y2 = 250; }
+    else if (reqSpeed == 14.5) { y2 = 243; }
+    else if (reqSpeed == 15.0) { y2 = 235; }
+    else if (reqSpeed == 15.5) { y2 = 228; }
+    else if (reqSpeed == 16.0) { y2 = 220; }
+    else if (reqSpeed == 16.5) { y2 = 213; }
+    else if (reqSpeed == 17.0) { y2 = 205; }
+    else if (reqSpeed == 17.5) { y2 = 198; }
+    else if (reqSpeed == 18.0) { y2 = 190; }
+    return y2;
+}
+
+int nordictrackifitadbtreadmill::proform_trainer_9_0_inclination_lookuptable(double reqInclination) {
+    int y2 = 0;
+    if (reqInclination == 0.0) { y2 = 446; }
+    else if (reqInclination == 0.5) { y2 = 433; }
+    else if (reqInclination == 1.0) { y2 = 420; }
+    else if (reqInclination == 1.5) { y2 = 408; }
+    else if (reqInclination == 2.0) { y2 = 395; }
+    else if (reqInclination == 2.5) { y2 = 382; }
+    else if (reqInclination == 3.0) { y2 = 369; }
+    else if (reqInclination == 3.5) { y2 = 356; }
+    else if (reqInclination == 4.0) { y2 = 344; }
+    else if (reqInclination == 4.5) { y2 = 331; }
+    else if (reqInclination == 5.0) { y2 = 318; }
+    else if (reqInclination == 5.5) { y2 = 305; }
+    else if (reqInclination == 6.0) { y2 = 292; }
+    else if (reqInclination == 6.5) { y2 = 280; }
+    else if (reqInclination == 7.0) { y2 = 267; }
+    else if (reqInclination == 7.5) { y2 = 254; }
+    else if (reqInclination == 8.0) { y2 = 241; }
+    else if (reqInclination == 8.5) { y2 = 228; }
+    else if (reqInclination == 9.0) { y2 = 216; }
+    else if (reqInclination == 9.5) { y2 = 203; }
+    else if (reqInclination == 10.0) { y2 = 190; }
+    return y2;
 }

@@ -580,6 +580,7 @@ const QString QZSettings::floating_transparency = QStringLiteral("floating_trans
 const QString QZSettings::floating_startup = QStringLiteral("floating_startup");
 const QString QZSettings::norditrack_s25i_treadmill = QStringLiteral("norditrack_s25i_treadmill");
 const QString QZSettings::toorx_ftms_treadmill = QStringLiteral("toorx_ftms_treadmill");
+const QString QZSettings::iconcept_ftms_treadmill_inclination_table = QStringLiteral("iconcept_ftms_treadmill_inclination_table");
 const QString QZSettings::nordictrack_t65s_83_treadmill = QStringLiteral("nordictrack_t65s_83_treadmill");
 const QString QZSettings::horizon_treadmill_suspend_stats_pause =
     QStringLiteral("horizon_treadmill_suspend_stats_pause");
@@ -987,9 +988,10 @@ const QString QZSettings::confirm_stop_workout = QStringLiteral("confirm_stop_wo
 const QString QZSettings::height = QStringLiteral("height");
 const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
+const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 811;
+const uint32_t allSettingsCount = 813;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1471,6 +1473,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::floating_startup, QZSettings::default_floating_startup},
     {QZSettings::norditrack_s25i_treadmill, QZSettings::default_norditrack_s25i_treadmill},
     {QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill},
+    {QZSettings::iconcept_ftms_treadmill_inclination_table, QZSettings::default_iconcept_ftms_treadmill_inclination_table},
     {QZSettings::nordictrack_t65s_83_treadmill, QZSettings::default_nordictrack_t65s_83_treadmill},
     {QZSettings::horizon_treadmill_suspend_stats_pause, QZSettings::default_horizon_treadmill_suspend_stats_pause},
     {QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600},
@@ -1821,6 +1824,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::height, QZSettings::default_height},
     {QZSettings::taurua_ic90, QZSettings::default_taurua_ic90},
     {QZSettings::proform_csx210, QZSettings::default_proform_csx210},
+    {QZSettings::skandika_wiri_x2000_protocol, QZSettings::default_skandika_wiri_x2000_protocol},
     {QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed},
 };
 

@@ -2096,6 +2096,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 apexBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(apexBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("BKOOLSMARTPRO")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("BKOOLFBIKE")) ||            
                         b.name().toUpper().startsWith(QStringLiteral("BKOOLFITNESSBIKE"))) && !bkoolBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();

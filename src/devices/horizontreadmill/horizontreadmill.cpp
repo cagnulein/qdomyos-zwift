@@ -2558,8 +2558,15 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             HORIZON_78AT_treadmill = true;
             qDebug() << QStringLiteral("HORIZON_7.8AT workaround ON!");
         } else if(device.name().toUpper().startsWith("T01_")) {
-            ICONCEPT_FTMS_treadmill = true;
-            qDebug() << QStringLiteral("ICONCEPT_FTMS_treadmill workaround ON!");
+            QSettings settings;
+            iconcept_ftms_treadmill_inclination_table = settings.value(QZSettings::iconcept_ftms_treadmill_inclination_table, QZSettings::default_iconcept_ftms_treadmill_inclination_table).toBool();
+            if(iconcept_ftms_treadmill_inclination_table) {
+                ICONCEPT_FTMS_treadmill = true;
+                qDebug() << QStringLiteral("ICONCEPT_FTMS_treadmill workaround ON!");
+            } else {
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested(QStringLiteral("T01_ device detected. If you see strange inclination values, enable 'IConcept FTMS Treadmill' in Treadmill Options settings."));
+            }
         } else if ((device.name().toUpper().startsWith("DOMYOS"))) {
             qDebug() << QStringLiteral("DOMYOS found");
             DOMYOS = true;
