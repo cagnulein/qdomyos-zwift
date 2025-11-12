@@ -1507,10 +1507,12 @@ void homeform::onToastRequested(QString message) {
     QSettings settings;
     setToastRequested(message);
 
+#ifdef HAVE_TEXTTOSPEECH
     // Use TTS if enabled
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
         m_speech.say(message);
     }
+#endif
 }
 
 QStringList homeform::tile_order() {
