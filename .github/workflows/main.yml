@@ -602,6 +602,11 @@ jobs:
 
       - name: Set Android NDK 21 && build
         run: |
+          # Setup custom Qt installation
+          export QT_ROOT="${{ github.workspace }}/Qt-5.15.0/usr/local/Qt-5.15.0"
+          export PATH="${QT_ROOT}/bin:$PATH"
+          export Qt5_DIR="${QT_ROOT}"
+
           # Install NDK 21 after GitHub update
           # https://github.com/actions/virtual-environments/issues/5595
           ANDROID_ROOT="/usr/local/lib/android"
