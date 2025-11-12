@@ -600,9 +600,18 @@ jobs:
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
+      - name: Build qthttpserver with system Qt
+        run: |
+          # QTHTTPSERVER uses system Qt (has all required modules including websockets-private)
+          cd src/qthttpserver
+          qmake
+          make -j8
+          make install
+          cd ../..
+
       - name: Set Android NDK 21 && build
         run: |
-          # Setup custom Qt installation
+          # Setup custom Qt installation for Android build
           export QT_ROOT="${{ github.workspace }}/Qt-5.15.0/usr/local/Qt-5.15.0"
           export PATH="${QT_ROOT}/bin:$PATH"
           export Qt5_DIR="${QT_ROOT}"
@@ -623,18 +632,12 @@ jobs:
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
-          cd ..          
+          cd ..
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
 
-          # QTHTTPSERVER must use the same NDK
-          cd src/qthttpserver 
-          qmake
-          make -j8
-          make install
-          cd ../..          
-          
+          # Build Android app with custom Qt (16k page support)
           qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
