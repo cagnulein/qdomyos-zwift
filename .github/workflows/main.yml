@@ -581,15 +581,17 @@ jobs:
 #        with:
 #          ndk-version: r21d
 
-      - name: Install Qt Android (custom build with 16k page support)
-        run: |
-          mkdir -p ${{ github.workspace }}/Qt-5.15.0
-          cd ${{ github.workspace }}
-          wget -q https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.0/qt5.15.0-android-page16.zip
-          unzip -q qt5.15.0-android-page16.zip -d Qt-5.15.0
-          echo "${{ github.workspace }}/Qt-5.15.0/usr/local/Qt-5.15.0/bin" >> $GITHUB_PATH
-          echo "QT_ROOT=${{ github.workspace }}/Qt-5.15.0/usr/local/Qt-5.15.0" >> $GITHUB_ENV
-          echo "Qt5_DIR=${{ github.workspace }}/Qt-5.15.0/usr/local/Qt-5.15.0" >> $GITHUB_ENV
+      - name: Install Qt 5.15.0 standard (for qthttpserver)
+        uses: jdpurcell/install-qt-action@v5
+        with:
+          version: '5.15.0'
+          host: 'linux'
+          target: 'android'
+          arch: 'android'
+          modules: 'qtcharts qtnetworkauth'
+          dir: '${{ github.workspace }}/output/qt-standard/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-standard'
 
       - name: Install Java
         uses: actions/setup-java@v3
@@ -600,19 +602,26 @@ jobs:
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
-      - name: Build qthttpserver with system Qt
+      - name: Build qthttpserver with standard Qt
         run: |
-          # QTHTTPSERVER uses system Qt (has all required modules including websockets-private)
+          # QTHTTPSERVER uses standard Qt 5.15.0 (has all required modules including websockets-private)
           cd src/qthttpserver
           qmake
           make -j8
           make install
           cd ../..
 
+      - name: Install Qt Android (custom build with 16k page support)
+        run: |
+          mkdir -p ${{ github.workspace }}/Qt-5.15.0-custom
+          cd ${{ github.workspace }}
+          wget -q https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.0/qt5.15.0-android-page16.zip
+          unzip -q qt5.15.0-android-page16.zip -d Qt-5.15.0-custom
+
       - name: Set Android NDK 21 && build
         run: |
-          # Setup custom Qt installation for Android build
-          export QT_ROOT="${{ github.workspace }}/Qt-5.15.0/usr/local/Qt-5.15.0"
+          # Setup custom Qt installation for Android build (with 16k page support)
+          export QT_ROOT="${{ github.workspace }}/Qt-5.15.0-custom/usr/local/Qt-5.15.0"
           export PATH="${QT_ROOT}/bin:$PATH"
           export Qt5_DIR="${QT_ROOT}"
 
