@@ -63,6 +63,7 @@ class tacxneo2 : public bike {
     // QLowEnergyCharacteristic gattNotify1Characteristic;
 
     uint8_t sec1Update = 0;
+    uint8_t sec5Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged2A5B = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
