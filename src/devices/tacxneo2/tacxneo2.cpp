@@ -143,6 +143,13 @@ void tacxneo2::update() {
             // updateDisplay(elapsed);
         }
 
+        // sending periodic command every 5 seconds
+        if (sec5Update++ == (5000 / refresh->interval())) {
+            sec5Update = 0;
+            uint8_t periodicCmd[] = {0xa4, 0x09, 0x4e, 0x05, 0xfc, 0x00, 0x00, 0x64, 0x00, 0x00, 0x64, 0x00, 0x20};
+            writeCharacteristic(periodicCmd, sizeof(periodicCmd), QStringLiteral("periodicCommand"), false, false);
+        }
+
         auto virtualBike = this->VirtualBike();
 
         if (requestResistance != -1) {
