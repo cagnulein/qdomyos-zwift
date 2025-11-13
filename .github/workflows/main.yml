@@ -654,6 +654,30 @@ jobs:
       - name: Build APK (using Qt 5.15.0 with 16k page support)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
 
+      - name: Verify APK 16k alignment
+        run: |
+          APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
+
+          # Find zipalign in Android SDK
+          ZIPALIGN=$(find $ANDROID_SDK_ROOT/build-tools -name zipalign | head -n 1)
+
+          if [ -z "$ZIPALIGN" ]; then
+            echo "ERROR: zipalign not found in Android SDK"
+            exit 1
+          fi
+
+          echo "Using zipalign: $ZIPALIGN"
+          echo "Verifying APK alignment to 16k (16384 bytes)..."
+
+          # Check if APK is aligned to 16384 bytes
+          if $ZIPALIGN -c 16384 "$APK_PATH"; then
+            echo "✓ SUCCESS: APK is correctly aligned to 16k (16384 bytes)"
+          else
+            echo "✗ FAILURE: APK is NOT aligned to 16k (16384 bytes)"
+            echo "This APK will not work on devices with 16k page size!"
+            exit 1
+          fi
+
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
         with:
