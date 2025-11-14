@@ -625,6 +625,16 @@ jobs:
           export PATH="${QT_ROOT}/bin:$PATH"
           export Qt5_DIR="${QT_ROOT}"
 
+          # Verify we're using the correct Qt installation
+          echo "=== Qt Installation Verification ==="
+          echo "QT_ROOT: $QT_ROOT"
+          echo "PATH: $PATH"
+          echo "qmake location: $(which qmake)"
+          echo "qmake version: $(qmake -version)"
+          echo "androiddeployqt location: $(which androiddeployqt)"
+          ls -la "$QT_ROOT/bin/" | head -20
+          echo "===================================="
+
           # Install NDK 21 after GitHub update
           # https://github.com/actions/virtual-environments/issues/5595
           ANDROID_ROOT="/usr/local/lib/android"
@@ -667,14 +677,29 @@ jobs:
           fi
 
           echo "Using zipalign: $ZIPALIGN"
-          echo "Verifying APK alignment to 16k (16384 bytes)..."
+          echo "APK path: $APK_PATH"
+          echo ""
+          echo "=== Checking APK alignment to 16k (16384 bytes) ==="
+          echo ""
 
-          # Check if APK is aligned to 16384 bytes
-          if $ZIPALIGN -c 16384 "$APK_PATH"; then
+          # Check alignment with verbose output to see which files fail
+          if $ZIPALIGN -c -v 16384 "$APK_PATH" 2>&1 | tee alignment_check.log; then
+            echo ""
             echo "✓ SUCCESS: APK is correctly aligned to 16k (16384 bytes)"
+            echo "All files in the APK are properly aligned for 16k page devices"
           else
+            echo ""
             echo "✗ FAILURE: APK is NOT aligned to 16k (16384 bytes)"
+            echo ""
+            echo "=== Files NOT aligned to 16384 bytes: ==="
+            grep -E "would not be" alignment_check.log || grep -E "Verification FAILED" alignment_check.log || cat alignment_check.log
+            echo ""
+            echo "=== Analyzing unaligned files ==="
+            # Extract and show .so files that are not aligned
+            unzip -l "$APK_PATH" | grep "\.so$" | head -20
+            echo ""
             echo "This APK will not work on devices with 16k page size!"
+            echo "The Qt libraries or other native libraries may not be correctly built with 16k page alignment."
             exit 1
           fi
 
