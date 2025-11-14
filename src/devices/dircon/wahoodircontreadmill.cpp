@@ -557,15 +557,16 @@ void wahoodircontreadmill::changeSpeed(double speed) {
     forceSpeed(speed);
 }
 
-void wahoodircontreadmill::changeInclination(double inclination) {
-    qDebug() << "WahooDirconTreadmill: change inclination to" << inclination;
+void wahoodircontreadmill::changeInclination(double grade, double percentage) {
+    Q_UNUSED(grade)
+    qDebug() << "WahooDirconTreadmill: change inclination to" << percentage;
 
     if (!isConnected || !initDone) {
         qDebug() << "WahooDirconTreadmill: not connected, cannot change inclination";
         return;
     }
 
-    forceInclination(inclination);
+    forceInclination(percentage);
 }
 
 void wahoodircontreadmill::forceSpeed(double speed) {
@@ -610,7 +611,9 @@ void wahoodircontreadmill::forceInclination(double inclination) {
                        false, false);
 }
 
-uint16_t wahoodircontreadmill::watts() {
+uint16_t wahoodircontreadmill::watts(double weight) {
+    Q_UNUSED(weight)
+    // DirCon provides watts directly from the device
     return m_watt.value();
 }
 

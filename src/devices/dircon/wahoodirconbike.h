@@ -46,7 +46,7 @@ public:
 
     // Override from bluetoothdevice
     bool connected() override;
-    deviceType deviceType() const override { return BIKE; }
+    BLUETOOTH_TYPE deviceType() override { return BIKE; }
 
     // Override from bike
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;

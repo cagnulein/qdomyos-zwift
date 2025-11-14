@@ -42,11 +42,11 @@ public:
 
     // Override from bluetoothdevice
     bool connected() override;
-    deviceType deviceType() const override { return TREADMILL; }
+    BLUETOOTH_TYPE deviceType() override { return TREADMILL; }
 
     // Override from treadmill
     void changeSpeed(double speed) override;
-    void changeInclination(double inclination) override;
+    void changeInclination(double grade, double percentage) override;
     double minStepSpeed() override { return 0.5; }
     double minStepInclination() override { return 0.5; }
 
@@ -104,7 +104,7 @@ private:
     void init();
     void forceSpeed(double speed);
     void forceInclination(double inclination);
-    uint16_t watts() override;
+    uint16_t watts(double weight) override;
 
     // FTMS protocol helpers
     void parseTreadmillData(const QByteArray &value);
