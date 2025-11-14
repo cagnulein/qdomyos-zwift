@@ -632,7 +632,7 @@ jobs:
           export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "output/qt-standard" | tr '\n' ':' | sed 's/:$//')
 
           # Setup custom Qt installation for Android build (with 16k page support)
-          export QT_ROOT="${{ github.workspace }}/Qt-5.15.0-custom/usr/local/Qt-5.15.0"
+          export QT_ROOT="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0"
           export PATH="${QT_ROOT}/bin:$PATH"
           export Qt5_DIR="${QT_ROOT}"
 
@@ -676,7 +676,7 @@ jobs:
         run: |
           # Remove standard Qt from PATH again (for androiddeployqt)
           export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "output/qt-standard" | tr '\n' ':' | sed 's/:$//')
-          export QT_ROOT="${{ github.workspace }}/Qt-5.15.0-custom/usr/local/Qt-5.15.0"
+          export QT_ROOT="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0"
           export PATH="${QT_ROOT}/bin:$PATH"
           cd src
           androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
