@@ -1209,7 +1209,10 @@ import Qt.labs.platform 1.1
             property bool proform_csx210: false
             property bool confirm_stop_workout: false
             property bool proform_rower_750r: false
-            
+			property bool virtual_device_force_treadmill: false
+            property bool proform_trainer_9_0: false
+            property bool iconcept_ftms_treadmill_inclination_table: false
+            property bool skandika_wiri_x2000_protocol: true           
             
             
             // from version ?
