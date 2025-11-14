@@ -25,10 +25,18 @@
 #include "filedownloader.h"
 #include "homefitnessbuddy.h"
 
+// Include secret.h if it exists
+#if __has_include("secret.h")
+#include "secret.h"
+#endif
+
+// Warn only if PELOTON_SECRET_KEY is not defined
+#ifndef PELOTON_SECRET_KEY
 #if defined(WIN32)
 #pragma message("DEFINE PELOTON_SECRET_KEY!!!")
 #else
 #warning "DEFINE PELOTON_SECRET_KEY!!!"
+#endif
 #endif
 
 #define PELOTON_CLIENT_ID_S STRINGIFY(PELOTON_SECRET_KEY)
@@ -167,6 +175,15 @@ class peloton : public QObject {
     _peloton_treadmill_pace_intensities walking_pace[5];
 
     int first_target_metrics_start_offset = 60;
+
+    // Helper function to determine if workout is walking-based
+    bool isWalkingWorkout() const {
+        // Check if it's a walking discipline or a walking bootcamp
+        return current_workout_type == "walking" ||
+               (current_workout_type == "circuit" &&
+                (current_workout_name.contains("Walk", Qt::CaseInsensitive) ||
+                 current_workout_name.contains("Walking", Qt::CaseInsensitive)));
+    }
 
   public slots:
     void peloton_connect_clicked();
