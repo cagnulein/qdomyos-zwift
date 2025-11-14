@@ -14,7 +14,7 @@ wahoodircontreadmill::wahoodircontreadmill(const DirconDeviceInfo &deviceInfo, b
              << "at" << deviceInfo.address << ":" << deviceInfo.port;
 
     QSettings settings;
-    m_watt.setType(metric::METRIC_WATT, metric::METRIC_WATT_TREADMILL);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
 
     // Initialize TCP socket
