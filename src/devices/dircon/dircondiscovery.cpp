@@ -132,7 +132,7 @@ void DirconDiscovery::onResolved(const QHostAddress &address) {
     deviceInfo.port = port;
 
     // Extract TXT record attributes from Service
-    QHash<QByteArray, QByteArray> attributes = currentService.attributes();
+    QMap<QByteArray, QByteArray> attributes = currentService.attributes();
     if (attributes.contains("mac-address")) {
         deviceInfo.macAddress = QString::fromUtf8(attributes.value("mac-address"));
     }
