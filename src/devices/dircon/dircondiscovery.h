@@ -8,6 +8,7 @@
 #include "qmdnsengine/cache.h"
 #include "qmdnsengine/resolver.h"
 #include "qmdnsengine/server.h"
+#include "qmdnsengine/service.h"
 
 /**
  * @brief Structure to hold discovered DirCon device information
@@ -79,16 +80,17 @@ signals:
     void deviceRemoved(const QString &displayName);
 
 private slots:
-    void onServiceAdded(const QByteArray &name);
-    void onServiceUpdated(const QByteArray &name);
-    void onServiceRemoved(const QByteArray &name);
-    void onResolved(const QHostAddress &address, quint16 port);
+    void onServiceAdded(const QMdnsEngine::Service &service);
+    void onServiceUpdated(const QMdnsEngine::Service &service);
+    void onServiceRemoved(const QMdnsEngine::Service &service);
+    void onResolved(const QHostAddress &address);
 
 private:
     QMdnsEngine::Server *mdnsServer;
     QMdnsEngine::Browser *mdnsBrowser;
     QMdnsEngine::Cache *mdnsCache;
     QMdnsEngine::Resolver *mdnsResolver;
+    QMdnsEngine::Service currentService; // Currently resolving service
 
     QList<DirconDeviceInfo> devices;
 

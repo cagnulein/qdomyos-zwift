@@ -67,30 +67,32 @@ void DirconDiscovery::stopDiscovery() {
     devices.clear();
 }
 
-void DirconDiscovery::onServiceAdded(const QByteArray &name) {
-    qDebug() << "DirconDiscovery: service added:" << name;
+void DirconDiscovery::onServiceAdded(const QMdnsEngine::Service &service) {
+    qDebug() << "DirconDiscovery: service added:" << service.name() << service.hostname() << service.port();
 
-    // Create resolver to get IP address and port
+    // Save the service and create resolver to get IP address
+    currentService = service;
+
     if (mdnsResolver) {
         mdnsResolver->deleteLater();
     }
 
-    mdnsResolver = new QMdnsEngine::Resolver(mdnsServer, name, mdnsCache, this);
+    mdnsResolver = new QMdnsEngine::Resolver(mdnsServer, service.hostname(), mdnsCache, this);
     connect(mdnsResolver, &QMdnsEngine::Resolver::resolved,
             this, &DirconDiscovery::onResolved);
 }
 
-void DirconDiscovery::onServiceUpdated(const QByteArray &name) {
-    qDebug() << "DirconDiscovery: service updated:" << name;
+void DirconDiscovery::onServiceUpdated(const QMdnsEngine::Service &service) {
+    qDebug() << "DirconDiscovery: service updated:" << service.name();
     // Handle updates similarly to additions
-    onServiceAdded(name);
+    onServiceAdded(service);
 }
 
-void DirconDiscovery::onServiceRemoved(const QByteArray &name) {
-    qDebug() << "DirconDiscovery: service removed:" << name;
+void DirconDiscovery::onServiceRemoved(const QMdnsEngine::Service &service) {
+    qDebug() << "DirconDiscovery: service removed:" << service.name();
 
     // Find and remove device from list
-    QString deviceName = QString::fromUtf8(name);
+    QString deviceName = QString::fromUtf8(service.name());
     for (int i = 0; i < devices.size(); ++i) {
         if (devices[i].name == deviceName) {
             QString displayName = devices[i].displayName;
@@ -102,16 +104,12 @@ void DirconDiscovery::onServiceRemoved(const QByteArray &name) {
     }
 }
 
-void DirconDiscovery::onResolved(const QHostAddress &address, quint16 port) {
-    qDebug() << "DirconDiscovery: resolved address" << address.toString() << "port" << port;
+void DirconDiscovery::onResolved(const QHostAddress &address) {
+    qDebug() << "DirconDiscovery: resolved address" << address.toString();
 
-    if (!mdnsResolver) {
-        return;
-    }
-
-    // Extract device information
-    QByteArray serviceName = mdnsResolver->name();
-    QString name = QString::fromUtf8(serviceName);
+    // Extract device information from currentService
+    QString name = QString::fromUtf8(currentService.name());
+    quint16 port = currentService.port();
 
     // Check if device already exists
     bool exists = false;
@@ -133,8 +131,8 @@ void DirconDiscovery::onResolved(const QHostAddress &address, quint16 port) {
     deviceInfo.address = address.toString();
     deviceInfo.port = port;
 
-    // Extract TXT record attributes
-    QHash<QByteArray, QByteArray> attributes = mdnsResolver->attributes();
+    // Extract TXT record attributes from Service
+    QHash<QByteArray, QByteArray> attributes = currentService.attributes();
     if (attributes.contains("mac-address")) {
         deviceInfo.macAddress = QString::fromUtf8(attributes.value("mac-address"));
     }
