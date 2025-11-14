@@ -620,6 +620,9 @@ jobs:
 
       - name: Set Android NDK 21 && build
         run: |
+          # Remove standard Qt from PATH to ensure custom Qt is used
+          export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "output/qt-standard" | tr '\n' ':' | sed 's/:$//')
+
           # Setup custom Qt installation for Android build (with 16k page support)
           export QT_ROOT="${{ github.workspace }}/Qt-5.15.0-custom/usr/local/Qt-5.15.0"
           export PATH="${QT_ROOT}/bin:$PATH"
@@ -628,7 +631,7 @@ jobs:
           # Verify we're using the correct Qt installation
           echo "=== Qt Installation Verification ==="
           echo "QT_ROOT: $QT_ROOT"
-          echo "PATH: $PATH"
+          echo "PATH (after custom Qt): $PATH"
           echo "qmake location: $(which qmake)"
           echo "qmake version: $(qmake -version)"
           echo "androiddeployqt location: $(which androiddeployqt)"
@@ -662,7 +665,37 @@ jobs:
           cat src/android-qdomyos-zwift-deployment-settings.json
 
       - name: Build APK (using Qt 5.15.0 with 16k page support)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+        run: |
+          # Remove standard Qt from PATH again (for androiddeployqt)
+          export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "output/qt-standard" | tr '\n' ':' | sed 's/:$//')
+          export QT_ROOT="${{ github.workspace }}/Qt-5.15.0-custom/usr/local/Qt-5.15.0"
+          export PATH="${QT_ROOT}/bin:$PATH"
+          cd src
+          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+
+      - name: Realign APK to 16k page size
+        run: |
+          APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
+          APK_ALIGNED="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-aligned.apk"
+
+          # Find zipalign in Android SDK
+          ZIPALIGN=$(find /usr/local/lib/android/sdk/build-tools -name zipalign | head -n 1)
+
+          if [ -z "$ZIPALIGN" ]; then
+            echo "ERROR: zipalign not found in Android SDK"
+            exit 1
+          fi
+
+          echo "Using zipalign: $ZIPALIGN"
+          echo "Realigning APK to 16k (16384 bytes)..."
+
+          # Realign the APK to 16384 bytes
+          $ZIPALIGN -f 16384 "$APK_PATH" "$APK_ALIGNED"
+
+          # Replace original APK with aligned version
+          mv "$APK_ALIGNED" "$APK_PATH"
+
+          echo "APK realigned successfully!"
 
       - name: Verify APK 16k alignment
         run: |
