@@ -360,12 +360,19 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     if (Flags.totDistance) {
-        /*Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                              (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint32_t)((uint8_t)newValue.at(index)))) /
-                   1000.0;*/
+        if (ICONSOLE_PLUS) {
+            // For ICONSOLE+, always calculate distance from speed instead of using characteristic data
+            Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+        } else {
+            // For other devices, use the distance from characteristic data
+            Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                  (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint32_t)((uint8_t)newValue.at(index)))) /
+                       1000.0;
+        }
         index += 3;
-    }/* else */{
+    } else {
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
@@ -788,6 +795,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("NORDLYS"))) {
             NORDLYS = true;
             qDebug() << "NORDLYS found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+"))) {
+            ICONSOLE_PLUS = true;
+            qDebug() << "ICONSOLE+ found!";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
